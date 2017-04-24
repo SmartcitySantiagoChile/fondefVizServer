@@ -18,7 +18,7 @@ class LoadProfileByExpeditionView(View):
         return render(request, template, self.context)
 
 
-class GetProfileByExpeditionData(View):
+class GetLoadProfileByExpeditionData(View):
     ''' '''
 
     def __init__(self):
