@@ -1,0 +1,21 @@
+{
+  "name": "fondefVizServer",
+  "homepage": "https://github.com/SmartcitySantiagoChile/fondefVizServer",
+  "authors": [
+    "Felipe Hernández <cephei.1313@gmail.com>"
+  ],
+  "description": "web platform to show fondef data",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "gentelella": "^1.4.0"
+  }
+}
