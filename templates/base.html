@@ -39,10 +39,9 @@
             <!-- sidebar menu -->
             <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
               <div class="menu_section">
-                <h3>Vistas</h3>
+                <h3>Perfiles</h3>
                 <ul class="nav side-menu">
-				  <li><a href=" {% url "map" %} "><i class="fa fa-map"></i> Mapa</a></li>
-				  <li><a href=" {% url "table" %}"><i class="fa fa-table"></i> Tabla</a></li>
+                  <li><a href=" {% url "expedition" %} "><i class="fa fa-bus"></i> por expedición</a></li>
                 </ul>
               </div>
             </div>
@@ -83,9 +82,9 @@
     <script src="{% static gentelella_static|add:"jquery/dist/jquery.min.js" %}"></script>
     <!-- Bootstrap -->
     <script src="{% static gentelella_static|add:"bootstrap/dist/js/bootstrap.min.js" %}"></script>
-	<!-- FastClick -->
+    <!-- FastClick -->
     <script src="{% static gentelella_static|add:"fastclick/lib/fastclick.js" %}"></script>
-	<!-- NProgress -->
+    <!-- NProgress -->
     <script src="{% static gentelella_static|add:"nprogress/nprogress.js" %}"></script>
     <!-- Custom Theme Scripts -->
     <script src="{% static gentelella_static|add:"../build/js/custom.min.js" %}"></script>
