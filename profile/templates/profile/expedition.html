@@ -49,35 +49,33 @@
 {% endwith %}
 <script src="{% static "own/js/echartsTheme.js" %}"></script>
 <script>
-$(document).ready(function() {
+$(document).ready(function(){
 
-  function loadChart(data) {
+  function loadChart(data){
     var echartBar = echarts.init(document.getElementById('main'), theme);
 
     echartBar.setOption({
-      title: {
-        text: ''
-      },
-      tooltip: {
-        trigger: 'axis'
-      },
-      legend: {
-        data: data.legend
-      },
-      toolbox: {
-        show: false
-      },
-      calculable: false,
+      tooltip: data.tooltip,
+      legend: data.legend,
       xAxis: data.xAxis,
       yAxis: data.yAxis,
       series: data.series,
+      toolbox: {
+        show : true,
+        feature : {
+          mark : {show: false},
+          restore : {show: false, title: "restaurar"},
+          saveAsImage : {show: true, title: "Guardar imagen"}
+        }
+      },
+      calculable: false,
     });
   }
 
   $.getJSON('getExpeditionData', {idExpedition: 64000}, function(dataSource){
     var trips = dataSource.trips;
     
-    for (expeditionId in trips) {
+    for (expeditionId in trips){
       var trip = trips[expeditionId];
 
       // trip info
@@ -89,51 +87,109 @@ $(document).ready(function() {
     
       // chart data
       var xAxisData = [];
-      var yAxisData = [[], [], []];
-      var yAxisDataName = ['Bajadas', 'Subidas', 'Carga'];
+      var stopName = [];
+      // get out, get in, load profile, percentage ocupation
+      var yAxisData = [[], [], [], []];
+      var yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
+      var yAxisIndex = [0, 0, 0, 1];
+      var yChartType = ['bar','bar','line','line'];
+      var markLine = {
+        data:[{
+          yAxis: capacity
+        }],
+        symbol: 'rect',
+        label: {
+          normal: {
+            formatter: 'Capacidad del bus',
+            position: 'middle'
+          }
+        }
+      };
+      var yMarkLine = [{}, {}, markLine, {}];
 
-      for(record in trip['stops']) {
-        xAxisData.push(trip['stops'][record]['Correlativo']);
+      for(record in trip['stops']){
+        xAxisData.push(trip['stops'][record]['order']);
+        stopName.push(trip['stops'][record]['name']);
         yAxisData[0].push(trip['stops'][record]['expandedGetOut']);
         yAxisData[1].push(trip['stops'][record]['expandedGetIn']);
         yAxisData[2].push(trip['stops'][record]['loadProfile']);
+        yAxisData[3].push((trip['stops'][record]['loadProfile']/capacity)*100);
       }
-
+      
       var series = [];
-      for (index in yAxisData) {
+      for (index in yAxisData){
         var serie = {
           name: yAxisDataName[index],
-          type: 'line',
+          type: yChartType[index],
           data: yAxisData[index],
           markPoint: {
-            data: [{
-              type: 'max',
-              name: 'Máximo'
-            },{
-              type: 'min',
-              name: 'Mínimo'
-            }]
+            data: [
+              {type: 'max', name: 'Máximo'}
+            ],
+            label: {
+              normal: {
+                formatter: function(param){
+                  return param.value.toFixed(2);
+                }
+              }
+            }
           },
-          markLine: {
-            data: [{
-              type: 'average',
-              name: 'Promedio'
-            }]
-          }
+          markLine: yMarkLine[index],
+          yAxisIndex: yAxisIndex[index],
+          smooth: true
         };
         series.push(serie);
       }
-    
+      console.log(series);
       var data = {
-        legendName: ['Perfil'],
+        legend: {
+          data: yAxisDataName
+        },
         xAxis: [{
           type: 'category',
           data: xAxisData
         }],
         yAxis: [{
-          type: 'value'
+          type: 'value',
+          name: 'Pasajeros',
+          //max: capacity - capacity%10 + 10,
+          position: 'left',
+        },{
+          type: 'value',
+          name: 'Porcentaje',
+          min: 0,
+          max: 100,
+          position: 'right',
+          axisLabel: {
+            formatter: '{value} %'
+          }
         }],
-        series: series
+        series: series,
+        tooltip: {
+          trigger: 'axis',
+          //alwaysShowContent: true,
+          formatter: function(params){
+            //console.log(params);
+            if (Array.isArray(params)){
+              xValue = params[0].dataIndex + 1;
+              var head = xValue + ' - ' + stopName[xValue-1] + '<br />';
+              var info = [];
+              for (index in params){
+                el = params[index]
+                var ball ="<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:" + el.color + "'></span>";
+                var name = el.seriesName;
+                var value = el.value.toFixed(2);
+                info.push(ball + name + ': ' + value);
+              }
+              return head + info.join('<br />');
+            } else {
+              var title = params.data.name;
+              var name = params.seriesName;
+              var value = params.value.toFixed(2);
+              return title + '<br />' + name + ': ' + value;
+            }
+          }
+        },
       };
 
       loadChart(data);

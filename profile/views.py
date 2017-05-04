@@ -35,7 +35,7 @@ class GetLoadProfileByExpeditionData(View):
         s = Search(using=client, index="profiles")\
             .query('match', idExpedicion=expeditionId)\
             .query('match', Cumplimiento='C')\
-            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin'])\
+            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])\
             .sort('idExpedicion', 'Correlativo')
         #.query('match', idExpedicion=64000)
  
@@ -58,12 +58,14 @@ class GetLoadProfileByExpeditionData(View):
             response['trips'][expeditionId]['info']['timeTripEnd'] = data['Hfin']
             stop = {}
             stop['name'] = data['NombreParada']
+            stop['authStopCode'] = data['Paradero']
+            stop['userStopCode'] = data['Paradero']
             stop['distOnRoute'] = data['DistEnRuta']
             stop['time'] = data['Tiempo']
             stop['order'] = int(data['Correlativo'])
             stop['loadProfile'] = float(data['Carga'])
-            stop['expandedGetIn'] = float(data['BajadasExpandidas'])
-            stop['expandedGetOut'] = float(data['SubidasExpandidas'])
+            stop['expandedGetIn'] = float(data['SubidasExpandidas'])
+            stop['expandedGetOut'] = float(data['BajadasExpandidas'])
             response['trips'][expeditionId]['stops'].append(stop)
 
         for expeditionId in response['trips']:
