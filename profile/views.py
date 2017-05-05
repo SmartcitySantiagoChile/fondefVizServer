@@ -7,12 +7,16 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 # Create your views here.
 
+from localinfo.models import TimePeriod
+
 class LoadProfileByExpeditionView(View):
     ''' '''
 
     def __init__(self):
         ''' contructor '''
         self.context={}
+        self.context['dayTypes'] = TimePeriod.objects.all().distinct('dayType').values_list('dayType', flat=True)
+        self.context['periods'] = TimePeriod.objects.filter(dayType='Laboral').order_by('id').values_list('transantiagoPeriod', flat=True)
 
     def get(self, request):
         template = "profile/expedition.html"
@@ -27,24 +31,47 @@ class GetLoadProfileByExpeditionData(View):
         ''' constructor '''
         self.context={}
 
+    def makeQuery(self, request):
+        ''' create es-query based on params given by user '''
+
+        fromDate = request.GET.get('from', None)
+        toDate = request.GET.get('to', None)
+        route = request.GET.get('route', None)
+        licensePlate = request.GET.getlist('licensePlate', None)
+        dayType = request.GET.getlist('dayType', None)
+        period = request.GET.getlist('period', None)
+
+        # get list of profile*
+        client = Elasticsearch("172.17.57.47:9200")
+        esQuery = Search(using=client, index="profiles")
+
+        if route:
+            esQuery = esQuery.query('match_phrase', ServicioSentido=route)
+        if licensePlate:
+            esQuery = esQuery.query('match', Patente=' '.join(licensePlate))
+        if dayType:
+            esQuery = esQuery.query('match', TipoDia=' '.join(dayType))
+        if period:
+            esQuery = esQuery.query('match', Periodo=' '.join(period))
+            
+        esQuery = esQuery.query('match', Cumplimiento='C')\
+            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])
+            #.sort('idExpedicion', 'Correlativo')
+        #.query('match', idExpedicion=64000)
+
+        return esQuery
+ 
     def get(self, request):
         ''' expedition data '''
-        expeditionId = request.GET.get('idExpedition','')
 
-        client = Elasticsearch("172.17.57.47:9200")
-        s = Search(using=client, index="profiles")\
-            .query('match', idExpedicion=expeditionId)\
-            .query('match', Cumplimiento='C')\
-            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])\
-            .sort('idExpedicion', 'Correlativo')
-        #.query('match', idExpedicion=64000)
- 
+        esQuery = self.makeQuery(request)
+
         response = {}
         # debug
-        #response['query'] = s.to_dict()
+        response['query'] = esQuery.to_dict()
         #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         response['trips'] = {}
-        for hit in s.scan():
+        for hit in esQuery.scan():
             data = hit.to_dict()
 
             expeditionId = data['idExpedicion']

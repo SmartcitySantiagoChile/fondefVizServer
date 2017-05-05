@@ -4,6 +4,16 @@
 {% block title %}Perfil por expedición{% endblock %}
 
 {% block css %}
+{% with "components/gentelella/vendors/" as gentelella_static %}
+  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
+  <link href="{% static "components/select2/dist/css/select2.min.css" %}" rel="stylesheet">
+  <style>
+.select2-container .select2-choice:not(.select2-default) {
+    background-image: none !important;
+    background-color: #D9FFC7;
+}
+  </style>
+{% endwith %}
 {% endblock %}
 
 {% block content %}
@@ -13,18 +23,65 @@
       <h3>Perfil de carga <small>por expedición</small></h3>
     </div>
     <div class="title_right">
-      <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="Ingresar número de expedición...">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button">Cargar!</button>
-          </span>
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <br />
+
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="x_panel">
+        <div class="x_title">
+          <h2>Filtro <small></small></h2>
+          <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+          <div class="col-md-1 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="filterDateFrom">Desde:</label>
+            <input type="text" id="filterDateFrom" placeholder="Desde" class="form-control">
+          </div>
+
+          <div class="col-md-1 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="filterDateTo">Hasta:</label>
+            <input type="text" id="filterDateTo" placeholder="Hasta" class="form-control">
+          </div>
+
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="filterRoute">Servicio-sentido:</label>
+            <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">
+          </div>
+
+          <div class="col-md-1 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="filterDayType">Tipo de día:</label>
+            <select class="form-control" id='filterDayType' multiple="multiple">
+              {% for dayType in dayTypes %}
+              <option>{{ dayType }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="filterPeriod">Período:</label>
+            <select class="form-control" id='filterPeriod' multiple="multiple">
+              {% for period in periods %}
+              <option>{{ period }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-5 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="filterLicensePlate">Patente:</label>
+            <input type="text" id="filterLicensePlate" placeholder="Patente" class="tags form-control">
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+            <div class="ln_solid"></div>
+            <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">Actualizar datos</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="clearfix"></div>
 
   <div class="row">
   <div class="col-md-9 col-sm-9 col-xs-12">
@@ -34,12 +91,12 @@
         <div class="clearfix"></div>
       </div>
       <div class="x_content">
-        <div id="main" style="height:350px;"></div>
+        <div id="main" style="height:400px;"></div>
       </div>
     </div>
   </div>
-  <div class="col-md-3 col-xs-12 widget widget_tally_box">
-   <div class="x_panel fixed_height_390">
+  <div class="col-md-3 col-xs-12">
+   <div class="x_panel">
       <div class="x_title">
         <h2>Información de expedición</h2>
         <div class="clearfix"></div>
@@ -64,6 +121,10 @@
 {% block js %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
 <script src="{% static gentelella_static|add:"echarts/dist/echarts.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+<script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
+<script src="{% static "components/select2/dist/js/select2.full.min.js" %}"></script>
 {% endwith %}
 <script src="{% static "own/js/echartsTheme.js" %}"></script>
 <script>
@@ -98,7 +159,8 @@ $(document).ready(function(){
     });
   }
 
-  $.getJSON('getExpeditionData', {idExpedition: 64000}, function(dataSource){
+  function processData(dataSource){
+    console.log(dataSource);
     var trips = dataSource.trips;
     
     for (expeditionId in trips){
@@ -222,7 +284,65 @@ $(document).ready(function(){
 
       loadChart(data);
     }
-  });
+  };
+
+   // load filters
+  (function (){
+    // set locale
+    moment.locale('es');
+    // set datetimepickers
+    $('#filterDateFrom').daterangepicker({
+      singleDatePicker: true,
+      singleClasses: "picker_2",
+      languague: 'es'
+    });
+    $('#filterDateTo').daterangepicker({
+      singleDatePicker: true,
+      singleClasses: "picker_2",
+      languague: 'es'
+    });
+  
+    $('#filterLicensePlate').tagsInput({height: 34, defaultText: 'patente', minChars:6});
+
+    $('#filterDayType').select2({placeholder: 'tipo de día'});
+    $('#filterPeriod').select2({placeholder: 'Periodo'});
+ 
+    $('#btnUpdateChart').click(function(){
+      var from = $('#filterDateFrom').val();
+      var to = $('#filterDateTo').val();
+      var route = $('#filterRoute').val();
+      var licensePlate = $('#filterLicensePlate').val();
+      var dayType = $('#filterDayType').val();
+      var period = $('#filterPeriod').val();
+   
+      console.log(from);
+      console.log(to);
+      console.log(route);
+      console.log(licensePlate);
+      console.log(dayType);
+      console.log(period);
+
+      var data = {
+        from: from,
+        to: to,
+      };
+      if (route) {
+        data['route'] = route;
+      }
+      if (licensePlate) {
+        data['licensePlate'] = licensePlate;
+      }    
+      if (dayType) {
+        data['dayType'] = dayType;
+      }
+      if (period) {
+        data['period'] = period;
+      }
+      console.log(data);
+
+      $.getJSON('getExpeditionData', data, processData);
+    });
+  })()
 });
 </script>
 {% endblock %}
