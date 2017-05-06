@@ -33,15 +33,19 @@
       <div class="x_panel">
         <div class="x_title">
           <h2>Filtro <small></small></h2>
+          <ul class="nav navbar-right panel_toolbox">
+            <li style="float:right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+          </ul>
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
-          <div class="col-md-1 col-sm-12 col-xs-12 form-group">
+        <div class="row">
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterDateFrom">Desde:</label>
             <input type="text" id="filterDateFrom" placeholder="Desde" class="form-control">
           </div>
 
-          <div class="col-md-1 col-sm-12 col-xs-12 form-group">
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterDateTo">Hasta:</label>
             <input type="text" id="filterDateTo" placeholder="Hasta" class="form-control">
           </div>
@@ -51,7 +55,7 @@
             <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">
           </div>
 
-          <div class="col-md-1 col-sm-12 col-xs-12 form-group">
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterDayType">Tipo de día:</label>
             <select class="form-control" id='filterDayType' multiple="multiple">
               {% for dayType in dayTypes %}
@@ -60,7 +64,7 @@
             </select>
           </div>
 
-          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+          <div class="col-md-4 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterPeriod">Período:</label>
             <select class="form-control" id='filterPeriod' multiple="multiple">
               {% for period in periods %}
@@ -68,11 +72,18 @@
               {% endfor %}
             </select>
           </div>
-
-          <div class="col-md-5 col-sm-12 col-xs-12 form-group">
+        </div>
+        <div class="row">
+          <div class="col-md-4 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterLicensePlate">Patente:</label>
             <input type="text" id="filterLicensePlate" placeholder="Patente" class="tags form-control">
           </div>
+
+          <div class="col-md-4 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="filterLicensePlate">Expedición id:</label>
+            <input type="text" id="filterExpeditionId" placeholder="Patente" class="tags form-control">
+          </div>
+        </div>
 
           <div class="col-md-12 col-sm-12 col-xs-12 form-group">
             <div class="ln_solid"></div>
@@ -115,7 +126,21 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+
+  <div class="row">
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+      <div class="x_title">
+        <h2>Distribuciones</small></h2>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+        <div id="echartDistribution" style="height:400px;"></div>
+      </div>
+    </div>
+  </div>
+  </div>
 {% endblock %}
 
 {% block js %}
@@ -138,9 +163,10 @@ $(document).ready(function(){
     $('#timeTripEnd').html(timeTripEnd);
   }
 
-  function loadChart(data){
-    var echartBar = echarts.init(document.getElementById('main'), theme);
+  var echartBar = echarts.init(document.getElementById('main'), theme);
 
+  function setChart(data){
+    
     echartBar.setOption({
       tooltip: data.tooltip,
       legend: data.legend,
@@ -156,66 +182,106 @@ $(document).ready(function(){
         }
       },
       calculable: false,
+    }, {
+      notMerge: true
     });
   }
+  
+  // global option
+  function Trip(expeditionId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, yAxisData) {
+    this.expeditionId = expeditionId;
+    this.route = route;
+    this.licensePlate = licensePlate;
+    this.busCapacity = busCapacity;
+    this.timeTripInit = timeTripInit;
+    this.timeTripEnd = timeTripEnd;
+    this.yAxisData = yAxisData;
+    this.aggregate = true;
+  }
 
-  function processData(dataSource){
-    console.log(dataSource);
-    var trips = dataSource.trips;
-    
-    for (expeditionId in trips){
-      var trip = trips[expeditionId];
-
-      // trip info
-      var capacity = trip['info']['capacity'];
-      var licensePlate = trip['info']['licensePlate'];
-      var route = trip['info']['route'];
-      var timeTripInit = trip['info']['timeTripInit'];
-      var timeTripEnd = trip['info']['timeTripEnd'];
-    
-      updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd);
-     
-      // chart data
-      var xAxisData = [];
-      var stopName = [];
+  function App(){
+    this._trips = [];
+    this._xAxisData = null;
+    this._yAxisData = null;
+    this.addTrip = function(trip){
+      this._trips.push(trip);
+    };
+    this.xAxisData = function(data){
+      if (data == undefined) {
+        return this._xAxisData;
+      }
+      this._xAxisData = data;
+    };
+    this.clean = function(){
+      this._trips = [];
+      this._xAxisData = null;
+      this._yAxisData = null;
+    };
+    this._resumeData = function(){
+      this._yAxisData = {
+        'expandedGetOut': [],
+        'expandedGetIn': [],
+        'loadProfile': [],
+        'saturationRate': []
+      };
+      var counter = 0;
+      var busesCapacity = 0;
+      
+      for(tripIndex in this._trips){
+        var trip = this._trips[tripIndex];
+        if(!trip.aggregate){
+          continue;
+        }
+        busesCapacity+=trip.busCapacity;
+        // debug
+        if (trip.yAxisData['expandedGetOut'][this._xAxisData.name.length]==undefined){
+          console.log('viaje con menos datos');
+          console.log(trip);
+        }
+        for(index in this._xAxisData['name']){
+          if(tripIndex==0){
+            this._yAxisData['expandedGetOut'].push(trip.yAxisData['expandedGetOut'][index]);
+            this._yAxisData['expandedGetIn'].push(trip.yAxisData['expandedGetIn'][index]);
+            this._yAxisData['loadProfile'].push(trip.yAxisData['loadProfile'][index]);
+          } else{
+            this._yAxisData['expandedGetOut'][index]+=trip.yAxisData['expandedGetOut'][index];
+            this._yAxisData['expandedGetIn'][index]+=trip.yAxisData['expandedGetIn'][index];
+            this._yAxisData['loadProfile'][index]+=trip.yAxisData['loadProfile'][index];
+          }
+        }
+        counter++;
+        // last iteration -> calculate average
+        if(tripIndex==this._trips.length-1){
+          //average
+          busesCapacity = busesCapacity/counter;
+          for(index in this._xAxisData['name']){
+            this._yAxisData['expandedGetOut'][index]=this._yAxisData['expandedGetOut'][index]/counter;
+            this._yAxisData['expandedGetIn'][index]=this._yAxisData['expandedGetIn'][index]/counter;
+            this._yAxisData['loadProfile'][index]=this._yAxisData['loadProfile'][index]/counter;
+            this._yAxisData['saturationRate'].push(this._yAxisData['loadProfile'][index]/busesCapacity*100);
+          }
+        }
+      }
+    };
+    this.updateChart = function(){
+      this._resumeData();
       // get out, get in, load profile, percentage ocupation
-      var yAxisData = [[], [], [], []];
       var yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
       var yAxisIndex = [0, 0, 0, 1];
       var yChartType = ['bar','bar','line','line'];
-      var markLine = {
-        data:[{
-          yAxis: capacity
-        }],
-        symbol: 'rect',
-        label: {
-          normal: {
-            formatter: 'Capacidad del bus',
-            position: 'middle'
-          }
-        }
-      };
-      var yMarkLine = [{}, {}, markLine, {}];
+      var dataName = ['expandedGetOut','expandedGetIn','loadProfile','saturationRate'];
 
-      for(record in trip['stops']){
-        xAxisData.push(trip['stops'][record]['order']);
-        stopName.push(trip['stops'][record]['name']);
-        yAxisData[0].push(trip['stops'][record]['expandedGetOut']);
-        yAxisData[1].push(trip['stops'][record]['expandedGetIn']);
-        yAxisData[2].push(trip['stops'][record]['loadProfile']);
-        yAxisData[3].push((trip['stops'][record]['loadProfile']/capacity)*100);
-      }
-      
       var series = [];
-      for (index in yAxisData){
+      for (index in yAxisIndex){
         var serie = {
           name: yAxisDataName[index],
           type: yChartType[index],
-          data: yAxisData[index],
+          data: this._yAxisData[dataName[index]],
           markPoint: {
-            data: [
-              {type: 'max', name: 'Máximo'}
-            ],
+            data: [{
+               type: 'max', 
+               name: 'Máximo'
+            }],
             label: {
               normal: {
                 formatter: function(param){
@@ -224,20 +290,20 @@ $(document).ready(function(){
               }
             }
           },
-          markLine: yMarkLine[index],
           yAxisIndex: yAxisIndex[index],
           smooth: true
         };
         series.push(serie);
       }
       
+      var stopName = app._xAxisData['name'];
       var data = {
         legend: {
           data: yAxisDataName
         },
         xAxis: [{
           type: 'category',
-          data: xAxisData
+          data: this._xAxisData['index']
         }],
         yAxis: [{
           type: 'value',
@@ -281,12 +347,63 @@ $(document).ready(function(){
           }
         },
       };
+      setChart(data);
+    };
+  }
+  var app = new App();
 
-      loadChart(data);
+  function processData(dataSource){
+    console.log(dataSource);
+    var trips = dataSource.trips;
+    app.clean();
+    
+    for (expeditionId in trips){
+      var trip = trips[expeditionId];
+
+      // trip info
+      var capacity = trip['info']['capacity'];
+      var licensePlate = trip['info']['licensePlate'];
+      var route = trip['info']['route'];
+      var timeTripInit = trip['info']['timeTripInit'];
+      var timeTripEnd = trip['info']['timeTripEnd'];
+    
+      updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd);
+     
+      var stopName = [];
+      var order = [];
+      var yAxisData = [[], [], [], []];
+      var yAxisData = {
+        'expandedGetOut': [],
+        'expandedGetIn': [],
+        'loadProfile': [],
+        'saturationRate': []
+      };
+
+      for(record in trip['stops']){
+        stopName.push(trip['stops'][record]['name']);
+        order.push(trip['stops'][record]['order']);
+        yAxisData['expandedGetOut'].push(trip['stops'][record]['expandedGetOut']);
+        yAxisData['expandedGetIn'].push(trip['stops'][record]['expandedGetIn']);
+        yAxisData['loadProfile'].push(trip['stops'][record]['loadProfile']);
+        yAxisData['saturationRate'].push((trip['stops'][record]['loadProfile']/capacity)*100);
+      }
+      
+      // set app
+      if (app.xAxisData()==null){
+        var xAxisData = {
+          "name": stopName,
+          "index": order
+        }
+        app.xAxisData(xAxisData);
+      }
+      var trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, yAxisData);
+      app.addTrip(trip);
     }
+    app.updateChart();
+    drawDistribution(app._trips);
   };
 
-   // load filters
+  // load filters
   (function (){
     // set locale
     moment.locale('es');
@@ -302,7 +419,9 @@ $(document).ready(function(){
       languague: 'es'
     });
   
-    $('#filterLicensePlate').tagsInput({height: 34, defaultText: 'patente', minChars:6});
+    $('#filterLicensePlate').tagsInput({defaultText: '...', minChars:6});
+    $('#filterExpeditionId').tagsInput({defaultText: '...', minChars:1});
+    $('#filterLicensePlate').addTag('BJFS-17');
 
     $('#filterDayType').select2({placeholder: 'tipo de día'});
     $('#filterPeriod').select2({placeholder: 'Periodo'});
@@ -311,9 +430,10 @@ $(document).ready(function(){
       var from = $('#filterDateFrom').val();
       var to = $('#filterDateTo').val();
       var route = $('#filterRoute').val();
-      var licensePlate = $('#filterLicensePlate').val();
+      var licensePlate = $('#filterLicensePlate').val()!='' ? $('#filterLicensePlate').val().split(','):null;
       var dayType = $('#filterDayType').val();
       var period = $('#filterPeriod').val();
+      var expeditionId = $('#filterExpeditionId').val()!='' ? $('#filterExpeditionId').val().split(','):null;
    
       console.log(from);
       console.log(to);
@@ -321,6 +441,7 @@ $(document).ready(function(){
       console.log(licensePlate);
       console.log(dayType);
       console.log(period);
+      console.log(expeditionId);
 
       var data = {
         from: from,
@@ -331,18 +452,100 @@ $(document).ready(function(){
       }
       if (licensePlate) {
         data['licensePlate'] = licensePlate;
-      }    
+      }
       if (dayType) {
         data['dayType'] = dayType;
       }
       if (period) {
         data['period'] = period;
       }
-      console.log(data);
-
+      if (expeditionId) {
+        data['expeditionId'] = expeditionId;
+      }
       $.getJSON('getExpeditionData', data, processData);
     });
   })()
+
+  //***********************************************************************
+  var echartDist = echarts.init(document.getElementById('echartDistribution'), theme);
+  function drawDistribution(trips){
+    var grids = [];
+    var xAxes = [];
+    var yAxes = [];
+    var series = [];
+    var titles = [];
+    var count = 0;
+    echarts.util.each(trips, function (trip, id) {
+      var data = [];
+      var N_POINT =trip.yAxisData['loadProfile'].length;
+      //var max = Math.max(...trip.yAxisData['loadProfile']);
+      for (var i = 0; i <= N_POINT; i++) {
+        var x = i+1;
+        var y = trip.yAxisData['loadProfile'][i];
+        data.push([x, y]);
+      }console.log(data);
+      grids.push({
+        show: true,
+        borderWidth: 0,
+        backgroundColor: '#fff',
+        shadowColor: 'rgba(0, 0, 0, 0.3)',
+        shadowBlur: 2
+      });
+      xAxes.push({
+        type: 'value',
+        show: false,
+        //min: 0,
+        //max: 1,
+        gridIndex: count
+      });
+      yAxes.push({
+        type: 'value',
+        show: false,
+        //min: -0.4,
+        //max: 1.4,
+        gridIndex: count
+      });
+      var name = trip.expeditionId;console.log(name);
+      series.push({
+        name: name,
+        type: 'bar',
+        xAxisIndex: count,
+        yAxisIndex: count,
+        data: data,
+        showSymbol: false,
+        animationEasing: name,
+        animationDuration: 1000
+      });
+      titles.push({
+        textAlign: 'center',
+        text: name,
+        textStyle: {
+          fontSize: 12,
+          fontWeight: 'normal'
+        }
+      });
+      count++;
+    });
+
+    var rowNumber = Math.ceil(Math.sqrt(count));
+    echarts.util.each(grids, function (grid, idx) {
+      grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
+      grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
+      grid.width = (1 / rowNumber * 100 - 1) + '%';
+      grid.height = (1 / rowNumber * 100 - 1) + '%';
+
+      titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
+      titles[idx].top = parseFloat(grid.top) + '%';
+    });
+    option = {
+      title: titles,
+      grid: grids,
+      xAxis: xAxes,
+      yAxis: yAxes,
+      series: series
+    };
+    echartDist.setOption(option,{notMerge: true});
+  }
 });
 </script>
 {% endblock %}

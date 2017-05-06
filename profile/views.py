@@ -37,22 +37,25 @@ class GetLoadProfileByExpeditionData(View):
         fromDate = request.GET.get('from', None)
         toDate = request.GET.get('to', None)
         route = request.GET.get('route', None)
-        licensePlate = request.GET.getlist('licensePlate', None)
-        dayType = request.GET.getlist('dayType', None)
-        period = request.GET.getlist('period', None)
+        licensePlate = request.GET.getlist('licensePlate[]', None)
+        dayType = request.GET.getlist('dayType[]', None)
+        period = request.GET.getlist('period[]', None)
+        expeditionId = request.GET.getlist('expeditionId[]', None)
 
         # get list of profile*
         client = Elasticsearch("172.17.57.47:9200")
         esQuery = Search(using=client, index="profiles")
-
+        
+        if expeditionId:
+            esQuery = esQuery.query('terms', idExpedicion=expeditionId)
         if route:
-            esQuery = esQuery.query('match_phrase', ServicioSentido=route)
+            esQuery = esQuery.query('term', ServicioSentido=route)
         if licensePlate:
-            esQuery = esQuery.query('match', Patente=' '.join(licensePlate))
+            esQuery = esQuery.query('terms', Patente=licensePlate)
         if dayType:
-            esQuery = esQuery.query('match', TipoDia=' '.join(dayType))
+            esQuery = esQuery.query('terms', TipoDia=dayType)
         if period:
-            esQuery = esQuery.query('match', Periodo=' '.join(period))
+            esQuery = esQuery.query('terms', Periodo=period)
             
         esQuery = esQuery.query('match', Cumplimiento='C')\
             .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])
@@ -63,12 +66,12 @@ class GetLoadProfileByExpeditionData(View):
  
     def get(self, request):
         ''' expedition data '''
-
         esQuery = self.makeQuery(request)
 
         response = {}
         # debug
-        response['query'] = esQuery.to_dict()
+        #response['query'] = esQuery.to_dict()
+        #return JsonResponse(response, safe=False)
         #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         response['trips'] = {}
         for hit in esQuery.scan():
@@ -100,20 +103,5 @@ class GetLoadProfileByExpeditionData(View):
                  key=lambda record: record['order'])
 
         return JsonResponse(response, safe=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
