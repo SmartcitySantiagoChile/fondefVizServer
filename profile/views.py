@@ -43,7 +43,7 @@ class GetLoadProfileByExpeditionData(View):
         expeditionId = request.GET.getlist('expeditionId[]', None)
 
         # get list of profile*
-        client = Elasticsearch("172.17.57.47:9200")
+        client = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
         esQuery = Search(using=client, index="profiles")
         
         if expeditionId:
