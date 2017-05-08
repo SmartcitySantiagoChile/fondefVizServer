@@ -9,6 +9,8 @@ from elasticsearch_dsl import Search, Q
 
 from localinfo.models import TimePeriod
 
+from errors import ESQueryDoesNotHaveParameters
+
 class LoadProfileByExpeditionView(View):
     ''' '''
 
@@ -31,7 +33,7 @@ class GetLoadProfileByExpeditionData(View):
         ''' constructor '''
         self.context={}
 
-    def makeQuery(self, request):
+    def buildQuery(self, request):
         ''' create es-query based on params given by user '''
 
         fromDate = request.GET.get('from', None)
@@ -46,17 +48,26 @@ class GetLoadProfileByExpeditionData(View):
         client = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
         esQuery = Search(using=client, index="profiles")
         
+        existsParameters = False
         if expeditionId:
             esQuery = esQuery.query('terms', idExpedicion=expeditionId)
+            existsParameters = True
         if route:
             esQuery = esQuery.query('term', ServicioSentido=route)
+            existsParameters = True
         if licensePlate:
             esQuery = esQuery.query('terms', Patente=licensePlate)
+            existsParameters = True
         if dayType:
             esQuery = esQuery.query('terms', TipoDia=dayType)
+            existsParameters = True
         if period:
             esQuery = esQuery.query('terms', Periodo=period)
-            
+            existsParameters = True
+        
+        if not existsParameters:
+            raise ESQueryDoesNotHaveParameters()
+
         esQuery = esQuery.query('match', Cumplimiento='C')\
             .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])
             #.sort('idExpedicion', 'Correlativo')
@@ -64,28 +75,22 @@ class GetLoadProfileByExpeditionData(View):
 
         return esQuery
  
-    def get(self, request):
-        ''' expedition data '''
-        esQuery = self.makeQuery(request)
+    def transformESAnswer(self, esQuery):
+        ''' transform ES answer to something util to web client '''
+        trips = {}
 
-        response = {}
-        # debug
-        #response['query'] = esQuery.to_dict()
-        #return JsonResponse(response, safe=False)
-        #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        response['trips'] = {}
         for hit in esQuery.scan():
             data = hit.to_dict()
 
             expeditionId = data['idExpedicion']
-            if expeditionId not in response['trips']:
-                response['trips'][expeditionId] = {'info': {}, 'stops': []}
+            if expeditionId not in trips:
+                trips[expeditionId] = {'info': {}, 'stops': []}
 
-            response['trips'][expeditionId]['info']['capacity'] = int(data['Capacidad'])
-            response['trips'][expeditionId]['info']['licensePlate'] = data['Patente']
-            response['trips'][expeditionId]['info']['route'] = data['ServicioSentido']
-            response['trips'][expeditionId]['info']['timeTripInit'] = data['Hini']
-            response['trips'][expeditionId]['info']['timeTripEnd'] = data['Hfin']
+            trips[expeditionId]['info']['capacity'] = int(data['Capacidad'])
+            trips[expeditionId]['info']['licensePlate'] = data['Patente']
+            trips[expeditionId]['info']['route'] = data['ServicioSentido']
+            trips[expeditionId]['info']['timeTripInit'] = data['Hini']
+            trips[expeditionId]['info']['timeTripEnd'] = data['Hfin']
             stop = {}
             stop['name'] = data['NombreParada']
             stop['authStopCode'] = data['Paradero']
@@ -96,11 +101,28 @@ class GetLoadProfileByExpeditionData(View):
             stop['loadProfile'] = float(data['Carga'])
             stop['expandedGetIn'] = float(data['SubidasExpandidas'])
             stop['expandedGetOut'] = float(data['BajadasExpandidas'])
-            response['trips'][expeditionId]['stops'].append(stop)
+            trips[expeditionId]['stops'].append(stop)
 
-        for expeditionId in response['trips']:
-            response['trips'][expeditionId]['stops'] = sorted(response['trips'][expeditionId]['stops'], 
+        for expeditionId in trips:
+            trips[expeditionId]['stops'] = sorted(trips[expeditionId]['stops'], 
                  key=lambda record: record['order'])
+
+        return trips
+
+    def get(self, request):
+        ''' expedition data '''
+        response = {}
+        response['trips'] = {}
+
+        try:
+            esQuery = self.buildQuery(request)
+            response['trips'] = self.transformESAnswer(esQuery)
+            # debug
+            #response['query'] = esQuery.to_dict()
+            #return JsonResponse(response, safe=False)
+            #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
+        except ESQueryDoesNotHaveParameters as e:
+            response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)
 
