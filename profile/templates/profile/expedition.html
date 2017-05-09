@@ -57,6 +57,7 @@
             <label class="control-label" for="filterRoute">Servicio-sentido:</label>
             <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
             <select class="form-control" id='filterRoute'>
+              <option></option>
               {% for route in routes %}
               <option>{{ route }}</option>
               {% endfor %}
@@ -465,7 +466,7 @@ $(document).ready(function(){
 
     $('#filterDayType').select2({placeholder: 'tipo de día'});
     $('#filterPeriod').select2({placeholder: 'Periodo'});
-    $('#filterRoute').select2({placeholder: 'Servicio'});
+    $('#filterRoute').select2({placeholder: 'Servicio', allowClear: true});
  
     $('#btnUpdateChart').click(function(){
       var from = $('#filterDateFrom').val();
