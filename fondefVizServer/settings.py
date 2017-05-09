@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import fondefVizServer.keys.database as database
 import fondefVizServer.keys.secret_key as secretKey
+from elasticsearch import Elasticsearch
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -117,3 +118,7 @@ USE_TZ = True
 
 STATIC_URL = '/fondefviz/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# Elastic-Search settings
+ES_CLIENT = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
+

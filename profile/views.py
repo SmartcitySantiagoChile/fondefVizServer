@@ -2,14 +2,17 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.db import connection
+from django.conf import settings
 
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl import Search, Q, A
 # Create your views here.
 
 from localinfo.models import TimePeriod
 
 from errors import ESQueryDoesNotHaveParameters
+
+INDEX_NAME="profiles"
+# elastic search index name 
 
 class LoadProfileByExpeditionView(View):
     ''' '''
@@ -19,6 +22,23 @@ class LoadProfileByExpeditionView(View):
         self.context={}
         self.context['dayTypes'] = TimePeriod.objects.all().distinct('dayType').values_list('dayType', flat=True)
         self.context['periods'] = TimePeriod.objects.filter(dayType='Laboral').order_by('id').values_list('transantiagoPeriod', flat=True)
+        self.context['routes'] = self.getRouteList()
+
+    def getRouteList(self):
+        ''' retrieve all routes availables in elasticsearch'''
+        client = settings.ES_CLIENT
+        esQuery = Search(using=client, index=INDEX_NAME)
+        esQuery = esQuery[:0]
+        #esQuery = esQuery.source(['ServicioSentido'])
+        aggs = A('terms', field = 'ServicioSentido', size=1000)
+        esQuery.aggs.bucket('unique_routes', aggs)
+  
+        routes = []
+        for tag in esQuery.execute().aggregations.unique_routes.buckets:
+            routes.append(tag.key)
+        routes.sort()
+
+        return routes
 
     def get(self, request):
         template = "profile/expedition.html"
@@ -45,24 +65,24 @@ class GetLoadProfileByExpeditionData(View):
         expeditionId = request.GET.getlist('expeditionId[]', None)
 
         # get list of profile*
-        client = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
+        client = settings.ES_CLIENT
         esQuery = Search(using=client, index="profiles")
         
         existsParameters = False
         if expeditionId:
-            esQuery = esQuery.query('terms', idExpedicion=expeditionId)
+            esQuery = esQuery.filter('terms', idExpedicion=expeditionId)
             existsParameters = True
         if route:
-            esQuery = esQuery.query('term', ServicioSentido=route)
+            esQuery = esQuery.filter('term', ServicioSentido=route)
             existsParameters = True
         if licensePlate:
-            esQuery = esQuery.query('terms', Patente=licensePlate)
+            esQuery = esQuery.filter('terms', Patente=licensePlate)
             existsParameters = True
         if dayType:
-            esQuery = esQuery.query('terms', TipoDia=dayType)
+            esQuery = esQuery.filter('terms', TipoDia=dayType)
             existsParameters = True
         if period:
-            esQuery = esQuery.query('terms', Periodo=period)
+            esQuery = esQuery.filter('terms', Periodo=period)
             existsParameters = True
         
         if not existsParameters:
@@ -70,8 +90,6 @@ class GetLoadProfileByExpeditionData(View):
 
         esQuery = esQuery.query('match', Cumplimiento='C')\
             .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])
-            #.sort('idExpedicion', 'Correlativo')
-        #.query('match', idExpedicion=64000)
 
         return esQuery
  

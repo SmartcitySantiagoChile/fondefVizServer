@@ -6,7 +6,10 @@
 {% block css %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
   <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
-  <link href="{% static "components/select2/dist/css/select2.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
   <style>
 .select2-container .select2-choice:not(.select2-default) {
     background-image: none !important;
@@ -52,7 +55,12 @@
 
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterRoute">Servicio-sentido:</label>
-            <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">
+            <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
+            <select class="form-control" id='filterRoute'>
+              {% for route in routes %}
+              <option>{{ route }}</option>
+              {% endfor %}
+            </select>
           </div>
 
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
@@ -149,7 +157,10 @@
 <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
 <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
-<script src="{% static "components/select2/dist/js/select2.full.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+<script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
 {% endwith %}
 <script src="{% static "own/js/echartsTheme.js" %}"></script>
 <script>
@@ -352,8 +363,37 @@ $(document).ready(function(){
   }
   var app = new App();
 
+  function showError(text){ console.log('asdasd');
+    new PNotify({
+      title: "Error",
+      type: "error",
+      text: text,
+      nonblock: {
+        nonblock: true
+      },
+      styling: 'bootstrap3'
+      /*
+      hide: false,
+      before_close: function(PNotify) {
+        PNotify.update({
+          title: PNotify.options.title + " - Enjoy your Stay",
+          before_close: null
+        });
+
+        PNotify.queueRemove();
+        return false;
+      }*/
+    });
+  }; 
+
   function processData(dataSource){
     console.log(dataSource);
+ 
+    if(dataSource['status']){
+        var text = dataSource['status']['message'];
+        showError(text);
+    }
+ 
     var trips = dataSource.trips;
     app.clean();
     
@@ -425,6 +465,7 @@ $(document).ready(function(){
 
     $('#filterDayType').select2({placeholder: 'tipo de día'});
     $('#filterPeriod').select2({placeholder: 'Periodo'});
+    $('#filterRoute').select2({placeholder: 'Servicio'});
  
     $('#btnUpdateChart').click(function(){
       var from = $('#filterDateFrom').val();
