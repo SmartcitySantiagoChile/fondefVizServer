@@ -516,10 +516,12 @@ $(document).ready(function(){
     var series = [];
     var titles = [];
     var count = 0;
+    var globalMax = 0;
     echarts.util.each(trips, function (trip, id) {
       var data = [];
       var N_POINT =trip.yAxisData['loadProfile'].length;
       var max = Math.max(...trip.yAxisData['loadProfile']);
+      globalMax = max > globalMax ? max:globalMax;
       for (var i = 0; i < N_POINT; i++) {
         var x = i+1;
         var y = trip.yAxisData['loadProfile'][i];
@@ -567,6 +569,10 @@ $(document).ready(function(){
       });
       count++;
     });
+  
+    for (index in yAxes) {
+      yAxes[index].max = globalMax;
+    }
 
     var rowNumber = Math.ceil(Math.sqrt(count));
     echarts.util.each(grids, function (grid, idx) {

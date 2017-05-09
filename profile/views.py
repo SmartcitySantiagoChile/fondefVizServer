@@ -116,9 +116,17 @@ class GetLoadProfileByExpeditionData(View):
             stop['distOnRoute'] = data['DistEnRuta']
             stop['time'] = data['Tiempo']
             stop['order'] = int(data['Correlativo'])
-            stop['loadProfile'] = float(data['Carga'])
-            stop['expandedGetIn'] = float(data['SubidasExpandidas'])
-            stop['expandedGetOut'] = float(data['BajadasExpandidas'])
+
+            # to avoid movement of distribution chart
+            loadProfile = float(data['Carga'])
+            loadProfile = 0 if (-0.5 < loadProfile and loadProfile < 0) else loadProfile
+            stop['loadProfile'] = loadProfile
+            expandedGetIn = float(data['SubidasExpandidas'])
+            expandedGetIn = 0 if (-0.5 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
+            stop['expandedGetIn'] = expandedGetIn
+            expandedGetOut = float(data['BajadasExpandidas'])
+            expandedGetOut = 0 if (-0.5 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
+            stop['expandedGetOut'] = expandedGetOut
             trips[expeditionId]['stops'].append(stop)
 
         for expeditionId in trips:
