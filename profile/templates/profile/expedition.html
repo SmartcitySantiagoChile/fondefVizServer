@@ -199,7 +199,7 @@ $(document).ready(function(){
     });
   }
   
-  // global option
+  // define logic to manipulate data
   function Trip(expeditionId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, yAxisData) {
     this.expeditionId = expeditionId;
     this.route = route;
@@ -364,7 +364,7 @@ $(document).ready(function(){
   }
   var app = new App();
 
-  function showError(text){ console.log('asdasd');
+  function showError(text){
     new PNotify({
       title: "Error",
       type: "error",
