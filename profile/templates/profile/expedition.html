@@ -393,6 +393,7 @@ $(document).ready(function(){
     if(dataSource['status']){
         var text = dataSource['status']['message'];
         showError(text);
+        return;
     }
  
     var trips = dataSource.trips;
@@ -504,7 +505,13 @@ $(document).ready(function(){
       if (expeditionId) {
         data['expeditionId'] = expeditionId;
       }
-      $.getJSON('getExpeditionData', data, processData);
+   
+      let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+      let button = $(this).append(loading) 
+      $.getJSON('getExpeditionData', data, processData)
+      .always(function(){
+        button.html('Actualizar datos')
+      });
     });
   })()
 
