@@ -36,9 +36,6 @@
       <div class="x_panel">
         <div class="x_title">
           <h2>Filtro <small></small></h2>
-          <ul class="nav navbar-right panel_toolbox">
-            <li style="float:right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
-          </ul>
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
@@ -82,6 +79,7 @@
             </select>
           </div>
         </div>
+        <!--
         <div class="row">
           <div class="col-md-4 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterLicensePlate">Patente:</label>
@@ -92,8 +90,8 @@
             <label class="control-label" for="filterLicensePlate">Expedición id:</label>
             <input type="text" id="filterExpeditionId" placeholder="Patente" class="tags form-control">
           </div>
-        </div>
-
+        </div>-->
+        <div class="row">
           <div class="col-md-12 col-sm-12 col-xs-12 form-group">
             <div class="ln_solid"></div>
             <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">Actualizar datos</button>
@@ -118,7 +116,7 @@
   <div class="col-md-3 col-xs-12">
    <div class="x_panel">
       <div class="x_title">
-        <h2>Información de expedición</h2>
+        <h2>Resumen de datos</h2>
         <div class="clearfix"></div>
       </div>
       <div class="x_content">
@@ -132,6 +130,9 @@
           <p>Hora de inicio: <strong id="timeTripInit"></strong></p>
           <p>Hora de fin: <strong id="timeTripEnd"></strong></p>
         </div>
+        <div id="wordcloudLP" style="height:200px;"></div>
+        <!--<div id="wordcloudTime" style="height:100px;"></div>
+        <div id="wordcloudCapacity" style="height:100px;"></div>-->
       </div>
     </div>
   </div>
@@ -154,7 +155,6 @@
 
 {% block js %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
-<script src="{% static gentelella_static|add:"echarts/dist/echarts.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
 <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
@@ -162,23 +162,26 @@
 <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
 <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
 <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+<script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
+<script src="{% static "components/echarts-wordcloud/dist/echarts-wordcloud.min.js" %}"></script>
 {% endwith %}
 <script src="{% static "own/js/echartsTheme.js" %}"></script>
 <script>
+"use strict";
 $(document).ready(function(){
 
+  /*
   function updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd) {
     $('#route').html(route + ' ');
     $('#licensePlate').html(licensePlate);
     $('#capacity').html(capacity);
     $('#timeTripInit').html(timeTripInit);
     $('#timeTripEnd').html(timeTripEnd);
-  }
+  }*/
 
-  var echartBar = echarts.init(document.getElementById('main'), theme);
+  let echartBar = echarts.init(document.getElementById('main'), theme);
 
   function setChart(data){
-    
     echartBar.setOption({
       tooltip: data.tooltip,
       legend: data.legend,
@@ -200,95 +203,117 @@ $(document).ready(function(){
   }
   
   // define logic to manipulate data
-  function Trip(expeditionId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, yAxisData) {
+  function Trip(expeditionId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, xAxisData, yAxisData) {
     this.expeditionId = expeditionId;
     this.route = route;
     this.licensePlate = licensePlate;
     this.busCapacity = busCapacity;
     this.timeTripInit = timeTripInit;
     this.timeTripEnd = timeTripEnd;
+    this.xAxisData = xAxisData;
     this.yAxisData = yAxisData;
     this.aggregate = true;
   }
 
   function App(){
-    this._trips = [];
-    this._xAxisData = null;
-    this._yAxisData = null;
+    // private variables
+    let _trips = [];
+    let _xAxisData = null;
+    let _yAxisData = null;
+    let _tripsUsed = 0;
+
+    this.trips = function(trips){
+      if(trips == undefined){
+        return _trips;
+      }
+      _trips = trips;
+    };
     this.addTrip = function(trip){
-      this._trips.push(trip);
+      _trips.push(trip);
     };
     this.xAxisData = function(data){
       if (data == undefined) {
-        return this._xAxisData;
+        return _xAxisData;
       }
-      this._xAxisData = data;
+      _xAxisData = data;
     };
-    this.clean = function(){
-      this._trips = [];
-      this._xAxisData = null;
-      this._yAxisData = null;
+    this.tripsUsed = function(){
+      return _tripsUsed;
+    }
+    this.cleanData = function(){
+      _trips = [];
+      _xAxisData = null;
+      _yAxisData = null;
+      _tripsUsed = 0;
     };
-    this._resumeData = function(){
-      this._yAxisData = {
+    // private method
+    let _resumeData = function(){
+      // erase previous aggregated data
+      let xAxisLength = _xAxisData.length;
+      let counterByStop = [];
+      let capacityByStop = [];
+      let tripQuantity = _trips.length;
+
+      _yAxisData = {
         'expandedGetOut': [],
         'expandedGetIn': [],
         'loadProfile': [],
         'saturationRate': []
       };
-      var counter = 0;
-      var busesCapacity = 0;
+
+      for(let i=0; i<xAxisLength; i++){
+          _yAxisData['expandedGetIn'].push(0);
+          _yAxisData['expandedGetOut'].push(0);
+          _yAxisData['loadProfile'].push(0);
+ 
+          capacityByStop.push(0);
+          counterByStop.push(0);
+      }
       
-      for(tripIndex in this._trips){
-        var trip = this._trips[tripIndex];
+      for(let tripIndex=0; tripIndex<tripQuantity; tripIndex++){
+        let trip = _trips[tripIndex];
+        
         if(!trip.aggregate){
           continue;
         }
-        busesCapacity+=trip.busCapacity;
-        // debug
-        if (trip.yAxisData['expandedGetOut'][this._xAxisData.name.length]==undefined){
-          console.log('viaje con menos datos');
-          console.log(trip);
-        }
-        for(index in this._xAxisData['name']){
-          if(tripIndex==0){
-            this._yAxisData['expandedGetOut'].push(trip.yAxisData['expandedGetOut'][index]);
-            this._yAxisData['expandedGetIn'].push(trip.yAxisData['expandedGetIn'][index]);
-            this._yAxisData['loadProfile'].push(trip.yAxisData['loadProfile'][index]);
-          } else{
-            this._yAxisData['expandedGetOut'][index]+=trip.yAxisData['expandedGetOut'][index];
-            this._yAxisData['expandedGetIn'][index]+=trip.yAxisData['expandedGetIn'][index];
-            this._yAxisData['loadProfile'][index]+=trip.yAxisData['loadProfile'][index];
+        _tripsUsed++;
+        
+        for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
+          let key = _xAxisData[stopIndex]['code'];
+          if (trip.yAxisData['expandedGetOut'][key]==undefined){
+            continue;
           }
-        }
-        counter++;
-        // last iteration -> calculate average
-        if(tripIndex==this._trips.length-1){
-          //average
-          busesCapacity = busesCapacity/counter;
-          for(index in this._xAxisData['name']){
-            this._yAxisData['expandedGetOut'][index]=this._yAxisData['expandedGetOut'][index]/counter;
-            this._yAxisData['expandedGetIn'][index]=this._yAxisData['expandedGetIn'][index]/counter;
-            this._yAxisData['loadProfile'][index]=this._yAxisData['loadProfile'][index]/counter;
-            this._yAxisData['saturationRate'].push(this._yAxisData['loadProfile'][index]/busesCapacity*100);
-          }
+          _yAxisData['expandedGetOut'][stopIndex]+=trip.yAxisData['expandedGetOut'][key];
+          _yAxisData['expandedGetIn'][stopIndex]+=trip.yAxisData['expandedGetIn'][key];
+          _yAxisData['loadProfile'][stopIndex]+=trip.yAxisData['loadProfile'][key];
+          
+          capacityByStop[stopIndex]+=trip.busCapacity;
+          counterByStop[stopIndex]++;
         }
       }
+ 
+      // it calculates average
+      for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
+        _yAxisData['expandedGetOut'][stopIndex]=_yAxisData['expandedGetOut'][stopIndex]/counterByStop[stopIndex];
+        _yAxisData['expandedGetIn'][stopIndex]=_yAxisData['expandedGetIn'][stopIndex]/counterByStop[stopIndex];
+        _yAxisData['loadProfile'][stopIndex]=_yAxisData['loadProfile'][stopIndex]/counterByStop[stopIndex];
+        _yAxisData['saturationRate'].push((_yAxisData['loadProfile'][stopIndex]/capacityByStop[stopIndex])*100);
+      }
     };
-    this.updateChart = function(){
-      this._resumeData();
+    this.updateAveragesChart = function(){
+      _resumeData();
       // get out, get in, load profile, percentage ocupation
-      var yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
-      var yAxisIndex = [0, 0, 0, 1];
-      var yChartType = ['bar','bar','line','line'];
-      var dataName = ['expandedGetOut','expandedGetIn','loadProfile','saturationRate'];
+      let yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
+      let yAxisIndex = [0, 0, 0, 1];
+      let yChartType = ['bar','bar','line','line'];
+      let dataName = ['expandedGetOut','expandedGetIn','loadProfile','saturationRate'];
 
-      var series = [];
-      for (index in yAxisIndex){
-        var serie = {
+      let series = [];
+      for (let index=0; index<yAxisIndex.length; index++){
+        let serie = {
           name: yAxisDataName[index],
           type: yChartType[index],
-          data: this._yAxisData[dataName[index]],
+          data: _yAxisData[dataName[index]],
           markPoint: {
             data: [{
                type: 'max', 
@@ -307,15 +332,15 @@ $(document).ready(function(){
         };
         series.push(serie);
       }
-      
-      var stopName = app._xAxisData['name'];
-      var data = {
+
+      let xAxisData = _xAxisData;
+      let data = {
         legend: {
           data: yAxisDataName
         },
         xAxis: [{
           type: 'category',
-          data: this._xAxisData['index']
+          data: app.xAxisData().map(function(attr){ return attr.order; })
         }],
         yAxis: [{
           type: 'value',
@@ -339,21 +364,21 @@ $(document).ready(function(){
           formatter: function(params){
             //console.log(params);
             if (Array.isArray(params)){
-              xValue = params[0].dataIndex + 1;
-              var head = xValue + ' - ' + stopName[xValue-1] + '<br />';
-              var info = [];
-              for (index in params){
-                el = params[index]
-                var ball ="<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:" + el.color + "'></span>";
-                var name = el.seriesName;
-                var value = el.value.toFixed(2);
+              let xValue = params[0].dataIndex + 1;
+              let head = xValue + '  ' + xAxisData[xValue-1]['code'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
+              let info = [];
+              for (let index in params){
+                let el = params[index]
+                let ball ="<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:" + el.color + "'></span>";
+                let name = el.seriesName;
+                let value = el.value.toFixed(2);
                 info.push(ball + name + ': ' + value);
               }
               return head + info.join('<br />');
             } else {
-              var title = params.data.name;
-              var name = params.seriesName;
-              var value = params.value.toFixed(2);
+              let title = params.data.name;
+              let name = params.seriesName;
+              let value = params.value.toFixed(2);
               return title + '<br />' + name + ': ' + value;
             }
           }
@@ -364,84 +389,92 @@ $(document).ready(function(){
   }
   var app = new App();
 
-  function showError(text){
+  function showMessage(status){
+    let message = status['message'];
+    let title = status['title'];
+    let type = status['type'];
+
     new PNotify({
-      title: "Error",
-      type: "error",
-      text: text,
+      title: title,
+      type: type,
+      text: message,
       nonblock: {
         nonblock: true
       },
-      styling: 'bootstrap3'
-      /*
-      hide: false,
-      before_close: function(PNotify) {
-        PNotify.update({
-          title: PNotify.options.title + " - Enjoy your Stay",
-          before_close: null
-        });
-
-        PNotify.queueRemove();
-        return false;
-      }*/
+      styling: 'bootstrap3',
+      mouse_reset: false
+    }).get().click(function(){
+      this.remove();
     });
   }; 
 
   function processData(dataSource){
     console.log(dataSource);
- 
+    echartBar.hideLoading();
     if(dataSource['status']){
-        var text = dataSource['status']['message'];
-        showError(text);
+        let status = dataSource['status'];
+        showMessage(status);
+        return;
     }
  
-    var trips = dataSource.trips;
-    app.clean();
+    let trips = dataSource.trips;
+    app.cleanData();
     
-    for (expeditionId in trips){
-      var trip = trips[expeditionId];
+    let appxAxisData = [];
+
+    for(let expeditionId in trips){
+      let trip = trips[expeditionId];
 
       // trip info
-      var capacity = trip['info']['capacity'];
-      var licensePlate = trip['info']['licensePlate'];
-      var route = trip['info']['route'];
-      var timeTripInit = trip['info']['timeTripInit'];
-      var timeTripEnd = trip['info']['timeTripEnd'];
-    
-      updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd);
-     
-      var stopName = [];
-      var order = [];
-      var yAxisData = [[], [], [], []];
-      var yAxisData = {
-        'expandedGetOut': [],
-        'expandedGetIn': [],
-        'loadProfile': [],
-        'saturationRate': []
+      let capacity = trip['info']['capacity'];
+      let licensePlate = trip['info']['licensePlate'];
+      let route = trip['info']['route'];
+      let timeTripInit = trip['info']['timeTripInit'];
+      let timeTripEnd = trip['info']['timeTripEnd'];
+      
+      //updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd);
+      
+      let yAxisData = {
+        'expandedGetOut': {},
+        'expandedGetIn': {},
+        'loadProfile': {},
+        'saturationRate': {}
       };
 
-      for(record in trip['stops']){
-        stopName.push(trip['stops'][record]['name']);
-        order.push(trip['stops'][record]['order']);
-        yAxisData['expandedGetOut'].push(trip['stops'][record]['expandedGetOut']);
-        yAxisData['expandedGetIn'].push(trip['stops'][record]['expandedGetIn']);
-        yAxisData['loadProfile'].push(trip['stops'][record]['loadProfile']);
-        yAxisData['saturationRate'].push((trip['stops'][record]['loadProfile']/capacity)*100);
+      let stopQuantity = trip['stops'].length;
+
+      let updateStopsName = false;
+      if(appxAxisData.length < stopQuantity){
+        updateStopsName = true;
+        appxAxisData = [];
+      }
+      let xAxisData = [];
+      for(let stopIndex=0; stopIndex<stopQuantity; stopIndex++){
+        let stopInfo = trip['stops'][stopIndex];
+        let stopCode = stopInfo['authStopCode'];
+        
+        if(updateStopsName){
+          let xValue = {}
+          xValue['name'] = stopInfo['name'];
+          xValue['code'] = stopCode;
+          xValue['order'] = stopInfo['order'];
+          appxAxisData.push(xValue);
+        }
+        xAxisData.push(stopCode);
+        yAxisData['expandedGetOut'][stopCode] = stopInfo['expandedGetOut'];
+        yAxisData['expandedGetIn'][stopCode] = stopInfo['expandedGetIn'];
+        yAxisData['loadProfile'][stopCode] = stopInfo['loadProfile'];
+        yAxisData['saturationRate'][stopCode] = (stopInfo['loadProfile']/capacity)*100;
       }
       
-      // set app
-      if (app.xAxisData()==null){
-        var xAxisData = {
-          "name": stopName,
-          "index": order
-        }
-        app.xAxisData(xAxisData);
-      }
-      var trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, yAxisData);
+      trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, xAxisData, yAxisData);
       app.addTrip(trip);
     }
-    app.updateChart();
-    drawDistribution(app._trips);
+
+    app.xAxisData(appxAxisData);
+    app.updateAveragesChart();
+    drawDistribution(app.trips());
+    drawWordCloud(app.trips());
   };
 
   // load filters
@@ -472,28 +505,25 @@ $(document).ready(function(){
       var from = $('#filterDateFrom').val();
       var to = $('#filterDateTo').val();
       var route = $('#filterRoute').val();
-      var licensePlate = $('#filterLicensePlate').val()!='' ? $('#filterLicensePlate').val().split(','):null;
       var dayType = $('#filterDayType').val();
       var period = $('#filterPeriod').val();
-      var expeditionId = $('#filterExpeditionId').val()!='' ? $('#filterExpeditionId').val().split(','):null;
+      //var licensePlate = $('#filterLicensePlate').val()!='' ? $('#filterLicensePlate').val().split(','):null;
+      //var expeditionId = $('#filterExpeditionId').val()!='' ? $('#filterExpeditionId').val().split(','):null;
    
       console.log(from);
       console.log(to);
       console.log(route);
-      console.log(licensePlate);
       console.log(dayType);
       console.log(period);
-      console.log(expeditionId);
+      //console.log(licensePlate);
+      //console.log(expeditionId);
 
-      var data = {
+      let data = {
         from: from,
         to: to,
       };
       if (route) {
         data['route'] = route;
-      }
-      if (licensePlate) {
-        data['licensePlate'] = licensePlate;
       }
       if (dayType) {
         data['dayType'] = dayType;
@@ -501,33 +531,48 @@ $(document).ready(function(){
       if (period) {
         data['period'] = period;
       }
+      /*
+      if (licensePlate) {
+        data['licensePlate'] = licensePlate;
+      }
       if (expeditionId) {
         data['expeditionId'] = expeditionId;
       }
-      $.getJSON('getExpeditionData', data, processData);
+      */
+      echartBar.showLoading(null, {text:'Cargando...'});
+      let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+      let button = $(this).append(loading) 
+      $.getJSON('getExpeditionData', data, processData)
+      .always(function(){
+        button.html('Actualizar datos')
+      });
     });
   })()
 
   //***********************************************************************
   var echartDist = echarts.init(document.getElementById('echartDistribution'), theme);
   function drawDistribution(trips){
-    var grids = [];
-    var xAxes = [];
-    var yAxes = [];
-    var series = [];
-    var titles = [];
-    var count = 0;
-    var globalMax = 0;
+    let grids = [];
+    let xAxes = [];
+    let yAxes = [];
+    let series = [];
+    let titles = [];
+    let count = 0;
+    let globalMax = 0;
     echarts.util.each(trips, function (trip, id) {
-      var data = [];
-      var N_POINT =trip.yAxisData['loadProfile'].length;
-      var max = Math.max(...trip.yAxisData['loadProfile']);
+      let data = [];
+      let N_POINT =trip.xAxisData.length;
+      // order load profile based on stop sequence
+      let loadProfileData = trip.xAxisData.map(function(code){ 
+        return trip.yAxisData['loadProfile'][code]; 
+      });
+      let max = Math.max(...loadProfileData.filter(function(el){ return el !== undefined;}));
       globalMax = max > globalMax ? max:globalMax;
-      for (var i = 0; i < N_POINT; i++) {
-        var x = i+1;
-        var y = trip.yAxisData['loadProfile'][i];
+      for (let i=0; i<N_POINT; i++) {
+        let x = i+1;
+        let y = loadProfileData[i];
         data.push([x, y]);
-      }console.log(data);
+      }
       grids.push({
         show: true,
         borderWidth: 0,
@@ -549,7 +594,7 @@ $(document).ready(function(){
         max: max + 20,
         gridIndex: count
       });
-      var name = trip.expeditionId;console.log(name);
+      let name = trip.expeditionId;
       series.push({
         name: name,
         type: 'bar',
@@ -571,11 +616,11 @@ $(document).ready(function(){
       count++;
     });
   
-    for (index in yAxes) {
+    for (let index in yAxes) {
       yAxes[index].max = globalMax;
     }
 
-    var rowNumber = Math.ceil(Math.sqrt(count));
+    let rowNumber = Math.ceil(Math.sqrt(count));
     echarts.util.each(grids, function (grid, idx) {
       grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
       grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
@@ -585,7 +630,7 @@ $(document).ready(function(){
       titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
       titles[idx].top = parseFloat(grid.top) + '%';
     });
-    option = {
+    let option = {
       title: titles,
       grid: grids,
       xAxis: xAxes,
@@ -593,6 +638,86 @@ $(document).ready(function(){
       series: series
     };
     echartDist.setOption(option,{notMerge: true});
+  }
+
+  function drawWordCloud(trips){
+    let lpValues = [];
+    let lpDict = {};
+    for(let i in trips){
+      let trip = trips[i];
+      let licensePlate = trip['licensePlate']
+      if(lpDict[licensePlate]){
+        lpDict[licensePlate]++;
+      }else{
+        lpDict[licensePlate] = 1;
+      }
+    }
+    for (let licensePlate in lpDict) {
+        lpValues.push({'name':licensePlate, 'value': lpDict[licensePlate]});
+    }
+    var chart = echarts.init(document.getElementById('wordcloudLP'));
+    chart.on('click', function(params){
+      console.log(params);
+    });
+    var option = {
+      tooltip: {},
+      grid: [
+        {x: '7%', y: '7%', width: '38%', height: '38%'},
+        {x: '50%', y: '7%', width: '38%', height: '38%'},
+      ],
+      series: [{
+        type: 'wordCloud',
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        shape: 'circle',
+        sizeRange: [12, 60],
+        rotationRange: [0, 0],
+        rotationStep: 0,
+        gridSize: 2,
+        textStyle: {
+          normal: {
+            color: function () {
+              return 'rgb(' + [
+                Math.round(Math.random() * 160),
+                Math.round(Math.random() * 160),
+                Math.round(Math.random() * 160)
+              ].join(',') + ')';
+            }
+          },
+          emphasis: {
+            shadowBlur: 10,
+            shadowColor: '#333'
+          }
+        },
+        data: lpValues
+      },{
+        type: 'wordCloud',
+        xAxisIndex: 1,
+        yAxisIndex: 1,
+        shape: 'circle',
+        sizeRange: [12, 60],
+        rotationRange: [0, 0],
+        rotationStep: 0,
+        gridSize: 2,
+        textStyle: {
+          normal: {
+            color: function () {
+              return 'rgb(' + [
+                Math.round(Math.random() * 160),
+                Math.round(Math.random() * 160),
+                Math.round(Math.random() * 160)
+              ].join(',') + ')';
+            }
+          },
+          emphasis: {
+            shadowBlur: 10,
+            shadowColor: '#333'
+          }
+        },
+        data: lpValues
+      }]
+    };
+    chart.setOption(option);
   }
 });
 </script>

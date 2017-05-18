@@ -17,6 +17,8 @@
   ],
   "dependencies": {
     "gentelella": "^1.4.0",
-    "select2": "^4.0.3"
+    "select2": "^4.0.3",
+    "echarts-wordcloud": "https://github.com/ecomfe/echarts-wordcloud.git#^1.0.2",
+    "echarts": "^3.5.4"
   }
 }
