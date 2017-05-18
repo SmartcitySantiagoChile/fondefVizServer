@@ -170,13 +170,14 @@
 "use strict";
 $(document).ready(function(){
 
+  /*
   function updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd) {
     $('#route').html(route + ' ');
     $('#licensePlate').html(licensePlate);
     $('#capacity').html(capacity);
     $('#timeTripInit').html(timeTripInit);
     $('#timeTripEnd').html(timeTripEnd);
-  }
+  }*/
 
   let echartBar = echarts.init(document.getElementById('main'), theme);
 
@@ -430,9 +431,9 @@ $(document).ready(function(){
       let route = trip['info']['route'];
       let timeTripInit = trip['info']['timeTripInit'];
       let timeTripEnd = trip['info']['timeTripEnd'];
-    
-      updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd);
-     
+      
+      //updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd);
+      
       let yAxisData = {
         'expandedGetOut': {},
         'expandedGetIn': {},
