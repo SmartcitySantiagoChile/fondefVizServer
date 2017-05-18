@@ -656,6 +656,9 @@ $(document).ready(function(){
         lpValues.push({'name':licensePlate, 'value': lpDict[licensePlate]});
     }
     var chart = echarts.init(document.getElementById('wordcloudLP'));
+    chart.on('click', function(params){
+      console.log(params);
+    });
     var option = {
       tooltip: {},
       grid: [
