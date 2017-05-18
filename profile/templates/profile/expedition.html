@@ -181,7 +181,6 @@ $(document).ready(function(){
   let echartBar = echarts.init(document.getElementById('main'), theme);
 
   function setChart(data){
-    
     echartBar.setOption({
       tooltip: data.tooltip,
       legend: data.legend,
@@ -220,6 +219,7 @@ $(document).ready(function(){
     let _trips = [];
     let _xAxisData = null;
     let _yAxisData = null;
+    let _tripsUsed = 0;
 
     this.trips = function(trips){
       if(trips == undefined){
@@ -236,10 +236,14 @@ $(document).ready(function(){
       }
       _xAxisData = data;
     };
-    this.clean = function(){
+    this.tripsUsed = function(){
+      return _tripsUsed;
+    }
+    this.cleanData = function(){
       _trips = [];
       _xAxisData = null;
       _yAxisData = null;
+      _tripsUsed = 0;
     };
     // private method
     let _resumeData = function(){
@@ -271,6 +275,7 @@ $(document).ready(function(){
         if(!trip.aggregate){
           continue;
         }
+        _tripsUsed++;
         
         for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
           let key = _xAxisData[stopIndex]['code'];
@@ -294,7 +299,7 @@ $(document).ready(function(){
         _yAxisData['saturationRate'].push((_yAxisData['loadProfile'][stopIndex]/capacityByStop[stopIndex])*100);
       }
     };
-    this.updateChart = function(){
+    this.updateAveragesChart = function(){
       _resumeData();
       // get out, get in, load profile, percentage ocupation
       let yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
@@ -404,7 +409,7 @@ $(document).ready(function(){
 
   function processData(dataSource){
     console.log(dataSource);
- 
+    echartBar.hideLoading();
     if(dataSource['status']){
         let status = dataSource['status'];
         showMessage(status);
@@ -412,7 +417,7 @@ $(document).ready(function(){
     }
  
     let trips = dataSource.trips;
-    app.clean();
+    app.cleanData();
     
     let appxAxisData = [];
 
@@ -466,7 +471,7 @@ $(document).ready(function(){
     }
 
     app.xAxisData(appxAxisData);
-    app.updateChart();
+    app.updateAveragesChart();
     drawDistribution(app.trips());
     drawWordCloud(app.trips());
   };
@@ -533,6 +538,7 @@ $(document).ready(function(){
         data['expeditionId'] = expeditionId;
       }
       */
+      echartBar.showLoading(null, {text:'Cargando...'});
       let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
       let button = $(this).append(loading) 
       $.getJSON('getExpeditionData', data, processData)
