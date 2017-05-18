@@ -277,20 +277,8 @@ $(document).ready(function(){
         for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
           let key = _xAxisData[stopIndex]['code'];
           if (trip.yAxisData['expandedGetOut'][key]==undefined){
-            //console.log(trip);
-            //console.log(key + " no está");
             continue;
           }
-          /*
-          console.log('=========================================');
-          console.log(trip.yAxisData['expandedGetOut'][key]);
-          console.log(key);
-          console.log(trip);
-          console.log(trip.yAxisData['expandedGetOut'][key]);
-          console.log(trip.yAxisData['expandedGetIn'][key]);
-          console.log(trip.yAxisData['loadProfile'][key]);
-          console.log('=========================================');
-          */
           _yAxisData['expandedGetOut'][stopIndex]+=trip.yAxisData['expandedGetOut'][key];
           _yAxisData['expandedGetIn'][stopIndex]+=trip.yAxisData['expandedGetIn'][key];
           _yAxisData['loadProfile'][stopIndex]+=trip.yAxisData['loadProfile'][key];
@@ -307,9 +295,6 @@ $(document).ready(function(){
         _yAxisData['loadProfile'][stopIndex]=_yAxisData['loadProfile'][stopIndex]/counterByStop[stopIndex];
         _yAxisData['saturationRate'].push((_yAxisData['loadProfile'][stopIndex]/capacityByStop[stopIndex])*100);
       }
-      //console.log(_yAxisData);
-      //console.log(capacityByStop);
-      //console.log(counterByStop);
     };
     this.updateChart = function(){
       _resumeData();
@@ -400,15 +385,22 @@ $(document).ready(function(){
   }
   var app = new App();
 
-  function showError(text){
+  function showMessage(status){
+    let message = status['message'];
+    let title = status['title'];
+    let type = status['type'];
+
     new PNotify({
-      title: "Error",
-      type: "error",
-      text: text,
+      title: title,
+      type: type,
+      text: message,
       nonblock: {
         nonblock: true
       },
-      styling: 'bootstrap3'
+      styling: 'bootstrap3',
+      mouse_reset: false
+    }).get().click(function(){
+      this.remove();
     });
   }; 
 
@@ -416,8 +408,8 @@ $(document).ready(function(){
     console.log(dataSource);
  
     if(dataSource['status']){
-        var text = dataSource['status']['message'];
-        showError(text);
+        let status = dataSource['status'];
+        showMessage(status);
         return;
     }
  
