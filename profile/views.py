@@ -9,10 +9,10 @@ from elasticsearch_dsl import Search, Q, A
 
 from localinfo.models import TimePeriod
 
-from errors import ESQueryDoesNotHaveParameters
+from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
 
-INDEX_NAME="profiles"
 # elastic search index name 
+INDEX_NAME="profiles"
 
 class LoadProfileByExpeditionView(View):
     ''' '''
@@ -75,6 +75,9 @@ class GetLoadProfileByExpeditionData(View):
         if route:
             esQuery = esQuery.filter('term', ServicioSentido=route)
             existsParameters = True
+        else:
+            raise ESQueryRouteParameterDoesNotExist()
+
         if licensePlate:
             esQuery = esQuery.filter('terms', Patente=licensePlate)
             existsParameters = True
@@ -90,6 +93,9 @@ class GetLoadProfileByExpeditionData(View):
 
         esQuery = esQuery.query('match', Cumplimiento='C')\
             .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])
+
+        if esQuery.execute().hits.total == 0:
+            raise ESQueryResultEmpty()
 
         return esQuery
  
@@ -150,7 +156,7 @@ class GetLoadProfileByExpeditionData(View):
             #response['query'] = esQuery.to_dict()
             #return JsonResponse(response, safe=False)
             #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except ESQueryDoesNotHaveParameters as e:
+        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)
