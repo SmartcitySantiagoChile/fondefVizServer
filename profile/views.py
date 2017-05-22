@@ -121,12 +121,11 @@ class GetLoadProfileByExpeditionData(View):
             esQuery = esQuery.filter('terms', PeriodoTSExpedicion=period)
             existsParameters = True
         
-        print esQuery.to_dict()
         if not existsParameters:
             raise ESQueryDoesNotHaveParameters()
 
         esQuery = esQuery.filter('term', Cumplimiento='C')\
-            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero', 'ParaderoUsuario'])
+            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
 
         if esQuery.execute().hits.total == 0:
             raise ESQueryResultEmpty()
@@ -148,25 +147,27 @@ class GetLoadProfileByExpeditionData(View):
             trips[expeditionId]['info']['licensePlate'] = data['Patente']
             trips[expeditionId]['info']['route'] = data['ServicioSentido']
             trips[expeditionId]['info']['timeTripInit'] = data['Hini']
+            trips[expeditionId]['info']['authTimePeriod'] = data['PeriodoTSExpedicion']
             trips[expeditionId]['info']['timeTripEnd'] = data['Hfin']
+            trips[expeditionId]['info']['dayType'] = data['TipoDia']
             stop = {}
             stop['name'] = data['NombreParada']
             stop['authStopCode'] = data['Paradero']
             stop['userStopCode'] = data['ParaderoUsuario']
-            stop['userStopCode'] = data['Paradero']
+            stop['authTimePeriod'] = data['PeriodoTSParada']
             stop['distOnRoute'] = data['DistEnRuta']
             stop['time'] = data['Tiempo']
             stop['order'] = int(data['Correlativo'])
 
             # to avoid movement of distribution chart
             loadProfile = float(data['Carga'])
-            loadProfile = 0 if (-0.5 < loadProfile and loadProfile < 0) else loadProfile
+            #loadProfile = 0 if (-0.5 < loadProfile and loadProfile < 0) else loadProfile
 
             expandedGetIn = float(data['SubidasExpandidas'])
-            expandedGetIn = 0 if (-0.5 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
+            #expandedGetIn = 0 if (-0.5 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
 
             expandedGetOut = float(data['BajadasExpandidas'])
-            expandedGetOut = 0 if (-0.5 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
+            #expandedGetOut = 0 if (-0.5 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
 
             stop['loadProfile'] = loadProfile
             stop['expandedGetIn'] = expandedGetIn
@@ -188,7 +189,7 @@ class GetLoadProfileByExpeditionData(View):
             esQuery = self.buildQuery(request)
             response['trips'] = self.transformESAnswer(esQuery)
             # debug
-            response['query'] = esQuery.to_dict()
+            #response['query'] = esQuery.to_dict()
             #return JsonResponse(response, safe=False)
             #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
