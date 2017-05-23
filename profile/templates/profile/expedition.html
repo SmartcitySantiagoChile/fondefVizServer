@@ -759,6 +759,17 @@ $(document).ready(function(){
       _datatable.clear();
       _datatable.rows.add(rows);
       _datatable.columns.adjust().draw();
+
+      // attach to attach event
+      $('#detail-tab').off('shown.bs.tab');
+      $('#detail-tab').on('shown.bs.tab', function(event){
+        $('.spark:not(:has(canvas))').sparkline('html', {
+          type: 'bar',
+          barColor: '#169f85',
+          negBarColor: 'red',
+          chartRangeMax: maxHeight,
+        });
+      })
     };
 
     let _updateBarChart = function(){
