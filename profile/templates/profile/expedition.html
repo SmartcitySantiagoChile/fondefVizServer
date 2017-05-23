@@ -133,40 +133,46 @@
     <div class="col-md-12 col-sm-12 col-xs-12">
       <div class="x_panel">
         <div class="x_title">
-          <h2>Detalle de expediciones</small></h2>
+          <h2><i class="fa fa-truck"></i> Expediciones (<strong id="expeditionNumber2">N</strong>)</h2>
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
-          <table id="expeditionDetail" class="table table-striped table-bordered dt-responsive table-condensed nowrap" cellspacing="0" width="100%">
-            <thead>
-	      <th style="padding-right:5px;"><input type="checkbox" id="checkbox-select-all" class="flat" checked></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-            </thead>
-          </table>
+          <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#tab_content1" id="detail-tab" role="tab" data-toggle="tab" aria-expanded="true">Detalle</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#tab_content2" role="tab" id="distribution-tab" data-toggle="tab" aria-expanded="false">Distribuciones</a>
+              </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+              <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="detail-tab">
+                <table id="expeditionDetail" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
+                  <thead>
+                    <tr>
+                    <th style="padding-right:5px;"><input type="checkbox" id="checkbox-select-all" class="flat" checked></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="distribution-tab">
+                <div id="distributions" style="height:400px;"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-      <div class="x_panel">
-        <div class="x_title">
-          <h2>Distribuciones</small></h2>
-          <div class="clearfix"></div>
-        </div>
-        <div class="x_content">
-          <div id="echartDistribution" style="height:400px;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 {% endblock %}
 
 {% block js %}
@@ -224,7 +230,7 @@ $(document).ready(function(){
   /*
    * to manage grouped data
    */
-  function TripGroup(){
+  function DataManager(){
     // trips
     let _trips = [];
     // stops 
@@ -382,10 +388,10 @@ $(document).ready(function(){
         trip['busDetail'] = trip['licensePlate'] + ' (' + trip['busCapacity'] + ')';
         let loadProfile = [];
         let hasNegativeValue = false;
-        for(let i=0;i<trip.xAxisData.length;i++){
-          let authStopCode = trip.xAxisData[i]['authStopCode'];
+        for(let i=0;i<_xAxisData.length;i++){
+          let authStopCode = _xAxisData[i]['authCode'];
           let value = trip.yAxisData['loadProfile'][authStopCode];
-          if(value<0){
+          if(value !== undefined && value<0){
             hasNegativeValue = true;
           }
           if(max<value){
@@ -399,16 +405,51 @@ $(document).ready(function(){
       }
       return {'rows':values, 'maxHeight': max};
     }
+  
+    this.getDistributionData = function(){
+
+      let globalMax = 0;
+      let trips = [];
+
+      for(let i in _trips){
+        let trip = _trips[i];
+        let tripData = {};
+        if(!trip.aggregate){
+          continue;
+        }
+        tripData['name'] = trip['timeTripInit'];
+
+        let loadProfile = [];
+        for(let i=0;i<_xAxisData.length;i++){
+          let authStopCode = _xAxisData[i]['authCode'];
+          let value = trip.yAxisData['loadProfile'][authStopCode];
+
+          if(globalMax<value){
+            globalMax = value;
+          }
+          loadProfile.push(value);
+        }
+        tripData['loadProfile'] = loadProfile;
+        trips.push(tripData);
+      }
+      
+      let result = {};
+      result['globalMax'] = globalMax;
+      result['trips'] = trips;
+      
+      return result;
+    }
   }
 
   function ExpeditionApp(){
     let _self = this;
-    let _tripsGroup = new TripGroup();
+    let _dataManager = new DataManager();
     let _barChart = echarts.init(document.getElementById('barChart'), theme);
     let _wordcloudCharts = [
       echarts.init(document.getElementById('wordcloudChart1'), theme),
       echarts.init(document.getElementById('wordcloudChart2'), theme)];
     let _timePeriodChart = echarts.init(document.getElementById('timePeriodChart'), theme);
+    let _distributionChart = echarts.init(document.getElementById('distributions'), theme);
     let _datatable = $('#expeditionDetail').DataTable({
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
       language: {
@@ -460,18 +501,17 @@ $(document).ready(function(){
           }
           $('input.flat', rows).iCheck('update');
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
-          _tripsGroup.setAggregate(tripIds, addToAggr);
+          _dataManager.setAggregate(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
     });
     _datatable.on('search.dt', function (event) {
-      //alert( 'Currently applied global search: '+_datatable.search() );
 
       let el = $('#checkbox-select-all');
       let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
-      let resultChecked = _tripsGroup.checkAllAreAggregate(tripIds);
-      console.log(tripIds.length +  ' ' + resultChecked);
+      let resultChecked = _dataManager.checkAllAreAggregate(tripIds);
+      
       if(resultChecked === tripIds.length){
         el.prop('checked', true);
       } else if(resultChecked === 0){
@@ -485,15 +525,15 @@ $(document).ready(function(){
 
     this.tripsGroup = function(tripsGroup){
       if(tripsGroup == undefined){
-        return _tripsGroup;
+        return _dataManager;
       }
-      _tripsGroup = tripsGroup;
+      _dataManager = tripsGroup;
       this.updateCharts();
       this.updateDatatable();
     }
 
     let _updateTimePeriodChart = function(){
-      let timeTripInit = _tripsGroup.getAttrGroup('timeTripInit', function(attrValue){
+      let timeTripInit = _dataManager.getAttrGroup('timeTripInit', function(attrValue){
         return attrValue.substring(0, 2);
       });
       timeTripInit = timeTripInit.sort(function(a, b){
@@ -535,17 +575,18 @@ $(document).ready(function(){
           }
         }]
       };
-      _timePeriodChart.setOption(option);
+      _timePeriodChart.clear();
+      _timePeriodChart.setOption(option,{notMerge: true});
     }
 
     let _updateWordcloudCharts = function(){
-      let lpValues = _tripsGroup.getAttrGroup('licensePlate');
-      let dayTypeValues = _tripsGroup.getAttrGroup('dayType');
+      let lpValues = _dataManager.getAttrGroup('licensePlate');
+      let dayTypeValues = _dataManager.getAttrGroup('dayType');
       
       let values = [lpValues, dayTypeValues];
       for(let i=0;i<values.length;i++){
         let chart = _wordcloudCharts[i];
-
+        
         chart.on('click', function(params){
           console.log(params);
         });
@@ -579,15 +620,106 @@ $(document).ready(function(){
             data: values[i]
           }]
         }
-        chart.setOption(options);
+        chart.clear()
+        chart.setOption(options, {notMerge: true});
       }
     };
 
+    let _updateDistributionChart = function(){
+
+      let grids = [];
+      let xAxes = [];
+      let yAxes = [];
+      let series = [];
+      let titles = [];
+      let count = 0;
+    
+      let distributionData = _dataManager.getDistributionData();
+      let globalMax = distributionData['globalMax'];
+      let trips = distributionData['trips'];
+      
+      for(let i=0;i<trips.length; i++){
+        let trip = trips[i];
+        let data = [];
+        let N_POINT =trip.loadProfile.length;
+        
+        for (let j=0; j<N_POINT; j++) {
+          let x = j+1;
+          let y = trip.loadProfile[j];
+          data.push([x, y]);
+        }
+        grids.push({
+          show: true,
+          borderWidth: 0,
+          backgroundColor: '#fff',
+          shadowColor: 'rgba(0, 0, 0, 0.3)',
+          shadowBlur: 2
+        });
+        xAxes.push({
+          type: 'value',
+          show: false,
+          gridIndex: count
+        });
+        yAxes.push({
+          type: 'value',
+          show: false,
+          max: globalMax + 20,
+          gridIndex: count
+        });
+        let name = trip.name;
+        series.push({
+          name: name,
+          type: 'bar',
+          xAxisIndex: count,
+          yAxisIndex: count,
+          data: data,
+          showSymbol: false,
+          animationEasing: name,
+          animationDuration: 1000
+        });
+        titles.push({
+          textAlign: 'center',
+          text: name,
+          textStyle: {
+            fontSize: 11,
+            fontWeight: 'normal'
+          }
+        });
+        count++;
+      }
+      
+      let rowNumber = Math.ceil(Math.sqrt(count));
+      echarts.util.each(grids, function (grid, idx) {
+        grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
+        grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
+        grid.width = (1 / rowNumber * 100 - 1) + '%';
+        grid.height = (1 / rowNumber * 100 - 1) + '%';
+
+        titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
+        titles[idx].top = parseFloat(grid.top) + '%';
+      });
+      let option = {
+        title: titles,
+        grid: grids,
+        xAxis: xAxes,
+        yAxis: yAxes,
+        series: series,
+        tooltip: {}
+      };
+      
+      $('#distribution-tab').off('shown.bs.tab');
+      $('#distribution-tab').on('shown.bs.tab', function(event){
+        console.log('loading chart...');
+        _distributionChart.setOption(option, {notMerge: true});
+        _distributionChart.resize();
+      });
+    };
+
     let _updateDatatable = function(){
-      let dataset = _tripsGroup.getDatatableData();
+      let dataset = _dataManager.getDatatableData();
       let rows = dataset['rows']
       let maxHeight = dataset['maxHeight']
-      console.log(dataset);
+      
       _datatable.off('draw');
       _datatable.on('draw', function(oSettings) {
         $('.spark:not(:has(canvas))').sparkline('html', {
@@ -620,20 +752,19 @@ $(document).ready(function(){
          
           // updateChart
           let tripId = parseInt($(this).attr('name').replace('trip', ''));
-          console.log(tripId);
-          _tripsGroup.setAggregate([tripId], addToAggr); 
+          _dataManager.setAggregate([tripId], addToAggr); 
           _self.updateCharts();
         });
       });
       _datatable.clear();
       _datatable.rows.add(rows);
-      _datatable.adjust().draw();
+      _datatable.columns.adjust().draw();
     };
 
     let _updateBarChart = function(){
-      _tripsGroup.calculateAverage();
-      let yAxisData = _tripsGroup.yAxisData()
-      let xAxisData = _tripsGroup.xAxisData()
+      _dataManager.calculateAverage();
+      let yAxisData = _dataManager.yAxisData()
+      let xAxisData = _dataManager.xAxisData()
       
       // get out, get in, load profile, percentage ocupation
       let yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
@@ -694,7 +825,6 @@ $(document).ready(function(){
           trigger: 'axis',
           //alwaysShowContent: true,
           formatter: function(params){
-            //console.log(params);
             if (Array.isArray(params)){
               let xValue = params[0].dataIndex + 1;
               let head = xValue + '  ' + xAxisData[xValue-1]['authCode'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
@@ -716,6 +846,8 @@ $(document).ready(function(){
           }
         },
       };
+      
+      _barChart.clear();
       _barChart.setOption({
         tooltip: data.tooltip,
         legend: data.legend,
@@ -737,13 +869,15 @@ $(document).ready(function(){
     };
 
     let _updateGlobalStats = function() {
-      $('#expeditionNumber').html(_tripsGroup.tripsUsed());
+      $('#expeditionNumber').html(_dataManager.tripsUsed());
+      $('#expeditionNumber2').html(_dataManager.tripsUsed());
     };
 
     this.updateCharts = function(){
       _updateBarChart();
       _updateWordcloudCharts();
       _updateTimePeriodChart();
+      _updateDistributionChart();
       _updateGlobalStats();
     };
     this.updateDatatable = function(){
@@ -795,7 +929,7 @@ $(document).ready(function(){
     }
  
     let trips = dataSource.trips;
-    let tripGroup = new TripGroup()
+    let dataManager = new DataManager()
     let tripGroupXAxisData = [];
 
     for(let expeditionId in trips){
@@ -847,11 +981,11 @@ $(document).ready(function(){
       
       trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, 
                       timeTripEnd, authTimePeriod, dayType, xAxisData, yAxisData);
-      tripGroup.addTrip(trip);
+      dataManager.addTrip(trip);
     }
 
-    tripGroup.xAxisData(tripGroupXAxisData)
-    app.tripsGroup(tripGroup);
+    dataManager.xAxisData(tripGroupXAxisData)
+    app.tripsGroup(dataManager);
     //drawDistribution(app.tripsGroup().trips());
   };
 
@@ -936,94 +1070,8 @@ $(document).ready(function(){
   })()
 
   //***********************************************************************
-  var echartDist = echarts.init(document.getElementById('echartDistribution'), theme);
+  //var echartDist = echarts.init(document.getElementById('echartDistribution'), theme);
   function drawDistribution(trips){
-    let grids = [];
-    let xAxes = [];
-    let yAxes = [];
-    let series = [];
-    let titles = [];
-    let count = 0;
-    let globalMax = 0;
-    echarts.util.each(trips, function (trip, id) {
-      let data = [];
-      let N_POINT =trip.xAxisData.length;
-      // order load profile based on stop sequence
-      let loadProfileData = trip.xAxisData.map(function(code){ 
-        return trip.yAxisData['loadProfile'][code]; 
-      });
-      let max = Math.max(...loadProfileData.filter(function(el){ return el !== undefined;}));
-      globalMax = max > globalMax ? max:globalMax;
-      for (let i=0; i<N_POINT; i++) {
-        let x = i+1;
-        let y = loadProfileData[i];
-        data.push([x, y]);
-      }
-      grids.push({
-        show: true,
-        borderWidth: 0,
-        backgroundColor: '#fff',
-        shadowColor: 'rgba(0, 0, 0, 0.3)',
-        shadowBlur: 2
-      });
-      xAxes.push({
-        type: 'value',
-        show: false,
-        //min: 0,
-        //max: 1,
-        gridIndex: count
-      });
-      yAxes.push({
-        type: 'value',
-        show: false,
-        //min: -0.4,
-        max: max + 20,
-        gridIndex: count
-      });
-      let name = trip.expeditionId;
-      series.push({
-        name: name,
-        type: 'bar',
-        xAxisIndex: count,
-        yAxisIndex: count,
-        data: data,
-        showSymbol: false,
-        animationEasing: name,
-        animationDuration: 1000
-      });
-      titles.push({
-        textAlign: 'center',
-        text: name,
-        textStyle: {
-          fontSize: 12,
-          fontWeight: 'normal'
-        }
-      });
-      count++;
-    });
-  
-    for (let index in yAxes) {
-      yAxes[index].max = globalMax;
-    }
-
-    let rowNumber = Math.ceil(Math.sqrt(count));
-    echarts.util.each(grids, function (grid, idx) {
-      grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
-      grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
-      grid.width = (1 / rowNumber * 100 - 1) + '%';
-      grid.height = (1 / rowNumber * 100 - 1) + '%';
-
-      titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
-      titles[idx].top = parseFloat(grid.top) + '%';
-    });
-    let option = {
-      title: titles,
-      grid: grids,
-      xAxis: xAxes,
-      yAxis: yAxes,
-      series: series
-    };
-    echartDist.setOption(option,{notMerge: true});
   }
 });
 </script>
