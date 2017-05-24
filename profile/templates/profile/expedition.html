@@ -138,37 +138,20 @@
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
-          <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-              <li role="presentation" class="active">
-                <a href="#tab_content1" id="detail-tab" role="tab" data-toggle="tab" aria-expanded="true">Detalle</a>
-              </li>
-              <li role="presentation" class="">
-                <a href="#tab_content2" role="tab" id="distribution-tab" data-toggle="tab" aria-expanded="false">Distribuciones</a>
-              </li>
-            </ul>
-            <div id="myTabContent" class="tab-content">
-              <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="detail-tab">
-                <table id="expeditionDetail" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
-                  <thead>
-                    <tr>
-                    <th style="padding-right:5px;"><input type="checkbox" id="checkbox-select-all" class="flat" checked></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    </tr>
-                  </thead>
-                </table>
-              </div>
-              <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="distribution-tab">
-                <div id="distributions" style="height:400px;"></div>
-              </div>
-            </div>
-          </div>
+          <table id="expeditionDetail" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
+            <thead>
+              <tr>
+              <th style="padding-right:5px;"><input type="checkbox" id="checkbox-select-all" class="flat" checked></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              </tr>
+            </thead>
+          </table>
         </div>
       </div>
     </div>
@@ -450,7 +433,6 @@ $(document).ready(function(){
       echarts.init(document.getElementById('wordcloudChart1'), theme),
       echarts.init(document.getElementById('wordcloudChart2'), theme)];
     let _timePeriodChart = echarts.init(document.getElementById('timePeriodChart'), theme);
-    let _distributionChart = echarts.init(document.getElementById('distributions'), theme);
     let _datatable = $('#expeditionDetail').DataTable({
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
       language: {
@@ -625,153 +607,63 @@ $(document).ready(function(){
         chart.setOption(options, {notMerge: true});
       }
     };
-
-    let _updateDistributionChart = function(){
-
-      let grids = [];
-      let xAxes = [];
-      let yAxes = [];
-      let series = [];
-      let titles = [];
-      let count = 0;
-    
-      let distributionData = _dataManager.getDistributionData();
-      let globalMax = distributionData['globalMax'];
-      let trips = distributionData['trips'];
-      
-      for(let i=0;i<trips.length; i++){
-        let trip = trips[i];
-        let data = [];
-        let N_POINT =trip.loadProfile.length;
-        
-        for (let j=0; j<N_POINT; j++) {
-          let x = j+1;
-          let y = trip.loadProfile[j];
-          data.push([x, y]);
-        }
-        grids.push({
-          show: true,
-          borderWidth: 0,
-          backgroundColor: '#fff',
-          shadowColor: 'rgba(0, 0, 0, 0.3)',
-          shadowBlur: 2
-        });
-        xAxes.push({
-          type: 'value',
-          show: false,
-          gridIndex: count
-        });
-        yAxes.push({
-          type: 'value',
-          show: false,
-          max: globalMax + 20,
-          gridIndex: count
-        });
-        let name = trip.name;
-        series.push({
-          name: name,
-          type: 'bar',
-          xAxisIndex: count,
-          yAxisIndex: count,
-          data: data,
-          showSymbol: false,
-          animationEasing: name,
-          animationDuration: 1000
-        });
-        titles.push({
-          textAlign: 'center',
-          text: name,
-          textStyle: {
-            fontSize: 11,
-            fontWeight: 'normal'
-          }
-        });
-        count++;
-      }
-      
-      let rowNumber = Math.ceil(Math.sqrt(count));
-      echarts.util.each(grids, function (grid, idx) {
-        grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
-        grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
-        grid.width = (1 / rowNumber * 100 - 1) + '%';
-        grid.height = (1 / rowNumber * 100 - 1) + '%';
-
-        titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
-        titles[idx].top = parseFloat(grid.top) + '%';
-      });
-      let option = {
-        title: titles,
-        grid: grids,
-        xAxis: xAxes,
-        yAxis: yAxes,
-        series: series,
-        tooltip: {}
-      };
-      
-      $('#distribution-tab').off('shown.bs.tab');
-      $('#distribution-tab').on('shown.bs.tab', function(event){
-        console.log('loading chart...');
-        _distributionChart.setOption(option, {notMerge: true});
-        _distributionChart.resize();
-      });
-    };
-
-    let _updateDatatable = function(){
-      let dataset = _dataManager.getDatatableData();
-      let rows = dataset['rows']
-      let maxHeight = dataset['maxHeight']
-      
-      _datatable.off('draw');
-      _datatable.on('draw', function(oSettings) {
-        $('.spark:not(:has(canvas))').sparkline('html', {
-          type: 'bar',
-          barColor: '#169f85',
-          negBarColor: 'red',
-          chartRangeMax: maxHeight,
-        });
-
-        $('tbody input.flat').iCheck('destroy');
-        $('tbody input.flat').iCheck({
-          labelHover: false,
-          cursor: true,
-          checkboxClass: 'icheckbox_flat-green'
-        });
-        
-        // activate iCheck in checkbox
-        let dtRows = _datatable.rows().nodes();
-        // attach events check and uncheck
-        $('input.flat', dtRows).off('ifToggled');
-        $('input.flat', dtRows).on('ifToggled', function(event){
-          let tr = $(this).parent().parent().parent();
-          let addToAggr = false;
-          if(event.target.checked){
-            tr.addClass('success');
-            addToAggr = true;
-          }else{
-            tr.removeClass('success');
-          }
-         
-          // updateChart
-          let tripId = parseInt($(this).attr('name').replace('trip', ''));
-          _dataManager.setAggregate([tripId], addToAggr); 
-          _self.updateCharts();
-        });
-      });
-      _datatable.clear();
-      _datatable.rows.add(rows);
-      _datatable.columns.adjust().draw();
-
-      // attach to attach event
-      $('#detail-tab').off('shown.bs.tab');
-      $('#detail-tab').on('shown.bs.tab', function(event){
-        $('.spark:not(:has(canvas))').sparkline('html', {
-          type: 'bar',
-          barColor: '#169f85',
-          negBarColor: 'red',
-          chartRangeMax: maxHeight,
-        });
-      })
-    };
+                                                                
+    let _updateDatatable = function(){                                     
+      let dataset = _dataManager.getDatatableData();                       
+      let rows = dataset['rows']                                           
+      let maxHeight = dataset['maxHeight']                                 
+                                                                           
+      _datatable.off('draw');                                              
+      _datatable.on('draw', function(oSettings) {                          
+        $('.spark:not(:has(canvas))').sparkline('html', {                  
+          type: 'bar',                                                     
+          barColor: '#169f85',                                             
+          negBarColor: 'red',                                              
+          chartRangeMax: maxHeight,                                        
+        });                                                                
+                                                                           
+        $('tbody input.flat').iCheck('destroy');                           
+        $('tbody input.flat').iCheck({                                     
+          labelHover: false,                                               
+          cursor: true,                                                    
+          checkboxClass: 'icheckbox_flat-green'                            
+        });                                                                
+                                                                           
+        // activate iCheck in checkbox                                     
+        let dtRows = _datatable.rows().nodes();                            
+        // attach events check and uncheck                                 
+        $('input.flat', dtRows).off('ifToggled');                          
+        $('input.flat', dtRows).on('ifToggled', function(event){           
+          let tr = $(this).parent().parent().parent();                     
+          let addToAggr = false;                                           
+          if(event.target.checked){                                        
+            tr.addClass('success');                                        
+            addToAggr = true;                                              
+          }else{                                                           
+            tr.removeClass('success');                                     
+          }                                                                
+                                                                           
+          // updateChart                                                   
+          let tripId = parseInt($(this).attr('name').replace('trip', '')); 
+          _dataManager.setAggregate([tripId], addToAggr);                  
+          _self.updateCharts();                                            
+        });                                                                
+      });                                                                  
+      _datatable.clear();                                                  
+      _datatable.rows.add(rows);                                           
+      _datatable.columns.adjust().draw();                                  
+                                                                           
+      // attach to attach event                                            
+      $('#detail-tab').off('shown.bs.tab');                                
+      $('#detail-tab').on('shown.bs.tab', function(event){                 
+        $('.spark:not(:has(canvas))').sparkline('html', {                  
+          type: 'bar',                                                     
+          barColor: '#169f85',                                             
+          negBarColor: 'red',                                              
+          chartRangeMax: maxHeight,                                        
+        });                                                                
+      })                                                                   
+    };                                 
 
     let _updateBarChart = function(){
       _dataManager.calculateAverage();
@@ -892,7 +784,6 @@ $(document).ready(function(){
       _updateBarChart();
       _updateWordcloudCharts();
       _updateTimePeriodChart();
-      _updateDistributionChart();
       _updateGlobalStats();
     };
     this.updateDatatable = function(){
@@ -1084,11 +975,6 @@ $(document).ready(function(){
       });
     });
   })()
-
-  //***********************************************************************
-  //var echartDist = echarts.init(document.getElementById('echartDistribution'), theme);
-  function drawDistribution(trips){
-  }
 });
 </script>
 {% endblock %}
