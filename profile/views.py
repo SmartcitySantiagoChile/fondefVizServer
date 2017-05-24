@@ -161,13 +161,13 @@ class GetLoadProfileByExpeditionData(View):
 
             # to avoid movement of distribution chart
             loadProfile = float(data['Carga'])
-            #loadProfile = 0 if (-0.5 < loadProfile and loadProfile < 0) else loadProfile
+            loadProfile = 0 if (-1 < loadProfile and loadProfile < 0) else loadProfile
 
             expandedGetIn = float(data['SubidasExpandidas'])
-            #expandedGetIn = 0 if (-0.5 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
+            expandedGetIn = 0 if (-1 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
 
             expandedGetOut = float(data['BajadasExpandidas'])
-            #expandedGetOut = 0 if (-0.5 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
+            expandedGetOut = 0 if (-1 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
 
             stop['loadProfile'] = loadProfile
             stop['expandedGetIn'] = expandedGetIn
