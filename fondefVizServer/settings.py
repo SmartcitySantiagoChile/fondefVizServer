@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'profile',
     'velocity',
+    'datamanager',
     'localinfo',
 ]
 
