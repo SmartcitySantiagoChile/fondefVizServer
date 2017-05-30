@@ -765,6 +765,11 @@ $(document).ready(function(){
       
       _barChart.clear();
       _barChart.setOption({
+        grid: {
+          left: '30px',
+          right: '45px',
+          bottom: '80px'
+        },
         tooltip: data.tooltip,
         legend: data.legend,
         xAxis: data.xAxis,
@@ -772,6 +777,9 @@ $(document).ready(function(){
         series: data.series,
         toolbox: {
           show : true,
+          itemSize: 20,
+          left: 'center',
+          bottom: '25px',
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
