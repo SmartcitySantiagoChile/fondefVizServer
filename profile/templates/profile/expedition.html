@@ -336,8 +336,8 @@ $(document).ready(function(){
       for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
         _yAxisData['expandedGetOut'][stopIndex]=_yAxisData['expandedGetOut'][stopIndex]/counterByStop[stopIndex];
         _yAxisData['expandedGetIn'][stopIndex]=_yAxisData['expandedGetIn'][stopIndex]/counterByStop[stopIndex];
-        _yAxisData['loadProfile'][stopIndex]=_yAxisData['loadProfile'][stopIndex]/counterByStop[stopIndex];
         _yAxisData['saturationRate'].push((_yAxisData['loadProfile'][stopIndex]/capacityByStop[stopIndex])*100);
+        _yAxisData['loadProfile'][stopIndex]=_yAxisData['loadProfile'][stopIndex]/counterByStop[stopIndex];
       }
     };
     this.getAttrGroup = function(attrName, formatFunc=undefined){
