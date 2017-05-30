@@ -8,20 +8,20 @@ from elasticsearch_dsl import Search, Q, A, MultiSearch
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
 from LoadProfileGeneric import LoadProfileGeneric
 
-class LoadProfileByExpeditionView(LoadProfileGeneric):
+class LoadProfileByStopView(LoadProfileGeneric):
     ''' '''
 
     def __init__(self):
         ''' contructor '''
-        super(LoadProfileByExpeditionView, self).__init__()
+        super(LoadProfileByStopView, self).__init__()
 
     def get(self, request):
-        template = "profile/expedition.html"
+        template = "profile/bystop.html"
 
         return render(request, template, self.context)
 
 
-class GetLoadProfileByExpeditionData(View):
+class GetLoadProfileByStopData(View):
     ''' '''
 
     def __init__(self):
