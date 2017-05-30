@@ -721,10 +721,19 @@ $(document).ready(function(){
           max: 100,
           position: 'right',
           axisLabel: {
-            formatter: '{value} %'
+            formatter: '{value} %',
+            textStyle: {
+              color: '#39A7F0'
+            }
           },
           axisLine: {
-            onZero: true
+            onZero: true,
+            lineStyle: {
+              color: '#39A7F0', width: 2
+            }
+          },
+          nameTextStyle: {
+            color: '#39A7F0'
           }
         }],
         series: series,
@@ -766,7 +775,14 @@ $(document).ready(function(){
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
-            saveAsImage : {show: true, title: "Guardar imagen"}
+            saveAsImage : {show: true, title: "Guardar imagen"},
+            dataView: {
+              show: true, 
+              title: 'Ver datos',
+              lang: ['Datos del gráfico', 'cerrar', 'refrescar'],
+              buttonColor: '#169F85',
+              readOnly: true
+            }
           }
         },
         calculable: false,
