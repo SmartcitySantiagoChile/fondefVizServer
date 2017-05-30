@@ -9,10 +9,6 @@ from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotEx
 
 # elastic search index name 
 INDEX_NAME="profiles"
-# elastic search fields
-DAY_TYPE = 'TipoDia'
-ROUTE = 'ServicioSentido'
-TIME_PERIOD = 'PeriodoTSExpedicion'
 
 class LoadProfileByExpeditionView(View):
     ''' '''
@@ -32,17 +28,17 @@ class LoadProfileByExpeditionView(View):
 
         esRouteQuery = Search()
         esRouteQuery = esRouteQuery[:0]
-        aggs = A('terms', field = ROUTE, size=1000)
+        aggs = A('terms', field = "ServicioSentido", size=1000)
         esRouteQuery.aggs.bucket('unique_routes', aggs)
 
         esDayTypeQuery = Search()
         esDayTypeQuery = esDayTypeQuery[:0]
-        aggs = A('terms', field = DAY_TYPE, size=10)
+        aggs = A('terms', field = "TipoDia", size=10)
         esDayTypeQuery.aggs.bucket('unique_day_types', aggs)
 
         esTimePeriodQuery = Search()
         esTimePeriodQuery = esDayTypeQuery[:0]
-        aggs = A('terms', field = TIME_PERIOD, size=50)
+        aggs = A('terms', field = "PeriodoTSExpedicion", size=50)
         esTimePeriodQuery.aggs.bucket('unique_time_periods', aggs)
   
         multiSearch = MultiSearch(using=client, index=INDEX_NAME)
