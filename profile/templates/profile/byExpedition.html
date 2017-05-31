@@ -49,19 +49,19 @@
         <div class="x_content">
           <!--
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterDateFrom">Desde:</label>
-            <input type="text" id="filterDateFrom" placeholder="Desde" class="form-control">
+            <label class="control-label" for="dateFromFilter">Desde:</label>
+            <input type="text" id="dateFromFilter" placeholder="Desde" class="form-control">
           </div>
 
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterDateTo">Hasta:</label>
-            <input type="text" id="filterDateTo" placeholder="Hasta" class="form-control">
+            <label class="control-label" for="dateToFilter">Hasta:</label>
+            <input type="text" id="dateToFilter" placeholder="Hasta" class="form-control">
           </div>
           -->
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterRoute">Servicio-sentido:</label>
-            <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
-            <select class="form-control" id='filterRoute'>
+            <label class="control-label" for="routeFilter">Servicio-sentido:</label>
+            <!-- <input type="text" id="routeFilter" placeholder="Servicio sentido" class="form-control">-->
+            <select class="form-control" id='routeFilter'>
               {% for route in routes %}
               <option>{{ route }}</option>
               {% endfor %}
@@ -69,8 +69,8 @@
           </div>
 
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterDayType">Tipo de día:</label>
-            <select class="form-control" id='filterDayType' multiple="multiple">
+            <label class="control-label" for="dayTypeFilter">Tipo de día:</label>
+            <select class="form-control" id='dayTypeFilter' multiple="multiple">
               {% for dayType in dayTypes %}
               <option>{{ dayType }}</option>
               {% endfor %}
@@ -78,8 +78,8 @@
           </div>
 
           <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterPeriod">Período:</label>
-            <select class="form-control" id='filterPeriod' multiple="multiple">
+            <label class="control-label" for="periodFilter">Período:</label>
+            <select class="form-control" id='periodFilter' multiple="multiple">
               {% for period in periods %}
               <option>{{ period }}</option>
               {% endfor %}
@@ -88,13 +88,13 @@
           <!--
           <div class="row">
             <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-              <label class="control-label" for="filterLicensePlate">Patente:</label>
-              <input type="text" id="filterLicensePlate" placeholder="Patente" class="tags form-control">
+              <label class="control-label" for="licensePlateFilter">Patente:</label>
+              <input type="text" id="licensePlateFilter" placeholder="Patente" class="tags form-control">
             </div>
 
             <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-              <label class="control-label" for="filterLicensePlate">Expedición id:</label>
-              <input type="text" id="filterExpeditionId" placeholder="Patente" class="tags form-control">
+              <label class="control-label" for="licensePlateFilter">Expedición id:</label>
+              <input type="text" id="expeditionIdFilter" placeholder="Patente" class="tags form-control">
             </div>
           </div>-->
           <div class="col-md-12 col-sm-12 col-xs-12 form-group">
@@ -120,7 +120,7 @@
         <div class="col-md-3 col-sm-3 col-xs-12">
           <h4><i class="fa fa-clock-o"></i> Expediciones por hora</h4>
           <div id="timePeriodChart" style="height:89px;"></div>
-          <h4><i class="fa fa-truck"></i> Expediciones por patente</h4>
+          <h4><i class="fa fa-truck"></i> Expediciones por patente <strong id="licensePlateNumber">(N)</strong></h4>
           <div id="wordcloudChart1" style="height:100px;"></div>
           <h4><i class="fa fa-calendar"></i> Expediciones por tipo de día</h4>
           <div id="wordcloudChart2" style="height:100px;"></div>
@@ -566,6 +566,8 @@ $(document).ready(function(){
       let lpValues = _dataManager.getAttrGroup('licensePlate');
       let dayTypeValues = _dataManager.getAttrGroup('dayType');
       
+      $('#licensePlateNumber').html('(' + lpValues.length + ')');
+
       let values = [lpValues, dayTypeValues];
       for(let i=0;i<values.length;i++){
         let chart = _wordcloudCharts[i];
@@ -925,34 +927,34 @@ $(document).ready(function(){
     moment.locale('es');
     // set datetimepickers
     /*
-    $('#filterDateFrom').daterangepicker({
+    $('#dateFromFilter').daterangepicker({
       singleDatePicker: true,
       singleClasses: "picker_2",
       languague: 'es'
     });
-    $('#filterDateTo').daterangepicker({
+    $('#dateToFilter').daterangepicker({
       singleDatePicker: true,
       singleClasses: "picker_2",
       languague: 'es'
     });*/
   
-    $('#filterLicensePlate').tagsInput({defaultText: '...', minChars:6});
-    $('#filterExpeditionId').tagsInput({defaultText: '...', minChars:1});
-    $('#filterLicensePlate').addTag('BJFS-17');
+    $('#licensePlateFilter').tagsInput({defaultText: '...', minChars:6});
+    $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
+    $('#licensePlateFilter').addTag('BJFS-17');
 
-    $('#filterDayType').select2({placeholder: 'tipo de día'});
-    $('#filterPeriod').select2({placeholder: 'Periodo'});
-    $('#filterRoute').select2({placeholder: 'Servicio'});//, allowClear: true});
+    $('#dayTypeFilter').select2({placeholder: 'tipo de día'});
+    $('#periodFilter').select2({placeholder: 'Periodo'});
+    $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
  
     let app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
-      //var from = $('#filterDateFrom').val();
-      //var to = $('#filterDateTo').val();
-      var route = $('#filterRoute').val();
-      var dayType = $('#filterDayType').val();
-      var period = $('#filterPeriod').val();
-      //var licensePlate = $('#filterLicensePlate').val()!='' ? $('#filterLicensePlate').val().split(','):null;
-      //var expeditionId = $('#filterExpeditionId').val()!='' ? $('#filterExpeditionId').val().split(','):null;
+      //var from = $('#dateFromFilter').val();
+      //var to = $('#dateToFilter').val();
+      var route = $('#routeFilter').val();
+      var dayType = $('#dayTypeFilter').val();
+      var period = $('#periodFilter').val();
+      //var licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
+      //var expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
    
       /*
       console.log(from);
