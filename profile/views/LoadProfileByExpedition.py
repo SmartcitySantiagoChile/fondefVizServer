@@ -13,10 +13,19 @@ class LoadProfileByExpeditionView(LoadProfileGeneric):
 
     def __init__(self):
         ''' contructor '''
-        super(LoadProfileByExpeditionView, self).__init__()
+
+        esRouteQuery = Search()
+        esRouteQuery = esRouteQuery[:0]
+        aggs = A('terms', field = "ServicioSentido", size=1000)
+        esRouteQuery.aggs.bucket('unique', aggs)
+ 
+        esQueryDict = {}
+        esQueryDict['routes'] = esRouteQuery
+        
+        super(LoadProfileByExpeditionView, self).__init__(esQueryDict)
 
     def get(self, request):
-        template = "profile/expedition.html"
+        template = "profile/byExpedition.html"
 
         return render(request, template, self.context)
 

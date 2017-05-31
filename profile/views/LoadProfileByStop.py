@@ -13,7 +13,22 @@ class LoadProfileByStopView(LoadProfileGeneric):
 
     def __init__(self):
         ''' contructor '''
-        super(LoadProfileByStopView, self).__init__()
+
+        esTSStopQuery = Search()
+        esTSStopQuery = esTSStopQuery[:0]
+        aggs = A('terms', field = "Paradero")
+        esTSStopQuery.aggs.bucket('unique', aggs)
+
+        esUserStopQuery = Search()
+        esUserStopQuery = esUserStopQuery[:0]
+        aggs = A('terms', field = "ParaderoUsuario")
+        esUserStopQuery.aggs.bucket('unique', aggs)
+ 
+        esQueryDict = {}
+        esQueryDict['authorityStopCodes'] = esTSStopQuery
+        esQueryDict['userStopCodes'] = esUserStopQuery
+ 
+        super(LoadProfileByStopView, self).__init__(esQueryDict)
 
     def get(self, request):
         template = "profile/bystop.html"

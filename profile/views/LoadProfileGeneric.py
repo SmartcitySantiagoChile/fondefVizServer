@@ -13,58 +13,55 @@ class LoadProfileGeneric(View):
     # elastic search index name 
     INDEX_NAME="profiles"
 
-    def __init__(self):
+    def __init__(self, additionalESQueryDict):
         ''' contructor '''
-        self.context={}
+        esQueryDict = self.getDefaultESQueryDict()
+        esQueryDict.update(additionalESQueryDict)
+        
+        self.context= self.getESQueryResult(esQueryDict)
 
-        routes, dayTypes, timePeriods = self.getParamsList()
-        self.context['dayTypes'] = dayTypes
-        self.context['periods'] = timePeriods
-        self.context['routes'] = routes
-
-    def getParamsList(self):
-        ''' retrieve all routes availables in elasticsearch'''
+    def getESQueryResult(self, esQueryDict):
+        ''' retrieve all data availables in elasticsearch'''
         client = settings.ES_CLIENT
 
-        esRouteQuery = Search()
-        esRouteQuery = esRouteQuery[:0]
-        aggs = A('terms', field = "ServicioSentido", size=1000)
-        esRouteQuery.aggs.bucket('unique_routes', aggs)
-
-        esDayTypeQuery = Search()
-        esDayTypeQuery = esDayTypeQuery[:0]
-        aggs = A('terms', field = "TipoDia", size=10)
-        esDayTypeQuery.aggs.bucket('unique_day_types', aggs)
-
-        esTimePeriodQuery = Search()
-        esTimePeriodQuery = esDayTypeQuery[:0]
-        aggs = A('terms', field = "PeriodoTSExpedicion", size=50)
-        esTimePeriodQuery.aggs.bucket('unique_time_periods', aggs)
-  
         multiSearch = MultiSearch(using=client, index=self.INDEX_NAME)
-        multiSearch = multiSearch.add(esRouteQuery).add(esDayTypeQuery).add(esTimePeriodQuery)
+  
+        keys = []
+        for key, esQuery in esQueryDict.iteritems():
+          multiSearch = multiSearch.add(esQuery)
+          keys.append(key)
 
         # to see the query generated
         #print multiSearch.to_dict()
         responses = multiSearch.execute()
 
-        routes = []
-        for tag in responses[0].aggregations.unique_routes.buckets:
-            routes.append(tag.key)
-        routes.sort()
+        result = {}
+        for index, response in enumerate(responses):
+          resultList = []
+          for tag in response.aggregations.unique.buckets:
+            resultList.append(tag.key)
+          resultList.sort()
 
-        dayTypes = []
-        for tag in responses[1].aggregations.unique_day_types.buckets:
-            dayTypes.append(tag.key)
-        dayTypes.sort()
+          result[keys[index]] = resultList
+        
+        return result
 
-        timePeriods = []
-        for tag in responses[2].aggregations.unique_time_periods.buckets:
-            timePeriods.append(tag.key)
-        timePeriods.sort()
+    def getDefaultESQueryDict(self):
+        ''' create a dict of elastic search query '''
 
-        return routes, dayTypes, timePeriods
+        esTimePeriodQuery = Search()
+        esTimePeriodQuery = esTimePeriodQuery[:0]
+        aggs = A('terms', field = "PeriodoTSExpedicion", size=50)
+        esTimePeriodQuery.aggs.bucket('unique', aggs)
 
+        esDayTypeQuery = Search()
+        esDayTypeQuery = esDayTypeQuery[:0]
+        aggs = A('terms', field = "TipoDia", size=10)
+        esDayTypeQuery.aggs.bucket('unique', aggs)
+ 
+        result = {}
+        result['periods'] = esTimePeriodQuery
+        result['dayTypes'] = esDayTypeQuery
 
-
+        return result
 
