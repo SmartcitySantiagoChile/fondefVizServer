@@ -5,7 +5,7 @@ from django.db import connection
 from django.conf import settings
 
 from elasticsearch_dsl import Search, Q, A, MultiSearch
-from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
+from errors import ESQueryParametersDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
 from LoadProfileGeneric import LoadProfileGeneric
 
 class LoadProfileByStopView(LoadProfileGeneric):
@@ -16,12 +16,12 @@ class LoadProfileByStopView(LoadProfileGeneric):
 
         esTSStopQuery = Search()
         esTSStopQuery = esTSStopQuery[:0]
-        aggs = A('terms', field = "Paradero")
+        aggs = A('terms', field = "Paradero", size=15000)
         esTSStopQuery.aggs.bucket('unique', aggs)
 
         esUserStopQuery = Search()
         esUserStopQuery = esUserStopQuery[:0]
-        aggs = A('terms', field = "ParaderoUsuario")
+        aggs = A('terms', field = "ParaderoUsuario", size=15000)
         esUserStopQuery.aggs.bucket('unique', aggs)
  
         esQueryDict = {}
@@ -31,7 +31,7 @@ class LoadProfileByStopView(LoadProfileGeneric):
         super(LoadProfileByStopView, self).__init__(esQueryDict)
 
     def get(self, request):
-        template = "profile/bystop.html"
+        template = "profile/byStop.html"
 
         return render(request, template, self.context)
 
@@ -46,31 +46,23 @@ class GetLoadProfileByStopData(View):
     def buildQuery(self, request):
         ''' create es-query based on params given by user '''
 
-        fromDate = request.GET.get('from', None)
-        toDate = request.GET.get('to', None)
-        route = request.GET.get('route', None)
-        licensePlate = request.GET.getlist('licensePlate[]', None)
-        dayType = request.GET.getlist('dayType[]', None)
-        period = request.GET.getlist('period[]', None)
-        expeditionId = request.GET.getlist('expeditionId[]', None)
+        fromDate = request.GET.get('from')
+        toDate = request.GET.get('to')
+        dayType = request.GET.getlist('dayType[]')
+        period = request.GET.getlist('period[]')
+        stopCode = request.GET.get('stopCode')
 
         # get list of profile*
         client = settings.ES_CLIENT
         esQuery = Search(using=client, index=LoadProfileGeneric.INDEX_NAME)
         
         existsParameters = False
-        if expeditionId:
-            esQuery = esQuery.filter('terms', idExpedicion=expeditionId)
-            existsParameters = True
-        if route:
-            esQuery = esQuery.filter('term', ServicioSentido=route)
+        if stopCode:
+            esQuery = esQuery.query(Q('term', Paradero=stopCode)|Q('term', ParaderoUsuario=stopCode))
             existsParameters = True
         else:
-            raise ESQueryRouteParameterDoesNotExist()
+            raise ESQueryStopParameterDoesNotExist()
 
-        if licensePlate:
-            esQuery = esQuery.filter('terms', Patente=licensePlate)
-            existsParameters = True
         if dayType:
             esQuery = esQuery.filter('terms', TipoDia=dayType)
             existsParameters = True
@@ -82,11 +74,8 @@ class GetLoadProfileByStopData(View):
             raise ESQueryDoesNotHaveParameters()
 
         esQuery = esQuery.filter('term', Cumplimiento='C')\
-            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
-
-        if esQuery.execute().hits.total == 0:
-            raise ESQueryResultEmpty()
-
+            .source(['idExpedicion', 'Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
+        
         return esQuery
  
     def transformESAnswer(self, esQuery):
@@ -131,6 +120,9 @@ class GetLoadProfileByStopData(View):
             stop['expandedGetOut'] = expandedGetOut
             trips[expeditionId]['stops'].append(stop)
 
+        if len(trips.keys()) == 0:
+            raise ESQueryResultEmpty()
+       
         for expeditionId in trips:
             trips[expeditionId]['stops'] = sorted(trips[expeditionId]['stops'], 
                  key=lambda record: record['order'])
@@ -146,10 +138,10 @@ class GetLoadProfileByStopData(View):
             esQuery = self.buildQuery(request)
             response['trips'] = self.transformESAnswer(esQuery)
             # debug
-            #response['query'] = esQuery.to_dict()
+            response['query'] = esQuery.to_dict()
             #return JsonResponse(response, safe=False)
             #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except (ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)

@@ -78,9 +78,6 @@ class GetLoadProfileByExpeditionData(View):
         esQuery = esQuery.filter('term', Cumplimiento='C')\
             .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
 
-        if esQuery.execute().hits.total == 0:
-            raise ESQueryResultEmpty()
-
         return esQuery
  
     def transformESAnswer(self, esQuery):
@@ -128,6 +125,9 @@ class GetLoadProfileByExpeditionData(View):
         for expeditionId in trips:
             trips[expeditionId]['stops'] = sorted(trips[expeditionId]['stops'], 
                  key=lambda record: record['order'])
+
+        if len(trips.keys()) == 0:
+            raise ESQueryResultEmpty()
 
         return trips
 
