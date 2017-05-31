@@ -80,6 +80,11 @@ class GetLoadProfileByExpeditionData(View):
 
         return esQuery
  
+    def cleanData(self, data):
+        ''' round to zero values between [-1, 0]'''
+        value = float(data)
+        return 0 if (-1 < value and value < 0) else value
+
     def transformESAnswer(self, esQuery):
         ''' transform ES answer to something util to web client '''
         trips = {}
@@ -108,18 +113,9 @@ class GetLoadProfileByExpeditionData(View):
             stop['order'] = int(data['Correlativo'])
 
             # to avoid movement of distribution chart
-            loadProfile = float(data['Carga'])
-            loadProfile = 0 if (-1 < loadProfile and loadProfile < 0) else loadProfile
-
-            expandedGetIn = float(data['SubidasExpandidas'])
-            expandedGetIn = 0 if (-1 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
-
-            expandedGetOut = float(data['BajadasExpandidas'])
-            expandedGetOut = 0 if (-1 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
-
-            stop['loadProfile'] = loadProfile
-            stop['expandedGetIn'] = expandedGetIn
-            stop['expandedGetOut'] = expandedGetOut
+            stop['loadProfile'] =  self.cleanData(data['Carga'])
+            stop['expandedGetIn'] = self.cleanData(data['SubidasExpandidas'])
+            stop['expandedGetOut'] = self.cleanData(data['BajadasExpandidas'])
             trips[expeditionId]['stops'].append(stop)
 
         for expeditionId in trips:
