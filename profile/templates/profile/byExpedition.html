@@ -546,7 +546,7 @@ $(document).ready(function(){
           type: 'scatter',
           data: values,
           symbolSize: function (dataItem) {
-            return dataItem[1]*1.5;
+            return [10, dataItem[1]*3];
           },
           tooltip: {
             formatter: function(params){
