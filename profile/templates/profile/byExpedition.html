@@ -224,7 +224,7 @@ $(document).ready(function(){
     // trips used to calculate average profile
     let _tripsUsed = 0;
 
-    this.getFileName = function(){
+    this.getDataName = function(){
       if(_trips.length>0){
         return 'Perfil de carga ' + _trips[0]['route'];
       }
@@ -791,7 +791,7 @@ $(document).ready(function(){
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
-            saveAsImage : {show: true, title: "Guardar imagen", name: _dataManager.getFileName()},
+            saveAsImage : {show: true, title: "Guardar imagen", name: _dataManager.getDataName()},
             dataView: {
               show: true, 
               title: 'Ver datos',
