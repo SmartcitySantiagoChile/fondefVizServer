@@ -480,15 +480,16 @@ $(document).ready(function(){
           // Get all rows with search applied
           let rows = _datatable.rows({'search':'applied'}).nodes();
           let addToAggr = false;
+          let inputs = $('input.flat', rows);
           if(event.target.checked){
-            $('input.flat', rows).prop('checked', true);
+            inputs.prop('checked', true);
             $(rows).addClass('success');
             addToAggr = true;
           } else {
-            $('input.flat', rows).prop('checked', false);
+            inputs.prop('checked', false);
             $(rows).removeClass('success');
           }
-          $('input.flat', rows).iCheck('update');
+          $('tbody input.flat').iCheck('update');
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
           _dataManager.setAggregate(tripIds, addToAggr);
           _self.updateCharts();
