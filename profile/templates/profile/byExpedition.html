@@ -710,7 +710,7 @@ $(document).ready(function(){
         series.push(serie);
       }
 
-      let data = {
+      let options = {
         legend: {
           data: yAxisDataName
         },
@@ -751,8 +751,8 @@ $(document).ready(function(){
           //alwaysShowContent: true,
           formatter: function(params){
             if (Array.isArray(params)){
-              let xValue = params[0].dataIndex + 1;
-              let head = xValue + '  ' + xAxisData[xValue-1]['authCode'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
+              let xValue = params[0].dataIndex;
+              let head = (xValue + 1) + '  ' + xAxisData[xValue]['userCode'] + ' ' + xAxisData[xValue]['authCode'] + '  ' + xAxisData[xValue]['name'] + '<br />';
               let info = [];
               for (let index in params){
                 let el = params[index]
@@ -770,20 +770,11 @@ $(document).ready(function(){
             }
           }
         },
-      };
-      
-      _barChart.clear();
-      _barChart.setOption({
         grid: {
           left: '30px',
           right: '45px',
           bottom: '80px'
         },
-        tooltip: data.tooltip,
-        legend: data.legend,
-        xAxis: data.xAxis,
-        yAxis: data.yAxis,
-        series: data.series,
         toolbox: {
           show : true,
           itemSize: 20,
@@ -803,7 +794,10 @@ $(document).ready(function(){
           }
         },
         calculable: false,
-      }, {
+      };
+      
+      _barChart.clear();
+      _barChart.setOption(options, {
         notMerge: true
       });
     };
