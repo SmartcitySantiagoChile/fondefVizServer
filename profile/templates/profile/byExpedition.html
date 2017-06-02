@@ -513,11 +513,11 @@ $(document).ready(function(){
       el.iCheck('update');
     });
 
-    this.tripsGroup = function(tripsGroup){
-      if(tripsGroup == undefined){
+    this.dataManager = function(dataManager){
+      if(dataManager == undefined){
         return _dataManager;
       }
-      _dataManager = tripsGroup;
+      _dataManager = dataManager;
       this.updateCharts();
       this.updateDatatable();
     }
@@ -924,8 +924,8 @@ $(document).ready(function(){
     }
 
     dataManager.xAxisData(tripGroupXAxisData)
-    app.tripsGroup(dataManager);
-    //drawDistribution(app.tripsGroup().trips());
+    app.dataManager(dataManager);
+    //drawDistribution(app.dataManager().trips());
   };
 
   // load filters
