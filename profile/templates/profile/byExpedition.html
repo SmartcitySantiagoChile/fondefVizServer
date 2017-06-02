@@ -680,10 +680,10 @@ $(document).ready(function(){
       let xAxisData = _dataManager.xAxisData()
       
       // get out, get in, load profile, percentage ocupation
-      let yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
+      let yAxisDataName = ['Subidas', 'Bajadas', 'Carga', 'Porcentaje ocupación'];
       let yAxisIndex = [0, 0, 0, 1];
       let yChartType = ['bar','bar','line','line'];
-      let dataName = ['expandedGetOut','expandedGetIn','loadProfile','saturationRate'];
+      let dataName = ['expandedGetIn','expandedGetOut','loadProfile','saturationRate'];
 
       let series = [];
       for (let index=0; index<yAxisIndex.length; index++){
