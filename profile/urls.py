@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from .views.LoadProfileByExpedition import LoadProfileByExpeditionView, GetLoadProfileByExpeditionData
 from .views.LoadProfileByStop import LoadProfileByStopView, GetLoadProfileByStopData
+from .views.Trayectory import TrayectoryView
 
 app_name='profile'
 urlpatterns = [
@@ -8,4 +9,5 @@ urlpatterns = [
   url(r'^getExpeditionData$', GetLoadProfileByExpeditionData.as_view()),
   url(r'^stop$', LoadProfileByStopView.as_view(), name='stop'),
   url(r'^getStopData$', GetLoadProfileByStopData.as_view()),
+  url(r'^trayectory$', TrayectoryView.as_view(), name='trayectory'),
 ]
