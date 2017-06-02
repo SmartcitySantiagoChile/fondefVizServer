@@ -67,78 +67,69 @@ class GetLoadProfileByStopData(View):
             esQuery = esQuery.filter('terms', TipoDia=dayType)
             existsParameters = True
         if period:
-            esQuery = esQuery.filter('terms', PeriodoTSExpedicion=period)
+            esQuery = esQuery.filter('terms', PeriodoTSParada=period)
             existsParameters = True
         
         if not existsParameters:
             raise ESQueryDoesNotHaveParameters()
 
         esQuery = esQuery.filter('term', Cumplimiento='C')\
-            .source(['idExpedicion', 'Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
+            .source(['idExpedicion', 'Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
         
         return esQuery
  
+    def cleanData(self, data):
+        ''' round to zero values between [-1, 0]'''
+        value = float(data)
+        return 0 if (-1 < value and value < 0) else value
+
     def transformESAnswer(self, esQuery):
         ''' transform ES answer to something util to web client '''
+        info = {}
         trips = {}
 
         for hit in esQuery.scan():
             data = hit.to_dict()
 
-            expeditionId = data['idExpedicion']
-            if expeditionId not in trips:
-                trips[expeditionId] = {'info': {}, 'stops': []}
+            if len(info.keys()) == 0:
+                info['authorityStopCode'] = data['Paradero']
+                info['userStopCode'] = data['ParaderoUsuario']
+                info['name'] = data['NombreParada']
 
-            trips[expeditionId]['info']['capacity'] = int(data['Capacidad'])
-            trips[expeditionId]['info']['licensePlate'] = data['Patente']
-            trips[expeditionId]['info']['route'] = data['ServicioSentido']
-            trips[expeditionId]['info']['timeTripInit'] = data['Hini']
-            trips[expeditionId]['info']['authTimePeriod'] = data['PeriodoTSExpedicion']
-            trips[expeditionId]['info']['timeTripEnd'] = data['Hfin']
-            trips[expeditionId]['info']['dayType'] = data['TipoDia']
-            stop = {}
-            stop['name'] = data['NombreParada']
-            stop['authStopCode'] = data['Paradero']
-            stop['userStopCode'] = data['ParaderoUsuario']
-            stop['authTimePeriod'] = data['PeriodoTSParada']
-            stop['distOnRoute'] = data['DistEnRuta']
-            stop['time'] = data['Tiempo']
-            stop['order'] = int(data['Correlativo'])
+            expeditionId = data['idExpedicion']
+
+            trips[expeditionId] = {}
+            trips[expeditionId]['capacity'] = int(data['Capacidad'])
+            trips[expeditionId]['licensePlate'] = data['Patente']
+            trips[expeditionId]['route'] = data['ServicioSentido']
+            trips[expeditionId]['stopTime'] = data['Tiempo']
+            trips[expeditionId]['stopTimePeriod'] = data['PeriodoTSParada']
+            trips[expeditionId]['dayType'] = data['TipoDia']
+            trips[expeditionId]['distOnPath'] = data['DistEnRuta']
 
             # to avoid movement of distribution chart
-            loadProfile = float(data['Carga'])
-            loadProfile = 0 if (-1 < loadProfile and loadProfile < 0) else loadProfile
+            trips[expeditionId]['loadProfile'] = self.cleanData(data['Carga'])
+            trips[expeditionId]['expandedGetIn'] = self.cleanData(data['SubidasExpandidas'])
+            trips[expeditionId]['expandedLanding'] = self.cleanData(data['BajadasExpandidas'])
 
-            expandedGetIn = float(data['SubidasExpandidas'])
-            expandedGetIn = 0 if (-1 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
-
-            expandedGetOut = float(data['BajadasExpandidas'])
-            expandedGetOut = 0 if (-1 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
-
-            stop['loadProfile'] = loadProfile
-            stop['expandedGetIn'] = expandedGetIn
-            stop['expandedGetOut'] = expandedGetOut
-            trips[expeditionId]['stops'].append(stop)
-
-        if len(trips.keys()) == 0:
+        if len(info.keys()) == 0:
             raise ESQueryResultEmpty()
        
-        for expeditionId in trips:
-            trips[expeditionId]['stops'] = sorted(trips[expeditionId]['stops'], 
-                 key=lambda record: record['order'])
+        result = {}
+        result['info'] = info
+        result['trips'] = trips
 
-        return trips
+        return result
 
     def get(self, request):
         ''' expedition data '''
         response = {}
-        response['trips'] = {}
 
         try:
             esQuery = self.buildQuery(request)
-            response['trips'] = self.transformESAnswer(esQuery)
+            response = self.transformESAnswer(esQuery)
             # debug
-            response['query'] = esQuery.to_dict()
+            #response['query'] = esQuery.to_dict()
             #return JsonResponse(response, safe=False)
             #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         except (ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
