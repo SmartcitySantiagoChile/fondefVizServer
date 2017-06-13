@@ -1,8 +1,8 @@
 from django.conf.urls import url
 from . import views
-from velocity.views import LoadRankingView
+from velocity.views import LoadMatrixView, getLoadMatrixData
 
 urlpatterns = [
-	url(r'^ranking$', LoadRankingView.as_view(), name='ranking'),
-	# url(r'^getRankingData$', GetLoadRankingData.as_view()),
+	url(r'^matrix$', LoadMatrixView.as_view(), name='matrix'),
+	url(r'^getMatrixData$', getLoadMatrixData.as_view()),
 ]
