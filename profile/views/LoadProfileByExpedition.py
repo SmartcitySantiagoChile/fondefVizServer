@@ -108,8 +108,8 @@ class GetLoadProfileByExpeditionData(View):
             stop['authStopCode'] = data['Paradero']
             stop['userStopCode'] = data['ParaderoUsuario']
             stop['authTimePeriod'] = data['PeriodoTSParada']
-            stop['distOnRoute'] = data['DistEnRuta']
-            stop['time'] = data['Tiempo']
+            stop['distOnPath'] = data['DistEnRuta']
+            stop['stopTime'] = data['Tiempo']
             stop['order'] = int(data['Correlativo'])
 
             # to avoid movement of distribution chart

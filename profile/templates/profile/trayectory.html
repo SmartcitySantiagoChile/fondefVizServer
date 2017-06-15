@@ -31,7 +31,7 @@
 <div class="">
   <div class="page-title">
     <div class="title_left">
-      <h3>Perfil de carga <small>por ruta</small></h3>
+      <h3>Perfil de carga <small>por trayectoria</small></h3>
     </div>
     <div class="title_right">
     </div>
@@ -110,7 +110,7 @@
   <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
       <div class="x_title">
-        <h2><i class="fa fa-bar-chart"></i> Perfil de carga promedio<small> para <strong id="expeditionNumber">N</strong> expediciones</small></h2>
+        <h2><i class="fa fa-bar-chart"></i> Perfil de carga con trayectoria<small> para <strong id="expeditionNumber">N</strong> expediciones</small></h2>
         <div class="clearfix"></div>
       </div>
       <div class="x_content">
@@ -196,8 +196,7 @@ $(document).ready(function(){
                 timeTripEnd, 
                 authTimePeriod, 
                 dayType, 
-                xAxisData, 
-                yAxisData) {
+                data) {
     this.expeditionId = expeditionId;
     this.route = route;
     this.licensePlate = licensePlate;
@@ -206,9 +205,8 @@ $(document).ready(function(){
     this.timeTripEnd = timeTripEnd;
     this.authTimePeriod = authTimePeriod;
     this.dayType = dayType;
-    this.xAxisData = xAxisData;
-    this.yAxisData = yAxisData;
-    this.aggregate = true;
+    this.data = data;
+    this.visible = true;
   }
 
   /*
@@ -710,7 +708,7 @@ $(document).ready(function(){
         series.push(serie);
       }
 
-      let options = {
+      let data = {
         legend: {
           data: yAxisDataName
         },
@@ -751,8 +749,8 @@ $(document).ready(function(){
           //alwaysShowContent: true,
           formatter: function(params){
             if (Array.isArray(params)){
-              let xValue = params[0].dataIndex;
-              let head = (xValue + 1) + '  ' + xAxisData[xValue]['userCode'] + ' ' + xAxisData[xValue]['authCode'] + '  ' + xAxisData[xValue]['name'] + '<br />';
+              let xValue = params[0].dataIndex + 1;
+              let head = xValue + '  ' + xAxisData[xValue-1]['authCode'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
               let info = [];
               for (let index in params){
                 let el = params[index]
@@ -770,11 +768,20 @@ $(document).ready(function(){
             }
           }
         },
+      };
+      
+      _barChart.clear();
+      _barChart.setOption({
         grid: {
           left: '30px',
           right: '45px',
           bottom: '80px'
         },
+        tooltip: data.tooltip,
+        legend: data.legend,
+        xAxis: data.xAxis,
+        yAxis: data.yAxis,
+        series: data.series,
         toolbox: {
           show : true,
           itemSize: 20,
@@ -794,10 +801,7 @@ $(document).ready(function(){
           }
         },
         calculable: false,
-      };
-      
-      _barChart.clear();
-      _barChart.setOption(options, {
+      }, {
         notMerge: true
       });
     };
@@ -856,14 +860,14 @@ $(document).ready(function(){
     console.log(dataSource);
     
     if(dataSource['status']){
-        let status = dataSource['status'];
-        showMessage(status);
-        return;
+      let status = dataSource['status'];
+      showMessage(status);
+      return;
     }
  
     let trips = dataSource.trips;
     let dataManager = new DataManager();
-    let tripGroupXAxisData = [];
+    let dataManagerXAxisData = [];
 
     for(let expeditionId in trips){
       let trip = trips[expeditionId];
@@ -877,19 +881,12 @@ $(document).ready(function(){
       let authTimePeriod = trip['info']['authTimePeriod'];
       let dayType = trip['info']['dayType'];
       
-      let yAxisData = {
-        'expandedGetOut': {},
-        'expandedGetIn': {},
-        'loadProfile': {},
-        'saturationRate': {}
-      };
-
       let stopQuantity = trip['stops'].length;
 
       let updateStopsName = false;
-      if(tripGroupXAxisData.length < stopQuantity){
+      if(dataManagerXAxisData.length < stopQuantity){
         updateStopsName = true;
-        tripGroupXAxisData = [];
+        dataManagerXAxisData = [];
       }
       let xAxisData = [];
       for(let stopIndex=0; stopIndex<stopQuantity; stopIndex++){
@@ -903,23 +900,24 @@ $(document).ready(function(){
           xValue['authCode'] = authStopCode;
           xValue['userCode'] = userStopCode;
           xValue['order'] = stopInfo['order'];
-          tripGroupXAxisData.push(xValue);
+          dataManagerXAxisData.push(xValue);
         }
+        let data = [];
         xAxisData.push({'authStopCode': authStopCode, 'userStopCode': userStopCode});
         yAxisData['expandedGetOut'][authStopCode] = stopInfo['expandedGetOut'];
         yAxisData['expandedGetIn'][authStopCode] = stopInfo['expandedGetIn'];
         yAxisData['loadProfile'][authStopCode] = stopInfo['loadProfile'];
         yAxisData['saturationRate'][authStopCode] = (stopInfo['loadProfile']/capacity)*100;
+        yAxisData['distOnPath'][authStopCode] = stopInfo['distOnPath'];
       }
       
       trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, 
-                      timeTripEnd, authTimePeriod, dayType, xAxisData, yAxisData);
+                      timeTripEnd, authTimePeriod, dayType, data);
       dataManager.addTrip(trip);
     }
 
-    dataManager.xAxisData(tripGroupXAxisData)
+    dataManager.xAxisData(dataManagerXAxisData)
     app.dataManager(dataManager);
-    //drawDistribution(app.dataManager().trips());
   };
 
   // load filters
