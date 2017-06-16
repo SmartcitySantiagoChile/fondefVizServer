@@ -1,5 +1,5 @@
 from django.shortcuts import render
 
 
-def index(request):
-    return render(request, "indicators/index.html", {})
+def time(request):
+    return render(request, "indicators/byTravelTime.html", {})
