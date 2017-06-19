@@ -55,6 +55,15 @@
             </div>
 
             <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterDayType">Tipo de día:</label>
+              <select class="form-control" id='filterDayType' multiple="multiple">
+                {% for dayType in dayTypes %}
+                <option>{{ dayType }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
               <label class="control-label" for="filterRoute">Servicio-sentido:</label>
               <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
               <select class="form-control" id='filterRoute'>
@@ -94,7 +103,7 @@
         <div class="clearfix"></div>
       </div>
       <div class="x_content">
-        <div id="mapid" style="height: 500px;min-height: 300px"></div>
+        <div id="mapid" style="height: 300px;min-height: 300px"></div>
       </div>
     </div>
   </div>
@@ -121,12 +130,12 @@ $(document).ready(function(){
     mChart.title = 'velocityMatrixByService';
 
     // map stuffs
-    var flpLocation = [-33.438759, -70.569781];
+    var pzaDeArmas = [-33.437824, -70.650439];
     var mbAttr = 'flp',
         mbUrl = 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
     var black = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr});
     var map = L.map('mapid', {
-        center: flpLocation,
+        center: pzaDeArmas,
         zoom: 15,
         layers: [black]
     });

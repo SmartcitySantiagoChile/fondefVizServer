@@ -20,6 +20,7 @@ class LoadMatrixView(View):
     def __init__(self):
         ''' contructor '''
         self.context={}
+        self.context['dayTypes'] = TimePeriod.objects.all().distinct('dayType').values_list('dayType', flat=True)
         self.context['routes'] = self.getRouteList()
 
     def getRouteList(self):
@@ -52,10 +53,13 @@ class getLoadMatrixData(View):
         fromDate = request.GET.get('from', None)
         toDate = request.GET.get('to', None)
         route = request.GET.get('route', None)
+        dayType = request.GET.getlist('dayType[]', None)
 
         client = settings.ES_CLIENT
         esQuery = Search(using=client, index=INDEX_NAME)
         esQuery = esQuery.filter("term", route=route)
+        if dayType:
+            esQuery = esQuery.filter('terms', TipoDia=dayType)
         esQuery = esQuery.filter("range", timePeriod={'gte': fromDate+' 00:00', 'lte': toDate+' 23:31', 'format': 'dd/MM/yyyy HH:mm', 'time_zone': 'America/Santiago'})
         aggs2 = A('terms', field = 'timePeriod', format='HH:mm', size=1000)
         aggs2.metric('distance', 'sum', field='totalDistance')
@@ -767,7 +771,7 @@ class getLoadMatrixData(View):
 # HARDCODED for development purpose
 ####################################################################################
 
-        limits = [int(1.0*i*len(route_points)/(max_section)) for i in range(max_section)]+[len(route_points)-1]
+        limits = [int(1.0*i*len(route_points)/(max_section+1)) for i in range(max_section+1)]+[len(route_points)]
         response['start_end'] = list(zip(limits[:-1], limits[1:]))
         response['route'] = {'name': route, 'points': route_points}
         return JsonResponse(response, safe=False)
