@@ -775,3 +775,16 @@ class getLoadMatrixData(View):
         response['start_end'] = list(zip(limits[:-1], limits[1:]))
         response['route'] = {'name': route, 'points': route_points}
         return JsonResponse(response, safe=False)
+
+class LoadRankingView(View):
+    ''' '''
+
+    def __init__(self):
+        ''' contructor '''
+        self.context={}
+        self.context['dayTypes'] = TimePeriod.objects.all().distinct('dayType').values_list('dayType', flat=True)
+
+    def get(self, request):
+        template = "velocity/ranking.html"
+
+        return render(request, template, self.context)

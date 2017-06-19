@@ -4,15 +4,15 @@ from django.http import JsonResponse
 from django.db import connection
 from django.conf import settings
 
-from elasticsearch_dsl import Search, Q, A
-# Create your views here.
-
-from localinfo.models import TimePeriod
-
+from elasticsearch_dsl import Search, Q, A, MultiSearch
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
 
 # elastic search index name 
 INDEX_NAME="profiles"
+# elastic search fields
+DAY_TYPE = 'TipoDia'
+ROUTE = 'ServicioSentido'
+TIME_PERIOD = 'PeriodoTSExpedicion'
 
 class LoadProfileByExpeditionView(View):
     ''' '''
@@ -20,25 +20,58 @@ class LoadProfileByExpeditionView(View):
     def __init__(self):
         ''' contructor '''
         self.context={}
-        self.context['dayTypes'] = TimePeriod.objects.all().distinct('dayType').values_list('dayType', flat=True)
-        self.context['periods'] = TimePeriod.objects.filter(dayType='Laboral').order_by('id').values_list('transantiagoPeriod', flat=True)
-        self.context['routes'] = self.getRouteList()
 
-    def getRouteList(self):
+        routes, dayTypes, timePeriods = self.getParamsList()
+        self.context['dayTypes'] = dayTypes
+        self.context['periods'] = timePeriods
+        self.context['routes'] = routes
+
+    def getParamsList(self):
         ''' retrieve all routes availables in elasticsearch'''
         client = settings.ES_CLIENT
-        esQuery = Search(using=client, index=INDEX_NAME)
-        esQuery = esQuery[:0]
-        #esQuery = esQuery.source(['ServicioSentido'])
-        aggs = A('terms', field = 'ServicioSentido', size=1000)
-        esQuery.aggs.bucket('unique_routes', aggs)
+
+        esRouteQuery = Search()
+        esRouteQuery = esRouteQuery[:0]
+        aggs = A('terms', field = ROUTE, size=1000)
+        esRouteQuery.aggs.bucket('unique_routes', aggs)
+
+        esDayTypeQuery = Search()
+        esDayTypeQuery = esDayTypeQuery[:0]
+        aggs = A('terms', field = DAY_TYPE, size=10)
+        esDayTypeQuery.aggs.bucket('unique_day_types', aggs)
+
+        esTimePeriodQuery = Search()
+        esTimePeriodQuery = esDayTypeQuery[:0]
+        aggs = A('terms', field = TIME_PERIOD, size=50)
+        esTimePeriodQuery.aggs.bucket('unique_time_periods', aggs)
   
+        multiSearch = MultiSearch(using=client, index=INDEX_NAME)
+        multiSearch = multiSearch.add(esRouteQuery).add(esDayTypeQuery).add(esTimePeriodQuery)
+
+        # to see the query generated
+        #print multiSearch.to_dict()
+        responses = multiSearch.execute()
+
         routes = []
-        for tag in esQuery.execute().aggregations.unique_routes.buckets:
+        for tag in responses[0].aggregations.unique_routes.buckets:
             routes.append(tag.key)
         routes.sort()
 
-        return routes
+        dayTypes = []
+        for tag in responses[1].aggregations.unique_day_types.buckets:
+            dayTypes.append(tag.key)
+        dayTypes.sort()
+
+        timePeriods = []
+        for tag in responses[2].aggregations.unique_time_periods.buckets:
+            timePeriods.append(tag.key)
+        timePeriods.sort()
+
+        return routes, dayTypes, timePeriods
+
+    def getESRouteQuery(self, ESClient):
+        ''' create elastic search query to get route list '''
+
 
     def get(self, request):
         template = "profile/expedition.html"
@@ -85,14 +118,14 @@ class GetLoadProfileByExpeditionData(View):
             esQuery = esQuery.filter('terms', TipoDia=dayType)
             existsParameters = True
         if period:
-            esQuery = esQuery.filter('terms', Periodo=period)
+            esQuery = esQuery.filter('terms', PeriodoTSExpedicion=period)
             existsParameters = True
         
         if not existsParameters:
             raise ESQueryDoesNotHaveParameters()
 
-        esQuery = esQuery.query('match', Cumplimiento='C')\
-            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero'])
+        esQuery = esQuery.filter('term', Cumplimiento='C')\
+            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
 
         if esQuery.execute().hits.total == 0:
             raise ESQueryResultEmpty()
@@ -114,24 +147,27 @@ class GetLoadProfileByExpeditionData(View):
             trips[expeditionId]['info']['licensePlate'] = data['Patente']
             trips[expeditionId]['info']['route'] = data['ServicioSentido']
             trips[expeditionId]['info']['timeTripInit'] = data['Hini']
+            trips[expeditionId]['info']['authTimePeriod'] = data['PeriodoTSExpedicion']
             trips[expeditionId]['info']['timeTripEnd'] = data['Hfin']
+            trips[expeditionId]['info']['dayType'] = data['TipoDia']
             stop = {}
             stop['name'] = data['NombreParada']
             stop['authStopCode'] = data['Paradero']
-            stop['userStopCode'] = data['Paradero']
+            stop['userStopCode'] = data['ParaderoUsuario']
+            stop['authTimePeriod'] = data['PeriodoTSParada']
             stop['distOnRoute'] = data['DistEnRuta']
             stop['time'] = data['Tiempo']
             stop['order'] = int(data['Correlativo'])
 
             # to avoid movement of distribution chart
             loadProfile = float(data['Carga'])
-            loadProfile = 0 if (-0.5 < loadProfile and loadProfile < 0) else loadProfile
+            loadProfile = 0 if (-1 < loadProfile and loadProfile < 0) else loadProfile
 
             expandedGetIn = float(data['SubidasExpandidas'])
-            expandedGetIn = 0 if (-0.5 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
+            expandedGetIn = 0 if (-1 < expandedGetIn and expandedGetIn < 0) else expandedGetIn
 
             expandedGetOut = float(data['BajadasExpandidas'])
-            expandedGetOut = 0 if (-0.5 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
+            expandedGetOut = 0 if (-1 < expandedGetOut and expandedGetOut < 0) else expandedGetOut
 
             stop['loadProfile'] = loadProfile
             stop['expandedGetIn'] = expandedGetIn

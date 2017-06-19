@@ -10,6 +10,14 @@
   <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+<!-- iCheck -->
+  <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
+
+  <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
   <style>
 .select2-container .select2-choice:not(.select2-default) {
     background-image: none !important;
@@ -23,7 +31,7 @@
 <div class="">
   <div class="page-title">
     <div class="title_left">
-      <h3>Perfil de carga <small>por expedición</small></h3>
+      <h3>Perfil de carga <small></small></h3>
     </div>
     <div class="title_right">
     </div>
@@ -35,11 +43,11 @@
     <div class="col-md-12 col-sm-12 col-xs-12">
       <div class="x_panel">
         <div class="x_title">
-          <h2>Filtro <small></small></h2>
+          <h2><i class="fa fa-filter"></i> Filtro <small></small></h2>
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
-        <div class="row">
+          <!--
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterDateFrom">Desde:</label>
             <input type="text" id="filterDateFrom" placeholder="Desde" class="form-control">
@@ -49,12 +57,11 @@
             <label class="control-label" for="filterDateTo">Hasta:</label>
             <input type="text" id="filterDateTo" placeholder="Hasta" class="form-control">
           </div>
-
+          -->
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="filterRoute">Servicio-sentido:</label>
             <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
             <select class="form-control" id='filterRoute'>
-              <option></option>
               {% for route in routes %}
               <option>{{ route }}</option>
               {% endfor %}
@@ -78,20 +85,18 @@
               {% endfor %}
             </select>
           </div>
-        </div>
-        <!--
-        <div class="row">
-          <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterLicensePlate">Patente:</label>
-            <input type="text" id="filterLicensePlate" placeholder="Patente" class="tags form-control">
-          </div>
+          <!--
+          <div class="row">
+            <div class="col-md-4 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterLicensePlate">Patente:</label>
+              <input type="text" id="filterLicensePlate" placeholder="Patente" class="tags form-control">
+            </div>
 
-          <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterLicensePlate">Expedición id:</label>
-            <input type="text" id="filterExpeditionId" placeholder="Patente" class="tags form-control">
-          </div>
-        </div>-->
-        <div class="row">
+            <div class="col-md-4 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterLicensePlate">Expedición id:</label>
+              <input type="text" id="filterExpeditionId" placeholder="Patente" class="tags form-control">
+            </div>
+          </div>-->
           <div class="col-md-12 col-sm-12 col-xs-12 form-group">
             <div class="ln_solid"></div>
             <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">Actualizar datos</button>
@@ -102,55 +107,56 @@
   </div>
 
   <div class="row">
-  <div class="col-md-9 col-sm-9 col-xs-12">
+  <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
       <div class="x_title">
-        <h2>Perfil de carga<small>por expedición</small></h2>
+        <h2><i class="fa fa-bar-chart"></i> Perfil de carga promedio<small> para <strong id="expeditionNumber">N</strong> expediciones</small></h2>
         <div class="clearfix"></div>
       </div>
       <div class="x_content">
-        <div id="main" style="height:400px;"></div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3 col-xs-12">
-   <div class="x_panel">
-      <div class="x_title">
-        <h2>Resumen de datos</h2>
-        <div class="clearfix"></div>
-      </div>
-      <div class="x_content">
-        <div class="tile-stats">
-          <div class="icon"><i class="fa fa-bus"></i></div>
-          <div class="count" id="route"></div>
-          <h3 id="licensePlate"></h3>
+        <div class="col-md-9 col-sm-9 col-xs-12">
+          <div id="barChart" style="height:400px;"></div>
         </div>
-        <div class="tile-stats">
-          <p>Capacidad: <strong id="capacity"></strong></p>
-          <p>Hora de inicio: <strong id="timeTripInit"></strong></p>
-          <p>Hora de fin: <strong id="timeTripEnd"></strong></p>
+        <div class="col-md-3 col-sm-3 col-xs-12">
+          <h4><i class="fa fa-clock-o"></i> Expediciones por hora</h4>
+          <div id="timePeriodChart" style="height:89px;"></div>
+          <h4><i class="fa fa-truck"></i> Patentes</h4>
+          <div id="wordcloudChart1" style="height:100px;"></div>
+          <h4><i class="fa fa-calendar"></i> Tipos de día</h4>
+          <div id="wordcloudChart2" style="height:100px;"></div>
         </div>
-        <div id="wordcloudLP" style="height:200px;"></div>
-        <!--<div id="wordcloudTime" style="height:100px;"></div>
-        <div id="wordcloudCapacity" style="height:100px;"></div>-->
       </div>
     </div>
   </div>
   </div>
 
   <div class="row">
-  <div class="col-md-12 col-sm-12 col-xs-12">
-    <div class="x_panel">
-      <div class="x_title">
-        <h2>Distribuciones</small></h2>
-        <div class="clearfix"></div>
-      </div>
-      <div class="x_content">
-        <div id="echartDistribution" style="height:400px;"></div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="x_panel">
+        <div class="x_title">
+          <h2><i class="fa fa-truck"></i> Expediciones (<strong id="expeditionNumber2">N</strong>)</h2>
+          <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+          <table id="expeditionDetail" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
+            <thead>
+              <tr>
+              <th style="padding-right:5px;"><input type="checkbox" id="checkbox-select-all" class="flat" checked></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-  </div>
+</div>
 {% endblock %}
 
 {% block js %}
@@ -162,73 +168,80 @@
 <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
 <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
 <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+
+<script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script><script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
+
+<script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+
 <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
 <script src="{% static "components/echarts-wordcloud/dist/echarts-wordcloud.min.js" %}"></script>
+
 {% endwith %}
 <script src="{% static "own/js/echartsTheme.js" %}"></script>
 <script>
 "use strict";
 $(document).ready(function(){
 
-  /*
-  function updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd) {
-    $('#route').html(route + ' ');
-    $('#licensePlate').html(licensePlate);
-    $('#capacity').html(capacity);
-    $('#timeTripInit').html(timeTripInit);
-    $('#timeTripEnd').html(timeTripEnd);
-  }*/
-
-  let echartBar = echarts.init(document.getElementById('main'), theme);
-
-  function setChart(data){
-    echartBar.setOption({
-      tooltip: data.tooltip,
-      legend: data.legend,
-      xAxis: data.xAxis,
-      yAxis: data.yAxis,
-      series: data.series,
-      toolbox: {
-        show : true,
-        feature : {
-          mark : {show: false},
-          restore : {show: false, title: "restaurar"},
-          saveAsImage : {show: true, title: "Guardar imagen"}
-        }
-      },
-      calculable: false,
-    }, {
-      notMerge: true
-    });
-  }
-  
   // define logic to manipulate data
-  function Trip(expeditionId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, xAxisData, yAxisData) {
+  function Trip(expeditionId, 
+                route, 
+                licensePlate, 
+                busCapacity, 
+                timeTripInit, 
+                timeTripEnd, 
+                authTimePeriod, 
+                dayType, 
+                xAxisData, 
+                yAxisData) {
     this.expeditionId = expeditionId;
     this.route = route;
     this.licensePlate = licensePlate;
     this.busCapacity = busCapacity;
     this.timeTripInit = timeTripInit;
     this.timeTripEnd = timeTripEnd;
+    this.authTimePeriod = authTimePeriod;
+    this.dayType = dayType;
     this.xAxisData = xAxisData;
     this.yAxisData = yAxisData;
     this.aggregate = true;
   }
 
-  function App(){
-    // private variables
+  /*
+   * to manage grouped data
+   */
+  function DataManager(){
+    // trips
     let _trips = [];
+    // stops 
     let _xAxisData = null;
+    // y average data
     let _yAxisData = null;
+    // trips used to calculate average profile
     let _tripsUsed = 0;
 
     this.trips = function(trips){
       if(trips == undefined){
         return _trips;
       }
+      _tripsUsed=0;
+      for(let i=0;i<tripIdArray.length; i++){
+        if(trips[i]['aggregate']){
+          _tripsUsed++;
+        }
+      }
       _trips = trips;
     };
     this.addTrip = function(trip){
+      // create trip identifier
+      if(trip['aggregate']){
+        _tripsUsed++;
+      }
+      trip['id'] = _trips.length;
       _trips.push(trip);
     };
     this.xAxisData = function(data){
@@ -236,6 +249,12 @@ $(document).ready(function(){
         return _xAxisData;
       }
       _xAxisData = data;
+    };
+    this.yAxisData = function(data){
+      if (data == undefined) {
+        return _yAxisData;
+      }
+      _yAxisData = data;
     };
     this.tripsUsed = function(){
       return _tripsUsed;
@@ -246,8 +265,30 @@ $(document).ready(function(){
       _yAxisData = null;
       _tripsUsed = 0;
     };
-    // private method
-    let _resumeData = function(){
+    this.setAggregate = function(tripIdArray, value){
+      for(let i=0;i<tripIdArray.length; i++){
+       let tripId = tripIdArray[i];
+       if(_trips[tripId]['aggregate'] !== value){
+         if(value === false){
+           _tripsUsed--;
+         }else{
+           _tripsUsed++;
+         }
+       }
+       _trips[tripId]['aggregate'] = value;
+      }
+    };
+    this.checkAllAreAggregate = function(tripIdArray){
+      let result = tripIdArray.length;
+      for(let i=0;i<tripIdArray.length; i++){
+       let tripId = tripIdArray[i];
+       if(!_trips[tripId]['aggregate']){
+         result--;
+       }
+      }
+      return result;
+    };
+    this.calculateAverage = function(){
       // erase previous aggregated data
       let xAxisLength = _xAxisData.length;
       let counterByStop = [];
@@ -276,10 +317,9 @@ $(document).ready(function(){
         if(!trip.aggregate){
           continue;
         }
-        _tripsUsed++;
         
         for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
-          let key = _xAxisData[stopIndex]['code'];
+          let key = _xAxisData[stopIndex]['authCode'];
           if (trip.yAxisData['expandedGetOut'][key]==undefined){
             continue;
           }
@@ -296,12 +336,340 @@ $(document).ready(function(){
       for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
         _yAxisData['expandedGetOut'][stopIndex]=_yAxisData['expandedGetOut'][stopIndex]/counterByStop[stopIndex];
         _yAxisData['expandedGetIn'][stopIndex]=_yAxisData['expandedGetIn'][stopIndex]/counterByStop[stopIndex];
-        _yAxisData['loadProfile'][stopIndex]=_yAxisData['loadProfile'][stopIndex]/counterByStop[stopIndex];
         _yAxisData['saturationRate'].push((_yAxisData['loadProfile'][stopIndex]/capacityByStop[stopIndex])*100);
+        _yAxisData['loadProfile'][stopIndex]=_yAxisData['loadProfile'][stopIndex]/counterByStop[stopIndex];
       }
     };
-    this.updateAveragesChart = function(){
-      _resumeData();
+    this.getAttrGroup = function(attrName, formatFunc=undefined){
+      let values = [];
+      let dict = {};
+      for(let i in _trips){
+        let trip = _trips[i];
+        if(!trip.aggregate){
+          continue;
+        }
+        let attrValue = trip[attrName];
+        attrValue = (formatFunc==undefined?attrValue:formatFunc(attrValue));
+        if(dict[attrValue]){
+          dict[attrValue]++;
+        }else{
+          dict[attrValue] = 1;
+        }
+      }
+      for (let name in dict) {
+          values.push({'name':name, 'value': dict[name]});
+      }
+      return values;
+    }
+    this.getDatatableData = function(){
+      let values = [];
+      let max = 0;
+      for(let i in _trips){
+        let trip = $.extend({}, _trips[i]);
+        /*if(!trip.aggregate){
+          continue;
+        }*/
+        trip['busDetail'] = trip['licensePlate'] + ' (' + trip['busCapacity'] + ')';
+        let loadProfile = [];
+        let hasNegativeValue = false;
+        for(let i=0;i<_xAxisData.length;i++){
+          let authStopCode = _xAxisData[i]['authCode'];
+          let value = trip.yAxisData['loadProfile'][authStopCode];
+          if(value !== undefined && value<0){
+            hasNegativeValue = true;
+          }
+          if(max<value){
+            max = value;
+          }
+          loadProfile.push(value);
+        }
+        trip['sparkLoadProfile'] = loadProfile;
+        trip['hasNegativeValue'] = hasNegativeValue;
+        values.push(trip);
+      }
+      return {'rows':values, 'maxHeight': max};
+    }
+  
+    this.getDistributionData = function(){
+
+      let globalMax = 0;
+      let trips = [];
+
+      for(let i in _trips){
+        let trip = _trips[i];
+        let tripData = {};
+        if(!trip.aggregate){
+          continue;
+        }
+        tripData['name'] = trip['timeTripInit'];
+
+        let loadProfile = [];
+        for(let i=0;i<_xAxisData.length;i++){
+          let authStopCode = _xAxisData[i]['authCode'];
+          let value = trip.yAxisData['loadProfile'][authStopCode];
+
+          if(globalMax<value){
+            globalMax = value;
+          }
+          loadProfile.push(value);
+        }
+        tripData['loadProfile'] = loadProfile;
+        trips.push(tripData);
+      }
+      
+      let result = {};
+      result['globalMax'] = globalMax;
+      result['trips'] = trips;
+      
+      return result;
+    }
+  }
+
+  function ExpeditionApp(){
+    let _self = this;
+    let _dataManager = new DataManager();
+    let _barChart = echarts.init(document.getElementById('barChart'), theme);
+    let _wordcloudCharts = [
+      echarts.init(document.getElementById('wordcloudChart1'), theme),
+      echarts.init(document.getElementById('wordcloudChart2'), theme)];
+    let _timePeriodChart = echarts.init(document.getElementById('timePeriodChart'), theme);
+    let _datatable = $('#expeditionDetail').DataTable({
+      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
+      },
+      columns: [
+        {
+         'targets': 0, 'searchable': false, 'orderable': false, 'className': 'text-center', 'data': 'aggregate',
+         'render': function (data, type, full, meta){
+             return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
+         }
+        },
+        { title: 'Perfil de carga', data: 'sparkLoadProfile', searchable: false,
+          render: function(data, type, row){
+            return '<i class="spark">' + data.join(',') + '</i>';
+          }
+        },
+        //{ title: 'Servicio-sentido', data: 'route',   searchable: true},
+        { title: 'Patente(capacidad)', data: 'busDetail', searchable: true}, 
+        { title: 'Período inicio expedición', data: 'authTimePeriod', searchable: true},
+        { title: 'Hora de inicio', data: 'timeTripInit', searchable: true},
+        { title: 'Hora de fin', data: 'timeTripEnd', searchable: true},
+        { title: 'Tipo de día', data: 'dayType', searchable: true},
+        { title: 'Negativo', data: 'hasNegativeValue', searchable: true},
+      ],
+      order: [[4, 'asc']],
+      createdRow: function ( row, data, index ) {
+        $(row).addClass('success');
+      },
+      initComplete: function(settings){
+        // Handle click on "Select all" control
+        let mainCheckbox = $('#checkbox-select-all');
+        mainCheckbox.iCheck({
+          labelHover: false,
+          cursor: true,
+          checkboxClass: 'icheckbox_flat-green',
+        });
+        mainCheckbox.on('ifToggled', function(event){
+          // Get all rows with search applied
+          let rows = _datatable.rows({'search':'applied'}).nodes();
+          let addToAggr = false;
+          if(event.target.checked){
+            $('input.flat', rows).prop('checked', true);
+            $(rows).addClass('success');
+            addToAggr = true;
+          } else {
+            $('input.flat', rows).prop('checked', false);
+            $(rows).removeClass('success');
+          }
+          $('input.flat', rows).iCheck('update');
+          let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
+          _dataManager.setAggregate(tripIds, addToAggr);
+          _self.updateCharts();
+        });
+      }
+    });
+    _datatable.on('search.dt', function (event) {
+
+      let el = $('#checkbox-select-all');
+      let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
+      let resultChecked = _dataManager.checkAllAreAggregate(tripIds);
+      
+      if(resultChecked === tripIds.length){
+        el.prop('checked', true);
+      } else if(resultChecked === 0){
+        el.prop('checked', false);
+      } else {
+        el.prop('checked', false);
+        el.prop('indeterminate', true);
+      }
+      el.iCheck('update');
+    });
+
+    this.tripsGroup = function(tripsGroup){
+      if(tripsGroup == undefined){
+        return _dataManager;
+      }
+      _dataManager = tripsGroup;
+      this.updateCharts();
+      this.updateDatatable();
+    }
+
+    let _updateTimePeriodChart = function(){
+      let timeTripInit = _dataManager.getAttrGroup('timeTripInit', function(attrValue){
+        return attrValue.substring(0, 2);
+      });
+      timeTripInit = timeTripInit.sort(function(a, b){
+        a = parseInt(a.name);
+        b = parseInt(b.name);
+        return a-b;
+      });
+      let hours = timeTripInit.map(function(el){ return el.name;});
+      let values = timeTripInit.map(function(el, index){ return [index, el.value];});
+      let option = {
+        tooltip: {
+          positon: 'top'
+        },
+        singleAxis: [{
+          type: 'category',
+          boundaryGap: false,
+          data: hours,
+          top: '10%',
+          height: '40%',
+          axisLabel: {
+            interval: 2
+          }
+        }],
+        series: [{
+          singleAxisIndex: 0,
+          coordinateSystem: 'singleAxis',
+          type: 'scatter',
+          data: values,
+          symbolSize: function (dataItem) {
+            return dataItem[1]*1.5;
+          },
+          tooltip: {
+            formatter: function(params){
+              let value = params.value[1];
+              let name = params.name;
+              let timePeriod = '[' + name + ':00, ' + name + ':59]';
+              return value + ' expediciones iniciadas entre ' + timePeriod;
+            }
+          }
+        }]
+      };
+      _timePeriodChart.clear();
+      _timePeriodChart.setOption(option,{notMerge: true});
+    }
+
+    let _updateWordcloudCharts = function(){
+      let lpValues = _dataManager.getAttrGroup('licensePlate');
+      let dayTypeValues = _dataManager.getAttrGroup('dayType');
+      
+      let values = [lpValues, dayTypeValues];
+      for(let i=0;i<values.length;i++){
+        let chart = _wordcloudCharts[i];
+        
+        chart.on('click', function(params){
+          console.log(params);
+        });
+      
+        let options = { 
+          tooltip: {},
+          series: [{
+            type: 'wordCloud',
+            shape: 'pentagon',
+            width: '100%',
+            height: '100%',
+            sizeRange: [6, 14],
+            rotationRange: [0, 0],
+            rotationStep: 0,
+            gridSize: 8,
+            textStyle: {
+              normal: {
+                color: function () {
+                  return 'rgb(' + [
+                    Math.round(Math.random() * 160),
+                    Math.round(Math.random() * 160),
+                    Math.round(Math.random() * 160)
+                  ].join(',') + ')';
+                }
+              }, 
+              emphasis: {
+                shadowBlur: 10,
+                shadowColor: '#169F85'
+              }
+            },  
+            data: values[i]
+          }]
+        }
+        chart.clear()
+        chart.setOption(options, {notMerge: true});
+      }
+    };
+                                                                
+    let _updateDatatable = function(){                                     
+      let dataset = _dataManager.getDatatableData();                       
+      let rows = dataset['rows']                                           
+      let maxHeight = dataset['maxHeight']                                 
+                                                                           
+      _datatable.off('draw');                                              
+      _datatable.on('draw', function(oSettings) {                          
+        $('.spark:not(:has(canvas))').sparkline('html', {                  
+          type: 'bar',                                                     
+          barColor: '#169f85',                                             
+          negBarColor: 'red',                                              
+          chartRangeMax: maxHeight,                                        
+        });                                                                
+                                                                           
+        $('tbody input.flat').iCheck('destroy');                           
+        $('tbody input.flat').iCheck({                                     
+          labelHover: false,                                               
+          cursor: true,                                                    
+          checkboxClass: 'icheckbox_flat-green'                            
+        });                                                                
+                                                                           
+        // activate iCheck in checkbox                                     
+        let dtRows = _datatable.rows().nodes();                            
+        // attach events check and uncheck                                 
+        $('input.flat', dtRows).off('ifToggled');                          
+        $('input.flat', dtRows).on('ifToggled', function(event){           
+          let tr = $(this).parent().parent().parent();                     
+          let addToAggr = false;                                           
+          if(event.target.checked){                                        
+            tr.addClass('success');                                        
+            addToAggr = true;                                              
+          }else{                                                           
+            tr.removeClass('success');                                     
+          }                                                                
+                                                                           
+          // updateChart                                                   
+          let tripId = parseInt($(this).attr('name').replace('trip', '')); 
+          _dataManager.setAggregate([tripId], addToAggr);                  
+          _self.updateCharts();                                            
+        });                                                                
+      });                                                                  
+      _datatable.clear();                                                  
+      _datatable.rows.add(rows);                                           
+      _datatable.columns.adjust().draw();                                  
+                                                                           
+      // attach to attach event                                            
+      $('#detail-tab').off('shown.bs.tab');                                
+      $('#detail-tab').on('shown.bs.tab', function(event){                 
+        $('.spark:not(:has(canvas))').sparkline('html', {                  
+          type: 'bar',                                                     
+          barColor: '#169f85',                                             
+          negBarColor: 'red',                                              
+          chartRangeMax: maxHeight,                                        
+        });                                                                
+      })                                                                   
+    };                                 
+
+    let _updateBarChart = function(){
+      _dataManager.calculateAverage();
+      let yAxisData = _dataManager.yAxisData()
+      let xAxisData = _dataManager.xAxisData()
+      
       // get out, get in, load profile, percentage ocupation
       let yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
       let yAxisIndex = [0, 0, 0, 1];
@@ -313,7 +681,7 @@ $(document).ready(function(){
         let serie = {
           name: yAxisDataName[index],
           type: yChartType[index],
-          data: _yAxisData[dataName[index]],
+          data: yAxisData[dataName[index]],
           markPoint: {
             data: [{
                type: 'max', 
@@ -333,14 +701,13 @@ $(document).ready(function(){
         series.push(serie);
       }
 
-      let xAxisData = _xAxisData;
       let data = {
         legend: {
           data: yAxisDataName
         },
         xAxis: [{
           type: 'category',
-          data: app.xAxisData().map(function(attr){ return attr.order; })
+          data: xAxisData.map(function(attr){ return attr.order; })
         }],
         yAxis: [{
           type: 'value',
@@ -354,7 +721,19 @@ $(document).ready(function(){
           max: 100,
           position: 'right',
           axisLabel: {
-            formatter: '{value} %'
+            formatter: '{value} %',
+            textStyle: {
+              color: '#39A7F0'
+            }
+          },
+          axisLine: {
+            onZero: true,
+            lineStyle: {
+              color: '#39A7F0', width: 2
+            }
+          },
+          nameTextStyle: {
+            color: '#39A7F0'
           }
         }],
         series: series,
@@ -362,10 +741,9 @@ $(document).ready(function(){
           trigger: 'axis',
           //alwaysShowContent: true,
           formatter: function(params){
-            //console.log(params);
             if (Array.isArray(params)){
               let xValue = params[0].dataIndex + 1;
-              let head = xValue + '  ' + xAxisData[xValue-1]['code'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
+              let head = xValue + '  ' + xAxisData[xValue-1]['authCode'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
               let info = [];
               for (let index in params){
                 let el = params[index]
@@ -384,10 +762,65 @@ $(document).ready(function(){
           }
         },
       };
-      setChart(data);
+      
+      _barChart.clear();
+      _barChart.setOption({
+        tooltip: data.tooltip,
+        legend: data.legend,
+        xAxis: data.xAxis,
+        yAxis: data.yAxis,
+        series: data.series,
+        toolbox: {
+          show : true,
+          feature : {
+            mark : {show: false},
+            restore : {show: false, title: "restaurar"},
+            saveAsImage : {show: true, title: "Guardar imagen"},
+            dataView: {
+              show: true, 
+              title: 'Ver datos',
+              lang: ['Datos del gráfico', 'cerrar', 'refrescar'],
+              buttonColor: '#169F85',
+              readOnly: true
+            }
+          }
+        },
+        calculable: false,
+      }, {
+        notMerge: true
+      });
+    };
+
+    let _updateGlobalStats = function() {
+      $('#expeditionNumber').html(_dataManager.tripsUsed());
+      $('#expeditionNumber2').html(_dataManager.tripsUsed());
+    };
+
+    this.updateCharts = function(){
+      _updateBarChart();
+      _updateWordcloudCharts();
+      _updateTimePeriodChart();
+      _updateGlobalStats();
+    };
+    this.updateDatatable = function(){
+      _updateDatatable();
+    };
+    this.showLoadingAnimationCharts = function(){
+      let loadingText = 'Cargando...';
+      _barChart.showLoading(null, {text: loadingText});
+      _timePeriodChart.showLoading(null, {text: loadingText});
+      for(let i=0;i<_wordcloudCharts.length;i++){
+        _wordcloudCharts[i].showLoading(null, {text: loadingText});
+      }
+    };
+    this.hideLoadingAnimationCharts = function(){
+      _barChart.hideLoading();
+      _timePeriodChart.hideLoading();
+      for(let i=0;i<_wordcloudCharts.length;i++){
+        _wordcloudCharts[i].hideLoading();
+      }
     };
   }
-  var app = new App();
 
   function showMessage(status){
     let message = status['message'];
@@ -408,9 +841,9 @@ $(document).ready(function(){
     });
   }; 
 
-  function processData(dataSource){
+  function processData(dataSource, app){
     console.log(dataSource);
-    echartBar.hideLoading();
+    
     if(dataSource['status']){
         let status = dataSource['status'];
         showMessage(status);
@@ -418,9 +851,8 @@ $(document).ready(function(){
     }
  
     let trips = dataSource.trips;
-    app.cleanData();
-    
-    let appxAxisData = [];
+    let dataManager = new DataManager()
+    let tripGroupXAxisData = [];
 
     for(let expeditionId in trips){
       let trip = trips[expeditionId];
@@ -431,8 +863,8 @@ $(document).ready(function(){
       let route = trip['info']['route'];
       let timeTripInit = trip['info']['timeTripInit'];
       let timeTripEnd = trip['info']['timeTripEnd'];
-      
-      //updateBusInfo(route, licensePlate, capacity, timeTripInit, timeTripEnd);
+      let authTimePeriod = trip['info']['authTimePeriod'];
+      let dayType = trip['info']['dayType'];
       
       let yAxisData = {
         'expandedGetOut': {},
@@ -444,37 +876,39 @@ $(document).ready(function(){
       let stopQuantity = trip['stops'].length;
 
       let updateStopsName = false;
-      if(appxAxisData.length < stopQuantity){
+      if(tripGroupXAxisData.length < stopQuantity){
         updateStopsName = true;
-        appxAxisData = [];
+        tripGroupXAxisData = [];
       }
       let xAxisData = [];
       for(let stopIndex=0; stopIndex<stopQuantity; stopIndex++){
         let stopInfo = trip['stops'][stopIndex];
-        let stopCode = stopInfo['authStopCode'];
+        let authStopCode = stopInfo['authStopCode'];
+        let userStopCode = stopInfo['userStopCode'];
         
         if(updateStopsName){
-          let xValue = {}
+          let xValue = {};
           xValue['name'] = stopInfo['name'];
-          xValue['code'] = stopCode;
+          xValue['authCode'] = authStopCode;
+          xValue['userCode'] = userStopCode;
           xValue['order'] = stopInfo['order'];
-          appxAxisData.push(xValue);
+          tripGroupXAxisData.push(xValue);
         }
-        xAxisData.push(stopCode);
-        yAxisData['expandedGetOut'][stopCode] = stopInfo['expandedGetOut'];
-        yAxisData['expandedGetIn'][stopCode] = stopInfo['expandedGetIn'];
-        yAxisData['loadProfile'][stopCode] = stopInfo['loadProfile'];
-        yAxisData['saturationRate'][stopCode] = (stopInfo['loadProfile']/capacity)*100;
+        xAxisData.push({'authStopCode': authStopCode, 'userStopCode': userStopCode});
+        yAxisData['expandedGetOut'][authStopCode] = stopInfo['expandedGetOut'];
+        yAxisData['expandedGetIn'][authStopCode] = stopInfo['expandedGetIn'];
+        yAxisData['loadProfile'][authStopCode] = stopInfo['loadProfile'];
+        yAxisData['saturationRate'][authStopCode] = (stopInfo['loadProfile']/capacity)*100;
       }
       
-      trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, xAxisData, yAxisData);
-      app.addTrip(trip);
+      trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, 
+                      timeTripEnd, authTimePeriod, dayType, xAxisData, yAxisData);
+      dataManager.addTrip(trip);
     }
 
-    app.xAxisData(appxAxisData);
-    app.updateAveragesChart();
-    drawDistribution(app.trips());
-    drawWordCloud(app.trips());
+    dataManager.xAxisData(tripGroupXAxisData)
+    app.tripsGroup(dataManager);
+    //drawDistribution(app.tripsGroup().trips());
   };
 
   // load filters
@@ -482,6 +916,7 @@ $(document).ready(function(){
     // set locale
     moment.locale('es');
     // set datetimepickers
+    /*
     $('#filterDateFrom').daterangepicker({
       singleDatePicker: true,
       singleClasses: "picker_2",
@@ -491,7 +926,7 @@ $(document).ready(function(){
       singleDatePicker: true,
       singleClasses: "picker_2",
       languague: 'es'
-    });
+    });*/
   
     $('#filterLicensePlate').tagsInput({defaultText: '...', minChars:6});
     $('#filterExpeditionId').tagsInput({defaultText: '...', minChars:1});
@@ -499,226 +934,63 @@ $(document).ready(function(){
 
     $('#filterDayType').select2({placeholder: 'tipo de día'});
     $('#filterPeriod').select2({placeholder: 'Periodo'});
-    $('#filterRoute').select2({placeholder: 'Servicio', allowClear: true});
+    $('#filterRoute').select2({placeholder: 'Servicio'});//, allowClear: true});
  
+    let app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
-      var from = $('#filterDateFrom').val();
-      var to = $('#filterDateTo').val();
+      //var from = $('#filterDateFrom').val();
+      //var to = $('#filterDateTo').val();
       var route = $('#filterRoute').val();
       var dayType = $('#filterDayType').val();
       var period = $('#filterPeriod').val();
       //var licensePlate = $('#filterLicensePlate').val()!='' ? $('#filterLicensePlate').val().split(','):null;
       //var expeditionId = $('#filterExpeditionId').val()!='' ? $('#filterExpeditionId').val().split(','):null;
    
+      /*
       console.log(from);
       console.log(to);
       console.log(route);
       console.log(dayType);
       console.log(period);
+      */
       //console.log(licensePlate);
       //console.log(expeditionId);
 
-      let data = {
-        from: from,
-        to: to,
+      let params = {
+        //from: from,
+        //to: to,
       };
       if (route) {
-        data['route'] = route;
+        params['route'] = route;
       }
       if (dayType) {
-        data['dayType'] = dayType;
+        params['dayType'] = dayType;
       }
       if (period) {
-        data['period'] = period;
+        params['period'] = period;
       }
       /*
       if (licensePlate) {
-        data['licensePlate'] = licensePlate;
+        params['licensePlate'] = licensePlate;
       }
       if (expeditionId) {
-        data['expeditionId'] = expeditionId;
+        params['expeditionId'] = expeditionId;
       }
       */
-      echartBar.showLoading(null, {text:'Cargando...'});
-      let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-      let button = $(this).append(loading) 
-      $.getJSON('getExpeditionData', data, processData)
+
+      app.showLoadingAnimationCharts();
+      let loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+      let previousMessage = $(this).html();
+      let button = $(this).append(loadingIcon) 
+      $.getJSON('getExpeditionData', params, function(data){
+        processData(data, app);
+      })
       .always(function(){
-        button.html('Actualizar datos')
+        button.html(previousMessage);
+        app.hideLoadingAnimationCharts();
       });
     });
   })()
-
-  //***********************************************************************
-  var echartDist = echarts.init(document.getElementById('echartDistribution'), theme);
-  function drawDistribution(trips){
-    let grids = [];
-    let xAxes = [];
-    let yAxes = [];
-    let series = [];
-    let titles = [];
-    let count = 0;
-    let globalMax = 0;
-    echarts.util.each(trips, function (trip, id) {
-      let data = [];
-      let N_POINT =trip.xAxisData.length;
-      // order load profile based on stop sequence
-      let loadProfileData = trip.xAxisData.map(function(code){ 
-        return trip.yAxisData['loadProfile'][code]; 
-      });
-      let max = Math.max(...loadProfileData.filter(function(el){ return el !== undefined;}));
-      globalMax = max > globalMax ? max:globalMax;
-      for (let i=0; i<N_POINT; i++) {
-        let x = i+1;
-        let y = loadProfileData[i];
-        data.push([x, y]);
-      }
-      grids.push({
-        show: true,
-        borderWidth: 0,
-        backgroundColor: '#fff',
-        shadowColor: 'rgba(0, 0, 0, 0.3)',
-        shadowBlur: 2
-      });
-      xAxes.push({
-        type: 'value',
-        show: false,
-        //min: 0,
-        //max: 1,
-        gridIndex: count
-      });
-      yAxes.push({
-        type: 'value',
-        show: false,
-        //min: -0.4,
-        max: max + 20,
-        gridIndex: count
-      });
-      let name = trip.expeditionId;
-      series.push({
-        name: name,
-        type: 'bar',
-        xAxisIndex: count,
-        yAxisIndex: count,
-        data: data,
-        showSymbol: false,
-        animationEasing: name,
-        animationDuration: 1000
-      });
-      titles.push({
-        textAlign: 'center',
-        text: name,
-        textStyle: {
-          fontSize: 12,
-          fontWeight: 'normal'
-        }
-      });
-      count++;
-    });
-  
-    for (let index in yAxes) {
-      yAxes[index].max = globalMax;
-    }
-
-    let rowNumber = Math.ceil(Math.sqrt(count));
-    echarts.util.each(grids, function (grid, idx) {
-      grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
-      grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
-      grid.width = (1 / rowNumber * 100 - 1) + '%';
-      grid.height = (1 / rowNumber * 100 - 1) + '%';
-
-      titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
-      titles[idx].top = parseFloat(grid.top) + '%';
-    });
-    let option = {
-      title: titles,
-      grid: grids,
-      xAxis: xAxes,
-      yAxis: yAxes,
-      series: series
-    };
-    echartDist.setOption(option,{notMerge: true});
-  }
-
-  function drawWordCloud(trips){
-    let lpValues = [];
-    let lpDict = {};
-    for(let i in trips){
-      let trip = trips[i];
-      let licensePlate = trip['licensePlate']
-      if(lpDict[licensePlate]){
-        lpDict[licensePlate]++;
-      }else{
-        lpDict[licensePlate] = 1;
-      }
-    }
-    for (let licensePlate in lpDict) {
-        lpValues.push({'name':licensePlate, 'value': lpDict[licensePlate]});
-    }
-    var chart = echarts.init(document.getElementById('wordcloudLP'));
-    chart.on('click', function(params){
-      console.log(params);
-    });
-    var option = {
-      tooltip: {},
-      grid: [
-        {x: '7%', y: '7%', width: '38%', height: '38%'},
-        {x: '50%', y: '7%', width: '38%', height: '38%'},
-      ],
-      series: [{
-        type: 'wordCloud',
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        shape: 'circle',
-        sizeRange: [12, 60],
-        rotationRange: [0, 0],
-        rotationStep: 0,
-        gridSize: 2,
-        textStyle: {
-          normal: {
-            color: function () {
-              return 'rgb(' + [
-                Math.round(Math.random() * 160),
-                Math.round(Math.random() * 160),
-                Math.round(Math.random() * 160)
-              ].join(',') + ')';
-            }
-          },
-          emphasis: {
-            shadowBlur: 10,
-            shadowColor: '#333'
-          }
-        },
-        data: lpValues
-      },{
-        type: 'wordCloud',
-        xAxisIndex: 1,
-        yAxisIndex: 1,
-        shape: 'circle',
-        sizeRange: [12, 60],
-        rotationRange: [0, 0],
-        rotationStep: 0,
-        gridSize: 2,
-        textStyle: {
-          normal: {
-            color: function () {
-              return 'rgb(' + [
-                Math.round(Math.random() * 160),
-                Math.round(Math.random() * 160),
-                Math.round(Math.random() * 160)
-              ].join(',') + ')';
-            }
-          },
-          emphasis: {
-            shadowBlur: 10,
-            shadowColor: '#333'
-          }
-        },
-        data: lpValues
-      }]
-    };
-    chart.setOption(option);
-  }
 });
 </script>
 {% endblock %}
