@@ -726,8 +726,8 @@ $(document).ready(function(){
         },{
           type: 'value',
           name: 'Porcentaje',
-          min: 0,
-          max: 100,
+          //min: 0,
+          //max: 100,
           position: 'right',
           axisLabel: {
             formatter: '{value} %',
@@ -943,8 +943,8 @@ $(document).ready(function(){
     $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
     $('#licensePlateFilter').addTag('BJFS-17');
 
-    $('#dayTypeFilter').select2({placeholder: 'tipo de día'});
-    $('#periodFilter').select2({placeholder: 'Periodo'});
+    $('#dayTypeFilter').select2({placeholder: 'Todos'});
+    $('#periodFilter').select2({placeholder: 'Todos'});
     $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
  
     let app = new ExpeditionApp();

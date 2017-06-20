@@ -154,6 +154,7 @@
               <th></th>
               <th></th>
               <th></th>
+              <th></th>
               </tr>
             </thead>
           </table>
@@ -460,8 +461,8 @@ $(document).ready(function(){
       },
       columns: [
         {
-         'targets': 0, 'searchable': false, 'orderable': false, 'className': 'text-center', 'data': 'aggregate',
-         'render': function (data, type, full, meta){
+         targets: 0, searchable: false, orderable: false, className: 'text-center', data: 'aggregate',
+         render: function (data, type, full, meta){
              return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
          }
         },
@@ -470,9 +471,14 @@ $(document).ready(function(){
         { title: 'Período de pasada', data: 'stopTimePeriod', searchable: true},
         { title: 'Hora de pasada', data: 'stopTime', searchable: true},
         { title: 'Tipo de día', data: 'dayType', searchable: true},
-        { title: 'Carga', data: 'loadProfile', searchable: true},
+        { title: 'Carga al llegar', data: 'loadProfile', searchable: true},
         { title: 'Subidas', data: 'expandedGetIn', searchable: true},
         { title: 'Bajadas', data: 'expandedLanding', searchable: true},
+        { title: 'Carga al salir', data: 'loadProfile', searchable: true, 
+          render: function(data, type, row, meta){
+            return data + row.expandedGetIn - row.expandedLanding;
+          }
+        },
       ],
       order: [[3, 'asc']],
       createdRow: function ( row, data, index ) {
@@ -803,7 +809,7 @@ $(document).ready(function(){
               // add saturation rate after
               let saturationRateInfo = ball.replace('{}', '#3145f7') + 'Tasa ocupación promedio a la salida:' + yAxisData['saturationRateAfter'][xValue].toFixed(1)+'%';
               info.push(saturationRateInfo);
-              return head + info.join('<br />');
+              return info.join('<br />');
             } else {
               let title = params.data.name;
               let name = params.seriesName;
@@ -933,8 +939,8 @@ $(document).ready(function(){
     $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
     $('#licensePlateFilter').addTag('BJFS-17');
 
-    $('#dayTypeFilter').select2({placeholder: 'tipo de día'});
-    $('#periodFilter').select2({placeholder: 'Periodo'});
+    $('#dayTypeFilter').select2({placeholder: 'Todos'});
+    $('#periodFilter').select2({placeholder: 'Todos'});
     $('#stopFilter').select2({
       placeholder: 'Parada'
     });
