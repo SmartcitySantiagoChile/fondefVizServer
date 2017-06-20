@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Perfil por expedición{% endblock %}
+{% block title %}Perfil por parada{% endblock %}
 
 {% block css %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
@@ -214,7 +214,7 @@ $(document).ready(function(){
     this.loadProfile = loadProfile;
     this.expandedGetIn = expandedGetIn;
     this.expandedLanding = expandedLanding;
-    this.aggregate = true;
+    this.visible = true;
   }
 
   /*
@@ -249,7 +249,7 @@ $(document).ready(function(){
       }
       _tripsUsed=0;
       for(let i=0;i<tripIdArray.length; i++){
-        if(trips[i]['aggregate']){
+        if(trips[i]['visible']){
           _tripsUsed++;
         }
       }
@@ -257,7 +257,7 @@ $(document).ready(function(){
     };
     this.addTrip = function(trip){
       // create trip identifier
-      if(trip['aggregate']){
+      if(trip['visible']){
         _tripsUsed++;
       }
       trip['id'] = _trips.length;
@@ -285,31 +285,31 @@ $(document).ready(function(){
       _yAxisData = null;
       _tripsUsed = 0;
     };
-    this.setAggregate = function(tripIdArray, value){
+    this.setVisibilty = function(tripIdArray, value){
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
-       if(_trips[tripId]['aggregate'] !== value){
+       if(_trips[tripId]['visible'] !== value){
          if(value === false){
            _tripsUsed--;
          }else{
            _tripsUsed++;
          }
        }
-       _trips[tripId]['aggregate'] = value;
+       _trips[tripId]['visible'] = value;
       }
     };
     this.checkAllAreAggregate = function(tripIdArray){
       let result = tripIdArray.length;
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
-       if(!_trips[tripId]['aggregate']){
+       if(!_trips[tripId]['visible']){
          result--;
        }
       }
       return result;
     };
     this.calculateAverage = function(){
-      // erase previous aggregated data
+      // erase previous visibled data
       let xAxisLength = _xAxisData.length;
       let counterByRoute = [];
       let capacityByRoute = [];
@@ -341,7 +341,7 @@ $(document).ready(function(){
       for(let tripIndex=0; tripIndex<tripQuantity; tripIndex++){
         let trip = _trips[tripIndex];
 
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
 
@@ -381,7 +381,7 @@ $(document).ready(function(){
       let dict = {};
       for(let i in _trips){
         let trip = _trips[i];
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         let attrValue = trip[attrName];
@@ -402,7 +402,7 @@ $(document).ready(function(){
       let max = 0;
       for(let i in _trips){
         let trip = $.extend({}, _trips[i]);
-        /*if(!trip.aggregate){
+        /*if(!trip.visible){
           continue;
         }*/
         trip['busDetail'] = trip['licensePlate'] + ' (' + trip['busCapacity'] + ')';
@@ -419,7 +419,7 @@ $(document).ready(function(){
       for(let i in _trips){
         let trip = _trips[i];
         let tripData = {};
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         tripData['name'] = trip['stopTime'];
@@ -461,7 +461,7 @@ $(document).ready(function(){
       },
       columns: [
         {
-         targets: 0, searchable: false, orderable: false, className: 'text-center', data: 'aggregate',
+         targets: 0, searchable: false, orderable: false, className: 'text-center', data: 'visible',
          render: function (data, type, full, meta){
              return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
          }
@@ -507,7 +507,7 @@ $(document).ready(function(){
           }
           $('tbody input.flat').iCheck('update');
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
-          _dataManager.setAggregate(tripIds, addToAggr);
+          _dataManager.setVisibilty(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
@@ -662,7 +662,7 @@ $(document).ready(function(){
 
           // updateChart
           let tripId = parseInt($(this).attr('name').replace('trip', ''));
-          _dataManager.setAggregate([tripId], addToAggr);
+          _dataManager.setVisibilty([tripId], addToAggr);
           _self.updateCharts();
         });
       });

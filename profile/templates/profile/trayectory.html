@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Perfil por expedición{% endblock %}
+{% block title %}Perfil a través de trayectoria{% endblock %}
 
 {% block css %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
@@ -140,7 +140,6 @@
               <th></th>
               <th></th>
               <th></th>
-              <th></th>
               </tr>
             </thead>
           </table>
@@ -207,8 +206,8 @@ $(document).ready(function(){
   function DataManager(){
     // trips
     let _trips = [];
-    // trips used to calculate average profile
-    let _tripsUsed = 0;
+    // trips are visible
+    let _visibleTrips = 0;
     let _yAxisData = [];
     this.getDataName = function(){
       if(_trips.length>0){
@@ -220,10 +219,10 @@ $(document).ready(function(){
       if(trips == undefined){
         return _trips;
       }
-      _tripsUsed=0;
+      _visibleTrips=0;
       for(let i=0;i<tripIdArray.length; i++){
         if(trips[i]['visible']){
-          _tripsUsed++;
+          _visibleTrips++;
         }
       }
       _trips = trips;
@@ -231,13 +230,13 @@ $(document).ready(function(){
     this.addTrip = function(trip){
       // create trip identifier
       if(trip['visible']){
-        _tripsUsed++;
+        _visibleTrips++;
       }
       trip['id'] = _trips.length;
       _trips.push(trip);
     };
     this.tripsUsed = function(){
-      return _tripsUsed;
+      return _visibleTrips;
     };
     this.yAxisData = function(data){
       if(data == undefined){
@@ -247,16 +246,16 @@ $(document).ready(function(){
     };
     this.cleanData = function(){
       _trips = [];
-      _tripsUsed = 0;
+      _visibleTrips = 0;
     };
-    this.setAggregate = function(tripIdArray, value){
+    this.setVisibilty = function(tripIdArray, value){
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
        if(_trips[tripId]['visible'] !== value){
          if(value === false){
-           _tripsUsed--;
+           _visibleTrips--;
          }else{
-           _tripsUsed++;
+           _visibleTrips++;
          }
        }
        _trips[tripId]['visible'] = value;
@@ -318,7 +317,10 @@ $(document).ready(function(){
         trip['hasNegativeValue'] = hasNegativeValue;
         values.push(trip);
       }
-      return {'rows':values, 'maxHeight': max};
+      return {
+        rows: values, 
+        maxHeight: max
+      };
     }
   }
 
@@ -349,7 +351,6 @@ $(document).ready(function(){
         { title: 'Hora de inicio', data: 'timeTripInit', searchable: true},
         { title: 'Hora de fin', data: 'timeTripEnd', searchable: true},
         { title: 'Tipo de día', data: 'dayType', searchable: true},
-        { title: 'Negativo', data: 'hasNegativeValue', searchable: true},
       ],
       order: [[4, 'asc']],
       createdRow: function ( row, data, index ) {
@@ -378,7 +379,7 @@ $(document).ready(function(){
           }
           $('tbody input.flat').iCheck('update');
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
-          _dataManager.setAggregate(tripIds, addToAggr);
+          _dataManager.setVisibilty(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
@@ -446,7 +447,7 @@ $(document).ready(function(){
                                                                            
           // updateChart                                                   
           let tripId = parseInt($(this).attr('name').replace('trip', '')); 
-          _dataManager.setAggregate([tripId], addToAggr);                  
+          _dataManager.setVisibilty([tripId], addToAggr);                  
           _self.updateCharts();                                            
         });                                                                
       });                                                                  
@@ -536,7 +537,11 @@ $(document).ready(function(){
       };
       //generates markLine
       let markLines = [];
+      let yMax = 0;
       _dataManager.yAxisData().forEach(function(item, index){
+        if(item.value > yMax){
+          yMax = item.value;
+        }
         let markLine = {
           yAxis: item.value, 
           name: item.name,
@@ -565,13 +570,6 @@ $(document).ready(function(){
         } 
       }; 
       //scatterSerie.data = null;
-      // TODO: REMOVE THIS
-      series = series.filter(function(el, index){
-        return index < 44 || index > 44;
-      });
-      visualMaps = visualMaps.filter(function(el, index){
-        return index < 44 || index > 44;
-      });
       series.push(scatterSerie);
       console.log(series);
       console.log(visualMaps);
@@ -585,24 +583,25 @@ $(document).ready(function(){
         },{
           show: true, type: 'slider', yAxisIndex: 0, start: 0, end: 100
         },{
-          show: true, type: 'inside', xAxisIndex: 0, start: 0, end: 100
+          //show: true, type: 'inside', xAxisIndex: 0, start: 0, end: 100
         },{
-          show: true, type: 'inside', yAxisIndex: 0, start: 0, end: 100
+          //show: true, type: 'inside', yAxisIndex: 0, start: 0, end: 100
         }],
         xAxis:{
           type: 'time', name: 'Hora', boundaryGap: false, splitNumber: 15, splitLine:{ show: false}, 
         },
         yAxis: {
-          type: 'value', name: 'Distancia en Ruta', interval: 500, splitLine:{ show: false}, splitArea: {show: false},
+          type: 'value', name: 'Distancia en Ruta', splitLine:{ show: false}, splitArea: {show: false},
           axisLabel: {show: false}, axisTick: {show: false},
+          max: yMax,
         },
         tooltip: { 
           show:true,
-          trigger: 'axis',
+          trigger: 'item',
         },
         /*
         tooltip: {
-          trigger: 'axis',
+          trigger: 'item',
           //alwaysShowContent: true,
           formatter: function(params){
             if (Array.isArray(params)){
@@ -634,7 +633,7 @@ $(document).ready(function(){
           show : true,
           itemSize: 20,
           left: 'center',
-          bottom: '25px',
+          top: 'top',
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
@@ -645,10 +644,15 @@ $(document).ready(function(){
               lang: ['Datos del gráfico', 'cerrar', 'refrescar'],
               buttonColor: '#169F85',
               readOnly: true
-            }
+            },
+            dataZoom: {
+              show: true, title: {
+                zoom: 'Seleccionar área',
+                back: 'Restablecer vista'
+              }
+            },
           }
         },
-        calculable: false,
       };
       
       _barChart.clear();
