@@ -1,7 +1,9 @@
 from django.conf.urls import url
-from .views import common
+from .views.LoadIndicatorsByTravelTime import LoadIndicatorsByTravelTimeView, GetLoadIndicatorsByTravelTimeData
+
 
 app_name = 'indicators'
 urlpatterns = [
-  url(r'^time$', common.time, name='time'),
+  url(r'^time$', LoadIndicatorsByTravelTimeView.as_view(), name='time'),
+  url(r'^getTimeData$', GetLoadIndicatorsByTravelTimeData.as_view()),
 ]
