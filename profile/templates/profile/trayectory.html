@@ -209,8 +209,9 @@ $(document).ready(function(){
     let _visibleTrips = 0;
     let _yAxisData = [];
     this.getDataName = function(){
+      const FILE_NAME = 'Trayectorias con perfil de carga ';
       if(_trips.length>0){
-        return 'Trayectorias con perfil de carga ' + _trips[0]['route'];
+        return FILE_NAME + _trips[0]['route'];
       }
       return '';
     }
@@ -482,7 +483,8 @@ $(document).ready(function(){
         
         let serie = {
           name: trip.licensePlate,
-          type: 'line', data: trip.data, showSymbol: false,
+          type: 'line', data: trip.data, 
+          showSymbol: true, symbol: 'pin', symbolSize: 6,
           lineStyle: { normal: { width: 1,}},
         };
         let visualMap = {
@@ -597,32 +599,29 @@ $(document).ready(function(){
         tooltip: { 
           show:true,
           trigger: 'item',
-        },
-        /*
-        tooltip: {
-          trigger: 'item',
-          //alwaysShowContent: true,
           formatter: function(params){
-            if (Array.isArray(params)){
-              let xValue = params[0].dataIndex + 1;
-              let head = xValue + '  ' + xAxisData[xValue-1]['authCode'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
-              let info = [];
-              for (let index in params){
-                let el = params[index]
-                let ball ="<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:" + el.color + "'></span>";
-                let name = el.seriesName;
-                let value = el.value.toFixed(2);
-                info.push(ball + name + ': ' + value);
+            console.log(params);
+            let row = [];
+            if(params.componentType=='series'){
+              row.push(params.marker);
+              if(params.componentSubType=='line'){
+                let time = params.data[0];
+                let loadProfile = params.data[2];
+                let getOut = params.data[4];
+                let getIn = params.data[5];
+
+                row.push('Tiempo: ' + time);
+                row.push('Carga: ' + loadProfile);
+                row.push('Bajadas: ' + getOut);
+                row.push('Subidas: ' + getIn);
+              }else if(params.componentSubType=='scatter'){
+                let getIn = params.data[5];
+                row.push('Subidas: ' + getIn);
               }
-              return head + info.join('<br />');
-            } else {
-              let title = params.data.name;
-              let name = params.seriesName;
-              let value = params.value.toFixed(2);
-              return title + '<br />' + name + ': ' + value;
             }
+            return row.join('<br />');
           }
-        },*/
+        },
         grid: {
           left: '200px',
           bottom: '80px',
