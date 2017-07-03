@@ -170,7 +170,6 @@
 <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
 
 <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
-<script src="{% static "components/echarts-wordcloud/dist/echarts-wordcloud.min.js" %}"></script>
 
 {% endwith %}
 <script src="{% static "own/js/echartsTheme.js" %}"></script>
@@ -211,7 +210,7 @@ $(document).ready(function(){
     let _yAxisData = [];
     this.getDataName = function(){
       if(_trips.length>0){
-        return 'Perfil de carga ' + _trips[0]['route'];
+        return 'Trayectorias con perfil de carga ' + _trips[0]['route'];
       }
       return '';
     }
@@ -287,8 +286,8 @@ $(document).ready(function(){
           dict[attrValue] = 1;
         }
       }
-      for (let name in dict) {
-          values.push({'name':name, 'value': dict[name]});
+      for(let name in dict) {
+        values.push({'name':name, 'value': dict[name]});
       }
       return values;
     }
@@ -663,6 +662,7 @@ $(document).ready(function(){
 
     let _updateGlobalStats = function() {
       $('#expeditionNumber').html(_dataManager.tripsUsed());
+      $('#expeditionNumber2').html(_dataManager.tripsUsed());
     };
 
     this.updateCharts = function(){
@@ -673,8 +673,8 @@ $(document).ready(function(){
       _updateDatatable();
     };
     this.showLoadingAnimationCharts = function(){
-      let loadingText = 'Cargando...';
-      _barChart.showLoading(null, {text: loadingText});
+      const LOADING_TEXT = 'Cargando...';
+      _barChart.showLoading(null, {text: LOADING_TEXT});
     };
     this.hideLoadingAnimationCharts = function(){
       _barChart.hideLoading();
