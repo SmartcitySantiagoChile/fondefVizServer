@@ -208,7 +208,7 @@ $(document).ready(function(){
     this.dayType = dayType;
     this.xAxisData = xAxisData;
     this.yAxisData = yAxisData;
-    this.aggregate = true;
+    this.visible = true;
   }
 
   /*
@@ -221,8 +221,8 @@ $(document).ready(function(){
     let _xAxisData = null;
     // y average data
     let _yAxisData = null;
-    // trips used to calculate average profile
-    let _tripsUsed = 0;
+    // trips to show in profile view
+    let _visibleTrips = 0;
 
     this.getDataName = function(){
       if(_trips.length>0){
@@ -234,18 +234,18 @@ $(document).ready(function(){
       if(trips == undefined){
         return _trips;
       }
-      _tripsUsed=0;
+      _visibleTrips=0;
       for(let i=0;i<tripIdArray.length; i++){
-        if(trips[i]['aggregate']){
-          _tripsUsed++;
+        if(trips[i]['visible']){
+          _visibleTrips++;
         }
       }
       _trips = trips;
     };
     this.addTrip = function(trip){
       // create trip identifier
-      if(trip['aggregate']){
-        _tripsUsed++;
+      if(trip['visible']){
+        _visibleTrips++;
       }
       trip['id'] = _trips.length;
       _trips.push(trip);
@@ -263,39 +263,39 @@ $(document).ready(function(){
       _yAxisData = data;
     };
     this.tripsUsed = function(){
-      return _tripsUsed;
+      return _visibleTrips;
     }
     this.cleanData = function(){
       _trips = [];
       _xAxisData = null;
       _yAxisData = null;
-      _tripsUsed = 0;
+      _visibleTrips = 0;
     };
-    this.setAggregate = function(tripIdArray, value){
+    this.setVisibilty = function(tripIdArray, value){
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
-       if(_trips[tripId]['aggregate'] !== value){
+       if(_trips[tripId]['visible'] !== value){
          if(value === false){
-           _tripsUsed--;
+           _visibleTrips--;
          }else{
-           _tripsUsed++;
+           _visibleTrips++;
          }
        }
-       _trips[tripId]['aggregate'] = value;
+       _trips[tripId]['visible'] = value;
       }
     };
-    this.checkAllAreAggregate = function(tripIdArray){
+    this.checkAllAreVisible = function(tripIdArray){
       let result = tripIdArray.length;
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
-       if(!_trips[tripId]['aggregate']){
+       if(!_trips[tripId]['visible']){
          result--;
        }
       }
       return result;
     };
     this.calculateAverage = function(){
-      // erase previous aggregated data
+      // erase previous visibled data
       let xAxisLength = _xAxisData.length;
       let counterByStop = [];
       let capacityByStop = [];
@@ -320,7 +320,7 @@ $(document).ready(function(){
       for(let tripIndex=0; tripIndex<tripQuantity; tripIndex++){
         let trip = _trips[tripIndex];
         
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         
@@ -351,7 +351,7 @@ $(document).ready(function(){
       let dict = {};
       for(let i in _trips){
         let trip = _trips[i];
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         let attrValue = trip[attrName];
@@ -372,7 +372,7 @@ $(document).ready(function(){
       let max = 0;
       for(let i in _trips){
         let trip = $.extend({}, _trips[i]);
-        /*if(!trip.aggregate){
+        /*if(!trip.visible){
           continue;
         }*/
         trip['busDetail'] = trip['licensePlate'] + ' (' + trip['busCapacity'] + ')';
@@ -404,7 +404,7 @@ $(document).ready(function(){
       for(let i in _trips){
         let trip = _trips[i];
         let tripData = {};
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         tripData['name'] = trip['timeTripInit'];
@@ -446,7 +446,7 @@ $(document).ready(function(){
       },
       columns: [
         {
-         'targets': 0, 'searchable': false, 'orderable': false, 'className': 'text-center', 'data': 'aggregate',
+         'targets': 0, 'searchable': false, 'orderable': false, 'className': 'text-center', 'data': 'visible',
          'render': function (data, type, full, meta){
              return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
          }
@@ -491,7 +491,7 @@ $(document).ready(function(){
           }
           $('tbody input.flat').iCheck('update');
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
-          _dataManager.setAggregate(tripIds, addToAggr);
+          _dataManager.setVisibilty(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
@@ -500,7 +500,7 @@ $(document).ready(function(){
 
       let el = $('#checkbox-select-all');
       let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
-      let resultChecked = _dataManager.checkAllAreAggregate(tripIds);
+      let resultChecked = _dataManager.checkAllAreVisible(tripIds);
       
       if(resultChecked === tripIds.length){
         el.prop('checked', true);
@@ -654,7 +654,7 @@ $(document).ready(function(){
                                                                            
           // updateChart                                                   
           let tripId = parseInt($(this).attr('name').replace('trip', '')); 
-          _dataManager.setAggregate([tripId], addToAggr);                  
+          _dataManager.setVisibilty([tripId], addToAggr);                  
           _self.updateCharts();                                            
         });                                                                
       });                                                                  
@@ -726,8 +726,8 @@ $(document).ready(function(){
         },{
           type: 'value',
           name: 'Porcentaje',
-          min: 0,
-          max: 100,
+          //min: 0,
+          //max: 100,
           position: 'right',
           axisLabel: {
             formatter: '{value} %',
@@ -943,8 +943,8 @@ $(document).ready(function(){
     $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
     $('#licensePlateFilter').addTag('BJFS-17');
 
-    $('#dayTypeFilter').select2({placeholder: 'tipo de día'});
-    $('#periodFilter').select2({placeholder: 'Periodo'});
+    $('#dayTypeFilter').select2({placeholder: 'Todos'});
+    $('#periodFilter').select2({placeholder: 'Todos'});
     $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
  
     let app = new ExpeditionApp();
