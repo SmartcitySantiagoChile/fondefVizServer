@@ -31,7 +31,7 @@
 <div class="">
   <div class="page-title">
     <div class="title_left">
-      <h3>Perfil de carga <small></small></h3>
+      <h3>Perfil de carga <small>por ruta</small></h3>
     </div>
     <div class="title_right">
     </div>
@@ -49,19 +49,19 @@
         <div class="x_content">
           <!--
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterDateFrom">Desde:</label>
-            <input type="text" id="filterDateFrom" placeholder="Desde" class="form-control">
+            <label class="control-label" for="dateFromFilter">Desde:</label>
+            <input type="text" id="dateFromFilter" placeholder="Desde" class="form-control">
           </div>
 
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterDateTo">Hasta:</label>
-            <input type="text" id="filterDateTo" placeholder="Hasta" class="form-control">
+            <label class="control-label" for="dateToFilter">Hasta:</label>
+            <input type="text" id="dateToFilter" placeholder="Hasta" class="form-control">
           </div>
           -->
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterRoute">Servicio-sentido:</label>
-            <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
-            <select class="form-control" id='filterRoute'>
+            <label class="control-label" for="routeFilter">Servicio-sentido:</label>
+            <!-- <input type="text" id="routeFilter" placeholder="Servicio sentido" class="form-control">-->
+            <select class="form-control" id='routeFilter'>
               {% for route in routes %}
               <option>{{ route }}</option>
               {% endfor %}
@@ -69,8 +69,8 @@
           </div>
 
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterDayType">Tipo de día:</label>
-            <select class="form-control" id='filterDayType' multiple="multiple">
+            <label class="control-label" for="dayTypeFilter">Tipo de día:</label>
+            <select class="form-control" id='dayTypeFilter' multiple="multiple">
               {% for dayType in dayTypes %}
               <option>{{ dayType }}</option>
               {% endfor %}
@@ -78,8 +78,8 @@
           </div>
 
           <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-            <label class="control-label" for="filterPeriod">Período:</label>
-            <select class="form-control" id='filterPeriod' multiple="multiple">
+            <label class="control-label" for="periodFilter">Período:</label>
+            <select class="form-control" id='periodFilter' multiple="multiple">
               {% for period in periods %}
               <option>{{ period }}</option>
               {% endfor %}
@@ -88,13 +88,13 @@
           <!--
           <div class="row">
             <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-              <label class="control-label" for="filterLicensePlate">Patente:</label>
-              <input type="text" id="filterLicensePlate" placeholder="Patente" class="tags form-control">
+              <label class="control-label" for="licensePlateFilter">Patente:</label>
+              <input type="text" id="licensePlateFilter" placeholder="Patente" class="tags form-control">
             </div>
 
             <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-              <label class="control-label" for="filterLicensePlate">Expedición id:</label>
-              <input type="text" id="filterExpeditionId" placeholder="Patente" class="tags form-control">
+              <label class="control-label" for="licensePlateFilter">Expedición id:</label>
+              <input type="text" id="expeditionIdFilter" placeholder="Patente" class="tags form-control">
             </div>
           </div>-->
           <div class="col-md-12 col-sm-12 col-xs-12 form-group">
@@ -120,9 +120,9 @@
         <div class="col-md-3 col-sm-3 col-xs-12">
           <h4><i class="fa fa-clock-o"></i> Expediciones por hora</h4>
           <div id="timePeriodChart" style="height:89px;"></div>
-          <h4><i class="fa fa-truck"></i> Patentes</h4>
+          <h4><i class="fa fa-truck"></i> Expediciones por patente <strong id="licensePlateNumber">(N)</strong></h4>
           <div id="wordcloudChart1" style="height:100px;"></div>
-          <h4><i class="fa fa-calendar"></i> Tipos de día</h4>
+          <h4><i class="fa fa-calendar"></i> Expediciones por tipo de día</h4>
           <div id="wordcloudChart2" style="height:100px;"></div>
         </div>
       </div>
@@ -208,7 +208,7 @@ $(document).ready(function(){
     this.dayType = dayType;
     this.xAxisData = xAxisData;
     this.yAxisData = yAxisData;
-    this.aggregate = true;
+    this.visible = true;
   }
 
   /*
@@ -221,25 +221,31 @@ $(document).ready(function(){
     let _xAxisData = null;
     // y average data
     let _yAxisData = null;
-    // trips used to calculate average profile
-    let _tripsUsed = 0;
+    // trips to show in profile view
+    let _visibleTrips = 0;
 
+    this.getDataName = function(){
+      if(_trips.length>0){
+        return 'Perfil de carga ' + _trips[0]['route'];
+      }
+      return '';
+    }
     this.trips = function(trips){
       if(trips == undefined){
         return _trips;
       }
-      _tripsUsed=0;
+      _visibleTrips=0;
       for(let i=0;i<tripIdArray.length; i++){
-        if(trips[i]['aggregate']){
-          _tripsUsed++;
+        if(trips[i]['visible']){
+          _visibleTrips++;
         }
       }
       _trips = trips;
     };
     this.addTrip = function(trip){
       // create trip identifier
-      if(trip['aggregate']){
-        _tripsUsed++;
+      if(trip['visible']){
+        _visibleTrips++;
       }
       trip['id'] = _trips.length;
       _trips.push(trip);
@@ -257,39 +263,39 @@ $(document).ready(function(){
       _yAxisData = data;
     };
     this.tripsUsed = function(){
-      return _tripsUsed;
+      return _visibleTrips;
     }
     this.cleanData = function(){
       _trips = [];
       _xAxisData = null;
       _yAxisData = null;
-      _tripsUsed = 0;
+      _visibleTrips = 0;
     };
-    this.setAggregate = function(tripIdArray, value){
+    this.setVisibilty = function(tripIdArray, value){
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
-       if(_trips[tripId]['aggregate'] !== value){
+       if(_trips[tripId]['visible'] !== value){
          if(value === false){
-           _tripsUsed--;
+           _visibleTrips--;
          }else{
-           _tripsUsed++;
+           _visibleTrips++;
          }
        }
-       _trips[tripId]['aggregate'] = value;
+       _trips[tripId]['visible'] = value;
       }
     };
-    this.checkAllAreAggregate = function(tripIdArray){
+    this.checkAllAreVisible = function(tripIdArray){
       let result = tripIdArray.length;
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
-       if(!_trips[tripId]['aggregate']){
+       if(!_trips[tripId]['visible']){
          result--;
        }
       }
       return result;
     };
     this.calculateAverage = function(){
-      // erase previous aggregated data
+      // erase previous visibled data
       let xAxisLength = _xAxisData.length;
       let counterByStop = [];
       let capacityByStop = [];
@@ -314,7 +320,7 @@ $(document).ready(function(){
       for(let tripIndex=0; tripIndex<tripQuantity; tripIndex++){
         let trip = _trips[tripIndex];
         
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         
@@ -345,7 +351,7 @@ $(document).ready(function(){
       let dict = {};
       for(let i in _trips){
         let trip = _trips[i];
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         let attrValue = trip[attrName];
@@ -366,7 +372,7 @@ $(document).ready(function(){
       let max = 0;
       for(let i in _trips){
         let trip = $.extend({}, _trips[i]);
-        /*if(!trip.aggregate){
+        /*if(!trip.visible){
           continue;
         }*/
         trip['busDetail'] = trip['licensePlate'] + ' (' + trip['busCapacity'] + ')';
@@ -398,7 +404,7 @@ $(document).ready(function(){
       for(let i in _trips){
         let trip = _trips[i];
         let tripData = {};
-        if(!trip.aggregate){
+        if(!trip.visible){
           continue;
         }
         tripData['name'] = trip['timeTripInit'];
@@ -440,7 +446,7 @@ $(document).ready(function(){
       },
       columns: [
         {
-         'targets': 0, 'searchable': false, 'orderable': false, 'className': 'text-center', 'data': 'aggregate',
+         'targets': 0, 'searchable': false, 'orderable': false, 'className': 'text-center', 'data': 'visible',
          'render': function (data, type, full, meta){
              return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
          }
@@ -474,17 +480,18 @@ $(document).ready(function(){
           // Get all rows with search applied
           let rows = _datatable.rows({'search':'applied'}).nodes();
           let addToAggr = false;
+          let inputs = $('input.flat', rows);
           if(event.target.checked){
-            $('input.flat', rows).prop('checked', true);
+            inputs.prop('checked', true);
             $(rows).addClass('success');
             addToAggr = true;
           } else {
-            $('input.flat', rows).prop('checked', false);
+            inputs.prop('checked', false);
             $(rows).removeClass('success');
           }
-          $('input.flat', rows).iCheck('update');
+          $('tbody input.flat').iCheck('update');
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
-          _dataManager.setAggregate(tripIds, addToAggr);
+          _dataManager.setVisibilty(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
@@ -493,7 +500,7 @@ $(document).ready(function(){
 
       let el = $('#checkbox-select-all');
       let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
-      let resultChecked = _dataManager.checkAllAreAggregate(tripIds);
+      let resultChecked = _dataManager.checkAllAreVisible(tripIds);
       
       if(resultChecked === tripIds.length){
         el.prop('checked', true);
@@ -506,11 +513,11 @@ $(document).ready(function(){
       el.iCheck('update');
     });
 
-    this.tripsGroup = function(tripsGroup){
-      if(tripsGroup == undefined){
+    this.dataManager = function(dataManager){
+      if(dataManager == undefined){
         return _dataManager;
       }
-      _dataManager = tripsGroup;
+      _dataManager = dataManager;
       this.updateCharts();
       this.updateDatatable();
     }
@@ -546,7 +553,7 @@ $(document).ready(function(){
           type: 'scatter',
           data: values,
           symbolSize: function (dataItem) {
-            return dataItem[1]*1.5;
+            return [10, dataItem[1]*3];
           },
           tooltip: {
             formatter: function(params){
@@ -566,6 +573,8 @@ $(document).ready(function(){
       let lpValues = _dataManager.getAttrGroup('licensePlate');
       let dayTypeValues = _dataManager.getAttrGroup('dayType');
       
+      $('#licensePlateNumber').html('(' + lpValues.length + ')');
+
       let values = [lpValues, dayTypeValues];
       for(let i=0;i<values.length;i++){
         let chart = _wordcloudCharts[i];
@@ -645,7 +654,7 @@ $(document).ready(function(){
                                                                            
           // updateChart                                                   
           let tripId = parseInt($(this).attr('name').replace('trip', '')); 
-          _dataManager.setAggregate([tripId], addToAggr);                  
+          _dataManager.setVisibilty([tripId], addToAggr);                  
           _self.updateCharts();                                            
         });                                                                
       });                                                                  
@@ -671,10 +680,10 @@ $(document).ready(function(){
       let xAxisData = _dataManager.xAxisData()
       
       // get out, get in, load profile, percentage ocupation
-      let yAxisDataName = ['Bajadas', 'Subidas', 'Carga', 'Porcentaje ocupación'];
+      let yAxisDataName = ['Subidas', 'Bajadas', 'Carga', 'Porcentaje ocupación'];
       let yAxisIndex = [0, 0, 0, 1];
       let yChartType = ['bar','bar','line','line'];
-      let dataName = ['expandedGetOut','expandedGetIn','loadProfile','saturationRate'];
+      let dataName = ['expandedGetIn','expandedGetOut','loadProfile','saturationRate'];
 
       let series = [];
       for (let index=0; index<yAxisIndex.length; index++){
@@ -701,7 +710,7 @@ $(document).ready(function(){
         series.push(serie);
       }
 
-      let data = {
+      let options = {
         legend: {
           data: yAxisDataName
         },
@@ -717,8 +726,8 @@ $(document).ready(function(){
         },{
           type: 'value',
           name: 'Porcentaje',
-          min: 0,
-          max: 100,
+          //min: 0,
+          //max: 100,
           position: 'right',
           axisLabel: {
             formatter: '{value} %',
@@ -742,8 +751,8 @@ $(document).ready(function(){
           //alwaysShowContent: true,
           formatter: function(params){
             if (Array.isArray(params)){
-              let xValue = params[0].dataIndex + 1;
-              let head = xValue + '  ' + xAxisData[xValue-1]['authCode'] + '  ' + xAxisData[xValue-1]['name'] + '<br />';
+              let xValue = params[0].dataIndex;
+              let head = (xValue + 1) + '  ' + xAxisData[xValue]['userCode'] + ' ' + xAxisData[xValue]['authCode'] + '  ' + xAxisData[xValue]['name'] + '<br />';
               let info = [];
               for (let index in params){
                 let el = params[index]
@@ -761,21 +770,20 @@ $(document).ready(function(){
             }
           }
         },
-      };
-      
-      _barChart.clear();
-      _barChart.setOption({
-        tooltip: data.tooltip,
-        legend: data.legend,
-        xAxis: data.xAxis,
-        yAxis: data.yAxis,
-        series: data.series,
+        grid: {
+          left: '30px',
+          right: '45px',
+          bottom: '80px'
+        },
         toolbox: {
           show : true,
+          itemSize: 20,
+          left: 'center',
+          bottom: '25px',
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
-            saveAsImage : {show: true, title: "Guardar imagen"},
+            saveAsImage : {show: true, title: "Guardar imagen", name: _dataManager.getDataName()},
             dataView: {
               show: true, 
               title: 'Ver datos',
@@ -786,7 +794,10 @@ $(document).ready(function(){
           }
         },
         calculable: false,
-      }, {
+      };
+      
+      _barChart.clear();
+      _barChart.setOption(options, {
         notMerge: true
       });
     };
@@ -851,7 +862,7 @@ $(document).ready(function(){
     }
  
     let trips = dataSource.trips;
-    let dataManager = new DataManager()
+    let dataManager = new DataManager();
     let tripGroupXAxisData = [];
 
     for(let expeditionId in trips){
@@ -907,8 +918,8 @@ $(document).ready(function(){
     }
 
     dataManager.xAxisData(tripGroupXAxisData)
-    app.tripsGroup(dataManager);
-    //drawDistribution(app.tripsGroup().trips());
+    app.dataManager(dataManager);
+    //drawDistribution(app.dataManager().trips());
   };
 
   // load filters
@@ -917,34 +928,34 @@ $(document).ready(function(){
     moment.locale('es');
     // set datetimepickers
     /*
-    $('#filterDateFrom').daterangepicker({
+    $('#dateFromFilter').daterangepicker({
       singleDatePicker: true,
       singleClasses: "picker_2",
       languague: 'es'
     });
-    $('#filterDateTo').daterangepicker({
+    $('#dateToFilter').daterangepicker({
       singleDatePicker: true,
       singleClasses: "picker_2",
       languague: 'es'
     });*/
   
-    $('#filterLicensePlate').tagsInput({defaultText: '...', minChars:6});
-    $('#filterExpeditionId').tagsInput({defaultText: '...', minChars:1});
-    $('#filterLicensePlate').addTag('BJFS-17');
+    $('#licensePlateFilter').tagsInput({defaultText: '...', minChars:6});
+    $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
+    $('#licensePlateFilter').addTag('BJFS-17');
 
-    $('#filterDayType').select2({placeholder: 'tipo de día'});
-    $('#filterPeriod').select2({placeholder: 'Periodo'});
-    $('#filterRoute').select2({placeholder: 'Servicio'});//, allowClear: true});
+    $('#dayTypeFilter').select2({placeholder: 'Todos'});
+    $('#periodFilter').select2({placeholder: 'Todos'});
+    $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
  
     let app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
-      //var from = $('#filterDateFrom').val();
-      //var to = $('#filterDateTo').val();
-      var route = $('#filterRoute').val();
-      var dayType = $('#filterDayType').val();
-      var period = $('#filterPeriod').val();
-      //var licensePlate = $('#filterLicensePlate').val()!='' ? $('#filterLicensePlate').val().split(','):null;
-      //var expeditionId = $('#filterExpeditionId').val()!='' ? $('#filterExpeditionId').val().split(','):null;
+      //var from = $('#dateFromFilter').val();
+      //var to = $('#dateToFilter').val();
+      var route = $('#routeFilter').val();
+      var dayType = $('#dayTypeFilter').val();
+      var period = $('#periodFilter').val();
+      //var licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
+      //var expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
    
       /*
       console.log(from);
