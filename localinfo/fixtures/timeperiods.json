@@ -1,15 +1,5 @@
 [
-  {
-    "model": "localinfo.timeperiod",
-    "pk":1,
-    "fields":{
-      "dayType":"Laboral",
-      "esId":"1",
-      "transantiagoPeriod":"Pre nocturno",
-      "initialTime":"00:00:00",
-      "endTime":"00:59:59"
-    }
-  },
+  {"model": "localinfo.timeperiod", "pk":1 , "fields":{ "dayType":"Laboral", "esId":"1",  "transantiagoPeriod":"Pre nocturno"               , "initialTime":"00:00:00", "endTime":"00:59:59" }},
   {"model": "localinfo.timeperiod", "pk":2 , "fields":{ "dayType":"Laboral", "esId":"2",  "transantiagoPeriod":"Nocturno"                   , "initialTime":"01:00:00", "endTime":"05:29:59" }},
   {"model": "localinfo.timeperiod", "pk":3 , "fields":{ "dayType":"Laboral", "esId":"3",  "transantiagoPeriod":"Transición nocturno"        , "initialTime":"05:30:00", "endTime":"06:29:59" }},
   {"model": "localinfo.timeperiod", "pk":4 , "fields":{ "dayType":"Laboral", "esId":"4",  "transantiagoPeriod":"Punta mañana"               , "initialTime":"06:30:00", "endTime":"08:29:59" }},
