@@ -3,14 +3,21 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-# Create your models here.
+
 class TimePeriod(models.Model):
     """ Time period with standar names """
+
+    # Type of day: Working day, Saturday, Sunday
     dayType = models.CharField(max_length=8)
-    """ Type of day: Working day, Saturday, Sunday """
+
+    # Id which is used on Elastic Search database
+    esId = models.IntegerField()
+
+    # Period standard name
     transantiagoPeriod = models.CharField(max_length=30)
-    """ Standar name """
+
+    # Initial time for the period
     initialTime = models.TimeField(auto_now=False, auto_now_add=False)
-    """ Initial time for the period """
+
+    # End time for the period
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
-    """ End time for the period """
