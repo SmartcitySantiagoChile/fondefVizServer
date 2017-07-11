@@ -5,10 +5,10 @@ from django.conf import settings
 
 from elasticsearch_dsl import Search, A
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
-from LoadIndicatorsGeneric import LoadIndicatorsGeneric
+from LoadTravelsGeneric import LoadTravelsGeneric
 
 
-class LoadIndicatorsByTravelTimeView(LoadIndicatorsGeneric):
+class LoadTravelsByTravelTimeView(LoadTravelsGeneric):
     """"""
 
     def __init__(self):
@@ -21,19 +21,19 @@ class LoadIndicatorsByTravelTimeView(LoadIndicatorsGeneric):
         es_query_dict = dict()
         es_query_dict['routes'] = es_route_query
 
-        super(LoadIndicatorsByTravelTimeView, self).__init__(es_query_dict)
+        super(LoadTravelsByTravelTimeView, self).__init__(es_query_dict)
 
     def get(self, request):
-        return render(request, "indicators/byTravelTime.html", self.context)
+        return render(request, "travel/byTravelTime.html", self.context)
 
 
-class GetLoadIndicatorsByTravelTimeData(View):
+class GetLoadTravelsByTravelTimeData(View):
     """"""
 
     def __init__(self):
         """"""
         self.context = {}
-        super(GetLoadIndicatorsByTravelTimeData, self).__init__()
+        super(GetLoadTravelsByTravelTimeData, self).__init__()
 
     def buildQuery(self, request):
         """ create es-query based on params given by user """
@@ -47,8 +47,8 @@ class GetLoadIndicatorsByTravelTimeData(View):
         expedition_id = request.GET.getlist('expeditionId[]', None)
 
         # get list of profile
-        client = settings.ES_CLIENT
-        es_query = Search(using=client, index=LoadIndicatorsGeneric.INDEX_NAME)
+        client = settings.ES_CLIENT_DEVEL
+        es_query = Search(using=client, index=LoadTravelsGeneric.INDEX_NAME)
 
         exists_parameters = False
         if expedition_id:

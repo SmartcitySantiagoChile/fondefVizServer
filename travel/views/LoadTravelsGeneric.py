@@ -1,17 +1,14 @@
-from django.shortcuts import render
 from django.views.generic import View
-from django.http import JsonResponse
-from django.db import connection
 from django.conf import settings
 
 from elasticsearch_dsl import Search, A, MultiSearch
 
 
-class LoadIndicatorsGeneric(View):
+class LoadTravelsGeneric(View):
     """ generic view to load profile data """
 
     # elastic search index name 
-    INDEX_NAME = "profiles"
+    INDEX_NAME = "travel"
 
     def __init__(self, additionalESQueryDict):
         """ contructor """
@@ -19,11 +16,11 @@ class LoadIndicatorsGeneric(View):
         es_query_dict.update(additionalESQueryDict)
 
         self.context = self.getESQueryResult(es_query_dict)
-        super(LoadIndicatorsGeneric, self).__init__()
+        super(LoadTravelsGeneric, self).__init__()
 
     def getESQueryResult(self, esQueryDict):
         """ retrieve all data availables in elasticsearch """
-        client = settings.ES_CLIENT
+        client = settings.ES_CLIENT_DEVEL
 
         multi_search = MultiSearch(using=client, index=self.INDEX_NAME)
 

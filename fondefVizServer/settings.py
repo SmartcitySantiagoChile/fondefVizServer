@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'bowerapp',
     'profile',
     'velocity',
-    'indicators',
+    'travel',
     'localinfo',
 ]
 
@@ -118,10 +118,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
 STATIC_URL = '/fondefviz/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Elastic-Search settings
 ES_CLIENT = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
 
+ES_CLIENT_DEVEL = Elasticsearch([
+    {'host': 'localhost', 'port': 9200},
+])
