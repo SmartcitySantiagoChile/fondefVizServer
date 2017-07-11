@@ -1,8 +1,7 @@
 from django.conf.urls import url
-from . import views
-from datamanager.views import ShowDataManagerView, GetSourceFilesView
+from .views import ShowDataManager, GetDataManagerData
 
 urlpatterns = [
-	url(r'^show$', ShowDataManagerView.as_view(), name='datamanager'),
-	url(r'^getSourceFiles$', GetSourceFilesView.as_view()),
+	url(r'^show$', ShowDataManager.as_view(), name='datamanager'),
+	url(r'^getSourceFiles$', GetDataManagerData.as_view()),
 ]
