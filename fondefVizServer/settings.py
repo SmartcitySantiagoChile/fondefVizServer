@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'bowerapp',
     'profile',
     'velocity',
+    'datamanager',
     'localinfo',
 ]
 
