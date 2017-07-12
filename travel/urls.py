@@ -4,6 +4,6 @@ from .views.LoadTravelsByTravelTime import LoadTravelsByTravelTimeView, GetLoadT
 
 app_name = 'travel'
 urlpatterns = [
-  url(r'^time$', LoadTravelsByTravelTimeView.as_view(), name='time'),
-  url(r'^getTimeData$', GetLoadTravelsByTravelTimeData.as_view()),
+  url(r'^by_time$', LoadTravelsByTravelTimeView.as_view(), name='by_time'),
+  url(r'^getDataByTime$', GetLoadTravelsByTravelTimeData.as_view()),
 ]

@@ -48,7 +48,7 @@ class ESQueryResultEmpty(ESQueryError):
     ''' It raises when user does not provide params to elastic search query '''
 
     def __init__(self):
-        message = 'La consulta no arrojo resultados'
+        message = 'La consulta no arrojó resultados'
         title = 'Información'
         messageType = 'info'
         super(ESQueryResultEmpty, self).__init__(403, message, title, messageType)

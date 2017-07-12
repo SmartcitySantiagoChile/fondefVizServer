@@ -31,60 +31,105 @@ class LoadTravelsByTravelTimeView(LoadTravelsGeneric):
 
 
 class GetLoadTravelsByTravelTimeData(View):
-    """"""
+
 
     def __init__(self):
-        """"""
+
+        self.default_fields = [
+            'tviaje',
+            'n_etapas',
+            'factor_expansion',
+            'comuna_subida',
+            'comuna_bajada',
+            'zona_subida',
+            'zona_bajada'
+        ]
+
         self.context = {}
         super(GetLoadTravelsByTravelTimeData, self).__init__()
+
+
+    # ========================================================
+    # View Interface
+    # ========================================================
+    # only 'get' method
+
+    def get(self, request):
+        """
+        It returns travel data based on the requested filters.
+        The data is optimized for by_time views.
+
+        The response is a Json document.
+        """
+        response = dict()
+        response['travels'] = dict()
+
+        try:
+            # build elastic search query, based on the requested filtering options
+            es_query = self.buildQuery(request)
+
+            # process ES query
+            answer = es_query.execute()
+
+            # self.transformESAnswer(es_query)
+            response['travels'] = answer.to_dict()
+
+            # append debug information
+            if settings.DEBUG:
+                response['query'] = es_query.to_dict()
+                response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
+
+        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+            response['status'] = e.getStatusResponse()
+
+        return JsonResponse(response, safe=False)
+
+    # ========================================================
+    # Supporting methods
+    # ========================================================
 
     def buildQuery(self, request):
         """ create es-query based on params given by user """
 
+        # filtering params
         from_date = request.GET.get('from', None)
         to_date = request.GET.get('to', None)
-        route = request.GET.get('route', None)
-        license_plate = request.GET.getlist('licensePlate[]', None)
-        day_type = request.GET.getlist('dayType[]', None)
-        period = request.GET.getlist('period[]', None)
-        expedition_id = request.GET.getlist('expeditionId[]', None)
+        day_type = request.GET.getlist('dayType', None)
+        period = request.GET.getlist('period', None)
 
-        # get list of profile
+        # elastic search client
         client = settings.ES_CLIENT_DEVEL
         es_query = Search(using=client, index=LoadTravelsGeneric.INDEX_NAME)
 
         exists_parameters = False
-        if expedition_id:
-            es_query = es_query.filter('terms', idExpedicion=expedition_id)
+        if from_date:
+            # timevar = datetime.datetime.now()
+            # es_query = es_query.filter('range', **{'tiempo_subida': {'gte': timevar}})
+            es_query = es_query.filter('range', **{'tiempo_subida': {'gte': from_date}})
             exists_parameters = True
 
-        if route:
-            es_query = es_query.filter('term', ServicioSentido=route)
-            exists_parameters = True
-        else:
-            raise ESQueryRouteParameterDoesNotExist()
-
-        if license_plate:
-            es_query = es_query.filter('terms', Patente=license_plate)
+        if to_date:
+            es_query = es_query.filter('range', **{'tiempo_bajada': {'lte': to_date}})
             exists_parameters = True
 
         if day_type:
-            es_query = es_query.filter('terms', TipoDia=day_type)
+            es_query = es_query.filter('terms', tipodia=day_type)
             exists_parameters = True
 
         if period:
-            es_query = es_query.filter('terms', PeriodoTSExpedicion=period)
+            es_query = es_query.filter('terms', periodo_subida=period)
             exists_parameters = True
+
+
 
         if not exists_parameters:
             raise ESQueryParametersDoesNotExist()
 
-        es_query = es_query.filter('term', Cumplimiento='C') \
-            .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada',
-                     'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero',
-                     'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
-
-        return es_query
+        # es_query = es_query.filter('term', Cumplimiento='C') \
+        #     .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada',
+        #              'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero',
+        #              'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
+        return es_query.source(self.default_fields)
 
     def cleanData(self, data):
         """ round to zero values between [-1, 0] """
@@ -95,59 +140,45 @@ class GetLoadTravelsByTravelTimeData(View):
 
     def transformESAnswer(self, esQuery):
         """ transform ES answer to something util to web client """
-        trips = {}
+        travels = {}
 
+        count = 0
         for hit in esQuery.scan():
             data = hit.to_dict()
+            count += 1
+            # expedition_id = data['idExpedicion']
+            # if expedition_id not in trips:
+            #     trips[expedition_id] = {'info': {}, 'stops': []}
+            #
+            # trips[expedition_id]['info']['capacity'] = int(data['Capacidad'])
+            # trips[expedition_id]['info']['licensePlate'] = data['Patente']
+            # trips[expedition_id]['info']['route'] = data['ServicioSentido']
+            # trips[expedition_id]['info']['timeTripInit'] = data['Hini']
+            # trips[expedition_id]['info']['authTimePeriod'] = data['PeriodoTSExpedicion']
+            # trips[expedition_id]['info']['timeTripEnd'] = data['Hfin']
+            # trips[expedition_id]['info']['dayType'] = data['TipoDia']
+            # stop = dict()
+            # stop['name'] = data['NombreParada']
+            # stop['authStopCode'] = data['Paradero']
+            # stop['userStopCode'] = data['ParaderoUsuario']
+            # stop['authTimePeriod'] = data['PeriodoTSParada']
+            # stop['distOnPath'] = data['DistEnRuta']
+            # stop['stopTime'] = data['Tiempo']
+            # stop['order'] = int(data['Correlativo'])
+            #
+            # # to avoid movement of distribution chart
+            # stop['loadProfile'] = self.cleanData(data['Carga'])
+            # stop['expandedGetIn'] = self.cleanData(data['SubidasExpandidas'])
+            # stop['expandedGetOut'] = self.cleanData(data['BajadasExpandidas'])
+            # trips[expedition_id]['stops'].append(stop)
+            pass
 
-            expedition_id = data['idExpedicion']
-            if expedition_id not in trips:
-                trips[expedition_id] = {'info': {}, 'stops': []}
+        # for expedition_id in trips:
+        #     trips[expedition_id]['stops'] = sorted(trips[expedition_id]['stops'],
+        #                                            key=lambda record: record['order'])
 
-            trips[expedition_id]['info']['capacity'] = int(data['Capacidad'])
-            trips[expedition_id]['info']['licensePlate'] = data['Patente']
-            trips[expedition_id]['info']['route'] = data['ServicioSentido']
-            trips[expedition_id]['info']['timeTripInit'] = data['Hini']
-            trips[expedition_id]['info']['authTimePeriod'] = data['PeriodoTSExpedicion']
-            trips[expedition_id]['info']['timeTripEnd'] = data['Hfin']
-            trips[expedition_id]['info']['dayType'] = data['TipoDia']
-            stop = dict()
-            stop['name'] = data['NombreParada']
-            stop['authStopCode'] = data['Paradero']
-            stop['userStopCode'] = data['ParaderoUsuario']
-            stop['authTimePeriod'] = data['PeriodoTSParada']
-            stop['distOnPath'] = data['DistEnRuta']
-            stop['stopTime'] = data['Tiempo']
-            stop['order'] = int(data['Correlativo'])
-
-            # to avoid movement of distribution chart
-            stop['loadProfile'] = self.cleanData(data['Carga'])
-            stop['expandedGetIn'] = self.cleanData(data['SubidasExpandidas'])
-            stop['expandedGetOut'] = self.cleanData(data['BajadasExpandidas'])
-            trips[expedition_id]['stops'].append(stop)
-
-        for expedition_id in trips:
-            trips[expedition_id]['stops'] = sorted(trips[expedition_id]['stops'],
-                                                   key=lambda record: record['order'])
-
-        if len(trips.keys()) == 0:
+        travels['count'] = count
+        if not travels.keys():
             raise ESQueryResultEmpty()
 
-        return trips
-
-    def get(self, request):
-        """ expedition data """
-        response = dict()
-        response['trips'] = dict()
-
-        try:
-            es_query = self.buildQuery(request)
-            response['trips'] = self.transformESAnswer(es_query)
-            # debug
-            # response['query'] = esQuery.to_dict()
-            # return JsonResponse(response, safe=False)
-            # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
-            response['status'] = e.getStatusResponse()
-
-        return JsonResponse(response, safe=False)
+        return travels
