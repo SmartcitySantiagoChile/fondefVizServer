@@ -77,8 +77,8 @@
                         <div class="col-md-2 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="dayTypeFilter">Tipo de día:</label>
                             <select class="form-control" id='dayTypeFilter' multiple="multiple">
-                                {% for dayType in dayTypes %}
-                                    <option>{{ dayType }}</option>
+                                {% for daytype in daytypes %}
+                                    <option>{{ daytype }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -86,8 +86,26 @@
                         <div class="col-md-4 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="periodFilter">Período:</label>
                             <select class="form-control" id='periodFilter' multiple="multiple">
-                                {% for period in periods %}
-                                    <option>{{ period }}</option>
+                                {% for period in timeperiods %}
+                                    <option id="option-period-{{ period.pk }}">{{ period.transantiagoPeriod }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">
+                            <label class="control-label" for="communeFilter">Comuna:</label>
+                            <select class="form-control" id='communeFilter' multiple="multiple">
+                                {% for commune in communes %}
+                                    <option id="option-commune-{{ commune.pk }}">{{ commune.prettyName }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">
+                            <label class="control-label" for="halfhourFilter">Media Hora:</label>
+                            <select class="form-control" id='halfhourFilter' multiple="multiple">
+                                {% for halfhour in halfhours %}
+                                    <option id="option-halfhour-{{ halfhour.pk }}">{{ halfhour.shortName }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -217,7 +235,9 @@
 
                 // day type and period filters
                 $('#dayTypeFilter').select2({placeholder: 'tipo de día'});
-                $('#periodFilter').select2({placeholder: 'Periodo'});
+                $('#periodFilter').select2({placeholder: 'periodo transantiago'});
+                $('#communeFilter').select2({placeholder: 'comuna'});
+                $('#halfhourFilter').select2({placeholder: 'media hora'});
 
 
                 // Update Charts from filters

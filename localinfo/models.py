@@ -5,7 +5,7 @@ from django.db import models
 
 
 class TimePeriod(models.Model):
-    """ Time period with standar names """
+    """ Time period with standard names """
 
     # Type of day: Working day, Saturday, Sunday
     dayType = models.CharField(max_length=8)
@@ -22,6 +22,9 @@ class TimePeriod(models.Model):
     # End time for the period
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
 
+    def __str__(self):
+        return self.transantiagoPeriod
+
 
 class Commune(models.Model):
     """ Standard commune data """
@@ -35,6 +38,9 @@ class Commune(models.Model):
     # Commune name, pretty version
     prettyName = models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.prettyName
+
 
 class HalfHour(models.Model):
     """ Represents day time ranges by half hours """
@@ -47,3 +53,6 @@ class HalfHour(models.Model):
 
     # Abbr half hour representation: HH:MM
     shortName = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.shortName

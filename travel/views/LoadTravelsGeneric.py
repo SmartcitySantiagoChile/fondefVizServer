@@ -1,25 +1,42 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from django.views.generic import View
 from django.conf import settings
 
 from elasticsearch_dsl import Search, A, MultiSearch
+from localinfo.models import TimePeriod, Commune, HalfHour
 
 
 class LoadTravelsGeneric(View):
     """ generic view to load profile data """
 
-    # elastic search index name 
+    # elastic search index name
     INDEX_NAME = "travel"
 
     def __init__(self, additionalESQueryDict):
         """ contructor """
-        es_query_dict = self.getDefaultESQueryDict()
-        es_query_dict.update(additionalESQueryDict)
+        # es_query_dict = self.getDefaultESQueryDict()
+        # es_query_dict.update(additionalESQueryDict)
 
-        self.context = self.getESQueryResult(es_query_dict)
+        # self.context = self.getESQueryResult(es_query_dict)
+        self.context = self.getLocalInfoDict()
         super(LoadTravelsGeneric, self).__init__()
 
+    def getLocalInfoDict(self):
+        communes = Commune.objects.all()
+        halfhours = HalfHour.objects.all()
+        timeperiods = TimePeriod.objects.filter(dayType="Laboral")
+
+        data = dict()
+        data['daytypes'] = ['Laboral', 'Sábado', 'Domingo']
+        data['communes'] = communes
+        data['halfhours'] = halfhours
+        data['timeperiods'] = timeperiods
+        return data
+
     def getESQueryResult(self, esQueryDict):
-        """ retrieve all data availables in elasticsearch """
+        """ retrieve all data available in elastic search """
         client = settings.ES_CLIENT_DEVEL
 
         multi_search = MultiSearch(using=client, index=self.INDEX_NAME)

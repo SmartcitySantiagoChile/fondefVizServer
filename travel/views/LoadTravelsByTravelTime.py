@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
@@ -13,13 +16,13 @@ class LoadTravelsByTravelTimeView(LoadTravelsGeneric):
 
     def __init__(self):
         """"""
-        es_route_query = Search()
-        es_route_query = es_route_query[:0]
-        aggs = A('terms', field="ServicioSentido", size=1000)
-        es_route_query.aggs.bucket('unique', aggs)
-
+        # es_route_query = Search()
+        # es_route_query = es_route_query[:0]
+        # aggs = A('terms', field="ServicioSentido", size=1000)
+        # es_route_query.aggs.bucket('unique', aggs)
+        #
         es_query_dict = dict()
-        es_query_dict['routes'] = es_route_query
+        # es_query_dict['routes'] = es_route_query
 
         super(LoadTravelsByTravelTimeView, self).__init__(es_query_dict)
 
