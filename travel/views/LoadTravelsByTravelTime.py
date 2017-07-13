@@ -94,8 +94,8 @@ class GetLoadTravelsByTravelTimeData(View):
         # filtering params
         from_date = request.GET.get('from', None)
         to_date = request.GET.get('to', None)
-        day_types = request.GET.getlist('daytype', None)
-        periods = request.GET.getlist('period', None)
+        day_types = request.GET.getlist('daytypes[]', None)
+        periods = request.GET.getlist('periods[]', None)
 
         # elastic search client
         client = settings.ES_CLIENT_DEVEL
@@ -115,26 +115,11 @@ class GetLoadTravelsByTravelTimeData(View):
             raise ESQueryDateRangeParametersDoesNotExist()
 
 
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
 
-        exists_parameters = True
-        # if day_types:
-        #     es_query = es_query.filter('terms', tipodia=day_type)
-        #     exists_parameters = True
-        #
-        # if periods:
-        #     es_query = es_query.filter('terms', periodo_subida=period)
-        #     exists_parameters = True
-
-        # from date: 13/07/2017
-        # to   date: 13/07/2017
-        # day
-        # types: 0, 2
-        # periods: 1, 5
-
-
-
-        if not exists_parameters:
-            raise ESQueryParametersDoesNotExist()
+        if periods:
+            es_query = es_query.filter('terms', periodo_subida=periods)
 
         # es_query = es_query.filter('term', Cumplimiento='C') \
         #     .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada',

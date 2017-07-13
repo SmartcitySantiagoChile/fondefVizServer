@@ -86,29 +86,26 @@
                         <div class="col-md-4 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="periodFilter">Período:</label>
                             <select class="form-control" id='periodFilter' multiple="multiple">
-                                {% for period in timeperiods %}
-                                    <option value="{{ period.pk }}">{{ period.transantiagoPeriod }}</option>
-                                {% endfor %}
                             </select>
                         </div>
 
-                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="communeFilter">Comuna:</label>
-                            <select class="form-control" id='communeFilter' multiple="multiple">
-                                {% for commune in communes %}
-                                    <option value="{{ commune.pk }}">{{ commune.prettyName }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="halfhourFilter">Media Hora:</label>
-                            <select class="form-control" id='halfhourFilter' multiple="multiple">
-                                {% for halfhour in halfhours %}
-                                    <option value="{{ halfhour.pk }}">{{ halfhour.shortName }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+{#                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">#}
+{#                            <label class="control-label" for="communeFilter">Comuna:</label>#}
+{#                            <select class="form-control" id='communeFilter' multiple="multiple">#}
+{#                                {% for commune in communes %}#}
+{#                                    <option value="{{ commune.pk }}">{{ commune.prettyName }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </div>#}
+{##}
+{#                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">#}
+{#                            <label class="control-label" for="halfhourFilter">Media Hora:</label>#}
+{#                            <select class="form-control" id='halfhourFilter' multiple="multiple">#}
+{#                                {% for halfhour in halfhours %}#}
+{#                                    <option value="{{ halfhour.pk }}">{{ halfhour.shortName }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </div>#}
 
                         <div class="col-md-12 col-sm-12 col-xs-12 form-group">
                             <div class="ln_solid"></div>
@@ -213,10 +210,62 @@
 
     <script>
         "use strict";
+
+        // localinfo.timeperiod JSON serialized data.
+        var _allPeriods = {{ timeperiods|safe }};
+
+        var _dayTypes = {
+            0: "Laboral",
+            1: "Sábado",
+            2: "Domingo"
+        };
+
+        var _dayTypes_reversed = {
+            "Laboral": 0,
+            "Sábado": 1,
+            "Domingo": 2
+        };
+
+        var _selected_day_type_ids = [];
+
         $(document).ready(function () {
 
             function processData(response) {
                 console.log(response.state);
+            }
+
+            function updateTSPeriods(dayTypes) {
+                // avoid when dayType has not changed.
+
+                var periodSelect = document.getElementById('periodFilter');
+
+                // remove all values
+                while (periodSelect.firstChild) {
+                    periodSelect.removeChild(periodSelect.firstChild);
+                }
+                // clear list! and return
+                if (dayTypes === null) {
+                    _selected_day_type_ids = [];
+                    return;
+                }
+                // TODO: do not delete already selected values!.. PS. keep the list sorted by id.
+                _selected_day_type_ids = dayTypes;
+
+                // required days as string
+                var dayTypes_str = dayTypes.map(function(item) {
+                    return _dayTypes[item];
+                });
+
+                // put new ones
+                for (var i=0, l=_allPeriods.length; i<l; i++) {
+                    var this_period = _allPeriods[i];
+                    if ( dayTypes_str.indexOf( this_period.fields.dayType ) !== -1 ) {
+                        var option = document.createElement("option");
+                        option.setAttribute("value", this_period.pk);
+                        option.appendChild(document.createTextNode(this_period.fields.transantiagoPeriod));
+                        periodSelect.appendChild(option);
+                    }
+                }
             }
 
             // ========================================================================
@@ -248,11 +297,31 @@
 {#                    "startDate": today,#}
                 });
 
+
+                // set default day as LABORAL
+                var dayTypeSelect = document.getElementById('dayTypeFilter');
+                for (var i=0, l=dayTypeSelect.options.length, curr; i<l; i++)
+                {
+                    curr = dayTypeSelect.options[i];
+                    if ( curr.text === "Laboral" ) {
+                        curr.selected = true;
+                    }
+                }
+                updateTSPeriods([_dayTypes_reversed["Laboral"]]);
+
+
                 // day type and period filters
-                $('#dayTypeFilter').select2({placeholder: 'tipo de día'});
-                $('#periodFilter').select2({placeholder: 'periodo transantiago'});
-                $('#communeFilter').select2({placeholder: 'comuna'});
-                $('#halfhourFilter').select2({placeholder: 'media hora'});
+                $('#dayTypeFilter')
+                    .select2({placeholder: 'Cualquiera'})
+                    .on("select2:select select2:unselect", function(e) {
+                        var selection_ids = $(this).val();
+                        updateTSPeriods(selection_ids);
+                    });
+                $('#periodFilter').select2({placeholder: 'Todos'});
+
+
+{#                $('#communeFilter').select2({placeholder: 'comuna'});#}
+{#                $('#halfhourFilter').select2({placeholder: 'media hora'});#}
 
 
                 // Update Charts from filters
@@ -274,8 +343,8 @@
                     var request = {
                         from: fromDate,
                         to: toDate,
-{#                        daytype: dayTypes,#}
-{#                        period: periods#}
+                        daytypes: dayTypes,
+                        periods: periods
                     };
 
                     var update_button = $(this);
@@ -287,8 +356,6 @@
 
                 });
             })() // end filters
-
-
 
         });
 

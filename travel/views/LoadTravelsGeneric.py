@@ -3,6 +3,7 @@
 
 from django.views.generic import View
 from django.conf import settings
+from django.core.serializers import serialize
 
 from elasticsearch_dsl import Search, A, MultiSearch
 from localinfo.models import TimePeriod, Commune, HalfHour
@@ -27,7 +28,7 @@ class LoadTravelsGeneric(View):
     def getLocalInfoDict(self):
         communes = Commune.objects.all()
         halfhours = HalfHour.objects.all()
-        timeperiods = TimePeriod.objects.filter(dayType="Laboral")
+        timeperiods = TimePeriod.objects.all()
 
         day_types = list()
         day_types.append({'pk': 0, 'name': 'Laboral'})
@@ -38,7 +39,7 @@ class LoadTravelsGeneric(View):
         data['daytypes'] = day_types
         data['communes'] = communes
         data['halfhours'] = halfhours
-        data['timeperiods'] = timeperiods
+        data['timeperiods'] = serialize('json', timeperiods)
         return data
 
     def getESQueryResult(self, esQueryDict):
