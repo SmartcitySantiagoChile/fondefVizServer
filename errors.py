@@ -44,6 +44,15 @@ class ESQueryParametersDoesNotExist(ESQueryError):
         super(ESQueryParametersDoesNotExist, self).__init__(402, message)
 
 
+class ESQueryDateRangeParametersDoesNotExist(ESQueryError):
+    ''' It raises when user does not provide params to elastic search query '''
+
+    def __init__(self):
+        message = 'Debe proveer parámetros con fecha de inicio y fin para realizar la búsqueda'
+        super(ESQueryDateRangeParametersDoesNotExist, self).__init__(402, message)
+
+
+
 class ESQueryResultEmpty(ESQueryError):
     ''' It raises when user does not provide params to elastic search query '''
 

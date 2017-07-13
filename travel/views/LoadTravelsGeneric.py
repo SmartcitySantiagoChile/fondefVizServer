@@ -23,13 +23,19 @@ class LoadTravelsGeneric(View):
         self.context = self.getLocalInfoDict()
         super(LoadTravelsGeneric, self).__init__()
 
+
     def getLocalInfoDict(self):
         communes = Commune.objects.all()
         halfhours = HalfHour.objects.all()
         timeperiods = TimePeriod.objects.filter(dayType="Laboral")
 
+        day_types = list()
+        day_types.append({'pk': 0, 'name': 'Laboral'})
+        day_types.append({'pk': 1, 'name': 'Sábado'})
+        day_types.append({'pk': 2, 'name': 'Domingo'})
+
         data = dict()
-        data['daytypes'] = ['Laboral', 'Sábado', 'Domingo']
+        data['daytypes'] = day_types
         data['communes'] = communes
         data['halfhours'] = halfhours
         data['timeperiods'] = timeperiods

@@ -78,7 +78,7 @@
                             <label class="control-label" for="dayTypeFilter">Tipo de día:</label>
                             <select class="form-control" id='dayTypeFilter' multiple="multiple">
                                 {% for daytype in daytypes %}
-                                    <option>{{ daytype }}</option>
+                                    <option value="{{ daytype.pk }}">{{ daytype.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -87,7 +87,7 @@
                             <label class="control-label" for="periodFilter">Período:</label>
                             <select class="form-control" id='periodFilter' multiple="multiple">
                                 {% for period in timeperiods %}
-                                    <option id="option-period-{{ period.pk }}">{{ period.transantiagoPeriod }}</option>
+                                    <option value="{{ period.pk }}">{{ period.transantiagoPeriod }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -96,7 +96,7 @@
                             <label class="control-label" for="communeFilter">Comuna:</label>
                             <select class="form-control" id='communeFilter' multiple="multiple">
                                 {% for commune in communes %}
-                                    <option id="option-commune-{{ commune.pk }}">{{ commune.prettyName }}</option>
+                                    <option value="{{ commune.pk }}">{{ commune.prettyName }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -105,7 +105,7 @@
                             <label class="control-label" for="halfhourFilter">Media Hora:</label>
                             <select class="form-control" id='halfhourFilter' multiple="multiple">
                                 {% for halfhour in halfhours %}
-                                    <option id="option-halfhour-{{ halfhour.pk }}">{{ halfhour.shortName }}</option>
+                                    <option value="{{ halfhour.pk }}">{{ halfhour.shortName }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -215,6 +215,10 @@
         "use strict";
         $(document).ready(function () {
 
+            function processData(response) {
+                console.log(response.state);
+            }
+
             // ========================================================================
             // FILTERS
             // ========================================================================
@@ -223,14 +227,25 @@
                 // set locale
                 moment.locale('es');
 
+                var today = new Date();
+                var tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
                 // datetime pickers
                 $('#dateFromFilter').daterangepicker({
                     singleDatePicker: true,
-                    language: 'es'
+                    language: "es",
+                    "minDate": "01/01/2015",
+                    "maxDate": tomorrow,
+                    "startDate": "13/03/2016"
+{#                    "startDate": today,#}
                 });
                 $('#dateToFilter').daterangepicker({
                     singleDatePicker: true,
-                    language: 'es'
+                    language: 'es',
+                    "minDate": "01/01/2015",
+                    "maxDate": tomorrow,
+                    "startDate": "15/03/2016"
+{#                    "startDate": today,#}
                 });
 
                 // day type and period filters
@@ -242,18 +257,33 @@
 
                 // Update Charts from filters
                 $('#btnUpdateChart').click(function () {
+                    // TODO: enforce fromDate < toDate.
 
                     var fromDate = $('#dateFromFilter').val();
                     var toDate = $('#dateToFilter').val();
-                    var dayType = $('#dayTypeFilter').val();
-                    var period = $('#periodFilter').val();
+                    var dayTypes = $('#dayTypeFilter').val();
+                    var periods = $('#periodFilter').val();
 
                     console.log("--- update charts ---");
                     console.log("from date: " + fromDate);
                     console.log("to date: " + toDate);
-                    console.log("day type: " + dayType);
-                    console.log("period: " + period);
+                    console.log("day types: " + dayTypes);
+                    console.log("periods: " + periods);
                     console.log("-- -- -- -- -- -- -- ");
+
+                    var request = {
+                        from: fromDate,
+                        to: toDate,
+{#                        daytype: dayTypes,#}
+{#                        period: periods#}
+                    };
+
+                    var update_button = $(this);
+                    var loading_text = update_button.html() + " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+                    update_button.html(loading_text);
+                    $.getJSON('getDataByTime', request, processData).always(function(){
+                        update_button.html('Actualizar Datos')
+                    });
 
                 });
             })() // end filters

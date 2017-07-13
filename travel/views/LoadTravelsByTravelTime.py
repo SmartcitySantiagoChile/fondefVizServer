@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.conf import settings
 
 from elasticsearch_dsl import Search, A
-from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
+from errors import ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty
 from LoadTravelsGeneric import LoadTravelsGeneric
 
 
@@ -72,14 +72,14 @@ class GetLoadTravelsByTravelTimeData(View):
             answer = es_query.execute()
 
             # self.transformESAnswer(es_query)
-            response['travels'] = answer.to_dict()
+            # response['travels'] = answer.to_dict()
 
             # append debug information
             if settings.DEBUG:
                 response['query'] = es_query.to_dict()
                 response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
 
-        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)
@@ -94,31 +94,42 @@ class GetLoadTravelsByTravelTimeData(View):
         # filtering params
         from_date = request.GET.get('from', None)
         to_date = request.GET.get('to', None)
-        day_type = request.GET.getlist('dayType', None)
-        period = request.GET.getlist('period', None)
+        day_types = request.GET.getlist('daytype', None)
+        periods = request.GET.getlist('period', None)
 
         # elastic search client
         client = settings.ES_CLIENT_DEVEL
         es_query = Search(using=client, index=LoadTravelsGeneric.INDEX_NAME)
 
-        exists_parameters = False
-        if from_date:
-            # timevar = datetime.datetime.now()
-            # es_query = es_query.filter('range', **{'tiempo_subida': {'gte': timevar}})
-            es_query = es_query.filter('range', **{'tiempo_subida': {'gte': from_date}})
-            exists_parameters = True
+        if from_date and to_date:
+            es_query = es_query.filter(
+                'range',
+                tiempo_subida={
+                    'gte': from_date + ' 00:00',
+                    'lte': to_date + ' 23:59',
+                    'format': 'dd/MM/yyyy HH:mm',
+                    'time_zone': 'America/Santiago'
+                })
+        else:
+            # this query requires both fields!
+            raise ESQueryDateRangeParametersDoesNotExist()
 
-        if to_date:
-            es_query = es_query.filter('range', **{'tiempo_bajada': {'lte': to_date}})
-            exists_parameters = True
 
-        if day_type:
-            es_query = es_query.filter('terms', tipodia=day_type)
-            exists_parameters = True
 
-        if period:
-            es_query = es_query.filter('terms', periodo_subida=period)
-            exists_parameters = True
+        exists_parameters = True
+        # if day_types:
+        #     es_query = es_query.filter('terms', tipodia=day_type)
+        #     exists_parameters = True
+        #
+        # if periods:
+        #     es_query = es_query.filter('terms', periodo_subida=period)
+        #     exists_parameters = True
+
+        # from date: 13/07/2017
+        # to   date: 13/07/2017
+        # day
+        # types: 0, 2
+        # periods: 1, 5
 
 
 
