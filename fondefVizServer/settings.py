@@ -124,6 +124,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Elastic-Search settings
 ES_CLIENT = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
 
-ES_CLIENT_DEVEL = Elasticsearch([
-    {'host': 'localhost', 'port': 9200},
-])
+# devel mode
+# - allows manage.py runserver
+# - allows development without messing up the official ES server.
+if DEBUG:
+    # this allows to serve static files when runing: python manage.py runserver
+    # but is not safe and requires the STATIC_ROOT variable is not defined.
+    del STATIC_ROOT
+    STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'), )
+
+    # Provide another ES client, which hooks to this machine and not the
+    # official one. To use this connection, simply provide the 'using' param
+    # when creating a new elasticsearch_dsl.Search object:
+    #    client = settings.ES_CLIENT_DEVEL
+    #    es_query = Search(using=client, index="my-index-pattern")
+    ES_CLIENT_DEVEL = Elasticsearch([
+        {'host': 'localhost', 'port': 9200},
+    ])
