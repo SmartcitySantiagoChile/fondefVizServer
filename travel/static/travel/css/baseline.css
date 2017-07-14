@@ -1,0 +1,4 @@
+.select2-container .select2-choice:not(.select2-default) {
+    background-image: none !important;
+    background-color: #D9FFC7;
+}
