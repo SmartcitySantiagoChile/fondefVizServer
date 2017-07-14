@@ -6,24 +6,16 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
 
-from elasticsearch_dsl import Search, A
+from elasticsearch_dsl import Search
 from errors import ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty
 from LoadTravelsGeneric import LoadTravelsGeneric
 
 
 class LoadTravelsByTravelTimeView(LoadTravelsGeneric):
-    """"""
 
     def __init__(self):
         """"""
-        # es_route_query = Search()
-        # es_route_query = es_route_query[:0]
-        # aggs = A('terms', field="ServicioSentido", size=1000)
-        # es_route_query.aggs.bucket('unique', aggs)
-        #
         es_query_dict = dict()
-        # es_query_dict['routes'] = es_route_query
-
         super(LoadTravelsByTravelTimeView, self).__init__(es_query_dict)
 
     def get(self, request):
@@ -31,7 +23,6 @@ class LoadTravelsByTravelTimeView(LoadTravelsGeneric):
 
 
 class GetLoadTravelsByTravelTimeData(View):
-
 
     def __init__(self):
 
@@ -47,7 +38,6 @@ class GetLoadTravelsByTravelTimeData(View):
 
         self.context = {}
         super(GetLoadTravelsByTravelTimeData, self).__init__()
-
 
     # ========================================================
     # View Interface
@@ -66,13 +56,13 @@ class GetLoadTravelsByTravelTimeData(View):
 
         try:
             # build elastic search query, based on the requested filtering options
-            es_query = self.buildQuery(request)
+            es_query = self.build_query(request)
 
             # process ES query
             answer = es_query.execute()
 
             # self.transformESAnswer(es_query)
-            # response['travels'] = answer.to_dict()
+            response['travels'] = answer.to_dict()
 
             # append debug information
             if settings.DEBUG:
@@ -88,7 +78,7 @@ class GetLoadTravelsByTravelTimeData(View):
     # Supporting methods
     # ========================================================
 
-    def buildQuery(self, request):
+    def build_query(self, request):
         """ create es-query based on params given by user """
 
         # filtering params
@@ -101,6 +91,7 @@ class GetLoadTravelsByTravelTimeData(View):
         client = settings.ES_CLIENT_DEVEL
         es_query = Search(using=client, index=LoadTravelsGeneric.INDEX_NAME)
 
+        # common filtering
         if from_date and to_date:
             es_query = es_query.filter(
                 'range',
@@ -114,67 +105,19 @@ class GetLoadTravelsByTravelTimeData(View):
             # this query requires both fields!
             raise ESQueryDateRangeParametersDoesNotExist()
 
-
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
 
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
 
-        # es_query = es_query.filter('term', Cumplimiento='C') \
-        #     .source(['Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'idExpedicion', 'NombreParada',
-        #              'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Hini', 'Hfin', 'Paradero',
-        #              'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
-        return es_query.source(self.default_fields)
+        # travel time histogram
+        es_query.aggs.bucket('tiempos_de_viaje', 'histogram', field='tviaje', interval='15')\
+            .metric('cantidad', 'sum', field='factor_expansion')\
+            .pipeline('acumulado', 'cumulative_sum', buckets_path='cantidad')
 
-    def cleanData(self, data):
-        """ round to zero values between [-1, 0] """
-        value = float(data)
-        if -1.0 < value and value < 0.0:
-            return 0
-        return value
+        # # limit fields
+        # return es_query.source(self.default_fields)
 
-    def transformESAnswer(self, esQuery):
-        """ transform ES answer to something util to web client """
-        travels = {}
-
-        count = 0
-        for hit in esQuery.scan():
-            data = hit.to_dict()
-            count += 1
-            # expedition_id = data['idExpedicion']
-            # if expedition_id not in trips:
-            #     trips[expedition_id] = {'info': {}, 'stops': []}
-            #
-            # trips[expedition_id]['info']['capacity'] = int(data['Capacidad'])
-            # trips[expedition_id]['info']['licensePlate'] = data['Patente']
-            # trips[expedition_id]['info']['route'] = data['ServicioSentido']
-            # trips[expedition_id]['info']['timeTripInit'] = data['Hini']
-            # trips[expedition_id]['info']['authTimePeriod'] = data['PeriodoTSExpedicion']
-            # trips[expedition_id]['info']['timeTripEnd'] = data['Hfin']
-            # trips[expedition_id]['info']['dayType'] = data['TipoDia']
-            # stop = dict()
-            # stop['name'] = data['NombreParada']
-            # stop['authStopCode'] = data['Paradero']
-            # stop['userStopCode'] = data['ParaderoUsuario']
-            # stop['authTimePeriod'] = data['PeriodoTSParada']
-            # stop['distOnPath'] = data['DistEnRuta']
-            # stop['stopTime'] = data['Tiempo']
-            # stop['order'] = int(data['Correlativo'])
-            #
-            # # to avoid movement of distribution chart
-            # stop['loadProfile'] = self.cleanData(data['Carga'])
-            # stop['expandedGetIn'] = self.cleanData(data['SubidasExpandidas'])
-            # stop['expandedGetOut'] = self.cleanData(data['BajadasExpandidas'])
-            # trips[expedition_id]['stops'].append(stop)
-            pass
-
-        # for expedition_id in trips:
-        #     trips[expedition_id]['stops'] = sorted(trips[expedition_id]['stops'],
-        #                                            key=lambda record: record['order'])
-
-        travels['count'] = count
-        if not travels.keys():
-            raise ESQueryResultEmpty()
-
-        return travels
+        # return no hits!
+        return es_query[:0]
