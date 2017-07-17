@@ -5,6 +5,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
+from .models import DataSource
 
 # Register your models here.
 admin.site.unregister(Group)
@@ -30,3 +31,25 @@ class MyUserAdmin(UserAdmin):
     list_filter = []
 
 admin.site.register(User, MyUserAdmin)
+
+
+
+class DataSourceAdmin(admin.ModelAdmin):
+    """ manager for data sources """
+    fieldsets = (
+        (None, {'fields': ('path', 'patternFile')}),
+        (None, {'fields': ('code', 'timeStamp')}),
+    )
+    list_filter = []
+    list_display = ('path', 'patternFile', 'code', 'timeStamp')
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_readonly_fields(self, request, obj=None):
+        return ('timeStamp', 'code')
+
+admin.site.register(DataSource, DataSourceAdmin)
