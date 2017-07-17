@@ -1,0 +1,135 @@
+{% extends 'admin/base.html' %}
+{% load i18n static %}
+
+{% block bodyclass %}nav-md {% endblock %}
+{% block basecontent %}
+<div class="container body">
+  <div class="main_container">
+    <div class="col-md-3 left_col">
+      <div class="left_col scroll-view">
+        <div class="navbar nav_title" style="border: 0;">
+          <a href="index.html" class="site_title"><i class="fa fa-dashboard"></i> <span> AGUILA</span></a>
+        </div>
+
+        <div class="clearfix"></div>
+ 
+        <!-- menu profile quick info -->
+        <div class="profile clearfix">
+          <div class="profile_pic">
+            <i class="fa fa-user fa-3x fa-fw img-circle profile_img"></i>
+          </div>
+          <div class="profile_info">
+            <span>
+            {% block welcome-msg %}
+              {% trans 'Welcome,' %}
+            {% endblock %}
+            </span>
+            <h2>{% firstof user.get_short_name user.get_username %}</h2>
+          </div>
+        </div>
+        <!-- /menu profile quick info -->
+
+        <br />
+
+        <!-- sidebar menu -->
+        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+          <div class="menu_section">
+            <h3>Menú</h3>
+            <ul class="nav side-menu">
+              {% if user.is_staff %}
+              <li><a><i class="fa fa-users"></i> Administración <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                  <li><a href="{% url 'admin:index' %}auth/user/"> Usuarios</a></li>
+                </ul>
+              </li>
+              {% endif %}
+              <li><a><i class="fa fa-bus"></i> Perfil de carga <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                  <li><a href=" {% url "profile:expedition" %} "> Por expedición</a></li>
+                  <li><a href=" {% url "profile:stop" %} "> Por parada</a></li>
+                  <li><a href=" {% url "profile:trayectory" %} "> Trayectoria</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- /sidebar menu -->
+      </div>
+    </div>
+
+    <!-- top navigation -->
+    <div class="top_nav">
+      <div class="nav_menu">
+        <nav>
+          <div class="nav toggle">
+            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+          </div>
+
+          <ul class="nav navbar-nav navbar-right" id="user-tools">
+            {% block nav-global %}{% endblock %}
+            <li class="">
+              <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-user fa-fw"></i>
+                {% firstof user.get_short_name user.get_username %}
+                <span class=" fa fa-angle-down"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-usermenu pull-right">
+                {% if user.has_usable_password %}
+                <li><a href="{% url 'admin:password_change' %}"><i class="fa fa-edit pull-right"></i> Cambiar contraseña</a></li>
+                {% endif %}
+                <li><a href="{% url 'admin:logout' %}"><i class="fa fa-sign-out pull-right"></i> Cerrar sesión</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <!-- /top navigation -->
+
+    <!-- page content -->
+    <div class="right_col" role="main">
+      <div>
+      {% if not is_popup %}
+      <!-- Header -->
+      <div class="page-title">
+        <div class="title_left">
+          {% block pretitle %}{% endblock %}
+          {% block content_title %}{% if title %}<h3>{{ title }}</h3>{% endif %}{% endblock %}
+        </div>
+        <div class="title_right">
+        </div>
+      </div>
+      <div class="clearfix"></div>
+      {% endif %}
+
+      {% block messages %}
+        {% if messages %}
+        <ul class="messagelist">{% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+        {% endfor %}</ul>
+        {% endif %}
+      {% endblock messages %}
+
+      {% block content %}
+        {% block object-tools %}{% endblock %}
+        {{ content }}
+      {% endblock %}
+      {% block sidebar %}{% endblock %}
+      <br class="clear" />
+      </div>
+    </div>
+    <!-- /page content -->
+
+    <!-- footer content
+    {% block footer %}
+    <footer id="footer">
+      <div class="pull-right">
+        Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+      </div>
+      <div class="clearfix"></div>
+    </footer>
+    {% endblock %}
+     /footer content -->
+  </div>
+</div>
+{% endblock %}
