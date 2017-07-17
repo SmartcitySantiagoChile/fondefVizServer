@@ -39,7 +39,9 @@
               {% if user.is_staff %}
               <li><a><i class="fa fa-users"></i> Administración <span class="fa fa-chevron-down"></span></a>
                 <ul class="nav child_menu">
-                  <li><a href="{% url 'admin:index' %}auth/user/"> Usuarios</a></li>
+                  <li><a href="{% url 'admin:auth_user_changelist' %}"> Usuarios</a></li>
+                  <li><a href="{% url 'admin:datamanager_datasource_changelist' %}"> Fuentes de datos</a></li>
+                  <li><a href=""> Carga de datos</a></li>
                 </ul>
               </li>
               {% endif %}

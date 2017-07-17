@@ -21,6 +21,7 @@
     <!-- Custom Theme Style -->
     <link href="{% block stylesheet %}{% static gentelella_static|add:"../build/css/custom.min.css" %}{% endblock %}" rel="stylesheet">
     {% block extrastyle %}{% endblock %}
+    {% block css %}{% endblock %}
     {% block extrahead %}{% endblock %}
     {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
   </head>
@@ -40,5 +41,6 @@
     <script src="{% static "js/custom.js" %}"></script>
     {% endwith %}
     {% block extrajs %}{% endblock %}
+    {% block js %}{% endblock %}
   </body>
 </html>
