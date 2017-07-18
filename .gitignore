@@ -100,6 +100,6 @@ myenv/
 
 media/
 node_modules/
-static/components/
+bowerapp/static/components/
 fondefVizServer/keys/
 static/*

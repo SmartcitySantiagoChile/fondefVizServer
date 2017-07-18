@@ -31,9 +31,25 @@ class DataSourceFile(models.Model):
     """ record to save date of each file """
     # file name found it in one of data source path
     fileName = models.CharField("Nombre de archivo", max_length=200, null=False)
-    dataSourcePath = models.foreignKey
-    pass
+    dataSourcePath = models.ForeignKey(DataSourcePath, on_delete=models.CASCADE)
 
 
 class DataSourceFileExecutionHistory(models.Model):
-    pass
+    """ history of upload action for each file recorded on data source file model """
+    fileName = models.ForeignKey(DataSourceFile, on_delete=models.CASCADE)
+    # time when execution started
+    executionStart = models.DateTimeField("Inicio")
+    # time when execution finished
+    executionEnd = models.DateTimeField("Fin", null=True)
+    RUNNING = "running"
+    FINISHED_WITH_ERROR = "error"
+    FINISHED_WITHOUT_ERROR = "ok"
+    STATE_CHOICES = (
+        (RUNNING, "cargando datos a elastic search"),
+        (FINISHED_WITHOUT_ERROR, "Finalización exitosa"),
+        (FINISHED_WITH_ERROR, "Finalización con error"),
+    )
+    # state of execution
+    state = models.CharField("Razón de termino", max_length=30, choices=STATE_CHOICES)
+    # to save error messages
+    message = models.TextField("Mensaje de error", max_length=500, null=True)
