@@ -5,7 +5,8 @@ from django.utils.translation import gettext, gettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
-from .models import DataSource
+from .models import DataSourcePath
+from .models import DataSourceFile
 
 # Register your models here.
 admin.site.unregister(Group)
@@ -37,11 +38,11 @@ admin.site.register(User, MyUserAdmin)
 class DataSourceAdmin(admin.ModelAdmin):
     """ manager for data sources """
     fieldsets = (
-        (None, {'fields': ('path', 'patternFile')}),
+        (None, {'fields': ('path', 'filePattern')}),
         (None, {'fields': ('code', 'timeStamp')}),
     )
     list_filter = []
-    list_display = ('path', 'patternFile', 'code', 'timeStamp')
+    list_display = ('path', 'filePattern', 'code', 'timeStamp')
     actions = None
 
     def has_add_permission(self, request):
@@ -52,4 +53,4 @@ class DataSourceAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         return ('timeStamp', 'code')
 
-admin.site.register(DataSource, DataSourceAdmin)
+admin.site.register(DataSourcePath, DataSourceAdmin)
