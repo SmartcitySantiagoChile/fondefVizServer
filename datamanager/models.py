@@ -13,7 +13,7 @@ class DataSourcePath(models.Model):
     # path to data source
     path = models.CharField("Ruta", max_length=200)
     # Patter of file which has to be searching in the path
-    patternFile = models.CharField("Patrón de archivo", max_length=100)
+    filePattern = models.CharField("Patrón de archivo", max_length=100)
     # Id uses to identify path
     code = models.CharField("código", max_length=50)
     # last time record was updated
@@ -28,10 +28,11 @@ class DataSourcePath(models.Model):
 
 
 class DataSourceFile(models.Model):
-    """ record to save date of each file """
+    """ record to save data of each file found it """
     # file name found it in one of data source path
     fileName = models.CharField("Nombre de archivo", max_length=200, null=False, unique=True)
     dataSourcePath = models.ForeignKey(DataSourcePath, on_delete=models.CASCADE)
+    discoverAt = models.DateTimeField("Primera vez encontrado", null=False)
 
 
 class DataSourceFileExecutionHistory(models.Model):
