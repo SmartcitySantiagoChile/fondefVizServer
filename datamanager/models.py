@@ -30,7 +30,7 @@ class DataSourcePath(models.Model):
 class DataSourceFile(models.Model):
     """ record to save date of each file """
     # file name found it in one of data source path
-    fileName = models.CharField("Nombre de archivo", max_length=200, null=False)
+    fileName = models.CharField("Nombre de archivo", max_length=200, null=False, unique=True)
     dataSourcePath = models.ForeignKey(DataSourcePath, on_delete=models.CASCADE)
 
 
