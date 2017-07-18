@@ -1,6 +1,7 @@
 [
-  {"model": "datamanager.datasource", "pk":1 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.perfiles",  "code":"Profile" }},
-  {"model": "datamanager.datasource", "pk":2 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.velocidades",  "code":"speed" }},
-  {"model": "datamanager.datasource", "pk":3 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.viajes",  "code":"travel" }},
-  {"model": "datamanager.datasource", "pk":4 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.shape",  "code":"shape" }}
+  {"model": "datamanager.datasourcepath", "pk":1 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.perfiles",  "code":"Profile" }},
+  {"model": "datamanager.datasourcepath", "pk":2 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.velocidades",  "code":"speed" }},
+  {"model": "datamanager.datasourcepath", "pk":3 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.viajes",  "code":"travel" }},
+  {"model": "datamanager.datasourcepath", "pk":4 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.shape",  "code":"shape" }},
+  {"model": "datamanager.datasourcepath", "pk":5 , "fields":{ "path":"/home/serverza/esdata/", "patternFile":"*.routeDict",  "code":"routeDict" }}
 ]
