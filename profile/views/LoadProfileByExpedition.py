@@ -119,7 +119,8 @@ class GetLoadProfileByExpeditionData(View):
             stop['userStopCode'] = data['userStopCode']
             stop['authTimePeriod'] = data['timePeriodInStopTime']
             stop['distOnPath'] = data['stopDistanceFromPathStart']
-            stop['stopTime'] = data['expeditionStopTime']
+            stop['stopTime'] = "" if data['expeditionStopTime']=="0" else \
+                data['expeditionStopTime'].replace('T',' ').replace('.000Z', '')
             stop['order'] = int(data['expeditionStopOrder'])
 
             # to avoid movement of distribution chart

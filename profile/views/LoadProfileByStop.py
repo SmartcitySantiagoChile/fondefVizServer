@@ -77,13 +77,13 @@ class GetLoadProfileByStopData(View):
         esQuery = esQuery.filter("range", expeditionStartTime={
             "gte": day + "||/d",
             "lte": day + "||/d",
-            "format": "dd/MM/yyyy",
+            "format": "yyyy-MM-dd",
             "time_zone": "+00:00"
         })
 
         esQuery = esQuery.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
                                   'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
-                                  'expeditionStopOrder', 'stopDistanceFromPathStart', 'expeditionStartTime',
+                                  'stopDistanceFromPathStart', 'expeditionStartTime',
                                   'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
                                   'dayType', 'timePeriodInStopTime', 'loadProfile'])
         return esQuery
@@ -106,13 +106,14 @@ class GetLoadProfileByStopData(View):
                 info['userStopCode'] = data['userStopCode']
                 info['name'] = data['userStopName']
 
-            expeditionId = data['expeditionStopOrder']
+            expeditionId = data['expeditionDayId']
 
             trips[expeditionId] = {}
             trips[expeditionId]['capacity'] = int(data['busCapacity'])
             trips[expeditionId]['licensePlate'] = data['licensePlate']
             trips[expeditionId]['route'] = data['route']
-            trips[expeditionId]['stopTime'] = data['expeditionStopTime']
+            trips[expeditionId]['stopTime'] = "" if data['expeditionStopTime']=="0" else \
+                data['expeditionStopTime'].replace('T',' ').replace('.000Z', '')
             trips[expeditionId]['stopTimePeriod'] = data['timePeriodInStopTime']
             trips[expeditionId]['dayType'] = data['dayType']
             trips[expeditionId]['distOnPath'] = data['stopDistanceFromPathStart']

@@ -549,7 +549,7 @@ $(document).ready(function(){
 
     let _updateTimePeriodChart = function(){
       let stopTime = _dataManager.getAttrGroup('stopTime', function(attrValue){
-        return attrValue.substring(0, 2);
+        return attrValue.substring(11, 13);
       });
       stopTime = stopTime.sort(function(a, b){
         a = parseInt(a.name);
