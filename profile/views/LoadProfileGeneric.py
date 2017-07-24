@@ -1,7 +1,4 @@
-from django.shortcuts import render
 from django.views.generic import View
-from django.http import JsonResponse
-from django.db import connection
 from django.conf import settings
 
 from elasticsearch_dsl import Search, A, MultiSearch
@@ -21,7 +18,7 @@ class LoadProfileGeneric(View):
         self.context= self.getESQueryResult(esQueryDict)
 
     def getESQueryResult(self, esQueryDict):
-        ''' retrieve all data availables in elasticsearch'''
+        ''' retrieve all data available in elasticsearch'''
         client = settings.ES_CLIENT
 
         multiSearch = MultiSearch(using=client, index=self.INDEX_NAME)
@@ -51,12 +48,12 @@ class LoadProfileGeneric(View):
 
         esTimePeriodQuery = Search()
         esTimePeriodQuery = esTimePeriodQuery[:0]
-        aggs = A('terms', field = "PeriodoTSExpedicion", size=50)
+        aggs = A('terms', field = "timePeriodInStartTime", size=50)
         esTimePeriodQuery.aggs.bucket('unique', aggs)
 
         esDayTypeQuery = Search()
         esDayTypeQuery = esDayTypeQuery[:0]
-        aggs = A('terms', field = "TipoDia", size=10)
+        aggs = A('terms', field = "dayType", size=10)
         esDayTypeQuery.aggs.bucket('unique', aggs)
  
         result = {}
