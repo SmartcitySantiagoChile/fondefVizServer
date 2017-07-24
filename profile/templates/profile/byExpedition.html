@@ -47,6 +47,10 @@
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="dateFromFilter">Día:</label>
+            <select type="text" id="dayFilter" placeholder="Día" class="form-control"></select>
+          </div>
           <!--
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="dateFromFilter">Desde:</label>
@@ -943,12 +947,19 @@ $(document).ready(function(){
     $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
     $('#licensePlateFilter').addTag('BJFS-17');
 
+    //TODO: delete when day are available
+    $('#dayFilter').select2({placeholder: 'Todos', data:
+        [
+            {id:'14/03/2016', text:'14/03/2016'},
+            {id: '03/04/2017', text: '03/04/2017'}
+        ]});
     $('#dayTypeFilter').select2({placeholder: 'Todos'});
     $('#periodFilter').select2({placeholder: 'Todos'});
     $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
  
     let app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
+      var day = $('#dayFilter').val();
       //var from = $('#dateFromFilter').val();
       //var to = $('#dateToFilter').val();
       var route = $('#routeFilter').val();
@@ -968,6 +979,7 @@ $(document).ready(function(){
       //console.log(expeditionId);
 
       let params = {
+        day: day,
         //from: from,
         //to: to,
       };
