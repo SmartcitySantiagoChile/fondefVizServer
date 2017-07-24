@@ -47,6 +47,14 @@
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="dateFromFilter">Día:</label>
+            <select type="text" id="dayFilter" placeholder="Día" class="form-control">
+              {% for day in days %}
+              <option>{{ day }}</option>
+              {% endfor %}
+            </select>
+          </div>
           <!--
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="dateFromFilter">Desde:</label>
@@ -178,7 +186,8 @@
 <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script><script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
 <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
 
 <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
@@ -232,19 +241,19 @@ $(document).ready(function(){
     let _stopInfo = null;
 
     this.stopInfo = function(info){
-      if(info == undefined){
+      if(info === undefined){
         return _stopInfo;
       }
       _stopInfo = info;
     };
     this.getDataName = function(){
-      if(_stopInfo != null){ 
+      if(_stopInfo !== null){
         return 'Perfil de carga ' + _stopInfo['userStopCode'] + '_' + _stopInfo['authorityStopCode']; 
       }
       return ''; 
     };
     this.trips = function(trips){
-      if(trips == undefined){
+      if(trips === undefined){
         return _trips;
       }
       _tripsUsed=0;
@@ -270,7 +279,7 @@ $(document).ready(function(){
       _xAxisData = data;
     };
     this.yAxisData = function(data){
-      if (data == undefined) {
+      if (data === undefined) {
         return _yAxisData;
       }
       _yAxisData = data;
@@ -309,7 +318,7 @@ $(document).ready(function(){
       return result;
     };
     this.calculateAverage = function(){
-      // erase previous visibled data
+      // erase previous visible data
       let xAxisLength = _xAxisData.length;
       let counterByRoute = [];
       let capacityByRoute = [];
@@ -385,7 +394,7 @@ $(document).ready(function(){
           continue;
         }
         let attrValue = trip[attrName];
-        attrValue = (formatFunc==undefined?attrValue:formatFunc(attrValue));
+        attrValue = (formatFunc===undefined?attrValue:formatFunc(attrValue));
         if(dict[attrValue]){
           dict[attrValue]++;
         }else{
@@ -396,7 +405,7 @@ $(document).ready(function(){
           values.push({'name':name, 'value': dict[name]});
       }
       return values;
-    }
+    };
     this.getDatatableData = function(){
       let values = [];
       let max = 0;
@@ -409,7 +418,7 @@ $(document).ready(function(){
         values.push(trip);
       }
       return {'rows':values};
-    }
+    };
 
     this.getDistributionData = function(){
 
@@ -490,7 +499,7 @@ $(document).ready(function(){
         mainCheckbox.iCheck({
           labelHover: false,
           cursor: true,
-          checkboxClass: 'icheckbox_flat-green',
+          checkboxClass: 'icheckbox_flat-green'
         });
         mainCheckbox.on('ifToggled', function(event){
           // Get all rows with search applied
@@ -505,7 +514,7 @@ $(document).ready(function(){
             inputs.prop('checked', false);
             $(rows).removeClass('success');
           }
-          $('tbody input.flat').iCheck('update');
+          $("tbody input.flat").iCheck("update");
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
           _dataManager.setVisibilty(tripIds, addToAggr);
           _self.updateCharts();
@@ -530,13 +539,13 @@ $(document).ready(function(){
     });
 
     this.dataManager = function(dataManager){
-      if(dataManager == undefined){
+      if(dataManager === undefined){
         return _dataManager;
       }
       _dataManager = dataManager;
       this.updateCharts();
       this.updateDatatable();
-    }
+    };
 
     let _updateTimePeriodChart = function(){
       let stopTime = _dataManager.getAttrGroup('stopTime', function(attrValue){
@@ -583,7 +592,7 @@ $(document).ready(function(){
       };
       _timePeriodChart.clear();
       _timePeriodChart.setOption(option,{notMerge: true});
-    }
+    };
 
     let _updateWordcloudCharts = function(){
       let lpValues = _dataManager.getAttrGroup('licensePlate');
@@ -627,8 +636,8 @@ $(document).ready(function(){
             },
             data: values[i]
           }]
-        }
-        chart.clear()
+        };
+        chart.clear();
         chart.setOption(options, {notMerge: true});
       }
     };
@@ -727,7 +736,7 @@ $(document).ready(function(){
           data: yAxisData[dataName[index]],
           itemStyle: yItemStyle[index],
           xAxisIndex: xGridIndex[index],
-          yAxisIndex: yGridIndex[index],
+          yAxisIndex: yGridIndex[index]
         };
         series.push(serie);
       }
@@ -874,7 +883,7 @@ $(document).ready(function(){
     }).get().click(function(){
       this.remove();
     });
-  };
+  }
 
   function processData(dataSource, app){
     console.log(dataSource);
@@ -916,7 +925,7 @@ $(document).ready(function(){
     let xAxisData = dataManager.getAttrGroup('route').map(function(el){ return el.name;});
     dataManager.xAxisData(xAxisData);
     app.dataManager(dataManager);
-  };
+  }
 
   // load filters
   (function (){
@@ -935,10 +944,7 @@ $(document).ready(function(){
       languague: 'es'
     });*/
 
-    $('#licensePlateFilter').tagsInput({defaultText: '...', minChars:6});
-    $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
-    $('#licensePlateFilter').addTag('BJFS-17');
-
+    $('#dayFilter').select2({placeholder: 'Todos'});
     $('#dayTypeFilter').select2({placeholder: 'Todos'});
     $('#periodFilter').select2({placeholder: 'Todos'});
     $('#stopFilter').select2({
@@ -947,13 +953,12 @@ $(document).ready(function(){
 
     let app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
+      let day = $('#dayFilter').val();
       //let from = $('#dateFromFilter').val();
       //let to = $('#dateToFilter').val();
       let stopCode = $('#stopFilter').val();
       let dayType = $('#dayTypeFilter').val();
       let period = $('#periodFilter').val();
-      //let licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
-      //let expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
 
       /*
       console.log(from);
@@ -962,10 +967,9 @@ $(document).ready(function(){
       console.log(dayType);
       console.log(period);
       */
-      //console.log(licensePlate);
-      //console.log(expeditionId);
 
       let params = {
+        day: day
         //from: from,
         //to: to,
       };
@@ -978,19 +982,11 @@ $(document).ready(function(){
       if (period) {
         params['period'] = period;
       }
-      /*
-      if (licensePlate) {
-        params['licensePlate'] = licensePlate;
-      }
-      if (expeditionId) {
-        params['expeditionId'] = expeditionId;
-      }
-      */
 
       app.showLoadingAnimationCharts();
       let loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
       let previousMessage = $(this).html();
-      let button = $(this).append(loadingIcon)
+      let button = $(this).append(loadingIcon);
       $.getJSON('getStopData', params, function(data){
         processData(data, app);
       })

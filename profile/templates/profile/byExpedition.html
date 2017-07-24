@@ -49,7 +49,11 @@
         <div class="x_content">
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="dateFromFilter">Día:</label>
-            <select type="text" id="dayFilter" placeholder="Día" class="form-control"></select>
+            <select type="text" id="dayFilter" placeholder="Día" class="form-control">
+              {% for day in days %}
+              <option>{{ day }}</option>
+              {% endfor %}
+            </select>
           </div>
           <!--
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
@@ -947,12 +951,7 @@ $(document).ready(function(){
     $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
     $('#licensePlateFilter').addTag('BJFS-17');
 
-    //TODO: delete when day are available
-    $('#dayFilter').select2({placeholder: 'Todos', data:
-        [
-            {id:'14/03/2016', text:'14/03/2016'},
-            {id: '03/04/2017', text: '03/04/2017'}
-        ]});
+    $('#dayFilter').select2({placeholder: 'Todos'});
     $('#dayTypeFilter').select2({placeholder: 'Todos'});
     $('#periodFilter').select2({placeholder: 'Todos'});
     $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});

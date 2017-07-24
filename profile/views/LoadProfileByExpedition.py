@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db import connection
 from django.conf import settings
 
-from elasticsearch_dsl import Search, Q, A, MultiSearch
+from elasticsearch_dsl import Search, A
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
 from LoadProfileGeneric import LoadProfileGeneric
 
@@ -12,16 +11,16 @@ class LoadProfileByExpeditionView(LoadProfileGeneric):
     ''' '''
 
     def __init__(self):
-        ''' contructor '''
+        ''' Constructor '''
 
         esRouteQuery = Search()
         esRouteQuery = esRouteQuery[:0]
         aggs = A('terms', field = "route", size=1000)
-        esRouteQuery.aggs.bucket('unique', aggs)
- 
+        esRouteQuery.aggs.bucket("unique", aggs)
+
         esQueryDict = {}
         esQueryDict['routes'] = esRouteQuery
-        
+
         super(LoadProfileByExpeditionView, self).__init__(esQueryDict)
 
     def get(self, request):
@@ -74,7 +73,7 @@ class GetLoadProfileByExpeditionData(View):
             existsParameters = True
         
         if not existsParameters or day is None:
-            raise ESQueryDoesNotHaveParameters()
+            raise ESQueryParametersDoesNotExist()
 
         esQuery = esQuery.filter("range", expeditionStartTime={
             "gte": day + "||/d",

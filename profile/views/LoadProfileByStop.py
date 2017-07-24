@@ -46,6 +46,7 @@ class GetLoadProfileByStopData(View):
     def buildQuery(self, request):
         ''' create es-query based on params given by user '''
 
+        day = request.GET.get('day')
         fromDate = request.GET.get('from')
         toDate = request.GET.get('to')
         dayType = request.GET.getlist('dayType[]')
@@ -71,7 +72,14 @@ class GetLoadProfileByStopData(View):
             existsParameters = True
         
         if not existsParameters:
-            raise ESQueryDoesNotHaveParameters()
+            raise ESQueryParametersDoesNotExist()
+
+        esQuery = esQuery.filter("range", expeditionStartTime={
+            "gte": day + "||/d",
+            "lte": day + "||/d",
+            "format": "dd/MM/yyyy",
+            "time_zone": "+00:00"
+        })
 
         esQuery = esQuery.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
                                   'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
