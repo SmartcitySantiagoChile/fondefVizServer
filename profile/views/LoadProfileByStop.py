@@ -16,12 +16,12 @@ class LoadProfileByStopView(LoadProfileGeneric):
 
         esTSStopQuery = Search()
         esTSStopQuery = esTSStopQuery[:0]
-        aggs = A('terms', field = "Paradero", size=15000)
+        aggs = A('terms', field = "authStopCode", size=15000)
         esTSStopQuery.aggs.bucket('unique', aggs)
 
         esUserStopQuery = Search()
         esUserStopQuery = esUserStopQuery[:0]
-        aggs = A('terms', field = "ParaderoUsuario", size=15000)
+        aggs = A('terms', field = "userStopCode", size=15000)
         esUserStopQuery.aggs.bucket('unique', aggs)
  
         esQueryDict = {}
@@ -46,6 +46,7 @@ class GetLoadProfileByStopData(View):
     def buildQuery(self, request):
         ''' create es-query based on params given by user '''
 
+        day = request.GET.get('day')
         fromDate = request.GET.get('from')
         toDate = request.GET.get('to')
         dayType = request.GET.getlist('dayType[]')
@@ -58,24 +59,33 @@ class GetLoadProfileByStopData(View):
         
         existsParameters = False
         if stopCode:
-            esQuery = esQuery.query(Q('term', Paradero=stopCode)|Q('term', ParaderoUsuario=stopCode))
+            esQuery = esQuery.query(Q('term', authStopCode=stopCode)|Q('term', userStopCode=stopCode))
             existsParameters = True
         else:
             raise ESQueryStopParameterDoesNotExist()
 
         if dayType:
-            esQuery = esQuery.filter('terms', TipoDia=dayType)
+            esQuery = esQuery.filter('terms', dayType=dayType)
             existsParameters = True
         if period:
-            esQuery = esQuery.filter('terms', PeriodoTSParada=period)
+            esQuery = esQuery.filter('terms', timePeriodInStopTime=period)
             existsParameters = True
         
         if not existsParameters:
-            raise ESQueryDoesNotHaveParameters()
+            raise ESQueryParametersDoesNotExist()
 
-        esQuery = esQuery.filter('term', Cumplimiento='C')\
-            .source(['idExpedicion', 'Capacidad', 'Tiempo', 'Patente', 'ServicioSentido', 'Carga', 'NombreParada', 'BajadasExpandidas', 'SubidasExpandidas', 'Correlativo', 'DistEnRuta', 'Paradero', 'ParaderoUsuario', 'PeriodoTSExpedicion', 'TipoDia', 'PeriodoTSParada'])
-        
+        esQuery = esQuery.filter("range", expeditionStartTime={
+            "gte": day + "||/d",
+            "lte": day + "||/d",
+            "format": "yyyy-MM-dd",
+            "time_zone": "+00:00"
+        })
+
+        esQuery = esQuery.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
+                                  'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
+                                  'stopDistanceFromPathStart', 'expeditionStartTime',
+                                  'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
+                                  'dayType', 'timePeriodInStopTime', 'loadProfile'])
         return esQuery
  
     def cleanData(self, data):
@@ -92,25 +102,26 @@ class GetLoadProfileByStopData(View):
             data = hit.to_dict()
 
             if len(info.keys()) == 0:
-                info['authorityStopCode'] = data['Paradero']
-                info['userStopCode'] = data['ParaderoUsuario']
-                info['name'] = data['NombreParada']
+                info['authorityStopCode'] = data['authStopCode']
+                info['userStopCode'] = data['userStopCode']
+                info['name'] = data['userStopName']
 
-            expeditionId = data['idExpedicion']
+            expeditionId = data['expeditionDayId']
 
             trips[expeditionId] = {}
-            trips[expeditionId]['capacity'] = int(data['Capacidad'])
-            trips[expeditionId]['licensePlate'] = data['Patente']
-            trips[expeditionId]['route'] = data['ServicioSentido']
-            trips[expeditionId]['stopTime'] = data['Tiempo']
-            trips[expeditionId]['stopTimePeriod'] = data['PeriodoTSParada']
-            trips[expeditionId]['dayType'] = data['TipoDia']
-            trips[expeditionId]['distOnPath'] = data['DistEnRuta']
+            trips[expeditionId]['capacity'] = int(data['busCapacity'])
+            trips[expeditionId]['licensePlate'] = data['licensePlate']
+            trips[expeditionId]['route'] = data['route']
+            trips[expeditionId]['stopTime'] = "" if data['expeditionStopTime']=="0" else \
+                data['expeditionStopTime'].replace('T',' ').replace('.000Z', '')
+            trips[expeditionId]['stopTimePeriod'] = data['timePeriodInStopTime']
+            trips[expeditionId]['dayType'] = data['dayType']
+            trips[expeditionId]['distOnPath'] = data['stopDistanceFromPathStart']
 
             # to avoid movement of distribution chart
-            trips[expeditionId]['loadProfile'] = self.cleanData(data['Carga'])
-            trips[expeditionId]['expandedGetIn'] = self.cleanData(data['SubidasExpandidas'])
-            trips[expeditionId]['expandedLanding'] = self.cleanData(data['BajadasExpandidas'])
+            trips[expeditionId]['loadProfile'] = self.cleanData(data['loadProfile'])
+            trips[expeditionId]['expandedGetIn'] = self.cleanData(data['expandedBoarding'])
+            trips[expeditionId]['expandedLanding'] = self.cleanData(data['expandedAlighting'])
 
         if len(info.keys()) == 0:
             raise ESQueryResultEmpty()
