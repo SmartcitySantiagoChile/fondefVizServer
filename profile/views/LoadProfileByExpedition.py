@@ -113,6 +113,7 @@ class GetLoadProfileByExpeditionData(View):
             trips[expeditionId]['info']['timeTripInit'] = data['expeditionStartTime'].replace('T',' ').replace('.000Z', '')
             trips[expeditionId]['info']['timeTripEnd'] = data['expeditionEndTime'].replace('T',' ').replace('.000Z', '')
             trips[expeditionId]['info']['dayType'] = data['dayType']
+
             stop = {}
             stop['name'] = data['userStopName']
             stop['authStopCode'] = data['authStopCode']

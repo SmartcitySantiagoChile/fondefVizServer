@@ -256,7 +256,7 @@ $(document).ready(function(){
       _trips = [];
       _visibleTrips = 0;
     };
-    this.setVisibilty = function(tripIdArray, value){
+    this.setVisibility = function(tripIdArray, value){
       for(let i=0;i<tripIdArray.length; i++){
        let tripId = tripIdArray[i];
        if(_trips[tripId]['visible'] !== value){
@@ -299,7 +299,7 @@ $(document).ready(function(){
         values.push({'name':name, 'value': dict[name]});
       }
       return values;
-    }
+    };
     this.getDatatableData = function(){
       let values = [];
       let max = 0;
@@ -387,7 +387,7 @@ $(document).ready(function(){
           }
           $('tbody input.flat').iCheck('update');
           let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
-          _dataManager.setVisibilty(tripIds, addToAggr);
+          _dataManager.setVisibility(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
@@ -455,14 +455,14 @@ $(document).ready(function(){
                                                                            
           // updateChart                                                   
           let tripId = parseInt($(this).attr('name').replace('trip', '')); 
-          _dataManager.setVisibilty([tripId], addToAggr);                  
+          _dataManager.setVisibility([tripId], addToAggr);
           _self.updateCharts();                                            
         });                                                                
       });                                                                  
       _datatable.clear();                                                  
       _datatable.rows.add(rows);                                           
-      _datatable.columns.adjust().draw();                                  
-                                                                           
+      _datatable.columns.adjust().draw();
+
       // attach to attach event                                            
       $('#detail-tab').off('shown.bs.tab');                                
       $('#detail-tab').on('shown.bs.tab', function(event){                 
@@ -476,7 +476,7 @@ $(document).ready(function(){
     };
 
     let _updateBarChart = function(){
-      
+
       let trips = _dataManager.trips();
       let series = [];
       let visualMaps = [];
@@ -488,7 +488,7 @@ $(document).ready(function(){
           continue;
         }
         seriesIndex++;
-        
+
         let serie = {
           name: trip.licensePlate,
           type: 'line', data: trip.data, 
@@ -510,19 +510,24 @@ $(document).ready(function(){
         for (let i=1; i<trip.data.length; i++){
           let value = trip.data[i][3];
           let color = value<=25?colors[0]:value<=50?colors[1]:value<=75?colors[2]:value<=100?colors[3]:null;
-          let piece = {
-            gte: (new Date(trip.data[i-1][0])).getTime(), 
-            lte: (new Date(trip.data[i][0])).getTime(), 
-            color: color
-          };
-          if(previousPiece === null){
-            previousPiece = piece;
-          }else if(previousPiece.color === piece.color){
-            previousPiece.lte = piece.lte;
-          }else{
-            visualMap.pieces.push(previousPiece);
-            previousPiece = piece;
+
+          if(trip.data[i-1][0] !== "" && trip.data[i][0] !== ""){
+            let piece = {
+                gte: (new Date(trip.data[i-1][0])).getTime(),
+                lte: (new Date(trip.data[i][0])).getTime(),
+                color: color
+            };
+
+            if(previousPiece === null){
+              previousPiece = piece;
+            }else if(previousPiece.color === piece.color){
+              previousPiece.lte = piece.lte;
+            }else{
+              visualMap.pieces.push(previousPiece);
+              previousPiece = piece;
+            }
           }
+
           if(i+1 === trip.data.length){
             visualMap.pieces.push(previousPiece);
           }
@@ -761,7 +766,7 @@ $(document).ready(function(){
           globalYAxis.push(yPoint);
         }
         let row = [];
-        let stopTime = '2017-03-14 ' + stopInfo['stopTime'];
+        let stopTime = stopInfo['stopTime'];
         row.push(stopTime);
         row.push(stopInfo['distOnPath']);
         row.push(stopInfo['loadProfile']);
@@ -777,7 +782,7 @@ $(document).ready(function(){
     }
     dataManager.yAxisData(globalYAxis);
     app.dataManager(dataManager);
-  };
+  }
 
   // load filters
   (function (){
@@ -807,14 +812,14 @@ $(document).ready(function(){
  
     let app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
-      var day = $('#dayFilter').val();
-      //var from = $('#dateFromFilter').val();
-      //var to = $('#dateToFilter').val();
-      var route = $('#routeFilter').val();
-      var dayType = $('#dayTypeFilter').val();
-      var period = $('#periodFilter').val();
-      //var licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
-      //var expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
+      let day = $('#dayFilter').val();
+      //let from = $('#dateFromFilter').val();
+      //let to = $('#dateToFilter').val();
+      let route = $('#routeFilter').val();
+      let dayType = $('#dayTypeFilter').val();
+      let period = $('#periodFilter').val();
+      //let licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
+      //let expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
    
       /*
       console.log(from);
