@@ -67,7 +67,7 @@ class LoadProfileGeneric(View):
         esDayQuery.aggs.bucket("unique", "date_histogram",
                                field="expeditionStartTime",
                                interval="day",
-                               format="dd/MM/yyyy")
+                               format="yyyy-MM-dd")
  
         result = {}
         result['periods'] = esTimePeriodQuery

@@ -78,7 +78,7 @@ class GetLoadProfileByExpeditionData(View):
         esQuery = esQuery.filter("range", expeditionStartTime={
             "gte": day + "||/d",
             "lte": day + "||/d",
-            "format": "dd/MM/yyyy",
+            "format": "yyyy-MM-dd",
             "time_zone": "+00:00"
         })
 
@@ -109,9 +109,9 @@ class GetLoadProfileByExpeditionData(View):
             trips[expeditionId]['info']['capacity'] = int(data['busCapacity'])
             trips[expeditionId]['info']['licensePlate'] = data['licensePlate']
             trips[expeditionId]['info']['route'] = data['route']
-            trips[expeditionId]['info']['timeTripInit'] = data['expeditionStartTime']
             trips[expeditionId]['info']['authTimePeriod'] = data['timePeriodInStartTime']
-            trips[expeditionId]['info']['timeTripEnd'] = data['expeditionEndTime']
+            trips[expeditionId]['info']['timeTripInit'] = data['expeditionStartTime'].replace('T',' ').replace('.000Z', '')
+            trips[expeditionId]['info']['timeTripEnd'] = data['expeditionEndTime'].replace('T',' ').replace('.000Z', '')
             trips[expeditionId]['info']['dayType'] = data['dayType']
             stop = {}
             stop['name'] = data['userStopName']
