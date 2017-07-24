@@ -82,7 +82,7 @@ class GetLoadProfileByExpeditionData(View):
             "format": "dd/MM/yyyy",
             "time_zone": "+00:00"
         })
-        print(esQuery.to_dict())
+
         esQuery = esQuery.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'loadProfile',
                                   'expeditionDayId', 'userStopName', 'expandedAlighting', 'expandedBoarding',
                                   'expeditionStopOrder', 'stopDistanceFromPathStart', 'expeditionStartTime',
