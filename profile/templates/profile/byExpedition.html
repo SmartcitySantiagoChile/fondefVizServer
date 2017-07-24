@@ -47,6 +47,14 @@
           <div class="clearfix"></div>
         </div>
         <div class="x_content">
+          <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+            <label class="control-label" for="dateFromFilter">Día:</label>
+            <select type="text" id="dayFilter" placeholder="Día" class="form-control">
+              {% for day in days %}
+              <option>{{ day }}</option>
+              {% endfor %}
+            </select>
+          </div>
           <!--
           <div class="col-md-2 col-sm-12 col-xs-12 form-group">
             <label class="control-label" for="dateFromFilter">Desde:</label>
@@ -230,9 +238,9 @@ $(document).ready(function(){
         return 'Perfil de carga ' + _trips[0]['route'];
       }
       return '';
-    }
+    };
     this.trips = function(trips){
-      if(trips == undefined){
+      if(trips === undefined){
         return _trips;
       }
       _visibleTrips=0;
@@ -252,20 +260,20 @@ $(document).ready(function(){
       _trips.push(trip);
     };
     this.xAxisData = function(data){
-      if (data == undefined) {
+      if (data === undefined) {
         return _xAxisData;
       }
       _xAxisData = data;
     };
     this.yAxisData = function(data){
-      if (data == undefined) {
+      if (data === undefined) {
         return _yAxisData;
       }
       _yAxisData = data;
     };
     this.tripsUsed = function(){
       return _visibleTrips;
-    }
+    };
     this.cleanData = function(){
       _trips = [];
       _xAxisData = null;
@@ -296,7 +304,7 @@ $(document).ready(function(){
       return result;
     };
     this.calculateAverage = function(){
-      // erase previous visibled data
+      // erase previous visible data
       let xAxisLength = _xAxisData.length;
       let counterByStop = [];
       let capacityByStop = [];
@@ -327,7 +335,7 @@ $(document).ready(function(){
         
         for(let stopIndex=0;stopIndex<xAxisLength;stopIndex++){
           let key = _xAxisData[stopIndex]['authCode'];
-          if (trip.yAxisData['expandedGetOut'][key]==undefined){
+          if (trip.yAxisData['expandedGetOut'][key]===undefined){
             continue;
           }
           _yAxisData['expandedGetOut'][stopIndex]+=trip.yAxisData['expandedGetOut'][key];
@@ -356,7 +364,7 @@ $(document).ready(function(){
           continue;
         }
         let attrValue = trip[attrName];
-        attrValue = (formatFunc==undefined?attrValue:formatFunc(attrValue));
+        attrValue = (formatFunc===undefined?attrValue:formatFunc(attrValue));
         if(dict[attrValue]){
           dict[attrValue]++;
         }else{
@@ -395,7 +403,7 @@ $(document).ready(function(){
         values.push(trip);
       }
       return {'rows':values, 'maxHeight': max};
-    }
+    };
   
     this.getDistributionData = function(){
 
@@ -515,17 +523,17 @@ $(document).ready(function(){
     });
 
     this.dataManager = function(dataManager){
-      if(dataManager == undefined){
+      if(dataManager === undefined){
         return _dataManager;
       }
       _dataManager = dataManager;
       this.updateCharts();
       this.updateDatatable();
-    }
+    };
 
     let _updateTimePeriodChart = function(){
       let timeTripInit = _dataManager.getAttrGroup('timeTripInit', function(attrValue){
-        return attrValue.substring(0, 2);
+        return attrValue.substring(11, 13);
       });
       timeTripInit = timeTripInit.sort(function(a, b){
         a = parseInt(a.name);
@@ -536,7 +544,7 @@ $(document).ready(function(){
       let values = timeTripInit.map(function(el, index){ return [index, el.value];});
       let option = {
         tooltip: {
-          positon: 'top'
+          position: 'top'
         },
         singleAxis: [{
           type: 'category',
@@ -568,7 +576,7 @@ $(document).ready(function(){
       };
       _timePeriodChart.clear();
       _timePeriodChart.setOption(option,{notMerge: true});
-    }
+    };
 
     let _updateWordcloudCharts = function(){
       let lpValues = _dataManager.getAttrGroup('licensePlate');
@@ -612,16 +620,16 @@ $(document).ready(function(){
             },  
             data: values[i]
           }]
-        }
-        chart.clear()
+        };
+        chart.clear();
         chart.setOption(options, {notMerge: true});
       }
     };
                                                                 
     let _updateDatatable = function(){                                     
       let dataset = _dataManager.getDatatableData();                       
-      let rows = dataset['rows']                                           
-      let maxHeight = dataset['maxHeight']                                 
+      let rows = dataset['rows'];
+      let maxHeight = dataset['maxHeight'];
                                                                            
       _datatable.off('draw');                                              
       _datatable.on('draw', function(oSettings) {                          
@@ -664,8 +672,8 @@ $(document).ready(function(){
       _datatable.columns.adjust().draw();                                  
                                                                            
       // attach to attach event                                            
-      $('#detail-tab').off('shown.bs.tab');                                
-      $('#detail-tab').on('shown.bs.tab', function(event){                 
+      $("#detail-tab").off('shown.bs.tab');
+      $("#detail-tab").on('shown.bs.tab', function(event){
         $('.spark:not(:has(canvas))').sparkline('html', {                  
           type: 'bar',                                                     
           barColor: '#169f85',                                             
@@ -677,8 +685,8 @@ $(document).ready(function(){
 
     let _updateBarChart = function(){
       _dataManager.calculateAverage();
-      let yAxisData = _dataManager.yAxisData()
-      let xAxisData = _dataManager.xAxisData()
+      let yAxisData = _dataManager.yAxisData();
+      let xAxisData = _dataManager.xAxisData();
       
       // get out, get in, load profile, percentage ocupation
       let yAxisDataName = ['Subidas', 'Bajadas', 'Carga', 'Porcentaje ocupación'];
@@ -756,7 +764,7 @@ $(document).ready(function(){
               let head = (xValue + 1) + '  ' + xAxisData[xValue]['userCode'] + ' ' + xAxisData[xValue]['authCode'] + '  ' + xAxisData[xValue]['name'] + '<br />';
               let info = [];
               for (let index in params){
-                let el = params[index]
+                let el = params[index];
                 let ball ="<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:" + el.color + "'></span>";
                 let name = el.seriesName;
                 let value = el.value.toFixed(2);
@@ -851,7 +859,7 @@ $(document).ready(function(){
     }).get().click(function(){
       this.remove();
     });
-  }; 
+  }
 
   function processData(dataSource, app){
     console.log(dataSource);
@@ -918,10 +926,10 @@ $(document).ready(function(){
       dataManager.addTrip(trip);
     }
 
-    dataManager.xAxisData(tripGroupXAxisData)
+    dataManager.xAxisData(tripGroupXAxisData);
     app.dataManager(dataManager);
     //drawDistribution(app.dataManager().trips());
-  };
+  }
 
   // load filters
   (function (){
@@ -944,19 +952,21 @@ $(document).ready(function(){
     $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
     $('#licensePlateFilter').addTag('BJFS-17');
 
+    $('#dayFilter').select2({placeholder: 'Todos'});
     $('#dayTypeFilter').select2({placeholder: 'Todos'});
     $('#periodFilter').select2({placeholder: 'Todos'});
     $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
  
     let app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
-      //var from = $('#dateFromFilter').val();
-      //var to = $('#dateToFilter').val();
-      var route = $('#routeFilter').val();
-      var dayType = $('#dayTypeFilter').val();
-      var period = $('#periodFilter').val();
-      //var licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
-      //var expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
+      let day = $('#dayFilter').val();
+      //let from = $('#dateFromFilter').val();
+      //let to = $('#dateToFilter').val();
+      let route = $('#routeFilter').val();
+      let dayType = $('#dayTypeFilter').val();
+      let period = $('#periodFilter').val();
+      //let licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
+      //let expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
    
       /*
       console.log(from);
@@ -969,6 +979,7 @@ $(document).ready(function(){
       //console.log(expeditionId);
 
       let params = {
+        day: day,
         //from: from,
         //to: to,
       };
@@ -993,7 +1004,7 @@ $(document).ready(function(){
       app.showLoadingAnimationCharts();
       let loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
       let previousMessage = $(this).html();
-      let button = $(this).append(loadingIcon) 
+      let button = $(this).append(loadingIcon);
       $.getJSON('getExpeditionData', params, function(data){
         processData(data, app);
       })

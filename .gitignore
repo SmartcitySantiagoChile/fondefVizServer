@@ -103,3 +103,4 @@ node_modules/
 bowerapp/static/components/
 fondefVizServer/keys/
 static/*
+bowerapp/static/components/*
