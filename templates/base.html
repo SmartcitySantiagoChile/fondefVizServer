@@ -41,13 +41,18 @@
               <div class="menu_section">
                 <h3>Perfiles</h3>
                 <ul class="nav side-menu">
-                  <li><a href=" {% url "expedition" %} "><i class="fa fa-bus"></i> por expedición</a></li>
-                </ul>
-              </div>
-              <div class="menu_section">
-                <h3>Velocidades</h3>
-                <ul class="nav side-menu">
-                  <li><a href=" {% url "matrix" %} "><i class="fa fa-bus"></i> matriz por servicio</a></li>
+                  <li><a><i class="fa fa-bus"></i> Perfil de carga <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href=" {% url "expedition" %} "> por expedición</a></li>
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-tachometer"></i> Velocidades <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href=" {% url "matrix" %} "> matriz por servicio</a></li>
+                      <li><a href=" {% url "ranking" %} "> ranking de velocidades</a></li>
+                      <li><a href=" {% url "variation" %} "> variación de velocidades</a></li>
+                    </ul>
+                  </li>
                 </ul>
               </div>
             </div>
