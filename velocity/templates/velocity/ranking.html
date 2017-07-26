@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ranking de Velocidades{% endblock %}
+
+{% block css %}
+<link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+{% with "components/gentelella/vendors/" as gentelella_static %}
+  <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.skinModern.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+
+  <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
+
+  <style>
+.select2-container .select2-choice:not(.select2-default) {
+    background-image: none !important;
+    background-color: #D9FFC7;
+}
+
+.aguila-color .irs-from,
+.aguila-color .irs-to,
+.aguila-color .irs-single,
+.aguila-color .irs-bar-edge,
+.aguila-color .irs-bar{
+    background: #2A3F54;
+}
+.aguila-color .irs-from::after,
+.aguila-color .irs-to::after,
+.aguila-color .irs-single::after{
+    border-color: #2A3F54 transparent transparent;
+}
+  </style>
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="">
+  <div class="page-title">
+    <div class="title_left">
+      <h3>Ranking de Velocidades</h3>
+    </div>
+    <div class="title_right">
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <br />
+
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="x_panel">
+        <div class="x_title">
+          <h2><i class="fa fa-filter"></i> Filtro <small></small></h2>
+          <ul class="nav navbar-right panel_toolbox">
+            <li style="float:right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+          </ul>
+          <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+          <div class="row">
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterDateFrom">Desde:</label>
+              <input type="text" id="filterDateFrom" placeholder="Desde" class="form-control">
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterDateTo">Hasta:</label>
+              <input type="text" id="filterDateTo" placeholder="Hasta" class="form-control">
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterDayType">Tipo de día:</label>
+              <select class="form-control" id='filterDayType' multiple="multiple">
+                {% for dayType in dayTypes %}
+                <option>{{ dayType }}</option>
+                {% endfor %}
+              </select>
+          </div>
+            <div class="col-md-6 col-sm-12 col-xs-12 form-group aguila-color">
+              <label class="control-label" for="filterHourRange">Rango Horario:</label>
+              <input type="text" id="filterHourRange" name="hour_range" value="" />
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+            <div class="ln_solid"></div>
+            <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">Actualizar datos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-md-8 col-sm-9 col-xs-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2><i class="fa fa-tachometer"></i> Ranking de Velocidades <strong id="horario"></strong></h2>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+            <table id="tupleDetail" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
+              <thead>
+                <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+  <div class="col-md-4 col-xs-12">
+   <div class="x_panel">
+      <div class="x_title">
+        <h2><i class="fa fa-map"></i> Posición en el mapa</h2>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+        <div id="mapid" style="height: 500px;min-height: 300px"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+{% with "components/gentelella/vendors/" as gentelella_static %}
+<script src="{% static gentelella_static|add:"echarts/dist/echarts.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"ion.rangeSlider/js/ion.rangeSlider.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+<script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+<script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+
+<script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script><script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+<script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
+
+{% endwith %}
+<script src="{% static "own/js/echartsTheme.js" %}"></script>
+<script>
+$(document).ready(function(){
+    // map stuffs
+    var pzaDeArmas = [-33.437824, -70.650439];
+    var mbAttr = 'flp',
+        mbUrl = 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
+    var black = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr});
+    var map = L.map('mapid', {
+        center: pzaDeArmas,
+        zoom: 15,
+        layers: [black]
+    });
+    colors = ['#dfdfdf', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff'];
+    recievedDataParams = null;
+    StartMarker = null;
+    EndMarker = null;
+    MultiSegment = [];
+    var startEnd = null;
+    var _datatable = null;
+    var periods = [
+        '00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+        '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+        '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30', '00:00'
+    ];
+
+    function clearMap(){
+        if (StartMarker){
+            map.removeLayer(StartMarker);
+        }
+        if (EndMarker){
+            map.removeLayer(EndMarker);
+        }
+        $.each(MultiSegment, function(i, elem){
+            map.removeLayer(elem);
+        });
+    }
+
+    function showSegment(section, dataSource){
+        clearMap();
+        RoutePoints = dataSource.route.points;
+        valuesRoute = dataSource.speed;
+        var selected = null;
+        $.each(dataSource.route.start_end, function(i, elem){
+            var start = elem[0];
+            var end = elem[1];
+            var seg = RoutePoints.slice(start, end+1);
+            segpol = new L.Polyline(seg, {
+                color: colors[valuesRoute[i]],
+                weight: 5,
+                opacity: 1,
+                smoothFactor: 1
+            });
+            if(i==section){
+                StartMarker = L.marker(RoutePoints[start]);
+                EndMarker = L.marker(RoutePoints[end]);
+                selected = segpol;
+            }
+
+            MultiSegment.push(segpol);
+            segpol.addTo(map);
+        });
+        StartMarker.addTo(map).bindPopup("<b>Inicio</b>");
+        EndMarker.addTo(map).bindPopup("<b>Fin</b>");
+        map.fitBounds(selected.getBounds());
+    }
+
+    function processData(dataSource){
+        //   if(dataSource['status']){
+        //       let status = dataSource['status'];
+        //       showMessage(status);
+        //       return;
+        //   }
+        _datatable.clear();
+        _datatable.rows.add(dataSource['data']);
+        _datatable.columns.adjust().draw();
+
+        var data = _datatable.row(0).data();
+        $(_datatable.row(0).node()).addClass('success').addClass('dark');
+        // data.addClass('success').addClass('dark');
+        let params = {
+            route: data.route,
+            from: recievedDataParams.from,
+            to: recievedDataParams.to,
+            period: data.period,
+        };
+        if (recievedDataParams.dayType){
+            params.dayType = recievedDataParams.dayType;
+        }
+        $.getJSON('getSpeedByRoute', params, function(response){
+            return showSegment(data.section, response);
+        });
+    }
+
+    // load filters
+    (function (){
+      // set locale
+      moment.locale('es');
+      // set datetimepickers
+      $('#filterDateFrom').daterangepicker({
+        singleDatePicker: true,
+        singleClasses: "picker_2",
+        languague: 'es'
+      });
+      $('#filterDateTo').daterangepicker({
+        singleDatePicker: true,
+        singleClasses: "picker_2",
+        languague: 'es'
+      });
+    $("#filterHourRange").ionRangeSlider({
+      type: 'double',
+      from: 0,
+      to: 48,
+      values: periods
+    });
+
+    $('#filterDayType').select2({placeholder: 'tipo de día'});
+    
+    _datatable = $('#tupleDetail').DataTable({
+      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
+      },
+      columns: [
+        {title: 'Servicio', data: 'route', searchable: true},
+        {title: 'Tramo', data: 'section', className: 'text-right', searchable: false},
+        {title: 'Periodo', data: 'period', searchable: true, render: function(data, type, full, meta){return periods[data]+" "+periods[data+1];}},
+        {title: 'Velocidad<br>[km/h]', data: 'speed', className: 'text-right', searchable: false, render: function(data, type, full, meta){return data.toFixed(1);}},
+        {title: 'Tiempo<br>[s]', data: 'time', className: 'text-right', searchable: false, render: function(data, type, full, meta){return data.toFixed(1);}},
+        {title: 'Distancia<br>[m]', data: 'distance', className: 'text-right', searchable: false, render: function(data, type, full, meta){return data.toFixed(1);}},
+        {title: '# obs', data: 'n_obs', className: 'text-right', searchable: false},
+      ],
+      order: [[6, 'asc']]
+    });
+
+    $('#tupleDetail tbody').on('click', 'tr', function () {
+        var data = _datatable.row(this).data();
+        if (data != undefined){
+            _datatable.$('tr.success').removeClass('success').removeClass('dark');
+            $(this).addClass('success').addClass('dark');
+            let params = {
+                route: data.route,
+                from: recievedDataParams.from,
+                to: recievedDataParams.to,
+                period: data.period,
+            };
+            if (recievedDataParams.dayType){
+                params.dayType = recievedDataParams.dayType;
+            }
+            $.getJSON('getSpeedByRoute', params, function(response){
+                return showSegment(data.section, response);
+            });
+        }
+    } );
+
+
+      $('#btnUpdateChart').click(function(){
+        var from = $('#filterDateFrom').val();
+        var to = $('#filterDateTo').val();
+        var dayType = $('#filterDayType').val();
+        var periodFrom = $('#filterHourRange').data("from");
+        var periodTo = $('#filterHourRange').data("to");
+        // periodFrom y periodTo no pueden ser iguales
+
+        let data = {
+          from: from,
+          to: to,
+          dayType: dayType,
+          periodFrom: periodFrom,
+          periodTo: periodTo-1,
+        };
+
+
+        let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+        let button = $(this).append(loading);
+        $.getJSON('getRankingData', data, function(ds){
+            recievedDataParams = data;
+            return processData(ds);
+        }).always(function(){
+            button.html('Actualizar datos');
+        });
+      });
+  })();
+});
+</script>
+{% endblock %}

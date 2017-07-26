@@ -1,5 +1,5 @@
 {
-  "name": "fondefVizServer",
+  "name": "fondefvizserver",
   "homepage": "https://github.com/SmartcitySantiagoChile/fondefVizServer",
   "authors": [
     "Felipe Hernández <cephei.1313@gmail.com>"
@@ -19,6 +19,6 @@
     "gentelella": "^1.4.0",
     "select2": "^4.0.3",
     "echarts-wordcloud": "https://github.com/ecomfe/echarts-wordcloud.git#^1.0.2",
-    "echarts": "^3.5.4"
+    "echarts": "^3.6.2"
   }
 }

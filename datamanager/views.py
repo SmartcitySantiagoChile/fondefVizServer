@@ -14,7 +14,8 @@ DAY_TYPE = 'TipoDia'
 ROUTE = 'ServicioSentido'
 TIME_PERIOD = 'PeriodoTSExpedicion'
 
-class LoadProfileByExpeditionView(View):
+
+class ShowDataManager(View):
     ''' '''
 
     def __init__(self):
@@ -79,7 +80,7 @@ class LoadProfileByExpeditionView(View):
         return render(request, template, self.context)
 
 
-class GetLoadProfileByExpeditionData(View):
+class GetDataManagerData(View):
     ''' '''
 
     def __init__(self):

@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Variación de Velocidades{% endblock %}
+
+{% block css %}
+<link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+{% with "components/gentelella/vendors/" as gentelella_static %}
+  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+  <style>
+.select2-container .select2-choice:not(.select2-default) {
+    background-image: none !important;
+    background-color: #D9FFC7;
+}
+  </style>
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="">
+  <div class="page-title">
+    <div class="title_left">
+      <h3>Variación de Velocidades <small>por servicio</small></h3>
+    </div>
+    <div class="title_right">
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <br />
+
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="x_panel">
+        <div class="x_title">
+          <h2><i class="fa fa-filter"></i> Filtro <small></small></h2>
+          <ul class="nav navbar-right panel_toolbox">
+            <li style="float:right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+          </ul>
+          <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+          <div class="row">
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterDate">Fecha:</label>
+              <input type="text" id="filterDate" placeholder="Fecha" class="form-control">
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group aguila-color" style="{background:#}">
+              <label class="control-label" for="filterDayType">Tipo de día:</label>
+              <select class="form-control" id='filterDayType' multiple="multiple">
+                {% for dayType in dayTypes %}
+                <option>{{ dayType }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterRoute">Servicio-sentido:</label>
+              <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
+              <select class="form-control" id='filterRoute' multiple="multiple">
+                <option></option>
+                {% for route in routes %}
+                <option>{{ route }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+            <div class="ln_solid"></div>
+            <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">Actualizar datos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+      <div class="x_title">
+        <h2><i class="fa fa-tachometer"></i> Variación de velocidades</h2>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+        <div id="main" style="height:200px;"></div>
+      </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+{% with "components/gentelella/vendors/" as gentelella_static %}
+<script src="{% static gentelella_static|add:"echarts/dist/echarts.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"ion.rangeSlider/js/ion.rangeSlider.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+<script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+<script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+{% endwith %}
+<script src="{% static "own/js/echartsTheme.js" %}"></script>
+<script>
+$(document).ready(function(){
+    // echarts stuffs
+    var mChart = echarts.init(document.getElementById('main'));
+    mChart.title = 'velocityVariation';
+    var periods = [
+        '00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+        '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+        '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'
+    ];
+    colors = ['#ffffff', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff', '#dfdfdf'];
+
+    function processData(dataSource){
+      console.log(dataSource);
+      mChart.hideLoading();
+        //   if(dataSource['status']){
+        //       let status = dataSource['status'];
+        //       showMessage(status);
+        //       return;
+        //   }
+
+      var vel_range = ['Sin Datos Mes', '< 90%', ']90% - 95%]', ']95% - 100%]', ']100% - 105%]', ']105% - 110%]', '> 110%', 'Sin Datos Dia'];
+      var routes = dataSource['routes'];
+
+      variations = dataSource['variations'];
+      data = [];
+      $.each(variations, function(i, vec){
+          $.each(vec, function(j, elem){
+              data.push([i, j, elem[0]]);
+          });
+      });
+      $('#main').css('height', ''+(200+routes.length*15)+'px');
+      mChart.resize({height: ''+(200+routes.length*15)+'px'})
+      option = {
+          tooltip: {
+              position: 'top',
+              formatter: function(obj){
+                var s = 'Horario: entre '+periods[obj.data[0]]+' y '+periods[(obj.data[0]+1)%periods.length];
+                s += '<br/>Servicio: '+routes[obj.data[1]];
+                if(0<obj.data[2] && obj.data[2]<7){
+                    s += '<br/>Variación: '+(variations[obj.data[0]][obj.data[1]][1]-100).toFixed(1)+' %';
+                    s += '<br/>Velocidad promedio día: '+variations[obj.data[0]][obj.data[1]][2].toFixed(1)+' km/h';
+                    s += '<br/>Velocidad promedio 30 días previos: '+variations[obj.data[0]][obj.data[1]][3].toFixed(1)+' km/h';
+                    s += '<br/># observaciones día: '+variations[obj.data[0]][obj.data[1]][4];
+                    s += '<br/># observaciones 30 días previos: '+variations[obj.data[0]][obj.data[1]][5];
+                    s += '<br/>Desviación día: '+variations[obj.data[0]][obj.data[1]][6].toFixed(1)+' km/h';
+                    s += '<br/>Desviación 30 días previos: '+variations[obj.data[0]][obj.data[1]][7].toFixed(1)+' km/h';
+                }else if(0==obj.data[2]){
+                    s += '<br/>Sin datos para día seleccionado';
+                }else if(7==obj.data[2]){
+                    s += '<br/>Sin datos históricos';
+                }
+
+                return s;
+              }
+          },
+          animation: false,
+          grid: {
+              x: '10%',
+              y: '100',
+              height: ''+(routes.length*15)+'px',
+              width: '70%'
+          },
+          xAxis: {
+              type: 'category',
+              data: periods,
+              splitArea: {
+                  show: true
+              },
+              axisLabel: {
+                  rotate: 90,
+                  interval: 1
+              }
+          },
+          yAxis: {
+              type: 'category',
+              data: routes,
+              splitArea: {
+                  show: true
+              },
+              axisLabel: {
+                  interval: 0
+              }
+          },
+          visualMap: {
+              min: 0,
+              max: 6,
+              type: 'piecewise',
+              calculable: true,
+              orient: 'vertical',
+              right: '5%',
+              top: 'center',
+              pieces: [
+                  {min: 6.5, label: vel_range[7]},
+                  {min: 5.5, max: 6.5, label: vel_range[6]},
+                  {min: 4.5, max: 5.5, label: vel_range[5]},
+                  {min: 3.5, max: 4.5, label: vel_range[4]},
+                  {min: 2.5, max: 3.5, label: vel_range[3]},
+                  {min: 1.5, max: 2.5, label: vel_range[2]},
+                  {min: 0.5, max: 1.5, label: vel_range[1]},
+                  {max: 0.5, label: vel_range[0]}
+              ],
+              inRange: {
+                  color: colors
+              }
+          },
+          series: [{
+              name: 'Velocidad',
+              type: 'heatmap',
+              data: data,
+              label: {
+                  normal: {
+                      show: false
+                  }
+              },
+              itemStyle: {
+                  emphasis: {
+                      shadowBlur: 10,
+                      shadowColor: 'rgba(0, 0, 0, 0.5)'
+                  }
+              }
+          }],
+          toolbox: {
+              show : true,
+              feature : {
+                  mark : {show: false},
+                  restore : {show: false, title: "restaurar"},
+                  saveAsImage : {show: true, title: "Guardar imagen", name:'changeme'}
+              }
+          }
+      };
+
+      mChart.setOption(option);
+    };
+
+    // load filters
+    (function (){
+      // set locale
+      moment.locale('es');
+    //   set datetimepickers
+      $('#filterDate').daterangepicker({
+        singleDatePicker: true,
+        singleClasses: "picker_2",
+        languague: 'es'
+    });
+      $('#filterDayType').select2({placeholder: 'tipo de día'});
+      $('#filterRoute').select2({placeholder: 'Servicio-sentido'});
+
+      $('#btnUpdateChart').click(function(){
+        var date = $('#filterDate').val();
+        var dayType = $('#filterDayType').val();
+        var route = $('#filterRoute').val();
+
+        let data = {
+          date: date,
+          dayType: dayType,
+          route: route,
+        };
+        mChart.showLoading(null, {text:'Cargando...'});
+        let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+        let button = $(this).append(loading);
+        $.getJSON('getVariationData', data, processData).always(function(){
+            button.html('Actualizar datos')
+        });
+      });
+    })()
+});
+</script>
+{% endblock %}
