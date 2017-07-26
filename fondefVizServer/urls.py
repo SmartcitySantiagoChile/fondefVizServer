@@ -21,6 +21,6 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
     #url(r'^admin/', admin.site.urls),
     url(r'^profile/', include('profile.urls')),
-    url(r'^speed/', include('velocity.urls'))
+    url(r'^speed/', include('velocity.urls')),
     url(r'^dataManager/', include('datamanager.urls')),
 ]
