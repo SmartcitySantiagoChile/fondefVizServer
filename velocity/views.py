@@ -1,4 +1,4 @@
-import utm, math, datetime
+import datetime
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
@@ -39,27 +39,7 @@ def getRouteShape(route, dFrom, dTo):
     if r.hits.total == 0:
         raise Exception()
 
-    # return (r.hits[0].points)
-    shape = r.hits[0].points
-
-    acumulado = 0
-    last = shape[0]
-    last['acum'] = acumulado
-    last['dist'] = acumulado
-    newone = [last]
-    utm_last = utm.from_latlon(last['latitude'], last['longitude'])
-
-    for s in shape[1:]:
-        utm_new = utm.from_latlon(s['latitude'], s['longitude'])
-        d = math.sqrt((utm_last[0]-utm_new[0])**2 + (utm_last[1]-utm_new[1])**2)
-        acumulado += d
-        last = s
-        last['dist'] = d
-        last['acum'] = acumulado
-        newone.append(last)
-        utm_last = utm_new
-
-    return newone
+    return (r.hits[0].points)
 
 class LoadMatrixView(View):
     ''' '''
