@@ -400,12 +400,11 @@ $(document).ready(function(){
                 var end = elem[1];
                 var seg = RoutePoints.slice(start, end+1);
                 segpol = new L.Polyline(seg, {
-                    color: colors[valuesRoute[i]],
+                    color: colors[valuesRoute[i][0]],
                     weight: 5,
                     opacity: 1,
                     smoothFactor: 1
                 });
-
                 MultiSegment.push(segpol);
                 segpol.addTo(map);
             });
