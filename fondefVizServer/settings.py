@@ -28,8 +28,7 @@ SECRET_KEY = secretKey.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u'10.0.2.15', u'127.0.0.1', u'localhost', '200.9.100.91', u'172.17.74.243', u'172.17.57.156']
-
+ALLOWED_HOSTS = [u'10.0.2.15', u'127.0.0.1', u'localhost', '200.9.100.91', u'172.17.74.243', u'172.17.74.202', u'172.17.57.156']
 
 # Application definition
 
@@ -124,4 +123,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Elastic-Search settings
 ES_CLIENT = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
-

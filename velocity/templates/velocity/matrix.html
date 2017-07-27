@@ -1,0 +1,447 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Matriz de Velocidades{% endblock %}
+
+{% block css %}
+<link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+{% with "components/gentelella/vendors/" as gentelella_static %}
+  <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.skinModern.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+  <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+  <style>
+.select2-container .select2-choice:not(.select2-default) {
+    background-image: none !important;
+    background-color: #D9FFC7;
+}
+
+.aguila-color .irs-from,
+.aguila-color .irs-to,
+.aguila-color .irs-single{
+    background: #2A3F54;
+}
+.aguila-color .irs-bar,
+.aguila-color .irs-bar-edge{
+    background: transparent;
+}
+.aguila-color .irs-single::after,
+.aguila-color .irs-from::after,
+.aguila-color .irs-to::after{
+    border-color: #2A3F54 transparent transparent;
+}
+  </style>
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="">
+  <div class="page-title">
+    <div class="title_left">
+      <h3>Matriz de Velocidades <small>por servicio</small></h3>
+    </div>
+    <div class="title_right">
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <br />
+
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="x_panel">
+        <div class="x_title">
+          <h2><i class="fa fa-filter"></i> Filtro <small></small></h2>
+          <ul class="nav navbar-right panel_toolbox">
+            <li style="float:right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+          </ul>
+          <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+          <div class="row">
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterDateFrom">Desde:</label>
+              <input type="text" id="filterDateFrom" placeholder="Desde" class="form-control">
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterDateTo">Hasta:</label>
+              <input type="text" id="filterDateTo" placeholder="Hasta" class="form-control">
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group aguila-color" style="{background:#}">
+              <label class="control-label" for="filterDayType">Tipo de día:</label>
+              <select class="form-control" id='filterDayType' multiple="multiple">
+                {% for dayType in dayTypes %}
+                <option>{{ dayType }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+              <label class="control-label" for="filterRoute">Servicio-sentido:</label>
+              <!-- <input type="text" id="filterRoute" placeholder="Servicio sentido" class="form-control">-->
+              <select class="form-control" id='filterRoute'>
+                <option></option>
+                {% for route in routes %}
+                <option>{{ route }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+            <div class="ln_solid"></div>
+            <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">Actualizar datos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+      <div class="x_title">
+        <h2><i class="fa fa-tachometer"></i> Matriz de velocidades: <span id="route_name"></span></h2>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+        <div id="main" style="height:400px;"></div>
+      </div>
+    </div>
+</div>
+</div>
+  <div class="row">
+  <div class="col-md-12 col-xs-12">
+   <div class="x_panel">
+      <div class="x_title">
+        <h2><i class="fa fa-map"></i> Posición en el mapa</h2>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content aguila-color">
+        <label class="control-label" for="filterHourRange">Horario:</label>
+        <input type="text" id="filterHourRange" name="hour_range" value="" />
+        <div id="mapid" style="height: 500px;min-height: 500px"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+{% with "components/gentelella/vendors/" as gentelella_static %}
+<script src="{% static gentelella_static|add:"echarts/dist/echarts.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"ion.rangeSlider/js/ion.rangeSlider.min.js" %}"></script>
+<script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+<script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+<script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+{% endwith %}
+<script src="{% static "js/echartsTheme.js" %}"></script>
+<script>
+$(document).ready(function(){
+    // echarts stuffs
+    var mChart = echarts.init(document.getElementById('main'));
+    mChart.title = 'velocityMatrixByService';
+
+    // map stuffs
+    var pzaDeArmas = [-33.437824, -70.650439];
+    var mbAttr = 'flp',
+        mbUrl = 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
+    var black = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr});
+    var map = L.map('mapid', {
+        center: pzaDeArmas,
+        zoom: 15,
+        layers: [black]
+    });
+    colors = ['#dfdfdf', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff'];
+    StartMarker = null;
+    EndMarker = null;
+    RoutePoints = [];
+    RoutePolyline = null;
+    MultiSegment = []
+    SegmentPoints = [];
+    SegmentPolyline = null;
+    var startEnd = null;
+    var periods = [
+        '00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+        '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+        '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30', '00:00'
+    ];
+    var matrix = null;
+
+    function clearMap(){
+        if (RoutePolyline){
+            map.removeLayer(RoutePolyline);
+        }
+        if (SegmentPolyline){
+            map.removeLayer(SegmentPolyline);
+        }
+        if (StartMarker){
+            map.removeLayer(StartMarker);
+        }
+        if (EndMarker){
+            map.removeLayer(EndMarker);
+        }
+        $.each(MultiSegment, function(i, elem){
+            map.removeLayer(elem);
+        });
+    }
+
+    mChart.on('click', function(params){
+        if((params.componentType!='series') || (params.seriesType!='heatmap') || (params.seriesIndex!=0) || (params.seriesName!='Velocidad')){
+            return;
+        }
+        segment = params.value[1]
+        velocity_cat = params.value[2]
+
+        // draw route and segment in map
+        clearMap();
+        SegmentPoints = [];
+        $.each(RoutePoints, function(i, elem){
+            var start = startEnd[segment][0];
+            var end = startEnd[segment][1];
+
+            if(i==start){
+                StartMarker = L.marker(elem);
+            }
+            if(i==end){
+                EndMarker = L.marker(elem);
+            }
+            if(start<=i && i<=end){
+                SegmentPoints.push(elem);
+            }
+        });
+        RoutePolyline = new L.Polyline(RoutePoints, {
+            color: '#000000',
+            weight: 3,
+            opacity: 1,
+            smoothFactor: 1
+        });
+        RoutePolyline.addTo(map);
+        SegmentPolyline = new L.Polyline(SegmentPoints, {
+            color: colors[velocity_cat],
+            weight: 5,
+            opacity: 1,
+            smoothFactor: 1
+        });
+        SegmentPolyline.addTo(map);
+        StartMarker.addTo(map).bindPopup("<b>Inicio</b>");
+        EndMarker.addTo(map).bindPopup("<b>Fin</b>");
+        map.fitBounds(SegmentPolyline.getBounds());
+
+    });
+
+    function processData(dataSource){
+      console.log(dataSource);
+      mChart.hideLoading();
+        //   if(dataSource['status']){
+        //       let status = dataSource['status'];
+        //       showMessage(status);
+        //       return;
+        //   }
+
+      var vel_range = ['Sin Datos', ' < 15 k/h', '15-19 k/h', '19-21 k/h', '21-25 k/h', '25-30 k/h', ' > 30 k/h'];
+      var segments = dataSource['segments'];
+      matrix = dataSource['matrix'];
+      data = [];
+      $.each(matrix, function(i, vec){
+          $.each(vec, function(j, elem){
+              data.push([i, j, elem[0]]);
+          });
+      });
+      startEnd = dataSource['route']['start_end'];
+      var route = dataSource['route']['points'];
+      var route_name = dataSource['route']['name'];
+      $('#route_name').html(route_name);
+
+      option = {
+          tooltip: {
+              position: 'top',
+              formatter: function(obj){
+                  return 'Horario: entre '+periods[obj.data[0]]+' y '+periods[(obj.data[0]+1)%periods.length]+'<br/>'+'Segmento: '+segments[obj.data[1]]+'<br/>'+'Velocidad: '+((matrix[obj.data[0]][obj.data[1]][1]<0)?'No fue posible calcular':matrix[obj.data[0]][obj.data[1]][1].toFixed(1))+'km/h'+'<br/># de observaciones: '+matrix[obj.data[0]][obj.data[1]][2];
+              }
+          },
+          animation: false,
+          grid: {
+              x: '5%',
+              y: '5%',
+              width: '70%',
+              height: '80%'
+          },
+          xAxis: {
+              type: 'category',
+              data: periods,
+              splitArea: {
+                  show: true
+              },
+              axisLabel: {
+                  rotate: 90,
+                  interval: 1
+              }
+          },
+          yAxis: {
+              type: 'category',
+              data: segments,
+              splitArea: {
+                  show: true
+              }
+          },
+          visualMap: {
+              min: 0,
+              max: 6,
+              type: 'piecewise',
+              calculable: true,
+              orient: 'vertical',
+              right: '5%',
+              top: 'center',
+              pieces: [
+                  {min: 5.5, label: vel_range[6]},
+                  {min: 4.5, max: 5.5, label: vel_range[5]},
+                  {min: 3.5, max: 4.5, label: vel_range[4]},
+                  {min: 2.5, max: 3.5, label: vel_range[3]},
+                  {min: 1.5, max: 2.5, label: vel_range[2]},
+                  {min: 0.5, max: 1.5, label: vel_range[1]},
+                  {max: 0.5, label: vel_range[0]}
+              ],
+              inRange: {
+                  color: colors
+              }
+          },
+          series: [{
+              name: 'Velocidad',
+              type: 'heatmap',
+              data: data,
+              label: {
+                  normal: {
+                      show: false
+                  }
+              },
+              itemStyle: {
+                  emphasis: {
+                      shadowBlur: 10,
+                      shadowColor: 'rgba(0, 0, 0, 0.5)'
+                  }
+              }
+          }],
+          toolbox: {
+              show : true,
+              feature : {
+                  mark : {show: false},
+                  restore : {show: false, title: "restaurar"},
+                  saveAsImage : {show: true, title: "Guardar imagen", name:'changeme'}
+              }
+          }
+      };
+
+      mChart.setOption(option);
+
+      // draw route in map
+      clearMap();
+      RoutePoints = [];
+      $.each(route, function(i, elem){
+          var p = L.latLng(elem[0], elem[1]);
+          RoutePoints.push(p);
+      });
+      RoutePolyline = new L.Polyline(RoutePoints, {
+          color: '#000000',
+          weight: 3,
+          opacity: 1,
+          smoothFactor: 1
+      });
+      RoutePolyline.addTo(map);
+      L.control.scale().addTo(map);
+      map.fitBounds(RoutePolyline.getBounds());
+    };
+
+    // load filters
+    (function (){
+      // set locale
+      moment.locale('es');
+      // set datetimepickers
+      $('#filterDateFrom').daterangepicker({
+        singleDatePicker: true,
+        singleClasses: "picker_2",
+        languague: 'es'
+      });
+      $('#filterDateTo').daterangepicker({
+        singleDatePicker: true,
+        singleClasses: "picker_2",
+        languague: 'es'
+      });
+
+      $('#filterDayType').select2({placeholder: 'tipo de día'});
+
+      $('#filterRoute').select2({placeholder: 'Servicio', allowClear: true});
+
+      $("#filterHourRange").ionRangeSlider({
+        type: 'single',
+        values: [
+            '00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+            '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+            '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'
+        ],
+        onFinish : function(data){
+            if (startEnd == null){
+                return;
+            }
+            // draw route in map
+            clearMap();
+            var valuesRoute = matrix[data.from];
+            $.each(startEnd, function(i, elem){
+                var start = elem[0];
+                var end = elem[1];
+                var seg = RoutePoints.slice(start, end+1);
+                segpol = new L.Polyline(seg, {
+                    color: colors[valuesRoute[i][0]],
+                    weight: 5,
+                    opacity: 1,
+                    smoothFactor: 1
+                });
+                MultiSegment.push(segpol);
+                segpol.addTo(map);
+            });
+            RoutePolyline = new L.Polyline(RoutePoints, {
+                color: '#000000',
+                weight: 3,
+                opacity: 1,
+                smoothFactor: 1
+            });
+            map.fitBounds(RoutePolyline.getBounds());
+        }
+      });
+
+      $('#btnUpdateChart').click(function(){
+        var from = $('#filterDateFrom').val();
+        var to = $('#filterDateTo').val();
+        var route = $('#filterRoute').val();
+        var dayType = $('#filterDayType').val();
+
+        console.log(from);
+        console.log(to);
+        console.log(route);
+
+        let data = {
+          from: from,
+          to: to,
+          route: route,
+          dayType: dayType,
+        };
+        mChart.showLoading(null, {text:'Cargando...'});
+        let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+        let button = $(this).append(loading);
+        $.getJSON('getMatrixData', data, processData).always(function(){
+            button.html('Actualizar datos')
+        });
+      });
+    })()
+});
+</script>
+{% endblock %}
