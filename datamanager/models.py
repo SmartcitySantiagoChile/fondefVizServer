@@ -31,9 +31,20 @@ class DataSourceFile(models.Model):
     """ record to save data of each file found it """
     # file name found it in one of data source path
     fileName = models.CharField("Nombre de archivo", max_length=200, null=False, unique=True)
-    dataSourcePath = models.ForeignKey(DataSourcePath, on_delete=models.CASCADE)
+    dataSourcePath = models.CharField(max_length=200)
     discoverAt = models.DateTimeField("Primera vez encontrado", null=False)
+    lines = models.IntegerField(default=0)
 
+    def getDict(self):
+        """ dictionary of record """
+        fileDict = {
+            "name": self.fileName,
+            "path": self.dataSourcePath,
+            "discoverAt": self.discoverAt,
+            "lines": self.lines
+        }
+
+        return fileDict
 
 class DataSourceFileExecutionHistory(models.Model):
     """ history of upload action for each file recorded on data source file model """
