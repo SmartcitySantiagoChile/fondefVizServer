@@ -25,7 +25,6 @@
     background-image: none !important;
     background-color: #D9FFC7;
 }
-
 .aguila-color .irs-from,
 .aguila-color .irs-to,
 .aguila-color .irs-single,
@@ -157,7 +156,7 @@
 <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
 
 {% endwith %}
-<script src="{% static "own/js/echartsTheme.js" %}"></script>
+<script src="{% static "js/echartsTheme.js" %}"></script>
 <script>
 $(document).ready(function(){
     // map stuffs
@@ -182,7 +181,6 @@ $(document).ready(function(){
         '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
         '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30', '00:00'
     ];
-
     function clearMap(){
         if (StartMarker){
             map.removeLayer(StartMarker);
@@ -194,7 +192,6 @@ $(document).ready(function(){
             map.removeLayer(elem);
         });
     }
-
     function showSegment(section, dataSource){
         clearMap();
         RoutePoints = dataSource.route.points;
@@ -215,7 +212,6 @@ $(document).ready(function(){
                 EndMarker = L.marker(RoutePoints[end]);
                 selected = segpol;
             }
-
             MultiSegment.push(segpol);
             segpol.addTo(map);
         });
@@ -223,7 +219,6 @@ $(document).ready(function(){
         EndMarker.addTo(map).bindPopup("<b>Fin</b>");
         map.fitBounds(selected.getBounds());
     }
-
     function processData(dataSource){
         //   if(dataSource['status']){
         //       let status = dataSource['status'];
@@ -233,7 +228,6 @@ $(document).ready(function(){
         _datatable.clear();
         _datatable.rows.add(dataSource['data']);
         _datatable.columns.adjust().draw();
-
         var data = _datatable.row(0).data();
         $(_datatable.row(0).node()).addClass('success').addClass('dark');
         // data.addClass('success').addClass('dark');
@@ -250,7 +244,6 @@ $(document).ready(function(){
             return showSegment(data.section, response);
         });
     }
-
     // load filters
     (function (){
       // set locale
@@ -272,9 +265,8 @@ $(document).ready(function(){
       to: 48,
       values: periods
     });
-
     $('#filterDayType').select2({placeholder: 'tipo de día'});
-    
+
     _datatable = $('#tupleDetail').DataTable({
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
       language: {
@@ -291,7 +283,6 @@ $(document).ready(function(){
       ],
       order: [[6, 'asc']]
     });
-
     $('#tupleDetail tbody').on('click', 'tr', function () {
         var data = _datatable.row(this).data();
         if (data != undefined){
@@ -311,8 +302,6 @@ $(document).ready(function(){
             });
         }
     } );
-
-
       $('#btnUpdateChart').click(function(){
         var from = $('#filterDateFrom').val();
         var to = $('#filterDateTo').val();
@@ -320,7 +309,6 @@ $(document).ready(function(){
         var periodFrom = $('#filterHourRange').data("from");
         var periodTo = $('#filterHourRange').data("to");
         // periodFrom y periodTo no pueden ser iguales
-
         let data = {
           from: from,
           to: to,
@@ -328,8 +316,6 @@ $(document).ready(function(){
           periodFrom: periodFrom,
           periodTo: periodTo-1,
         };
-
-
         let loading = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
         let button = $(this).append(loading);
         $.getJSON('getRankingData', data, function(ds){
