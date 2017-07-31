@@ -20,7 +20,7 @@ class DataSourcePath(models.Model):
     timeStamp = models.DateTimeField("Última actualización", default=timezone.now)
 
     def __unicode__(self):
-        return os.path.join(self.path, self.patternFile)
+        return os.path.join(self.path, self.filePattern)
 
     class Meta:
         verbose_name = u'Orígen de archivo de carga'

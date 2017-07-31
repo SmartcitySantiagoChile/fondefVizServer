@@ -1,21 +1,15 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db import connection
 from django.conf import settings
+from django.utils import timezone
 
-from elasticsearch_dsl import Search, Q, A, MultiSearch
-from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
+from collections import defaultdict
 
-from models import DataSourcePath
+from models import DataSourcePath, DataSourceFile
 
-# elastic search index name 
-INDEX_NAME="profiles"
-# elastic search fields
-DAY_TYPE = 'TipoDia'
-ROUTE = 'ServicioSentido'
-TIME_PERIOD = 'PeriodoTSExpedicion'
-
+import os
+import re
 
 class LoadManager(View):
     ''' load  web page to load files '''
@@ -26,6 +20,36 @@ class LoadManager(View):
 
     def get(self, request):
         template = "datamanager/loadManager.html"
+
+        tables = [
+            {
+                "bubble_title": "", "bubble_content": "Archivo que relaciona el nombre de los servicios conocidos por los usuarios y los asignados por Sonda.",
+                "id": "routeDictTable", "title_icon": "fa-map-o", "title": "Diccionario de servicios"
+            },
+            {
+                "bubble_title": "", "bubble_content": "Descripcion de caracteristicas generales",
+                "id": "generalTable", "title_icon": "", "title": "Datos generales"
+            },
+            {
+                "bubble_title": "", "bubble_content": "Archivos de viajes",
+                "id": "travelTable", "title_icon": "", "title": "Viajes"
+            },
+            {
+                "bubble_title": "", "bubble_content": "Archivos de velocidades",
+                "id": "speedTable", "title_icon": "", "title": "Velocidades"
+            },
+            {
+                "bubble_title": "", "bubble_content": "Archivo de velocidades",
+                "id": "shapeTable", "title_icon": "", "title": "Geometria de servicios"
+            },
+            {
+                "bubble_title": "", "bubble_content": "Archivo de perfiles de carga",
+                "id": "profileTable", "title_icon": "", "title": "Perfiles"
+            }
+        ]
+        self.context['tables'] = tables
+        self.context['header_list'] = tables
+        self.context['content_list'] = tables
 
         return render(request, template, self.context)
 
@@ -39,14 +63,30 @@ class getLoadFileData(View):
 
     def getRouteDictFileList(self):
         """ list all files in directory with code """
-        dataSourcePath = DataSourcePath.objects.get(code="routeDict")
-        path = dataSourcePath.path
-        filePattern = dataSourcePath.patternFile
+        fileDict = defaultdict(list)
 
-        from django.conf import settings
-        import os
+        dataSourcePath = DataSourcePath.objects.all()
+        for dataSource in dataSourcePath:
+            path = dataSource.path
+            # if is running on windows
+            if os.name == "nt":
+                path = os.path.join(settings.BASE_DIR, "media")
 
-        path = os.path.join(settings.BASE_DIR, "media")
+            pattern = re.compile("."+dataSource.filePattern)
+            fileNameList = filter(lambda fileName: pattern.match(fileName), os.listdir(path))
+            for fileName in fileNameList:
+                fileObj, created = DataSourceFile.objects.get_or_create(fileName=fileName, defaults={
+                    "dataSourcePath": path, "discoverAt": timezone.now()})
+                if created:
+                    i = 0
+                    with open(os.path.join(path, fileName)) as f:
+                        for i, _ in enumerate(f):
+                            pass
+                    fileObj.lines = i + 1
+                    fileObj.save()
+                fileDict[dataSource.code].append(fileObj.getDict())
+
+        return fileDict
 
     def get(self, request):
         ''' expedition data '''
@@ -54,5 +94,3 @@ class getLoadFileData(View):
         response['routeDictFiles'] = self.getRouteDictFileList()
 
         return JsonResponse(response, safe=False)
-
-
