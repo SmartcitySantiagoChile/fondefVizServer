@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'profile',
     'velocity',
     'localinfo',
+    'shape',
 ]
 
 MIDDLEWARE = [
