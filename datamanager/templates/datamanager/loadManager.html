@@ -23,6 +23,12 @@
     background-image: none !important;
     background-color: #D9FFC7;
 }
+  .btn {
+      margin-bottom: 0px;
+      font-size: 12px;
+      padding-top: 0px;
+      padding-bottom: 0px;
+  }
   </style>
 {% endwith %}
 {% endblock %}
@@ -40,13 +46,10 @@
   <br />
 
   <div class="row">
-  </div>
-  <div class="row">
       {% for table in tables %}
-        <div class="col-md-6 col-sm-6 col-xs-12">
-            {% bubble_message status="info" title=table.bubble_title content=table.bubble_content as a %}
-            {% table id=table.id columns=3 as b %}
-            {% panel title_icon=table.title_icon title=table.title body=a|add:b %}
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            {% table id=table.id columns=6 as a %}
+            {% panel title_icon=table.title_icon title=table.title body=a %}
         </div>
       {% endfor %}
   </div>
@@ -72,7 +75,7 @@
 $(document).ready(function() {
     const URL = "loadManager/data";
     $.get(URL, function (data) {
-        console.log(data);
+        //console.log(data);
         let dictFiles = data["routeDictFiles"];
 
         let _datatableOpts = {
@@ -83,20 +86,58 @@ $(document).ready(function() {
             searching: false,
             columns: [
                 {title: "Nombre de archivo", data: "name", searchable: true},
-                {title: "Fecha", data: "discoverAt", searchable: true,
-                    render: function(data, type, row, meta){
+                {
+                    title: "Última fecha de carga", data: "discoverAt", searchable: true,
+                    render: function (data, type, row, meta) {
                         return (new Date(data)).toLocaleString();
                     }
                 },
-                {title: "N° de líneas", data: "lines", searchable: true}
+                {title: "N° de líneas archivo", data: "lines", searchable: true},
+                {title: "N° de líneas en plataforma", data: "lines", searchable: true},
+                {
+                    title: "Cargar datos a la plataforma",
+                    'searchable': false,
+                    'orderable': false,
+                    'className': 'text-center',
+                    render: function (data, type, full, meta) {
+                        return '<button type="button" class="btn btn-info btn-xs" >Cargar datos</button>';
+                    }
+                },
+                {
+                    title: "Eliminar datos de la plataforma",
+                    'searchable': false,
+                    'orderable': false,
+                    'className': 'text-center',
+                    render: function (data, type, full, meta) {
+                        return '<button type="button" class="btn btn-danger btn-xs" >Eliminar</button>';
+                    }
+                },
             ],
-            order: [[1, 'desc']]
+            order: [[1, 'desc']],
+            createdRow: function (row, data, index) {
+                if (data.line === data.line) {
+                    $(row).addClass('danger');
+                }
+            },
         };
 
-        for (let key in dictFiles){
+        for (let key in dictFiles) {
             let files = dictFiles[key];
             let opts = $.extend({data: files}, _datatableOpts);
-            $("#" + key + "Table").DataTable(opts);
+            let id = key + "Table";
+            let table = $("#" + id).DataTable(opts);
+
+            $('#' + id + ' tbody').on('click', 'button', function () {
+                let buttonName = $(this).html();
+                let data = table.row($(this).parents('tr')).data();
+
+                if (buttonName === 'Eliminar' && confirm("¿Está segur@ que desea eliminar los datos?")) {
+                    console.log("bbbbb");
+                } else if (buttonName === 'Cargar datos' && confirm("Este proceso dura unos minutos ¿está seguro de iniciarlo?")) {
+                    console.log("aaaa");
+                }
+                console.log(data);
+            });
         }
     });
 

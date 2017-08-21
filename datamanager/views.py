@@ -11,6 +11,26 @@ from models import DataSourcePath, DataSourceFile
 import os
 import re
 
+class LoadData(View):
+    """ Load data to elastic search """
+
+    def __init__(self):
+        self.context = {}
+
+    def post(self):
+        """  """
+
+
+class DeleteData(View):
+    """ Delete data to elastic search """
+
+    def __init__(self):
+        self.context = {}
+
+    def post(self):
+        """  """
+
+
 class LoadManager(View):
     ''' load  web page to load files '''
 
@@ -48,8 +68,6 @@ class LoadManager(View):
             }
         ]
         self.context['tables'] = tables
-        self.context['header_list'] = tables
-        self.context['content_list'] = tables
 
         return render(request, template, self.context)
 

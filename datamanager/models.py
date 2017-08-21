@@ -41,7 +41,8 @@ class DataSourceFile(models.Model):
             "name": self.fileName,
             "path": self.dataSourcePath,
             "discoverAt": self.discoverAt,
-            "lines": self.lines
+            "lines": self.lines,
+            "id": self.id
         }
 
         return fileDict
