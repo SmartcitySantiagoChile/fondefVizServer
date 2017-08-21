@@ -1,0 +1,103 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Mapa{% endblock %}
+
+{% block css %}
+  <!-- leaflet -->
+  <link rel="stylesheet" href="{% static "components/leaflet/dist/leaflet.css" %}">
+  <link rel="stylesheet" href="{% static "components/Leaflet.EasyButton/src/easy-button.css" %}">
+  <link rel="stylesheet" href="{% static "components/leaflet-control-window/src/L.Control.Window.css" %}">
+  <link rel="stylesheet" href="{% static "components/leaflet-control-topcenter/dist/leaflet-control-topcenter.min.css" %}">
+  {% with "components/gentelella/vendors/" as gentelella_static %}
+    <link rel="stylesheet" href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}">
+  {% endwith %}
+  <style>
+    .info {
+      padding: 6px 8px;
+      font: 14px/16px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255,255,255,0.8);
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      border-radius: 5px;
+    }
+    .info h4 {
+      margin: 0 0 5px;
+      color: #777;
+    }
+    .legend {
+      line-height: 18px;
+      color: #555;
+    }
+    .legend i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      opacity: 0.8;
+    }
+    .filterColor {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      opacity: 1.0;
+    }
+    .nav_menu {
+      margin-bottom: 0;
+    }
+
+	button {
+      margin-bottom: 0;
+	  margin-right: 0;
+	}
+  </style>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block js %}
+  {% with "components/gentelella/vendors/" as gentelella_static %}
+  <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+  {% endwith %}
+  <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+  <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
+  <script src="{% static "components/Leaflet.EasyButton/src/easy-button.js" %}"></script>
+  <script src="{% static "components/leaflet-control-window/src/L.Control.Window.js" %}"></script>
+  <script src="{% static "components/leaflet-control-topcenter/dist/leaflet-control-topcenter.min.js" %}"></script>
+  <script src="{% static "js/longArrowHead.js" %}"></script>
+  <script src="{% static "js/app.js" %}"></script>
+  <script>
+  'use strict';
+  $(document).ready(function() {
+    {% block mapjs %}{% endblock %}
+    {% block downloaddata %}
+    function downloadData() {
+      $.ajax({
+        url: "{% url 'shape:route' %}",
+        data: { },
+        success: function(data){
+          console.log('time to update map data');
+          // merge streets
+          let streets = {};
+          $.each(data.Destination, function(i, origin){
+            $.each(origin, function(i,v){
+              streets = $.extend(streets, v);
+            });
+          });
+          $.each(streets, function(streetName, street) {
+            $.each(street.sections, function(sectionName, section) {
+              app.generateOverlays(streetName, sectionName, section);
+            });
+          });
+          app.updateMap(data.hour, data.dayType);
+        }
+      });
+    }
+    downloadData();
+    setInterval(downloadData, 60*1000);
+    {% endblock %}
+  });
+  </script>
+{% endblock %}

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'datamanager',
     'localinfo',
     'profile',
+    'shape',
     'travel',
     'velocity',
 ]
