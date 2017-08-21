@@ -21,9 +21,9 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
-    #url(r'^admin/', admin.site.urls),
+    url(r'^admin/', include('datamanager.urls')),
+    url(r'^admin/', admin.site.urls),
     url(r'^profile/', include('profile.urls')),
-    url(r'^velocity/', include('velocity.urls')),
-    url(r'^dataManager/', include('datamanager.urls')),
+    url(r'^speed/', include('velocity.urls')),
     url(r'^travel/', include('travel.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

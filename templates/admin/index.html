@@ -1,0 +1,108 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+
+  <div class="col-md-9 col-sm-9 col-xs-9">
+{% if app_list %}
+    {% for app in app_list %}
+    <div class="x_panel">
+      <div class="x_title">
+        <h2><a href="{{ app.app_url }}" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+<small></small></h2>
+        <div class="clearfix"></div>
+      </div>
+
+      <div class="x_content">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr class="headings">
+                <th class="column-title"><i class="fa fa-table fa-lg"></i> Tabla </th>
+                <th class="column-title"> </th>
+                <th class="column-title last"> </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for model in app.models %}
+              <tr class="even pointer">
+                {% if model.admin_url %}
+                <td class=" last"><a href="{{ model.admin_url }}">{{ model.name }}</a></td>
+                {% else %}
+                <td class=" ">{{ model.name }}</td>
+                {% endif %}
+
+                {% if model.add_url %}
+                <td class=" "><a href="{{ model.add_url }}"><i class="fa fa-plus"></i> {% trans 'Add' %}</a></td>
+                {% else %}
+                <td>&nbsp;</td>
+                {% endif %}
+
+                {% if model.admin_url %}
+                <td class=" last"><a href="{{ model.admin_url }}"><i class="fa fa-edit"></i> {% trans 'Change' %}</a></td>
+                {% else %}
+                <td class=" last">&nbsp;</td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+              <tr class="odd pointer">
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+{% endif %}
+  </div>
+
+{% endblock %}
+
+{% block sidebar %}
+<div class="col-md-3 col-sm-3 col-xs-3">
+  <div class="panel">
+    <div class="x_title">
+      <h2>{% trans 'Recent actions' %}<small></small></h2>
+      <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+      <h3 class="green">
+        <i class="fa fa-hand-pointer-o"></i> {% trans 'My actions' %}
+      </h3>
+      {% load log %}
+      {% get_admin_log 10 as admin_log for_user user %}
+      {% if not admin_log %}
+        <p>{% trans 'None available' %}</p>
+      {% else %}
+        <ul class="list-unstyled scroll-view">
+        {% for entry in admin_log %}
+          <li class="media event">
+            <a class="pull-left border-aero profile_thumb">
+              {% if entry.is_addition %}
+              <i class="fa fa-plus aero"></i>
+              {% elif entry.is_change %}
+              <i class="fa fa-edit aero"></i>
+              {% elif entry.is_deletion %}
+              <i class="fa fa-remove aero"></i>
+              {% endif %}
+            </a>
+            <div class="media-body">
+              {% if entry.is_deletion or not entry.get_admin_url %}
+                <div class="title">{{ entry.object_repr }}</div>
+              {% else %}
+                <a class="title" href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+              {% endif %}
+              {% if entry.content_type %}
+                <p> <small>{% filter capfirst %}{{ entry.content_type }}{% endfilter %}</small></p>
+              {% else %}
+                <p> <small>{% trans 'Unknown content' %}</small></p>
+              {% endif %}
+            </div>
+          </li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

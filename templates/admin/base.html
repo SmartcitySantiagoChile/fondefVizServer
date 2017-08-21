@@ -1,0 +1,46 @@
+{% load i18n static %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %} >
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+    <!-- Bootstrap -->
+    <link href="{% static gentelella_static|add:"bootstrap/dist/css/bootstrap.min.css" %}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="{% static gentelella_static|add:"font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="{% static gentelella_static|add:"nprogress/nprogress.css" %}" rel="stylesheet">
+    <!-- Custom Theme Style -->
+    <link href="{% block stylesheet %}{% static gentelella_static|add:"../build/css/custom.min.css" %}{% endblock %}" rel="stylesheet">
+    {% block extrastyle %}{% endblock %}
+    {% block css %}{% endblock %}
+    {% block extrahead %}{% endblock %}
+    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+  </head>
+
+  <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
+    {% block basecontent %}{% endblock %}
+
+    <!-- jQuery -->
+    <script src="{% static gentelella_static|add:"jquery/dist/jquery.min.js" %}"></script>
+    <!-- Bootstrap -->
+    <script src="{% static gentelella_static|add:"bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <!-- FastClick -->
+    <script src="{% static gentelella_static|add:"fastclick/lib/fastclick.js" %}"></script>
+    <!-- NProgress -->
+    <script src="{% static gentelella_static|add:"nprogress/nprogress.js" %}"></script>
+    <!-- Custom Theme Scripts -->
+    <script src="{% static "js/custom.js" %}"></script>
+    {% endwith %}
+    {% block extrajs %}{% endblock %}
+    {% block js %}{% endblock %}
+  </body>
+</html>
