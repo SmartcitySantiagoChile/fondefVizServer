@@ -348,7 +348,7 @@ let App = (function(){
 
       if(bounds !== null && _makeBounds){
         _map.fitBounds(bounds);
-        _makeBounds = false;
+        //_makeBounds = false;
       }
     };
 
