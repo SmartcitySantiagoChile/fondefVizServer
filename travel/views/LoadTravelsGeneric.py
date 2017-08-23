@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 from django.views.generic import View
 from django.core.serializers import serialize
 from localinfo.models import TimePeriod, Commune, HalfHour
@@ -12,7 +13,7 @@ class LoadTravelsGeneric(View):
     # elastic search index name
     INDEX_NAME = "travel"
 
-    def __init__(self, additionalESQueryDict):
+    def __init__(self, additional_es_query_dict):
         self.context = dict()
         self.context.update(self.get_local_info_dict())
         super(LoadTravelsGeneric, self).__init__()
@@ -28,8 +29,8 @@ class LoadTravelsGeneric(View):
         day_types.append({'pk': 2, 'name': 'Domingo'})
 
         data = dict()
-        data['daytypes'] = day_types
-        data['communes'] = communes
-        data['halfhours'] = halfhours
+        data['daytypes'] = json.dumps(day_types)
+        data['communes'] = serialize('json', communes)
+        data['halfhours'] = serialize('json', halfhours)
         data['timeperiods'] = serialize('json', timeperiods)
         return data

@@ -72,9 +72,6 @@
                         <div class="col-md-2 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="dayTypeFilter">Tipo de día:</label>
                             <select class="form-control" id='dayTypeFilter' multiple="multiple">
-                                {% for daytype in daytypes %}
-                                    <option value="{{ daytype.pk }}">{{ daytype.name }}</option>
-                                {% endfor %}
                             </select>
                         </div>
 
@@ -204,7 +201,15 @@
 
     <script>
         // localinfo.timeperiod JSON serialized data.
+        var _allDaytypes = JSON.parse("{{ daytypes|escapejs }}");
         var _allPeriods = {{ timeperiods|safe }};
+        var _allHalfhours = {{ halfhours|safe }};
+        var _allCommunes = {{ communes|safe }};
+        var _allTimeperiods = {{ timeperiods|safe }};
+        // console.log(_allDaytypes);
+        // console.log(_allCommunes);
+        // console.log(_allHalfhours);
+        // console.log(_allTimeperiods);
     </script>
 
     <script src="{% static "travel/js/by_travel_time.js" %}"></script>

@@ -17,7 +17,7 @@ var _selected_day_type_ids = [];
 $(document).ready(function () {
 
     function processData(response) {
-        console.log(response.state);
+        console.log(response);
     }
 
     function updateTSPeriods(dayTypes) {
@@ -83,9 +83,21 @@ $(document).ready(function () {
             // "startDate": today,
         });
 
+        
+        var dayTypeSelect = document.getElementById('dayTypeFilter');
+
+        // fill daytypes
+        for (var i=0, l=_allDaytypes.length; i<l; i++)
+        {
+            var daytype = _allDaytypes[i];
+            var option = document.createElement("option");
+            option.setAttribute("value", daytype.pk);
+            option.appendChild(document.createTextNode(daytype.name));
+            dayTypeSelect.appendChild(option);
+        }
+
 
         // set default day as LABORAL
-        var dayTypeSelect = document.getElementById('dayTypeFilter');
         for (var i=0, l=dayTypeSelect.options.length, curr; i<l; i++)
         {
             curr = dayTypeSelect.options[i];
