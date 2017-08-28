@@ -58,16 +58,12 @@
 
 {% block js %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
-
-<script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
 {% endwith %}
 
 <script>
@@ -93,7 +89,7 @@ $(document).ready(function() {
                     }
                 },
                 {title: "N° de líneas archivo", data: "lines", searchable: true},
-                {title: "N° de líneas en plataforma", data: "lines", searchable: true},
+                {title: "N° de documentos en plataforma", data: "lines", searchable: true},
                 {
                     title: "Cargar datos a la plataforma",
                     'searchable': false,
@@ -140,25 +136,6 @@ $(document).ready(function() {
             });
         }
     });
-
-    function showMessage(status) {
-        let message = status['message'];
-        let title = status['title'];
-        let type = status['type'];
-
-        new PNotify({
-            title: title,
-            type: type,
-            text: message,
-            nonblock: {
-                nonblock: true
-            },
-            styling: 'bootstrap3',
-            mouse_reset: false
-        }).get().click(function () {
-            this.remove();
-        });
-    }
 
     // load filters
     (function () {
