@@ -1,0 +1,46 @@
+{
+  "name": "santiago",
+  "token": "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A",
+  "boundingBox": {
+    "MIN_LATITUDE": -33.6692,
+    "MIN_LONGITUDE": -70.874,
+    "MAX_LATITUDE": -33.3193,
+    "MAX_LONGITUDE": -70.4936,
+    "SIDE_LAT": 0.00349861,
+    "SIDE_LON": 0.00380394
+  },
+  "buses": {
+    "1": {
+      "id": "02",
+      "color": "#ED1C24"
+    },
+    "2": {
+      "id": "03",
+      "color": "#F58220"
+    },
+    "3": {
+      "id": "04",
+      "color": "#FFD400"
+    },
+    "4": {
+      "id": "05",
+      "color": "#00D5FF"
+    },
+    "5": {
+      "id": "06",
+      "color": "#0067AC"
+    },
+    "6": {
+      "id": "07",
+      "color": "#00B33C"
+    },
+    "7": {
+      "id": "08",
+      "color": "#00D9A3"
+    },
+    "default": {
+      "id": "01",
+      "color": "#ffffff"
+    }
+  }
+}

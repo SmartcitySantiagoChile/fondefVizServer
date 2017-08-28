@@ -28,7 +28,9 @@
 
     {% endwith %}
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css"/>
     <link href="{% static "travel/css/baseline.css" %}" rel="stylesheet">
+    <link href="{% static "travel/css/by_travel_time.css" %}" rel="stylesheet">
 
 {% endblock %}
 
@@ -198,6 +200,8 @@
         <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
     {% endwith %}
+
+    <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
 
     <script>
         // localinfo.timeperiod JSON serialized data.

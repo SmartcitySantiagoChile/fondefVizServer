@@ -6,7 +6,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
 
-from elasticsearch_dsl import Search, MultiSearch
+from elasticsearch_dsl import Search, MultiSearch, A
 from errors import ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty
 from LoadTravelsGeneric import LoadTravelsGeneric
 
@@ -58,7 +58,8 @@ class GetLoadTravelsByTravelTimeData(View):
         es_query_dict = dict()
         try:
             es_query_dict['histogram'] = self.build_histogram_query(request)
-            es_query_dict['map'] = self.build_map_query(request)
+            # es_query_dict['table'] = self.build_table_query(request)
+            #es_query_dict['map'] = self.build_map_query(request)
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 
@@ -115,10 +116,9 @@ class GetLoadTravelsByTravelTimeData(View):
     # Supporting methods: queries
     # ========================================================
 
-    def build_histogram_query(self, request):
+    def build_base_query(self, request):
         """
-        Builds a elastic search query for the travels histogram
-        It is based on the requested filtering options
+        TODO: realizar filtrado sólo 1 vez y no por cada query
 
         raises ESQueryResultEmpty ?
         raises ESQueryParametersDoesNotExist ?
@@ -152,7 +152,18 @@ class GetLoadTravelsByTravelTimeData(View):
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
 
-        # travel time histogram
+        print es_query.to_dict()
+
+        return es_query
+
+    def build_histogram_query(self, request):
+        """
+        Builds a elastic search query for the travels histogram
+        It is based on the requested filtering options
+        """
+        es_query = self.build_base_query(request)
+
+        # travel time histogram (15 min buckets)
         es_query.aggs.bucket('tiempos_de_viaje', 'histogram', field='tviaje', interval='15')\
             .metric('cantidad', 'sum', field='factor_expansion')\
             .pipeline('acumulado', 'cumulative_sum', buckets_path='cantidad')
@@ -167,10 +178,37 @@ class GetLoadTravelsByTravelTimeData(View):
         """
         Builds a elastic search query for the travels table
         It is based on the requested filtering options
-
-        raises ?
         """
-        es_query = Search()
+        es_query = self.build_base_query(request)
+
+        # # limit fields
+        # return es_query.source(self.default_fields)
+
+        # return no hits!
+        return es_query[:0]
+
+    def build_map_query(self, request):
+        """
+        Builds a elastic search query for the travels map
+        It is based on the requested filtering options
+        """
+        es_query = self.build_base_query(request)
+
+        # travel time map
+        by_sector_agg = A(
+            'filters',
+            other_bucket_key='sin_sector',
+            # filters={
+            #     's1': ('terms', zona_bajada=["10", "100"])
+            # })
+            )
+
+        es_query.aggs.bucket('por_sectores', by_sector_agg)\
+            .metric('cantidad', 'sum', field='factor_expansion')\
+            .pipeline('acumulado', 'cumulative_sum', buckets_path='cantidad')
+
+        # # limit fields
+        # return es_query.source(self.default_fields)
 
         # return no hits!
         return es_query[:0]

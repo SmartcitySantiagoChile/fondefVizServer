@@ -16,6 +16,129 @@ var _selected_day_type_ids = [];
 
 $(document).ready(function () {
 
+    var map;
+    var geojson;
+
+    // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
+    function getColorByTViaje(time_min) {
+        return time_min > 75 ? '#0868ac' :
+               time_min > 60  ? '#43a2ca' :
+               time_min > 45  ? '#7bccc4' :
+               time_min > 30  ? '#bae4bc' :
+                          '#f0f9e8';
+    }
+
+    function getTViajeById() {
+        return 50;
+    }
+
+    function styleFunction(feature) {
+        return {
+            fillColor: getColorByTViaje(getTViajeById(feature.properties.id)),
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.7
+        };
+    }
+
+    var info = L.control();
+
+    function highlightFeatureForZone(e) {
+        var layer = e.target;
+
+        layer.setStyle({
+            weight: 5,
+            color: '#666',
+            dashArray: '',
+            fillOpacity: 0.7
+        });
+
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+            layer.bringToFront();
+        }
+        info.update(layer.feature.properties);
+    }
+    function resetHighlight(e) {
+        // resets style to default
+        geojson.resetStyle(e.target);
+        info.update();
+    }
+
+    function zoomToFeature(e) {
+        map.fitBounds(e.target.getBounds());
+    }
+
+    function onEachFeature(feature, layer) {
+        layer.on({
+            mouseover: highlightFeatureForZone,
+            mouseout: resetHighlight,
+            click: zoomToFeature
+        });
+    }
+
+
+    info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+    };
+
+    // method that we will use to update the control based on feature properties passed
+    info.update = function (props) {
+        this._div.innerHTML = '<h4>Zonificación</h4>' +  (props ?
+            '<b>' + props.comuna + '</b><br />id: ' + props.id + ''
+            : 'Pon el ratón sobre una zona');
+    };
+
+    var legend = L.control({position: 'bottomright'});
+
+    legend.onAdd = function (map) {
+
+        var div = L.DomUtil.create('div', 'info legend'),
+            grades = [0, 30, 45, 60, 75],
+            labels = [];
+
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < grades.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + getColorByTViaje(grades[i] + 1) + '"></i> ' +
+                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+        }
+
+        return div;
+    };
+
+    function createMap() {
+        var santiagoLocation = L.latLng(-33.459229, -70.645348);
+        map = L.map("mapChart").setView(santiagoLocation, 10);
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            maxZoom: 18,
+            accessToken: "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A"
+        }).addTo(map);
+        
+        // load zonas
+        $.ajax({
+            'global': false,
+            // 'url': '/static/travel/data/sectores.geojson',
+            // 'url': '/static/travel/data/lineasMetro.geojson',
+            'url': '/static/travel/data/zonificacion777.geojson',
+            'dataType': "json",
+            'success': function (data) {
+                // sets a default style
+                geojson = L.geoJson(data, {
+                    style: styleFunction,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+                info.addTo(map);
+                legend.addTo(map);
+            }
+        });
+    }
+
     function processData(response) {
         console.log(response);
     }
@@ -53,6 +176,8 @@ $(document).ready(function () {
             }
         }
     }
+
+    createMap();
 
     // ========================================================================
     // FILTERS
