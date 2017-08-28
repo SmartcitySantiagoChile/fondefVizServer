@@ -71,7 +71,7 @@
 $(document).ready(function() {
     const URL = "loadManager/data";
     $.get(URL, function (data) {
-        //console.log(data);
+        console.log(data);
         let dictFiles = data["routeDictFiles"];
 
         let _datatableOpts = {
@@ -111,7 +111,7 @@ $(document).ready(function() {
             ],
             order: [[1, 'desc']],
             createdRow: function (row, data, index) {
-                if (data.line === data.line) {
+                if (data.line !== data.line) {
                     $(row).addClass('danger');
                 }
             },
@@ -127,9 +127,11 @@ $(document).ready(function() {
                 let buttonName = $(this).html();
                 let data = table.row($(this).parents('tr')).data();
 
-                if (buttonName === 'Eliminar' && confirm("¿Está segur@ que desea eliminar los datos?")) {
+                let deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
+                let uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
+                if (buttonName === 'Eliminar' && confirm(deleteMessage)) {
                     console.log("bbbbb");
-                } else if (buttonName === 'Cargar datos' && confirm("Este proceso dura unos minutos ¿está seguro de iniciarlo?")) {
+                } else if (buttonName === 'Cargar datos' && confirm(uploadMessage)) {
                     console.log("aaaa");
                 }
                 console.log(data);

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
@@ -41,29 +42,34 @@ class LoadManager(View):
     def get(self, request):
         template = "datamanager/loadManager.html"
 
+        # define the order table appear in web page
         tables = [
             {
-                "bubble_title": "", "bubble_content": "Archivo que relaciona el nombre de los servicios conocidos por los usuarios y los asignados por Sonda.",
+                "bubble_title": "", "bubble_content": u"Archivo que relaciona el nombre de los servicios conocidos por los usuarios y los asignados por Sonda.",
                 "id": "routeDictTable", "title_icon": "fa-map-o", "title": "Diccionario de servicios"
             },
             {
-                "bubble_title": "", "bubble_content": "Descripcion de caracteristicas generales",
+                "bubble_title": "", "bubble_content": u"Descripcion de caracteristicas generales",
                 "id": "generalTable", "title_icon": "", "title": "Datos generales"
             },
             {
-                "bubble_title": "", "bubble_content": "Archivos de viajes",
+                "bubble_title": "", "bubble_content": u"Archivos de viajes",
                 "id": "travelTable", "title_icon": "", "title": "Viajes"
             },
             {
-                "bubble_title": "", "bubble_content": "Archivos de velocidades",
+                "bubble_title": "", "bubble_content": u"Archivos de velocidades",
                 "id": "speedTable", "title_icon": "", "title": "Velocidades"
             },
             {
-                "bubble_title": "", "bubble_content": "Archivo de velocidades",
+                "bubble_title": "", "bubble_content": u"Archivo con geometría de servicios",
                 "id": "shapeTable", "title_icon": "", "title": "Geometria de servicios"
             },
             {
-                "bubble_title": "", "bubble_content": "Archivo de perfiles de carga",
+                "bubble_title": "", "bubble_content": u"Archivo con secuencia de paradas por servicio",
+                "id": "stopSequenceTable", "title_icon": "", "title": "Secuencia de paradas"
+            },
+            {
+                "bubble_title": "", "bubble_content": u"Archivo de perfiles de carga",
                 "id": "profileTable", "title_icon": "", "title": "Perfiles"
             }
         ]
@@ -90,7 +96,7 @@ class getLoadFileData(View):
             if os.name == "nt":
                 path = os.path.join(settings.BASE_DIR, "media")
 
-            pattern = re.compile("."+dataSource.filePattern)
+            pattern = re.compile("." + dataSource.filePattern)
             fileNameList = filter(lambda fileName: pattern.match(fileName), os.listdir(path))
             for fileName in fileNameList:
                 fileObj, created = DataSourceFile.objects.get_or_create(fileName=fileName, defaults={
