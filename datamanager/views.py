@@ -23,7 +23,7 @@ class LoadData(View):
 
 
 class DeleteData(View):
-    """ Delete data to elastic search """
+    """ Delete data from elastic search """
 
     def __init__(self):
         self.context = {}
