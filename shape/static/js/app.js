@@ -2,29 +2,45 @@
 
 let App = (function(){
   let Element = function(layer, color, group, name) {
-    this.layer = layer;
-    this.color = color;
-    this.group = group;
-    this.name = name;
-    this.visible = true;
-    this.addToMap = function(map) {
-      this.layer.addTo(map);
+      this.layer = layer;
+      this.color = color;
+      this.group = group;
+      this.name = name;
       this.visible = true;
-    };
-    this.removeFromMap = function() {
-      this.layer.remove();
-      this.visible = false;
-    };
-    this.updateLayer = function(layer, map){
-      if(this.visible){
-        this.removeFromMap();
-        this.layer = layer;
-        this.addToMap(map);
-      }else{
-        this.layer = layer;
+      this.addToMap = function (map) {
+          this.layer.addTo(map);
+          this.visible = true;
+      };
+      this.removeFromMap = function () {
+          this.layer.remove();
+          this.visible = false;
+      };
+      this.updateLayer = function (layer, map) {
+          if (this.visible) {
+              this.removeFromMap();
+              this.layer = layer;
+              this.addToMap(map);
+          } else {
+              this.layer = layer;
+          }
+      };
+      this.isOld = false;
+      this.upateColor = function (newColor) {
+          this.color = newColor;          this.layer.eachLayer(function (layer) {
+              if (layer instanceof L.Marker) {
+                  console.log("marker");
+              } else if (layer instanceof L.Polyline) {
+                  console.log("polyline");
+                  layer.setStyle({color: color});
+              } else if (layer instanceof L.PolylineDecorator) {
+                  console.log("polylinedecorator");
+                  layer.setStyle({color: color});
+                  layer.options.patterns[0].symbol.options.pathOptions.color = color;
+              }
+              //console.log(layer);
+          });
+          $(e.target).css("color", color);
       }
-    };
-    this.isOld = false;
   };
 
   function getMap(){
@@ -105,7 +121,7 @@ let App = (function(){
       radioClass: "iradio_flat-green"
     });
     $("input[type=radio][name=filter]").on("ifChanged", function () {
-      let id = $("input[name='filter']:checked").attr("id");
+      let id = $('input[name="filter"]:checked').attr("id");
       if (id === "chkAll") {
         $("input[type=checkbox]").iCheck("check");
       }
@@ -115,7 +131,7 @@ let App = (function(){
     });
 
     // DEFINE HOUR CONTROL
-    let hourControl = L.control({position: 'topleft'});
+    let hourControl = L.control({position: "topleft"});
     hourControl.onAdd = function (map) {
       let div = L.DomUtil.create("div", "info hour");
       div.innerHTML = '<i class="fa fa-clock-o fa-lg" aria-hdden="true"></i> <span id="hourInfo"></span>';
@@ -124,10 +140,10 @@ let App = (function(){
     hourControl.addTo(map);
 
     // DEFINE DAY TYPE CONTROL
-    let dayTypeControl = L.control({position: 'topleft'});
+    let dayTypeControl = L.control({position: "topleft"});
     dayTypeControl.onAdd = function (map) {
-      let div = L.DomUtil.create('div', 'info day');
-      div.innerHTML = '<i class="fa fa-calendar-o fa-lg" aria-hdden="true"></i> <span id="dayType"></span>';
+      let div = L.DomUtil.create("div", "info day");
+      div.innerHTML = "<i class='fa fa-calendar-o fa-lg' aria-hdden='true'></i> <span id='dayType'></span>";
       return div;
     };
     dayTypeControl.addTo(map);
@@ -445,6 +461,15 @@ let App = (function(){
 
       console.log("checkboxs info updated");
     };
+
+    this.attachColorSelector = function(jqueryButton, layer){
+      jqueryButton.colorpicker({
+          format: "rgb"
+      }).on("changeColor", function(e) {
+          var color = e.color.toString("rgba");
+
+      });
+    }
   }
 
   return App;

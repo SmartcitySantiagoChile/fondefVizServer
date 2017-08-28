@@ -56,6 +56,9 @@
              '<select id="route" class="form-control input-sm">'+
                '{%for route in routes %}<option>{{ route }}</option>{% endfor %}'+
              '</select>'+
+             '<button class="btn btn-default btn-sm" >'+
+               '<span class="glyphicon glyphicon-tint" aria-hidden="true"></span>'+
+             '</button>'+
             /*
              '<select id="period" class="form-control input-sm">'+
                      '{%for period in periods %}<option>{{period}}</option>{% endfor %}'+
@@ -118,21 +121,21 @@
         for(let i=0; i<data["points"].length; i++) {
           data["points"][i]["distOnRoute"] = i;
         }
-        let streetName = route;
-        let sectionName = route;
-        let section = {
+        let group = route;
+        let subGroup = route;
+        let subGroupData = {
           id: 1,
           group: route,
           points: data["points"]
         }
-        app.generateOverlays(streetName, sectionName, section);
+        app.generateOverlays(group, subGroup, subGroupData);
 
         // update map
         app.updateMap(data.hour, data.dayType);
       }
     });
   });
-  $('#period').change();
+  $('#route').change();
 {% endblock %}
 
 {% block downloaddata %}
