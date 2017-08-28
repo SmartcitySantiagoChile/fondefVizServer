@@ -6,9 +6,6 @@
 {% block css %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
   <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
 <!-- iCheck -->
   <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
@@ -58,113 +55,16 @@
 
 {% block js %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
-
-<script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
-<script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+    <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
 {% endwith %}
 
+    <script src="{% static "js/loadManager.js" %}"></script>
 <script>
-"use strict";
-$(document).ready(function() {
-    const URL = "loadManager/data";
-    $.get(URL, function (data) {
-        //console.log(data);
-        let dictFiles = data["routeDictFiles"];
 
-        let _datatableOpts = {
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
-            },
-            searching: false,
-            columns: [
-                {title: "Nombre de archivo", data: "name", searchable: true},
-                {
-                    title: "Última fecha de carga", data: "discoverAt", searchable: true,
-                    render: function (data, type, row, meta) {
-                        return (new Date(data)).toLocaleString();
-                    }
-                },
-                {title: "N° de líneas archivo", data: "lines", searchable: true},
-                {title: "N° de líneas en plataforma", data: "lines", searchable: true},
-                {
-                    title: "Cargar datos a la plataforma",
-                    'searchable': false,
-                    'orderable': false,
-                    'className': 'text-center',
-                    render: function (data, type, full, meta) {
-                        return '<button type="button" class="btn btn-info btn-xs" >Cargar datos</button>';
-                    }
-                },
-                {
-                    title: "Eliminar datos de la plataforma",
-                    'searchable': false,
-                    'orderable': false,
-                    'className': 'text-center',
-                    render: function (data, type, full, meta) {
-                        return '<button type="button" class="btn btn-danger btn-xs" >Eliminar</button>';
-                    }
-                },
-            ],
-            order: [[1, 'desc']],
-            createdRow: function (row, data, index) {
-                if (data.line === data.line) {
-                    $(row).addClass('danger');
-                }
-            },
-        };
-
-        for (let key in dictFiles) {
-            let files = dictFiles[key];
-            let opts = $.extend({data: files}, _datatableOpts);
-            let id = key + "Table";
-            let table = $("#" + id).DataTable(opts);
-
-            $('#' + id + ' tbody').on('click', 'button', function () {
-                let buttonName = $(this).html();
-                let data = table.row($(this).parents('tr')).data();
-
-                if (buttonName === 'Eliminar' && confirm("¿Está segur@ que desea eliminar los datos?")) {
-                    console.log("bbbbb");
-                } else if (buttonName === 'Cargar datos' && confirm("Este proceso dura unos minutos ¿está seguro de iniciarlo?")) {
-                    console.log("aaaa");
-                }
-                console.log(data);
-            });
-        }
-    });
-
-    function showMessage(status) {
-        let message = status['message'];
-        let title = status['title'];
-        let type = status['type'];
-
-        new PNotify({
-            title: title,
-            type: type,
-            text: message,
-            nonblock: {
-                nonblock: true
-            },
-            styling: 'bootstrap3',
-            mouse_reset: false
-        }).get().click(function () {
-            this.remove();
-        });
-    }
-
-    // load filters
-    (function () {
-        // set locale
-
-    })()
-});
 </script>
 {% endblock %}

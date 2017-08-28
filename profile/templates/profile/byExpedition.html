@@ -6,9 +6,6 @@
 {% block css %}
 {% with "components/gentelella/vendors/" as gentelella_static %}
   <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
 <!-- iCheck -->
   <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
@@ -172,9 +169,6 @@
 <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
 <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
-<script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
 <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
 
 <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
@@ -840,25 +834,6 @@ $(document).ready(function(){
         _wordcloudCharts[i].hideLoading();
       }
     };
-  }
-
-  function showMessage(status){
-    let message = status['message'];
-    let title = status['title'];
-    let type = status['type'];
-
-    new PNotify({
-      title: title,
-      type: type,
-      text: message,
-      nonblock: {
-        nonblock: true
-      },
-      styling: 'bootstrap3',
-      mouse_reset: false
-    }).get().click(function(){
-      this.remove();
-    });
   }
 
   function processData(dataSource, app){

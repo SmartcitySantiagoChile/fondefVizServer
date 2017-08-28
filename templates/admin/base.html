@@ -20,6 +20,11 @@
     <link href="{% static gentelella_static|add:"nprogress/nprogress.css" %}" rel="stylesheet">
     <!-- Custom Theme Style -->
     <link href="{% block stylesheet %}{% static gentelella_static|add:"../build/css/custom.min.css" %}{% endblock %}" rel="stylesheet">
+    <!-- PNotify -->
+    <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+    <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+    <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+
     {% block extrastyle %}{% endblock %}
     {% block css %}{% endblock %}
     {% block extrahead %}{% endblock %}
@@ -37,6 +42,12 @@
     <script src="{% static gentelella_static|add:"fastclick/lib/fastclick.js" %}"></script>
     <!-- NProgress -->
     <script src="{% static gentelella_static|add:"nprogress/nprogress.js" %}"></script>
+
+    <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+    <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+    <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+    <script src="{% static "js/showMessage.js" %}"></script>
+
     <!-- Custom Theme Scripts -->
     <script src="{% static "js/custom.js" %}"></script>
     {% endwith %}
