@@ -200,6 +200,7 @@ class GetLoadTravelsByTravelTimeData(View):
         zones_lo_barnechea = [324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336]
         zones_providencia = [494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516]
         zones_santiago = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]
+        zones_colina = [746, 740]
 
         def add_remaining(es_query, sector, zones):
             es_query.aggs\
@@ -214,6 +215,7 @@ class GetLoadTravelsByTravelTimeData(View):
         add_remaining(es_query, 'LO BARNECHEA', zones_lo_barnechea)
         add_remaining(es_query, 'PROVIDENCIA', zones_providencia)
         add_remaining(es_query, 'SANTIAGO', zones_santiago)
+        add_remaining(es_query, 'COLINA', zones_colina)
 
         # # limit fields
         # return es_query.source(self.default_fields)

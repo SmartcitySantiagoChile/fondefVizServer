@@ -13,6 +13,9 @@ var _dayTypes_reversed = {
 };
 
 var _selected_day_type_ids = [];
+var _map_data = null;
+var _sector = null;
+
 
 $(document).ready(function () {
 
@@ -21,25 +24,63 @@ $(document).ready(function () {
 
     // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
     function getColorByTViaje(time_min) {
-        return time_min > 75 ? '#0868ac' :
-               time_min > 60  ? '#43a2ca' :
-               time_min > 45  ? '#7bccc4' :
-               time_min > 30  ? '#bae4bc' :
-                          '#f0f9e8';
+        if (time_min === null) return "#cccccc";
+        return time_min > 75 ? "#bd0026" :
+            time_min > 60 ? "#f03b20" :
+            time_min > 45 ? "#fd8d3c" :
+            time_min > 30 ? "#fecc5c" :
+                    "#ffffb2";
     }
 
-    function getTViajeById() {
-        return 50;
+    function getTViajeById(zone_id) {
+        if (_map_data === null) {
+            return null;
+        }
+        if (_sector === null) {
+            return null;
+        }
+        if (!(_sector in _map_data.aggregations)) {
+            return null;
+        }
+        if (!(zone_id in _map_data.aggregations[_sector].by_zone.buckets)) {
+            return null
+        }
+        return _map_data.aggregations[_sector].by_zone.buckets[zone_id].tviaje.value;
+        // console.log("ERROR. zona inexistente de id: " + zone_id + " para sector: " + _sector)
     }
 
     function styleFunction(feature) {
+        if (_map_data === null) {
+            return {
+                weight: 2,
+                opacity: 0.1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.1
+            };
+        }
+
+        var hovered = false; // TODO
+
+        var is_sector = _sector !== null && _sector.toUpperCase() === feature.properties.comuna.toUpperCase();
+        if (is_sector) {
+            return {
+                fillColor: "green",
+                weight: 2, // TODO: draw this on a top layer.. which can be deactivated on hover.. avoid dissapearing margins
+                opacity: 1,
+                color: 'green',
+                dashArray: '0',
+                fillOpacity: 0.5
+            };
+        }
+
         return {
             fillColor: getColorByTViaje(getTViajeById(feature.properties.id)),
-            weight: 2,
+            weight: 1,
             opacity: 1,
             color: 'white',
             dashArray: '3',
-            fillOpacity: 0.7
+            fillOpacity: 0.8
         };
     }
 
@@ -106,19 +147,25 @@ $(document).ready(function () {
                 '<i style="background:' + getColorByTViaje(grades[i] + 1) + '"></i> ' +
                 grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
         }
+        div.innerHTML +=
+            '<br> <i style="background:' + getColorByTViaje(null) + '"></i>Sin Datos<br>';
 
         return div;
     };
 
     function createMap() {
         var santiagoLocation = L.latLng(-33.459229, -70.645348);
-        map = L.map("mapChart").setView(santiagoLocation, 10);
+        map = L.map("mapChart").setView(santiagoLocation, 8);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-            maxZoom: 18,
+            minZoom: 8,
+            maxZoom: 15,
             accessToken: "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A"
         }).addTo(map);
+
+        map.setMaxBounds(map.getBounds());
+        map.setView(santiagoLocation, 11);
         
         // load zonas
         $.ajax({
@@ -139,8 +186,14 @@ $(document).ready(function () {
         });
     }
 
+    function redraw() {
+        geojson.setStyle(styleFunction);
+    }
+
     function processData(response) {
-        console.log(response);
+        _map_data = response.map;
+        updateAvailableSectors();
+        redraw();
     }
 
     function updateTSPeriods(dayTypes) {
@@ -175,6 +228,71 @@ $(document).ready(function () {
                 periodSelect.appendChild(option);
             }
         }
+    }
+
+    function updateAvailableSectors() {
+        
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+        }
+
+        // avoid processing when there is no data
+        if (_map_data === null) {
+            return;
+        }
+        var sectorSelect = document.getElementById('sectorSelector');
+        var last_value = sectorSelect.value;
+
+        // remove all values
+        while (sectorSelect.firstChild) {
+            sectorSelect.removeChild(sectorSelect.firstChild);
+        }
+        
+        // update
+        for (var sector_key in _map_data.aggregations) {
+            var option = document.createElement("option");
+            var sector_text = toTitleCase(sector_key);
+
+            option.setAttribute("value", sector_key.toUpperCase());
+            option.appendChild(document.createTextNode(sector_text));
+            sectorSelect.appendChild(option);
+        }
+
+        var curr_value = sectorSelect.value;
+        var selected;
+        if (last_value == "") {
+            // do nothing
+            // console.log("last is empty");
+            // selected = curr_value;
+            selected = "SANTIAGO"; // DEFAULT
+
+        } else if (last_value != curr_value) {
+            // keep last
+            // console.log("last is: '" + last_value + "'");
+            // console.log("current is: '" + curr_value + "'");
+            selected = last_value;
+            
+        } else {
+            // use current
+            // console.log("current: '" + curr_value + "'");
+            selected = curr_value;
+        }
+
+        for (var i=0, l=sectorSelect.options.length, curr; i<l; i++)
+        {
+            curr = sectorSelect.options[i];
+            curr.selected = false;
+            if ( curr.value == selected ) {
+                curr.selected = true;
+            }
+        }
+        updateSelectedSector(selected);
+
+    }
+
+    function updateSelectedSector(selected) {
+        _sector = selected;
+        redraw();
     }
 
     createMap();
@@ -240,13 +358,27 @@ $(document).ready(function () {
                 var selection_ids = $(this).val();
                 updateTSPeriods(selection_ids);
             });
-        $('#periodFilter').select2({placeholder: 'Todos'});
+        $('#periodFilter')
+            .select2({placeholder: 'Todos'});
+        $('#sectorSelector')
+            .select2({
+                placeholder: "Seleccione un sector",
+                allowClear: true,
+                minimumResultsForSearch: Infinity // hide search box
+            })
+            .on("select2:select", function(e) {
+                var selected = $(this).val();
+                updateSelectedSector(selected);
+            })
+            .on("select2:unselect", function(e) {
+                updateSelectedSector(null);  
+            });
 
         // $('#communeFilter').select2({placeholder: 'comuna'});
         // $('#halfhourFilter').select2({placeholder: 'media hora'});
 
         // Update Charts from filters
-        $('#btnUpdateChart').click(function () {
+        function updateServerData() {
             // TODO: enforce fromDate < toDate.
 
             var fromDate = $('#dateFromFilter').val();
@@ -254,12 +386,12 @@ $(document).ready(function () {
             var dayTypes = $('#dayTypeFilter').val();
             var periods = $('#periodFilter').val();
 
-            console.log("--- update charts ---");
-            console.log("from date: " + fromDate);
-            console.log("to date: " + toDate);
-            console.log("day types: " + dayTypes);
-            console.log("periods: " + periods);
-            console.log("-- -- -- -- -- -- -- ");
+            // console.log("--- update charts ---");
+            // console.log("from date: " + fromDate);
+            // console.log("to date: " + toDate);
+            // console.log("day types: " + dayTypes);
+            // console.log("periods: " + periods);
+            // console.log("-- -- -- -- -- -- -- ");
 
             var request = {
                 from: fromDate,
@@ -275,7 +407,9 @@ $(document).ready(function () {
                 update_button.html('Actualizar Datos')
             });
 
-        });
+        }
+        $('#btnUpdateChart').click(updateServerData());
+        updateServerData();
     })() // end filters
 
 });
