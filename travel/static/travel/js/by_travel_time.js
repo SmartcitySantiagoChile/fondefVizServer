@@ -32,7 +32,7 @@ $(document).ready(function () {
                     "#ffffb2";
     }
 
-    function getTViajeById(zone_id) {
+    function getMapDataByZoneId(zone_id) {
         if (_map_data === null) {
             return null;
         }
@@ -45,7 +45,13 @@ $(document).ready(function () {
         if (!(zone_id in _map_data.aggregations[_sector].by_zone.buckets)) {
             return null
         }
-        return _map_data.aggregations[_sector].by_zone.buckets[zone_id].tviaje.value;
+        return _map_data.aggregations[_sector].by_zone.buckets[zone_id];
+    }
+
+    function getTViajeById(zone_id) {
+        var zone = getMapDataByZoneId(zone_id);
+        if (zone === null) return null;
+        return zone.tviaje.value;
         // console.log("ERROR. zona inexistente de id: " + zone_id + " para sector: " + _sector)
     }
 
@@ -128,9 +134,28 @@ $(document).ready(function () {
 
     // method that we will use to update the control based on feature properties passed
     info.update = function (props) {
-        this._div.innerHTML = '<h4>Zonificación</h4>' +  (props ?
-            '<b>' + props.comuna + '</b><br />id: ' + props.id + ''
-            : 'Pon el ratón sobre una zona');
+        this._div.innerHTML = '<h4>Zonificación 777</h4>';
+        if (props) {
+            this._div.innerHTML += '<b>' + props.comuna + '</b> (' + props.id + ')';
+
+            var zone = getMapDataByZoneId(props.id);
+            if (zone != null) {
+                // console.log(zone)
+                this._div.innerHTML += 
+                    '<br/> - # Datos: ' + zone.doc_count +
+                    '<br/> - # Etapas: ' + zone.n_etapas.value.toFixed(2) +
+                    '<br/> - Duración: ' + zone.tviaje.value.toFixed(1) + ' [min]' +
+                    '<br/> - Distancia (en ruta): ' + (zone.distancia_ruta.value / 1000.0).toFixed(2) + ' [km]' +
+                    '<br/> - Distancia (euclideana): ' + (zone.distancia_eucl.value / 1000.0).toFixed(2) + ' [km]';
+            } else {
+                this._div.innerHTML += 
+                    '<br/> Sin información para los filtros'
+                    + '<br/> seleccionados';
+            }
+            
+        } else {
+            this._div.innerHTML += 'Pon el ratón sobre una zona';
+        }
     };
 
     var legend = L.control({position: 'bottomright'});
@@ -172,7 +197,7 @@ $(document).ready(function () {
             'global': false,
             // 'url': '/static/travel/data/sectores.geojson',
             // 'url': '/static/travel/data/lineasMetro.geojson',
-            'url': '/static/travel/data/zonificacion777.geojson',
+            'url': '/static/js/data/zonificacion777.geojson',
             'dataType': "json",
             'success': function (data) {
                 // sets a default style
