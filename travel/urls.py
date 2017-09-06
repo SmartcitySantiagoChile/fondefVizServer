@@ -1,9 +1,13 @@
 from django.conf.urls import url
-from .views.LoadTravelsByTravelTime import LoadTravelsByTravelTimeView, GetLoadTravelsByTravelTimeData
+
+from .views.map import (LoadMapView, GetMapData)
+from .views.graphs import (LoadGraphsView, GetGraphsData)
 
 
 app_name = 'travel'
 urlpatterns = [
-  url(r'^by_time$', LoadTravelsByTravelTimeView.as_view(), name='by_time'),
-  url(r'^getDataByTime$', GetLoadTravelsByTravelTimeData.as_view()),
+  url(r'^map$', LoadMapView.as_view(), name='map'),
+  url(r'^graphs$', LoadGraphsView.as_view(), name='graphs'),
+  url(r'^getMapData$', GetMapData.as_view()),
+  url(r'^getGraphsData$', GetGraphsData.as_view())
 ]

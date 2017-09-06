@@ -7,22 +7,26 @@ from django.http import JsonResponse
 from django.conf import settings
 
 from elasticsearch_dsl import Search, MultiSearch, A, query
-from errors import ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty
-from LoadTravelsGeneric import LoadTravelsGeneric
+from errors import (
+    ESQueryParametersDoesNotExist,
+    ESQueryDateRangeParametersDoesNotExist,
+    ESQueryResultEmpty
+)
+from .generic import LoadTravelsGeneric
 
 
-class LoadTravelsByTravelTimeView(LoadTravelsGeneric):
+class LoadGraphsView(LoadTravelsGeneric):
 
     def __init__(self):
         """"""
         es_query_dict = dict()
-        super(LoadTravelsByTravelTimeView, self).__init__(es_query_dict)
+        super(LoadGraphsView, self).__init__(es_query_dict)
 
     def get(self, request):
-        return render(request, "travel/byTravelTime.html", self.context)
+        return render(request, "travel/graphs.html", self.context)
 
 
-class GetLoadTravelsByTravelTimeData(View):
+class GetGraphsData(View):
 
     def __init__(self):
 
@@ -38,7 +42,7 @@ class GetLoadTravelsByTravelTimeData(View):
         self.client = settings.ES_CLIENT_DEVEL
 
         self.context = {}
-        super(GetLoadTravelsByTravelTimeData, self).__init__()
+        super(GetGraphsData, self).__init__()
 
     # ========================================================
     # View Interface

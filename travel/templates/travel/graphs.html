@@ -1,0 +1,172 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Indicadores: Resumen{% endblock %}
+
+{% block css %}
+
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+        <!-- iCheck -->
+        <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
+    {% endwith %}
+
+    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "travel/css/graphs.css" %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Resumen de Viajes
+                    <small>Indicadores</small>
+                </h3>
+            </div>
+            <div class="title_right">
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <br/>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-filter"></i> Filtro
+                            <small></small>
+                        </h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+                            <label class="control-label" for="dateFromFilter">Desde:</label>
+                            <input type="text" id="dateFromFilter" placeholder="Desde" class="form-control">
+                        </div>
+
+                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+                            <label class="control-label" for="dateToFilter">Hasta:</label>
+                            <input type="text" id="dateToFilter" placeholder="Hasta" class="form-control">
+                        </div>
+
+                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+                            <label class="control-label" for="dayTypeFilter">Tipo de día:</label>
+                            <select class="form-control" id='dayTypeFilter' multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">
+                            <label class="control-label" for="periodFilter">Período:</label>
+                            <select class="form-control" id='periodFilter' multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+                            {# <div class="ln_solid"></div> #}
+                            <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">
+                                Actualizar datos
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            
+            {# Selection Bar #}
+            <div class="col-md-3 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-tasks"></i> ¿Qué desea visualizar?
+                            <small></small>
+                        </h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+                            <label class="control-label" for="vizSelector">Variable a mostrar:</label>
+                            <select class="form-control" id='vizSelector'>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            {# Graphs #}
+            <div class="col-md-9 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-clock-o"></i> Tiempo de viaje promedio
+                            <small> para <strong id="expeditionNumber">N</strong> viajes</small>
+                        </h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <div id="barChart" style="height:400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+        <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+    {% endwith %}
+
+    <script>
+        // localinfo.timeperiod JSON serialized data.
+        var _allDaytypes = JSON.parse("{{ daytypes|escapejs }}");
+        var _allPeriods = {{ timeperiods|safe }};
+        var _allHalfhours = {{ halfhours|safe }};
+        var _allCommunes = {{ communes|safe }};
+        var _allTimeperiods = {{ timeperiods|safe }};
+        // console.log(_allDaytypes);
+        // console.log(_allCommunes);
+        // console.log(_allHalfhours);
+        // console.log(_allTimeperiods);
+
+        var _dayTypes = {
+            0: "Laboral",
+            1: "Sábado",
+            2: "Domingo"
+        };
+
+        var _dayTypes_reversed = {
+            "Laboral": 0,
+            "Sábado": 1,
+            "Domingo": 2
+        };
+    </script>
+
+    <script src="{% static "travel/js/util.js" %}"></script>
+    <script src="{% static "travel/js/graphs.js" %}"></script>
+    <script src="{% static "travel/js/form.js" %}"></script>
+    <script src="{% static "travel/js/data.js" %}"></script>
+    <script src="{% static "travel/js/travel_graphs.js" %}"></script>
+
+{% endblock %}

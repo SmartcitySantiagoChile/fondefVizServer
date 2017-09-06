@@ -68,13 +68,9 @@
                 <a><i class="fa fa-line-chart"></i> Indicadores de viaje<span
                     class="fa fa-chevron-down"></span></a>
                 <ul class="nav child_menu">
-                    <li><a href=" {% url "travel:by_time" %} ">Tiempo de Viaje</a></li>
-{#                  <li><a href="#">Viajes de 4 Etapas</a></li>#}
-{#                  <li><a href="#">Etapas según destino</a></li>#}
-{#                  <li><a href="#">Tiempos de viaje</a></li>#}
-{#                  <li><a href="#">Tiempos a destino</a></li>#}
-{#                  <li><a href="#">Tiempo de espera</a></li>#}
-{#                  <li><a href="#">Distancia de viaje</a></li>#}
+                    <li><a href=" {% url "travel:graphs" %} ">Resumen</a></li>
+                    <li><a href=" {% url "travel:map" %} ">Mapa</a></li>
+                    {# <li><a href=" {% url "travel:data" %} ">Datos</a></li> #}
                 </ul>
               </li>
             </ul>
