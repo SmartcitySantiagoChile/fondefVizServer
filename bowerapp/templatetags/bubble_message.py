@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.simple_tag
 def bubble_message(title, content, status):
-    html_content = """
+    html_content = u"""
           <div class="alert alert-{} fade in" role="alert">
             <strong>{}</strong>
             {}
