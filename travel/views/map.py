@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
@@ -17,12 +18,21 @@ from .generic import LoadTravelsGeneric
 
 class LoadMapView(LoadTravelsGeneric):
 
+    sectors = dict()
+    sectors['Lo Barnechea'] = [202, 642]
+    sectors['Centro'] = [267, 276, 285, 286]
+    sectors['Providencia'] = [175, 176, 179]
+    sectors['Las Condes'] = [207, 215, 216]
+    sectors['Vitacura'] = [191, 192, 193, 195, 196]
+    sectors['Quilicura'] = [557, 831]
+
     def __init__(self):
         """"""
         es_query_dict = dict()
         super(LoadMapView, self).__init__(es_query_dict)
 
     def get(self, request):
+        self.context['sectors'] = json.dumps(LoadMapView.sectors)
         return render(request, "travel/map.html", self.context)
 
 
@@ -196,15 +206,7 @@ class GetMapData(View):
         """
         es_query = self.build_base_query(request)
 
-        # travel time map
-
         by_zone_agg = A('terms', field='zona_subida', size=1000)
-
-        zones_las_condes = [287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323]
-        zones_lo_barnechea = [324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336]
-        zones_providencia = [494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516]
-        zones_santiago = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]
-        zones_colina = [746, 740]
 
         def add_remaining(es_query, sector, zones):
             es_query.aggs\
@@ -215,11 +217,8 @@ class GetMapData(View):
                 .metric('distancia_ruta', 'avg', field='distancia_ruta')\
                 .metric('distancia_eucl', 'avg', field='distancia_eucl')
 
-        add_remaining(es_query, 'LAS CONDES', zones_las_condes)
-        add_remaining(es_query, 'LO BARNECHEA', zones_lo_barnechea)
-        add_remaining(es_query, 'PROVIDENCIA', zones_providencia)
-        add_remaining(es_query, 'SANTIAGO', zones_santiago)
-        add_remaining(es_query, 'COLINA', zones_colina)
+        for key in LoadMapView.sectors:
+            add_remaining(es_query, key, LoadMapView.sectors[key])
 
         # # limit fields
         # return es_query.source(self.default_fields)

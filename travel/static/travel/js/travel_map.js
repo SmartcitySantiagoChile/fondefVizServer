@@ -3,7 +3,7 @@
 var _map_data = null;
 
 var options = {};
-options.default_sector = 'SANTIAGO'
+options.default_sector = 'Centro'
 options.default_visualization_type = 'tviaje';
 options.curr_sector = null;
 options.curr_visualization_type = null;
@@ -81,12 +81,8 @@ function setupSectorForm(options) {
 }
 
 // updates the sector list with options from the server data
-function updateAvailableSectors(map_data, options) {
+function updateAvailableSectors(options) {
 
-    // avoid processing when there is no data
-    if (map_data === null) {
-        return;
-    }
     var sectorSelect = document.getElementById('sectorSelector');
     var last_value = sectorSelect.value;
 
@@ -96,11 +92,11 @@ function updateAvailableSectors(map_data, options) {
     }
     
     // update
-    for (var sector_key in map_data.aggregations) {
+    for (var sector_name in _allSectors) {
         var option = document.createElement("option");
-        var sector_text = toTitleCase(sector_key);
+        var sector_text = toTitleCase(sector_name);
 
-        option.setAttribute("value", sector_key.toUpperCase());
+        option.setAttribute("value", sector_name);
         option.appendChild(document.createTextNode(sector_text));
         sectorSelect.appendChild(option);
     }

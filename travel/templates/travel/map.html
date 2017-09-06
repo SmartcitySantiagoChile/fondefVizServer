@@ -146,6 +146,7 @@
 
     <script>
         // localinfo.timeperiod JSON serialized data.
+        var _allSectors = JSON.parse("{{ sectors|escapejs }}");
         var _allDaytypes = JSON.parse("{{ daytypes|escapejs }}");
         var _allPeriods = {{ timeperiods|safe }};
         var _allHalfhours = {{ halfhours|safe }};
@@ -155,6 +156,7 @@
         // console.log(_allCommunes);
         // console.log(_allHalfhours);
         // console.log(_allTimeperiods);
+        // console.log(_allSectors);
 
         var _dayTypes = {
             0: "Laboral",

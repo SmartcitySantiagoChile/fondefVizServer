@@ -30,7 +30,7 @@ function setupMapInfoBar(options) {
     map_info.update = function (props) {
         this._div.innerHTML = '<h4>Zonificación 777</h4>';
         if (props) {
-            this._div.innerHTML += '<b>' + props.comuna + '</b> (' + props.id + ')';
+            this._div.innerHTML += '<b>Datos de la zona ' + props.id + '</b>';
 
             var zone = getMapZoneById(_map_data, props.id, options);
             if (zone != null) {
@@ -122,7 +122,11 @@ function styleFunction(feature) {
         };
     }
 
-    var is_sector = options.curr_sector !== null && options.curr_sector.toUpperCase() === feature.properties.comuna.toUpperCase();
+    var is_sector = (
+        options.curr_sector !== null 
+        && options.curr_sector in _allSectors 
+        && $.inArray(feature.properties.id, _allSectors[options.curr_sector]) > -1
+    );
     if (is_sector) {
         return {
             fillColor: "green",
@@ -199,7 +203,8 @@ function setupMap(options) {
         'global': false,
         // 'url': '/static/travel/data/sectores.geojson',
         // 'url': '/static/travel/data/lineasMetro.geojson',
-        'url': '/static/js/data/zonificacion777.geojson',
+        // 'url': '/static/js/data/zonificacion777.geojson',
+        'url': '/static/js/data/777.geojson',
         'dataType': "json",
         'success': function (data) {
             // sets a default style

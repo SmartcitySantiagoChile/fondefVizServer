@@ -33,7 +33,7 @@ function getZoneValue(zone, options) {
 
 function processData(response) {
     _map_data = response.map;
-    updateAvailableSectors(_map_data, options);
+    updateAvailableSectors(options);
     redraw(options);
     updateMapDocCount(options);
 }
