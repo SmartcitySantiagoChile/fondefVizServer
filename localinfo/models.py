@@ -49,4 +49,4 @@ class HalfHour(models.Model):
     shortName = models.CharField(max_length=10)
 
     # full description: [HH:MM-HH:MM)
-    longName = models.CharField(max_length=15)
+    longName = models.CharField(max_length=20)
