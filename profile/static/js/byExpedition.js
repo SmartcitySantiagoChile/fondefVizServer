@@ -282,7 +282,7 @@ $(document).ready(function() {
                 {title: "Hora de inicio", data: "timeTripInit", searchable: true},
                 {title: "Hora de fin", data: "timeTripEnd", searchable: true},
                 {title: "Tipo de día", data: "dayType", searchable: true},
-                {title: "Negativo", data: "hasNegativeValue", searchable: true},
+                {title: "Negativo", data: "hasNegativeValue", searchable: true}
             ],
             order: [[4, "asc"]],
             createdRow: function (row, data, index) {
@@ -294,7 +294,7 @@ $(document).ready(function() {
                 mainCheckbox.iCheck({
                     labelHover: false,
                     cursor: true,
-                    checkboxClass: "icheckbox_flat-green",
+                    checkboxClass: "icheckbox_flat-green"
                 });
                 mainCheckbox.on("ifToggled", function (event) {
                     // Get all rows with search applied
@@ -497,7 +497,7 @@ $(document).ready(function() {
                     type: "bar",
                     barColor: "#169f85",
                     negBarColor: "red",
-                    chartRangeMax: maxHeight,
+                    chartRangeMax: maxHeight
                 });
             })
         };
@@ -508,16 +508,16 @@ $(document).ready(function() {
             var xAxisData = _dataManager.xAxisData();
 
             // get out, get in, load profile, percentage ocupation
-            var yAxisDataName = ["Subidas", "Bajadas", "Carga", "Porcentaje ocupación", "Carga máxima"];
-            var yAxisIndex = [0, 0, 0, 1, 0];
+            var yAxisDataName = ["Subidas", "Bajadas", "Carga promedio", "Carga máxima", "Porcentaje ocupación"];
+            var yAxisIndex = [0, 0, 0, 0, 1];
             var yChartType = ["bar", "bar", "line", "line", "line"];
-            var dataName = ["expandedGetIn", "expandedGetOut", "loadProfile", "saturationRate", "maxLoad"];
+            var dataName = ["expandedGetIn", "expandedGetOut", "loadProfile", "maxLoad", "saturationRate"];
             var colors = [
                 {itemStyle:{normal:{color:"#BD4845"}}},
                 {itemStyle:{normal:{color:"#477BBA"}}},
-                {lineStyle:{normal:{color:"#1cd68c"}}},
-                {lineStyle:{normal:{color:"#EA8E4D",type:"dashed"}}},
-                {lineStyle:{normal:{color:"#4cd600"}}}
+                {itemStyle:{normal:{color:"#1cd68c"}}},
+                {itemStyle:{normal:{color:"#4cd600"}}},
+                {lineStyle:{normal:{type:"dashed"}}, itemStyle:{normal:{color:"#EA8E4D"}}}
                 ];
 
             var series = [];
@@ -526,7 +526,8 @@ $(document).ready(function() {
                     name: yAxisDataName[index],
                     type: yChartType[index],
                     data: yAxisData[dataName[index]],
-                    markPoint: {
+                    showSymbol: false,
+                    /*markPoint: {
                         data: [{
                             type: "max",
                             name: "Máximo"
@@ -538,7 +539,7 @@ $(document).ready(function() {
                                 }
                             }
                         }
-                    },
+                    },*/
                     yAxisIndex: yAxisIndex[index],
                     smooth: true
                 };
@@ -546,19 +547,35 @@ $(document).ready(function() {
                 series.push(serie);
             }
 
+            var maxLabelLength = 0;
+            var xData = xAxisData.map(function (attr) {
+                var label = attr.order + " " + attr.name;
+                if (maxLabelLength < label.length) {
+                    maxLabelLength = label.length;
+                }
+                return label;
+            });
             var options = {
                 legend: {
                     data: yAxisDataName
                 },
                 xAxis: [{
                     type: "category",
-                    data: xAxisData.map(function (attr) {
-                        return attr.order;
-                    })
+                    data: xData,
+                    axisTick: {
+                        length: 10
+                    },
+                    axisLabel: {
+                        rotate: 90,
+                        interval: 0,
+                        textStyle: {
+                            fontSize: 11
+                        }
+                    }
                 }],
                 yAxis: [{
                     type: "value",
-                    name: "Pasajeros",
+                    name: "N° Pasajeros",
                     //max: capacity - capacity%10 + 10,
                     position: "left"
                 }, {
@@ -570,17 +587,17 @@ $(document).ready(function() {
                     axisLabel: {
                         formatter: "{value} %",
                         textStyle: {
-                            color: "#39A7F0"
+                            color: "#EA8E4D"
                         }
                     },
                     axisLine: {
                         onZero: true,
                         lineStyle: {
-                            color: "#39A7F0", width: 2
+                            color: "#EA8E4D", width: 2
                         }
                     },
                     nameTextStyle: {
-                        color: "#39A7F0"
+                        color: "#EA8E4D"
                     }
                 }],
                 series: series,
@@ -609,15 +626,15 @@ $(document).ready(function() {
                     }
                 },
                 grid: {
-                    left: "30px",
+                    left: "37px",
                     right: "45px",
-                    bottom: "80px"
+                    bottom: maxLabelLength*5.5 + 20 + "px"
                 },
                 toolbox: {
                     show: true,
                     itemSize: 20,
+                    bottom: "0px",
                     left: "center",
-                    bottom: "25px",
                     feature: {
                         mark: {show: false},
                         restore: {show: false, title: "restaurar"},

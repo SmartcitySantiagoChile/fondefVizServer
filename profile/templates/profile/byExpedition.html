@@ -50,7 +50,7 @@
 
   <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
-        {% with barChart='<div id="barChart" style="height:400px;"></div>' resume1='<h4><i class="fa fa-clock-o"></i> Expediciones por hora</h4><div id="timePeriodChart" style="height:89px;"></div>' resume2='<h4><i class="fa fa-truck"></i> Expediciones por patente <strong id="licensePlateNumber">(N)</strong></h4><div id="wordcloudChart1" style="height:100px;"></div>' resume3='<h4><i class="fa fa-calendar"></i> Expediciones por tipo de día</h4><div id="wordcloudChart2" style="height:100px;"></div>' %}
+        {% with barChart='<div id="barChart" style="height:600px;"></div>' resume1='<h4><i class="fa fa-clock-o"></i> Expediciones por hora</h4><div id="timePeriodChart" style="height:89px;"></div>' resume2='<h4><i class="fa fa-truck"></i> Expediciones por patente <strong id="licensePlateNumber">(N)</strong></h4><div id="wordcloudChart1" style="height:100px;"></div>' resume3='<h4><i class="fa fa-calendar"></i> Expediciones por tipo de día</h4><div id="wordcloudChart2" style="height:100px;"></div>' %}
             {% columns 9 9 12 barChart as col6 %}
             {% columns 3 3 12 resume1|add:resume2|add:resume3 as col7 %}
             {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" col6|add:col7 %}
