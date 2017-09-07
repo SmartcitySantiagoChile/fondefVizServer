@@ -114,13 +114,15 @@ $(document).ready(function() {
                 "expandedGetOut": [],
                 "expandedGetIn": [],
                 "loadProfile": [],
-                "saturationRate": []
+                "saturationRate": [],
+                "maxLoad": []
             };
 
             for (var i = 0; i < xAxisLength; i++) {
                 _yAxisData["expandedGetIn"].push(0);
                 _yAxisData["expandedGetOut"].push(0);
                 _yAxisData["loadProfile"].push(0);
+                _yAxisData["maxLoad"].push(0);
 
                 capacityByStop.push(0);
                 counterByStop.push(0);
@@ -141,6 +143,10 @@ $(document).ready(function() {
                     _yAxisData["expandedGetOut"][stopIndex] += trip.yAxisData["expandedGetOut"][key];
                     _yAxisData["expandedGetIn"][stopIndex] += trip.yAxisData["expandedGetIn"][key];
                     _yAxisData["loadProfile"][stopIndex] += trip.yAxisData["loadProfile"][key];
+
+                    if(_yAxisData["maxLoad"][stopIndex] < trip.yAxisData["loadProfile"][key]){
+                        _yAxisData["maxLoad"][stopIndex] = trip.yAxisData["loadProfile"][key]
+                    }
 
                     capacityByStop[stopIndex] += trip.busCapacity;
                     counterByStop[stopIndex]++;
@@ -502,10 +508,17 @@ $(document).ready(function() {
             var xAxisData = _dataManager.xAxisData();
 
             // get out, get in, load profile, percentage ocupation
-            var yAxisDataName = ["Subidas", "Bajadas", "Carga", "Porcentaje ocupación"];
-            var yAxisIndex = [0, 0, 0, 1];
-            var yChartType = ["bar", "bar", "line", "line"];
-            var dataName = ["expandedGetIn", "expandedGetOut", "loadProfile", "saturationRate"];
+            var yAxisDataName = ["Subidas", "Bajadas", "Carga", "Porcentaje ocupación", "Carga máxima"];
+            var yAxisIndex = [0, 0, 0, 1, 0];
+            var yChartType = ["bar", "bar", "line", "line", "line"];
+            var dataName = ["expandedGetIn", "expandedGetOut", "loadProfile", "saturationRate", "maxLoad"];
+            var colors = [
+                {itemStyle:{normal:{color:"#BD4845"}}},
+                {itemStyle:{normal:{color:"#477BBA"}}},
+                {lineStyle:{normal:{color:"#1cd68c"}}},
+                {lineStyle:{normal:{color:"#EA8E4D",type:"dashed"}}},
+                {lineStyle:{normal:{color:"#4cd600"}}}
+                ];
 
             var series = [];
             for (var index = 0; index < yAxisIndex.length; index++) {
@@ -529,6 +542,7 @@ $(document).ready(function() {
                     yAxisIndex: yAxisIndex[index],
                     smooth: true
                 };
+                $.extend(serie, colors[index]);
                 series.push(serie);
             }
 
@@ -546,7 +560,7 @@ $(document).ready(function() {
                     type: "value",
                     name: "Pasajeros",
                     //max: capacity - capacity%10 + 10,
-                    position: "left",
+                    position: "left"
                 }, {
                     type: "value",
                     name: "Porcentaje",
@@ -617,7 +631,7 @@ $(document).ready(function() {
                         }
                     }
                 },
-                calculable: false,
+                calculable: false
             };
 
             _barChart.clear();
