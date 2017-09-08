@@ -783,6 +783,7 @@ $(document).ready(function() {
         $("#dayTypeFilter").select2({placeholder: "Todos"});
         $("#periodFilter").select2({placeholder: "Todos"});
         $("#routeFilter").select2({placeholder: "Servicio"});//, allowClear: true});
+        $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
         var app = new ExpeditionApp();
         $("#btnUpdateChart").click(function () {
@@ -792,6 +793,7 @@ $(document).ready(function() {
             var route = $("#routeFilter").val();
             var dayType = $("#dayTypeFilter").val();
             var period = $("#periodFilter").val();
+            var minutes = $("#minutePeriodFilter").val();
             //var licensePlate = $("#licensePlateFilter").val()!="" ? $("#licensePlateFilter").val().split(","):null;
             //var expeditionId = $("#expeditionIdFilter").val()!="" ? $("#expeditionIdFilter").val().split(","):null;
 
@@ -819,6 +821,9 @@ $(document).ready(function() {
             if (period) {
                 params["period"] = period;
             }
+            if (minutes) {
+                params["halfHour"] = minutes;
+            }
             /*
             if (licensePlate) {
               params["licensePlate"] = licensePlate;
@@ -834,11 +839,10 @@ $(document).ready(function() {
             var button = $(this).append(loadingIcon);
             $.getJSON("getExpeditionData", params, function (data) {
                 processData(data, app);
-            })
-                .always(function () {
-                    button.html(previousMessage);
-                    app.hideLoadingAnimationCharts();
-                });
+            }).always(function () {
+                button.html(previousMessage);
+                app.hideLoadingAnimationCharts();
+            });
         });
     })()
 });

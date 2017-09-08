@@ -41,10 +41,13 @@
     {% inline_select "Período:" "periodFilter" periods True as period_select %}
     {% columns 2 2 12 period_select as col4 %}
 
-    {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col5 %}
+    {% inline_select "Media hora:" "minutePeriodFilter" minutes True as period_select %}
+    {% columns 2 2 12 period_select as col5 %}
 
-    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5 %}
+    {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
+    {% columns 12 12 12 update_button as col6 %}
+
+    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6 %}
     </div>
   </div>
 
