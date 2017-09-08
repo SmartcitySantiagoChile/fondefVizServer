@@ -20,5 +20,5 @@ def table(id, columns, withChecker=True):
             </thead>
         </table>
         """
-    print(table)
+
     return format_html(table, id)
