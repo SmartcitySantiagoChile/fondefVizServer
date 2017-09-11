@@ -572,7 +572,7 @@ $(document).ready(function() {
                         rotate: 90,
                         interval: 0,
                         textStyle: {
-                            fontSize: 11
+                            fontSize: 12
                         },
                         formatter: function(value, index) {
                             return (index + 1) + " " + value;
@@ -617,7 +617,6 @@ $(document).ready(function() {
                             var info = [];
                             for (var index in params) {
                                 var el = params[index];
-                                console.log(el);
                                 var ball = el.marker;
                                 var name = el.seriesName;
                                 var value = el.value.toFixed(2);
