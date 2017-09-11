@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db import connection
 from django.conf import settings
 
-from elasticsearch_dsl import Search, Q, A, MultiSearch
+from elasticsearch_dsl import Search, Q, A
 from errors import ESQueryParametersDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
 from LoadProfileGeneric import LoadProfileGeneric
 
@@ -32,6 +31,8 @@ class LoadProfileByStopView(LoadProfileGeneric):
 
     def get(self, request):
         template = "profile/byStop.html"
+
+        self.context['stopCodes'] = self.context['userStopCodes'] + self.context['authorityStopCodes']
 
         return render(request, template, self.context)
 
@@ -71,7 +72,7 @@ class GetLoadProfileByStopData(View):
             esQuery = esQuery.filter('terms', timePeriodInStopTime=period)
             existsParameters = True
         
-        if not existsParameters:
+        if not existsParameters or day is None:
             raise ESQueryParametersDoesNotExist()
 
         esQuery = esQuery.filter("range", expeditionStartTime={
