@@ -553,8 +553,11 @@ $(document).ready(function() {
                 if (maxLabelLength < label.length) {
                     maxLabelLength = label.length;
                 }
+                attr.value = attr.name;
+                label = attr;
                 return label;
             });
+            var route = $("#routeFilter").val();
             var options = {
                 legend: {
                     data: yAxisDataName
@@ -570,6 +573,9 @@ $(document).ready(function() {
                         interval: 0,
                         textStyle: {
                             fontSize: 11
+                        },
+                        formatter: function(value, index) {
+                            return (index + 1) + " " + value;
                         }
                     }
                 }],
@@ -644,7 +650,48 @@ $(document).ready(function() {
                             title: "Ver datos",
                             lang: ["Datos del gráfico", "cerrar", "refrescar"],
                             buttonColor: "#169F85",
-                            readOnly: true
+                            readOnly: true,
+                            optionToContent: function(opt) {
+                                var axisData = opt.xAxis[0].data;
+                                var series = opt.series;
+
+                                var textarea = document.createElement('textarea');
+                                textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;';
+                                textarea.readOnly = "true";
+
+                                var header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
+                                series.forEach(function(el){
+                                    header += "\t" + el.name;
+                                });
+                                header += "\n";
+                                var body = "";
+                                axisData.forEach(function(el, index){
+                                    var serieValues = [];
+                                    series.forEach(function(serie){
+                                        console.log(serie);
+                                        serieValues.push(serie.data[index]);
+                                    });
+                                    serieValues = serieValues.join("\t");
+                                    body += [route, el.order, el.userCode, el.authCode, el.name, serieValues, "\n"].join("\t");
+                                });
+                                body = body.replace(/\./g, ",");
+                                textarea.value = header + body;
+                                return textarea;
+                            }
+                        },
+                        myPercentageEditor: {
+                            show: true,
+                            title: "Cambiar porcentaje máximo",
+                            icon: 'image:///static/img/percent.png',
+                            onclick: function(){
+                                var percentage = prompt("Ingrese el porcentaje máximo");
+                                if(percentage !== "") {
+                                    options.yAxis[1].max = percentage;
+                                } else {
+                                    delete options.yAxis[1].max;
+                                }
+                                _barChart.setOption(options, {notMerge: true});
+                            }
                         }
                     }
                 },
