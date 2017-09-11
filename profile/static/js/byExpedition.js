@@ -617,9 +617,13 @@ $(document).ready(function() {
                             var info = [];
                             for (var index in params) {
                                 var el = params[index];
-                                var ball = "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:" + el.color + "'></span>";
+                                console.log(el);
+                                var ball = el.marker;
                                 var name = el.seriesName;
                                 var value = el.value.toFixed(2);
+                                if (el.seriesIndex === 4) {
+                                    value = value + " %";
+                                }
                                 info.push(ball + name + ": " + value);
                             }
                             return head + info.join("<br />");
@@ -668,7 +672,6 @@ $(document).ready(function() {
                                 axisData.forEach(function(el, index){
                                     var serieValues = [];
                                     series.forEach(function(serie){
-                                        console.log(serie);
                                         serieValues.push(serie.data[index]);
                                     });
                                     serieValues = serieValues.join("\t");
