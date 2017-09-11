@@ -588,7 +588,7 @@ $(document).ready(function() {
                     type: "value",
                     name: "Porcentaje",
                     //min: 0,
-                    //max: 100,
+                    max: 100,
                     position: "right",
                     axisLabel: {
                         formatter: "{value} %",
