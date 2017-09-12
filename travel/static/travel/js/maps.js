@@ -1,5 +1,101 @@
 "use strict";
 
+// ============================================================================
+// MAP FEATURE STYLING
+// ============================================================================
+function styleZoneDefault(feature) {
+    return {
+        weight: 2,
+        opacity: 0.1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.1
+    };
+}
+
+function styleZoneNoData(feature) {
+    return {
+        fillColor: "#cccccc",
+        weight: 1,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.8
+    };
+}
+
+function styleZoneWithColor(feature, color) {
+    return {
+        fillColor: color,
+        weight: 1,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.8
+    };
+}
+
+function styleSectorZone(feature) {
+    return {
+        fillColor: "green",
+        weight: 3, // TODO: draw this on a top layer.. which can be deactivated on hover.. avoid dissapearing margins
+        opacity: 1,
+        color: 'green',
+        dashArray: '0',
+        fillOpacity: 0.5
+    };
+}
+
+function styleZoneOnHover(feature) {
+    return {
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
+    };
+}
+
+function styleSubway(feature) {
+    return {
+        weight: 4,
+        opacity: 1,
+        color: feature.properties.color,
+        dashArray: '0',
+    };   
+}
+
+function styleZone(feature) {
+    // no data yet
+    if (_map_data === null) return styleZoneDefault(feature);
+
+    // get zone data
+    var zone = getMapZoneById(_map_data, feature.properties.id, options);
+    var zone_value = getZoneValue(zone, options);
+
+    // paint or invalid
+    var zone_color = getZoneColor(zone_value, options);
+    if (zone_color === null) return styleZoneNoData(feature);
+    return styleZoneWithColor(feature, zone_color);
+}
+
+// returns the zone color which depends on the zone value and defined mappings
+// returns null if value is invalid, the is no data or the mapping is incomplete.
+function getZoneColor(value, options) {
+    // sanity checks
+    if (value === undefined || value === null) { return null; }
+    if (options === undefined || options === null) { return null; }
+    if (options.curr_visualization_type === null) { return null; }
+
+    // use mapping
+    var grades = options.visualization_mappings[options.curr_visualization_type].grades;
+    var colors = options.visualization_mappings[options.curr_visualization_type].colors;
+    if (value < grades[0]) return null;
+    for (var i=1; i<grades.length; i++) {
+        if (value <= grades[i]) return colors[i-1];
+    }
+    return colors[grades.length - 1];
+}
+
 
 // ============================================================================
 // INFO BAR
@@ -78,136 +174,36 @@ function setupMapLegend(options) {
 }
 
 
-
-
 // ============================================================================
 // INTERACTIONS
 // ============================================================================
 
-function getZoneColor(value, options) {
-    if (value === undefined || value === null) { return null; }
-    if (options === undefined || options === null) { return null; }
-    if (options.curr_visualization_type === null) { return null; }
-
-    var grades = options.visualization_mappings[options.curr_visualization_type].grades;
-    var colors = options.visualization_mappings[options.curr_visualization_type].colors;
-
-    if (value < grades[0]) return null;
-    for (var i=1; i<grades.length; i++) {
-        if (value <= grades[i]) return colors[i-1];
-    }
-    return colors[grades.length - 1];
-}
-
-function styleZoneDefault(feature) {
-    return {
-        weight: 2,
-        opacity: 0.1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.1
-    };
-}
-
-function styleZoneNoData(feature) {
-    return {
-        fillColor: "#cccccc",
-        weight: 1,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.8
-    };
-}
-
-function styleZoneWithColor(feature, color) {
-    return {
-        fillColor: color,
-        weight: 1,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.8
-    };
-}
-
-function styleSectorZone(feature) {
-    return {
-        fillColor: "purple",
-        weight: 2, // TODO: draw this on a top layer.. which can be deactivated on hover.. avoid dissapearing margins
-        opacity: 1,
-        color: 'purple',
-        dashArray: '0',
-        fillOpacity: 0.5
-    };
-}
-
-function styleSubway(feature) {
-    return {
-        weight: 4,
-        opacity: 1,
-        color: feature.properties.color,
-        dashArray: '0',
-    };   
-}
-
-// REQUIRES GLOBAL vars: options and _map_data
-function styleFunction(feature) {
-    if (_map_data === null) {
-        return styleZoneDefault(feature);
-    }
-
-    var is_sector = (
-        options.curr_sector !== null 
-        && options.curr_sector in _allSectors 
-        && $.inArray(feature.properties.id, _allSectors[options.curr_sector]) > -1
-    );
-    if (is_sector) {
-
-        // update sector feature registry
-        if (ws_data.sector_group === null) {
-            ws_data.sector_features.push(feature);
-        }
-
-        return styleSectorZone(feature);
-    }
-
-    var zone = getMapZoneById(_map_data, feature.properties.id, options);
-    var zone_value = getZoneValue(zone, options);
-    var zone_color = getZoneColor(zone_value, options);
-    if (zone_color === null) return styleZoneNoData(feature);
-    return styleZoneWithColor(feature, zone_color);
-}
-
-function highlightFeatureForZone(e) {
-    var layer = e.target;
-
-    layer.setStyle({
-        weight: 5,
-        color: '#666',
-        dashArray: '',
-        fillOpacity: 0.7
-    });
-
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        layer.bringToFront();
-    }
-    ws_data.map_info.update(layer.feature.properties);
-}
-function resetHighlight(e) {
-    // resets style to default
-    ws_data.zones_layer.resetStyle(e.target);
-    ws_data.map_info.update();
-}
-function zoomToFeature(e) {
+function zoomToZoneEvent(e) {
     ws_data.map.fitBounds(e.target.getBounds());
 }
 
+// sets feature highlight style and updates info window
+function highlightZone(e) {
+    var layer = e.target;
+    layer.setStyle(styleZoneOnHover(layer.feature));
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        // layer.bringToFront();
+    }
+    ws_data.map_info.update(layer.feature.properties);
+}
+
+// resets style to default
+function resetZoneHighlight(e) {
+    ws_data.zones_layer.resetStyle(e.target);
+    ws_data.map_info.update();
+}
+
+// hook this interactions to each zone
 function onEachZoneFeature(feature, layer) {
     layer.on({
-        mouseover: highlightFeatureForZone,
-        mouseout: resetHighlight,
-        click: zoomToFeature
+        mouseover: highlightZone,
+        mouseout: resetZoneHighlight,
+        click: zoomToZoneEvent
     });
 }
 
@@ -215,6 +211,45 @@ function onEachSubwayFeature(feature, layer) {
     // do nothing!
     layer.on({});
 }
+
+function onSectorMouseOver(e) {
+    // console.log(e.target.feature.properties);
+    ws_data.sector_layer.eachLayer(function (layer) {
+        layer.setStyle({
+            fillOpacity: 0.0
+        });
+    });
+    var layer = e.target;
+    ws_data.map_info.update(layer.feature.properties);
+}
+
+function onSectorMouseOut(e) {
+    // console.log(e.target.feature.properties);
+    ws_data.sector_layer.eachLayer(function (layer) {
+        layer.setStyle({
+            fillOpacity: 0.5
+        });
+    });
+    ws_data.map_info.update();
+}
+
+function zoomToSectorEvent(e) {
+    zoomToCurrentSector();
+}
+
+function onEachSectorFeature(layer) {
+    // console.log(layer.feature.properties);
+    layer.on({
+        mouseover: onSectorMouseOver,
+        mouseout: onSectorMouseOut,
+        click: zoomToSectorEvent
+    })
+}
+
+
+// ============================================================================
+// MAIN MAP
+// ============================================================================
 
 function setupMap(options) {
 
@@ -237,8 +272,9 @@ function setupMap(options) {
             'url': '/static/js/data/zones777.geojson',
             'dataType': "json",
             'success': function (data) {
+                ws_data.zones_geojson = data; // keep a copy of this!
                 ws_data.zones_layer = L.geoJson(data, {
-                    style: styleFunction,
+                    style: styleZone,
                     onEachFeature: onEachZoneFeature
                 }).addTo(ws_data.map);
             }
@@ -273,15 +309,16 @@ function setupMap(options) {
             ws_data.map_legend.addTo(ws_data.map);
 
             console.log(" - Setting up map layer control.")
-            ws_data.zones_layer.visualizationZIndex = 1
-            ws_data.subway_layer.visualizationZIndex = 2
-            L.control.layers(null, {
+            // ws_data.zones_layer.visualizationZIndex = 1
+            // ws_data.subway_layer.visualizationZIndex = 2
+            ws_data.map_layer_control = L.control.layers(null, {
                 "Zonas 777": ws_data.zones_layer,
-                "Líneas de Metro": ws_data.subway_layer
-                //"Sector de Destino": ws_data.sector_layer
+                "Líneas de Metro": ws_data.subway_layer,
+                "Sector de Destino": ws_data.sector_layer
             },
             {
-                autoZIndex: true, 
+                collapsed: true,
+                autoZIndex: true,
                 // autoZIndex is NOT WORKING!: https://stackoverflow.com/questions/16827147/layer-order-changing-when-turning-layer-on-off
                 // so i prefered to use a sort function.
                 // The following code should work on leaflet v1.2.0 (current is v1.0.0)
@@ -295,18 +332,31 @@ function setupMap(options) {
                 position: 'topleft'
             }).addTo(ws_data.map);
 
-            ws_data.map.on("overlayadd", function (event) {
-                //ws_data.sector_layer.bringToFront();
-                ws_data.subway_layer.bringToFront();
+            ws_data.map.on("overlayremove", function (event) {
+                // console.log(event);
+                redraw(options);
+                // TODO: this generates an error
+                // sólo llevar al frente las mostradas
+                // ws_data.sector_layer.bringToFront();
+                // ws_data.subway_layer.bringToFront();
             });
+
+            ws_data.map.on("overlayadd", function (event) {
+                // TODO: this generates an error
+                // sólo llevar al frente las mostradas
+                // ws_data.sector_layer.bringToFront();
+                // ws_data.subway_layer.bringToFront();
+            });
+
+            ws_data.ready = true; 
         }
     );
 }
 
 function redraw(options) {
-    if (ws_data.zones_layer === null) return;
+    if (!ws_data.ready) return;
 
-    ws_data.zones_layer.setStyle(styleFunction);
+    ws_data.zones_layer.setStyle(styleZone);
     ws_data.map_legend.updateVisualization(options);
     updateMapDocCount(options);
     updateMapTitle(options);
@@ -330,16 +380,40 @@ function updateMapDocCount(options) {
     }
 }
 
+function updateSectorLayer(options) {
+
+    // remove all layers
+    ws_data.sector_layer.clearLayers();
+
+    // append new GeoJSON objects
+    ws_data.zones_geojson.features.forEach(function(item, index) {
+        var zone_id = item.properties.id;
+        if (isZoneIdInCurrentSector(zone_id, options)) {
+            ws_data.sector_layer.addData(item);
+        }
+    });
+
+    // set style before adding elements
+    ws_data.sector_layer.setStyle(styleSectorZone);
+
+    // setup interactions
+    ws_data.sector_layer.eachLayer(onEachSectorFeature);
+
+    // add to map
+    ws_data.sector_layer.addTo(ws_data.map);
+}
+
+function zoomToCurrentSector() {
+    var bounds = ws_data.sector_layer.getBounds(); 
+    ws_data.map.fitBounds(bounds);
+}
+
 function updateSelectedSector(selected, options) {
     if (options.curr_sector !== selected) {
         options.curr_sector = selected;
-        ws_data.sector_group = null;
-        ws_data.sector_features = [];
+
+        updateSectorLayer(options);
+        zoomToCurrentSector();
         redraw(options);
-        if (ws_data.sector_features.length > 0) {
-            ws_data.sector_group = L.geoJSON(ws_data.sector_features);
-            var bounds = ws_data.sector_group.getBounds(); 
-            ws_data.map.fitBounds(bounds);
-        }
     }
 }

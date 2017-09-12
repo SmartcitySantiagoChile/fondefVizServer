@@ -59,18 +59,18 @@ options.map_max_zoom = 15;
 options.map_access_token = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
 
 var ws_data = {};
-ws_data.sector_group = null;
-ws_data.sector_features = [];
+ws_data.ready = false;
 
 // map layers 
-ws_data.tile_layer = null;
-ws_data.subway_layer = null;
-ws_data.zones_layer = null;
-ws_data.sector_layer = null;
+ws_data.tile_layer;
+ws_data.subway_layer = L.geoJSON(); // empty layer
+ws_data.zones_layer = L.geoJSON();  // empty layer
+ws_data.sector_layer = L.geoJSON(); // empty layer
 
-ws_data.map = null;
-ws_data.map_legend = null;
-ws_data.map_info = null;
+ws_data.map;
+ws_data.map_legend;
+ws_data.map_info;
+ws_data.map_layer_control;
 
 // ============================================================================
 // MAP SECTORS
@@ -140,19 +140,36 @@ function updateAvailableSectors(options) {
     updateSelectedSector(selected, options);
 }
 
+function isSectorSelected(options) {
+    return (
+        options.curr_sector !== null 
+        && options.curr_sector in _allSectors 
+    ); 
+}
+
+function isZoneIdInCurrentSector(zone_id, options) {
+    return (
+        isSectorSelected(options)
+        && $.inArray(zone_id, _allSectors[options.curr_sector]) > -1
+    );
+}
+
 
 $(document).ready(function () {
 
     // Forms
+    console.log("> Building forms.")
     setupDateForm(options);
     setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options);
     setupSectorForm(options);
     setupVisualizationForm(options);
 
     // map
+    console.log("> Building Map ... ")
     setupMap(options);
 
     // load with default parameters
+    console.log("> Loading default data ... ")
     updateServerData();
 
     // buttons

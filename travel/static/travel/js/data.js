@@ -30,15 +30,12 @@ function getZoneValue(zone, options) {
     return options.visualization_mappings[options.curr_visualization_type].map_fn(zone);
 }
 
-
 function processData(response) {
     _map_data = response.map;
     updateAvailableSectors(options);
     redraw(options);
     updateMapDocCount(options);
 }
-
-
 
 // Update Charts from filters
 function updateServerData() {
