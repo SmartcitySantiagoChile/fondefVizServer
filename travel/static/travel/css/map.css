@@ -28,3 +28,8 @@
     margin-right: 8px;
     opacity: 0.7;
 }
+
+.leaflet-control-layers-overlays span { 
+    color: #555;
+    font-weight: 200;
+}

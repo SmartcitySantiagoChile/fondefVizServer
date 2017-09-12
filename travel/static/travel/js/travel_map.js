@@ -58,6 +58,19 @@ options.map_default_zoom = 11;
 options.map_max_zoom = 15;
 options.map_access_token = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
 
+var ws_data = {};
+ws_data.sector_group = null;
+ws_data.sector_features = [];
+
+// map layers 
+ws_data.tile_layer = null;
+ws_data.subway_layer = null;
+ws_data.zones_layer = null;
+ws_data.sector_layer = null;
+
+ws_data.map = null;
+ws_data.map_legend = null;
+ws_data.map_info = null;
 
 // ============================================================================
 // MAP SECTORS
@@ -138,8 +151,6 @@ $(document).ready(function () {
 
     // map
     setupMap(options);
-    setupMapInfoBar(options);
-    setupMapLegend(options);
 
     // load with default parameters
     updateServerData();
