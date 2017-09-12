@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import csv
 import utm
 import json
+import codecs
 
 # This script generates a geojson file from the ADAPTRAP's
 # Diccionario-Zonificaciones.csv file.
@@ -17,7 +19,7 @@ import json
 # ----------------------------------------------------------------
 # configuration
 dict_filename = "Diccionario-Zonificaciones.csv"
-geojson_filename = "777.geojson"
+geojson_filename = "zones777.geojson"
 csv_delimiter = ';'
 csv_number_of_columns = 5  # only consider rows with this number of fields
 zone_id_column = 0
@@ -97,7 +99,7 @@ for zone_id in zonification:
 # ----------------------------------------------------------------
 # write to file
 print(" - writing geojson to file: %s" % geojson_filename)
-with open(geojson_filename, 'w') as fp:
+with codecs.open(geojson_filename, 'w', 'utf-8-sig') as fp:
     json.dump(geojson, fp)
 
 print(" - done :)")
