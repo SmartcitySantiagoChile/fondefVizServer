@@ -3,8 +3,8 @@
 var _map_data = null;
 
 var options = {};
-options.default_sector = 'Centro'
-options.default_visualization_type = 'tviaje';
+options.default_visualization_type = 'tviaje'; // TODO: AL PARECER NO FUNCIONA BIEN ESTO!
+options.default_sector = 'Centro'; // QUIZAS ESTO TAMPOCO FUNCIONA BIEN
 options.curr_sector = null;
 options.curr_visualization_type = null;
 
@@ -64,7 +64,7 @@ ws_data.ready = false;
 // map layers 
 ws_data.tile_layer;
 ws_data.subway_layer = L.geoJSON(); // empty layer
-ws_data.zones_layer = L.geoJSON();  // empty layer
+ws_data.zones_layer  = L.geoJSON(); // empty layer
 ws_data.sector_layer = L.geoJSON(); // empty layer
 
 ws_data.map;

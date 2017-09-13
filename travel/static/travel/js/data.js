@@ -12,11 +12,17 @@ function getMapZoneById(data, zone_id, options) {
     if (options === undefined || options === null) return null;
     if (options.curr_sector === null) return null;
 
-    // unknown sector or zone
+    // unknown sector aggregation
     if (!(options.curr_sector in data.aggregations)) return null;
-    if (!(zone_id in data.aggregations[options.curr_sector].by_zone.buckets)) return null;
 
-    return data.aggregations[options.curr_sector].by_zone.buckets[zone_id];
+    // seek zone
+    var result = null;
+    data.aggregations[options.curr_sector].by_zone.buckets.forEach(function (zone, idx) {
+        if (zone.key == zone_id) {
+            result = zone;
+        }
+    });
+    return result;
 }
 
 function getZoneValue(zone, options) {
