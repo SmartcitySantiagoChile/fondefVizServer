@@ -1,3 +1,53 @@
+# README
+
+## Mapa de viajes de 4 etapas
+
+```json
+POST /travel/_search
+{
+  "size": 0, 
+  "query": {
+    "bool": {
+      "filter": 
+      [
+        {
+          "range": {
+            "tiempo_subida": {
+              "time_zone": "America/Santiago",
+              "gte": "13/03/2016 00:00",
+              "lte": "15/03/2016 23:59",
+              "format": "dd/MM/yyyy HH:mm"
+            }
+          }
+        },
+        {
+          "range": { "n_etapas": { "gte": "4" }}
+        },
+        {
+          "terms": {
+            "tipodia": ["0"]
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "by_zone": {
+      "terms": {
+        "field": "zona_subida",
+        "size": 1000
+      },
+      "aggs": {
+        "tviaje"   : { "avg" : { "field" : "tviaje" }},
+        "distancia_ruta" : { "avg" : { "field" : "distancia_ruta" }},
+        "distancia_eucl" : { "avg" : { "field" : "distancia_eucl" }},
+        "n_etapas" : { "stats" : { "field" : "n_etapas" }}
+      }
+    }
+  }
+}
+```
+
 
 
 ## Mapa, zonas y sectores
