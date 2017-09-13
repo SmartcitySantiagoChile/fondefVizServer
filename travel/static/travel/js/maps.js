@@ -332,22 +332,12 @@ function setupMap(options) {
                 position: 'topleft'
             }).addTo(ws_data.map);
 
-            ws_data.map.on("overlayremove", function (event) {
-                // console.log(event);
-                redraw(options);
-                // TODO: this generates an error
-                // sólo llevar al frente las mostradas
-                // ws_data.sector_layer.bringToFront();
-                // ws_data.subway_layer.bringToFront();
-            });
-
+            // ws_data.map.on("overlayremove", function (event) {});
             ws_data.map.on("overlayadd", function (event) {
-                // TODO: this generates an error
-                // sólo llevar al frente las mostradas
-                // ws_data.sector_layer.bringToFront();
-                // ws_data.subway_layer.bringToFront();
+                ws_data.zones_layer.bringToFront();
+                ws_data.sector_layer.bringToFront();
+                ws_data.subway_layer.bringToFront();
             });
-
             ws_data.ready = true; 
         }
     );
