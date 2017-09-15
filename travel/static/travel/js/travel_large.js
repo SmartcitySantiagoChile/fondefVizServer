@@ -1,27 +1,8 @@
 "use strict";
 
-var _map_data = null;
-
-var options = {};
-
-// http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
-options.visualization_mapping = {
-    name: 'Cantidad de datos',
-    grades: [1, 10, 20, 30, 40],
-    grades_str: ["1", "10", "20", "30", "5"],
-    legend_post_str: "",
-    colors: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
-    map_fn: function (zone) { return zone.doc_count; }
-};
-
-options.map_default_lat_lon = L.latLng(-33.459229, -70.645348);
-options.map_min_zoom = 8;
-options.map_default_zoom = 11;
-options.map_max_zoom = 15;
-options.map_access_token = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
-
 var ws_data = {};
 ws_data.ready = false;
+ws_data.data = null;
 
 // map layers 
 ws_data.tile_layer;
@@ -34,8 +15,102 @@ ws_data.map_legend;
 ws_data.map_info;
 ws_data.map_layer_control;
 
+
 // ============================================================================
-// MAP SECTORS
+// Etapas Checkboxes
+// ============================================================================
+
+function setupEtapasSelectors(options) {
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
+    elems.forEach(function(html) {
+        var switchery = new Switchery(html, {
+            size: 'small',
+            color: 'rgb(38, 185, 154)'
+        });
+        html.onchange = function() {
+            updateServerData();
+        };
+    });
+}
+
+function lookupNEtapasSelectors() {
+
+    var response = [];
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
+    elems.forEach(function(html) {
+        if (html.checked) {
+            response.push(html.getAttribute('data-ne-str'));
+        }
+    });  
+    return response; 
+}
+
+
+// ============================================================================
+// SERVER DATA
+// ============================================================================
+
+function getDataZoneById(data, zone_id, options) {
+    // missing data
+    if (data === null) return null;
+    if (zone_id === undefined || zone_id === null) return null;
+    if (options === undefined || options === null) return null;
+
+    // seek zone
+    var result = null;
+    data.aggregations.by_zone.buckets.forEach(function (zone, idx) {
+        if (zone.key == zone_id) {
+            result = zone;
+        }
+    });
+    return result;
+}
+
+function processData(response) {
+    ws_data.data = response.large;
+    redraw(options);
+    updateMapDocCount(options);
+}
+
+// Update Charts from filters
+function updateServerData() {
+    // TODO: enforce fromDate < toDate.
+
+    var fromDate = $('#dateFromFilter').val();
+    var toDate = $('#dateToFilter').val();
+    var dayTypes = $('#dayTypeFilter').val();
+    var periods = $('#periodFilter').val();
+    var nEtapas = lookupNEtapasSelectors();
+
+    // console.log("--- update charts ---");
+    // console.log("from date: " + fromDate);
+    // console.log("to date: " + toDate);
+    // console.log("day types: " + dayTypes);
+    // console.log("periods: " + periods);
+    // console.log("-- -- -- -- -- -- -- ");
+
+    var request = {
+        from: fromDate,
+        to: toDate,
+        daytypes: dayTypes,
+        periods: periods,
+        n_etapas: nEtapas
+    };
+
+    // put loading spinner
+    var update_button = $(this);
+    var loading_text = "Actualizar Datos <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+    update_button.html(loading_text);
+
+    // load data and remove spinner
+    $.getJSON('getLargeTravelsData', request, processData).always(function(){
+        update_button.html('Actualizar Datos')
+    });
+}
+
+
+// ============================================================================
+// MAIN
 // ============================================================================
 
 $(document).ready(function () {
@@ -44,8 +119,7 @@ $(document).ready(function () {
     console.log("> Building forms.")
     setupDateForm(options);
     setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options);
-    setupSectorForm(options);
-    setupVisualizationForm(options);
+    setupEtapasSelectors(options);
 
     // map
     console.log("> Building Map ... ")

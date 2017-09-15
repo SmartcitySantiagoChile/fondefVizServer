@@ -4,7 +4,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 
-from elasticsearch_dsl import A, query
+from elasticsearch_dsl import A, Q
 from errors import (
     ESQueryParametersDoesNotExist,
     ESQueryDateRangeParametersDoesNotExist,
@@ -66,7 +66,16 @@ class GetLargeTravelsData(GetDataGeneric):
         es_query = self.build_base_query(request)
 
         # 4 or more etapas
-        es_query = es_query.filter('range', n_etapas={'gte': 4})
+        n_etapas = request.GET.getlist('n_etapas[]', None)
+        if n_etapas:
+            if "5+" in n_etapas:
+                n_etapas.remove("5+")
+                es_query = es_query.query(
+                    Q('terms', n_etapas=n_etapas) |
+                    Q('range', n_etapas={'gte': 5})
+                )
+            else:
+                es_query = es_query.filter('terms', n_etapas=n_etapas)
 
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_subida', size=1000)
@@ -75,7 +84,7 @@ class GetLargeTravelsData(GetDataGeneric):
         es_query.aggs\
             .bucket('by_zone', by_zone_agg)\
             .metric('tviaje', 'avg', field='tviaje')\
-            .metric('n_etapas', 'stats', field='n_etapas')\
+            .metric('n_etapas', 'avg', field='n_etapas')\
             .metric('distancia_ruta', 'avg', field='distancia_ruta')\
             .metric('distancia_eucl', 'avg', field='distancia_eucl')
 

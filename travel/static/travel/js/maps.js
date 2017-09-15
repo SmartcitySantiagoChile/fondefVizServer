@@ -66,10 +66,10 @@ function styleSubway(feature) {
 
 function styleZone(feature) {
     // no data yet
-    if (_map_data === null) return styleZoneDefault(feature);
+    if (ws_data.data === null) return styleZoneDefault(feature);
 
     // get zone data
-    var zone = getMapZoneById(_map_data, feature.properties.id, options);
+    var zone = getDataZoneById(ws_data.data, feature.properties.id, options);
     var zone_value = getZoneValue(zone, options);
 
     // paint or invalid
@@ -96,6 +96,15 @@ function getZoneColor(value, options) {
     return colors[grades.length - 1];
 }
 
+function getZoneValue(zone, options) {
+    // missing data
+    if (zone === undefined || zone === null) return null;
+    if (options === undefined || options === null) return null;
+    if (options.curr_visualization_type === null) return null;
+    if (!(options.curr_visualization_type in options.visualization_mappings)) return null;
+
+    return options.visualization_mappings[options.curr_visualization_type].map_fn(zone);
+}
 
 // ============================================================================
 // INFO BAR
@@ -117,7 +126,7 @@ function setupMapInfoBar(options) {
         if (props) {
             this._div.innerHTML += '<b>Datos de la zona ' + props.id + '</b>';
 
-            var zone = getMapZoneById(_map_data, props.id, options);
+            var zone = getDataZoneById(ws_data.data, props.id, options);
             if (zone != null) {
                 // console.log(zone)
                 this._div.innerHTML += 
@@ -186,9 +195,6 @@ function zoomToZoneEvent(e) {
 function highlightZone(e) {
     var layer = e.target;
     layer.setStyle(styleZoneOnHover(layer.feature));
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        // layer.bringToFront();
-    }
     ws_data.map_info.update(layer.feature.properties);
 }
 
@@ -309,28 +315,20 @@ function setupMap(options) {
             ws_data.map_legend.addTo(ws_data.map);
 
             console.log(" - Setting up map layer control.")
-            // ws_data.zones_layer.visualizationZIndex = 1
-            // ws_data.subway_layer.visualizationZIndex = 2
-            ws_data.map_layer_control = L.control.layers(null, {
-                "Zonas 777": ws_data.zones_layer,
-                "Líneas de Metro": ws_data.subway_layer,
-                "Sector de Destino": ws_data.sector_layer
-            },
-            {
-                collapsed: true,
-                autoZIndex: true,
-                // autoZIndex is NOT WORKING!: https://stackoverflow.com/questions/16827147/layer-order-changing-when-turning-layer-on-off
-                // so i prefered to use a sort function.
-                // The following code should work on leaflet v1.2.0 (current is v1.0.0)
-                // sortLayers: true, 
-                // sortFunction: function(layerA, layerB, nameA, nameB) {
-                //     // return 0: keep the same order
-                //     // returns < 0: a < b
-                //     // returns > 0: b < a
-                //     return (layerA.visualizationZIndex - layerB.visualizationZIndex);
-                // },
-                position: 'topleft'
-            }).addTo(ws_data.map);
+            var control_mapping = {};
+            control_mapping["Zonas 777"] = ws_data.zones_layer;
+            control_mapping["Líneas de Metro"] = ws_data.subway_layer;
+            if (options.use_map_sectors) {
+                control_mapping["Sector de Destino"] = ws_data.sector_layer;
+            }
+            ws_data.map_layer_control = L.control.layers(
+                null,
+                control_mapping,
+                {
+                    collapsed: true,
+                    autoZIndex: true,
+                    position: 'topleft'
+                }).addTo(ws_data.map);
 
             // ws_data.map.on("overlayremove", function (event) {});
             ws_data.map.on("overlayadd", function (event) {
@@ -363,8 +361,11 @@ function updateMapTitle(options) {
 
 function updateMapDocCount(options) {
     var map_type_doc_count = document.getElementById("visualization_type_doc_count");
-    if (options.curr_sector !== null && options.curr_sector in _map_data.aggregations) {
-        map_type_doc_count.innerHTML = _map_data.aggregations[options.curr_sector].doc_count;
+    if (options.use_map_sectors && options.curr_sector !== null && options.curr_sector in ws_data.data.aggregations) {
+        map_type_doc_count.innerHTML = ws_data.data.aggregations[options.curr_sector].doc_count;
+    } else if (!options.use_map_sectors) {
+        map_type_doc_count.innerHTML = ws_data.data.hits.total;
+
     } else {
         map_type_doc_count.innerHTML = 0;
     }

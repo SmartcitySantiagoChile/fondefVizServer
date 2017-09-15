@@ -94,7 +94,7 @@
                         </h2>
                         <div class="clearfix"></div>
                     </div>
-                    <div class="x_content">
+                    <div class="x_content" style="height:500px">
                         <div class="col-md-12 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="sectorSelector">Sector de Destino:</label>
                             <select class="form-control" id='sectorSelector'>
@@ -119,8 +119,8 @@
                         </h2>
                         <div class="clearfix"></div>
                     </div> 
-                    <div class="x_content">
-                        <div id="mapChart" style="height:400px;"></div>
+                    <div class="x_content" style="height:500px">
+                        <div id="mapChart" style="height:inherit"></div>
                     </div>
                 </div>
             </div>
@@ -173,8 +173,8 @@
 
     <script src="{% static "travel/js/util.js" %}"></script>
     <script src="{% static "travel/js/maps.js" %}"></script>
-    <script src="{% static "travel/js/form.js" %}"></script>
-    <script src="{% static "travel/js/data.js" %}"></script>
+    <script src="{% static "travel/js/form.js" %}"></script>    
+    <script src="{% static "travel/js/travel_map_options.js" %}"></script>
     <script src="{% static "travel/js/travel_map.js" %}"></script>
 
 {% endblock %}
