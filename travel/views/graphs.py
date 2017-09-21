@@ -65,10 +65,27 @@ class GetGraphsData(GetDataGeneric):
         """
         es_query = self.build_base_query(request)
 
-        # travel time histogram (15 min buckets)
-        es_query.aggs.bucket('tiempos_de_viaje', 'histogram', field='tviaje', interval='15')\
-            .metric('cantidad', 'sum', field='factor_expansion')\
-            .pipeline('acumulado', 'cumulative_sum', buckets_path='cantidad')
+        def add_histogram(es_query, field, interval, bmin, bmax):
+            es_query.aggs.bucket(
+                    field,
+                    'histogram',
+                    field=field,
+                    interval=interval,
+                    min_doc_count=0,
+                    extended_bounds={'min': bmin, 'max': bmax}
+                )\
+                .metric('bin', 'sum', field='factor_expansion')\
+                .pipeline('total', 'cumulative_sum', buckets_path='bin')
+
+        # up to 120 min
+        add_histogram(es_query, 'tviaje', '15', 0, 120)
+
+        # at least from 1 to 5 etapas
+        add_histogram(es_query, 'n_etapas', '1', 1, 5)
+
+        # distances are this values right?
+        add_histogram(es_query, 'distancia_ruta', '5000', 0, 30000)
+        add_histogram(es_query, 'distancia_eucl', '5000', 0, 30000)
 
         # # limit fields
         # return es_query.source(self.default_fields)

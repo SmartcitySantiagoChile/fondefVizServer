@@ -71,7 +71,6 @@
                         </div>
 
                         <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-                            {# <div class="ln_solid"></div> #}
                             <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">
                                 Actualizar datos
                             </button>
@@ -93,7 +92,7 @@
                         </h2>
                         <div class="clearfix"></div>
                     </div>
-                    <div class="x_content">
+                    <div class="x_content" style="height:500px">
                         <div class="col-md-12 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="vizSelector">Variable a mostrar:</label>
                             <select class="form-control" id='vizSelector'>
@@ -108,24 +107,24 @@
             <div class="col-md-9 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2><i class="fa fa-clock-o"></i> Tiempo de viaje promedio
-                            <small> para <strong id="expeditionNumber">N</strong> viajes</small>
+                        <h2><i class="fa fa-clock-o"></i> <span id="graphTitle">Histograma</span>
+                            <small><strong id="visualization_type_doc_count">0</strong> viajes encontrados</small>
                         </h2>
                         <div class="clearfix"></div>
                     </div>
-                    <div class="x_content">
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                            <div id="barChart" style="height:400px;"></div>
-                        </div>
+                    <div class="x_content" style="height:500px">
+                        <div id="graphChart" style="height:400px;"></div>
                     </div>
                 </div>
             </div>
-
         </div>
+
     </div>
 {% endblock %}
 
 {% block js %}
+    
+    {# gentelella #}
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
@@ -134,9 +133,13 @@
         <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
         <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
         <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>    
     {% endwith %}
+
+    {# echarts #}
+    <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
+    <script src="{% static "components/echarts-wordcloud/dist/echarts-wordcloud.min.js" %}"></script>
+    <script src="{% static "js/echartsTheme.js" %}"></script>
 
     <script>
         // localinfo.timeperiod JSON serialized data.
@@ -149,6 +152,7 @@
         // console.log(_allCommunes);
         // console.log(_allHalfhours);
         // console.log(_allTimeperiods);
+        // console.log(_allSectors);
 
         var _dayTypes = {
             0: "Laboral",
@@ -165,8 +169,8 @@
 
     <script src="{% static "travel/js/util.js" %}"></script>
     <script src="{% static "travel/js/graphs.js" %}"></script>
-    <script src="{% static "travel/js/form.js" %}"></script>
-    <script src="{% static "travel/js/data.js" %}"></script>
+    <script src="{% static "travel/js/form.js" %}"></script>    
+    <script src="{% static "travel/js/travel_graphs_options.js" %}"></script>
     <script src="{% static "travel/js/travel_graphs.js" %}"></script>
 
 {% endblock %}
