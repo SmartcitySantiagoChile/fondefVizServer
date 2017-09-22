@@ -68,7 +68,7 @@ class GetDataGeneric(View):
         """
         result = dict()
 
-        multisearch = MultiSearch(using=settings.ES_CLIENT_DEVEL, index=LoadTravelsGeneric.INDEX_NAME)
+        multisearch = MultiSearch(using=settings.ES_CLIENT, index=LoadTravelsGeneric.INDEX_NAME)
 
         # build multisearch
         names = list()
