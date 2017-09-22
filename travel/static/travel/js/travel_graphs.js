@@ -1,7 +1,6 @@
 "use strict";
 
 var ws_data = {};
-ws_data.ready = false;
 ws_data.data = null;
 
 // ============================================================================
@@ -16,8 +15,7 @@ function setupVisualizationForm(options) {
         { id: 'tviaje', text: 'Tiempo de viaje' },
         { id: 'distancia_ruta', text: 'Distancia en ruta' },
         { id: 'distancia_eucl', text: 'Distancia euclideana' },
-        { id: 'n_etapas', text: 'Número de Etapas' },
-        { id: 'count', text: 'Cantidad de datos' }
+        { id: 'n_etapas', text: 'Número de Etapas' }
     ];    
 
     $('#vizSelector')
@@ -43,39 +41,70 @@ function updateSelectedVisualization(visualization_type, options) {
     if (options.curr_visualization_type !== visualization_type) {
         options.curr_visualization_type = visualization_type;
         updateGraphTitle(options);
-        // redraw(options);
+        redraw(options);
     }
 }
 
+function getDataByVisualizationType(data, options) {
+    // missing data
+    if (data === null) return null;
+    if (options === undefined || options === null) return null;
+    if (options.curr_visualization_type === null) return null;
+
+    // unknown sector aggregation
+    if (!(options.curr_visualization_type in data.aggregations)) return null;
+
+    return data.aggregations[options.curr_visualization_type];
+}
 
 // ============================================================================
 // SERVER DATA
 // ============================================================================
 
-function getDataZoneById(data, zone_id, options) {
-    // missing data
+function getGraphData(options) {
+    var data = getDataByVisualizationType(ws_data.data, options);
     if (data === null) return null;
-    if (zone_id === undefined || zone_id === null) return null;
-    if (options === undefined || options === null) return null;
-    if (options.curr_sector === null) return null;
 
-    // unknown sector aggregation
-    if (!(options.curr_sector in data.aggregations)) return null;
+    var xaxis_fn = options.visualization_mappings[options.curr_visualization_type].xaxis_fn;
+    
+    var result = {};
+    result.xaxis = [];
+    result.count = [];
+    result.bins = [];
+    result.total = [];
+    result.percent = [];
+    result.total_percent = [];
 
-    // seek zone
-    var result = null;
-    data.aggregations[options.curr_sector].by_zone.buckets.forEach(function (zone, idx) {
-        if (zone.key == zone_id) {
-            result = zone;
-        }
-    });
+    // todo: porcentaje
+    // todo: multiplicador
+    // todo: formatter
+    var len = data.buckets.length;
+    var total = Math.round(data.buckets[len-1].total.value);
+    if (total <= 0) { total = 1; }
+
+    for (var i=0; i < len - 1; ++i) {
+        var item = data.buckets[i];
+        var next = data.buckets[i+1];
+        result.count.push(Math.round(item.doc_count));
+        result.bins.push(Math.round(item.bin.value));
+        result.total.push(Math.round(item.total.value));
+        result.percent.push(100.0*Math.round(item.bin.value)/total);
+        result.total_percent.push(100.0*Math.round(item.total.value)/total);
+        result.xaxis.push(xaxis_fn(item.key, next.key));
+    }
+    result.count.push(Math.round(data.buckets[len-1].doc_count));
+    result.bins.push(Math.round(data.buckets[len-1].bin.value));
+    result.total.push(Math.round(data.buckets[len-1].total.value));
+    result.percent.push(100.0*Math.round(data.buckets[len-1].bin.value)/total);
+    result.total_percent.push(100.0);
+    result.xaxis.push(xaxis_fn(data.buckets[len-1].key));
     return result;
 }
 
 function processData(response) {
     ws_data.data = response.histogram;
     // console.log(response)
-    // console.log(ws_data.data)
+    console.log(ws_data.data)
     redraw(options);
 }
 
