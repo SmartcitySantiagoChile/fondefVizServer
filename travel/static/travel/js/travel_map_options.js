@@ -8,14 +8,20 @@ options.default_sector = 'Centro'; // QUIZAS ESTO TAMPOCO FUNCIONA BIEN
 options.curr_sector = null;
 options.curr_visualization_type = null;
 
+// Orange Scale
 // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
+// options.map_colors = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
+
+// Diverging Version
+// http://colorbrewer2.org/#type=diverging&scheme=Spectral&n=5
+options.map_colors = ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"];
+
 options.visualization_mappings = {
     tviaje: {
         name: 'Tiempo de viaje',
         grades: [0, 30, 45, 60, 75],
         grades_str: ["0", "30", "45", "60", "75"],
         legend_post_str: "min",
-        colors: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
         map_fn: function (zone) { return zone.tviaje.value; }
     },
     distancia_ruta: {
@@ -23,7 +29,6 @@ options.visualization_mappings = {
         grades: [0, 1000, 5000, 10000, 20000],
         grades_str: ["0", "1", "5", "10", "20"],
         legend_post_str: "km",
-        colors: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
         map_fn: function (zone) { return zone.distancia_ruta.value; }
     },
     distancia_eucl: {
@@ -31,7 +36,6 @@ options.visualization_mappings = {
         grades: [0, 1000, 5000, 10000, 20000],
         grades_str: ["0", "1", "5", "10", "20"],
         legend_post_str: "km",
-        colors: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
         map_fn: function (zone) { return zone.distancia_eucl.value; }
     },
     n_etapas: {
@@ -39,7 +43,6 @@ options.visualization_mappings = {
         grades: [1.0, 1.3, 2.0, 2.3, 3.0],
         grades_str: ["1.0", "1.3", "2.0", "2.3", "3.0"],
         legend_post_str: "",
-        colors: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
         map_fn: function (zone) { return zone.n_etapas.value; }
     },
     count: {
@@ -47,7 +50,6 @@ options.visualization_mappings = {
         grades: [1, 5, 25, 50, 75],
         grades_str: ["1", "5", "25", "50", "75"],
         legend_post_str: "",
-        colors: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
         map_fn: function (zone) { return zone.doc_count; }
     }
 };
