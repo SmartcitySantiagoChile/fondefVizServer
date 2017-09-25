@@ -2,3 +2,10 @@
     background-image: none !important;
     background-color: #D9FFC7;
 }
+
+.cols-same-height-align-vertical {
+  display: flex;
+  display: -webkit-flex;
+  flex-wrap: wrap;
+  align-items: center;
+}

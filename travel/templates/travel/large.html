@@ -30,61 +30,9 @@
 
 
     <div class="">
-        <div class="page-title">
-            <div class="title_left">
-                <h3>Viajes por Etapas
-                    <small>Indicadores</small>
-                </h3>
-            </div>
-            <div class="title_right">
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <br/>
-
-        <div class="row">
-            <div class="col-md-12 col-sm-12 col-xs-12">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2><i class="fa fa-filter"></i> Filtros
-                            <small></small>
-                        </h2>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-
-                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="dateFromFilter">Desde:</label>
-                            <input type="text" id="dateFromFilter" placeholder="Desde" class="form-control">
-                        </div>
-
-                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="dateToFilter">Hasta:</label>
-                            <input type="text" id="dateToFilter" placeholder="Hasta" class="form-control">
-                        </div>
-
-                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="dayTypeFilter">Tipo de día:</label>
-                            <select class="form-control" id='dayTypeFilter' multiple="multiple">
-                            </select>
-                        </div>
-
-                        <div class="col-md-4 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="periodFilter">Período:</label>
-                            <select class="form-control" id='periodFilter' multiple="multiple">
-                            </select>
-                        </div>
-
-                        <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-                            <button type="submit" id="btnUpdateChart" class="btn btn-success btn-lg btn-round">
-                                Actualizar datos
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
+        
+        {% include "./titlebar.html" with titlename="Viajes por Etapas" %}
+        {% include "./filters.html" %}
 
         <div class="row">
 
