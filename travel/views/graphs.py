@@ -46,7 +46,7 @@ class GetGraphsData(GetDataGeneric):
         es_query_dict = dict()
         try:
             es_query_dict['histogram'] = self.build_histogram_query(request)
-            # es_query_dict['table'] = self.build_table_query(request)
+            es_query_dict['indicators'] = self.build_indicators_query(request)
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 
@@ -93,12 +93,16 @@ class GetGraphsData(GetDataGeneric):
         # return no hits!
         return es_query[:0]
 
-    def build_table_query(self, request):
+    def build_indicators_query(self, request):
         """
-        Builds a elastic search query for the travels table
-        It is based on the requested filtering options
         """
         es_query = self.build_base_query(request)
+        es_query.aggs.metric('documentos', 'value_count', field='id')
+        es_query.aggs.metric('viajes', 'sum', field='factor_expansion')
+        es_query.aggs.metric('tviaje', 'stats', field='tviaje')
+        es_query.aggs.metric('n_etapas', 'stats', field='n_etapas')
+        es_query.aggs.metric('distancia_ruta', 'stats', field='distancia_ruta')
+        es_query.aggs.metric('distancia_eucl', 'stats', field='distancia_eucl')
 
         # # limit fields
         # return es_query.source(self.default_fields)

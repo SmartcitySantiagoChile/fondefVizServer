@@ -75,9 +75,6 @@ function getGraphData(options) {
     result.percent = [];
     result.total_percent = [];
 
-    // todo: porcentaje
-    // todo: multiplicador
-    // todo: formatter
     var len = data.buckets.length;
     var total = Math.round(data.buckets[len-1].total.value);
     if (total <= 0) { total = 1; }
@@ -96,15 +93,16 @@ function getGraphData(options) {
     result.bins.push(Math.round(data.buckets[len-1].bin.value));
     result.total.push(Math.round(data.buckets[len-1].total.value));
     result.percent.push(100.0*Math.round(data.buckets[len-1].bin.value)/total);
-    result.total_percent.push(100.0);
+    result.total_percent.push(100.0*Math.round(data.buckets[len-1].total.value)/total);
     result.xaxis.push(xaxis_fn(data.buckets[len-1].key));
     return result;
 }
 
 function processData(response) {
     ws_data.data = response.histogram;
-    // console.log(response)
-    console.log(ws_data.data)
+    ws_data.indicators = response.indicators;
+    console.log(ws_data.indicators);
+    // console.log(ws_data.data);
     redraw(options);
 }
 

@@ -30,9 +30,74 @@
         {% include "./filters.html" %}
 
         <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+
+                    <div class="x_title">
+                        <h2><i class="fa fa-circle"></i> Indicadores
+                            <small></small>
+                        </h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="x_content">
+
+                        <div class="row tile_count cols-same-height-align-vertical indicadores-section">
+
+                            <div class="col-md-4 col-sm-12 col-xs-12 tile_stats_count text-center">
+                                <span class="count_top">
+                                    <i class="fa fa-bus"></i> Cantidad de Viajes
+                                </span>
+                                <div class="count">3518519</div>
+                                <span class="count_bottom">
+                                    <i class="green">2613090</i> Viajes sin expandir
+                                </span>
+                            </div>
+
+                            <div class="col-md-8 col-sm-12 col-xs-12">
+                                
+                                {# Just to simulate the left hand bar #}
+                                <div class="col-xs-0 tile_stats_count"></div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                    <span class="count_top"><i class="fa fa-clock-o"></i> Tiempo de Viaje</span>
+                                    <div class="count">35.91 min</div>
+                                    <span class="count_bottom">Mayor tiempo de viaje <i class="red">227 min</i></span>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                    <span class="count_top"><i class="fa fa-list-ol"></i> Cantidad de Etapas</span>
+                                    <div class="count">1.34 etapas</div>
+                                    <span class="count_bottom">Mayor cantidad de etapas <i class="red">7</i></span>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                    <span class="count_top"><i class="fa fa-road"></i> Distancia Euclideana</span>
+                                    <div class="count">7.9 km</div>
+                                    <span class="count_bottom">Mayor distancia <i class="red">37.2 km</i></span>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                    <span class="count_top"><i class="fa fa-road"></i> Distancia en Ruta</span>
+                                    <div class="count">9.8 km</div>
+                                    <span class="count_bottom">Mayor distancia <i class="red">78.1 km</i></span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
             
             {# Selection Bar #}
-            <div class="col-md-3 col-sm-12 col-xs-12">
+            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
                         <h2><i class="fa fa-tasks"></i> ¿Qué desea visualizar?
@@ -47,7 +112,7 @@
                         
                         <div class="col-md-12 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="vizSelector">Variable a mostrar:</label>
-                            <select class="form-control" id='vizSelector'>
+                            <select class="form-control" id='vizSelector' style="width: 100%">
                             </select>
                         </div>
                     </div>
@@ -56,7 +121,7 @@
 
 
             {# Graphs #}
-            <div class="col-md-9 col-sm-12 col-xs-12">
+            <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
                         <h2><i class="fa fa-bar-chart-o"></i> <span id="graphTitle">Histograma</span>

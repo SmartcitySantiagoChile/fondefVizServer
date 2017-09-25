@@ -1,5 +1,47 @@
 # README
 
+## Indicadores Varios
+
+
+### 
+
+```json
+POST /travel/_search
+{
+  "size": 0, 
+  "query": {
+    "bool": {
+      "filter": 
+      [
+        {
+          "range": {
+            "tiempo_subida": {
+              "time_zone": "America/Santiago",
+              "gte": "13/03/2016 00:00",
+              "lte": "15/03/2016 23:59",
+              "format": "dd/MM/yyyy HH:mm"
+            }
+          }
+        },
+        {
+          "terms": {
+            "tipodia": ["0"]
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "documentos" : { "value_count" : { "field" : "id" }},
+    "viajes" : { "sum" : { "field" : "factor_expansion" }},
+    "tviaje" : { "stats" : { "field" : "tviaje" }},
+    "n_etapas" : { "stats" : { "field" : "n_etapas" }},
+    "distancia_ruta" : { "stats" : { "field" : "distancia_ruta" }},
+    "distancia_eucl" : { "stats" : { "field" : "distancia_eucl" }}
+  }
+}
+```
+
 ## Mapa de viajes de 4 etapas
 
 ```json

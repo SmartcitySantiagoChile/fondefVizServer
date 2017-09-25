@@ -1,3 +1,15 @@
 #graphTitle {
     color: rgb(115, 135, 156)
 }
+
+.indicadores-section {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+
+.indicadores-section .tile_stats_count {
+    /* REDUCE FROM 10PX TO 5PX */
+    margin-bottom: 5;
+    padding-bottom: 5;
+}
