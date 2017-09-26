@@ -98,11 +98,39 @@ function getGraphData(options) {
     return result;
 }
 
+
+function updateIndicators(data) {
+    // data
+    var viajes = data.aggregations.viajes.value;
+    var documents = data.aggregations.documentos.value;
+    var tviaje_avg = data.aggregations.tviaje.avg;
+    var tviaje_max = data.aggregations.tviaje.max;
+    var netapas_avg = data.aggregations.n_etapas.avg;
+    var netapas_max = data.aggregations.n_etapas.max;
+    var dist_eucl_avg = data.aggregations.distancia_eucl.avg/1000.0;
+    var dist_eucl_max = data.aggregations.distancia_eucl.max/1000.0;
+    var dist_ruta_avg = data.aggregations.distancia_ruta.avg/1000.0;
+    var dist_ruta_max = data.aggregations.distancia_ruta.max/1000.0;
+
+    // display
+    $("#indicator-viajes").text(viajes.toFixed(0));
+    $("#indicator-documentos").text(documents.toFixed(0));
+    $("#indicator-tviaje-avg").text(tviaje_avg.toFixed(0) + " min");
+    $("#indicator-tviaje-max").text(tviaje_max.toFixed(0) + " min");
+    $("#indicator-netapas-avg").text(netapas_avg.toFixed(2) + " etapas");
+    $("#indicator-netapas-max").text(netapas_max.toFixed(0));
+    $("#indicator-dist-eucl-avg").text(dist_eucl_avg.toFixed(1) + " km");
+    $("#indicator-dist-eucl-max").text(dist_eucl_max.toFixed(1) + " km");
+    $("#indicator-dist-ruta-avg").text(dist_ruta_avg.toFixed(1) + " km");
+    $("#indicator-dist-ruta-max").text(dist_ruta_max.toFixed(1) + " km");
+}
+
 function processData(response) {
     ws_data.data = response.histogram;
     ws_data.indicators = response.indicators;
-    console.log(ws_data.indicators);
+    // console.log(ws_data.indicators);
     // console.log(ws_data.data);
+    updateIndicators(ws_data.indicators);
     redraw(options);
 }
 
