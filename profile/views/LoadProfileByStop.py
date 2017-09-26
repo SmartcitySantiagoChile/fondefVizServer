@@ -3,24 +3,26 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
 
-from elasticsearch_dsl import Search, Q, A
+from elasticsearch_dsl import Search, Q, A, MultiSearch
+from elasticsearch_dsl.query import Match
 from errors import ESQueryParametersDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
 from LoadProfileGeneric import LoadProfileGeneric
 
+
 class LoadProfileByStopView(LoadProfileGeneric):
-    ''' '''
+    """ """
 
     def __init__(self):
-        ''' contructor '''
+        """ contructor """
 
         esTSStopQuery = Search()
         esTSStopQuery = esTSStopQuery[:0]
-        aggs = A('terms', field = "authStopCode", size=15000)
+        aggs = A('terms', field="authStopCode.keyword", size=15000)
         esTSStopQuery.aggs.bucket('unique', aggs)
 
         esUserStopQuery = Search()
         esUserStopQuery = esUserStopQuery[:0]
-        aggs = A('terms', field = "userStopCode", size=15000)
+        aggs = A('terms', field="userStopCode.keyword", size=15000)
         esUserStopQuery.aggs.bucket('unique', aggs)
  
         esQueryDict = {}
@@ -32,24 +34,25 @@ class LoadProfileByStopView(LoadProfileGeneric):
     def get(self, request):
         template = "profile/byStop.html"
 
-        self.context['stopCodes'] = self.context['userStopCodes'] + self.context['authorityStopCodes']
+        self.context['stopCodes'] = [] # self.context['userStopCodes'] + self.context['authorityStopCodes']
 
         return render(request, template, self.context)
 
 
 class GetLoadProfileByStopData(View):
-    ''' '''
+    """ """
 
     def __init__(self):
-        ''' constructor '''
+        """ constructor """
+        super(GetLoadProfileByStopData, self).__init__()
         self.context={}
 
     def buildQuery(self, request):
-        ''' create es-query based on params given by user '''
+        """ create es-query based on params given by user """
 
         day = request.GET.get('day')
-        fromDate = request.GET.get('from')
-        toDate = request.GET.get('to')
+        #fromDate = request.GET.get('from')
+        #toDate = request.GET.get('to')
         dayType = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
         stopCode = request.GET.get('stopCode')
@@ -67,10 +70,8 @@ class GetLoadProfileByStopData(View):
 
         if dayType:
             esQuery = esQuery.filter('terms', dayType=dayType)
-            existsParameters = True
         if period:
             esQuery = esQuery.filter('terms', timePeriodInStopTime=period)
-            existsParameters = True
         
         if not existsParameters or day is None:
             raise ESQueryParametersDoesNotExist()
@@ -90,12 +91,12 @@ class GetLoadProfileByStopData(View):
         return esQuery
  
     def cleanData(self, data):
-        ''' round to zero values between [-1, 0]'''
+        """ round to zero values between [-1, 0]"""
         value = float(data)
         return 0 if (-1 < value and value < 0) else value
 
     def transformESAnswer(self, esQuery):
-        ''' transform ES answer to something util to web client '''
+        """ transform ES answer to something util to web client """
         info = {}
         trips = {}
 
@@ -113,7 +114,7 @@ class GetLoadProfileByStopData(View):
             trips[expeditionId]['capacity'] = int(data['busCapacity'])
             trips[expeditionId]['licensePlate'] = data['licensePlate']
             trips[expeditionId]['route'] = data['route']
-            trips[expeditionId]['stopTime'] = "" if data['expeditionStopTime']=="0" else \
+            trips[expeditionId]['stopTime'] = "" if data['expeditionStopTime'] == "0" else \
                 data['expeditionStopTime'].replace('T',' ').replace('.000Z', '')
             trips[expeditionId]['stopTimePeriod'] = data['timePeriodInStopTime']
             trips[expeditionId]['dayType'] = data['dayType']
@@ -134,7 +135,7 @@ class GetLoadProfileByStopData(View):
         return result
 
     def get(self, request):
-        ''' expedition data '''
+        """ expedition data """
         response = {}
 
         try:
@@ -150,3 +151,58 @@ class GetLoadProfileByStopData(View):
         return JsonResponse(response, safe=False)
 
 
+
+class GetStopList(View):
+    """ list when user ask for stop """
+
+    def __init__(self):
+        """ constructor """
+        super(GetStopList, self).__init__()
+        self.context={}
+
+    def get(self, request):
+        """ expedition data """
+
+        term = request.GET.get("term")
+
+        multiSearch = MultiSearch(using=settings.ES_CLIENT, index=LoadProfileGeneric.INDEX_NAME)
+
+        esAuthStopQuery = Search().query("match", authStopCode=term)[:0]
+        aggregation = A('terms', field="authStopCode.keyword", size=15000)
+        esAuthStopQuery.aggs.bucket('unique', aggregation)
+
+        esUserStopQuery = Search().query("match", userStopCode=term)[:0]
+        aggregation = A('terms', field="userStopCode.keyword", size=15000)
+        esUserStopQuery.aggs.bucket('unique', aggregation)
+
+        esUserStopNameQuery = Search().query(Match(userStopName={"query": term, "operator": "and"}))[:0]
+        aggregation = A('terms', field="userStopName.keyword", size=15000)
+        esUserStopNameQuery.aggs.bucket('unique', aggregation)
+
+        multiSearch = multiSearch.add(esAuthStopQuery)
+        multiSearch = multiSearch.add(esUserStopQuery)
+        multiSearch = multiSearch.add(esUserStopNameQuery)
+
+        results = multiSearch.execute()
+
+        response = {}
+        response["items"] = []
+
+        for result in results:
+            resultList = []
+            for tag in result.aggregations.unique.buckets:
+                if tag.doc_count == 0:
+                    continue
+                if "key_as_string" in tag:
+                    resultList.append({"id": tag.key_as_string, "text": tag.key_as_string})
+                else:
+                    resultList.append({"id": tag.key, "text": tag.key})
+
+            response["items"] += resultList
+
+        # debug
+        #response['query'] = esQuery.to_dict()
+        #return JsonResponse(response, safe=False)
+        #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
+
+        return JsonResponse(response, safe=False)
