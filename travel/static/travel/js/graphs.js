@@ -11,7 +11,7 @@ function updateGraphTitle(options) {
     if (options.curr_visualization_type !== null) {
         map_title.innerHTML = toTitleCase(options.visualization_mappings[options.curr_visualization_type].name);
     } else {
-        map_title.innerHTML = "Mapa";
+        map_title.innerHTML = "Histograma";
     }
 }
 
@@ -37,8 +37,14 @@ function setupGraph(options) {
 function updateGraph(options) {
     // calcular datos
     if (options === undefined || options === null) { return; }
-    if (options.curr_visualization_type === undefined || options.curr_visualization_type === null) { return; }
+    if (options.curr_visualization_type === undefined) { return; }
     if (ws_data.graph === undefined || ws_data.graph === null) { return; }
+    if (options.curr_visualization_type === null) {
+        if (ws_data.graph !== undefined && ws_data.graph !== null) {
+            ws_data.graph.clear();
+        }
+        return;
+    }
 
     var mapping = options.visualization_mappings[options.curr_visualization_type];
     var graph_data = getGraphData(options);
@@ -192,4 +198,9 @@ function updateGraph(options) {
     ws_data.graph.setOption(graph_options, {
         notMerge: true
     });
+
+    // keep graph inside view
+    window.onresize = function() {
+        ws_data.graph.resize();
+    };
 }

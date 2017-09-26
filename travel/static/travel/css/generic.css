@@ -3,6 +3,12 @@
     background-color: #D9FFC7;
 }
 
+.cols-same-height {
+  display: flex;
+  display: -webkit-flex;
+  flex-wrap: wrap;
+}
+
 .cols-same-height-align-vertical {
   display: flex;
   display: -webkit-flex;
