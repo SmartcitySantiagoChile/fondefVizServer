@@ -3,9 +3,12 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
 
-from elasticsearch_dsl import Search, A
+from elasticsearch_dsl import Search, A, Q
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
 from LoadProfileGeneric import LoadProfileGeneric
+
+from localinfo.models import HalfHour
+from datetime import datetime
 
 class LoadProfileByExpeditionView(LoadProfileGeneric):
     ''' '''
@@ -26,6 +29,10 @@ class LoadProfileByExpeditionView(LoadProfileGeneric):
     def get(self, request):
         template = "profile/byExpedition.html"
 
+        # add periods of thirty minutes
+        minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
+        self.context['minutes'] = minutes
+
         return render(request, template, self.context)
 
 
@@ -39,14 +46,15 @@ class GetLoadProfileByExpeditionData(View):
     def buildQuery(self, request):
         ''' create es-query based on params given by user '''
 
-        day = request.GET.get('day', None)
-        fromDate = request.GET.get('from', None)
-        toDate = request.GET.get('to', None)
-        route = request.GET.get('route', None)
-        licensePlate = request.GET.getlist('licensePlate[]', None)
-        dayType = request.GET.getlist('dayType[]', None)
-        period = request.GET.getlist('period[]', None)
-        expeditionId = request.GET.getlist('expeditionId[]', None)
+        day = request.GET.get('day')
+        fromDate = request.GET.get('from')
+        toDate = request.GET.get('to')
+        route = request.GET.get('route')
+        licensePlate = request.GET.getlist('licensePlate[]')
+        dayType = request.GET.getlist('dayType[]')
+        period = request.GET.getlist('period[]')
+        expeditionId = request.GET.getlist('expeditionId[]')
+        halfHour = request.GET.getlist('halfHour[]')
 
         # get list of profile*
         client = settings.ES_CLIENT
@@ -64,14 +72,39 @@ class GetLoadProfileByExpeditionData(View):
 
         if licensePlate:
             esQuery = esQuery.filter('terms', licensePlate=licensePlate)
-            existsParameters = True
         if dayType:
             esQuery = esQuery.filter('terms', dayType=dayType)
-            existsParameters = True
         if period:
             esQuery = esQuery.filter('terms', timePeriodInStartTime=period)
-            existsParameters = True
-        
+        if halfHour:
+            # when this field exists
+            #esQuery = esQuery.filter('terms', halfHour=halfHour)
+            halfHourObjs = HalfHour.objects.filter(longName__in=halfHour).order_by("id")
+
+            dateRef = datetime(1970, 1, 1)
+            timeRanges = None
+            for day in [day]:
+                for index, halfHourObj in enumerate(halfHourObjs):
+                    startHour = halfHourObj.longName.split('-')[0]
+                    endHour = halfHourObj.longName.split('-')[1]
+                    startDate = day + " " + startHour
+                    endDate = day + " " + endHour
+
+                    startRange = int((datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
+                    endRange = int((datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
+
+                    timeRange = Q("range", expeditionStartTime={
+                        "gte": startRange,
+                        "lte": endRange,
+                        "format": "epoch_second"
+                    })
+                    if timeRanges is None:
+                        timeRanges = timeRange
+                    else:
+                        timeRanges = timeRanges | timeRange
+
+            esQuery = esQuery.query(timeRanges)
+
         if not existsParameters or day is None:
             raise ESQueryParametersDoesNotExist()
 

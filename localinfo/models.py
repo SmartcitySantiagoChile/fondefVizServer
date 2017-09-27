@@ -54,5 +54,8 @@ class HalfHour(models.Model):
     # Abbr half hour representation: HH:MM
     shortName = models.CharField(max_length=10)
 
+    # full description: [HH:MM-HH:MM)
+    longName = models.CharField(max_length=20)
+
     def __str__(self):
         return self.shortName

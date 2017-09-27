@@ -12,6 +12,8 @@ class LoadProfileGeneric(View):
 
     def __init__(self, additionalESQueryDict):
         ''' contructor '''
+        super(LoadProfileGeneric, self).__init__()
+
         esQueryDict = self.getDefaultESQueryDict()
         esQueryDict.update(additionalESQueryDict)
         
