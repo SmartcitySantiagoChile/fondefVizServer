@@ -123,4 +123,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Elastic-Search settings
-ES_CLIENT = Elasticsearch("172.17.57.47:9200", http_auth=('elastic', 'changeme'))
+ES_CLIENT = Elasticsearch("172.17.75.218:9200", http_auth=('elastic', 'changeme'))
