@@ -558,7 +558,8 @@ $(document).ready(function(){
         },
         legend: {
           data: yAxisDataName,
-          right: 0
+          right: 0,
+          top: "45px"
         },
         axisPointer: {
           link: [{xAxisIndex: "all"}],
@@ -568,7 +569,7 @@ $(document).ready(function(){
           show : true,
           itemSize: 20,
           left: "center",
-          bottom: "25px",
+          bottom: "0px",
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
@@ -583,7 +584,7 @@ $(document).ready(function(){
           }
         },
         grid: [
-          {x: "10px", y:"60px", height: "35%", right:"0px", containLabel: true},
+          {x: "10px", y:"70px", height: "30%", right:"0px", containLabel: true},
           {x: "30px", y2:"75px", height: "33%", right: "0px", containLabel: true}
         ],
         xAxis: [
