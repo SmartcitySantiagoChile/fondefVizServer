@@ -167,11 +167,11 @@ class GetStopList(View):
 
         multiSearch = MultiSearch(using=settings.ES_CLIENT, index=LoadProfileGeneric.INDEX_NAME)
 
-        esAuthStopQuery = Search().query("match", authStopCode=term)[:0]
+        esAuthStopQuery = Search().query(Match(authStopCode={"query": term, "analyzer": "standard"}))[:0]
         aggregation = A('terms', field="authStopCode.keyword", size=15000)
         esAuthStopQuery.aggs.bucket('unique', aggregation)
 
-        esUserStopQuery = Search().query("match", userStopCode=term)[:0]
+        esUserStopQuery = Search().query(Match(userStopCode={"query": term, "analyzer": "standard"}))[:0]
         aggregation = A('terms', field="userStopCode.keyword", size=15000)
         esUserStopQuery.aggs.bucket('unique', aggregation)
 
