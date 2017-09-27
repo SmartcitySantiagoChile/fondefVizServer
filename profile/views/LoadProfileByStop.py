@@ -63,7 +63,7 @@ class GetLoadProfileByStopData(View):
         
         existsParameters = False
         if stopCode:
-            esQuery = esQuery.query(Q('term', authStopCode=stopCode)|Q('term', userStopCode=stopCode))
+            esQuery = esQuery.query(Q({'term': {"authStopCode.keyword": stopCode}})|Q({'term': {"userStopCode.keyword":stopCode}})|Q({'term': {"userStopName.keyword": stopCode}}))
             existsParameters = True
         else:
             raise ESQueryStopParameterDoesNotExist()
@@ -82,7 +82,7 @@ class GetLoadProfileByStopData(View):
             "format": "yyyy-MM-dd",
             "time_zone": "+00:00"
         })
-
+        print(esQuery.to_dict())
         esQuery = esQuery.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
                                   'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
                                   'stopDistanceFromPathStart', 'expeditionStartTime',

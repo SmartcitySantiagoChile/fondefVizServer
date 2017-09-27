@@ -185,7 +185,7 @@ $(document).ready(function(){
         _yAxisData["negativeSaturationRateAfter"][routeIndex]= decValue;
       }
     };
-    this.getAttrGroup = function(attrName, formatFunc=undefined){
+    this.getAttrGroup = function(attrName, formatFunc){
       var values = [];
       var dict = {};
       for(var i in _trips){
@@ -275,67 +275,67 @@ $(document).ready(function(){
              return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
          }
         },
-        { title: 'Servicio-sentido', data: 'route',   searchable: true},
-        { title: 'Patente(capacidad)', data: 'busDetail', searchable: true},
-        { title: 'Período de pasada', data: 'stopTimePeriod', searchable: true},
-        { title: 'Hora de pasada', data: 'stopTime', searchable: true},
-        { title: 'Tipo de día', data: 'dayType', searchable: true},
-        { title: 'Carga al llegar', data: 'loadProfile', searchable: true},
-        { title: 'Subidas', data: 'expandedGetIn', searchable: true},
-        { title: 'Bajadas', data: 'expandedLanding', searchable: true},
-        { title: 'Carga al salir', data: 'loadProfile', searchable: true,
+        { title: "Servicio-sentido", data: "route",   searchable: true},
+        { title: "Patente(capacidad)", data: "busDetail", searchable: true},
+        { title: "Período de pasada", data: "stopTimePeriod", searchable: true},
+        { title: "Hora de pasada", data: "stopTime", searchable: true},
+        { title: "Tipo de día", data: "dayType", searchable: true},
+        { title: "Carga al llegar", data: "loadProfile", searchable: true},
+        { title: "Subidas", data: "expandedGetIn", searchable: true},
+        { title: "Bajadas", data: "expandedLanding", searchable: true},
+        { title: "Carga al salir", data: "loadProfile", searchable: true,
           render: function(data, type, row, meta){
             return data + row.expandedGetIn - row.expandedLanding;
           }
-        },
+        }
       ],
-      order: [[3, 'asc']],
+      order: [[3, "asc"]],
       createdRow: function ( row, data, index ) {
-        $(row).addClass('success');
+        $(row).addClass("success");
       },
       initComplete: function(settings){
         // Handle click on "Select all" control
-        var mainCheckbox = $('#checkbox-select-all');
+        var mainCheckbox = $("#checkbox-select-all");
         mainCheckbox.iCheck({
           labelHover: false,
           cursor: true,
-          checkboxClass: 'icheckbox_flat-green'
+          checkboxClass: "icheckbox_flat-green"
         });
-        mainCheckbox.on('ifToggled', function(event){
+        mainCheckbox.on("ifToggled", function(event){
           // Get all rows with search applied
-          var rows = _datatable.rows({'search':'applied'}).nodes();
+          var rows = _datatable.rows({"search":"applied"}).nodes();
           var addToAggr = false;
-          var inputs = $('input.flat', rows);
+          var inputs = $("input.flat", rows);
           if(event.target.checked){
-            inputs.prop('checked', true);
-            $(rows).addClass('success');
+            inputs.prop("checked", true);
+            $(rows).addClass("success");
             addToAggr = true;
           } else {
-            inputs.prop('checked', false);
-            $(rows).removeClass('success');
+            inputs.prop("checked", false);
+            $(rows).removeClass("success");
           }
           $("tbody input.flat").iCheck("update");
-          var tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
+          var tripIds = _datatable.rows({"search":"applied"}).data().map(function(el){return el.id});
           _dataManager.setVisibilty(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
     });
-    _datatable.on('search.dt', function (event) {
+    _datatable.on("search.dt", function (event) {
 
-      var el = $('#checkbox-select-all');
-      var tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
+      var el = $("#checkbox-select-all");
+      var tripIds = _datatable.rows({"search":"applied"}).data().map(function(el){ return el.id});
       var resultChecked = _dataManager.checkAllAreAggregate(tripIds);
 
       if(resultChecked === tripIds.length){
-        el.prop('checked', true);
+        el.prop("checked", true);
       } else if(resultChecked === 0){
-        el.prop('checked', false);
+        el.prop("checked", false);
       } else {
-        el.prop('checked', false);
-        el.prop('indeterminate', true);
+        el.prop("checked", false);
+        el.prop("indeterminate", true);
       }
-      el.iCheck('update');
+      el.iCheck("update");
     });
 
     this.dataManager = function(dataManager){
@@ -348,7 +348,7 @@ $(document).ready(function(){
     };
 
     var _updateTimePeriodChart = function(){
-      var stopTime = _dataManager.getAttrGroup('stopTime', function(attrValue){
+      var stopTime = _dataManager.getAttrGroup("stopTime", function(attrValue){
         return attrValue.substring(11, 13);
       });
       stopTime = stopTime.sort(function(a, b){
@@ -360,22 +360,22 @@ $(document).ready(function(){
       var values = stopTime.map(function(el, index){ return [index, el.value];});
       var option = {
         tooltip: {
-          positon: 'top'
+          positon: "top"
         },
         singleAxis: [{
-          type: 'category',
+          type: "category",
           boundaryGap: false,
           data: hours,
-          top: '10%',
-          height: '40%',
+          top: "10%",
+          height: "40%",
           axisLabel: {
             interval: 2
           }
         }],
         series: [{
           singleAxisIndex: 0,
-          coordinateSystem: 'singleAxis',
-          type: 'scatter',
+          coordinateSystem: "singleAxis",
+          type: "scatter",
           data: values,
           symbolSize: function (dataItem) {
             return [10, dataItem[1]*0.3];
@@ -384,8 +384,8 @@ $(document).ready(function(){
             formatter: function(params){
               var value = params.value[1];
               var name = params.name;
-              var timePeriod = '[' + name + ':00, ' + name + ':59]';
-              return value + ' expediciones iniciadas entre ' + timePeriod;
+              var timePeriod = "[" + name + ":00, " + name + ":59]";
+              return value + " expediciones iniciadas entre " + timePeriod;
             }
           }
         }]
@@ -395,26 +395,26 @@ $(document).ready(function(){
     };
 
     var _updateWordcloudCharts = function(){
-      var lpValues = _dataManager.getAttrGroup('licensePlate');
-      var dayTypeValues = _dataManager.getAttrGroup('dayType');
+      var lpValues = _dataManager.getAttrGroup("licensePlate");
+      var dayTypeValues = _dataManager.getAttrGroup("dayType");
 
-      $('#licensePlateNumber').html('(' + lpValues.length + ')');
+      $("#licensePlateNumber").html("(" + lpValues.length + ")");
 
       var values = [lpValues, dayTypeValues];
       for(var i=0;i<values.length;i++){
         var chart = _wordcloudCharts[i];
 
-        chart.on('click', function(params){
+        chart.on("click", function(params){
           console.log(params);
         });
 
         var options = {
           tooltip: {},
           series: [{
-            type: 'wordCloud',
-            shape: 'pentagon',
-            width: '100%',
-            height: '100%',
+            type: "wordCloud",
+            shape: "pentagon",
+            width: "100%",
+            height: "100%",
             sizeRange: [6, 14],
             rotationRange: [0, 0],
             rotationStep: 0,
@@ -422,16 +422,16 @@ $(document).ready(function(){
             textStyle: {
               normal: {
                 color: function () {
-                  return 'rgb(' + [
+                  return "rgb(" + [
                     Math.round(Math.random() * 160),
                     Math.round(Math.random() * 160),
                     Math.round(Math.random() * 160)
-                  ].join(',') + ')';
+                  ].join(",") + ")";
                 }
               },
               emphasis: {
                 shadowBlur: 10,
-                shadowColor: '#169F85'
+                shadowColor: "#169F85"
               }
             },
             data: values[i]
@@ -444,33 +444,33 @@ $(document).ready(function(){
 
     var _updateDatatable = function(){
       var dataset = _dataManager.getDatatableData();
-      var rows = dataset['rows']
+      var rows = dataset["rows"]
 
-      _datatable.off('draw');
-      _datatable.on('draw', function(oSettings) {
-        $('tbody input.flat').iCheck('destroy');
-        $('tbody input.flat').iCheck({
+      _datatable.off("draw");
+      _datatable.on("draw", function(oSettings) {
+        $("tbody input.flat").iCheck("destroy");
+        $("tbody input.flat").iCheck({
           labelHover: false,
           cursor: true,
-          checkboxClass: 'icheckbox_flat-green'
+          checkboxClass: "icheckbox_flat-green"
         });
 
         // activate iCheck in checkbox
         var dtRows = _datatable.rows().nodes();
         // attach events check and uncheck
-        $('input.flat', dtRows).off('ifToggled');
-        $('input.flat', dtRows).on('ifToggled', function(event){
+        $("input.flat", dtRows).off("ifToggled");
+        $("input.flat", dtRows).on("ifToggled", function(event){
           var tr = $(this).parent().parent().parent();
           var addToAggr = false;
           if(event.target.checked){
-            tr.addClass('success');
+            tr.addClass("success");
             addToAggr = true;
           }else{
-            tr.removeClass('success');
+            tr.removeClass("success");
           }
 
           // updateChart
-          var tripId = parseInt($(this).attr('name').replace('trip', ''));
+          var tripId = parseInt($(this).attr("name").replace("trip", ""));
           _dataManager.setVisibilty([tripId], addToAggr);
           _self.updateCharts();
         });
@@ -486,26 +486,26 @@ $(document).ready(function(){
       var xAxisData = _dataManager.xAxisData();
       console.log(yAxisData);
       // get out, get in, load profile, percentage ocupation
-      var yAxisDataName = ['Subidas promedio', 'Bajadas promedio', 'Tasa ocupación promedio a la llegada '];
-      var yChartType = ['bar','bar', 'bar', 'bar', 'bar'];
-      var yStack = [null, null, 'stack', 'stack', 'stack'];
+      var yAxisDataName = ["Subidas promedio", "Bajadas promedio", "Tasa ocupación promedio a la llegada "];
+      var yChartType = ["bar","bar", "bar", "bar", "bar"];
+      var yStack = [null, null, "stack", "stack", "stack"];
       var xGridIndex = [1, 1, 0, 0, 0];
       var yGridIndex = [1, 1, 0, 0, 0];
-      var dataName = ['expandedGetIn',
-                      'expandedLanding',
-                      //'saturationRateBefore',
-                      'saturationRateAfter',
-                      'positiveSaturationRateAfter',
-                      'negativeSaturationRateAfter'];
+      var dataName = ["expandedGetIn",
+                      "expandedLanding",
+                      //"saturationRateBefore",
+                      "saturationRateAfter",
+                      "positiveSaturationRateAfter",
+                      "negativeSaturationRateAfter"];
       var positiveItemStyle = {
         normal: {
           color: "#33CC70",
           barBorderRadius: 0,
           label: {
             show: true,
-            position: 'top',
+            position: "top",
             formatter: function(p){
-              return p.value > 0 ? ('▲' + p.value.toFixed(1) + '%'):'';
+              return p.value > 0 ? ("▲" + p.value.toFixed(1) + "%"):"";
             }
           }
         }
@@ -514,12 +514,12 @@ $(document).ready(function(){
         normal: {
           color: "#C12301",
           barBorderRadius: 0,
-          stack: 'stack',
+          stack: "stack",
           label: {
             show: true,
-            position: 'top',
+            position: "top",
             formatter: function(p){
-              return p.value > 0 ? ('▼' + p.value.toFixed(1) + '%'):'';
+              return p.value > 0 ? ("▼" + p.value.toFixed(1) + "%"):"";
             }
           }
         }
@@ -546,47 +546,47 @@ $(document).ready(function(){
           data: yAxisDataName
         },
         axisPointer: {
-          link: [{xAxisIndex: 'all'}],
+          link: [{xAxisIndex: "all"}],
           snap: true
         },
         toolbox: {
           show : true,
           itemSize: 20,
-          left: 'center',
-          bottom: '25px',
+          left: "center",
+          bottom: "25px",
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
             saveAsImage : {show: true, title: "Guardar imagen", name: _dataManager.getDataName()},
             dataView: {
               show: true,
-              title: 'Ver datos',
-              lang: ['Datos del gráfico', 'cerrar', 'refrescar'],
-              buttonColor: '#169F85',
+              title: "Ver datos",
+              lang: ["Datos del gráfico", "cerrar", "refrescar"],
+              buttonColor: "#169F85",
               readOnly: true
             }
           }
         },
         grid: [
-          {x: '10px', y:'30px', height: '38%', right:'0px', containLabel: true},
-          {x: '30px', y2:'75px', height: '35%', right: '0px', containLabel: true}
+          {x: "10px", y:"30px", height: "38%", right:"0px", containLabel: true},
+          {x: "30px", y2:"75px", height: "35%", right: "0px", containLabel: true}
         ],
         xAxis: [
-          {gridIndex: 0, type: 'category', data: xAxisData, axisLabel: { show: false}, axisTick: {interval:0}},
-          {gridIndex: 1, type: 'category', data: xAxisData, axisLabel: { rotate: 30, interval: 0}}
+          {gridIndex: 0, type: "category", data: xAxisData, axisLabel: { show: false}, axisTick: {interval:0}},
+          {gridIndex: 1, type: "category", data: xAxisData, axisLabel: { rotate: 30, interval: 0}}
         ],
         yAxis: [
-          {gridIndex: 0, type: 'value', name: 'Porcentaje', max: 100,
-            axisLabel: {formatter: '{value} %'}, nameLocation: 'middle', nameGap: 40,
+          {gridIndex: 0, type: "value", name: "Porcentaje", max: 100,
+            axisLabel: {formatter: "{value} %"}, nameLocation: "middle", nameGap: 40,
             axisLine: {onZero: false}},
-          {gridIndex: 1, type: 'value', name: 'Pasajeros', position: 'left', nameLocation: 'middle', nameGap: 30}
+          {gridIndex: 1, type: "value", name: "Pasajeros", position: "left", nameLocation: "middle", nameGap: 30}
         ],
         series: series,
         tooltip: {
           axisPointer: {
             type: "shadow"
           },
-          trigger: 'axis',
+          trigger: "axis",
           //alwaysShowContent: true,
           formatter: function(params){
             if (Array.isArray(params)){
@@ -601,29 +601,29 @@ $(document).ready(function(){
                 var serieIndex = el.seriesIndex;
                 var name = el.seriesName;
                 var value = el.value.toFixed(2);
-                if(serieIndex==2){
-                  value = yAxisData['saturationRateBefore'][xValue].toFixed(1) + '%';
-                }else if(serieIndex==3){
-                  var sign = '▲';
-                  if(el.value==0){
+                if(serieIndex===2){
+                  value = yAxisData["saturationRateBefore"][xValue].toFixed(1) + "%";
+                }else if(serieIndex===3){
+                  var sign = "▲";
+                  if(el.value===0){
                     el = params[i+1];
-                    sign = '▼';
+                    sign = "▼";
                   }
-                  name = 'Variación';
-                  value = sign + el.value.toFixed(1) + '%';
+                  name = "Variación";
+                  value = sign + el.value.toFixed(1) + "%";
                 }
-                var colorBall = ball.replace('{}', el.color);
-                info.push(colorBall + name + ': ' + value);
+                var colorBall = ball.replace("{}", el.color);
+                info.push(colorBall + name + ": " + value);
               }
               // add saturation rate after
-              var saturationRateInfo = ball.replace('{}', '#3145f7') + 'Tasa ocupación promedio a la salida:' + yAxisData['saturationRateAfter'][xValue].toFixed(1)+'%';
+              var saturationRateInfo = ball.replace("{}", "#3145f7") + "Tasa ocupación promedio a la salida:" + yAxisData["saturationRateAfter"][xValue].toFixed(1)+"%";
               info.push(saturationRateInfo);
-              return info.join('<br />');
+              return info.join("<br />");
             } else {
               var title = params.data.name;
               var name = params.seriesName;
               var value = params.value.toFixed(2);
-              return title + '<br />' + name + ': ' + value;
+              return title + "<br />" + name + ": " + value;
             }
           }
         },
@@ -636,8 +636,8 @@ $(document).ready(function(){
     };
 
     var _updateGlobalStats = function() {
-      $('#expeditionNumber').html(_dataManager.tripsUsed());
-      $('#expeditionNumber2').html(_dataManager.tripsUsed());
+      $("#expeditionNumber").html(_dataManager.tripsUsed());
+      $("#expeditionNumber2").html(_dataManager.tripsUsed());
     };
 
     this.updateCharts = function(){
@@ -650,7 +650,7 @@ $(document).ready(function(){
       _updateDatatable();
     };
     this.showLoadingAnimationCharts = function(){
-      var loadingText = 'Cargando...';
+      var loadingText = "Cargando...";
       _barChart.showLoading(null, {text: loadingText});
       _timePeriodChart.showLoading(null, {text: loadingText});
       for(var i=0;i<_wordcloudCharts.length;i++){
@@ -669,8 +669,8 @@ $(document).ready(function(){
   function processData(dataSource, app){
     console.log(dataSource);
 
-    if(dataSource['status']){
-      var status = dataSource['status'];
+    if(dataSource["status"]){
+      var status = dataSource["status"];
       showMessage(status);
       return;
     }
@@ -684,18 +684,18 @@ $(document).ready(function(){
       var trip = trips[expeditionId];
 
       // trip info
-      var capacity = trip['capacity'];
-      var licensePlate = trip['licensePlate'];
-      var route = trip['route'];
-      var stopTime = trip['stopTime'];
-      var stopTimePeriod = trip['stopTimePeriod'];
-      var dayType = trip['dayType'];
-      //var distOnPath = trip['distOnPath'];
+      var capacity = trip["capacity"];
+      var licensePlate = trip["licensePlate"];
+      var route = trip["route"];
+      var stopTime = trip["stopTime"];
+      var stopTimePeriod = trip["stopTimePeriod"];
+      var dayType = trip["dayType"];
+      //var distOnPath = trip["distOnPath"];
 
-      var loadProfile = trip['loadProfile'];
-      var expandedGetIn = trip['expandedGetIn'];
-      var expandedLanding = trip['expandedLanding'];
-      //var saturationRate = trip['loadProfile']/capacity*100;
+      var loadProfile = trip["loadProfile"];
+      var expandedGetIn = trip["expandedGetIn"];
+      var expandedLanding = trip["expandedLanding"];
+      //var saturationRate = trip["loadProfile"]/capacity*100;
 
       trip = new Trip(expeditionId, route, licensePlate, capacity, stopTime,
                       stopTimePeriod, dayType, loadProfile, expandedGetIn, expandedLanding);
@@ -703,7 +703,7 @@ $(document).ready(function(){
     }
 
     dataManager.stopInfo(stopInfo);
-    var xAxisData = dataManager.getAttrGroup('route').map(function(el){ return el.name;});
+    var xAxisData = dataManager.getAttrGroup("route").map(function(el){ return el.name;});
     dataManager.xAxisData(xAxisData);
     app.dataManager(dataManager);
   }
@@ -711,35 +711,44 @@ $(document).ready(function(){
   // load filters
   (function (){
     // set locale
-    moment.locale('es');
-    // set datetimepickers
-    /*
-    $('#dateFromFilter').daterangepicker({
-      singleDatePicker: true,
-      singleClasses: "picker_2",
-      languague: 'es'
-    });
-    $('#dateToFilter').daterangepicker({
-      singleDatePicker: true,
-      singleClasses: "picker_2",
-      languague: 'es'
-    });*/
+    moment.locale("es");
 
-    $('#dayFilter').select2({placeholder: 'Todos'});
-    $('#dayTypeFilter').select2({placeholder: 'Todos'});
-    $('#periodFilter').select2({placeholder: 'Todos'});
-    $('#stopFilter').select2({
-      placeholder: 'Parada'
+    $("#dayFilter").select2();
+    $("#stopFilter").select2({
+        ajax: {
+            delay: 500, // milliseconds
+            url: "/profile/getStopList",
+            dataType: "json",
+            data: function (params) {
+                return {
+                    term: params.term
+                }
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data.items
+                }
+            },
+            cache: true
+        },
+        minimumInputLength: 3,
+        language: {
+          inputTooShort: function () {
+            return "Ingresar 3 o más caracteres";
+          }
+        }
     });
+    $("#dayTypeFilter").select2({placeholder: "Todos"});
+    $("#periodFilter").select2({placeholder: "Todos"});
 
     var app = new ExpeditionApp();
-    $('#btnUpdateChart').click(function(){
-      var day = $('#dayFilter').val();
-      //var from = $('#dateFromFilter').val();
-      //var to = $('#dateToFilter').val();
-      var stopCode = $('#stopFilter').val();
-      var dayType = $('#dayTypeFilter').val();
-      var period = $('#periodFilter').val();
+    $("#btnUpdateChart").click(function(){
+      var day = $("#dayFilter").val();
+      //var from = $("#dateFromFilter").val();
+      //var to = $("#dateToFilter").val();
+      var stopCode = $("#stopFilter").val();
+      var dayType = $("#dayTypeFilter").val();
+      var period = $("#periodFilter").val();
 
       /*
       console.log(from);
@@ -755,20 +764,20 @@ $(document).ready(function(){
         //to: to,
       };
       if (stopCode) {
-        params['stopCode'] = stopCode;
+        params["stopCode"] = stopCode;
       }
       if (dayType) {
-        params['dayType'] = dayType;
+        params["dayType"] = dayType;
       }
       if (period) {
-        params['period'] = period;
+        params["period"] = period;
       }
 
       app.showLoadingAnimationCharts();
       var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
       var previousMessage = $(this).html();
       var button = $(this).append(loadingIcon);
-      $.getJSON('getStopData', params, function(data){
+      $.getJSON("getStopData", params, function(data){
         processData(data, app);
       })
       .always(function(){
