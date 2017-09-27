@@ -347,6 +347,14 @@ $(document).ready(function(){
       this.updateDatatable();
     };
 
+    this.resizeCharts = function() {
+        _barChart.resize();
+        _timePeriodChart.resize();
+        _wordcloudCharts.forEach(function(chart){
+            chart.resize();
+        });
+    };
+
     var _updateTimePeriodChart = function(){
       var stopTime = _dataManager.getAttrGroup("stopTime", function(attrValue){
         return attrValue.substring(11, 13);
@@ -792,5 +800,8 @@ $(document).ready(function(){
         app.hideLoadingAnimationCharts();
       });
     });
-  })()
+    $(window).resize(function() {
+      app.resizeCharts();
+    });
+  })();
 });
