@@ -48,7 +48,11 @@ $(document).ready(function(){
     };
     this.getDataName = function(){
       if(_stopInfo !== null){
-        return "Perfil de carga " + _stopInfo["userStopCode"] + "_" + _stopInfo["authorityStopCode"];
+        var dayType = $("#dayTypeFilter").val();
+        var period = $("#periodFilter").val();
+        dayType = dayType!==null ? "_"+dayType.join("_"):"";
+        period = period!==null ? "_"+period.join("_"):"";
+        return "Perfil de carga " + _stopInfo["userStopCode"] + "_" + _stopInfo["authorityStopCode"] + dayType + period;
       }
       return "";
     };
@@ -266,7 +270,9 @@ $(document).ready(function(){
     var _datatable = $("#expeditionDetail").DataTable({
       lengthMenu: [[10, 25, 50], [10, 25, 50]],
       language: {
-        url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
+        url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
+        decimal: ",",
+        thousands: "."
       },
       columns: [
         {
