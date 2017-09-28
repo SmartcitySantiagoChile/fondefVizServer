@@ -346,6 +346,13 @@ $(document).ready(function() {
             this.updateDatatable();
         };
 
+        this.resizeCharts = function() {
+            _barChart.resize();
+            _timePeriodChart.resize();
+            _wordcloudCharts.forEach(function(chart){
+                chart.resize();
+            });
+        };
         var _updateTimePeriodChart = function () {
             var timeTripInit = _dataManager.getAttrGroup("timeTripInit", function (attrValue) {
                 return attrValue.substring(11, 13);
@@ -892,6 +899,9 @@ $(document).ready(function() {
                 button.html(previousMessage);
                 app.hideLoadingAnimationCharts();
             });
+        });
+        $(window).resize(function() {
+          app.resizeCharts();
         });
     })()
 });

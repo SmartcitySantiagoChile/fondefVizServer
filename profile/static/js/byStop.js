@@ -86,7 +86,7 @@ $(document).ready(function(){
     };
     this.tripsUsed = function(){
       return _tripsUsed;
-    }
+    };
     this.cleanData = function(){
       _trips = [];
       _stopInfo = null;
@@ -347,6 +347,14 @@ $(document).ready(function(){
       this.updateDatatable();
     };
 
+    this.resizeCharts = function() {
+        _barChart.resize();
+        _timePeriodChart.resize();
+        _wordcloudCharts.forEach(function(chart){
+            chart.resize();
+        });
+    };
+
     var _updateTimePeriodChart = function(){
       var stopTime = _dataManager.getAttrGroup("stopTime", function(attrValue){
         return attrValue.substring(11, 13);
@@ -444,7 +452,7 @@ $(document).ready(function(){
 
     var _updateDatatable = function(){
       var dataset = _dataManager.getDatatableData();
-      var rows = dataset["rows"]
+      var rows = dataset["rows"];
 
       _datatable.off("draw");
       _datatable.on("draw", function(oSettings) {
@@ -484,7 +492,7 @@ $(document).ready(function(){
       _dataManager.calculateAverage();
       var yAxisData = _dataManager.yAxisData();
       var xAxisData = _dataManager.xAxisData();
-      console.log(yAxisData);
+
       // get out, get in, load profile, percentage ocupation
       var yAxisDataName = ["Subidas promedio", "Bajadas promedio", "Tasa ocupación promedio a la llegada "];
       var yChartType = ["bar","bar", "bar", "bar", "bar"];
@@ -541,9 +549,17 @@ $(document).ready(function(){
         series.push(serie);
       }
 
+      var title = _dataManager.stopInfo().name;
+      var subtitle = "Código de usuario: " + _dataManager.stopInfo().userStopCode + "  Código de Transantiago: " + _dataManager.stopInfo().authorityStopCode;
       var options = {
+        title: {
+          text: title,
+            subtext: subtitle
+        },
         legend: {
-          data: yAxisDataName
+          data: yAxisDataName,
+          right: 0,
+          top: "45px"
         },
         axisPointer: {
           link: [{xAxisIndex: "all"}],
@@ -553,7 +569,7 @@ $(document).ready(function(){
           show : true,
           itemSize: 20,
           left: "center",
-          bottom: "25px",
+          bottom: "0px",
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
@@ -568,8 +584,8 @@ $(document).ready(function(){
           }
         },
         grid: [
-          {x: "10px", y:"30px", height: "38%", right:"0px", containLabel: true},
-          {x: "30px", y2:"75px", height: "35%", right: "0px", containLabel: true}
+          {x: "10px", y:"70px", height: "30%", right:"0px", containLabel: true},
+          {x: "30px", y2:"75px", height: "33%", right: "0px", containLabel: true}
         ],
         xAxis: [
           {gridIndex: 0, type: "category", data: xAxisData, axisLabel: { show: false}, axisTick: {interval:0}},
@@ -626,7 +642,7 @@ $(document).ready(function(){
               return title + "<br />" + name + ": " + value;
             }
           }
-        },
+        }
       };
 
       _barChart.clear();
@@ -785,5 +801,8 @@ $(document).ready(function(){
         app.hideLoadingAnimationCharts();
       });
     });
-  })()
+    $(window).resize(function() {
+      app.resizeCharts();
+    });
+  })();
 });
