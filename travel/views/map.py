@@ -16,6 +16,7 @@ from .generic import LoadTravelsGeneric, GetDataGeneric
 
 class LoadMapView(LoadTravelsGeneric):
 
+    # zonas 777 para cada sector
     sectors = dict()
     sectors['Lo Barnechea'] = [202, 642]
     sectors['Centro'] = [267, 276, 285, 286]

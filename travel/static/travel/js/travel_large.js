@@ -74,8 +74,7 @@ function processData(response) {
 
 // Update Charts from filters
 function updateServerData() {
-    // TODO: enforce fromDate < toDate.
-
+    
     var fromDate = $('#dateFromFilter').val();
     var toDate = $('#dateToFilter').val();
     var dayTypes = $('#dayTypeFilter').val();

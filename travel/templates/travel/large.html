@@ -34,7 +34,7 @@
         {% include "./titlebar.html" with titlename="Viajes por Etapas" %}
         {% include "./filters.html" %}
 
-        <div class="row">
+        <div class="row cols-same-height">
 
             {# Selection Bar #}
             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -43,19 +43,12 @@
                         <h2><i class="fa fa-tasks"></i> ¿Qué desea visualizar?
                             <small></small>
                         </h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                        </ul>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <div class="col-md-12 col-sm-12 col-xs-12 form-group">
-                            <p>Nota: Todos los conteos de viajes NO consideran factor de expansión.</p>
-                        </div>
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
                             <label>Cantidad de Etapas:</label>
-                            <p class="text-warning">*Esto actualizará automáticamente los datos.</p>
+                            <p class="text-warning">*Esto aplicará los filtros seleccionados.</p>
                         </div>
                         <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
                             <div class="netapas_checkbox_div">
@@ -96,7 +89,7 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2><i class="fa fa-map-o"></i> <span id="mapTitle">Mapa</span>
-                            <small><strong id="visualization_type_doc_count">0</strong> viajes encontrados</small>
+                            <span id="visualization_doc_count">0</span> <span id="visualization_doc_count_txt">datos</span>
                         </h2>
                         <div class="clearfix"></div>
                     </div> 
@@ -130,7 +123,6 @@
     <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
 
     <script>
-        // localinfo.timeperiod JSON serialized data.
         var _allDaytypes = JSON.parse("{{ daytypes|escapejs }}");
         var _allPeriods = {{ timeperiods|safe }};
         var _allHalfhours = {{ halfhours|safe }};

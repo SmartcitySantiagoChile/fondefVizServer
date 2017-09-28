@@ -16,18 +16,14 @@ function updateGraphTitle(options) {
 }
 
 function updateGraphDocCount(options) {
-    var graph_type_doc_count = document.getElementById("visualization_type_doc_count");
+    var doc_count = document.getElementById("visualization_doc_count");
+    var doc_count_txt = document.getElementById("visualization_doc_count_txt");
+    var total = 0;
     if (options.curr_visualization_type !== null && ws_data !== null && ws_data.data !== null) {
-        var data = getDataByVisualizationType(ws_data.data, options);
-        if (data !== null) {
-            var len = data.buckets.length;
-            var total = Math.round(data.buckets[len-1].total.value);
-            // graph_type_doc_count.innerHTML = ws_data.data.hits.total;
-            graph_type_doc_count.innerHTML = total;
-            return;
-        }
+        total = ws_data.data.hits.total;
     }
-    graph_type_doc_count.innerHTML = 0;
+    doc_count.innerHTML = total;
+    doc_count_txt.innerHTML = total == 1 ? "dato" : "datos";
 }
 
 function setupGraph(options) {
@@ -60,7 +56,7 @@ function updateGraph(options) {
         grid: {
             left: '100px',
             right: '80px',
-            bottom: '80px'
+            bottom: '120px'
         },
         legend: {
             data: [serie_bin_name, serie_cum_name]
@@ -131,9 +127,10 @@ function updateGraph(options) {
         }],
         toolbox: {
             show: true,
+            showTitle: true,
             itemSize: 20,
             left: 'center',
-            bottom: '0px',
+            bottom: '20px',
             feature : {
                 mark : {
                     show: false
@@ -198,9 +195,4 @@ function updateGraph(options) {
     ws_data.graph.setOption(graph_options, {
         notMerge: true
     });
-
-    // keep graph inside view
-    window.onresize = function() {
-        ws_data.graph.resize();
-    };
 }

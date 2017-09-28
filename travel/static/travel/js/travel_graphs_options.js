@@ -2,7 +2,7 @@
 
 var options = {};
 options.use_visualization_types = true;
-options.default_visualization_type = 'tviaje'; // TODO: AL PARECER NO FUNCIONA BIEN ESTO!
+options.default_visualization_type = 'tviaje';
 options.curr_visualization_type = null;
 
 // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5

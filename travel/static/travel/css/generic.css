@@ -1,17 +1,60 @@
 .select2-container .select2-choice:not(.select2-default) {
-    background-image: none !important;
-    background-color: #D9FFC7;
+  background-image: none !important;
+  background-color: #D9FFC7;
 }
 
-.cols-same-height {
-  display: flex;
+.row.cols-same-height {
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
+}
+
+.row.cols-same-height > [class*='col-'] {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+/* force same height for panels */
+.row.cols-same-height .x_panel {
+  height: 100%;
 }
 
 .cols-same-height-align-vertical {
-  display: flex;
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   align-items: center;
+}
+
+#visualization_doc_count {
+  font-weight: 700;
+  font-size: 65%;
+  color: #777;
+  margin-left: 15px;
+}
+
+#visualization_doc_count_txt {
+  font-weight: normal;
+  font-size: 65%;
+  color: #777;
+}
+
+/* avoid overflow */
+.x_title h2 {
+  width: 80%;
 }

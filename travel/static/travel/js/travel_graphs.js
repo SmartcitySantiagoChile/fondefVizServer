@@ -98,7 +98,6 @@ function getGraphData(options) {
     return result;
 }
 
-
 function updateIndicators(data) {
     // data
     var viajes = data.aggregations.viajes.value;
@@ -125,6 +124,17 @@ function updateIndicators(data) {
     $("#indicator-dist-ruta-max").text(dist_ruta_max.toFixed(1) + " km");
 }
 
+function updateIndicatorsSize() {  
+    var stats = $('.indicator-stat');
+    if ( $(window).width() > 1700 ) {  
+        stats.removeClass("col-lg-6");
+        stats.addClass("col-lg-3");
+    } else {
+        stats.removeClass("col-lg-3");
+        stats.addClass("col-lg-6");
+    }
+}  
+
 function processData(response) {
     ws_data.data = response.histogram;
     ws_data.indicators = response.indicators;
@@ -136,7 +146,6 @@ function processData(response) {
 
 // Update Charts from filters
 function updateServerData() {
-    // TODO: enforce fromDate < toDate.
 
     var fromDate = $('#dateFromFilter').val();
     var toDate = $('#dateToFilter').val();
@@ -184,6 +193,7 @@ $(document).ready(function () {
     setupDateForm(options);
     setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options);
     setupVisualizationForm(options);
+    updateIndicatorsSize();
 
     // graphs
     console.log("> Building Graph ... ")
@@ -195,4 +205,12 @@ $(document).ready(function () {
 
     // buttons
     $('#btnUpdateChart').click(updateServerData);
+
+    // fix indicators size
+    // keep graph inside view
+    window.onresize = function() {
+        ws_data.graph.resize();
+        updateIndicatorsSize();
+    };
+
 });

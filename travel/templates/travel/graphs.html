@@ -46,9 +46,9 @@
 
                     <div class="x_content">
 
-                        <div class="row tile_count cols-same-height-align-vertical indicadores-section">
+                        <div class="row tile_count indicadores-section">
 
-                            <div class="col-md-4 col-sm-12 col-xs-12 tile_stats_count text-center">
+                            <div id="indicator-first-count" class="col-md-4 col-sm-12 col-xs-12 tile_stats_count text-center">
                                 <span class="count_top">
                                     <i class="fa fa-bus"></i> Cantidad de Viajes
                                 </span>
@@ -64,25 +64,25 @@
                                 <div class="col-xs-0 tile_stats_count"></div>
 
                                 {# obs: bootstrap 3 does not support col-xl-* classes, but bootstrap 4 does. #}
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
                                     <span class="count_top"><i class="fa fa-clock-o"></i> Tiempo de Viaje</span>
                                     <div class="count" id="indicator-tviaje-avg">- min</div>
                                     <span class="count_bottom">Mayor tiempo de viaje <i class="red" id="indicator-tviaje-max">- min</i></span>
                                 </div>
 
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
                                     <span class="count_top"><i class="fa fa-list-ol"></i> Cantidad de Etapas</span>
                                     <div class="count" id="indicator-netapas-avg">- etapas</div>
                                     <span class="count_bottom">Mayor cantidad de etapas <i class="red" id="indicator-netapas-max">-</i></span>
                                 </div>
 
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
                                     <span class="count_top"><i class="fa fa-road"></i> Distancia Euclideana</span>
                                     <div class="count" id="indicator-dist-eucl-avg">- km</div>
                                     <span class="count_bottom">Mayor distancia <i class="red" id="indicator-dist-eucl-max">- km</i></span>
                                 </div>
 
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+                                <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
                                     <span class="count_top"><i class="fa fa-road"></i> Distancia en Ruta</span>
                                     <div class="count" id="indicator-dist-ruta-avg">- km</div>
                                     <span class="count_bottom">Mayor distancia <i class="red" id="indicator-dist-ruta-max">- km</i></span>
@@ -96,24 +96,15 @@
             </div>
         </div>
 
-        <div class="row">
-            
-            {# Selection Bar #}
+        <div class="row cols-same-height">
+
             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
                         <h2><i class="fa fa-tasks"></i> ¿Qué desea visualizar?</h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                        </ul>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <div class="col-md-12 col-sm-12 col-xs-12 form-group">
-                            <p>Nota: Todos los conteos de viajes consideran factor de expansión.</p>
-                        </div>
-                        
                         <div class="col-md-12 col-sm-12 col-xs-12 form-group">
                             <label class="control-label" for="vizSelector">Variable a mostrar:</label>
                             <select class="form-control" id='vizSelector' style="width: 100%">
@@ -123,18 +114,16 @@
                 </div>
             </div>
 
-
-            {# Graphs #}
             <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
                         <h2><i class="fa fa-bar-chart-o"></i> <span id="graphTitle">Histograma</span>
-                            <small><strong id="visualization_type_doc_count">0</strong> viajes encontrados</small>
+                            <span id="visualization_doc_count">0</span> <span id="visualization_doc_count_txt">datos</span>
                         </h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content" style="height:500px">
-                        <div id="graphChart" style="height:400px;"></div>
+                        <div id="graphChart" style="height:450px;"></div>
                     </div>
                 </div>
             </div>

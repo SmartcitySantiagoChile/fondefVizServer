@@ -3,8 +3,8 @@
 var options = {};
 options.use_visualization_types = false;
 options.use_map_sectors = false;
-options.default_visualization_type = 'tviaje'; // TODO: AL PARECER NO FUNCIONA BIEN ESTO!
-options.default_sector = 'Centro'; // QUIZAS ESTO TAMPOCO FUNCIONA BIEN
+options.default_visualization_type = 'tviaje';
+options.default_sector = 'Centro';
 options.curr_sector = null;
 options.curr_visualization_type = 'count';
 
@@ -57,5 +57,6 @@ options.visualization_mappings = {
 options.map_default_lat_lon = L.latLng(-33.459229, -70.645348);
 options.map_min_zoom = 8;
 options.map_default_zoom = 11;
+options.map_feature_zoom = 13;
 options.map_max_zoom = 15;
 options.map_access_token = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";

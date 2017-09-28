@@ -38,7 +38,7 @@ function styleZoneWithColor(feature, color) {
 function styleSectorZone(feature) {
     return {
         fillColor: "green",
-        weight: 3, // TODO: draw this on a top layer.. which can be deactivated on hover.. avoid dissapearing margins
+        weight: 3,
         opacity: 1,
         color: 'green',
         dashArray: '0',
@@ -128,7 +128,6 @@ function setupMapInfoBar(options) {
 
             var zone = getDataZoneById(ws_data.data, props.id, options);
             if (zone != null) {
-                // console.log(zone)
                 this._div.innerHTML += 
                     '<br/> - # Datos: ' + zone.doc_count +
                     '<br/> - # Etapas: ' + zone.n_etapas.value.toFixed(2) +
@@ -156,7 +155,6 @@ function setupMapLegend(options) {
     ws_data.map_legend = L.control({position: 'bottomright'});
 
     ws_data.map_legend.onAdd = function (map) {
-
         var div = L.DomUtil.create('div', 'info legend');
         div.id = "map_legend";
         return div;
@@ -175,10 +173,11 @@ function setupMapLegend(options) {
         for (var i = 0; i < grades.length; i++) {
             div.innerHTML +=
                 '<i style="background:' + getZoneColor(grades[i] + 1, options) + '"></i> ' +
-                grades_str[i] + (grades_str[i + 1] ? '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str + '<br>' : '+ ' + grades_post_str);
+                grades_str[i] + (grades_str[i + 1] ? '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str : '+ ' + grades_post_str);
+            div.innerHTML += '<br>';
         }
         div.innerHTML +=
-            '<br> <i style="background:' + getZoneColor(null, options) + '"></i>Sin Datos<br>';
+            '<i style="background:' + "#cccccc" + '"></i>Sin Datos<br>';
     }  
 }
 
@@ -188,7 +187,7 @@ function setupMapLegend(options) {
 // ============================================================================
 
 function zoomToZoneEvent(e) {
-    ws_data.map.fitBounds(e.target.getBounds());
+    ws_data.map.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
 }
 
 // sets feature highlight style and updates info window
@@ -219,7 +218,6 @@ function onEachSubwayFeature(feature, layer) {
 }
 
 function onSectorMouseOver(e) {
-    // console.log(e.target.feature.properties);
     ws_data.sector_layer.eachLayer(function (layer) {
         layer.setStyle({
             fillOpacity: 0.0
@@ -230,7 +228,6 @@ function onSectorMouseOver(e) {
 }
 
 function onSectorMouseOut(e) {
-    // console.log(e.target.feature.properties);
     ws_data.sector_layer.eachLayer(function (layer) {
         layer.setStyle({
             fillOpacity: 0.5
@@ -244,7 +241,6 @@ function zoomToSectorEvent(e) {
 }
 
 function onEachSectorFeature(layer) {
-    // console.log(layer.feature.properties);
     layer.on({
         mouseover: onSectorMouseOver,
         mouseout: onSectorMouseOut,
@@ -271,14 +267,14 @@ function setupMap(options) {
     ws_data.map.setMaxBounds(ws_data.map.getBounds());
     ws_data.map.setView(options.map_default_lat_lon, options.map_default_zoom);
     
-    // load zonas
+    // load zonas layer
     function loadZonesGeoJSON() {
         return $.ajax({
             'global': false,
             'url': '/static/js/data/zones777.geojson',
             'dataType': "json",
             'success': function (data) {
-                ws_data.zones_geojson = data; // keep a copy of this!
+                ws_data.zones_geojson = data;
                 ws_data.zones_layer = L.geoJson(data, {
                     style: styleZone,
                     onEachFeature: onEachZoneFeature
@@ -330,12 +326,25 @@ function setupMap(options) {
                     position: 'topleft'
                 }).addTo(ws_data.map);
 
-            // ws_data.map.on("overlayremove", function (event) {});
-            ws_data.map.on("overlayadd", function (event) {
-                ws_data.zones_layer.bringToFront();
-                ws_data.sector_layer.bringToFront();
-                ws_data.subway_layer.bringToFront();
+            // Make sure we keep the layers in order
+            ws_data.zones_layer.is_active = true;
+            ws_data.sector_layer.is_active = true;
+            ws_data.subway_layer.is_active = true;
+            ws_data.map.on("overlayremove", function (event) {
+                event.layer.is_active = false;
             });
+
+            function rearrange_layers() {
+                if (ws_data.zones_layer.is_active) ws_data.zones_layer.bringToFront();
+                if (options.use_map_sectors && ws_data.sector_layer.is_active) ws_data.sector_layer.bringToFront();
+                if (ws_data.subway_layer.is_active) ws_data.subway_layer.bringToFront();
+            }
+
+            ws_data.map.on("overlayadd", function (event) {
+                event.layer.is_active = true;
+                rearrange_layers();
+            });
+            rearrange_layers();
             ws_data.ready = true; 
         }
     );
@@ -360,15 +369,16 @@ function updateMapTitle(options) {
 }
 
 function updateMapDocCount(options) {
-    var map_type_doc_count = document.getElementById("visualization_type_doc_count");
+    var doc_count = document.getElementById("visualization_doc_count");
+    var doc_count_txt = document.getElementById("visualization_doc_count_txt");
+    var total = 0;
     if (options.use_map_sectors && options.curr_sector !== null && options.curr_sector in ws_data.data.aggregations) {
-        map_type_doc_count.innerHTML = ws_data.data.aggregations[options.curr_sector].doc_count;
+        total = ws_data.data.aggregations[options.curr_sector].doc_count;
     } else if (!options.use_map_sectors) {
-        map_type_doc_count.innerHTML = ws_data.data.hits.total;
-
-    } else {
-        map_type_doc_count.innerHTML = 0;
+        total = ws_data.data.hits.total;
     }
+    doc_count.innerHTML = total;
+    doc_count_txt.innerHTML = total == 1 ? "dato" : "datos";
 }
 
 function updateSectorLayer(options) {
@@ -396,7 +406,7 @@ function updateSectorLayer(options) {
 
 function zoomToCurrentSector() {
     var bounds = ws_data.sector_layer.getBounds(); 
-    ws_data.map.fitBounds(bounds);
+    ws_data.map.fitBounds(bounds, {maxZoom: options.map_sector_zoom});
 }
 
 function updateSelectedSector(selected, options) {
