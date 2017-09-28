@@ -143,6 +143,29 @@ function updateSelectedVisualization(visualization_type, options) {
 
 
 // ============================================================================
+// Coloring Checkboxes
+// ============================================================================
+
+function setupColoringSelector(options) {
+    var checkbox = document.querySelector('#colorscale_checkbox');
+    var switchery = new Switchery(checkbox, {
+            size: 'small',
+            color: '#777',
+            jackColor         : '#fff',
+            secondaryColor    : '#777',
+            jackSecondaryColor: '#fff'
+    });
+    checkbox.onchange = function() {
+        if (checkbox.checked) {
+            options.curr_map_color_scale = options.map_color_scale_secuential;
+        } else {
+            options.curr_map_color_scale = options.map_color_scale_diverging;
+        }
+        redraw(options);
+    };
+}
+
+// ============================================================================
 // SERVER DATA
 // ============================================================================
 
@@ -220,6 +243,7 @@ $(document).ready(function () {
     setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options);
     setupSectorForm(options);
     setupVisualizationForm(options);
+    setupColoringSelector(options);
 
     // map
     console.log("> Building Map ... ")

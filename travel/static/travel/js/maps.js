@@ -88,7 +88,7 @@ function getZoneColor(value, options) {
 
     // use mapping
     var grades = options.visualization_mappings[options.curr_visualization_type].grades;
-    var colors = options.map_colors;
+    var colors = options.curr_map_color_scale;
     if (value < grades[0]) return null;
     for (var i=1; i<grades.length; i++) {
         if (value <= grades[i]) return colors[i-1];

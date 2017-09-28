@@ -3,18 +3,19 @@
 var options = {};
 options.use_visualization_types = true;
 options.use_map_sectors = true;
-options.default_visualization_type = 'tviaje';
-options.default_sector = 'Centro';
+options.default_visualization_type = 'tviaje'; // OJO!! CAMBIAR ESTO NO FUNCIONA.. PUEDE ROMPER VISUALIZACION
+options.default_sector = 'Centro';             // OJO!! CAMBIAR ESTO NO FUNCIONA.. PUEDE ROMPER VISUALIZACION
 options.curr_sector = null;
 options.curr_visualization_type = null;
 
 // Orange Scale
 // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
-// options.map_colors = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
+options.map_color_scale_secuential = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
 
 // Diverging Version
 // http://colorbrewer2.org/#type=diverging&scheme=Spectral&n=5
-options.map_colors = ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"];
+options.map_color_scale_diverging = ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"];
+options.curr_map_color_scale = options.map_color_scale_diverging;
 
 options.visualization_mappings = {
     tviaje: {

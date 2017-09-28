@@ -2,10 +2,9 @@
 
 var options = {};
 options.use_visualization_types = true;
-options.default_visualization_type = 'tviaje';
+options.default_visualization_type = 'tviaje'; // OJO!! CAMBIAR ESTO NO FUNCIONA.. PUEDE ROMPER VISUALIZACION
 options.curr_visualization_type = null;
 
-// http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
 options.visualization_mappings = {
     tviaje: {
         name: 'Tiempo de viaje',

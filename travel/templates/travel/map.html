@@ -12,6 +12,10 @@
         <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
         <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
         <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+
+        {# switchery: pretty checkboxes #}
+        <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
+
         <!-- iCheck -->
         <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
     {% endwith %}
@@ -43,17 +47,35 @@
                     </div>
                     <div class="x_content">
 
-                        <div class="col-md-12 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="sectorSelector">Sector de Destino:</label>
-                            <select class="form-control" id='sectorSelector' style="width: 100%">
-                            </select>
+                        <div class="row viz-option-row">
+                            <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+                                <label class="control-label" for="sectorSelector">Sector de Destino:</label>
+                                <select class="form-control" id='sectorSelector' style="width: 100%">
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="col-md-12 col-sm-12 col-xs-12 form-group">
-                            <label class="control-label" for="vizSelector">Variable a mostrar:</label>
-                            <select class="form-control" id='vizSelector' style="width: 100%">
-                            </select>
+                        <div class="row viz-option-row">
+                            <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+                                <label class="control-label" for="vizSelector">Variable a mostrar:</label>
+                                <select class="form-control" id='vizSelector' style="width: 100%">
+                                </select>
+                            </div>
                         </div>
+
+                        <div class="row viz-option-row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                                <label>Escala de colores:</label>
+                            </div>
+                            <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+                                <div class="colorscale_checkbox_div">
+                                    <span class="control-label">Divergente</span>
+                                    <input id="colorscale_checkbox" type="checkbox" />
+                                    <span class="control-label">Secuencial</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -88,6 +110,10 @@
         <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+
+        {# switchery: pretty checkboxes #}
+        <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
+        
     {% endwith %}
 
     <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
