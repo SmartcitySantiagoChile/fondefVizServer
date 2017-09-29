@@ -257,7 +257,9 @@ $(document).ready(function() {
         var _datatable = $("#expeditionDetail").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             language: {
-                url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
+                url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
+                decimal: ",",
+                thousands: "."
             },
             columns: [
                 {
