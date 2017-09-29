@@ -1,6 +1,5 @@
 "use strict";
 
-var ws_data = {};
 ws_data.ready = false;
 ws_data.data = null;
 
@@ -34,7 +33,8 @@ function setupSectorForm(options) {
         })
         .on("select2:unselect", function(e) {
             updateSelectedSector(null, options);  
-        });
+        })
+        .val(options.default_sector).trigger("change"); // force default;
 }
 
 // updates the sector list with options from the server data
@@ -49,7 +49,7 @@ function updateAvailableSectors(options) {
     }
     
     // update
-    for (var sector_name in _allSectors) {
+    for (var sector_name in ws_data._map_sectors) {
         var option = document.createElement("option");
         var sector_text = toTitleCase(sector_name);
 
@@ -87,14 +87,14 @@ function updateAvailableSectors(options) {
 function isSectorSelected(options) {
     return (
         options.curr_sector !== null 
-        && options.curr_sector in _allSectors 
+        && options.curr_sector in ws_data._map_sectors 
     ); 
 }
 
 function isZoneIdInCurrentSector(zone_id, options) {
     return (
         isSectorSelected(options)
-        && $.inArray(zone_id, _allSectors[options.curr_sector]) > -1
+        && $.inArray(zone_id, ws_data._map_sectors[options.curr_sector]) > -1
     );
 }
 
@@ -107,13 +107,11 @@ function isZoneIdInCurrentSector(zone_id, options) {
 // --------------------------------------------------------------
 function setupVisualizationForm(options) {
 
-    var data = [
-        { id: 'tviaje', text: 'Tiempo de viaje' },
-        { id: 'distancia_ruta', text: 'Distancia en ruta' },
-        { id: 'distancia_eucl', text: 'Distancia euclideana' },
-        { id: 'n_etapas', text: 'Número de Etapas' },
-        { id: 'count', text: 'Cantidad de datos' }
-    ];    
+    // get options from the visualization mappings
+    var data = [];
+    Object.keys(options.visualization_mappings).forEach(function (key) {
+        data.push({ id: key, text: options.visualization_mappings[key].name });
+    });
 
     $('#vizSelector')
         .select2({
@@ -128,7 +126,8 @@ function setupVisualizationForm(options) {
         })
         .on("select2:unselect", function(e) {
             updateSelectedVisualization(null, options);
-        });
+        })
+        .val(options.default_visualization_type).trigger("change"); // force default
 
     updateSelectedVisualization(options.default_visualization_type, options);
     updateMapTitle(options);
@@ -240,7 +239,7 @@ $(document).ready(function () {
     // Forms
     console.log("> Building forms.")
     setupDateForm(options);
-    setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options);
+    setupDayTypeAndTSPeriodForm(options);
     setupSectorForm(options);
     setupVisualizationForm(options);
     setupColoringSelector(options);

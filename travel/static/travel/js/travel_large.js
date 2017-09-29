@@ -1,6 +1,5 @@
 "use strict";
 
-var ws_data = {};
 ws_data.ready = false;
 ws_data.data = null;
 
@@ -139,7 +138,7 @@ $(document).ready(function () {
     // Forms
     console.log("> Building forms.")
     setupDateForm(options);
-    setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options);
+    setupDayTypeAndTSPeriodForm(options);
     setupEtapasSelectors(options);
     setupColoringSelector(options);
 

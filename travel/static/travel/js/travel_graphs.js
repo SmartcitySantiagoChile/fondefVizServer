@@ -1,6 +1,5 @@
 "use strict";
 
-var ws_data = {};
 ws_data.data = null;
 
 // ============================================================================
@@ -11,12 +10,11 @@ ws_data.data = null;
 // --------------------------------------------------------------
 function setupVisualizationForm(options) {
 
-    var data = [
-        { id: 'tviaje', text: 'Tiempo de viaje' },
-        { id: 'distancia_ruta', text: 'Distancia en ruta' },
-        { id: 'distancia_eucl', text: 'Distancia euclideana' },
-        { id: 'n_etapas', text: 'Número de Etapas' }
-    ];    
+    // get options from the visualization mappings
+    var data = [];
+    Object.keys(options.visualization_mappings).forEach(function (key) {
+        data.push({ id: key, text: options.visualization_mappings[key].name });
+    });
 
     $('#vizSelector')
         .select2({
@@ -31,7 +29,8 @@ function setupVisualizationForm(options) {
         })
         .on("select2:unselect", function(e) {
             updateSelectedVisualization(null, options);
-        });
+        })
+        .val(options.default_visualization_type).trigger("change"); // force default
 
     updateSelectedVisualization(options.default_visualization_type, options);
     updateGraphTitle(options);
@@ -191,7 +190,7 @@ $(document).ready(function () {
     // Forms
     console.log("> Building forms.")
     setupDateForm(options);
-    setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options);
+    setupDayTypeAndTSPeriodForm(options);
     setupVisualizationForm(options);
     updateIndicatorsSize();
 

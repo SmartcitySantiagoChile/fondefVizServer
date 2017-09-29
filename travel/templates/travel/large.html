@@ -137,28 +137,15 @@
     <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
 
     <script>
-        var _allDaytypes = JSON.parse("{{ daytypes|escapejs }}");
-        var _allPeriods = {{ timeperiods|safe }};
-        var _allHalfhours = {{ halfhours|safe }};
-        var _allCommunes = {{ communes|safe }};
-        var _allTimeperiods = {{ timeperiods|safe }};
-        // console.log(_allDaytypes);
-        // console.log(_allCommunes);
-        // console.log(_allHalfhours);
-        // console.log(_allTimeperiods);
-        // console.log(_allSectors);
-
-        var _dayTypes = {
-            0: "Laboral",
-            1: "Sábado",
-            2: "Domingo"
-        };
-
-        var _dayTypes_reversed = {
-            "Laboral": 0,
-            "Sábado": 1,
-            "Domingo": 2
-        };
+        var ws_data = {};
+        ws_data._day_types = JSON.parse("{{ daytypes|escapejs }}");
+        ws_data._TS_periods = {{ timeperiods|safe }};
+        ws_data._half_hours = {{ halfhours|safe }};
+        ws_data._communes = {{ communes|safe }};
+        // console.log(ws_data._day_types);
+        // console.log(ws_data._TS_periods);
+        // console.log(ws_data._half_hours);
+        // console.log(ws_data._communes);
     </script>
 
     <script src="{% static "travel/js/util.js" %}"></script>

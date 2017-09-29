@@ -2,7 +2,7 @@
 
 var options = {};
 options.use_visualization_types = true;
-options.default_visualization_type = 'tviaje'; // OJO!! CAMBIAR ESTO NO FUNCIONA.. PUEDE ROMPER VISUALIZACION
+options.default_visualization_type = 'tviaje';
 options.curr_visualization_type = null;
 
 options.visualization_mappings = {

@@ -3,8 +3,8 @@
 var options = {};
 options.use_visualization_types = false;
 options.use_map_sectors = false;
-options.default_visualization_type = 'tviaje'; // OJO!! CAMBIAR ESTO NO FUNCIONA.. PUEDE ROMPER VISUALIZACION
-options.default_sector = 'Centro';             // OJO!! CAMBIAR ESTO NO FUNCIONA.. PUEDE ROMPER VISUALIZACION
+options.default_visualization_type = 'tviaje';
+options.default_sector = 'Centro';
 options.curr_sector = null;
 options.curr_visualization_type = 'count';
 

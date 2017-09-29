@@ -42,75 +42,79 @@ function setupDateForm(options) {
 // DAY TYPES AND TS PERIODS
 // ============================================================================
 
-function setupDayTypeAndTSPeriodForm(_allDaytypes, _dayTypes, _dayTypes_reversed, options) {
+function setupDayTypeAndTSPeriodForm(options) {
 
-    var dayTypeSelect = document.getElementById('dayTypeFilter');
+    // get options from the server data
+    var day_types_data = [];
+    ws_data._day_types.map(function (item) {
+        day_types_data.push({ id: item.pk, text: item.name });
+    });
+    ws_data.all_day_types_data = day_types_data;
 
-    // fill daytypes
-    for (var i=0, l=_allDaytypes.length; i<l; i++)
-    {
-        var daytype = _allDaytypes[i];
-        var option = document.createElement("option");
-        option.setAttribute("value", daytype.pk);
-        option.appendChild(document.createTextNode(daytype.name));
-        dayTypeSelect.appendChild(option);
-    }
-
-
-    // set default day as LABORAL
-    for (var i=0, l=dayTypeSelect.options.length, curr; i<l; i++)
-    {
-        curr = dayTypeSelect.options[i];
-        if ( curr.text === "Laboral" ) {
-            curr.selected = true;
-        }
-    }
-    updateTSPeriods([_dayTypes_reversed["Laboral"]], _allDaytypes, _dayTypes, _dayTypes_reversed);
-
-
-    // day type and period filters
+    // setup day type filter
     $('#dayTypeFilter')
-        .select2({placeholder: 'Cualquiera'})
+        .select2({
+            placeholder: 'Cualquiera',
+            allowClear: true,
+            minimumResultsForSearch: Infinity, // hide search box
+            data: day_types_data
+        })
         .on("select2:select select2:unselect", function(e) {
-            var selection_ids = $(this).val();
-            updateTSPeriods(selection_ids, _allDaytypes, _dayTypes, _dayTypes_reversed);
-        });
+            updateTSPeriods();
+        })
+        .val(0).trigger("change"); // force LABORAL day type as default
 
+    // setup period filter
     $('#periodFilter')
-        .select2({placeholder: 'Todos'});
+        .select2({
+            placeholder: 'Todos',
+            allowClear: true,
+            minimumResultsForSearch: Infinity // hide search box
+    });
+
+    // fill initial TS periods
+    ws_data.current_day_types = null;
+    updateTSPeriods();
 }
 
 // Updates the list of options for the TS periods selector.
-// based on the provided dayTypes list. 
-// 
-// returns nothing.
 //
-// TODO: do not delete already selected values!.. PS. keep the list sorted by id.
-// TODO: avoid when dayType list has not changed.
-function updateTSPeriods(dayTypes, _allDaytypes, _dayTypes, _dayTypes_reversed) {
-    if (dayTypes === undefined || dayTypes === null) return;
+// - clears the multiselector
+// - add matching options
+// - mark previously selected options as "selected"
+function updateTSPeriods() {
 
-    var periodSelect = document.getElementById('periodFilter');
+    // current day types
+    var selected_day_types = $('#dayTypeFilter').select2('data');
+    if (selected_day_types.length === 0) selected_day_types = ws_data.all_day_types_data;
 
-    // remove all values
-    while (periodSelect.firstChild) {
-        periodSelect.removeChild(periodSelect.firstChild);
-    }
-    if (dayTypes.length === 0) return;
+    // current TS periods
+    var curr_TS_periods = $('#periodFilter').select2('data');
 
-    // required days as string
-    var dayTypes_str = dayTypes.map(function(item) {
-        return _dayTypes[item];
-    });
+    // clear all
+    $('#periodFilter').empty();
+    $('#periodFilter').val(null).trigger('change');
 
-    // put new ones
-    for (var i=0, l=_allPeriods.length; i<l; i++) {
-        var this_period = _allPeriods[i];
-        if ( dayTypes_str.indexOf( this_period.fields.dayType ) !== -1 ) {
-            var option = document.createElement("option");
-            option.setAttribute("value", this_period.pk);
-            option.appendChild(document.createTextNode(this_period.fields.transantiagoPeriod));
-            periodSelect.appendChild(option);
+    // append new options
+    ws_data._TS_periods.map(function (item) {
+        var period_id = item.pk;
+        var period_day_type = item.fields.dayType;
+        var period_name = item.fields.transantiagoPeriod;
+
+        // require this period day is in the selected day list
+        var day_match = selected_day_types.reduce(function (prev, value) {
+            return prev || (value.text == period_day_type);
+        }, false);
+        // console.log(day_match, period_id, period_day_type, period_name);
+
+        if (day_match) {
+            // select options which were already selected
+            var mark_as_selected = $.grep(curr_TS_periods, function(item) {
+                return item.id == period_id; 
+            }).length == 1;
+
+            var new_period = new Option(period_name, period_id, mark_as_selected, mark_as_selected);
+            $('#periodFilter').append(new_period).trigger('change');
         }
-    }
+    });
 }
