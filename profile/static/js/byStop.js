@@ -616,8 +616,8 @@ $(document).ready(function(){
                   textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;';
                   textarea.readOnly = "true";
 
-                  var dayTypeFilter = $("#dayTypeFilter").val()!==null?$("#dayTypeFilter").val().join("\t"):[];
-                  var periodFilter = $("#periodFilter").val()!==null?$("#periodFilter").val().join("\t"):[];
+                  var dayTypeFilter = $("#dayTypeFilter").val()!==null?$("#dayTypeFilter").val().join("\t"):["Todos"];
+                  var periodFilter = $("#periodFilter").val()!==null?$("#periodFilter").val().join("\t"):["Todos"];
                   var meta = "tipo(s) de día:\t" + dayTypeFilter + "\n";
                   meta += "período(s):\t" + periodFilter + "\n\n";
 
