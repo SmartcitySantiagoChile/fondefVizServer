@@ -3,7 +3,7 @@ from django.shortcuts import render
 from elasticsearch_dsl import Search, A
 from LoadProfileGeneric import LoadProfileGeneric
 
-class TrayectoryView(LoadProfileGeneric):
+class TrajectoryView(LoadProfileGeneric):
     ''' '''
 
     def __init__(self):
@@ -16,10 +16,10 @@ class TrayectoryView(LoadProfileGeneric):
         esQueryDict = {}
         esQueryDict['routes'] = esRouteQuery
         
-        super(TrayectoryView, self).__init__(esQueryDict)
+        super(TrajectoryView, self).__init__(esQueryDict)
 
     def get(self, request):
-        template = "profile/trayectory.html"
+        template = "profile/trajectory.html"
 
         return render(request, template, self.context)
 
