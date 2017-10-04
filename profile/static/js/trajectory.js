@@ -28,10 +28,10 @@ $(document).ready(function(){
    */
   function DataManager(){
     // trips
-    let _trips = [];
+    var _trips = [];
     // trips are visible
-    let _visibleTrips = 0;
-    let _yAxisData = [];
+    var _visibleTrips = 0;
+    var _yAxisData = [];
     this.getDataName = function(){
       const FILE_NAME = 'Trayectorias con perfil de carga ';
       if(_trips.length>0){
@@ -44,7 +44,7 @@ $(document).ready(function(){
         return _trips;
       }
       _visibleTrips=0;
-      for(let i=0;i<tripIdArray.length; i++){
+      for(var i=0;i<tripIdArray.length; i++){
         if(trips[i]['visible']){
           _visibleTrips++;
         }
@@ -73,8 +73,8 @@ $(document).ready(function(){
       _visibleTrips = 0;
     };
     this.setVisibility = function(tripIdArray, value){
-      for(let i=0;i<tripIdArray.length; i++){
-       let tripId = tripIdArray[i];
+      for(var i=0;i<tripIdArray.length; i++){
+       var tripId = tripIdArray[i];
        if(_trips[tripId]['visible'] !== value){
          if(value === false){
            _visibleTrips--;
@@ -86,9 +86,9 @@ $(document).ready(function(){
       }
     };
     this.checkAllAreAggregate = function(tripIdArray){
-      let result = tripIdArray.length;
-      for(let i=0;i<tripIdArray.length; i++){
-       let tripId = tripIdArray[i];
+      var result = tripIdArray.length;
+      for(var i=0;i<tripIdArray.length; i++){
+       var tripId = tripIdArray[i];
        if(!_trips[tripId]['visible']){
          result--;
        }
@@ -96,14 +96,14 @@ $(document).ready(function(){
       return result;
     };
     this.getAttrGroup = function(attrName, formatFunc=undefined){
-      let values = [];
-      let dict = {};
-      for(let i in _trips){
-        let trip = _trips[i];
+      var values = [];
+      var dict = {};
+      for(var i in _trips){
+        var trip = _trips[i];
         if(!trip.visible){
           continue;
         }
-        let attrValue = trip[attrName];
+        var attrValue = trip[attrName];
         attrValue = (formatFunc===undefined?attrValue:formatFunc(attrValue));
         if(dict[attrValue]){
           dict[attrValue]++;
@@ -111,24 +111,24 @@ $(document).ready(function(){
           dict[attrValue] = 1;
         }
       }
-      for(let name in dict) {
+      for(var name in dict) {
         values.push({'name':name, 'value': dict[name]});
       }
       return values;
     };
     this.getDatatableData = function(){
-      let values = [];
-      let max = 0;
-      for(let i in _trips){
-        let trip = $.extend({}, _trips[i]);
+      var values = [];
+      var max = 0;
+      for(var i in _trips){
+        var trip = $.extend({}, _trips[i]);
         /*if(!trip.visible){
           continue;
         }*/
         trip['busDetail'] = trip['licensePlate'] + ' (' + trip['busCapacity'] + ')';
-        let loadProfile = [];
-        let hasNegativeValue = false;
-        for(let i=0;i<trip.data.length;i++){
-          let value = trip.data[i][2];
+        var loadProfile = [];
+        var hasNegativeValue = false;
+        for(var i=0;i<trip.data.length;i++){
+          var value = trip.data[i][2];
           if(value !== undefined && value<0){
             hasNegativeValue = true;
           }
@@ -149,10 +149,10 @@ $(document).ready(function(){
   }
 
   function ExpeditionApp(){
-    let _self = this;
-    let _dataManager = new DataManager();
-    let _barChart = echarts.init(document.getElementById('barChart'), theme);
-    let _datatable = $('#expeditionDetail').DataTable({
+    var _self = this;
+    var _dataManager = new DataManager();
+    var _barChart = echarts.init(document.getElementById('barChart'), theme);
+    var _datatable = $('#expeditionDetail').DataTable({
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
       language: {
         url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
@@ -182,7 +182,7 @@ $(document).ready(function(){
       },
       initComplete: function(settings){
         // Handle click on "Select all" control
-        let mainCheckbox = $('#checkbox-select-all');
+        var mainCheckbox = $('#checkbox-select-all');
         mainCheckbox.iCheck({
           labelHover: false,
           cursor: true,
@@ -190,9 +190,9 @@ $(document).ready(function(){
         });
         mainCheckbox.on('ifToggled', function(event){
           // Get all rows with search applied
-          let rows = _datatable.rows({'search':'applied'}).nodes();
-          let addToAggr = false;
-          let inputs = $('input.flat', rows);
+          var rows = _datatable.rows({'search':'applied'}).nodes();
+          var addToAggr = false;
+          var inputs = $('input.flat', rows);
           if(event.target.checked){
             inputs.prop('checked', true);
             $(rows).addClass('success');
@@ -202,7 +202,7 @@ $(document).ready(function(){
             $(rows).removeClass('success');
           }
           $('tbody input.flat').iCheck('update');
-          let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
+          var tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
           _dataManager.setVisibility(tripIds, addToAggr);
           _self.updateCharts();
         });
@@ -210,9 +210,9 @@ $(document).ready(function(){
     });
     _datatable.on('search.dt', function (event) {
 
-      let el = $('#checkbox-select-all');
-      let tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
-      let resultChecked = _dataManager.checkAllAreAggregate(tripIds);
+      var el = $('#checkbox-select-all');
+      var tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
+      var resultChecked = _dataManager.checkAllAreAggregate(tripIds);
 
       if(resultChecked === tripIds.length){
         el.prop('checked', true);
@@ -234,10 +234,10 @@ $(document).ready(function(){
       this.updateDatatable();
     };
 
-    let _updateDatatable = function(){
-      let dataset = _dataManager.getDatatableData();
-      let rows = dataset['rows'];
-      let maxHeight = dataset['maxHeight'];
+    var _updateDatatable = function(){
+      var dataset = _dataManager.getDatatableData();
+      var rows = dataset['rows'];
+      var maxHeight = dataset['maxHeight'];
 
       _datatable.off('draw');
       _datatable.on('draw', function(oSettings) {
@@ -256,12 +256,12 @@ $(document).ready(function(){
         });
 
         // activate iCheck in checkbox
-        let dtRows = _datatable.rows().nodes();
+        var dtRows = _datatable.rows().nodes();
         // attach events check and uncheck
         $('input.flat', dtRows).off('ifToggled');
         $('input.flat', dtRows).on('ifToggled', function(event){
-          let tr = $(this).parent().parent().parent();
-          let addToAggr = false;
+          var tr = $(this).parent().parent().parent();
+          var addToAggr = false;
           if(event.target.checked){
             tr.addClass('success');
             addToAggr = true;
@@ -270,7 +270,7 @@ $(document).ready(function(){
           }
 
           // updateChart
-          let tripId = parseInt($(this).attr('name').replace('trip', ''));
+          var tripId = parseInt($(this).attr('name').replace('trip', ''));
           _dataManager.setVisibility([tripId], addToAggr);
           _self.updateCharts();
         });
@@ -291,27 +291,27 @@ $(document).ready(function(){
       })
     };
 
-    let _updateBarChart = function(){
+    var _updateBarChart = function(){
 
-      let trips = _dataManager.trips();
-      let series = [];
-      let visualMaps = [];
-      let scatterData = [];
-      let seriesIndex = -1;
-      for (let index=0; index<trips.length; index++){
-        let trip = trips[index];
+      var trips = _dataManager.trips();
+      var series = [];
+      var visualMaps = [];
+      var scatterData = [];
+      var seriesIndex = -1;
+      for (var index=0; index<trips.length; index++){
+        var trip = trips[index];
         if(!trip.visible){
           continue;
         }
         seriesIndex++;
 
-        let serie = {
+        var serie = {
           name: trip.licensePlate,
           type: 'line', data: trip.data,
           showSymbol: true, symbol: 'pin', symbolSize: 6,
           lineStyle: { normal: { width: 1}}
         };
-        let visualMap = {
+        var visualMap = {
           show: false,
           type: 'piecewise',
           pieces:[],
@@ -321,14 +321,14 @@ $(document).ready(function(){
             color: 'blue'
           }
         };
-        let colors = ['#0008fc', '#d3d352', '#db9500', '#ff0707'];
-        let previousPiece = null;
-        for (let i=1; i<trip.data.length; i++){
-          let value = trip.data[i][3];
-          let color = value<=25?colors[0]:value<=50?colors[1]:value<=75?colors[2]:value<=100?colors[3]:null;
+        var colors = ['#0008fc', '#d3d352', '#db9500', '#ff0707'];
+        var previousPiece = null;
+        for (var i=1; i<trip.data.length; i++){
+          var value = trip.data[i][3];
+          var color = value<=25?colors[0]:value<=50?colors[1]:value<=75?colors[2]:value<=100?colors[3]:null;
 
           if(trip.data[i-1][0] !== "" && trip.data[i][0] !== ""){
-            let piece = {
+            var piece = {
                 gte: (new Date(trip.data[i-1][0])).getTime(),
                 lte: (new Date(trip.data[i][0])).getTime(),
                 color: color
@@ -353,7 +353,7 @@ $(document).ready(function(){
         scatterData = scatterData.concat(trip.data);
       }
 
-      let scatterSerie = {
+      var scatterSerie = {
         type: 'scatter',
         symbolSize: function(el){
           return el[5]*0.3;
@@ -366,13 +366,13 @@ $(document).ready(function(){
         data: scatterData
       };
       //generates markLine
-      let markLines = [];
-      let yMax = 0;
+      var markLines = [];
+      var yMax = 0;
       _dataManager.yAxisData().forEach(function(item){
         if(item.value > yMax){
           yMax = item.value;
         }
-        let markLine = {
+        var markLine = {
           yAxis: item.value,
           name: item.name
         };
@@ -404,7 +404,7 @@ $(document).ready(function(){
       console.log(series);
       console.log(visualMaps);
 
-      let options = {
+      var options = {
         animation: false,
         series: series,
         visualMap: visualMaps,
@@ -430,21 +430,21 @@ $(document).ready(function(){
           trigger: 'item',
           formatter: function(params){
             console.log(params);
-            let row = [];
+            var row = [];
             if(params.componentType === "series"){
               row.push(params.marker);
               if(params.componentSubType === "line"){
-                let time = params.data[0];
-                let loadProfile = params.data[2];
-                let getOut = params.data[4];
-                let getIn = params.data[5];
+                var time = params.data[0];
+                var loadProfile = params.data[2];
+                var getOut = params.data[4];
+                var getIn = params.data[5];
 
                 row.push('Tiempo: ' + time);
                 row.push('Carga: ' + loadProfile);
                 row.push('Bajadas: ' + getOut);
                 row.push('Subidas: ' + getIn);
               }else if(params.componentSubType === "scatter"){
-                let getIn = params.data[5];
+                var getIn = params.data[5];
                 row.push('Subidas: ' + getIn);
               }
             }
@@ -488,7 +488,7 @@ $(document).ready(function(){
       });
     };
 
-    let _updateGlobalStats = function() {
+    var _updateGlobalStats = function() {
       $('#expeditionNumber').html(_dataManager.tripsUsed());
       $('#expeditionNumber2').html(_dataManager.tripsUsed());
     };
@@ -513,29 +513,29 @@ $(document).ready(function(){
     console.log(dataSource);
 
     if(dataSource['status']){
-      let status = dataSource['status'];
+      var status = dataSource['status'];
       showMessage(status);
       return;
     }
 
-    let trips = dataSource.trips;
-    let dataManager = new DataManager();
-    let globalYAxis = [];
-    let updateGlobalYAxis = false;
+    var trips = dataSource.trips;
+    var dataManager = new DataManager();
+    var globalYAxis = [];
+    var updateGlobalYAxis = false;
 
-    for(let expeditionId in trips){
-      let trip = trips[expeditionId];
+    for(var expeditionId in trips){
+      var trip = trips[expeditionId];
 
       // trip info
-      let capacity = trip['info']['capacity'];
-      let licensePlate = trip['info']['licensePlate'];
-      let route = trip['info']['route'];
-      let timeTripInit = trip['info']['timeTripInit'];
-      let timeTripEnd = trip['info']['timeTripEnd'];
-      let authTimePeriod = trip['info']['authTimePeriod'];
-      let dayType = trip['info']['dayType'];
+      var capacity = trip['info']['capacity'];
+      var licensePlate = trip['info']['licensePlate'];
+      var route = trip['info']['route'];
+      var timeTripInit = trip['info']['timeTripInit'];
+      var timeTripEnd = trip['info']['timeTripEnd'];
+      var authTimePeriod = trip['info']['authTimePeriod'];
+      var dayType = trip['info']['dayType'];
 
-      let stopQuantity = trip['stops'].length;
+      var stopQuantity = trip['stops'].length;
 
       if(stopQuantity > globalYAxis.length){
         globalYAxis = [];
@@ -544,17 +544,17 @@ $(document).ready(function(){
         updateGlobalYAxis = false;
       }
 
-      let data = [];
-      for(let stopIndex=0; stopIndex<stopQuantity; stopIndex++){
-        let stopInfo = trip['stops'][stopIndex];
-        let authStopCode = stopInfo['authStopCode'];
-        let userStopCode = stopInfo['userStopCode'];
-        let order = stopInfo['order'];
-        let name = stopInfo['name'];
-        let distOnPath = stopInfo['distOnPath'];
+      var data = [];
+      for(var stopIndex=0; stopIndex<stopQuantity; stopIndex++){
+        var stopInfo = trip['stops'][stopIndex];
+        var authStopCode = stopInfo['authStopCode'];
+        var userStopCode = stopInfo['userStopCode'];
+        var order = stopInfo['order'];
+        var name = stopInfo['name'];
+        var distOnPath = stopInfo['distOnPath'];
 
         if(updateGlobalYAxis){
-          let yPoint = {
+          var yPoint = {
             'value': distOnPath,
             'name': name,
             'authStopCode': authStopCode,
@@ -562,8 +562,8 @@ $(document).ready(function(){
           };
           globalYAxis.push(yPoint);
         }
-        let row = [];
-        let stopTime = stopInfo['stopTime'];
+        var row = [];
+        var stopTime = stopInfo['stopTime'];
         row.push(stopTime);
         row.push(stopInfo['distOnPath']);
         row.push(stopInfo['loadProfile']);
@@ -585,18 +585,6 @@ $(document).ready(function(){
   (function (){
     // set locale
     moment.locale('es');
-    // set datetimepickers
-    /*
-    $('#dateFromFilter').daterangepicker({
-      singleDatePicker: true,
-      singleClasses: "picker_2",
-      languague: 'es'
-    });
-    $('#dateToFilter').daterangepicker({
-      singleDatePicker: true,
-      singleClasses: "picker_2",
-      languague: 'es'
-    });*/
 
     $('#licensePlateFilter').tagsInput({defaultText: '...', minChars:6});
     $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
@@ -608,31 +596,16 @@ $(document).ready(function(){
     $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
     $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
-    let app = new ExpeditionApp();
+    var app = new ExpeditionApp();
     $('#btnUpdateChart').click(function(){
-      let day = $('#dayFilter').val();
-      //let from = $('#dateFromFilter').val();
-      //let to = $('#dateToFilter').val();
-      let route = $('#routeFilter').val();
-      let dayType = $('#dayTypeFilter').val();
-      let period = $('#periodFilter').val();
-      //let licensePlate = $('#licensePlateFilter').val()!='' ? $('#licensePlateFilter').val().split(','):null;
-      //let expeditionId = $('#expeditionIdFilter').val()!='' ? $('#expeditionIdFilter').val().split(','):null;
+      var day = $('#dayFilter').val();
+      var route = $('#routeFilter').val();
+      var dayType = $('#dayTypeFilter').val();
+      var period = $('#periodFilter').val();
+      var minutes = $("#minutePeriodFilter").val();
 
-      /*
-      console.log(from);
-      console.log(to);
-      console.log(route);
-      console.log(dayType);
-      console.log(period);
-      */
-      //console.log(licensePlate);
-      //console.log(expeditionId);
-
-      let params = {
+      var params = {
         day: day
-        //from: from,
-        //to: to,
       };
       if (route) {
         params['route'] = route;
@@ -643,19 +616,14 @@ $(document).ready(function(){
       if (period) {
         params['period'] = period;
       }
-      /*
-      if (licensePlate) {
-        params['licensePlate'] = licensePlate;
+      if (minutes) {
+          params["halfHour"] = minutes;
       }
-      if (expeditionId) {
-        params['expeditionId'] = expeditionId;
-      }
-      */
 
       app.showLoadingAnimationCharts();
-      let loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-      let previousMessage = $(this).html();
-      let button = $(this).append(loadingIcon);
+      var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+      var previousMessage = $(this).html();
+      var button = $(this).append(loadingIcon);
       $.getJSON('getExpeditionData', params, function(data){
         processData(data, app);
       })
