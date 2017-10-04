@@ -64,6 +64,16 @@
                   <li><a href=" {% url "shape:map" %} "> mapa</a></li>
                 </ul>
               </li>
+              <li>
+                <a><i class="fa fa-line-chart"></i> Indicadores de viaje<span
+                    class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li><a href=" {% url "travel:graphs" %} ">Resumen</a></li>
+                    <li><a href=" {% url "travel:map" %} ">Mapa</a></li>
+                    <li><a href=" {% url "travel:large-travels" %} ">Viajes por Etapas</a></li>
+                    {# <li><a href=" {% url "travel:data" %} ">Datos</a></li> #}
+                </ul>
+              </li>
             </ul>
           </div>
         </div>

@@ -16,12 +16,15 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic.base import RedirectView
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
     url(r'^admin/', include('datamanager.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^profile/', include('profile.urls')),
-    url(r'^speed/', include('velocity.urls')),
     url(r'^shape/', include('shape.urls')),
-]
+    url(r'^speed/', include('velocity.urls')),
+    url(r'^travel/', include('travel.urls'))
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

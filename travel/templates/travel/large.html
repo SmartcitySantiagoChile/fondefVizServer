@@ -1,0 +1,157 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Indicadores: Viajes por Etapas{% endblock %}
+
+{% block css %}
+
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+
+        {# switchery: pretty checkboxes #}
+        <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
+
+        <!-- iCheck -->
+        <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
+    {% endwith %}
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css"/>
+    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "travel/css/large.css" %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="">
+        
+        {% include "./titlebar.html" with titlename="Viajes por Etapas" %}
+        {% include "./filters.html" %}
+
+        <div class="row cols-same-height">
+
+            {# Selection Bar #}
+            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-tasks"></i> ¿Qué desea visualizar?
+                            <small></small>
+                        </h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row viz-option-row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                                <label>Cantidad de Etapas:</label>
+                                <p class="text-warning">*Esto aplicará los filtros seleccionados.</p>
+                            </div>
+                            <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+                                <div class="netapas_checkbox_div">
+                                    <input id="netapas_1" type="checkbox" class="netapas_checkbox" data-ne-str="1" />
+                                    <span class="control-label">1 etapa</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+                                <div class="netapas_checkbox_div">
+                                    <input id="netapas_2" type="checkbox" class="netapas_checkbox" data-ne-str="2" />
+                                    <span class="control-label">2 etapas</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+                                <div class="netapas_checkbox_div">
+                                    <input id="netapas_3" type="checkbox" class="netapas_checkbox" data-ne-str="3" />
+                                    <span class="control-label">3 etapas</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+                                <div class="netapas_checkbox_div">
+                                    <input id="netapas_4" type="checkbox" class="netapas_checkbox" data-ne-str="4" checked />
+                                    <span class="control-label">4 etapas</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+                                <div class="netapas_checkbox_div">
+                                    <input id="netapas_5_or_more" type="checkbox" class="netapas_checkbox" data-ne-str="5+" checked />
+                                    <span class="control-label">5+ etapas</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row viz-option-row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                                <label>Escala de colores:</label>
+                            </div>
+                            <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+                                <div class="colorscale_checkbox_div">
+                                    <span class="control-label">Divergente</span>
+                                    <input id="colorscale_checkbox" type="checkbox" />
+                                    <span class="control-label">Secuencial</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Map #}
+            <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-map-o"></i> <span id="mapTitle">Mapa</span>
+                            <span id="visualization_doc_count">0</span> <span id="visualization_doc_count_txt">datos</span>
+                        </h2>
+                        <div class="clearfix"></div>
+                    </div> 
+                    <div class="x_content" style="height:500px">
+                        <div id="mapChart" style="height:inherit;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+        <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+
+        {# switchery: pretty checkboxes #}
+        <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
+
+    {% endwith %}
+
+    <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+
+    <script>
+        var ws_data = {};
+        ws_data._day_types = JSON.parse("{{ daytypes|escapejs }}");
+        ws_data._TS_periods = {{ timeperiods|safe }};
+        ws_data._half_hours = {{ halfhours|safe }};
+        ws_data._communes = {{ communes|safe }};
+        // console.log(ws_data._day_types);
+        // console.log(ws_data._TS_periods);
+        // console.log(ws_data._half_hours);
+        // console.log(ws_data._communes);
+    </script>
+
+    <script src="{% static "travel/js/util.js" %}"></script>
+    <script src="{% static "travel/js/maps.js" %}"></script>
+    <script src="{% static "travel/js/form.js" %}"></script>
+    <script src="{% static "travel/js/travel_large_options.js" %}"></script>
+    <script src="{% static "travel/js/travel_large.js" %}"></script>
+
+{% endblock %}
