@@ -41,8 +41,8 @@
     {% inline_select "Período:" "periodFilter" periods True as period_select %}
     {% columns 2 2 12 period_select as col4 %}
 
-    {% inline_select "Media hora:" "minutePeriodFilter" minutes True as period_select %}
-    {% columns 2 2 12 period_select as col5 %}
+    {% inline_select "Media hora:" "minutePeriodFilter" minutes True as half_hour_select %}
+    {% columns 2 2 12 half_hour_select as col5 %}
 
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
     {% columns 12 12 12 update_button as col6 %}

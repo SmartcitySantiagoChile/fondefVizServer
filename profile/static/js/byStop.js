@@ -821,6 +821,7 @@ $(document).ready(function(){
     });
     $("#dayTypeFilter").select2({placeholder: "Todos"});
     $("#periodFilter").select2({placeholder: "Todos"});
+    $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
     var app = new ExpeditionApp();
     $("#btnUpdateChart").click(function(){
@@ -830,6 +831,7 @@ $(document).ready(function(){
       var stopCode = $("#stopFilter").val();
       var dayType = $("#dayTypeFilter").val();
       var period = $("#periodFilter").val();
+      var minutes = $("#minutePeriodFilter").val();
 
       /*
       console.log(from);
@@ -852,6 +854,9 @@ $(document).ready(function(){
       }
       if (period) {
         params["period"] = period;
+      }
+      if (minutes) {
+          params["halfHour"] = minutes;
       }
 
       app.showLoadingAnimationCharts();

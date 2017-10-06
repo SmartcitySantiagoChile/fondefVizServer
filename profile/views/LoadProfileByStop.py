@@ -3,38 +3,29 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
 
+from datetime import datetime
+
 from elasticsearch_dsl import Search, Q, A, MultiSearch
 from elasticsearch_dsl.query import Match
 from errors import ESQueryParametersDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
 from LoadProfileGeneric import LoadProfileGeneric
+
+from localinfo.models import HalfHour
 
 
 class LoadProfileByStopView(LoadProfileGeneric):
     """ """
 
     def __init__(self):
-        """ contructor """
-
-        esTSStopQuery = Search()
-        esTSStopQuery = esTSStopQuery[:0]
-        aggs = A('terms', field="authStopCode.keyword", size=15000)
-        esTSStopQuery.aggs.bucket('unique', aggs)
-
-        esUserStopQuery = Search()
-        esUserStopQuery = esUserStopQuery[:0]
-        aggs = A('terms', field="userStopCode.keyword", size=15000)
-        esUserStopQuery.aggs.bucket('unique', aggs)
- 
         esQueryDict = {}
-        esQueryDict['authorityStopCodes'] = esTSStopQuery
-        esQueryDict['userStopCodes'] = esUserStopQuery
- 
         super(LoadProfileByStopView, self).__init__(esQueryDict)
 
     def get(self, request):
         template = "profile/byStop.html"
 
-        self.context['stopCodes'] = [] # self.context['userStopCodes'] + self.context['authorityStopCodes']
+        # add periods of thirty minutes
+        minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
+        self.context['minutes'] = minutes
 
         return render(request, template, self.context)
 
@@ -56,6 +47,7 @@ class GetLoadProfileByStopData(View):
         dayType = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
         stopCode = request.GET.get('stopCode')
+        halfHour = request.GET.getlist('halfHour[]')
 
         # get list of profile*
         client = settings.ES_CLIENT
@@ -72,7 +64,35 @@ class GetLoadProfileByStopData(View):
             esQuery = esQuery.filter('terms', dayType=dayType)
         if period:
             esQuery = esQuery.filter('terms', timePeriodInStopTime=period)
-        
+        if halfHour:
+            # when this field exists
+            #esQuery = esQuery.filter('terms', halfHour=halfHour)
+            halfHourObjs = HalfHour.objects.filter(longName__in=halfHour).order_by("id")
+
+            dateRef = datetime(1970, 1, 1)
+            timeRanges = None
+            for day in [day]:
+                for index, halfHourObj in enumerate(halfHourObjs):
+                    startHour = halfHourObj.longName.split('-')[0]
+                    endHour = halfHourObj.longName.split('-')[1]
+                    startDate = day + " " + startHour
+                    endDate = day + " " + endHour
+
+                    startRange = int((datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
+                    endRange = int((datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
+
+                    timeRange = Q("range", expeditionStartTime={
+                        "gte": startRange,
+                        "lte": endRange,
+                        "format": "epoch_second"
+                    })
+                    if timeRanges is None:
+                        timeRanges = timeRange
+                    else:
+                        timeRanges = timeRanges | timeRange
+
+            esQuery = esQuery.query(timeRanges)
+
         if not existsParameters or day is None:
             raise ESQueryParametersDoesNotExist()
 
@@ -82,7 +102,7 @@ class GetLoadProfileByStopData(View):
             "format": "yyyy-MM-dd",
             "time_zone": "+00:00"
         })
-        print(esQuery.to_dict())
+
         esQuery = esQuery.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
                                   'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
                                   'stopDistanceFromPathStart', 'expeditionStartTime',
