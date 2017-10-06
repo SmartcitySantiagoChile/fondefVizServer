@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django import template
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 
 register = template.Library()
 
@@ -27,4 +27,4 @@ def inline_select(label, input_id, option_list, multiple=False):
         </div>
         """
 
-    return format_html(content, label, input_id, multiple_opt, "".join(options))
+    return format_html(content, label, input_id, multiple_opt, mark_safe("".join(options)))
