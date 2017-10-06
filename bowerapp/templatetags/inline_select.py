@@ -8,7 +8,6 @@ register = template.Library()
 
 @register.simple_tag
 def inline_select(label, input_id, option_list, multiple=False):
-    print(type(label), label.strip(), label, unicode(label))
 
     options = []
     for option in option_list:
@@ -23,9 +22,9 @@ def inline_select(label, input_id, option_list, multiple=False):
         <div class="form-group">
             <label for="{1}">{0}</label>
             <select class="select2_multiple form-control" id="{1}" {2}">
-                """ + "".join(options) + """
+                {3}
             </select>
         </div>
         """
 
-    return format_html(content, label, input_id, multiple_opt)
+    return format_html(content, label, input_id, multiple_opt, "".join(options))

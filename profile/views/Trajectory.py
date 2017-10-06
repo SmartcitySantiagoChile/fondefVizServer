@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from django.shortcuts import render
 
 from elasticsearch_dsl import Search, A
@@ -7,10 +9,9 @@ from localinfo.models import HalfHour
 
 
 class TrajectoryView(LoadProfileGeneric):
-    ''' '''
+    """  """
 
     def __init__(self):
-        ''' contructor '''
         esRouteQuery = Search()
         esRouteQuery = esRouteQuery[:0]
         aggs = A('terms', field = "route", size=1000)
@@ -29,4 +30,3 @@ class TrajectoryView(LoadProfileGeneric):
         self.context['minutes'] = minutes
 
         return render(request, template, self.context)
-
