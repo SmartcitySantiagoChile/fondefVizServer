@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from django import template
 from django.utils.html import format_html
 
 register = template.Library()
 
+
 @register.simple_tag
 def panel(title_icon, title, body, title_id="", show_collapse=False):
 
-    collapse = u"""
+    collapse = """
         <ul class="nav navbar-right panel_toolbox">
           <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
         </ul>
@@ -15,22 +17,23 @@ def panel(title_icon, title, body, title_id="", show_collapse=False):
     if not show_collapse:
         collapse = ""
 
-    html_title = u"""<span id="{1}">{2}</span>"""
+    html_title = """<span id="{1}">{2}</span>"""
     if title_id == "":
-        html_title = u"{2}"
+        html_title = "{2}"
 
-    header = u"""
+    html_header = """
         <div class="x_title">
           <h2><i class="fa {0}"></i> """ + html_title + """</h2>
-          """ + collapse + u"""
+          """ + collapse + """
           <div class="clearfix"></div>
         </div>
         """
 
-    content = u"""
+    html_content = """
         <div class="x_content">
           {3}
         </div>"""
-    header = header if title != "" else ""
-    panel = u"<div class='x_panel'>" + header + content + u"</div>"
-    return format_html(panel, title_icon, title_id, title, body)
+    html_header = html_header if title != "" else ""
+    html_panel = "<div class='x_panel'>" + html_header + html_content + "</div>"
+
+    return format_html(html_panel, title_icon, title_id, title, body)

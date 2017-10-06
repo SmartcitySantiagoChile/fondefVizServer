@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from django import template
 from django.utils.html import format_html
 from django.utils import timezone
@@ -27,11 +28,11 @@ def download_file_button(stepId, scene, disabled = ""):
     else:
         timeStamp = timezone.localtime(timeStamp).strftime("%Y-%m-%d %H:%M:%S")
 
-    field = u"""
+    field = """
      <a href="{}" class="btn btn-success btn-lg btn-block {}">
        <i class="fa fa-file-excel-o"></i> {}
        (<span id="timestamp1">{}</span>)
      </a>
     """
-    buttonMessage = u"Descargar ultimo archivo subido"
+    buttonMessage = "Descargar ultimo archivo subido"
     return format_html(field, url, disabled, buttonMessage, timeStamp)

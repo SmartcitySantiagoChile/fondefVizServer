@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from django import template
 from django.utils.html import format_html
 
 register = template.Library()
 
-import uuid
 
 @register.simple_tag
-def toolbar(id, *args):
+def toolbar(html_id, *args):
     """
-    :param id: group id
+    :param html_id: group id
     :param args: pairs (value, label)
     :return:
     """
@@ -18,16 +18,16 @@ def toolbar(id, *args):
     for index in range(0, len(args), step=2):
         value = args[index]
         label = args[index + 1]
-        buttons.append(u"""
+        buttons.append("""
             <label class="btn btn-default"><input type="radio" name="groups" value="{}" checked="">{}</label>
         """.format(value, label))
 
-    content = u"""
-        <div id="{}" class="btn-toolbar" role="toolbar" data-toggle="buttons">
+    content = """
+        <div id="{0}" class="btn-toolbar" role="toolbar" data-toggle="buttons">
             <div class="btn-group">
-                """ + "".join(buttons) + """
+                {1}
             </div>
         </div>
         """
 
-    return format_html(content, id)
+    return format_html(content, html_id, "".join(buttons))

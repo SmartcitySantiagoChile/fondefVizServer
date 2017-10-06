@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from django import template
 from django.utils.html import format_html
 
 register = template.Library()
 
+
 @register.simple_tag
 def inline_input(label, input_id):
-    content = u"""
+    content = """
         <div class="form-group">
             <label for="{1}">{0}:</label>
             <input type="text" class="form-control" id="{1}" />
