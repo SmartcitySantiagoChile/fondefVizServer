@@ -895,7 +895,7 @@ $(document).ready(function() {
             var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
             var previousMessage = $(this).html();
             var button = $(this).append(loadingIcon);
-            $.getJSON("getExpeditionData", params, function (data) {
+            $.getJSON(Urls["profile:getExpeditionData"](), params, function (data) {
                 processData(data, app);
             }).always(function () {
                 button.html(previousMessage);

@@ -586,10 +586,6 @@ $(document).ready(function(){
     // set locale
     moment.locale('es');
 
-    $('#licensePlateFilter').tagsInput({defaultText: '...', minChars:6});
-    $('#expeditionIdFilter').tagsInput({defaultText: '...', minChars:1});
-    $('#licensePlateFilter').addTag('BJFS-17');
-
     $('#dayFilter').select2({placeholder: 'Todos'});
     $('#dayTypeFilter').select2({placeholder: 'Todos'});
     $('#periodFilter').select2({placeholder: 'Todos'});
@@ -624,7 +620,7 @@ $(document).ready(function(){
       var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
       var previousMessage = $(this).html();
       var button = $(this).append(loadingIcon);
-      $.getJSON('getExpeditionData', params, function(data){
+      $.getJSON(Urls["profile:getExpeditionData"](), params, function(data){
         processData(data, app);
       })
       .always(function(){

@@ -798,7 +798,7 @@ $(document).ready(function(){
     $("#stopFilter").select2({
         ajax: {
             delay: 500, // milliseconds
-            url: "/profile/getStopList",
+            url: Urls["profile:getStopList"](),
             dataType: "json",
             data: function (params) {
                 return {
@@ -863,7 +863,7 @@ $(document).ready(function(){
       var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
       var previousMessage = $(this).html();
       var button = $(this).append(loadingIcon);
-      $.getJSON("getStopData", params, function(data){
+      $.getJSON(Urls["profile:getStopData"](), params, function(data){
         processData(data, app);
       })
       .always(function(){

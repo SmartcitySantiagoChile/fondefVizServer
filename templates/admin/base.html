@@ -34,6 +34,8 @@
   <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
     {% block basecontent %}{% endblock %}
 
+    <!-- django js reverse app -->
+    <script src="{% static 'js/reverse.js' %}"></script>
     <!-- jQuery -->
     <script src="{% static gentelella_static|add:"jquery/dist/jquery.min.js" %}"></script>
     <!-- Bootstrap -->
