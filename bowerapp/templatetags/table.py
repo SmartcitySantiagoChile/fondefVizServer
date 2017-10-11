@@ -9,8 +9,12 @@ register = template.Library()
 @register.simple_tag
 def table(html_id, columns, with_checker=True):
     ths = ""
-    for _ in range(columns):
-        ths += "<th></th>"
+    if isinstance(columns, list):
+        for header in columns:
+            ths += "<th>{0}</th>".format(header)
+    else:
+        for _ in range(columns):
+            ths += "<th></th>"
 
     checker = ""
     if with_checker:
@@ -25,6 +29,8 @@ def table(html_id, columns, with_checker=True):
             <thead>
               <tr>""" + checker + ths + """</tr>
             </thead>
+            <tbody>
+            </tbody>
         </table>
         """
 
