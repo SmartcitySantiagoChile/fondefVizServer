@@ -575,19 +575,26 @@ $(document).ready(function() {
                     type: "category",
                     data: xData,
                     axisTick: {
-                        length: 30
+                        length: 10
                     },
                     axisLabel: {
                         rotate: 90,
-                        borderColor: "red",
-                        borderWidth: 5,
-                        width: 0,
+                        interval: function(index) {
+                            var labelWidth = 20;
+                            var chartWidth = $("#barChart").width() - 82;
+                            var div = chartWidth / labelWidth;
+                            if (div >= xData.length) {
+                                return true;
+                            }
+                            div = parseInt(xData.length / div);
+                            return index % div ? false:true;
+                        },
                         textStyle: {
                             fontSize: 12
                         },
-                        //formatter: function(value, index) {
-                        //    return (index + 1) + " " + value;
-                        //}
+                        formatter: function(value, index) {
+                            return (index + 1) + " " + value;
+                        }
                     }
                 }],
                 yAxis: [{
