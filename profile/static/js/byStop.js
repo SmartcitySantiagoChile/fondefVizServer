@@ -824,6 +824,7 @@ $(document).ready(function(){
     $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
     var app = new ExpeditionApp();
+    var makeAjaxCall = true;
     $("#btnUpdateChart").click(function(){
       var day = $("#dayFilter").val();
       var stopCode = $("#stopFilter").val();
@@ -847,23 +848,26 @@ $(document).ready(function(){
           params["halfHour"] = minutes;
       }
 
-      app.showLoadingAnimationCharts();
-      var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-      var previousMessage = $(this).html();
-      var button = $(this).append(loadingIcon);
-      $.getJSON(Urls["profile:getStopData"](), params, function(data){
-        processData(data, app);
-      })
-      .always(function(){
-        button.html(previousMessage);
-        app.hideLoadingAnimationCharts();
-      });
+      if (makeAjaxCall) {
+          makeAjaxCall = false;
+          app.showLoadingAnimationCharts();
+          var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+          var previousMessage = $(this).html();
+          var button = $(this).append(loadingIcon);
+          $.getJSON(Urls["profile:getStopData"](), params, function (data) {
+              processData(data, app);
+          }).always(function () {
+              makeAjaxCall = true;
+              button.html(previousMessage);
+              app.hideLoadingAnimationCharts();
+          });
+      }
     });
     $(window).resize(function() {
       app.resizeCharts();
     });
     $("#menu_toggle").click(function() {
-        app.resizeCharts();
+      app.resizeCharts();
     });
   })();
 });

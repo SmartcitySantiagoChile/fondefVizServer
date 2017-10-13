@@ -465,7 +465,7 @@ $(document).ready(function() {
                     type: "bar",
                     barColor: "#169f85",
                     negBarColor: "red",
-                    chartRangeMax: maxHeight,
+                    chartRangeMax: maxHeight
                 });
 
                 $("tbody input.flat").iCheck("destroy");
@@ -575,17 +575,19 @@ $(document).ready(function() {
                     type: "category",
                     data: xData,
                     axisTick: {
-                        length: 10
+                        length: 30
                     },
                     axisLabel: {
                         rotate: 90,
-                        interval: 0,
+                        borderColor: "red",
+                        borderWidth: 5,
+                        width: 0,
                         textStyle: {
                             fontSize: 12
                         },
-                        formatter: function(value, index) {
-                            return (index + 1) + " " + value;
-                        }
+                        //formatter: function(value, index) {
+                        //    return (index + 1) + " " + value;
+                        //}
                     }
                 }],
                 yAxis: [{
@@ -651,7 +653,7 @@ $(document).ready(function() {
                 toolbox: {
                     show: true,
                     itemSize: 20,
-                    bottom: "0px",
+                    bottom: 15,
                     left: "center",
                     feature: {
                         mark: {show: false},
@@ -828,6 +830,7 @@ $(document).ready(function() {
         $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
         var app = new ExpeditionApp();
+        var makeAjaxCall = true;
         $("#btnUpdateChart").click(function () {
             var day = $("#dayFilter").val();
             var route = $("#routeFilter").val();
@@ -851,16 +854,21 @@ $(document).ready(function() {
                 params["halfHour"] = minutes;
             }
 
-            app.showLoadingAnimationCharts();
-            var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-            var previousMessage = $(this).html();
-            var button = $(this).append(loadingIcon);
-            $.getJSON(Urls["profile:getExpeditionData"](), params, function (data) {
-                processData(data, app);
-            }).always(function () {
-                button.html(previousMessage);
-                app.hideLoadingAnimationCharts();
-            });
+            if (makeAjaxCall) {
+                makeAjaxCall = false;
+                app.showLoadingAnimationCharts();
+                var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+                var previousMessage = $(this).html();
+                var button = $(this).append(loadingIcon);
+
+                $.getJSON(Urls["profile:getExpeditionData"](), params, function (data) {
+                    processData(data, app);
+                }).always(function () {
+                    makeAjaxCall = true;
+                    button.html(previousMessage);
+                    app.hideLoadingAnimationCharts();
+                });
+            }
         });
         $(window).resize(function() {
           app.resizeCharts();

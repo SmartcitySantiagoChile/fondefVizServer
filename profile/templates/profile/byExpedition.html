@@ -40,8 +40,9 @@
     {% panel "fa-calendar" "Expediciones por tipo de día" '<div id="wordcloudChart2" style="height:50px;"></div>' as panel3 %}
     {% columns 4 4 4 panel3 %}
 
-    {% columns 12 12 12 '<div id="barChart" style="height:600px;"></div>' as col6 %}
-    {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" col6 %}
+    {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:600px;"></div>' as panel4 %}
+    {% columns 12 12 12 panel4 %}
+
   </div>
 
   <div class="row">
