@@ -826,25 +826,13 @@ $(document).ready(function(){
     var app = new ExpeditionApp();
     $("#btnUpdateChart").click(function(){
       var day = $("#dayFilter").val();
-      //var from = $("#dateFromFilter").val();
-      //var to = $("#dateToFilter").val();
       var stopCode = $("#stopFilter").val();
       var dayType = $("#dayTypeFilter").val();
       var period = $("#periodFilter").val();
       var minutes = $("#minutePeriodFilter").val();
 
-      /*
-      console.log(from);
-      console.log(to);
-      console.log(stopCode);
-      console.log(dayType);
-      console.log(period);
-      */
-
       var params = {
         day: day
-        //from: from,
-        //to: to,
       };
       if (stopCode) {
         params["stopCode"] = stopCode;
@@ -873,6 +861,9 @@ $(document).ready(function(){
     });
     $(window).resize(function() {
       app.resizeCharts();
+    });
+    $("#menu_toggle").click(function() {
+        app.resizeCharts();
     });
   })();
 });

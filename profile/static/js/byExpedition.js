@@ -820,22 +820,6 @@ $(document).ready(function() {
     (function () {
         // set locale
         moment.locale("es");
-        // set datetimepickers
-        /*
-        $("#dateFromFilter").daterangepicker({
-          singleDatePicker: true,
-          singleClasses: "picker_2",
-          languague: "es"
-        });
-        $("#dateToFilter").daterangepicker({
-          singleDatePicker: true,
-          singleClasses: "picker_2",
-          languague: "es"
-        });*/
-
-        $("#licensePlateFilter").tagsInput({defaultText: "...", minChars: 6});
-        $("#expeditionIdFilter").tagsInput({defaultText: "...", minChars: 1});
-        $("#licensePlateFilter").addTag("BJFS-17");
 
         $("#dayFilter").select2({placeholder: "Todos"});
         $("#dayTypeFilter").select2({placeholder: "Todos"});
@@ -846,29 +830,13 @@ $(document).ready(function() {
         var app = new ExpeditionApp();
         $("#btnUpdateChart").click(function () {
             var day = $("#dayFilter").val();
-            //var from = $("#dateFromFilter").val();
-            //var to = $("#dateToFilter").val();
             var route = $("#routeFilter").val();
             var dayType = $("#dayTypeFilter").val();
             var period = $("#periodFilter").val();
             var minutes = $("#minutePeriodFilter").val();
-            //var licensePlate = $("#licensePlateFilter").val()!="" ? $("#licensePlateFilter").val().split(","):null;
-            //var expeditionId = $("#expeditionIdFilter").val()!="" ? $("#expeditionIdFilter").val().split(","):null;
-
-            /*
-            console.log(from);
-            console.log(to);
-            console.log(route);
-            console.log(dayType);
-            console.log(period);
-            */
-            //console.log(licensePlate);
-            //console.log(expeditionId);
 
             var params = {
-                day: day,
-                //from: from,
-                //to: to,
+                day: day
             };
             if (route) {
                 params["route"] = route;
@@ -882,14 +850,6 @@ $(document).ready(function() {
             if (minutes) {
                 params["halfHour"] = minutes;
             }
-            /*
-            if (licensePlate) {
-              params["licensePlate"] = licensePlate;
-            }
-            if (expeditionId) {
-              params["expeditionId"] = expeditionId;
-            }
-            */
 
             app.showLoadingAnimationCharts();
             var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
@@ -904,6 +864,9 @@ $(document).ready(function() {
         });
         $(window).resize(function() {
           app.resizeCharts();
+        });
+        $("#menu_toggle").click(function() {
+            app.resizeCharts();
         });
     })()
 });

@@ -234,6 +234,10 @@ $(document).ready(function(){
       this.updateDatatable();
     };
 
+    this.resizeCharts = function() {
+        _barChart.resize();
+    };
+
     var _updateDatatable = function(){
       var dataset = _dataManager.getDatatableData();
       var rows = dataset['rows'];
@@ -558,7 +562,7 @@ $(document).ready(function(){
             'value': distOnPath,
             'name': name,
             'authStopCode': authStopCode,
-            'userStopCode': userStopCode,
+            'userStopCode': userStopCode
           };
           globalYAxis.push(yPoint);
         }
@@ -627,6 +631,12 @@ $(document).ready(function(){
         button.html(previousMessage);
         app.hideLoadingAnimationCharts();
       });
+    });
+    $(window).resize(function() {
+      app.resizeCharts();
+    });
+    $("#menu_toggle").click(function() {
+        app.resizeCharts();
     });
   })()
 });

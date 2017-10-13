@@ -31,13 +31,17 @@
   </div>
 
   <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        {% with barChart='<div id="barChart" style="height:600px;"></div>' resume1='<h4><i class="fa fa-clock-o"></i> Expediciones por hora</h4><div id="timePeriodChart" style="height:89px;"></div>' resume2='<h4><i class="fa fa-truck"></i> Expediciones por patente <strong id="licensePlateNumber">(N)</strong></h4><div id="wordcloudChart1" style="height:100px;"></div>' resume3='<h4><i class="fa fa-calendar"></i> Expediciones por tipo de día</h4><div id="wordcloudChart2" style="height:100px;"></div>' %}
-            {% columns 9 9 12 barChart as col6 %}
-            {% columns 3 3 12 resume1|add:resume2|add:resume3 as col7 %}
-            {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" col6|add:col7 %}
-        {% endwith %}
-    </div>
+    {% panel "fa-clock-o" "Expediciones por hora" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
+    {% columns 4 4 4 panel1 %}
+
+    {% panel "fa-truck" 'Expediciones por patente <strong id="licensePlateNumber">(0)</strong>' '<div id="wordcloudChart1" style="height:50px;"></div>' as panel2 %}
+    {% columns 4 4 4 panel2 %}
+
+    {% panel "fa-calendar" "Expediciones por tipo de día" '<div id="wordcloudChart2" style="height:50px;"></div>' as panel3 %}
+    {% columns 4 4 4 panel3 %}
+
+    {% columns 12 12 12 '<div id="barChart" style="height:600px;"></div>' as col6 %}
+    {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" col6 %}
   </div>
 
   <div class="row">
