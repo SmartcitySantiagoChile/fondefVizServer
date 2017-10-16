@@ -36,7 +36,7 @@
   <div class="col-md-12 col-sm-12 col-xs-12">
       {% with barChart='<div id="barChart" style="height:800px;"></div>' %}
           {% columns 12 12 12 barChart as col6 %}
-          {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" col6 %}
+          {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col6 %}
       {% endwith %}
   </div>
   </div>
@@ -44,7 +44,7 @@
   <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         {% table "expeditionDetail" 6 as expeditionTable %}
-        {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">N</strong>)' expeditionTable %}
+        {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">0</strong>)' expeditionTable %}
     </div>
   </div>
 </div>
