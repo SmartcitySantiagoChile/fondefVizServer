@@ -269,13 +269,17 @@ $(document).ready(function() {
                     "className": "text-center",
                     "data": "visible",
                     "render": function (data, type, full, meta) {
-                        return "<input type='checkbox' name='trip" + full.id + "' class='flat' checked>";
+                        return $("<input>")
+                            .attr("type", "checkbox")
+                            .attr("name", "trip" + full.id)
+                            .addClass("flat")
+                            .attr("checked", true)[0].outerHTML;
                     }
                 },
                 {
                     title: "Perfil de carga", data: "sparkLoadProfile", searchable: false,
                     render: function (data, type, row) {
-                        return "<i class='spark'>" + data.join(",") + "</i>";
+                        return $("<i>").addClass("spark").append(data.join(","))[0].outerHTML;
                     }
                 },
                 //{ title: "Servicio-sentido", data: "route",   searchable: true},
@@ -864,7 +868,7 @@ $(document).ready(function() {
             if (makeAjaxCall) {
                 makeAjaxCall = false;
                 app.showLoadingAnimationCharts();
-                var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
                 var previousMessage = $(this).html();
                 var button = $(this).append(loadingIcon);
 

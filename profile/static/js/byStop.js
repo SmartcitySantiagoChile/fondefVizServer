@@ -298,7 +298,11 @@ $(document).ready(function(){
         {
          targets: 0, searchable: false, orderable: false, className: "text-center", data: "visible",
          render: function (data, type, full, meta){
-             return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
+             return $("<input>")
+                 .attr("type", "checkbox")
+                 .attr("name", "trip" + full.id)
+                 .addClass("flat")
+                 .attr("checked", true)[0].outerHTML;
          }
         },
         { title: "Servicio-sentido", data: "route",   searchable: true},
@@ -851,7 +855,7 @@ $(document).ready(function(){
       if (makeAjaxCall) {
           makeAjaxCall = false;
           app.showLoadingAnimationCharts();
-          var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+          var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
           var previousMessage = $(this).html();
           var button = $(this).append(loadingIcon);
           $.getJSON(Urls["profile:getStopData"](), params, function (data) {

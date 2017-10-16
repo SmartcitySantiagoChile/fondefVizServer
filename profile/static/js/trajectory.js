@@ -33,11 +33,11 @@ $(document).ready(function(){
     var _visibleTrips = 0;
     var _yAxisData = [];
     this.getDataName = function(){
-      const FILE_NAME = 'Trayectorias con perfil de carga ';
+      const FILE_NAME = "Trayectorias con perfil de carga ";
       if(_trips.length>0){
-        return FILE_NAME + _trips[0]['route'];
+        return FILE_NAME + _trips[0]["route"];
       }
-      return '';
+      return "";
     };
     this.trips = function(trips){
       if(trips === undefined){
@@ -45,7 +45,7 @@ $(document).ready(function(){
       }
       _visibleTrips=0;
       for(var i=0;i<tripIdArray.length; i++){
-        if(trips[i]['visible']){
+        if(trips[i]["visible"]){
           _visibleTrips++;
         }
       }
@@ -53,10 +53,10 @@ $(document).ready(function(){
     };
     this.addTrip = function(trip){
       // create trip identifier
-      if(trip['visible']){
+      if(trip["visible"]){
         _visibleTrips++;
       }
-      trip['id'] = _trips.length;
+      trip["id"] = _trips.length;
       _trips.push(trip);
     };
     this.tripsUsed = function(){
@@ -75,27 +75,27 @@ $(document).ready(function(){
     this.setVisibility = function(tripIdArray, value){
       for(var i=0;i<tripIdArray.length; i++){
        var tripId = tripIdArray[i];
-       if(_trips[tripId]['visible'] !== value){
+       if(_trips[tripId]["visible"] !== value){
          if(value === false){
            _visibleTrips--;
          }else{
            _visibleTrips++;
          }
        }
-       _trips[tripId]['visible'] = value;
+       _trips[tripId]["visible"] = value;
       }
     };
     this.checkAllAreAggregate = function(tripIdArray){
       var result = tripIdArray.length;
       for(var i=0;i<tripIdArray.length; i++){
        var tripId = tripIdArray[i];
-       if(!_trips[tripId]['visible']){
+       if(!_trips[tripId]["visible"]){
          result--;
        }
       }
       return result;
     };
-    this.getAttrGroup = function(attrName, formatFunc=undefined){
+    this.getAttrGroup = function(attrName, formatFunc){
       var values = [];
       var dict = {};
       for(var i in _trips){
@@ -112,7 +112,7 @@ $(document).ready(function(){
         }
       }
       for(var name in dict) {
-        values.push({'name':name, 'value': dict[name]});
+        values.push({"name":name, "value": dict[name]});
       }
       return values;
     };
@@ -124,7 +124,7 @@ $(document).ready(function(){
         /*if(!trip.visible){
           continue;
         }*/
-        trip['busDetail'] = trip['licensePlate'] + ' (' + trip['busCapacity'] + ')';
+        trip["busDetail"] = trip["licensePlate"] + " (" + trip["busCapacity"] + ")";
         var loadProfile = [];
         var hasNegativeValue = false;
         for(var i=0;i<trip.data.length;i++){
@@ -137,8 +137,8 @@ $(document).ready(function(){
           }
           loadProfile.push(value);
         }
-        trip['sparkLoadProfile'] = loadProfile;
-        trip['hasNegativeValue'] = hasNegativeValue;
+        trip["sparkLoadProfile"] = loadProfile;
+        trip["hasNegativeValue"] = hasNegativeValue;
         values.push(trip);
       }
       return {
@@ -151,78 +151,82 @@ $(document).ready(function(){
   function ExpeditionApp(){
     var _self = this;
     var _dataManager = new DataManager();
-    var _barChart = echarts.init(document.getElementById('barChart'), theme);
-    var _datatable = $('#expeditionDetail').DataTable({
+    var _barChart = echarts.init(document.getElementById("barChart"), theme);
+    var _datatable = $("#expeditionDetail").DataTable({
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
       language: {
-        url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
+        url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
       },
       columns: [
         {
-         'targets': 0, 'searchable': false, 'orderable': false, 'className': 'text-center', 'data': 'visible',
-         'render': function (data, type, full, meta){
-             return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
+         "targets": 0, "searchable": false, "orderable": false, "className": "text-center", "data": "visible",
+         "render": function (data, type, full, meta){
+             return $("<input>")
+                 .attr("type", "checkbox")
+                 .attr("name", "trip" + full.id)
+                 .addClass("flat")
+                 .attr("checked", true)[0].outerHTML;
          }
         },
-        { title: 'Perfil de carga', data: 'sparkLoadProfile', searchable: false,
+        { title: "Perfil de carga", data: "sparkLoadProfile", searchable: false,
           render: function(data, type, row){
-            return '<i class="spark">' + data.join(',') + '</i>';
+            return $("<i>").addClass("spark").append(data.join(","))[0].outerHTML;
           }
         },
-        //{ title: 'Servicio-sentido', data: 'route',   searchable: true},
-        { title: 'Patente(capacidad)', data: 'busDetail', searchable: true},
-        { title: 'Período inicio expedición', data: 'authTimePeriod', searchable: true},
-        { title: 'Hora de inicio', data: 'timeTripInit', searchable: true},
-        { title: 'Hora de fin', data: 'timeTripEnd', searchable: true},
-        { title: 'Tipo de día', data: 'dayType', searchable: true}
+        //{ title: "Servicio-sentido", data: "route",   searchable: true},
+        { title: "Patente(capacidad)", data: "busDetail", searchable: true},
+        { title: "Período inicio expedición", data: "authTimePeriod", searchable: true},
+        { title: "Hora de inicio", data: "timeTripInit", searchable: true},
+        { title: "Hora de fin", data: "timeTripEnd", searchable: true},
+        { title: "Tipo de día", data: "dayType", searchable: true}
       ],
-      order: [[4, 'asc']],
+      order: [[4, "asc"]],
       createdRow: function ( row, data, index ) {
-        $(row).addClass('success');
+        $(row).addClass("success");
       },
       initComplete: function(settings){
         // Handle click on "Select all" control
-        var mainCheckbox = $('#checkbox-select-all');
+        var mainCheckbox = $("#checkbox-select-all");
         mainCheckbox.iCheck({
           labelHover: false,
           cursor: true,
-          checkboxClass: 'icheckbox_flat-green'
+          checkboxClass: "icheckbox_flat-green"
         });
-        mainCheckbox.on('ifToggled', function(event){
+        mainCheckbox.on("ifToggled", function(event){
           // Get all rows with search applied
-          var rows = _datatable.rows({'search':'applied'}).nodes();
+          var rows = _datatable.rows({"search":"applied"}).nodes();
           var addToAggr = false;
-          var inputs = $('input.flat', rows);
+          var inputs = $("input.flat", rows);
           if(event.target.checked){
-            inputs.prop('checked', true);
-            $(rows).addClass('success');
+            inputs.prop("checked", true);
+            $(rows).addClass("success");
             addToAggr = true;
           } else {
-            inputs.prop('checked', false);
-            $(rows).removeClass('success');
+            inputs.prop("checked", false);
+            $(rows).removeClass("success");
           }
-          $('tbody input.flat').iCheck('update');
-          var tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){return el.id});
+          $("tbody input.flat").iCheck("update");
+          var tripIds = _datatable.rows({"search":"applied"}).data().map(function(el){return el.id});
           _dataManager.setVisibility(tripIds, addToAggr);
           _self.updateCharts();
         });
       }
     });
-    _datatable.on('search.dt', function (event) {
+    _datatable.on("search.dt", function (event) {
 
-      var el = $('#checkbox-select-all');
-      var tripIds = _datatable.rows({'search':'applied'}).data().map(function(el){ return el.id});
+      var el = $("#checkbox-select-all");
+      var tripIds = _datatable.rows({"search":"applied"}).data().map(function(el){ return el.id});
       var resultChecked = _dataManager.checkAllAreAggregate(tripIds);
 
       if(resultChecked === tripIds.length){
-        el.prop('checked', true);
+        el.prop("checked", true);
       } else if(resultChecked === 0){
-        el.prop('checked', false);
+        el.prop("checked", false);
       } else {
-        el.prop('checked', false);
-        el.prop('indeterminate', true);
+        el.prop("checked", false);
+        el.prop("indeterminate", true);
       }
-      el.iCheck('update');
+      el.iCheck("update");
     });
 
     this.dataManager = function(dataManager){
@@ -240,41 +244,41 @@ $(document).ready(function(){
 
     var _updateDatatable = function(){
       var dataset = _dataManager.getDatatableData();
-      var rows = dataset['rows'];
-      var maxHeight = dataset['maxHeight'];
+      var rows = dataset["rows"];
+      var maxHeight = dataset["maxHeight"];
 
-      _datatable.off('draw');
-      _datatable.on('draw', function(oSettings) {
-        $('.spark:not(:has(canvas))').sparkline('html', {
-          type: 'bar',
-          barColor: '#169f85',
-          negBarColor: 'red',
+      _datatable.off("draw");
+      _datatable.on("draw", function(oSettings) {
+        $(".spark:not(:has(canvas))").sparkline("html", {
+          type: "bar",
+          barColor: "#169f85",
+          negBarColor: "red",
           chartRangeMax: maxHeight
         });
 
-        $('tbody input.flat').iCheck('destroy');
-        $('tbody input.flat').iCheck({
+        $("tbody input.flat").iCheck("destroy");
+        $("tbody input.flat").iCheck({
           labelHover: false,
           cursor: true,
-          checkboxClass: 'icheckbox_flat-green'
+          checkboxClass: "icheckbox_flat-green"
         });
 
         // activate iCheck in checkbox
         var dtRows = _datatable.rows().nodes();
         // attach events check and uncheck
-        $('input.flat', dtRows).off('ifToggled');
-        $('input.flat', dtRows).on('ifToggled', function(event){
+        $("input.flat", dtRows).off("ifToggled");
+        $("input.flat", dtRows).on("ifToggled", function(event){
           var tr = $(this).parent().parent().parent();
           var addToAggr = false;
           if(event.target.checked){
-            tr.addClass('success');
+            tr.addClass("success");
             addToAggr = true;
           }else{
-            tr.removeClass('success');
+            tr.removeClass("success");
           }
 
           // updateChart
-          var tripId = parseInt($(this).attr('name').replace('trip', ''));
+          var tripId = parseInt($(this).attr("name").replace("trip", ""));
           _dataManager.setVisibility([tripId], addToAggr);
           _self.updateCharts();
         });
@@ -284,12 +288,12 @@ $(document).ready(function(){
       _datatable.columns.adjust().draw();
 
       // attach to attach event
-      $('#detail-tab').off('shown.bs.tab');
-      $('#detail-tab').on('shown.bs.tab', function(event){
-        $('.spark:not(:has(canvas))').sparkline('html', {
-          type: 'bar',
-          barColor: '#169f85',
-          negBarColor: 'red',
+      $("#detail-tab").off("shown.bs.tab");
+      $("#detail-tab").on("shown.bs.tab", function(event){
+        $(".spark:not(:has(canvas))").sparkline("html", {
+          type: "bar",
+          barColor: "#169f85",
+          negBarColor: "red",
           chartRangeMax: maxHeight
         });
       })
@@ -311,21 +315,21 @@ $(document).ready(function(){
 
         var serie = {
           name: trip.licensePlate,
-          type: 'line', data: trip.data,
-          showSymbol: true, symbol: 'pin', symbolSize: 6,
+          type: "line", data: trip.data,
+          showSymbol: true, symbol: "pin", symbolSize: 6,
           lineStyle: { normal: { width: 1}}
         };
         var visualMap = {
           show: false,
-          type: 'piecewise',
+          type: "piecewise",
           pieces:[],
           dimension: 0,
           seriesIndex: seriesIndex,
           outOfRange: {
-            color: 'blue'
+            color: "blue"
           }
         };
-        var colors = ['#0008fc', '#d3d352', '#db9500', '#ff0707'];
+        var colors = ["#0008fc", "#d3d352", "#db9500", "#ff0707"];
         var previousPiece = null;
         for (var i=1; i<trip.data.length; i++){
           var value = trip.data[i][3];
@@ -358,13 +362,13 @@ $(document).ready(function(){
       }
 
       var scatterSerie = {
-        type: 'scatter',
+        type: "scatter",
         symbolSize: function(el){
           return el[5]*0.3;
         },
         itemStyle: {
           normal: {
-            color: 'red'
+            color: "red"
           }
         },
         data: scatterData
@@ -385,21 +389,21 @@ $(document).ready(function(){
       scatterSerie.markLine = {
         data: markLines,
         silent: true,
-        symbol: ['pin', null],
+        symbol: ["pin", null],
         label: {
           normal: {
-            formatter: '{b} - {c}     ',
+            formatter: "{b} - {c}     ",
             textStyle: {
-              fontSize: 9, color: '#000'
+              fontSize: 9, color: "#000"
             },
-            position: 'left'
+            position: "left"
           }
         },
         lineStyle: {
           normal: {
-            type: 'solid',
+            type: "solid",
             opacity: 0.2,
-            color: '#000'
+            color: "#000"
           }
         }
       };
@@ -413,25 +417,25 @@ $(document).ready(function(){
         series: series,
         visualMap: visualMaps,
         dataZoom: [{
-          show: true, type: 'slider', xAxisIndex: 0, start: 0, end: 100
+          show: true, type: "slider", xAxisIndex: 0, start: 0, end: 100
         },{
-          show: true, type: 'slider', yAxisIndex: 0, start: 0, end: 100
+          show: true, type: "slider", yAxisIndex: 0, start: 0, end: 100
         },{
-          //show: true, type: 'inside', xAxisIndex: 0, start: 0, end: 100
+          //show: true, type: "inside", xAxisIndex: 0, start: 0, end: 100
         },{
-          //show: true, type: 'inside', yAxisIndex: 0, start: 0, end: 100
+          //show: true, type: "inside", yAxisIndex: 0, start: 0, end: 100
         }],
         xAxis:{
-          type: 'time', name: 'Hora', boundaryGap: false, splitNumber: 15, splitLine:{ show: false}
+          type: "time", name: "Hora", boundaryGap: false, splitNumber: 15, splitLine:{ show: false}
         },
         yAxis: {
-          type: 'value', name: 'Distancia en Ruta', splitLine:{ show: false}, splitArea: {show: false},
+          type: "value", name: "Distancia en Ruta", splitLine:{ show: false}, splitArea: {show: false},
           axisLabel: {show: false}, axisTick: {show: false},
           max: yMax
         },
         tooltip: {
           show:true,
-          trigger: 'item',
+          trigger: "item",
           formatter: function(params){
             console.log(params);
             var row = [];
@@ -443,43 +447,43 @@ $(document).ready(function(){
                 var getOut = params.data[4];
                 var getIn = params.data[5];
 
-                row.push('Tiempo: ' + time);
-                row.push('Carga: ' + loadProfile);
-                row.push('Bajadas: ' + getOut);
-                row.push('Subidas: ' + getIn);
+                row.push("Tiempo: " + time);
+                row.push("Carga: " + loadProfile);
+                row.push("Bajadas: " + getOut);
+                row.push("Subidas: " + getIn);
               }else if(params.componentSubType === "scatter"){
                 var getIn = params.data[5];
-                row.push('Subidas: ' + getIn);
+                row.push("Subidas: " + getIn);
               }
             }
-            return row.join('<br />');
+            return row.join("<br />");
           }
         },
         grid: {
-          left: '200px',
-          bottom: '80px',
+          left: "200px",
+          bottom: "80px",
           containLabel: true
         },
         toolbox: {
           show : true,
           itemSize: 20,
-          left: 'center',
-          top: 'top',
+          left: "center",
+          top: "top",
           feature : {
             mark : {show: false},
             restore : {show: false, title: "restaurar"},
             saveAsImage : {show: true, title: "Guardar imagen", name: _dataManager.getDataName()},
             dataView: {
               show: true,
-              title: 'Ver datos',
-              lang: ['Datos del gráfico', 'cerrar', 'refrescar'],
-              buttonColor: '#169F85',
+              title: "Ver datos",
+              lang: ["Datos del gráfico", "cerrar", "refrescar"],
+              buttonColor: "#169F85",
               readOnly: true
             },
             dataZoom: {
               show: true, title: {
-                zoom: 'Seleccionar área',
-                back: 'Restablecer vista'
+                zoom: "Seleccionar área",
+                back: "Restablecer vista"
               }
             }
           }
@@ -493,8 +497,8 @@ $(document).ready(function(){
     };
 
     var _updateGlobalStats = function() {
-      $('#expeditionNumber').html(_dataManager.tripsUsed());
-      $('#expeditionNumber2').html(_dataManager.tripsUsed());
+      $("#expeditionNumber").html(_dataManager.tripsUsed());
+      $("#expeditionNumber2").html(_dataManager.tripsUsed());
     };
 
     this.updateCharts = function(){
@@ -505,7 +509,7 @@ $(document).ready(function(){
       _updateDatatable();
     };
     this.showLoadingAnimationCharts = function(){
-      const LOADING_TEXT = 'Cargando...';
+      const LOADING_TEXT = "Cargando...";
       _barChart.showLoading(null, {text: LOADING_TEXT});
     };
     this.hideLoadingAnimationCharts = function(){
@@ -516,8 +520,8 @@ $(document).ready(function(){
   function processData(dataSource, app){
     console.log(dataSource);
 
-    if(dataSource['status']){
-      var status = dataSource['status'];
+    if(dataSource["status"]){
+      var status = dataSource["status"];
       showMessage(status);
       return;
     }
@@ -531,15 +535,15 @@ $(document).ready(function(){
       var trip = trips[expeditionId];
 
       // trip info
-      var capacity = trip['info']['capacity'];
-      var licensePlate = trip['info']['licensePlate'];
-      var route = trip['info']['route'];
-      var timeTripInit = trip['info']['timeTripInit'];
-      var timeTripEnd = trip['info']['timeTripEnd'];
-      var authTimePeriod = trip['info']['authTimePeriod'];
-      var dayType = trip['info']['dayType'];
+      var capacity = trip["info"]["capacity"];
+      var licensePlate = trip["info"]["licensePlate"];
+      var route = trip["info"]["route"];
+      var timeTripInit = trip["info"]["timeTripInit"];
+      var timeTripEnd = trip["info"]["timeTripEnd"];
+      var authTimePeriod = trip["info"]["authTimePeriod"];
+      var dayType = trip["info"]["dayType"];
 
-      var stopQuantity = trip['stops'].length;
+      var stopQuantity = trip["stops"].length;
 
       if(stopQuantity > globalYAxis.length){
         globalYAxis = [];
@@ -550,30 +554,30 @@ $(document).ready(function(){
 
       var data = [];
       for(var stopIndex=0; stopIndex<stopQuantity; stopIndex++){
-        var stopInfo = trip['stops'][stopIndex];
-        var authStopCode = stopInfo['authStopCode'];
-        var userStopCode = stopInfo['userStopCode'];
-        var order = stopInfo['order'];
-        var name = stopInfo['name'];
-        var distOnPath = stopInfo['distOnPath'];
+        var stopInfo = trip["stops"][stopIndex];
+        var authStopCode = stopInfo["authStopCode"];
+        var userStopCode = stopInfo["userStopCode"];
+        var order = stopInfo["order"];
+        var name = stopInfo["name"];
+        var distOnPath = stopInfo["distOnPath"];
 
         if(updateGlobalYAxis){
           var yPoint = {
-            'value': distOnPath,
-            'name': name,
-            'authStopCode': authStopCode,
-            'userStopCode': userStopCode
+            "value": distOnPath,
+            "name": name,
+            "authStopCode": authStopCode,
+            "userStopCode": userStopCode
           };
           globalYAxis.push(yPoint);
         }
         var row = [];
-        var stopTime = stopInfo['stopTime'];
+        var stopTime = stopInfo["stopTime"];
         row.push(stopTime);
-        row.push(stopInfo['distOnPath']);
-        row.push(stopInfo['loadProfile']);
-        row.push(stopInfo['loadProfile']/capacity*100);
-        row.push(stopInfo['expandedGetOut']);
-        row.push(stopInfo['expandedGetIn']);
+        row.push(stopInfo["distOnPath"]);
+        row.push(stopInfo["loadProfile"]);
+        row.push(stopInfo["loadProfile"]/capacity*100);
+        row.push(stopInfo["expandedGetOut"]);
+        row.push(stopInfo["expandedGetIn"]);
         data.push(row);
       }
 
@@ -588,34 +592,34 @@ $(document).ready(function(){
   // load filters
   (function (){
     // set locale
-    moment.locale('es');
+    moment.locale("es");
 
-    $('#dayFilter').select2({placeholder: 'Todos'});
-    $('#dayTypeFilter').select2({placeholder: 'Todos'});
-    $('#periodFilter').select2({placeholder: 'Todos'});
-    $('#routeFilter').select2({placeholder: 'Servicio'});//, allowClear: true});
+    $("#dayFilter").select2({placeholder: "Todos"});
+    $("#dayTypeFilter").select2({placeholder: "Todos"});
+    $("#periodFilter").select2({placeholder: "Todos"});
+    $("#routeFilter").select2({placeholder: "Servicio"});//, allowClear: true});
     $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
     var app = new ExpeditionApp();
     var makeAjaxCall = true;
-    $('#btnUpdateChart').click(function(){
-      var day = $('#dayFilter').val();
-      var route = $('#routeFilter').val();
-      var dayType = $('#dayTypeFilter').val();
-      var period = $('#periodFilter').val();
+    $("#btnUpdateChart").click(function(){
+      var day = $("#dayFilter").val();
+      var route = $("#routeFilter").val();
+      var dayType = $("#dayTypeFilter").val();
+      var period = $("#periodFilter").val();
       var minutes = $("#minutePeriodFilter").val();
 
       var params = {
         day: day
       };
       if (route) {
-        params['route'] = route;
+        params["route"] = route;
       }
       if (dayType) {
-        params['dayType'] = dayType;
+        params["dayType"] = dayType;
       }
       if (period) {
-        params['period'] = period;
+        params["period"] = period;
       }
       if (minutes) {
           params["halfHour"] = minutes;
@@ -624,7 +628,7 @@ $(document).ready(function(){
       if (makeAjaxCall) {
           makeAjaxCall = false;
           app.showLoadingAnimationCharts();
-          var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
+          var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
           var previousMessage = $(this).html();
           var button = $(this).append(loadingIcon);
           $.getJSON(Urls["profile:getExpeditionData"](), params, function (data) {
