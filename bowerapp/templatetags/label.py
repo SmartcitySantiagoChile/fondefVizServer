@@ -7,12 +7,10 @@ register = template.Library()
 
 
 @register.simple_tag
-def bubble_message(title, content, status):
+def label(content, status):
     html_content = """
-        <small>
-          <div class="alert alert-{0} fade in" role="alert">
-            <strong>{2}</strong>
+          <span class="label label-{0}">
             {1}
-          </div></small>
+          </span>
           """
-    return format_html(html_content, status, content, title)
+    return format_html(html_content, status, content)
