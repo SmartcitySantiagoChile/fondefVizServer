@@ -331,7 +331,7 @@ $(document).ready(function () {
                 var serie = {
                     name: trip.licensePlate,
                     type: "line", data: trip.data,
-                    showSymbol: false, symbol: "pin", symbolSize: 6,
+                    showSymbol: false, hoverAnimation: false, animation: false,
                     lineStyle: {normal: {width: 1}}
                 };
                 var visualMap = {
@@ -383,26 +383,35 @@ $(document).ready(function () {
                     }
 
                     if (index + 1 === arr.length) {
+                        previousPiece.lte += 86400000; // add 1 day after, to color upper limit of chart
                         visualMap.pieces.push(previousPiece);
                     }
                 });
                 series.push(serie);
+                visualMap.pieces[0].gte -= 86400000; // begin from 1 day before, to color lower limit of chart
                 visualMaps.push(visualMap);
                 scatterData = scatterData.concat(trip.data);
             });
 
             // for scatter plot
+            var label = "Subidas";
+            var valueIndex = 5;
+            var seeLanding = $("#chartSwitch").prop("checked");
+            if (seeLanding) {
+                label = "Bajadas";
+                valueIndex = 4;
+            }
             var visualMap = {
                 show: true,
                 type: "piecewise",
                 top: "top",
                 right: "right",
                 orient: "horizontal",
-                pieces: [{gte: 1, lt: 5, color: colors[0], label: "Línea: carga [0, 25) % | Subidas: [1, 5)"},
-                         {gte: 5, lt: 13, color: colors[1], label: "Línea: carga [25, 50) % | Subidas: [5, 13)"},
-                         {gte: 13, lt: 15, color: colors[2], label: "Línea: carga [25, 75) % | Subidas: [13, 15)"},
-                         {gte: 15, color: colors[3], label: "Línea: carga [75-100) % | Subidas: > 15"}],
-                dimension: 5,
+                pieces: [{gte: 1, lt: 5, color: colors[0], label: "Línea: carga [0, 25) % | {}: [1, 5)".replace("{}", label)},
+                         {gte: 5, lt: 13, color: colors[1], label: "Línea: carga [25, 50) % | {}: [5, 13)".replace("{}", label)},
+                         {gte: 13, lt: 15, color: colors[2], label: "Línea: carga [25, 75) % | {}: [13, 15)".replace("{}", label)},
+                         {gte: 15, color: colors[3], label: "Línea: carga [75-100] % | {}: > 15".replace("{}", label)}],
+                dimension: valueIndex,
                 seriesIndex: series.length
             };
             visualMaps.push(visualMap);
@@ -410,10 +419,7 @@ $(document).ready(function () {
             var scatterSerie = {
                 type: "scatter",
                 symbolSize: function (el) {
-                    // 4: bajadas
-                    // 5: subidas
-                    //return el[5] * 1 + 3;
-                    return 4;
+                    return el[valueIndex] * 0.2 + 4;
                 },
                 itemStyle: {
                     normal: {
@@ -485,22 +491,17 @@ $(document).ready(function () {
                     show: true,
                     trigger: "item",
                     formatter: function (params) {
-                        console.log(params);
                         var row = [];
                         if (params.componentType === "series") {
                             row.push(params.marker);
-                            if (params.componentSubType === "line") {
-                                var time = params.data[0];
-                                var loadProfile = params.data[2];
-                                var getOut = params.data[4];
-                                var getIn = params.data[5];
-
+                            var time = params.data[0];
+                            var loadProfile = params.data[2];
+                            var getOut = params.data[4];
+                            var getIn = params.data[5];
+                            if (params.componentSubType === "scatter") {
                                 row.push("Tiempo: " + time);
                                 row.push("Carga: " + loadProfile);
                                 row.push("Bajadas: " + getOut);
-                                row.push("Subidas: " + getIn);
-                            } else if (params.componentSubType === "scatter") {
-                                var getIn = params.data[5];
                                 row.push("Subidas: " + getIn);
                             }
                         }
@@ -508,7 +509,7 @@ $(document).ready(function () {
                     }
                 },
                 grid: {
-                    left: "200px",
+                    left: "300px",
                     bottom: "130px",
                     containLabel: false
                 },
@@ -538,6 +539,9 @@ $(document).ready(function () {
                 }
             };
 
+            // set height of chart
+            //$("#barChart").height(yMax * 0.1);
+            //_barChart.resize();
             _barChart.clear();
             _barChart.setOption(options, {
                 notMerge: true
@@ -693,6 +697,9 @@ $(document).ready(function () {
         });
         $("#menu_toggle").click(function () {
             app.resizeCharts();
+        });
+        $("#chartSwitch").change(function(){
+            app.updateCharts();
         });
     })()
 });

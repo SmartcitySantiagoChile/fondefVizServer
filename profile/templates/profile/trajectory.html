@@ -3,9 +3,15 @@
 
 {% block title %}Perfil a través de trayectoria{% endblock %}
 
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "components/bootstrap-toggle/css/bootstrap-toggle.min.css" %}" />
+{% endblock %}
+
 {% block content %}
 <div class="">
-    {% header "Perfil de carga" "por trayectoria" %}
+  {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
+  {% header "Perfil de carga" "por trayectoria"|add:label %}
 
   <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -25,36 +31,35 @@
     {% inline_select "Media hora de despacho:" "minutePeriodFilter" minutes True as period_select %}
     {% columns 2 2 12 period_select as col5 %}
 
-    {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
-    {% columns 12 12 12 label as col6 %}
-
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col7 %}
+    {% columns 12 12 12 update_button as col6 %}
 
-    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6|add:col7 %}
+    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6 %}
     </div>
   </div>
 
   <div class="row">
-  <div class="col-md-12 col-sm-12 col-xs-12">
-      {% with barChart='<div id="barChart" style="height:800px;"></div>' %}
-          {% columns 12 12 12 barChart as col6 %}
-          {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col6 %}
+      <div class="col-md-12 col-sm-12 col-xs-12">
+      {% with barChart='<div id="barChart" style="height:800px;"></div>' toggleButton='<input id="chartSwitch" type="checkbox" data-toggle="toggle" data-on="Mostrando bajadas" data-off="Mostrando Subidas" data-size="large" data-width="270">' %}
+          {% columns 12 12 12 barChart as col7 %}
+          {% columns 12 12 12 toggleButton as col8 %}
+          {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col8|add:col7 %}
       {% endwith %}
-  </div>
+      </div>
   </div>
 
   <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="col-md-12 col-sm-12 col-xs-12">
         {% table "expeditionDetail" 6 as expeditionTable %}
         {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">0</strong>)' expeditionTable %}
-    </div>
+      </div>
   </div>
 </div>
 {% endblock %}
 
 {% block js %}
     {{ block.super }}
+    <script src="{% static "components/bootstrap-toggle/js/bootstrap-toggle.min.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
     {% endwith %}

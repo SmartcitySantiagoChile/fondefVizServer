@@ -4,7 +4,8 @@
 {% block title %}Perfil de carga por expedición{% endblock %}
 
 {% block content %}
-    {% header "Perfil de carga" "por ruta" %}
+    {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
+    {% header "Perfil de carga" "por ruta"|add:label %}
 
   <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -23,13 +24,10 @@
     {% inline_select "Media hora de despacho:" "minutePeriodFilter" minutes True as half_hour_select %}
     {% columns 2 2 12 half_hour_select as col5 %}
 
-    {%  label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
-    {% columns 12 12 12 label as col6 %}
-
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col7 %}
+    {% columns 12 12 12 update_button as col6 %}
 
-    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6|add:col7 %}
+    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6 %}
     </div>
   </div>
 
