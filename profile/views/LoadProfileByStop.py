@@ -81,7 +81,7 @@ class GetLoadProfileByStopData(View):
                     startRange = int((datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
                     endRange = int((datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
 
-                    timeRange = Q("range", expeditionStartTime={
+                    timeRange = Q("range", expeditionStopTime={
                         "gte": startRange,
                         "lte": endRange,
                         "format": "epoch_second"
