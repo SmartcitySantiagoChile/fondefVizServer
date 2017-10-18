@@ -580,6 +580,9 @@ $(document).ready(function(){
       }
 
       var title = _dataManager.stopInfo().name;
+      if(_dataManager.stopInfo().busStation) {
+        title = title + " (Zona Paga)";
+      }
       var subtitle = "Código de usuario: " + _dataManager.stopInfo().userStopCode + "  Código de Transantiago: " + _dataManager.stopInfo().authorityStopCode;
       var options = {
         title: {

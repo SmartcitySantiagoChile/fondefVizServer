@@ -107,7 +107,7 @@ class GetLoadProfileByStopData(View):
                                   'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
                                   'stopDistanceFromPathStart', 'expeditionStartTime',
                                   'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                  'dayType', 'timePeriodInStopTime', 'loadProfile'])
+                                  'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation'])
         return esQuery
  
     def cleanData(self, data):
@@ -127,6 +127,7 @@ class GetLoadProfileByStopData(View):
                 info['authorityStopCode'] = data['authStopCode']
                 info['userStopCode'] = data['userStopCode']
                 info['name'] = data['userStopName']
+                info['busStation'] = data['busStation'] == "1"
 
             expeditionId = data['expeditionDayId']
 

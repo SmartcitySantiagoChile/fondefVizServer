@@ -91,7 +91,6 @@ $(document).ready(function () {
         };
         this.checkAllAreAggregated = function (tripIdArray) {
             var result = tripIdArray.length;
-            console.log(tripIdArray);
             tripIdArray.map(function(tripId){
                 if (!_trips[tripId].visible) {
                     result--;
@@ -440,17 +439,27 @@ $(document).ready(function () {
                     yAxis: item.value,
                     name: item.name
                 };
+                if (item.busStation) {
+                    markLine.label = {
+                        normal: {
+                            color: "red"
+                        }
+                    };
+                    markLine.name += " (ZP)";
+                }
                 markLines.push(markLine);
             });
             scatterSerie.markLine = {
                 data: markLines,
+                animation: false,
                 silent: true,
                 symbol: ["pin", null],
                 label: {
                     normal: {
                         formatter: "{b} - {c}     ",
                         textStyle: {
-                            fontSize: 9, color: "#000"
+                            fontSize: 9,
+                            color: "#000"
                         },
                         position: "left"
                     }
@@ -609,6 +618,7 @@ $(document).ready(function () {
                 var stopInfo = trip["stops"][stopIndex];
                 var authStopCode = stopInfo["authStopCode"];
                 var userStopCode = stopInfo["userStopCode"];
+                var busStation = stopInfo["busStation"];
                 //var order = stopInfo["order"];
                 var name = stopInfo["name"];
                 var distOnPath = stopInfo["distOnPath"];
@@ -618,7 +628,8 @@ $(document).ready(function () {
                         "value": distOnPath,
                         "name": name,
                         "authStopCode": authStopCode,
-                        "userStopCode": userStopCode
+                        "userStopCode": userStopCode,
+                        "busStation": busStation
                     };
                     globalYAxis.push(yPoint);
                 }

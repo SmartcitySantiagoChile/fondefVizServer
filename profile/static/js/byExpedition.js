@@ -597,7 +597,13 @@ $(document).ready(function() {
                             fontSize: 12
                         },
                         formatter: function(value, index) {
-                            return (index + 1) + " " + value;
+                            return (index + 1) + " " + value + " " + (xAxisData[index].busStation?"(ZP)":"");
+                        },
+                        color: function(label, index) {
+                            if (xAxisData[index].busStation) {
+                                return "red";
+                            }
+                            return "black";
                         }
                     }
                 }],
@@ -809,6 +815,7 @@ $(document).ready(function() {
                     xValue["name"] = stopInfo["name"];
                     xValue["authCode"] = authStopCode;
                     xValue["userCode"] = userStopCode;
+                    xValue["busStation"] = stopInfo["busStation"];
                     xValue["order"] = stopInfo["order"];
                     tripGroupXAxisData.push(xValue);
                 }
