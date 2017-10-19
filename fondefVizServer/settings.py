@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'shape',
     'travel',
     'velocity',
+    'globalstat'
 ]
 
 MIDDLEWARE = [
