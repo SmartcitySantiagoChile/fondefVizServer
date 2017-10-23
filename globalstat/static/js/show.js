@@ -1,11 +1,12 @@
+"use strict";
 $(document).ready(function () {
     var chart = echarts.init(document.getElementById("barChart"), theme);
 
     $.getJSON(Urls["globalstat:data"](), function (answer) {
-        data = answer.data;
+        var data = answer.data;
         console.log(data);
 
-        var N_POINT = data.date;
+        var N_POINT = data["Día"];
 
         var grids = [];
         var xAxes = [];
@@ -43,7 +44,7 @@ $(document).ready(function () {
             });
             series.push({
                 name: name,
-                type: 'scatter',
+                type: 'bar',
                 xAxisIndex: count,
                 yAxisIndex: count,
                 data: data,
@@ -73,7 +74,7 @@ $(document).ready(function () {
             titles[idx].top = parseFloat(grid.top) + '%';
         });
 
-        option = {
+        var option = {
             title: titles,
             grid: grids,
             xAxis: xAxes,
