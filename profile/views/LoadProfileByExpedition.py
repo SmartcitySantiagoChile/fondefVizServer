@@ -1,56 +1,47 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.conf import settings
 
-from elasticsearch_dsl import Search, A, Q
+from elasticsearch_dsl import Q
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
-from LoadProfileGeneric import LoadProfileGeneric
+from profile.esprofilehelper import ESProfileHelper
 
 from localinfo.models import HalfHour
 from datetime import datetime
 
 
-class LoadProfileByExpeditionView(LoadProfileGeneric):
-    ''' '''
-
+class LoadProfileByExpeditionView(View):
     def __init__(self):
-        ''' Constructor '''
+        """ Constructor """
+        super(LoadProfileByExpeditionView, self).__init__()
 
-        esRouteQuery = Search()
-        esRouteQuery = esRouteQuery[:0]
-        aggs = A('terms', field="route", size=1000)
-        esRouteQuery.aggs.bucket("unique", aggs)
-
-        esQueryDict = {}
-        esQueryDict['routes'] = esRouteQuery
-
-        super(LoadProfileByExpeditionView, self).__init__(esQueryDict)
+        self.es_helper = ESProfileHelper()
+        self.base_params = self.es_helper.get_base_params()
+        self.base_params["routes"] = self.es_helper.get_unique_list_query("route", size=10000)
 
     def get(self, request):
         template = "profile/byExpedition.html"
 
         # add periods of thirty minutes
         minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
-        self.context['minutes'] = minutes
 
-        return render(request, template, self.context)
+        context = self.es_helper.make_multisearch_query_for_aggs(self.base_params)
+        context['minutes'] = minutes
+
+        return render(request, template, context)
 
 
 class GetLoadProfileByExpeditionData(View):
-    ''' '''
-
     def __init__(self):
-        ''' constructor '''
+        """ constructor """
         super(GetLoadProfileByExpeditionData, self).__init__()
+        self.es_helper = ESProfileHelper()
         self.context = {}
 
     def buildQuery(self, request):
-        ''' create es-query based on params given by user '''
+        """ create es-query based on params given by user """
 
         day = request.GET.get('day')
-        fromDate = request.GET.get('from')
-        toDate = request.GET.get('to')
         route = request.GET.get('route')
         licensePlate = request.GET.getlist('licensePlate[]')
         dayType = request.GET.getlist('dayType[]')
@@ -58,9 +49,7 @@ class GetLoadProfileByExpeditionData(View):
         expeditionId = request.GET.getlist('expeditionId[]')
         halfHour = request.GET.getlist('halfHour[]')
 
-        # get list of profile*
-        client = settings.ES_CLIENT
-        esQuery = Search(using=client, index=LoadProfileGeneric.INDEX_NAME)
+        esQuery = self.es_helper.get_base_query()
 
         existsParameters = False
         if expeditionId:
@@ -126,12 +115,12 @@ class GetLoadProfileByExpeditionData(View):
         return esQuery
 
     def cleanData(self, data):
-        ''' round to zero values between [-1, 0]'''
+        """ round to zero values between [-1, 0]"""
         value = float(data)
         return 0 if (-1 < value and value < 0) else value
 
     def transformESAnswer(self, esQuery):
-        ''' transform ES answer to something util to web client '''
+        """ transform ES answer to something util to web client """
         trips = {}
 
         for hit in esQuery.scan():
@@ -178,7 +167,7 @@ class GetLoadProfileByExpeditionData(View):
         return trips
 
     def get(self, request):
-        ''' expedition data '''
+        """ expedition data """
         response = {}
         response['trips'] = {}
 

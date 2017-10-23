@@ -1,32 +1,27 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render
-
-from elasticsearch_dsl import Search, A
-from LoadProfileGeneric import LoadProfileGeneric
+from django.views.generic import View
 
 from localinfo.models import HalfHour
+from profile.esprofilehelper import ESProfileHelper
 
 
-class TrajectoryView(LoadProfileGeneric):
-    """  """
-
+class TrajectoryView(View):
     def __init__(self):
-        esRouteQuery = Search()
-        esRouteQuery = esRouteQuery[:0]
-        aggs = A('terms', field = "route", size=1000)
-        esRouteQuery.aggs.bucket('unique', aggs)
+        super(TrajectoryView, self).__init__()
 
-        esQueryDict = {}
-        esQueryDict['routes'] = esRouteQuery
-        
-        super(TrajectoryView, self).__init__(esQueryDict)
+        self.es_helper = ESProfileHelper()
+        self.base_params = self.es_helper.get_base_params()
+        self.base_params["routes"] = self.es_helper.get_unique_list_query("route", size=1000)
+        self.base_params = self.es_helper.make_multisearch_query_for_aggs(self.base_params)
 
     def get(self, request):
         template = "profile/trajectory.html"
 
         # add periods of thirty minutes
         minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
-        self.context['minutes'] = minutes
+        context = self.base_params
+        context['minutes'] = minutes
 
-        return render(request, template, self.context)
+        return render(request, template, context)
