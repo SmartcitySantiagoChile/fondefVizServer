@@ -31,7 +31,6 @@ $(document).ready(function () {
             }
             $.getJSON(Urls["globalstat:data"](), params, function (answer) {
                 updateChart(answer);
-                //updateSeparatedChart(answer);
             }).always(function() {
                 makeAjaxCall = true;
                 button.html(previousMessage);
