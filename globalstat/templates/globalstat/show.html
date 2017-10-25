@@ -1,4 +1,4 @@
-{% extends 'admin/base_site.html' %}
+{% extends 'globalstat/base.html' %}
 {% load static header panel inline_select table columns update_button label %}
 
 {% block title %}Estadísticas globales{% endblock %}
@@ -6,15 +6,10 @@
 {% block content %}
   {% header "Estadísticas globales del sistema" %}
 
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        {% panel "" "" '<div id="barChart" style="height:600px;"></div>' %}
-    </div>
-  </div>
+  {{ block.super }}
 {% endblock %}
 
 {% block js %}
-    <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
-    <script src="{% static "js/echartsTheme.js" %}"></script>
+    {{ block.super }}
     <script src="{% static "js/show.js" %}"></script>
 {% endblock %}
