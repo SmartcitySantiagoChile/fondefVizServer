@@ -108,6 +108,12 @@ class Detail(View):
 
         self.context["metrics"] = attributes
 
+        self.context["tiles"] = [
+            {"title": "Tipo de día", "title_icon": "fa-calendar", "value": "", "value_id": "dayType"},
+            {"title": "v", "title_icon": "fa-user", "value": None, "value_id": "2"},
+            {"title": "b", "title_icon": "fa-user", "value": None, "value_id": "3"},
+        ]
+
     def get(self, request):
         template = "globalstat/detail.html"
 

@@ -88,11 +88,13 @@ $(document).ready(function () {
 
         var yAxisDataName = [];
         var series = [];
+        var dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
         var xData = dates.map(function(date) {
             date = new Date(date);
             var mm = date.getUTCMonth() + 1;
             var dd = date.getUTCDate();
-            return [date.getUTCFullYear(), (mm>9 ? "" : "0") + mm, (dd>9 ? "" : "0") + dd].join("-");
+            var day = [date.getUTCFullYear(), (mm>9 ? "" : "0") + mm, (dd>9 ? "" : "0") + dd].join("-");
+            return day + " (" + dayName[date.getUTCDay()] + ")";
         });
 
         echarts.util.each(header, function (name, index) {
