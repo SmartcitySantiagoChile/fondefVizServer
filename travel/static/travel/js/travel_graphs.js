@@ -65,7 +65,7 @@ function getGraphData(options) {
     if (data === null) return null;
 
     var xaxis_fn = options.visualization_mappings[options.curr_visualization_type].xaxis_fn;
-    
+
     var result = {};
     result.xaxis = [];
     result.count = [];
@@ -123,16 +123,16 @@ function updateIndicators(data) {
     $("#indicator-dist-ruta-max").text(dist_ruta_max.toFixed(1) + " km");
 }
 
-function updateIndicatorsSize() {  
+function updateIndicatorsSize() {
     var stats = $('.indicator-stat');
-    if ( $(window).width() > 1700 ) {  
+    if ( $(window).width() > 1700 ) {
         stats.removeClass("col-lg-6");
         stats.addClass("col-lg-3");
     } else {
         stats.removeClass("col-lg-3");
         stats.addClass("col-lg-6");
     }
-}  
+}
 
 function processData(response) {
     ws_data.data = response.histogram;

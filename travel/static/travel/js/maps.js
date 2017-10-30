@@ -61,7 +61,7 @@ function styleSubway(feature) {
         opacity: 1,
         color: feature.properties.color,
         dashArray: '0',
-    };   
+    };
 }
 
 function styleZone(feature) {
@@ -128,18 +128,18 @@ function setupMapInfoBar(options) {
 
             var zone = getDataZoneById(ws_data.data, props.id, options);
             if (zone != null) {
-                this._div.innerHTML += 
+                this._div.innerHTML +=
                     '<br/> - # Datos: ' + zone.doc_count +
                     '<br/> - # Etapas: ' + zone.n_etapas.value.toFixed(2) +
                     '<br/> - Duración: ' + zone.tviaje.value.toFixed(1) + ' [min]' +
                     '<br/> - Distancia (en ruta): ' + (zone.distancia_ruta.value / 1000.0).toFixed(2) + ' [km]' +
                     '<br/> - Distancia (euclideana): ' + (zone.distancia_eucl.value / 1000.0).toFixed(2) + ' [km]';
             } else {
-                this._div.innerHTML += 
+                this._div.innerHTML +=
                     '<br/> Sin información para los filtros'
                     + '<br/> seleccionados';
             }
-            
+
         } else {
             this._div.innerHTML += 'Pon el ratón sobre una zona';
         }
@@ -170,15 +170,18 @@ function setupMapLegend(options) {
         // loop through our density intervals and generate a label with a colored square for each interval
         var div = document.getElementById("map_legend");
         div.innerHTML = "";
-        for (var i = 0; i < grades.length; i++) {
+        for (var i = 0; i < grades.length-1; i++) {
             div.innerHTML +=
-                '<i style="background:' + getZoneColor(grades[i] + 1, options) + '"></i> ' +
-                grades_str[i] + (grades_str[i + 1] ? '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str : '+ ' + grades_post_str);
+                '<i style="background:' + getZoneColor((grades[i]+grades[i+1])/2.0, options) + '"></i> ' +
+                grades_str[i] + '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str;
             div.innerHTML += '<br>';
         }
         div.innerHTML +=
-            '<i style="background:' + "#cccccc" + '"></i>Sin Datos<br>';
-    }  
+            '<i style="background:' + getZoneColor(grades[grades.length-1]+1, options) + '"></i> ' +
+            grades_str[i] + '+ ' + grades_post_str;
+        div.innerHTML +=
+            '<br><i style="background:' + "#cccccc" + '"></i>Sin Datos<br>';
+    }
 }
 
 
@@ -266,7 +269,7 @@ function setupMap(options) {
 
     ws_data.map.setMaxBounds(ws_data.map.getBounds());
     ws_data.map.setView(options.map_default_lat_lon, options.map_default_zoom);
-    
+
     // load zonas layer
     function loadZonesGeoJSON() {
         return $.ajax({
@@ -287,13 +290,36 @@ function setupMap(options) {
     function loadMetroGeoJson() {
         return $.ajax({
             'global': false,
-            'url': '/static/js/data/subway.geojson',
-            'dataType': "json",
+            'url': '/static/js/data/metro.geojson',
+            'dataType': 'json',
             'success': function (data) {
                 ws_data.subway_layer = L.geoJson(data, {
-                    style: styleSubway,
-                    onEachFeature: onEachSubwayFeature
-                }).addTo(ws_data.map);;
+                    onEachFeature: function(feature, layer){
+                        var popup_text = feature.properties.name + "<br/>" + ((feature.properties.color == "#000000")?"Combinación ":"") + feature.properties.line;
+                        layer.bindPopup(popup_text);
+                    },
+                    pointToLayer: function (feature, latlng) {
+                        if(feature.properties.line=="MetroTren"){
+                            return L.circleMarker(latlng, {
+                                radius: 6,
+                                fillColor: feature.properties.color2,
+                                color: feature.properties.color1,
+                                weight: 4,
+                                opacity: 1,
+                                fillOpacity: 1.0
+                            });
+                        }else{
+                            return L.circleMarker(latlng, {
+                                radius: 6,
+                                fillColor: feature.properties.color,
+                                color: "#000000",
+                                weight: 2,
+                                opacity: 1,
+                                fillOpacity: 1.0
+                            });
+                        }
+                    }
+                }).addTo(ws_data.map);
             }
         });
     }
@@ -345,14 +371,14 @@ function setupMap(options) {
                 rearrange_layers();
             });
             rearrange_layers();
-            ws_data.ready = true; 
+            ws_data.ready = true;
         }
     );
 }
 
 function redraw(options) {
     if (!ws_data.ready) return;
-
+    console.log(styleZone);
     ws_data.zones_layer.setStyle(styleZone);
     ws_data.map_legend.updateVisualization(options);
     updateMapDocCount(options);
@@ -405,7 +431,7 @@ function updateSectorLayer(options) {
 }
 
 function zoomToCurrentSector() {
-    var bounds = ws_data.sector_layer.getBounds(); 
+    var bounds = ws_data.sector_layer.getBounds();
     ws_data.map.fitBounds(bounds, {maxZoom: options.map_sector_zoom});
 }
 

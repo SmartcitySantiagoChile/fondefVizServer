@@ -1,0 +1,1665 @@
+{
+	"type": "FeatureCollection",
+	"features": [
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.635167,
+					-33.437186
+				]
+			},
+			"properties": {
+				"line": "L1 / L5",
+				"name": "ESTACION BAQUEDANO",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.664074,
+					-33.537712
+				]
+			},
+			"properties": {
+				"line": "L2 / L4A",
+				"name": "ESTACION LA CISTERNA",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.6605,
+					-33.446474
+				]
+			},
+			"properties": {
+				"line": "L1 / L2",
+				"name": "ESTACION LOS HEROES",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.723142,
+					-33.445143
+				]
+			},
+			"properties": {
+				"line": "L1 / L5",
+				"name": "ESTACION SAN PABLO",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.66011,
+					-33.438308
+				]
+			},
+			"properties": {
+				"line": "L2 / L5",
+				"name": "ESTACION SANTA ANA",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.60145,
+					-33.418227
+				]
+			},
+			"properties": {
+				"line": "L1 / L4",
+				"name": "ESTACION TOBALABA",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.596757,
+					-33.526338
+				]
+			},
+			"properties": {
+				"line": "L4 / L5",
+				"name": "ESTACION VICENTE VALDES",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.596066,
+					-33.519642
+				]
+			},
+			"properties": {
+				"line": "L4A / L5",
+				"name": "ESTACION VICUNA MACKENNA",
+				"color": "#ffffff"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.5891,
+					-33.415265
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION ALCANTARA",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.699669,
+					-33.456046
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION ECUADOR",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.595689,
+					-33.416609
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION EL GOLF",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.584436,
+					-33.414312
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION ESCUELA MILITAR",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.679166,
+					-33.450969
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION CENTRAL",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.555597,
+					-33.408
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION HERNANDO DE MAGALLANES",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.654635,
+					-33.445088
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION LA MONEDA",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.705964,
+					-33.457156
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION LAS REJAS",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.673204,
+					-33.449468
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION UNION LATINO AMERICANA",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.545041,
+					-33.407874
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION LOS DOMINICOS",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.609681,
+					-33.422258
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION LOS LEONES",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.56724,
+					-33.408844
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION MANQUEHUE",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.619207,
+					-33.428342
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION MANUEL MONTT",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.722687,
+					-33.451544
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION NEPTUNO",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.715777,
+					-33.45798
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION PAJARITOS",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.614272,
+					-33.425466
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION PEDRO DE VALDIVIA",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.667567,
+					-33.447952
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION REPUBLICA",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.626495,
+					-33.433533
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION SALVADOR",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.692433,
+					-33.454114
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION SAN ALBERTO HURTADO",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.645809,
+					-33.442848
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION SANTA LUCIA",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.640549,
+					-33.440215
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION UNIVERSIDAD CATOLICA",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.65039,
+					-33.443937
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION UNIVERSIDAD DE CHILE",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.686149,
+					-33.452897
+				]
+			},
+			"properties": {
+				"line": "L1",
+				"name": "ESTACION UNIVERSIDAD DE SANTIAGO",
+				"color": "#ed1b24"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.653216,
+					-33.432885
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION CAL Y CANTO",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.643565,
+					-33.414073
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION CEMENTERIOS",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.644971,
+					-33.422555
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION CERRO BLANCO",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.656859,
+					-33.510163
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION CIUDAD DEL NINO",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.654644,
+					-33.502555
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION DEPARTAMENTAL",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.64268,
+					-33.3968
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION DORSAL",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.643138,
+					-33.405733
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION EINSTEIN",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.649655,
+					-33.4825
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION EL LLANO",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.661422,
+					-33.526531
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION EL PARRON",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.649531,
+					-33.473369
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION FRANKLIN",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.65871,
+					-33.5172
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION LO OVALLE",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.653109,
+					-33.497274
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION LO VIAL",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.65687,
+					-33.460466
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION PARQUE OHIGGINS",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.647061,
+					-33.429632
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION PATRONATO",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.655923,
+					-33.470623
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION RONDIZONNI",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.650825,
+					-33.488785
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION SAN MIGUEL",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.658577,
+					-33.452964
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION TOESCA",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.64603,
+					-33.380622
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION VESPUCIO NORTE",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.64244,
+					-33.390939
+				]
+			},
+			"properties": {
+				"line": "L2",
+				"name": "ESTACION ZAPADORES",
+				"color": "#f7941d"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.584639,
+					-33.431486
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION FRANCISCO BILBAO",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.590972,
+					-33.426222
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION CRISTOBAL COLON",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.583613,
+					-33.569406
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION ELISA CORREA",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.582375,
+					-33.57646
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION HOSPITAL SOTERO DEL RIO",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.577195,
+					-33.60212
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION LAS MERCEDES",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.587074,
+					-33.500033
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION LAS TORRES",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.573793,
+					-33.462455
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION LOS ORIENTALES",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.578716,
+					-33.479797
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION LOS PRESIDENTES",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.585286,
+					-33.560626
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION LOS QUILLAYES",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.589486,
+					-33.508787
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION MACUL",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.575902,
+					-33.609546
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION PLAZA DE PUENTE ALTO",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.570733,
+					-33.453278
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION PLAZA EGANA",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.573087,
+					-33.439162
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION PRINCIPE DE GALES",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.579706,
+					-33.589288
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION PROTECTORA DE LA INFANCIA",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.592776,
+					-33.535854
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION ROJAS MAGALLANES",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.576201,
+					-33.468819
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION GRECIA",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.580234,
+					-33.487999
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION QUILIN",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.586562,
+					-33.553356
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION SAN JOSE DE LA ESTRELLA",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.572037,
+					-33.445905
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION SIMON BOLIVAR",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.587655,
+					-33.547019
+				]
+			},
+			"properties": {
+				"line": "L4",
+				"name": "ESTACION TRINIDAD",
+				"color": "#2e3192"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.615967,
+					-33.541138
+				]
+			},
+			"properties": {
+				"line": "L4A",
+				"name": "ESTACION LA GRANJA",
+				"color": "#00adef"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.642461,
+					-33.541302
+				]
+			},
+			"properties": {
+				"line": "L4A",
+				"name": "ESTACION SAN RAMON",
+				"color": "#00adef"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.605496,
+					-33.531106
+				]
+			},
+			"properties": {
+				"line": "L4A",
+				"name": "ESTACION SANTA JULIA",
+				"color": "#00adef"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.634123,
+					-33.542511
+				]
+			},
+			"properties": {
+				"line": "L4A",
+				"name": "ESTACION SANTA ROSA",
+				"color": "#00adef"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.617529,
+					-33.491584
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION CAMINO AGRICOLA",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.739112,
+					-33.452915
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION BARRANCAS",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.64452,
+					-33.436611
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION BELLAS ARTES",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.707321,
+					-33.441505
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION BLANQUEADO",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.619648,
+					-33.485642
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION CARLOS VALDOVINOS",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.752861,
+					-33.49006
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION DEL SOL",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.691284,
+					-33.43806
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION GRUTA DE LOURDES",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.628893,
+					-33.452436
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION IRARRAZAVAL",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.599777,
+					-33.519896
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION BELLAVISTA DE LA FLORIDA",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.737922,
+					-33.462372
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION LAGUNA SUR",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.739753,
+					-33.475204
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION LAS PARCELAS",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.716412,
+					-33.443298
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION LO PRADO",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.606582,
+					-33.512934
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION MIRADOR",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.745463,
+					-33.48226
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION MONTE TABOR",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.626418,
+					-33.467467
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION NUBLE",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.630972,
+					-33.442726
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION PARQUE BUSTAMANTE",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.612664,
+					-33.507812
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION PEDRERO",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.650551,
+					-33.437258
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION PLAZA DE ARMAS",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.756241,
+					-33.510217
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION PLAZA MAIPU",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.740746,
+					-33.444878
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION PUDAHUEL",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.679737,
+					-33.440291
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION QUINTA NORMAL",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.668427,
+					-33.439099
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION CUMMING",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.622313,
+					-33.477515
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION RODRIGO DE ARAYA",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.61602,
+					-33.498317
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION SAN JOAQUIN",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.630404,
+					-33.447103
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION SANTA ISABEL",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.757123,
+					-33.496835
+				]
+			},
+			"properties": {
+				"line": "L5",
+				"name": "ESTACION SANTIAGO BUERAS",
+				"color": "#0b9444"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.680622,
+					-33.452236
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION ALAMEDA",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.680622,
+					-33.477086
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION LO VALLEDOR",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.681800,
+					-33.493075
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION PEDRO AGUIRRE CERDA",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.685794,
+					-33.514150
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION LO ESPEJO",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.698397,
+					-33.573200
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION LO BLANCO",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.698472,
+					-33.586417
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION FREIRE",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.697878,
+					-33.594486
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION SAN BERNARDO",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.696978,
+					-33.606847
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION MAESTRANZA",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.700781,
+					-33.623644
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION CINCO PINOS",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-70.704797,
+					-33.632758
+				]
+			},
+			"properties": {
+				"line": "MetroTren",
+				"name": "ESTACION NOS",
+				"color1": "blue",
+				"color2": "yellow"
+			}
+		}
+	]
+}
