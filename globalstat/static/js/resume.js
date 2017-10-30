@@ -14,7 +14,7 @@ $(document).ready(function () {
     METRIC_FILTER.select2({placeholder: ALL_LABEL});
 
     var makeAjaxCall = true;
-    UPDATE_BUTTON.click(function (){
+    UPDATE_BUTTON.click(function () {
         if (makeAjaxCall) {
             makeAjaxCall = false;
 
@@ -31,7 +31,7 @@ $(document).ready(function () {
             }
             $.getJSON(Urls["globalstat:data"](), params, function (answer) {
                 updateChart(answer);
-            }).always(function() {
+            }).always(function () {
                 makeAjaxCall = true;
                 button.html(previousMessage);
             });
@@ -40,15 +40,24 @@ $(document).ready(function () {
 
     var filters = {
         "clean": [],
-        "transaction":["transactionWithoutRoute", "transactionWithRoute", "transactionNumber",
-                    "transactionOnTrainNumber", "transactionOnMetroNumber", "transactionOnBusNumber",
-                    "transactionOnBusStation"],
-        "trip": ["validTripNumber", "tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages",
-                 "tripsWithFourStages", "tripsWithFiveOrMoreStages", "tripsWithOnlyMetro"],
-        "expedition": ["expeditionNumber"],
+        "transaction": ["transactionWithoutRoute", "transactionWithRoute", "transactionNumber",
+            "transactionOnTrainNumber", "transactionOnMetroNumber", "transactionOnBusNumber",
+            "transactionOnBusStation"],
+        "tripByNumberOfStage": ["tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages",
+            "tripsWithFourStages", "tripsWithFiveOrMoreStages"],
+        "dayTrip": ["validTripNumber", "tripNumber", "averageTimeOfTrips", "averageVelocityOfTrips",
+            "averageTimeBetweenGPSPoints", "averageDistanceOfTrips", "tripsWithOnlyMetro",
+            "tripsThatUseMetro", "completeTripNumber", "stagesWithBusStationAlighting",
+            "tripsWithoutLastAlighting", "smartcardNumber"],
+        "afternoonTrip": ["averageVelocityInAfternoonRushTrips", "averageTimeInAfternoonRushTrips",
+            "averageDistanceInAfternoonRushTrips", "tripNumberInAfternoonRushHour"],
+        "morningTrip": ["averageVelocityInMorningRushTrips", "averageTimeInMorningRushTrips",
+            "averageDistanceInMorningRushTrips", "tripNumberInMorningRushHour"],
+        "stage": ["stagesWithBusAlighting", "stagesWithTrainAlighting", "stagesWithMetroAlighting"],
+        "expedition": ["expeditionNumber", "maxExpeditionTime", "minExpeditionTime", "averageExpeditionTime"],
         "gps": ["licensePlateNumber", "GPSPointsNumber", "GPSNumberWithRoute", "GPSNumberWithoutRoute"]
     };
-    $(".btn-filter-group").click(function(){
+    $(".btn-filter-group").click(function () {
         var id = $(this).attr("id");
         var metrics = filters[id];
         METRIC_FILTER.val(metrics).trigger("change");
@@ -63,24 +72,26 @@ $(document).ready(function () {
 
         // generate range of dates
         var firstDate = new Date(rows[0][0]);
-        var endDate = new Date(rows[rows.length-1][0]);
+        var endDate = new Date(rows[rows.length - 1][0]);
         var dates = [];
         var currentDate = firstDate;
-        while(currentDate <= endDate) {
+        while (currentDate <= endDate) {
             dates.push(currentDate.getTime());
             currentDate.setUTCDate(currentDate.getUTCDate() + 1);
         }
 
-        var data = dates.map(function(date) {
-            var row = header.map(function(){ return null;});
+        var data = dates.map(function (date) {
+            var row = header.map(function () {
+                return null;
+            });
             row[0] = date;
             return row;
         });
-        rows.forEach(function(row) {
+        rows.forEach(function (row) {
             var day = (new Date(row[0])).getTime();
             var index = dates.indexOf(day);
-            row.forEach(function(el, j) {
-                if (j!==0) {
+            row.forEach(function (el, j) {
+                if (j !== 0) {
                     data[index][j] = el;
                 }
             });
@@ -89,11 +100,11 @@ $(document).ready(function () {
         var yAxisDataName = [];
         var series = [];
         var dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-        var xData = dates.map(function(date) {
+        var xData = dates.map(function (date) {
             date = new Date(date);
             var mm = date.getUTCMonth() + 1;
             var dd = date.getUTCDate();
-            var day = [date.getUTCFullYear(), (mm>9 ? "" : "0") + mm, (dd>9 ? "" : "0") + dd].join("-");
+            var day = [date.getUTCFullYear(), (mm > 9 ? "" : "0") + mm, (dd > 9 ? "" : "0") + dd].join("-");
             return day + " (" + dayName[date.getUTCDay()] + ")";
         });
 
@@ -128,7 +139,7 @@ $(document).ready(function () {
             }],
             yAxis: [{
                 type: "value",
-                name: "Cantidad",
+                name: "",
                 position: "left"
             }],
             tooltip: {
