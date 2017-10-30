@@ -21,14 +21,14 @@ DICTIONARY = {
     "transactionOnBusNumber": {"name": "Número de transacciones en bus", "order": 7},
     "transactionOnBusStation": {"name": "Transacciones en zona paga", "order": 8},
 
-    "averageVelocityInAfternoonRushTrips": {"name": "Velocidad prom. de viajes en punta tarde", "order": 9},
-    "averageTimeInAfternoonRushTrips": {"name": "Tiempo prom. de viajes en punta tarde", "order": 10},
-    "averageDistanceInAfternoonRushTrips": {"name": "Distancia prom. de viajes en punta tarde", "order": 11},
+    "averageVelocityInAfternoonRushTrips": {"name": "Velocidad prom. de viajes en punta tarde (Km/H)", "order": 9},
+    "averageTimeInAfternoonRushTrips": {"name": "Tiempo prom. de viajes en punta tarde (min)", "order": 10},
+    "averageDistanceInAfternoonRushTrips": {"name": "Distancia prom. de viajes en punta tarde (mts)", "order": 11},
     "tripNumberInAfternoonRushHour": {"name": "Número de viajes en punta tarde", "order": 12},
 
-    "averageVelocityInMorningRushTrips": {"name": "Velocidad prom. de viaje en punta mañana", "order": 13},
-    "averageTimeInMorningRushTrips": {"name": "Tiempo prom. de viaje en punta mañana", "order": 14},
-    "averageDistanceInMorningRushTrips": {"name": "Distancia prom. de viajes en punta mañana", "order": 15},
+    "averageVelocityInMorningRushTrips": {"name": "Velocidad prom. de viaje en punta mañana (Km/H)", "order": 13},
+    "averageTimeInMorningRushTrips": {"name": "Tiempo prom. de viaje en punta mañana (min)", "order": 14},
+    "averageDistanceInMorningRushTrips": {"name": "Distancia prom. de viajes en punta mañana (mts)", "order": 15},
     "tripNumberInMorningRushHour": {"name": "Número de viajes en punta mañana", "order": 16},
 
     "licensePlateNumber": {"name": "Número de patentes", "order": 17},
@@ -49,18 +49,18 @@ DICTIONARY = {
     "stagesWithMetroAlighting": {"name": "Número de etapas en metro", "order": 30},
 
     "expeditionNumber": {"name": "Número de expediciones", "order": 31},
-    "maxExpeditionTime": {"name": "Tiempo de expedición máximo", "order": 32},
-    "minExpeditionTime": {"name": "Tiempo de expedición mínimo", "order": 33},
-    "averageExpeditionTime": {"name": "Tiempo prom. de expedición", "order": 34},
+    "maxExpeditionTime": {"name": "Tiempo de expedición máximo (min)", "order": 32},
+    "minExpeditionTime": {"name": "Tiempo de expedición mínimo (min)", "order": 33},
+    "averageExpeditionTime": {"name": "Tiempo prom. de expedición (min)", "order": 34},
 
     "smartcardNumber": {"name": "Número de tarjetas", "order": 35},
     "dayType": {"name": "Tipo de día", "order": 36},
 
     "tripNumber": {"name": "Número de viajes", "order": 37},
-    "averageTimeOfTrips": {"name": "Tiempo promedio de viajes", "order": 38},
-    "averageVelocityOfTrips": {"name": "Velocidad prom. de viajes", "order": 39},
-    "averageTimeBetweenGPSPoints": {"name": "Tiempo prom. entre pulsos GPS", "order": 40},
-    "averageDistanceOfTrips": {"name": "Distancia promedio de viajes", "order": 41},
+    "averageTimeOfTrips": {"name": "Tiempo promedio de viajes (min)", "order": 38},
+    "averageVelocityOfTrips": {"name": "Velocidad prom. de viajes (Km/H)", "order": 39},
+    "averageTimeBetweenGPSPoints": {"name": "Tiempo prom. entre pulsos GPS (min)", "order": 40},
+    "averageDistanceOfTrips": {"name": "Distancia promedio de viajes (mts)", "order": 41},
 
     "tripsThatUseMetro": {"name": "Número de viajes que usan metro", "order": 42},
     "completeTripNumber": {"name": "Número de viajes completo", "order": 43},
