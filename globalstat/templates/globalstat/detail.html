@@ -24,11 +24,12 @@
     {% inline_select "Métrica:" "metricFilter" metrics True as dayType_select %}
     {% columns 8 8 12 dayType_select as col3 %}
 
+    {% button "clean" "Quitar métricas" "warning" "filter-group" as btn5 %}
     {% button "transaction" "Transacciones" "default" "filter-group" as btn1 %}
     {% button "trip" "Viajes" "default" "filter-group" as btn2 %}
     {% button "expedition" "Expediciones" "default" "filter-group" as btn3 %}
     {% button "gps" "GPS" "default" "filter-group" as btn4 %}
-    {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4 as col4 %}
+    {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn5|add:btn1|add:btn2|add:btn3|add:btn4 as col4 %}
 
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
     {% columns 12 12 12 update_button as col5 %}

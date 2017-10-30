@@ -14,7 +14,7 @@ $(document).ready(function () {
     METRIC_FILTER.select2({placeholder: ALL_LABEL});
 
     var makeAjaxCall = true;
-    UPDATE_BUTTON.click(function () {
+    UPDATE_BUTTON.click(function (){
         if (makeAjaxCall) {
             makeAjaxCall = false;
 
@@ -39,6 +39,7 @@ $(document).ready(function () {
     });
 
     var filters = {
+        "clean": [],
         "transaction":["transactionWithoutRoute", "transactionWithRoute", "transactionNumber",
                     "transactionOnTrainNumber", "transactionOnMetroNumber", "transactionOnBusNumber",
                     "transactionOnBusStation"],
