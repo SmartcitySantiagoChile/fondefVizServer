@@ -69,17 +69,25 @@ DICTIONARY = {
 }
 
 
-class Show(View):
+class Resume(View):
     """  """
 
     def __init__(self):
         """ Constructor """
-        super(Show, self).__init__()
+        super(Resume, self).__init__()
+        self.es_helper = ESGlobalStaticHelper()
 
         self.context = {}
+        self.context.update(self.es_helper.get_form_data())
+
+        attributes = []
+        for key, value in DICTIONARY.items():
+            attributes.append({"value": key, "item": value["name"]})
+
+        self.context["metrics"] = attributes
 
     def get(self, request):
-        template = "globalstat/show.html"
+        template = "globalstat/resume.html"
 
         return render(request, template, self.context)
 
