@@ -13,59 +13,107 @@ from globalstat.esglobalstatichelper import ESGlobalStaticHelper
 # to translate variable to user name
 DICTIONARY = {
     "date": {"name": "Día", "order": 1},
-    "transactionWithoutRoute": {"name": "transacciones sin servicio asignado", "order": 2},
-    "transactionWithRoute": {"name": "Transacciones con servicio asignado", "order": 3},
-    "transactionNumber": {"name": "Número de transacciones", "order": 4},
-    "transactionOnTrainNumber": {"name": "Número de transacciones en metrotren", "order": 5},
-    "transactionOnMetroNumber": {"name": "Número de transacciones en metro", "order": 6},
-    "transactionOnBusNumber": {"name": "Número de transacciones en bus", "order": 7},
-    "transactionOnBusStation": {"name": "Transacciones en zona paga", "order": 8},
+    "transactionWithoutRoute":
+        {"name": "transacciones sin servicio asignado",
+         "chartName": "Sin servicio asignado",
+         "order": 2},
+    "transactionWithRoute":
+        {"name": "Transacciones con servicio asignado",
+         "chartName": "Con servicio asignado",
+         "order": 3},
+    "transactionNumber":
+        {"name": "Número de transacciones", "chartName": "", "order": 4},
+    "transactionOnTrainNumber":
+        {"name": "Número de transacciones en metrotren", "chartName": "Metrotren", "order": 5},
+    "transactionOnMetroNumber":
+        {"name": "Número de transacciones en metro", "chartName": "Metro", "order": 6},
+    "transactionOnBusNumber":
+        {"name": "Número de transacciones en bus", "chartName": "Bus", "order": 7},
+    "transactionOnBusStation":
+        {"name": "Transacciones en zona paga", "chartName": "Zona paga", "order": 8},
 
-    "averageVelocityInAfternoonRushTrips": {"name": "Velocidad prom. de viajes en punta tarde (Km/H)", "order": 9},
-    "averageTimeInAfternoonRushTrips": {"name": "Tiempo prom. de viajes en punta tarde (min)", "order": 10},
-    "averageDistanceInAfternoonRushTrips": {"name": "Distancia prom. de viajes en punta tarde (mts)", "order": 11},
-    "tripNumberInAfternoonRushHour": {"name": "Número de viajes en punta tarde", "order": 12},
+    "averageVelocityInAfternoonRushTrips":
+        {"name": "Velocidad prom. de viajes en punta tarde (Km/H)", "chartName": "", "order": 9},
+    "averageTimeInAfternoonRushTrips":
+        {"name": "Tiempo prom. de viajes en punta tarde (min)", "chartName": "", "order": 10},
+    "averageDistanceInAfternoonRushTrips":
+        {"name": "Distancia prom. de viajes en punta tarde (mts)", "chartName": "", "order": 11},
+    "tripNumberInAfternoonRushHour":
+        {"name": "Número de viajes en punta tarde", "chartName": "", "order": 12},
 
-    "averageVelocityInMorningRushTrips": {"name": "Velocidad prom. de viaje en punta mañana (Km/H)", "order": 13},
-    "averageTimeInMorningRushTrips": {"name": "Tiempo prom. de viaje en punta mañana (min)", "order": 14},
-    "averageDistanceInMorningRushTrips": {"name": "Distancia prom. de viajes en punta mañana (mts)", "order": 15},
-    "tripNumberInMorningRushHour": {"name": "Número de viajes en punta mañana", "order": 16},
+    "averageVelocityInMorningRushTrips":
+        {"name": "Velocidad prom. de viaje en punta mañana (Km/H)", "chartName": "", "order": 13},
+    "averageTimeInMorningRushTrips":
+        {"name": "Tiempo prom. de viaje en punta mañana (min)", "chartName": "", "order": 14},
+    "averageDistanceInMorningRushTrips":
+        {"name": "Distancia prom. de viajes en punta mañana (mts)", "chartName": "", "order": 15},
+    "tripNumberInMorningRushHour":
+        {"name": "Número de viajes en punta mañana", "chartName": "", "order": 16},
 
-    "licensePlateNumber": {"name": "Número de patentes", "order": 17},
-    "GPSPointsNumber": {"name": "Número de puntos GPS", "order": 18},
-    "GPSNumberWithRoute": {"name": "Número de GPS con servicio asignado", "order": 19},
-    "GPSNumberWithoutRoute": {"name": "Número de pulsos GPS sin servicio asignado", "order": 20},
+    "licensePlateNumber":
+        {"name": "Número de patentes", "chartName": "", "order": 17},
+    "GPSPointsNumber":
+        {"name": "Número de pulsos GPS", "chartName": "", "order": 18},
+    "GPSNumberWithRoute":
+        {"name": "Número de GPS con servicio asignado", "chartName": "", "order": 19},
+    "GPSNumberWithoutRoute":
+        {"name": "Número de pulsos GPS sin servicio asignado", "chartName": "", "order": 20},
+    "averageTimeBetweenGPSPoints":
+        {"name": "Tiempo prom. entre pulsos GPS (min)", "chartName": "", "order": 40},
 
-    "validTripNumber": {"name": "Número de viajes válido", "order": 21},
-    "tripsWithOneStage": {"name": "Número de viajes con una etapa", "order": 22},
-    "tripsWithTwoStages": {"name": "Número de viajes con dos etapas", "order": 23},
-    "tripsWithThreeStages": {"name": "Número de viajes con tres etapas", "order": 24},
-    "tripsWithFourStages": {"name": "Número de viajes con cuatro etapas", "order": 25},
-    "tripsWithFiveOrMoreStages": {"name": "Número de viajes con cinco o más etapas", "order": 26},
-    "tripsWithOnlyMetro": {"name": "Número de Viajes solo en metro", "order": 27},
+    "validTripNumber":
+        {"name": "Número de viajes válido", "chartName": "", "order": 21},
+    "tripsWithOneStage":
+        {"name": "Número de viajes con una etapa", "chartName": "1 etapa", "order": 22},
+    "tripsWithTwoStages":
+        {"name": "Número de viajes con dos etapas", "chartName": "2 etapas", "order": 23},
+    "tripsWithThreeStages":
+        {"name": "Número de viajes con tres etapas", "chartName": "3 etapas", "order": 24},
+    "tripsWithFourStages":
+        {"name": "Número de viajes con cuatro etapas", "chartName": "4 etapas", "order": 25},
+    "tripsWithFiveOrMoreStages":
+        {"name": "Número de viajes con cinco o más etapas", "chartName": "5 o más etapas", "order": 26},
+    "tripsWithOnlyMetro":
+        {"name": "Número de Viajes solo en metro", "chartName": "", "order": 27},
 
-    "stagesWithBusAlighting": {"name": "Número de etapas en bus", "order": 28},
-    "stagesWithTrainAlighting": {"name": "Número de etapas en metrotren", "order": 29},
-    "stagesWithMetroAlighting": {"name": "Número de etapas en metro", "order": 30},
+    "stagesWithBusAlighting":
+        {"name": "Número de etapas en bus", "chartName": "Bus", "order": 28},
+    "stagesWithTrainAlighting":
+        {"name": "Número de etapas en metrotren", "chartName": "Metrotren", "order": 29},
+    "stagesWithMetroAlighting":
+        {"name": "Número de etapas en metro", "chartName": "Metro", "order": 30},
+    "stagesWithBusStationAlighting":
+        {"name": "Número de etapas con bajada en zona paga", "chartName": "Zona paga", "order": 45},
 
-    "expeditionNumber": {"name": "Número de expediciones", "order": 31},
-    "maxExpeditionTime": {"name": "Tiempo de expedición máximo (min)", "order": 32},
-    "minExpeditionTime": {"name": "Tiempo de expedición mínimo (min)", "order": 33},
-    "averageExpeditionTime": {"name": "Tiempo prom. de expedición (min)", "order": 34},
+    "expeditionNumber":
+        {"name": "Número de expediciones", "chartName": "", "order": 31},
+    "maxExpeditionTime":
+        {"name": "Tiempo de expedición máximo (min)", "chartName": "", "order": 32},
+    "minExpeditionTime":
+        {"name": "Tiempo de expedición mínimo (min)", "chartName": "", "order": 33},
+    "averageExpeditionTime":
+        {"name": "Tiempo prom. de expedición (min)", "chartName": "", "order": 34},
 
-    "smartcardNumber": {"name": "Número de tarjetas", "order": 35},
-    "dayType": {"name": "Tipo de día", "order": 36},
+    "smartcardNumber":
+        {"name": "Número de tarjetas", "chartName": "", "order": 35},
+    "dayType":
+        {"name": "Tipo de día", "chartName": "", "order": 36},
 
-    "tripNumber": {"name": "Número de viajes", "order": 37},
-    "averageTimeOfTrips": {"name": "Tiempo promedio de viajes (min)", "order": 38},
-    "averageVelocityOfTrips": {"name": "Velocidad prom. de viajes (Km/H)", "order": 39},
-    "averageTimeBetweenGPSPoints": {"name": "Tiempo prom. entre pulsos GPS (min)", "order": 40},
-    "averageDistanceOfTrips": {"name": "Distancia promedio de viajes (mts)", "order": 41},
+    "tripNumber":
+        {"name": "Número de viajes", "chartName": "", "order": 37},
+    "averageTimeOfTrips":
+        {"name": "Tiempo promedio de viajes (min)", "chartName": "", "order": 38},
+    "averageVelocityOfTrips":
+        {"name": "Velocidad prom. de viajes (Km/H)", "chartName": "", "order": 39},
+    "averageDistanceOfTrips":
+        {"name": "Distancia promedio de viajes (mts)", "chartName": "", "order": 41},
 
-    "tripsThatUseMetro": {"name": "Número de viajes que usan metro", "order": 42},
-    "completeTripNumber": {"name": "Número de viajes completo", "order": 43},
-    "stagesWithBusStationAlighting": {"name": "Número de etapas con bajada en zona paga", "order": 43},
-    "tripsWithoutLastAlighting": {"name": "Número de viajes sin última bajada", "order": 44}
+    "tripsThatUseMetro":
+        {"name": "Número de viajes que usan metro", "chartName": "", "order": 42},
+    "completeTripNumber":
+        {"name": "Número de viajes completo", "chartName": "", "order": 43},
+    "tripsWithoutLastAlighting":
+        {"name": "Número de viajes sin última bajada", "chartName": "", "order": 44}
 }
 
 
@@ -82,6 +130,8 @@ class Resume(View):
 
         attributes = []
         for key, value in DICTIONARY.items():
+            if key == "dayType":
+                continue
             attributes.append({"value": key, "item": value["name"]})
 
         self.context["metrics"] = attributes
@@ -104,14 +154,58 @@ class Detail(View):
 
         attributes = []
         for key, value in DICTIONARY.items():
+            if key == "dayType":
+                continue
             attributes.append({"value": key, "item": value["name"]})
 
         self.context["metrics"] = attributes
 
-        self.context["tiles"] = [
-            {"title": "Tipo de día", "title_icon": "fa-calendar", "value": "", "value_id": "dayType"},
-            {"title": "v", "title_icon": "fa-user", "value": None, "value_id": "2"},
-            {"title": "b", "title_icon": "fa-user", "value": None, "value_id": "3"},
+        self.context["tiles_1"] = [
+            {"title": DICTIONARY["dayType"]["name"], "title_icon": "fa-calendar", "value": "",
+             "value_id": "dayType", "sub_value_id": "date", "sub_title": "(día de la semana)"},
+            {"title": DICTIONARY["smartcardNumber"]["name"], "title_icon": "fa-credit-card", "value": "",
+             "value_id": "smartcardNumber", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["transactionNumber"]["name"], "title_icon": "fa-group", "value": "",
+             "value_id": "transactionNumber", "sub_value_id": "", "sub_title": ""},
+        ]
+
+        self.context["tiles_2"] = [
+            {"title": DICTIONARY["tripNumber"]["name"], "title_icon": "fa-rocket", "value": "",
+             "value_id": "tripNumber", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["validTripNumber"]["name"], "title_icon": "fa-credit-card", "value": "",
+             "value_id": "validTripNumber", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["completeTripNumber"]["name"], "title_icon": "fa-group", "value": "",
+             "value_id": "completeTripNumber", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["tripsThatUseMetro"]["name"], "title_icon": "fa-rocket", "value": "",
+             "value_id": "tripsThatUseMetro", "sub_value_id": "validTripNumber", "sub_title": ""},
+            {"title": DICTIONARY["tripsWithOnlyMetro"]["name"], "title_icon": "fa-truck", "value": "",
+             "value_id": "tripsWithOnlyMetro", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["tripsWithoutLastAlighting"]["name"], "title_icon": "fa-globe", "value": "",
+             "value_id": "tripsWithoutLastAlighting", "sub_value_id": "", "sub_title": ""},
+        ]
+
+        self.context["tiles_3"] = [
+            {"title": DICTIONARY["expeditionNumber"]["name"], "title_icon": "fa-car", "value": "",
+             "value_id": "expeditionNumber", "sub_value_id": "date", "sub_title": ""},
+            {"title": DICTIONARY["averageExpeditionTime"]["name"], "title_icon": "fa-credit-card", "value": "",
+             "value_id": "averageExpeditionTime", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["minExpeditionTime"]["name"], "title_icon": "fa-group", "value": "",
+             "value_id": "minExpeditionTime", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["maxExpeditionTime"]["name"], "title_icon": "fa-rocket", "value": "",
+             "value_id": "maxExpeditionTime", "sub_value_id": "validTripNumber", "sub_title": ""},
+            {"title": DICTIONARY["licensePlateNumber"]["name"], "title_icon": "fa-truck", "value": "",
+             "value_id": "licensePlateNumber", "sub_value_id": "", "sub_title": ""},
+        ]
+
+        self.context["tiles_4"] = [
+            {"title": DICTIONARY["GPSPointsNumber"]["name"], "title_icon": "fa-globe", "value": "",
+             "value_id": "GPSPointsNumber", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["GPSNumberWithRoute"]["name"], "title_icon": "fa-globe", "value": "",
+             "value_id": "GPSNumberWithRoute", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["GPSNumberWithoutRoute"]["name"], "title_icon": "fa-globe", "value": "",
+             "value_id": "GPSNumberWithoutRoute", "sub_value_id": "", "sub_title": ""},
+            {"title": DICTIONARY["averageTimeBetweenGPSPoints"]["name"], "title_icon": "fa-globe", "value": "",
+             "value_id": "averageTimeBetweenGPSPoints", "sub_value_id": "", "sub_title": ""},
         ]
 
     def get(self, request):
@@ -142,7 +236,8 @@ class Data(View):
                        "transactionOnBusStation",
 
                        "averageVelocityInAfternoonRushTrips", "averageTimeInAfternoonRushTrips"
-                       "averageDistanceInAfternoonRushTrips", "tripNumberInAfternoonRushHour",
+                                                              "averageDistanceInAfternoonRushTrips",
+                       "tripNumberInAfternoonRushHour",
 
                        "averageVelocityInMorningRushTrips", "averageTimeInMorningRushTrips",
                        "averageDistanceInMorningRushTrips", "tripNumberInMorningRushHour",
@@ -161,8 +256,8 @@ class Data(View):
                        "tripsThatUseMetro",
                        "completeTripNumber",
                        "stagesWithBusStationAlighting",
-                       "tripsWithoutLastAlighting"
-                                               
+                       "tripsWithoutLastAlighting",
+
                        "validTripNumber",
                        "tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages",
                        "tripsWithFourStages", "tripsWithFiveOrMoreStages",
@@ -171,6 +266,8 @@ class Data(View):
                        "stagesWithBusAlighting",
                        "stagesWithTrainAlighting",
                        "stagesWithMetroAlighting",
+
+                       "dayType"
                        ]
 
         esQuery = esQuery.source(["date"] + metrics)
@@ -201,6 +298,8 @@ class Data(View):
             "date": 0
         }
         header = [DICTIONARY["date"]["name"]]
+        identifiers = ["date"]
+        chart_names = ["Día"]
         answer = []
 
         for hit in esQuery.scan():
@@ -210,13 +309,17 @@ class Data(View):
                 if not key in keys.keys():
                     keys[key] = len(header)
                     header.append(DICTIONARY[key]["name"])
+                    chart_names.append(DICTIONARY[key]["chartName"])
+                    identifiers.append(key)
                 row[keys[key]] = value
             answer.append(row)
         # sort
         answer = sorted(answer, key=lambda x: dateparse.parse_datetime(x[0]))
 
         return {
+            "chartNames": chart_names,
             "header": header,
+            "ids": identifiers,
             "rows": answer
         }
 

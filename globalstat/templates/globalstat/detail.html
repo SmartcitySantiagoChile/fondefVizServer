@@ -25,8 +25,42 @@
     </div>
   </div>
 
-  {% tile_stats 2 4 6 tiles %}
-  {{ block.super }}
+  {% tile_stats 4 8 12 tiles_1 %}
+
+  <div class="row">
+    {% panel "" "" '<div id="chart1" style="height:200px;"></div>' as panel1 %}
+    {% columns 6 6 12 panel1 %}
+    {% panel "" "" '<div id="chart2" style="height:200px;"></div>' as panel2 %}
+    {% columns 6 6 12 panel2 %}
+  </div>
+
+  <div class="ln_solid"></div>
+
+  {% tile_stats 2 4 12 tiles_2 %}
+
+  <div class="row">
+    {% panel "" "" '<div id="chart3" style="height:300px;"></div>' as panel3 %}
+    {% panel "" "" '<div id="chart4" style="height:300px;"></div>' as panel4 %}
+
+    {% panel "" "" '<div id="chart5" style="height:150px;"></div>' as panel5 %}
+    {% panel "" "" '<div id="chart6" style="height:150px;"></div>' as panel6 %}
+    {% panel "" "" '<div id="chart7" style="height:150px;"></div>' as panel7 %}
+    {% panel "" "" '<div id="chart8" style="height:150px;"></div>' as panel8 %}
+
+    {% columns 6 6 12 panel3 %}
+    {% columns 6 6 12 panel4 %}
+
+    {% columns 3 3 12 panel5 %}
+    {% columns 3 3 12 panel6 %}
+    {% columns 3 3 12 panel7 %}
+    {% columns 3 3 12 panel8 %}
+  </div>
+
+  <div class="ln_solid"></div>
+  {% tile_stats 2 4 12 tiles_3 %}
+
+  <div class="ln_solid"></div>
+  {% tile_stats 3 4 12 tiles_4 %}
 {% endblock %}
 
 {% block js %}

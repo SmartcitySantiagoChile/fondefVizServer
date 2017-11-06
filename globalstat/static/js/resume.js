@@ -109,7 +109,7 @@ $(document).ready(function () {
         });
 
         echarts.util.each(header, function (name, index) {
-            if (name === "Día") {
+            if (name === "Día" || name === "Tipo de día") {
                 return;
             }
             var attributeData = data.map(function (dateData) {

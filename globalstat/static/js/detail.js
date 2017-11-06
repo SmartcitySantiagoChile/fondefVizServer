@@ -1,20 +1,13 @@
 "use strict";
 $(document).ready(function () {
-    var chart = echarts.init(document.getElementById("barChart"), theme);
-
     var UPDATE_BUTTON = $("#btnUpdateChart");
     var PERIOD_FILTER = $("#periodFilter");
-    var DAY_TYPE_FILTER = $("#dayTypeFilter");
-    var METRIC_FILTER = $("#metricFilter");
 
     var ALL_LABEL = "Todos";
     PERIOD_FILTER.select2({placeholder: ALL_LABEL});
-    DAY_TYPE_FILTER.select2({placeholder: ALL_LABEL, allowClear: true});
-    DAY_TYPE_FILTER.val(null).trigger("change");
-    METRIC_FILTER.select2({placeholder: ALL_LABEL});
 
     var makeAjaxCall = true;
-    UPDATE_BUTTON.click(function (){
+    UPDATE_BUTTON.click(function () {
         if (makeAjaxCall) {
             makeAjaxCall = false;
 
@@ -23,141 +16,148 @@ $(document).ready(function () {
             var button = $(this).append(loadingIcon);
 
             var params = {
-                period: PERIOD_FILTER.val(),
-                metrics: METRIC_FILTER.val()
+                period: [PERIOD_FILTER.val()]
             };
-            if (DAY_TYPE_FILTER.val()) {
-                params.dayType = DAY_TYPE_FILTER.val();
-            }
             $.getJSON(Urls["globalstat:data"](), params, function (answer) {
-                updateChart(answer);
-            }).always(function() {
+                updateMetrics(answer.data);
+            }).always(function () {
                 makeAjaxCall = true;
                 button.html(previousMessage);
             });
         }
     });
 
-    var filters = {
-        "clean": [],
-        "transaction":["transactionWithoutRoute", "transactionWithRoute", "transactionNumber",
-                    "transactionOnTrainNumber", "transactionOnMetroNumber", "transactionOnBusNumber",
-                    "transactionOnBusStation"],
-        "trip": ["validTripNumber", "tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages",
-                 "tripsWithFourStages", "tripsWithFiveOrMoreStages", "tripsWithOnlyMetro"],
-        "expedition": ["expeditionNumber"],
-        "gps": ["licensePlateNumber", "GPSPointsNumber", "GPSNumberWithRoute", "GPSNumberWithoutRoute"]
-    };
-    $(".btn-filter-group").click(function(){
-        var id = $(this).attr("id");
-        var metrics = filters[id];
-        METRIC_FILTER.val(metrics).trigger("change");
-    });
+    var charts = [];
+    var updateMetrics = function (data) {
+        var header = data.header;
+        var chartNames = data.chartNames;
+        var ids = data.ids;
+        var row = data.rows[0];
+        var days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-    var updateChart = function (answer) {
-        var header = answer.data.header;
-        var rows = answer.data.rows;
-        if (rows === 0) {
-            return;
-        }
-
-        // generate range of dates
-        var firstDate = new Date(rows[0][0]);
-        var endDate = new Date(rows[rows.length-1][0]);
-        var dates = [];
-        var currentDate = firstDate;
-        while(currentDate <= endDate) {
-            dates.push(currentDate.getTime());
-            currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-        }
-
-        var data = dates.map(function(date) {
-            var row = header.map(function(){ return null;});
-            row[0] = date;
-            return row;
-        });
-        rows.forEach(function(row) {
-            var day = (new Date(row[0])).getTime();
-            var index = dates.indexOf(day);
-            row.forEach(function(el, j) {
-                if (j!==0) {
-                    data[index][j] = el;
-                }
-            });
-        });
-
-        var yAxisDataName = [];
-        var series = [];
-        var dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-        var xData = dates.map(function(date) {
-            date = new Date(date);
-            var mm = date.getUTCMonth() + 1;
-            var dd = date.getUTCDate();
-            var day = [date.getUTCFullYear(), (mm>9 ? "" : "0") + mm, (dd>9 ? "" : "0") + dd].join("-");
-            return day + " (" + dayName[date.getUTCDay()] + ")";
-        });
-
-        echarts.util.each(header, function (name, index) {
-            if (name === "Día") {
-                return;
+        ids.forEach(function (id, index) {
+            var value = row[index];
+            if ($.isNumeric(value)) {
+                value = Number(value).toLocaleString();
             }
-            var attributeData = data.map(function (dateData) {
-                return dateData[index];
-            });
-
-            yAxisDataName.push(name);
-
-            var serie = {
-                name: name,
-                type: "line",
-                data: attributeData,
-                showSymbol: false,
-                smooth: true
-            };
-            series.push(serie);
+            if (id === "date") {
+                value = days[(new Date(value)).getUTCDay()];
+            }
+            try {
+                $("#" + id).html(value);
+            } catch (e) {
+                console.log("error: ");
+            }
         });
 
-        var option = {
-            legend: {
-                data: yAxisDataName
+        var pieChartOpt = {
+            tooltip: {
+                trigger: "item"
             },
-            xAxis: [{
-                type: "category",
-                name: "Días",
-                data: xData
-            }],
-            yAxis: [{
-                type: "value",
-                name: "Cantidad",
-                position: "left"
-            }],
+            series: [{
+                type: "pie",
+                radius: "60%",
+                center: ["50%", "50%"],
+                data: [],
+                roseType: "area",
+                animationType: "scale",
+                animationEasing: "elasticOut",
+                animationDelay: function () {
+                    return Math.random() * 200;
+                },
+                label: {
+                    normal: {
+                        formatter: function (params) {
+                            var number = Number(params.value).toLocaleString();
+                            return params.data.name + "\n" + params.percent + "% (" + number + ")";
+                        }
+                    }
+                }
+            }]
+        };
+        var barChartOpt = {
             tooltip: {
                 trigger: "axis"
             },
-            toolbox: {
-                show: true,
-                itemSize: 20,
-                bottom: 0,
-                left: "center",
-                feature: {
-                    mark: {show: false},
-                    restore: {show: false, title: "restaurar"},
-                    saveAsImage: {show: true, title: "Guardar imagen", name: "estadísticas globales"},
-                    magicType: {
-                        type: ["line", "bar", "stack", "tiled"]
-                    }
-                }
+            xAxis: {
+                type: "category",
+                splitLine: {
+                    show: false
+                },
+                data: ["Día", "P. mañana", "P. tarde"]
             },
-            series: series
+            yAxis: {},
+            series: [{
+                type: "bar",
+                data: [],
+                label: {
+                    normal: {
+                        formatter: function (params) {
+                            var number = Number(params.value).toLocaleString();
+                            return params.data.name + "\n" + params.percent + "% (" + number + ")";
+                        }
+                    }
+                },
+                animationDelay: function (idx) {
+                    return idx * 10;
+                }
+            }],
+            animationEasing: "elasticOut",
+            animationDelayUpdate: function (idx) {
+                return idx * 5;
+            },
+            grid: {
+                containLabel: true,
+                bottom: 0,
+                top: 30,
+                left: 0,
+                right: 0
+            }
         };
-
-        chart.setOption(option, {notMerge: true});
+        var chartOpts = [
+            $.extend(true, {title: {text: "Transacciones por asignación de servicio"}}, pieChartOpt),
+            $.extend(true, {title: {text: "Transacciones por modo de transporte"}}, pieChartOpt),
+            $.extend(true, {title: {text: "Viajes según N° de etapas"}}, pieChartOpt),
+            $.extend(true, {title: {text: "Etapas según modo de viaje"}}, pieChartOpt),
+            $.extend(true, {title: {text: "Velocidad promedio de viajes (km/h)"}, itemStyle: {normal: {color: "#7AC099"}}}, barChartOpt),
+            $.extend(true, {title: {text: "Distancia promedio de viajes (metros)"}, itemStyle: {normal: {color: "#34495D"}}}, barChartOpt),
+            $.extend(true, {title: {text: "Tiempo promedio de viajes (minutos)"}, itemStyle: {normal: {color: "#3CA9ED"}}}, barChartOpt),
+            $.extend(true, {title: {text: "Viajes por período"}, itemStyle: {normal: {color: "#EEE1F4"}}}, barChartOpt)
+        ];
+        var chartIds = ["chart1", "chart2", "chart3", "chart4", "chart5", "chart6", "chart7", "chart8"];
+        var chartAttr = [
+            ["transactionWithoutRoute", "transactionWithRoute"],
+            ["transactionOnTrainNumber", "transactionOnMetroNumber",
+                "transactionOnBusNumber", "transactionOnBusStation"],
+            ["tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages",
+                "tripsWithFourStages", "tripsWithFiveOrMoreStages"],
+            ["stagesWithBusAlighting", "stagesWithMetroAlighting", "stagesWithTrainAlighting", "stagesWithBusStationAlighting"],
+            ["averageVelocityOfTrips", "averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips"],
+            ["averageDistanceOfTrips", "averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips"],
+            ["averageTimeOfTrips", "averageTimeInMorningRushTrips", "averageTimeInAfternoonRushTrips"],
+            ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"]
+        ];
+        chartIds.forEach(function (echartId, index) {
+            var chart = echarts.init(document.getElementById(echartId), theme);
+            chartAttr[index].forEach(function (attr) {
+                var value = row[ids.indexOf(attr)];
+                var name = chartNames[ids.indexOf(attr)];
+                chartOpts[index].series[0].data.push({value: value, name: name});
+            });
+            console.log(chartOpts[index]);
+            chart.setOption(chartOpts[index]);
+            charts.push(chart);
+        });
     };
 
     $(window).resize(function () {
-        chart.resize();
+        charts.forEach(function (chart) {
+            chart.resize();
+        });
     });
     $("#menu_toggle").click(function () {
-        chart.resize();
+        charts.forEach(function (chart) {
+            chart.resize();
+        });
     });
 });
