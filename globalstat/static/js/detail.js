@@ -77,7 +77,15 @@ $(document).ready(function () {
         };
         var barChartOpt = {
             tooltip: {
-                trigger: "axis"
+                trigger: "axis",
+                formatter: function (params) {
+                    params = params[0];
+                    var number = "-";
+                    if (params.value !== undefined) {
+                        number = Number(params.value.toFixed(2)).toLocaleString();
+                    }
+                    return params.marker + params.axisValueLabel + ": " + number;
+                }
             },
             xAxis: {
                 type: "category",
@@ -90,14 +98,6 @@ $(document).ready(function () {
             series: [{
                 type: "bar",
                 data: [],
-                label: {
-                    normal: {
-                        formatter: function (params) {
-                            var number = Number(params.value).toLocaleString();
-                            return params.data.name + "\n" + params.percent + "% (" + number + ")";
-                        }
-                    }
-                },
                 animationDelay: function (idx) {
                     return idx * 10;
                 }
@@ -119,9 +119,18 @@ $(document).ready(function () {
             $.extend(true, {title: {text: "Transacciones por modo de transporte"}}, pieChartOpt),
             $.extend(true, {title: {text: "Viajes según N° de etapas"}}, pieChartOpt),
             $.extend(true, {title: {text: "Etapas según modo de viaje"}}, pieChartOpt),
-            $.extend(true, {title: {text: "Velocidad promedio de viajes (km/h)"}, itemStyle: {normal: {color: "#7AC099"}}}, barChartOpt),
-            $.extend(true, {title: {text: "Distancia promedio de viajes (metros)"}, itemStyle: {normal: {color: "#34495D"}}}, barChartOpt),
-            $.extend(true, {title: {text: "Tiempo promedio de viajes (minutos)"}, itemStyle: {normal: {color: "#3CA9ED"}}}, barChartOpt),
+            $.extend(true, {
+                title: {text: "Velocidad promedio de viajes (km/h)"},
+                itemStyle: {normal: {color: "#7AC099"}}
+            }, barChartOpt),
+            $.extend(true, {
+                title: {text: "Distancia promedio de viajes (metros)"},
+                itemStyle: {normal: {color: "#34495D"}}
+            }, barChartOpt),
+            $.extend(true, {
+                title: {text: "Tiempo promedio de viajes (minutos)"},
+                itemStyle: {normal: {color: "#3CA9ED"}}
+            }, barChartOpt),
             $.extend(true, {title: {text: "Viajes por período"}, itemStyle: {normal: {color: "#EEE1F4"}}}, barChartOpt)
         ];
         var chartIds = ["chart1", "chart2", "chart3", "chart4", "chart5", "chart6", "chart7", "chart8"];
