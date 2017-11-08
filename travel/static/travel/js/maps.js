@@ -195,6 +195,7 @@ function zoomToZoneEvent(e) {
 
 // sets feature highlight style and updates info window
 function highlightZone(e) {
+    console.log(e);
     var layer = e.target;
     layer.setStyle(styleZoneOnHover(layer.feature));
     ws_data.map_info.update(layer.feature.properties);
@@ -213,6 +214,10 @@ function onEachZoneFeature(feature, layer) {
         mouseout: resetZoneHighlight,
         click: zoomToZoneEvent
     });
+}
+
+function onEachDistrictFeature(feature, layer) {
+    layer.on({});
 }
 
 function onEachSubwayFeature(feature, layer) {
@@ -252,6 +257,7 @@ function onEachSectorFeature(layer) {
 }
 
 
+
 // ============================================================================
 // MAIN MAP
 // ============================================================================
@@ -281,6 +287,31 @@ function setupMap(options) {
                 ws_data.zones_layer = L.geoJson(data, {
                     style: styleZone,
                     onEachFeature: onEachZoneFeature
+                }).addTo(ws_data.map);
+            }
+        });
+    }
+
+    // load zonas layer
+    function loadDistrictsGeoJSON() {
+        return $.ajax({
+            'global': false,
+            'url': '/static/js/data/comunas.geojson',
+            'dataType': "json",
+            'success': function (data) {
+                ws_data.districts_geojson = data;
+                ws_data.districts_layer = L.geoJson(data, {
+                    style: function(feature){
+                        return {
+                            fillOpacity: 0.0,
+                            fillColor: 'blue',
+                            opacity: 1,
+                            color: 'black',
+                            weight: 3,
+                            dashArray: '1'
+                        };
+                    },
+                    onEachFeature: onEachDistrictFeature
                 }).addTo(ws_data.map);
             }
         });
@@ -324,7 +355,7 @@ function setupMap(options) {
         });
     }
 
-    $.when(loadZonesGeoJSON(), loadMetroGeoJson()).done(
+    $.when(loadZonesGeoJSON(), loadDistrictsGeoJSON(), loadMetroGeoJson()).done(
         function(respZones, respMetro) {
             console.log(" - GeoJSON loading finished!")
 
@@ -339,6 +370,7 @@ function setupMap(options) {
             console.log(" - Setting up map layer control.")
             var control_mapping = {};
             control_mapping["Zonas 777"] = ws_data.zones_layer;
+            control_mapping["Comunas"] = ws_data.districts_layer;
             control_mapping["Líneas de Metro"] = ws_data.subway_layer;
             if (options.use_map_sectors) {
                 control_mapping["Sector de Destino"] = ws_data.sector_layer;
@@ -355,6 +387,7 @@ function setupMap(options) {
             // Make sure we keep the layers in order
             ws_data.zones_layer.is_active = true;
             ws_data.sector_layer.is_active = true;
+            ws_data.districts_layer.is_active = true;
             ws_data.subway_layer.is_active = true;
             ws_data.map.on("overlayremove", function (event) {
                 event.layer.is_active = false;
@@ -363,6 +396,7 @@ function setupMap(options) {
             function rearrange_layers() {
                 if (ws_data.zones_layer.is_active) ws_data.zones_layer.bringToFront();
                 if (options.use_map_sectors && ws_data.sector_layer.is_active) ws_data.sector_layer.bringToFront();
+                if (ws_data.districts_layer.is_active) ws_data.districts_layer.bringToFront();
                 if (ws_data.subway_layer.is_active) ws_data.subway_layer.bringToFront();
             }
 
@@ -378,7 +412,6 @@ function setupMap(options) {
 
 function redraw(options) {
     if (!ws_data.ready) return;
-    console.log(styleZone);
     ws_data.zones_layer.setStyle(styleZone);
     ws_data.map_legend.updateVisualization(options);
     updateMapDocCount(options);

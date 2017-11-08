@@ -3,9 +3,10 @@
 ws_data.ready = false;
 ws_data.data = null;
 
-// map layers 
+// map layers
 ws_data.tile_layer;
 ws_data.subway_layer = L.geoJSON(); // empty layer
+ws_data.districts_layer  = L.geoJSON(); // empty layer
 ws_data.zones_layer  = L.geoJSON(); // empty layer
 ws_data.sector_layer = L.geoJSON(); // empty layer
 
@@ -40,8 +41,8 @@ function lookupNEtapasSelectors() {
         if (html.checked) {
             response.push(html.getAttribute('data-ne-str'));
         }
-    });  
-    return response; 
+    });
+    return response;
 }
 
 // ============================================================================
@@ -87,15 +88,33 @@ function getDataZoneById(data, zone_id, options) {
     return result;
 }
 
+function fit_grades(arr){
+    var max_val = Math.max(...arr);
+    var step = max_val/4;
+    var n_pos = Math.floor(Math.log(step)/Math.LN10);
+    var most = Math.floor(step/Math.pow(10,n_pos));
+    var rounded_step = (most+0.5)*Math.pow(10,n_pos);
+
+    options.visualization_mappings['count']['grades'] = [1, rounded_step, 2*rounded_step, 3*rounded_step, 4*rounded_step];
+    options.visualization_mappings['count']['grades_str'] = options.visualization_mappings['count']['grades'].map(function(x){return x.toFixed(0);});
+}
+
 function processData(response) {
     ws_data.data = response.large;
+
+    // calcular limites para cantidades (para no saturar)?
+    var count = ws_data.data.aggregations.by_zone.buckets.map(function(x){
+        return x.doc_count;
+    });
+    fit_grades(count);
+
     redraw(options);
     updateMapDocCount(options);
 }
 
 // Update Charts from filters
 function updateServerData() {
-    
+
     var fromDate = $('#dateFromFilter').val();
     var toDate = $('#dateToFilter').val();
     var dayTypes = $('#dayTypeFilter').val();
@@ -148,6 +167,7 @@ $(document).ready(function () {
 
     // load with default parameters
     console.log("> Loading default data ... ")
+
     updateServerData();
 
     // buttons
