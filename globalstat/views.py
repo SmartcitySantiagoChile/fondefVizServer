@@ -35,7 +35,7 @@ DICTIONARY = {
     "averageVelocityInAfternoonRushTrips":
         {"name": "Velocidad prom. de viajes en punta tarde (Km/H)", "chartName": "", "order": 9},
     "averageTimeInAfternoonRushTrips":
-        {"name": "Tiempo prom. de viajes en punta tarde (min)", "chartName": "", "order": 10},
+        {"name": "Tiempo prom. de viajes en punta tarde", "chartName": "", "order": 10},
     "averageDistanceInAfternoonRushTrips":
         {"name": "Distancia prom. de viajes en punta tarde (mts)", "chartName": "", "order": 11},
     "tripNumberInAfternoonRushHour":
@@ -44,7 +44,7 @@ DICTIONARY = {
     "averageVelocityInMorningRushTrips":
         {"name": "Velocidad prom. de viaje en punta mañana (Km/H)", "chartName": "", "order": 13},
     "averageTimeInMorningRushTrips":
-        {"name": "Tiempo prom. de viaje en punta mañana (min)", "chartName": "", "order": 14},
+        {"name": "Tiempo prom. de viaje en punta mañana", "chartName": "", "order": 14},
     "averageDistanceInMorningRushTrips":
         {"name": "Distancia prom. de viajes en punta mañana (mts)", "chartName": "", "order": 15},
     "tripNumberInMorningRushHour":
@@ -59,10 +59,10 @@ DICTIONARY = {
     "GPSNumberWithoutRoute":
         {"name": "Número de pulsos GPS sin servicio asignado", "chartName": "", "order": 20},
     "averageTimeBetweenGPSPoints":
-        {"name": "Tiempo prom. entre pulsos GPS (min)", "chartName": "", "order": 40},
+        {"name": "Tiempo prom. entre pulsos GPS", "chartName": "", "order": 40},
 
     "validTripNumber":
-        {"name": "Número de viajes válido", "chartName": "", "order": 21},
+        {"name": "Número de viajes expandido", "chartName": "", "order": 21},
     "tripsWithOneStage":
         {"name": "Número de viajes con una etapa", "chartName": "1 etapa", "order": 22},
     "tripsWithTwoStages":
@@ -88,11 +88,11 @@ DICTIONARY = {
     "expeditionNumber":
         {"name": "Número de expediciones", "chartName": "", "order": 31},
     "maxExpeditionTime":
-        {"name": "Tiempo de expedición máximo (min)", "chartName": "", "order": 32},
+        {"name": "Tiempo de expedición máximo", "chartName": "", "order": 32},
     "minExpeditionTime":
-        {"name": "Tiempo de expedición mínimo (min)", "chartName": "", "order": 33},
+        {"name": "Tiempo de expedición mínimo", "chartName": "", "order": 33},
     "averageExpeditionTime":
-        {"name": "Tiempo prom. de expedición (min)", "chartName": "", "order": 34},
+        {"name": "Tiempo prom. de expedición", "chartName": "", "order": 34},
 
     "smartcardNumber":
         {"name": "Número de tarjetas", "chartName": "", "order": 35},
@@ -100,9 +100,9 @@ DICTIONARY = {
         {"name": "Tipo de día", "chartName": "", "order": 36},
 
     "tripNumber":
-        {"name": "Número de viajes", "chartName": "", "order": 37},
+        {"name": "Número de viajes válido", "chartName": "", "order": 37},
     "averageTimeOfTrips":
-        {"name": "Tiempo promedio de viajes (min)", "chartName": "", "order": 38},
+        {"name": "Tiempo promedio de viajes", "chartName": "", "order": 38},
     "averageVelocityOfTrips":
         {"name": "Velocidad prom. de viajes (Km/H)", "chartName": "", "order": 39},
     "averageDistanceOfTrips":
@@ -172,27 +172,27 @@ class Detail(View):
         self.context["tiles_2"] = [
             {"title": DICTIONARY["tripNumber"]["name"], "title_icon": "fa-rocket", "value": "",
              "value_id": "tripNumber", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["validTripNumber"]["name"], "title_icon": "fa-credit-card", "value": "",
+            {"title": DICTIONARY["validTripNumber"]["name"], "title_icon": "fa-rocket", "value": "",
              "value_id": "validTripNumber", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["completeTripNumber"]["name"], "title_icon": "fa-group", "value": "",
-             "value_id": "completeTripNumber", "sub_value_id": "", "sub_title": ""},
+            #{"title": DICTIONARY["completeTripNumber"]["name"], "title_icon": "fa-group", "value": "",
+            # "value_id": "completeTripNumber", "sub_value_id": "", "sub_title": ""},
             {"title": DICTIONARY["tripsThatUseMetro"]["name"], "title_icon": "fa-rocket", "value": "",
              "value_id": "tripsThatUseMetro", "sub_value_id": "validTripNumber", "sub_title": ""},
-            {"title": DICTIONARY["tripsWithOnlyMetro"]["name"], "title_icon": "fa-truck", "value": "",
+            {"title": DICTIONARY["tripsWithOnlyMetro"]["name"], "title_icon": "fa-train", "value": "",
              "value_id": "tripsWithOnlyMetro", "sub_value_id": "", "sub_title": ""},
             {"title": DICTIONARY["tripsWithoutLastAlighting"]["name"], "title_icon": "fa-globe", "value": "",
              "value_id": "tripsWithoutLastAlighting", "sub_value_id": "", "sub_title": ""},
         ]
 
         self.context["tiles_3"] = [
-            {"title": DICTIONARY["expeditionNumber"]["name"], "title_icon": "fa-car", "value": "",
+            {"title": DICTIONARY["expeditionNumber"]["name"], "title_icon": "fa-truck", "value": "",
              "value_id": "expeditionNumber", "sub_value_id": "date", "sub_title": ""},
-            {"title": DICTIONARY["averageExpeditionTime"]["name"], "title_icon": "fa-credit-card", "value": "",
-             "value_id": "averageExpeditionTime", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["minExpeditionTime"]["name"], "title_icon": "fa-group", "value": "",
-             "value_id": "minExpeditionTime", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["maxExpeditionTime"]["name"], "title_icon": "fa-rocket", "value": "",
-             "value_id": "maxExpeditionTime", "sub_value_id": "validTripNumber", "sub_title": ""},
+            {"title": DICTIONARY["averageExpeditionTime"]["name"], "title_icon": "fa-repeat", "value": "",
+             "value_id": "averageExpeditionTime", "sub_value_id": "", "sub_title": "Minutos"},
+            {"title": DICTIONARY["minExpeditionTime"]["name"], "title_icon": "fa-repeat", "value": "",
+             "value_id": "minExpeditionTime", "sub_value_id": "", "sub_title": "Minutos"},
+            {"title": DICTIONARY["maxExpeditionTime"]["name"], "title_icon": "fa-repeat", "value": "",
+             "value_id": "maxExpeditionTime", "sub_value_id": "validTripNumber", "sub_title": "Minutos"},
             {"title": DICTIONARY["licensePlateNumber"]["name"], "title_icon": "fa-truck", "value": "",
              "value_id": "licensePlateNumber", "sub_value_id": "", "sub_title": ""},
         ]
@@ -205,7 +205,7 @@ class Detail(View):
             {"title": DICTIONARY["GPSNumberWithoutRoute"]["name"], "title_icon": "fa-globe", "value": "",
              "value_id": "GPSNumberWithoutRoute", "sub_value_id": "", "sub_title": ""},
             {"title": DICTIONARY["averageTimeBetweenGPSPoints"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "averageTimeBetweenGPSPoints", "sub_value_id": "", "sub_title": ""},
+             "value_id": "averageTimeBetweenGPSPoints", "sub_value_id": "", "sub_title": "Minutos"},
         ]
 
     def get(self, request):
