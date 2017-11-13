@@ -9,7 +9,10 @@ def inline_select(label, input_id, optionList, multiple=False):
 
     options = []
     for option in optionList:
-        option = u"<option>{0}</option>".format(option)
+        if isinstance(option, dict):
+            option = u"<option value='{0}'>{1}</option>".format(option["value"], option["item"])
+        else:
+            option = u"<option>{0}</option>".format(option)
         options.append(option)
 
     multiple_opt = ""

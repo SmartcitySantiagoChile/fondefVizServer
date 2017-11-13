@@ -7,11 +7,10 @@ register = template.Library()
 
 
 @register.simple_tag
-def update_button(html_id, label):
+def button(html_id, label, style="success", size=""):
 
     content = """
-        <div class="ln_solid"></div>
-        <button id="{0}" class="btn btn-success btn-round">{1}</button>
+        <button id="{0}" class="btn btn-{2} btn-round btn-{3}">{1}</button>
         """
 
-    return format_html(content, html_id, label)
+    return format_html(content, html_id, label, style, size)

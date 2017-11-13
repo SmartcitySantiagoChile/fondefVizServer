@@ -1,31 +1,11 @@
-{% extends 'admin/base_site.html' %}
-{% load static header panel inline_select table columns update_button %}
+{% extends 'profile/base.html' %}
+{% load static header panel inline_select table columns update_button label %}
 
 {% block title %}Perfil de carga por expedición{% endblock %}
 
-{% block css %}
-{% with "components/gentelella/vendors/" as gentelella_static %}
-  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
-  <!-- iCheck -->
-  <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
-
-  <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
-  <style>
-.select2-container .select2-choice:not(.select2-default) {
-    background-image: none !important;
-    background-color: #D9FFC7;
-}
-  </style>
-{% endwith %}
-{% endblock %}
-
 {% block content %}
-    {% header "Perfil de carga" "por ruta" %}
+    {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
+    {% header "Perfil de carga" "por ruta"|add:label %}
 
   <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -38,11 +18,11 @@
     {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes True as dayType_select %}
     {% columns 2 2 12 dayType_select as col3 %}
 
-    {% inline_select "Período:" "periodFilter" periods True as period_select %}
+    {% inline_select "Período de despacho:" "periodFilter" periods True as period_select %}
     {% columns 2 2 12 period_select as col4 %}
 
-    {% inline_select "Media hora:" "minutePeriodFilter" minutes True as period_select %}
-    {% columns 2 2 12 period_select as col5 %}
+    {% inline_select "Media hora de despacho:" "minutePeriodFilter" minutes True as half_hour_select %}
+    {% columns 2 2 12 half_hour_select as col5 %}
 
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
     {% columns 12 12 12 update_button as col6 %}
@@ -52,13 +32,18 @@
   </div>
 
   <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        {% with barChart='<div id="barChart" style="height:600px;"></div>' resume1='<h4><i class="fa fa-clock-o"></i> Expediciones por hora</h4><div id="timePeriodChart" style="height:89px;"></div>' resume2='<h4><i class="fa fa-truck"></i> Expediciones por patente <strong id="licensePlateNumber">(N)</strong></h4><div id="wordcloudChart1" style="height:100px;"></div>' resume3='<h4><i class="fa fa-calendar"></i> Expediciones por tipo de día</h4><div id="wordcloudChart2" style="height:100px;"></div>' %}
-            {% columns 9 9 12 barChart as col6 %}
-            {% columns 3 3 12 resume1|add:resume2|add:resume3 as col7 %}
-            {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" col6|add:col7 %}
-        {% endwith %}
-    </div>
+    {% panel "fa-clock-o" "Expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
+    {% columns 4 4 4 panel1 %}
+
+    {% panel "fa-truck" 'Expediciones por patente <strong id="licensePlateNumber">(0)</strong>' '<div id="wordcloudChart1" style="height:50px;"></div>' as panel2 %}
+    {% columns 4 4 4 panel2 %}
+
+    {% panel "fa-calendar" "Expediciones por tipo de día" '<div id="wordcloudChart2" style="height:50px;"></div>' as panel3 %}
+    {% columns 4 4 4 panel3 %}
+
+    {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:600px;"></div>' as panel4 %}
+    {% columns 12 12 12 panel4 %}
+
   </div>
 
   <div class="row">
@@ -70,25 +55,9 @@
 {% endblock %}
 
 {% block js %}
-{% with "components/gentelella/vendors/" as gentelella_static %}
-    <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
-    <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
-    <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
-
-    <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
-
-    <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"iCheck/icheck.js" %}"></script>
-
-    <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
-    <script src="{% static "components/echarts-wordcloud/dist/echarts-wordcloud.min.js" %}"></script>
-{% endwith %}
-<script src="{% static "js/echartsTheme.js" %}"></script>
-<script src="{% static "js/byExpedition.js" %}"></script>
+    {{ block.super }}
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
+    {% endwith %}
+    <script src="{% static "js/byExpedition.js" %}"></script>
 {% endblock %}

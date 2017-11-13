@@ -135,7 +135,9 @@ $(document).ready(function(){
         "saturationRateAfter": [],
         "saturationDiff": [],
         "positiveSaturationRateAfter": [],
-        "negativeSaturationRateAfter": []
+        "negativeSaturationRateAfter": [],
+        "averageSaturationRateBefore": [],
+        "averageSaturationRateAfter": []
       };
 
       for(var i=0; i<xAxisLength; i++){
@@ -146,6 +148,8 @@ $(document).ready(function(){
           _yAxisData["saturationDiff"].push(0);
           _yAxisData["positiveSaturationRateAfter"].push(0);
           _yAxisData["negativeSaturationRateAfter"].push(0);
+          _yAxisData["averageSaturationRateBefore"].push(0);
+          _yAxisData["averageSaturationRateAfter"].push(0);
 
           counterByRoute.push(0);
           capacityByRoute.push(0);
@@ -171,11 +175,27 @@ $(document).ready(function(){
 
       // it calculates average
       for(var routeIndex=0;routeIndex<xAxisLength;routeIndex++){
-        _yAxisData["expandedLanding"][routeIndex]=_yAxisData["expandedLanding"][routeIndex]/counterByRoute[routeIndex];
-        _yAxisData["expandedGetIn"][routeIndex]=_yAxisData["expandedGetIn"][routeIndex]/counterByRoute[routeIndex];
+        var percentageAfter = 0;
 
-        _yAxisData["saturationRateBefore"][routeIndex]=_yAxisData["saturationRateBefore"][routeIndex]/capacityByRoute[routeIndex]*100;
-        var percentageAfter = _yAxisData["saturationDiff"][routeIndex]/capacityByRoute[routeIndex]*100;
+        if (counterByRoute[routeIndex] !== 0){
+            _yAxisData["expandedLanding"][routeIndex]=_yAxisData["expandedLanding"][routeIndex]/counterByRoute[routeIndex];
+            _yAxisData["expandedGetIn"][routeIndex]=_yAxisData["expandedGetIn"][routeIndex]/counterByRoute[routeIndex];
+
+            _yAxisData["averageSaturationRateBefore"][routeIndex]=  _yAxisData["saturationRateBefore"][routeIndex] / counterByRoute[routeIndex];
+            _yAxisData["averageSaturationRateAfter"][routeIndex]=(_yAxisData["saturationRateBefore"][routeIndex] + _yAxisData["saturationDiff"][routeIndex]) / counterByRoute[routeIndex];
+        } else {
+            _yAxisData["expandedLanding"][routeIndex]=0;
+            _yAxisData["expandedGetIn"][routeIndex]=0;
+            _yAxisData["averageSaturationRateBefore"][routeIndex]=0;
+            _yAxisData["averageSaturationRateAfter"][routeIndex]= 0;
+        }
+
+        if (capacityByRoute[routeIndex] !== 0) {
+            _yAxisData["saturationRateBefore"][routeIndex] = _yAxisData["saturationRateBefore"][routeIndex] / capacityByRoute[routeIndex] * 100;
+            percentageAfter = _yAxisData["saturationDiff"][routeIndex] / capacityByRoute[routeIndex] * 100;
+        }else {
+            _yAxisData["saturationRateBefore"][routeIndex] = 0;
+        }
 
         var incValue = 0;
         var decValue = 0;
@@ -278,7 +298,11 @@ $(document).ready(function(){
         {
          targets: 0, searchable: false, orderable: false, className: "text-center", data: "visible",
          render: function (data, type, full, meta){
-             return '<input type="checkbox" name="trip' + full.id + '" class="flat" checked>';
+             return $("<input>")
+                 .attr("type", "checkbox")
+                 .attr("name", "trip" + full.id)
+                 .addClass("flat")
+                 .attr("checked", true)[0].outerHTML;
          }
         },
         { title: "Servicio-sentido", data: "route",   searchable: true},
@@ -500,7 +524,7 @@ $(document).ready(function(){
       var xAxisData = _dataManager.xAxisData();
 
       // get out, get in, load profile, percentage ocupation
-      var yAxisDataName = ["Subidas promedio", "Bajadas promedio", "Tasa ocupación promedio a la llegada "];
+      var yAxisDataName = ["Subidas promedio", "Bajadas promedio", "% Ocupación promedio a la llegada"];
       var yChartType = ["bar","bar", "bar", "bar", "bar"];
       var yStack = [null, null, "stack", "stack", "stack"];
       var xGridIndex = [1, 1, 0, 0, 0];
@@ -556,6 +580,9 @@ $(document).ready(function(){
       }
 
       var title = _dataManager.stopInfo().name;
+      if(_dataManager.stopInfo().busStation) {
+        title = title + " (Zona Paga)";
+      }
       var subtitle = "Código de usuario: " + _dataManager.stopInfo().userStopCode + "  Código de Transantiago: " + _dataManager.stopInfo().authorityStopCode;
       var options = {
         title: {
@@ -585,7 +612,46 @@ $(document).ready(function(){
               title: "Ver datos",
               lang: ["Datos del gráfico", "cerrar", "refrescar"],
               buttonColor: "#169F85",
-              readOnly: true
+              readOnly: true,
+              optionToContent: function(opt) {
+                  var axisData = opt.xAxis[0].data;
+                  var series = opt.series;
+                  var stopInfo = _dataManager.stopInfo();
+                  var yData = _dataManager.yAxisData();
+
+                  var textarea = document.createElement('textarea');
+                  textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;';
+                  textarea.readOnly = "true";
+
+                  var dayTypeFilter = $("#dayTypeFilter").val()!==null?$("#dayTypeFilter").val().join("\t"):["Todos"];
+                  var periodFilter = $("#periodFilter").val()!==null?$("#periodFilter").val().join("\t"):["Todos"];
+                  var meta = "tipo(s) de día:\t" + dayTypeFilter + "\n";
+                  meta += "período(s):\t" + periodFilter + "\n\n";
+
+                  var header = "Código usuario\tCódigo transantiago\tNombre parada\tServicio\tCarga promedio a la llegada\tCarga promedio a la salida";
+                  series.forEach(function(el, index){
+                      var name = el.name;
+                      if (index === 3) {
+                        name = "Variación % positiva"
+                      } else if (index === 4) {
+                        name = "Variación % negativa"
+                      }
+                      header += "\t" + name;
+                  });
+                  header += "\n";
+                  var body = "";
+                  axisData.forEach(function(authorityRouteCode, index){
+                      var serieValues = [yData.averageSaturationRateBefore[index], yData.averageSaturationRateAfter[index]];
+                      series.forEach(function(serie){
+                          serieValues.push(serie.data[index]);
+                      });
+                      serieValues = serieValues.join("\t").replace(/\./g, ",") + "\n";
+                      body += [stopInfo.userStopCode, stopInfo.authorityStopCode, stopInfo.name, authorityRouteCode, serieValues].join("\t");
+                  });
+
+                  textarea.value = meta + header + body;
+                  return textarea;
+              }
             }
           }
         },
@@ -624,7 +690,7 @@ $(document).ready(function(){
                 var name = el.seriesName;
                 var value = el.value.toFixed(2);
                 if(serieIndex===2){
-                  value = yAxisData["saturationRateBefore"][xValue].toFixed(1) + "%";
+                  value = yAxisData.saturationRateBefore[xValue].toFixed(1) + "% (" + yAxisData.averageSaturationRateBefore[xValue].toFixed(2) + ")";
                 }else if(serieIndex===3){
                   var sign = "▲";
                   if(el.value===0){
@@ -638,7 +704,7 @@ $(document).ready(function(){
                 info.push(colorBall + name + ": " + value);
               }
               // add saturation rate after
-              var saturationRateInfo = ball.replace("{}", "#3145f7") + "Tasa ocupación promedio a la salida:" + yAxisData["saturationRateAfter"][xValue].toFixed(1)+"%";
+              var saturationRateInfo = ball.replace("{}", "#3145f7") + "Tasa ocupación promedio a la salida:" + yAxisData.saturationRateAfter[xValue].toFixed(1)+"% (" + yAxisData.averageSaturationRateAfter[xValue].toFixed(2) + ")";
               info.push(saturationRateInfo);
               return info.join("<br />");
             } else {
@@ -739,7 +805,7 @@ $(document).ready(function(){
     $("#stopFilter").select2({
         ajax: {
             delay: 500, // milliseconds
-            url: "/profile/getStopList",
+            url: Urls["profile:getStopList"](),
             dataType: "json",
             data: function (params) {
                 return {
@@ -762,28 +828,19 @@ $(document).ready(function(){
     });
     $("#dayTypeFilter").select2({placeholder: "Todos"});
     $("#periodFilter").select2({placeholder: "Todos"});
+    $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
     var app = new ExpeditionApp();
+    var makeAjaxCall = true;
     $("#btnUpdateChart").click(function(){
       var day = $("#dayFilter").val();
-      //var from = $("#dateFromFilter").val();
-      //var to = $("#dateToFilter").val();
       var stopCode = $("#stopFilter").val();
       var dayType = $("#dayTypeFilter").val();
       var period = $("#periodFilter").val();
-
-      /*
-      console.log(from);
-      console.log(to);
-      console.log(stopCode);
-      console.log(dayType);
-      console.log(period);
-      */
+      var minutes = $("#minutePeriodFilter").val();
 
       var params = {
         day: day
-        //from: from,
-        //to: to,
       };
       if (stopCode) {
         params["stopCode"] = stopCode;
@@ -794,20 +851,29 @@ $(document).ready(function(){
       if (period) {
         params["period"] = period;
       }
+      if (minutes) {
+          params["halfHour"] = minutes;
+      }
 
-      app.showLoadingAnimationCharts();
-      var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-      var previousMessage = $(this).html();
-      var button = $(this).append(loadingIcon);
-      $.getJSON("getStopData", params, function(data){
-        processData(data, app);
-      })
-      .always(function(){
-        button.html(previousMessage);
-        app.hideLoadingAnimationCharts();
-      });
+      if (makeAjaxCall) {
+          makeAjaxCall = false;
+          app.showLoadingAnimationCharts();
+          var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+          var previousMessage = $(this).html();
+          var button = $(this).append(loadingIcon);
+          $.getJSON(Urls["profile:getStopData"](), params, function (data) {
+              processData(data, app);
+          }).always(function () {
+              makeAjaxCall = true;
+              button.html(previousMessage);
+              app.hideLoadingAnimationCharts();
+          });
+      }
     });
     $(window).resize(function() {
+      app.resizeCharts();
+    });
+    $("#menu_toggle").click(function() {
       app.resizeCharts();
     });
   })();

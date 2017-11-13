@@ -269,13 +269,17 @@ $(document).ready(function() {
                     "className": "text-center",
                     "data": "visible",
                     "render": function (data, type, full, meta) {
-                        return "<input type='checkbox' name='trip" + full.id + "' class='flat' checked>";
+                        return $("<input>")
+                            .attr("type", "checkbox")
+                            .attr("name", "trip" + full.id)
+                            .addClass("flat")
+                            .attr("checked", true)[0].outerHTML;
                     }
                 },
                 {
                     title: "Perfil de carga", data: "sparkLoadProfile", searchable: false,
                     render: function (data, type, row) {
-                        return "<i class='spark'>" + data.join(",") + "</i>";
+                        return $("<i>").addClass("spark").append(data.join(","))[0].outerHTML;
                     }
                 },
                 //{ title: "Servicio-sentido", data: "route",   searchable: true},
@@ -465,7 +469,7 @@ $(document).ready(function() {
                     type: "bar",
                     barColor: "#169f85",
                     negBarColor: "red",
-                    chartRangeMax: maxHeight,
+                    chartRangeMax: maxHeight
                 });
 
                 $("tbody input.flat").iCheck("destroy");
@@ -579,12 +583,27 @@ $(document).ready(function() {
                     },
                     axisLabel: {
                         rotate: 90,
-                        interval: 0,
+                        interval: function(index) {
+                            var labelWidth = 20;
+                            var chartWidth = $("#barChart").width() - 82;
+                            var div = chartWidth / labelWidth;
+                            if (div >= xData.length) {
+                                return true;
+                            }
+                            div = parseInt(xData.length / div);
+                            return index % div ? false:true;
+                        },
                         textStyle: {
                             fontSize: 12
                         },
                         formatter: function(value, index) {
-                            return (index + 1) + " " + value;
+                            return (index + 1) + " " + value + " " + (xAxisData[index].busStation?"(ZP)":"");
+                        },
+                        color: function(label, index) {
+                            if (xAxisData[index].busStation) {
+                                return "red";
+                            }
+                            return "black";
                         }
                     }
                 }],
@@ -651,7 +670,7 @@ $(document).ready(function() {
                 toolbox: {
                     show: true,
                     itemSize: 20,
-                    bottom: "0px",
+                    bottom: 15,
                     left: "center",
                     feature: {
                         mark: {show: false},
@@ -796,6 +815,7 @@ $(document).ready(function() {
                     xValue["name"] = stopInfo["name"];
                     xValue["authCode"] = authStopCode;
                     xValue["userCode"] = userStopCode;
+                    xValue["busStation"] = stopInfo["busStation"];
                     xValue["order"] = stopInfo["order"];
                     tripGroupXAxisData.push(xValue);
                 }
@@ -820,22 +840,6 @@ $(document).ready(function() {
     (function () {
         // set locale
         moment.locale("es");
-        // set datetimepickers
-        /*
-        $("#dateFromFilter").daterangepicker({
-          singleDatePicker: true,
-          singleClasses: "picker_2",
-          languague: "es"
-        });
-        $("#dateToFilter").daterangepicker({
-          singleDatePicker: true,
-          singleClasses: "picker_2",
-          languague: "es"
-        });*/
-
-        $("#licensePlateFilter").tagsInput({defaultText: "...", minChars: 6});
-        $("#expeditionIdFilter").tagsInput({defaultText: "...", minChars: 1});
-        $("#licensePlateFilter").addTag("BJFS-17");
 
         $("#dayFilter").select2({placeholder: "Todos"});
         $("#dayTypeFilter").select2({placeholder: "Todos"});
@@ -844,31 +848,16 @@ $(document).ready(function() {
         $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
         var app = new ExpeditionApp();
+        var makeAjaxCall = true;
         $("#btnUpdateChart").click(function () {
             var day = $("#dayFilter").val();
-            //var from = $("#dateFromFilter").val();
-            //var to = $("#dateToFilter").val();
             var route = $("#routeFilter").val();
             var dayType = $("#dayTypeFilter").val();
             var period = $("#periodFilter").val();
             var minutes = $("#minutePeriodFilter").val();
-            //var licensePlate = $("#licensePlateFilter").val()!="" ? $("#licensePlateFilter").val().split(","):null;
-            //var expeditionId = $("#expeditionIdFilter").val()!="" ? $("#expeditionIdFilter").val().split(","):null;
-
-            /*
-            console.log(from);
-            console.log(to);
-            console.log(route);
-            console.log(dayType);
-            console.log(period);
-            */
-            //console.log(licensePlate);
-            //console.log(expeditionId);
 
             var params = {
-                day: day,
-                //from: from,
-                //to: to,
+                day: day
             };
             if (route) {
                 params["route"] = route;
@@ -882,28 +871,28 @@ $(document).ready(function() {
             if (minutes) {
                 params["halfHour"] = minutes;
             }
-            /*
-            if (licensePlate) {
-              params["licensePlate"] = licensePlate;
-            }
-            if (expeditionId) {
-              params["expeditionId"] = expeditionId;
-            }
-            */
 
-            app.showLoadingAnimationCharts();
-            var loadingIcon = " <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-            var previousMessage = $(this).html();
-            var button = $(this).append(loadingIcon);
-            $.getJSON("getExpeditionData", params, function (data) {
-                processData(data, app);
-            }).always(function () {
-                button.html(previousMessage);
-                app.hideLoadingAnimationCharts();
-            });
+            if (makeAjaxCall) {
+                makeAjaxCall = false;
+                app.showLoadingAnimationCharts();
+                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+                var previousMessage = $(this).html();
+                var button = $(this).append(loadingIcon);
+
+                $.getJSON(Urls["profile:getExpeditionData"](), params, function (data) {
+                    processData(data, app);
+                }).always(function () {
+                    makeAjaxCall = true;
+                    button.html(previousMessage);
+                    app.hideLoadingAnimationCharts();
+                });
+            }
         });
         $(window).resize(function() {
           app.resizeCharts();
+        });
+        $("#menu_toggle").click(function() {
+            app.resizeCharts();
         });
     })()
 });

@@ -1,54 +1,47 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.conf import settings
 
-from elasticsearch_dsl import Search, A, Q
+from elasticsearch_dsl import Q
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
-from LoadProfileGeneric import LoadProfileGeneric
+from profile.esprofilehelper import ESProfileHelper
 
 from localinfo.models import HalfHour
 from datetime import datetime
 
-class LoadProfileByExpeditionView(LoadProfileGeneric):
-    ''' '''
 
+class LoadProfileByExpeditionView(View):
     def __init__(self):
-        ''' Constructor '''
+        """ Constructor """
+        super(LoadProfileByExpeditionView, self).__init__()
 
-        esRouteQuery = Search()
-        esRouteQuery = esRouteQuery[:0]
-        aggs = A('terms', field = "route", size=1000)
-        esRouteQuery.aggs.bucket("unique", aggs)
-
-        esQueryDict = {}
-        esQueryDict['routes'] = esRouteQuery
-
-        super(LoadProfileByExpeditionView, self).__init__(esQueryDict)
+        self.es_helper = ESProfileHelper()
+        self.base_params = self.es_helper.get_base_params()
+        self.base_params["routes"] = self.es_helper.get_unique_list_query("route", size=10000)
 
     def get(self, request):
         template = "profile/byExpedition.html"
 
         # add periods of thirty minutes
         minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
-        self.context['minutes'] = minutes
 
-        return render(request, template, self.context)
+        context = self.es_helper.make_multisearch_query_for_aggs(self.base_params)
+        context['minutes'] = minutes
+
+        return render(request, template, context)
 
 
 class GetLoadProfileByExpeditionData(View):
-    ''' '''
-
     def __init__(self):
-        ''' constructor '''
-        self.context={}
+        """ constructor """
+        super(GetLoadProfileByExpeditionData, self).__init__()
+        self.es_helper = ESProfileHelper()
+        self.context = {}
 
     def buildQuery(self, request):
-        ''' create es-query based on params given by user '''
+        """ create es-query based on params given by user """
 
         day = request.GET.get('day')
-        fromDate = request.GET.get('from')
-        toDate = request.GET.get('to')
         route = request.GET.get('route')
         licensePlate = request.GET.getlist('licensePlate[]')
         dayType = request.GET.getlist('dayType[]')
@@ -56,10 +49,8 @@ class GetLoadProfileByExpeditionData(View):
         expeditionId = request.GET.getlist('expeditionId[]')
         halfHour = request.GET.getlist('halfHour[]')
 
-        # get list of profile*
-        client = settings.ES_CLIENT
-        esQuery = Search(using=client, index=LoadProfileGeneric.INDEX_NAME)
-        
+        esQuery = self.es_helper.get_base_query()
+
         existsParameters = False
         if expeditionId:
             esQuery = esQuery.filter('terms', expeditionDayId=expeditionId)
@@ -78,7 +69,7 @@ class GetLoadProfileByExpeditionData(View):
             esQuery = esQuery.filter('terms', timePeriodInStartTime=period)
         if halfHour:
             # when this field exists
-            #esQuery = esQuery.filter('terms', halfHour=halfHour)
+            # esQuery = esQuery.filter('terms', halfHour=halfHour)
             halfHourObjs = HalfHour.objects.filter(longName__in=halfHour).order_by("id")
 
             dateRef = datetime(1970, 1, 1)
@@ -90,8 +81,8 @@ class GetLoadProfileByExpeditionData(View):
                     startDate = day + " " + startHour
                     endDate = day + " " + endHour
 
-                    startRange = int((datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
-                    endRange = int((datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S")-dateRef).total_seconds())
+                    startRange = int((datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S") - dateRef).total_seconds())
+                    endRange = int((datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S") - dateRef).total_seconds())
 
                     timeRange = Q("range", expeditionStartTime={
                         "gte": startRange,
@@ -119,17 +110,17 @@ class GetLoadProfileByExpeditionData(View):
                                   'expeditionDayId', 'userStopName', 'expandedAlighting', 'expandedBoarding',
                                   'expeditionStopOrder', 'stopDistanceFromPathStart', 'expeditionStartTime',
                                   'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                  'dayType', 'timePeriodInStopTime', 'fulfillment'])
+                                  'dayType', 'timePeriodInStopTime', 'fulfillment', "busStation"])
 
         return esQuery
- 
+
     def cleanData(self, data):
-        ''' round to zero values between [-1, 0]'''
+        """ round to zero values between [-1, 0]"""
         value = float(data)
         return 0 if (-1 < value and value < 0) else value
 
     def transformESAnswer(self, esQuery):
-        ''' transform ES answer to something util to web client '''
+        """ transform ES answer to something util to web client """
         trips = {}
 
         for hit in esQuery.scan():
@@ -143,29 +134,32 @@ class GetLoadProfileByExpeditionData(View):
             trips[expeditionId]['info']['licensePlate'] = data['licensePlate']
             trips[expeditionId]['info']['route'] = data['route']
             trips[expeditionId]['info']['authTimePeriod'] = data['timePeriodInStartTime']
-            trips[expeditionId]['info']['timeTripInit'] = data['expeditionStartTime'].replace('T',' ').replace('.000Z', '')
-            trips[expeditionId]['info']['timeTripEnd'] = data['expeditionEndTime'].replace('T',' ').replace('.000Z', '')
+            trips[expeditionId]['info']['timeTripInit'] = data['expeditionStartTime'].replace('T', ' ').replace('.000Z',
+                                                                                                                '')
+            trips[expeditionId]['info']['timeTripEnd'] = data['expeditionEndTime'].replace('T', ' ').replace('.000Z',
+                                                                                                             '')
             trips[expeditionId]['info']['dayType'] = data['dayType']
 
             stop = {}
             stop['name'] = data['userStopName']
             stop['authStopCode'] = data['authStopCode']
             stop['userStopCode'] = data['userStopCode']
+            stop['busStation'] = data['busStation'] == "1"
             stop['authTimePeriod'] = data['timePeriodInStopTime']
             stop['distOnPath'] = data['stopDistanceFromPathStart']
-            stop['stopTime'] = "" if data['expeditionStopTime']=="0" else \
-                data['expeditionStopTime'].replace('T',' ').replace('.000Z', '')
+            stop['stopTime'] = "" if data['expeditionStopTime'] == "0" else \
+                data['expeditionStopTime'].replace('T', ' ').replace('.000Z', '')
             stop['order'] = int(data['expeditionStopOrder'])
 
             # to avoid movement of distribution chart
-            stop['loadProfile'] =  self.cleanData(data['loadProfile'])
+            stop['loadProfile'] = self.cleanData(data['loadProfile'])
             stop['expandedGetIn'] = self.cleanData(data['expandedBoarding'])
             stop['expandedGetOut'] = self.cleanData(data['expandedAlighting'])
             trips[expeditionId]['stops'].append(stop)
 
         for expeditionId in trips:
-            trips[expeditionId]['stops'] = sorted(trips[expeditionId]['stops'], 
-                 key=lambda record: record['order'])
+            trips[expeditionId]['stops'] = sorted(trips[expeditionId]['stops'],
+                                                  key=lambda record: record['order'])
 
         if len(trips.keys()) == 0:
             raise ESQueryResultEmpty()
@@ -173,7 +167,7 @@ class GetLoadProfileByExpeditionData(View):
         return trips
 
     def get(self, request):
-        ''' expedition data '''
+        """ expedition data """
         response = {}
         response['trips'] = {}
 
@@ -181,12 +175,10 @@ class GetLoadProfileByExpeditionData(View):
             esQuery = self.buildQuery(request)
             response['trips'] = self.transformESAnswer(esQuery)
             # debug
-            #response['query'] = esQuery.to_dict()
-            #return JsonResponse(response, safe=False)
-            #response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
+            # response['query'] = esQuery.to_dict()
+            # return JsonResponse(response, safe=False)
+            # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)
-
-
