@@ -89,25 +89,17 @@ function getDataZoneById(data, zone_id, options) {
 }
 
 function fit_grades(min_val, max_val){
-    console.log("min max", min_val, max_val);
     options.visible_limits = [min_val, max_val];
     var step = (max_val-min_val)/4;
-    console.log("step", step);
     var exp_min = Math.floor(Math.log(min_val)/Math.LN10);
     var exp_step = Math.floor(Math.log(step)/Math.LN10);
-    console.log("exps", exp_min, exp_step);
     var coef_min = Math.floor(2.0*min_val/Math.pow(10,exp_min))/2.0;
     var coef_step = Math.floor(10*step/Math.pow(10,exp_step))/10.0;
-    console.log("coefs", coef_min, coef_step);
     var rounded_min = coef_min*Math.pow(10,exp_min);
     var rounded_step = coef_step*Math.pow(10,exp_step);
-    console.log("rounded", rounded_step);
 
     options.visualization_mappings['count']['grades'] = [Math.max(1, rounded_min), rounded_min+rounded_step, rounded_min+2*rounded_step, rounded_min+3*rounded_step, rounded_min+4*rounded_step];
     options.visualization_mappings['count']['grades_str'] = options.visualization_mappings['count']['grades'].map(function(x){return x.toFixed(0);});
-
-    console.log(options.visualization_mappings['count']['grades'])
-    console.log(options.visualization_mappings['count']['grades_str'])
 }
 
 function update_limits(min_val, max_val){
