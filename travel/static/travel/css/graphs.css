@@ -1,0 +1,30 @@
+#graphTitle {
+    color: rgb(115, 135, 156)
+}
+
+.indicadores-section {
+    margin-top: 0;
+    margin-bottom: 0;
+
+    /* SAME HIGH ALIGN VERTICAL */
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.indicadores-section .tile_stats_count {
+    /* REDUCE FROM 10PX TO 5PX */
+    margin-bottom: 5;
+    padding-bottom: 5;
+}
+
+
+/* remove vertical bar inherited from gentellela alella */
+#indicator-first-count:before {
+    height: 0px;
+}

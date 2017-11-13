@@ -39,12 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'datamanager',
+    'django_js_reverse',
     'bowerapp',
-    'profile',
-    'velocity',
+    'datamanager',
     'localinfo',
+    'profile',
     'shape',
+    'travel',
+    'velocity',
+    'globalstat'
 ]
 
 MIDDLEWARE = [
@@ -118,9 +121,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Elastic-Search settings
 ES_CLIENT = Elasticsearch("172.17.75.218:9200", http_auth=('elastic', 'changeme'))
+
+# Django js reverse settings
+JS_REVERSE_EXCLUDE_NAMESPACES = ["admin", "datamanager", "matrix", "speed"]
+JS_REVERSE_SCRIPT_PREFIX = ""
+JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, os.path.join('bowerapp', os.path.join('static', 'js')))
