@@ -86,9 +86,14 @@ function getZoneColor(value, options) {
     if (options === undefined || options === null) { return null; }
     if (options.curr_visualization_type === null) { return null; }
 
+
     // use mapping
     var grades = options.visualization_mappings[options.curr_visualization_type].grades;
     var colors = options.curr_map_color_scale;
+
+    if (value < options.visible_limits[0]) return null;
+    if (value > options.visible_limits[1]) return null;
+
     if (value < grades[0]) return null;
     for (var i=1; i<grades.length; i++) {
         if (value <= grades[i]) return colors[i-1];
@@ -111,7 +116,6 @@ function getZoneValue(zone, options) {
 // ============================================================================
 
 function setupMapInfoBar(options) {
-
     ws_data.map_info = L.control({position: 'topright'});
 
     ws_data.map_info.onAdd = function (map) {
@@ -172,12 +176,12 @@ function setupMapLegend(options) {
         div.innerHTML = "";
         for (var i = 0; i < grades.length-1; i++) {
             div.innerHTML +=
-                '<i style="background:' + getZoneColor((grades[i]+grades[i+1])/2.0, options) + '"></i> ' +
+                '<i style="background:' + options.curr_map_color_scale[i] + '"></i> ' +
                 grades_str[i] + '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str;
             div.innerHTML += '<br>';
         }
         div.innerHTML +=
-            '<i style="background:' + getZoneColor(grades[grades.length-1]+1, options) + '"></i> ' +
+            '<i style="background:' + options.curr_map_color_scale[grades.length-1] + '"></i> ' +
             grades_str[i] + '+ ' + grades_post_str;
         div.innerHTML +=
             '<br><i style="background:' + "#cccccc" + '"></i>Sin Datos<br>';
@@ -195,7 +199,6 @@ function zoomToZoneEvent(e) {
 
 // sets feature highlight style and updates info window
 function highlightZone(e) {
-    console.log(e);
     var layer = e.target;
     layer.setStyle(styleZoneOnHover(layer.feature));
     ws_data.map_info.update(layer.feature.properties);
@@ -297,18 +300,17 @@ function setupMap(options) {
         return $.ajax({
             'global': false,
             'url': '/static/js/data/comunas.geojson',
-            'dataType': "json",
+            'dataType': 'json',
             'success': function (data) {
-                ws_data.districts_geojson = data;
+                // ws_data.districts_geojson = data;
                 ws_data.districts_layer = L.geoJson(data, {
                     style: function(feature){
                         return {
                             fillOpacity: 0.0,
-                            fillColor: 'blue',
                             opacity: 1,
                             color: 'black',
                             weight: 3,
-                            dashArray: '1'
+                            dashArray: '3'
                         };
                     },
                     onEachFeature: onEachDistrictFeature
@@ -355,7 +357,7 @@ function setupMap(options) {
         });
     }
 
-    $.when(loadZonesGeoJSON(), loadDistrictsGeoJSON(), loadMetroGeoJson()).done(
+    $.when(loadZonesGeoJSON(), loadMetroGeoJson(), loadDistrictsGeoJSON()).done(
         function(respZones, respMetro) {
             console.log(" - GeoJSON loading finished!")
 

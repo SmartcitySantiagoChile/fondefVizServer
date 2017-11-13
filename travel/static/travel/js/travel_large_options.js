@@ -56,6 +56,7 @@ options.visualization_mappings = {
 };
 
 options.map_default_lat_lon = L.latLng(-33.459229, -70.645348);
+options.visible_limits = [0, 0];
 options.map_min_zoom = 8;
 options.map_default_zoom = 11;
 options.map_feature_zoom = 13;
