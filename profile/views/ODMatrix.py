@@ -42,7 +42,7 @@ class GetODMatrixData(View):
         """ create es-query based on params given by user """
 
         day = request.GET.get('day')
-        route = request.GET.get('route')
+        route = request.GET.getlist('route[]')
         licensePlate = request.GET.getlist('licensePlate[]')
         dayType = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
@@ -56,7 +56,7 @@ class GetODMatrixData(View):
             esQuery = esQuery.filter('terms', expeditionDayId=expeditionId)
             existsParameters = True
         if route:
-            esQuery = esQuery.filter('term', route=route)
+            esQuery = esQuery.filter('terms', route=route)
             existsParameters = True
         else:
             raise ESQueryRouteParameterDoesNotExist()
@@ -172,8 +172,35 @@ class GetODMatrixData(View):
         response['trips'] = {}
 
         try:
-            esQuery = self.buildQuery(request)
-            response['trips'] = self.transformESAnswer(esQuery)
+            # esQuery = self.buildQuery(request)
+            # response['trips'] = self.transformESAnswer(esQuery)
+            response["data"] = {
+                "matrix": []
+            }
+            stops = ["PI528", "PI529", "PI167", "PI486", "PI487", "PI488", "PI489", "PI94", "PI530", "PI531", "PI532",
+                     "PI533", "PI378", "PI379", "PI380", "PI565", "PI1345", "PI1344", "PI1346", "PI230", "PI231",
+                     "PI232", "PI233", "PI234", "PI235", "PI236", "PI387", "PI388", "PI389", "PI534", "PI535", "PI536",
+                     "PI537", "PI538", "PI539", "PI1461", "PI38", "PI39", "PI40", "PI41", "PI42", "PI43", "PI44",
+                     "PI540", "PI541", "PI542", "PI543", "PI544", "PI545", "PI546", "PA289", "PA290", "PA433", "PA434",
+                     "PA435", "PA436", "PA658", "PA438", "PA439", "PA440", "PA666", "PA442", "PD524", "PD525", "PD644",
+                     "PD589", "PD115", "PD116", "PD590", "PD592", "PD645", "PD535", "PD571", "PD572", "PD573", "PD1322",
+                     "PD537", "PD538", "PD1323", "PD539", "PD540", "PD541", "PD542", "PD543"]
+
+            from random import randint
+            for stop in stops:
+                destination = []
+                for stop2 in stops[::-1]:
+                    value = randint(0,1000)
+                    if stop == stop2:
+                        value = 0
+                    value = '-' if value == 0 else value
+                    destination.append({"name": stop2, "value": value})
+                row = {
+                    "origin": stop,
+                    "destination": destination
+                }
+                response["data"]["matrix"].append(row)
+
             # debug
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
