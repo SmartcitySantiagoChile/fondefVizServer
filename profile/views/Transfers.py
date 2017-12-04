@@ -155,12 +155,59 @@ class GetTransfersData(View):
         response = {}
 
         try:
-            esQuery = self.buildQuery(request)
-            response = self.transformESAnswer(esQuery)
-            # debug
-            # response['query'] = esQuery.to_dict()
-            # return JsonResponse(response, safe=False)
-            # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
+            # esQuery = self.buildQuery(request)
+            # response = self.transformESAnswer(esQuery)
+            response["data"] = {
+                "matrix": [
+                    {
+                        "origin": "Total",
+                        "destination": [
+                            {"name": "509 00I", "value": 12},
+                            {"name": "506 00I", "value": 11},
+                            {"name": "507 00I", "value": 7}
+                        ]
+                    }, {
+                        "origin": "507 00I",
+                        "destination": [
+                            {"name": "509 00I", "value": 9},
+                            {"name": "506 00I", "value": 7},
+                            {"name": "507 00I", "value": 0}
+                        ]
+                    }, {
+                        "origin": "506 00I",
+                        "destination": [
+                            {"name": "509 00I", "value": 3},
+                            {"name": "506 00I", "value": 0},
+                            {"name": "507 00I", "value": 2}
+                        ]
+                    }, {
+                        "origin": "509 00I",
+                        "destination": [
+                            {"name": "509 00I", "value": 0},
+                            {"name": "506 00I", "value": 4},
+                            {"name": "507 00I", "value": 5}
+                        ]
+                    }
+                ],
+                "info": {
+                    "userCode": "PA433",
+                    "authCode": "IO-asd-ASD",
+                    "name": "PARADA 3 Prueba"
+                }
+            }
+
+            total_bus_bus = [30, 16, 5, 9]
+            total_metro_bus = [0, 0, 0, 0]
+            for index, _ in enumerate(response["data"]["matrix"]):
+                print(index)
+                response["data"]["matrix"][index]["destination"].append(
+                    {"name": "Total -> bus", "value": total_bus_bus[index]})
+                response["data"]["matrix"][index]["destination"].append(
+                    {"name": "Total -> metro", "value": total_metro_bus[index]})
+                # debug
+                # response['query'] = esQuery.to_dict()
+                # return JsonResponse(response, safe=False)
+                # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         except (ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 

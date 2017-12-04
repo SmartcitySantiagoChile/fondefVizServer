@@ -20,7 +20,7 @@ class ODMatrixView(View):
         self.base_params["routes"] = self.es_helper.get_unique_list_query("route", size=10000)
 
     def get(self, request):
-        template = "profile/byExpedition.html"
+        template = "profile/odmatrix.html"
 
         # add periods of thirty minutes
         minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
