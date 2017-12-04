@@ -4,7 +4,7 @@
 {% block title %}Indicadores: Mapa{% endblock %}
 
 {% block css %}
-
+    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}"
               rel="stylesheet">
@@ -20,7 +20,6 @@
         <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
     {% endwith %}
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css"/>
     <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
     <link href="{% static "travel/css/map.css" %}" rel="stylesheet">
 
@@ -30,7 +29,7 @@
 
 
     <div class="">
-        
+
     {% include "./titlebar.html" with titlename="Mapa de Viajes" %}
         {% include "./filters.html" %}
 
@@ -88,7 +87,7 @@
                             <span id="visualization_doc_count">0</span> <span id="visualization_doc_count_txt">datos</span>
                         </h2>
                         <div class="clearfix"></div>
-                    </div> 
+                    </div>
                     <div class="x_content" style="height:500px">
                         <div id="mapChart" style="height:inherit"></div>
                     </div>
@@ -100,6 +99,7 @@
 {% endblock %}
 
 {% block js %}
+    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
@@ -113,10 +113,8 @@
 
         {# switchery: pretty checkboxes #}
         <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
-        
-    {% endwith %}
 
-    <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    {% endwith %}
 
     <script>
         var ws_data = {};
@@ -134,7 +132,7 @@
 
     <script src="{% static "travel/js/util.js" %}"></script>
     <script src="{% static "travel/js/maps.js" %}"></script>
-    <script src="{% static "travel/js/form.js" %}"></script>    
+    <script src="{% static "travel/js/form.js" %}"></script>
     <script src="{% static "travel/js/travel_map_options.js" %}"></script>
     <script src="{% static "travel/js/travel_map.js" %}"></script>
 

@@ -3,9 +3,10 @@
 ws_data.ready = false;
 ws_data.data = null;
 
-// map layers 
+// map layers
 ws_data.tile_layer;
 ws_data.subway_layer = L.geoJSON(); // empty layer
+ws_data.districts_layer  = L.geoJSON(); // empty layer
 ws_data.zones_layer  = L.geoJSON(); // empty layer
 ws_data.sector_layer = L.geoJSON(); // empty layer
 
@@ -40,8 +41,8 @@ function lookupNEtapasSelectors() {
         if (html.checked) {
             response.push(html.getAttribute('data-ne-str'));
         }
-    });  
-    return response; 
+    });
+    return response;
 }
 
 // ============================================================================
@@ -87,15 +88,49 @@ function getDataZoneById(data, zone_id, options) {
     return result;
 }
 
+function fit_grades(min_val, max_val){
+    options.visible_limits = [min_val, max_val];
+    var step = (max_val-min_val)/4;
+    var exp_min = Math.floor(Math.log(min_val)/Math.LN10);
+    var exp_step = Math.floor(Math.log(step)/Math.LN10);
+    var coef_min = Math.floor(2.0*min_val/Math.pow(10,exp_min))/2.0;
+    var coef_step = Math.floor(10*step/Math.pow(10,exp_step))/10.0;
+    var rounded_min = coef_min*Math.pow(10,exp_min);
+    var rounded_step = coef_step*Math.pow(10,exp_step);
+
+    options.visualization_mappings['count']['grades'] = [Math.max(1, rounded_min), rounded_min+rounded_step, rounded_min+2*rounded_step, rounded_min+3*rounded_step, rounded_min+4*rounded_step];
+    options.visualization_mappings['count']['grades_str'] = options.visualization_mappings['count']['grades'].map(function(x){return x.toFixed(0);});
+}
+
+function update_limits(min_val, max_val){
+    var slider = $("#dataLimits").data("ionRangeSlider");
+    slider.update({
+        min: min_val,
+        max: max_val,
+        from: min_val,
+        to: max_val
+    });
+}
+
 function processData(response) {
     ws_data.data = response.large;
+
+    // calcular limites para cantidades (para no saturar)?
+    var count = ws_data.data.aggregations.by_zone.buckets.map(function(x){
+        return x.doc_count;
+    });
+    var min_val = Math.min(...count);
+    var max_val = Math.max(...count);
+    update_limits(min_val, max_val);
+
+    fit_grades(min_val, max_val);
     redraw(options);
     updateMapDocCount(options);
 }
 
 // Update Charts from filters
 function updateServerData() {
-    
+
     var fromDate = $('#dateFromFilter').val();
     var toDate = $('#dateToFilter').val();
     var dayTypes = $('#dayTypeFilter').val();
@@ -141,6 +176,18 @@ $(document).ready(function () {
     setupDayTypeAndTSPeriodForm(options);
     setupEtapasSelectors(options);
     setupColoringSelector(options);
+    $("#dataLimits").ionRangeSlider({
+        type: "double",
+        min: 0,
+        max: 1,
+        from: 0,
+        to: 1,
+        onFinish: function (data) {
+            fit_grades(data.from, data.to);
+            redraw(options);
+            updateMapDocCount(options);
+        }
+    });
 
     // map
     console.log("> Building Map ... ")
@@ -148,6 +195,7 @@ $(document).ready(function () {
 
     // load with default parameters
     console.log("> Loading default data ... ")
+
     updateServerData();
 
     // buttons

@@ -41,8 +41,8 @@ options.visualization_mappings = {
     },
     n_etapas: {
         name: 'Número de etapas',
-        grades: [1.0, 1.3, 2.0, 2.3, 3.0],
-        grades_str: ["1.0", "1.3", "2.0", "2.3", "3.0"],
+        grades: [1.0, 1.5, 2.0, 2.5, 3.0],
+        grades_str: ["1.0", "1.5", "2.0", "2.5", "3.0"],
         legend_post_str: "",
         map_fn: function (zone) { return zone.n_etapas.value; }
     },
@@ -56,6 +56,7 @@ options.visualization_mappings = {
 };
 
 options.map_default_lat_lon = L.latLng(-33.459229, -70.645348);
+options.visible_limits = [0, 0];
 options.map_min_zoom = 8;
 options.map_default_zoom = 11;
 options.map_sector_zoom = 12;

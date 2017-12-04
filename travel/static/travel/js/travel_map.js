@@ -3,7 +3,7 @@
 ws_data.ready = false;
 ws_data.data = null;
 
-// map layers 
+// map layers
 ws_data.tile_layer;
 ws_data.subway_layer = L.geoJSON(); // empty layer
 ws_data.zones_layer  = L.geoJSON(); // empty layer
@@ -32,7 +32,7 @@ function setupSectorForm(options) {
             updateSelectedSector(selected, options);
         })
         .on("select2:unselect", function(e) {
-            updateSelectedSector(null, options);  
+            updateSelectedSector(null, options);
         })
         .val(options.default_sector).trigger("change"); // force default;
 }
@@ -47,7 +47,7 @@ function updateAvailableSectors(options) {
     while (sectorSelect.firstChild) {
         sectorSelect.removeChild(sectorSelect.firstChild);
     }
-    
+
     // update
     for (var sector_name in ws_data._map_sectors) {
         var option = document.createElement("option");
@@ -67,7 +67,7 @@ function updateAvailableSectors(options) {
     } else if (last_value != curr_value) {
         // keep last
         selected = last_value;
-        
+
     } else {
         // use current
         selected = curr_value;
@@ -86,9 +86,9 @@ function updateAvailableSectors(options) {
 
 function isSectorSelected(options) {
     return (
-        options.curr_sector !== null 
-        && options.curr_sector in ws_data._map_sectors 
-    ); 
+        options.curr_sector !== null
+        && options.curr_sector in ws_data._map_sectors
+    );
 }
 
 function isZoneIdInCurrentSector(zone_id, options) {

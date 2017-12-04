@@ -61,7 +61,7 @@ function styleSubway(feature) {
         opacity: 1,
         color: feature.properties.color,
         dashArray: '0',
-    };   
+    };
 }
 
 function styleZone(feature) {
@@ -86,9 +86,14 @@ function getZoneColor(value, options) {
     if (options === undefined || options === null) { return null; }
     if (options.curr_visualization_type === null) { return null; }
 
+
     // use mapping
     var grades = options.visualization_mappings[options.curr_visualization_type].grades;
     var colors = options.curr_map_color_scale;
+
+    if (value < options.visible_limits[0]) return null;
+    if (value > options.visible_limits[1]) return null;
+
     if (value < grades[0]) return null;
     for (var i=1; i<grades.length; i++) {
         if (value <= grades[i]) return colors[i-1];
@@ -111,7 +116,6 @@ function getZoneValue(zone, options) {
 // ============================================================================
 
 function setupMapInfoBar(options) {
-
     ws_data.map_info = L.control({position: 'topright'});
 
     ws_data.map_info.onAdd = function (map) {
@@ -128,18 +132,18 @@ function setupMapInfoBar(options) {
 
             var zone = getDataZoneById(ws_data.data, props.id, options);
             if (zone != null) {
-                this._div.innerHTML += 
+                this._div.innerHTML +=
                     '<br/> - # Datos: ' + zone.doc_count +
                     '<br/> - # Etapas: ' + zone.n_etapas.value.toFixed(2) +
                     '<br/> - Duración: ' + zone.tviaje.value.toFixed(1) + ' [min]' +
                     '<br/> - Distancia (en ruta): ' + (zone.distancia_ruta.value / 1000.0).toFixed(2) + ' [km]' +
                     '<br/> - Distancia (euclideana): ' + (zone.distancia_eucl.value / 1000.0).toFixed(2) + ' [km]';
             } else {
-                this._div.innerHTML += 
+                this._div.innerHTML +=
                     '<br/> Sin información para los filtros'
                     + '<br/> seleccionados';
             }
-            
+
         } else {
             this._div.innerHTML += 'Pon el ratón sobre una zona';
         }
@@ -170,15 +174,18 @@ function setupMapLegend(options) {
         // loop through our density intervals and generate a label with a colored square for each interval
         var div = document.getElementById("map_legend");
         div.innerHTML = "";
-        for (var i = 0; i < grades.length; i++) {
+        for (var i = 0; i < grades.length-1; i++) {
             div.innerHTML +=
-                '<i style="background:' + getZoneColor(grades[i] + 1, options) + '"></i> ' +
-                grades_str[i] + (grades_str[i + 1] ? '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str : '+ ' + grades_post_str);
+                '<i style="background:' + options.curr_map_color_scale[i] + '"></i> ' +
+                grades_str[i] + '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str;
             div.innerHTML += '<br>';
         }
         div.innerHTML +=
-            '<i style="background:' + "#cccccc" + '"></i>Sin Datos<br>';
-    }  
+            '<i style="background:' + options.curr_map_color_scale[grades.length-1] + '"></i> ' +
+            grades_str[i] + '+ ' + grades_post_str;
+        div.innerHTML +=
+            '<br><i style="background:' + "#cccccc" + '"></i>Sin Datos<br>';
+    }
 }
 
 
@@ -210,6 +217,10 @@ function onEachZoneFeature(feature, layer) {
         mouseout: resetZoneHighlight,
         click: zoomToZoneEvent
     });
+}
+
+function onEachDistrictFeature(feature, layer) {
+    layer.on({});
 }
 
 function onEachSubwayFeature(feature, layer) {
@@ -249,6 +260,7 @@ function onEachSectorFeature(layer) {
 }
 
 
+
 // ============================================================================
 // MAIN MAP
 // ============================================================================
@@ -266,7 +278,7 @@ function setupMap(options) {
 
     ws_data.map.setMaxBounds(ws_data.map.getBounds());
     ws_data.map.setView(options.map_default_lat_lon, options.map_default_zoom);
-    
+
     // load zonas layer
     function loadZonesGeoJSON() {
         return $.ajax({
@@ -283,22 +295,69 @@ function setupMap(options) {
         });
     }
 
-    // lineas de metro layer
-    function loadMetroGeoJson() {
+    // load zonas layer
+    function loadDistrictsGeoJSON() {
         return $.ajax({
             'global': false,
-            'url': '/static/js/data/subway.geojson',
-            'dataType': "json",
+            'url': '/static/js/data/comunas.geojson',
+            'dataType': 'json',
             'success': function (data) {
-                ws_data.subway_layer = L.geoJson(data, {
-                    style: styleSubway,
-                    onEachFeature: onEachSubwayFeature
-                }).addTo(ws_data.map);;
+                // ws_data.districts_geojson = data;
+                ws_data.districts_layer = L.geoJson(data, {
+                    style: function(feature){
+                        return {
+                            fillOpacity: 0.0,
+                            opacity: 1,
+                            color: 'black',
+                            weight: 3,
+                            dashArray: '3'
+                        };
+                    },
+                    onEachFeature: onEachDistrictFeature
+                }).addTo(ws_data.map);
             }
         });
     }
 
-    $.when(loadZonesGeoJSON(), loadMetroGeoJson()).done(
+    // lineas de metro layer
+    function loadMetroGeoJson() {
+        return $.ajax({
+            'global': false,
+            'url': '/static/js/data/metro.geojson',
+            'dataType': 'json',
+            'success': function (data) {
+                ws_data.subway_layer = L.geoJson(data, {
+                    onEachFeature: function(feature, layer){
+                        var popup_text = feature.properties.name + "<br/>" + ((feature.properties.color == "#000000")?"Combinación ":"") + feature.properties.line;
+                        layer.bindPopup(popup_text);
+                    },
+                    pointToLayer: function (feature, latlng) {
+                        if(feature.properties.line=="MetroTren"){
+                            return L.circleMarker(latlng, {
+                                radius: 6,
+                                fillColor: feature.properties.color2,
+                                color: feature.properties.color1,
+                                weight: 4,
+                                opacity: 1,
+                                fillOpacity: 1.0
+                            });
+                        }else{
+                            return L.circleMarker(latlng, {
+                                radius: 6,
+                                fillColor: feature.properties.color,
+                                color: "#000000",
+                                weight: 2,
+                                opacity: 1,
+                                fillOpacity: 1.0
+                            });
+                        }
+                    }
+                }).addTo(ws_data.map);
+            }
+        });
+    }
+
+    $.when(loadZonesGeoJSON(), loadMetroGeoJson(), loadDistrictsGeoJSON()).done(
         function(respZones, respMetro) {
             console.log(" - GeoJSON loading finished!")
 
@@ -313,6 +372,7 @@ function setupMap(options) {
             console.log(" - Setting up map layer control.")
             var control_mapping = {};
             control_mapping["Zonas 777"] = ws_data.zones_layer;
+            control_mapping["Comunas"] = ws_data.districts_layer;
             control_mapping["Líneas de Metro"] = ws_data.subway_layer;
             if (options.use_map_sectors) {
                 control_mapping["Sector de Destino"] = ws_data.sector_layer;
@@ -329,6 +389,7 @@ function setupMap(options) {
             // Make sure we keep the layers in order
             ws_data.zones_layer.is_active = true;
             ws_data.sector_layer.is_active = true;
+            ws_data.districts_layer.is_active = true;
             ws_data.subway_layer.is_active = true;
             ws_data.map.on("overlayremove", function (event) {
                 event.layer.is_active = false;
@@ -337,6 +398,7 @@ function setupMap(options) {
             function rearrange_layers() {
                 if (ws_data.zones_layer.is_active) ws_data.zones_layer.bringToFront();
                 if (options.use_map_sectors && ws_data.sector_layer.is_active) ws_data.sector_layer.bringToFront();
+                if (ws_data.districts_layer.is_active) ws_data.districts_layer.bringToFront();
                 if (ws_data.subway_layer.is_active) ws_data.subway_layer.bringToFront();
             }
 
@@ -345,14 +407,13 @@ function setupMap(options) {
                 rearrange_layers();
             });
             rearrange_layers();
-            ws_data.ready = true; 
+            ws_data.ready = true;
         }
     );
 }
 
 function redraw(options) {
     if (!ws_data.ready) return;
-
     ws_data.zones_layer.setStyle(styleZone);
     ws_data.map_legend.updateVisualization(options);
     updateMapDocCount(options);
@@ -405,7 +466,7 @@ function updateSectorLayer(options) {
 }
 
 function zoomToCurrentSector() {
-    var bounds = ws_data.sector_layer.getBounds(); 
+    var bounds = ws_data.sector_layer.getBounds();
     ws_data.map.fitBounds(bounds, {maxZoom: options.map_sector_zoom});
 }
 
