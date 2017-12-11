@@ -122,7 +122,8 @@ class GetDataGeneric(View):
         to_date = request.GET.get('to', None)
         day_types = request.GET.getlist('daytypes[]', None)
         periods = request.GET.getlist('periods[]', None)
-
+        origin_zone = int(request.GET.get('origin', -1))
+        destination_zone = int(request.GET.get('destination', -1))
         # common filtering
         if from_date and to_date:
             es_query = es_query.filter(
@@ -143,4 +144,11 @@ class GetDataGeneric(View):
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
 
+        if origin_zone and origin_zone >= 0:
+            es_query = es_query.filter('term', zona_subida=origin_zone)
+
+        if destination_zone and destination_zone >= 0:
+            es_query = es_query.filter('term', zona_bajada=destination_zone)
+
+        print(es_query.to_dict())
         return es_query
