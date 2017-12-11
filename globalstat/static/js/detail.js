@@ -57,9 +57,8 @@ $(document).ready(function () {
             series: [{
                 type: "pie",
                 radius: "60%",
-                center: ["50%", "50%"],
+                center: ["50%", "60%"],
                 data: [],
-                roseType: "area",
                 animationType: "scale",
                 animationEasing: "elasticOut",
                 animationDelay: function () {
@@ -115,10 +114,10 @@ $(document).ready(function () {
             }
         };
         var chartOpts = [
-            $.extend(true, {title: {text: "Transacciones por asignación de servicio"}}, pieChartOpt),
+            $.extend(true, {title: {text: "Transacciones por lugar de validación"}}, pieChartOpt),
             $.extend(true, {title: {text: "Transacciones por modo de transporte"}}, pieChartOpt),
             $.extend(true, {title: {text: "Viajes según N° de etapas"}}, pieChartOpt),
-            $.extend(true, {title: {text: "Etapas según modo de viaje con bajada estimada"}}, pieChartOpt),
+            $.extend(true, {title: {text: "Etapas con bajada estimada según lugar de validación"}}, pieChartOpt),
             $.extend(true, {
                 title: {text: "Velocidad promedio de viajes (km/h)"},
                 itemStyle: {normal: {color: "#7AC099"}}
