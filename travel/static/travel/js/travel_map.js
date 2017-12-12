@@ -190,6 +190,15 @@ function getDataZoneById(data, zone_id, options) {
 
 function processData(response) {
     ws_data.data = response.map;
+    var sector = (options.curr_sector==null)?options.default_sector:options.curr_sector;
+
+    var count = ws_data.data.aggregations[sector].by_zone.buckets.map(function(x){
+        return x[options.curr_visualization_type];
+    });
+    console.log(count);
+    options.visible_limits = [Math.min(...count), Math.max(...count)];
+    console.log(options);
+
     updateAvailableSectors(options);
     redraw(options);
     updateMapDocCount(options);

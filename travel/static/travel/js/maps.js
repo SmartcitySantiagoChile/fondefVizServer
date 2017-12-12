@@ -81,6 +81,7 @@ function styleZone(feature) {
 // returns the zone color which depends on the zone value and defined mappings
 // returns null if value is invalid, the is no data or the mapping is incomplete.
 function getZoneColor(value, options) {
+    // console.log(value, options);
     // sanity checks
     if (value === undefined || value === null) { return null; }
     if (options === undefined || options === null) { return null; }
@@ -731,7 +732,6 @@ function setupMap(options) {
 
             console.log(" - Setting up map info bar.")
             setupMapInfoBar(options);
-            console.log("?")
 
             ws_data.map_info.addTo(ws_data.map);
 
