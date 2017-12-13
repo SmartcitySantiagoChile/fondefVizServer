@@ -59,3 +59,10 @@ class HalfHour(models.Model):
 
     def __str__(self):
         return self.shortName
+
+
+class Operator(models.Model):
+    """ operator code that exist in elasticsearch """
+    esId = models.IntegerField()
+    name = models.TextField(max_length=50)
+    description = models.TextField(max_length=100)
