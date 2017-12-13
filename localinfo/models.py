@@ -63,6 +63,10 @@ class HalfHour(models.Model):
 
 class Operator(models.Model):
     """ operator code that exist in elasticsearch """
-    esId = models.IntegerField()
-    name = models.TextField(max_length=50)
-    description = models.TextField(max_length=100)
+    esId = models.IntegerField("Identificador", unique=True, null=False)
+    name = models.CharField("Nombre", max_length=50)
+    description = models.CharField("Descripción", max_length=100)
+
+    class Meta:
+        verbose_name = "Operador"
+        verbose_name_plural = "Operadores"
