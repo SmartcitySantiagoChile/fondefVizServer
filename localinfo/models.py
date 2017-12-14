@@ -46,19 +46,24 @@ class HalfHour(models.Model):
     """ Represents day time ranges by half hours """
 
     # Id which is used on Elastic Search database
-    esId = models.IntegerField()
+    esId = models.IntegerField("Identificador")
 
     # Full half hour representation: HH:MM:00
-    name = models.CharField(max_length=10)
+    name = models.CharField("Nombre", max_length=10)
 
     # Abbr half hour representation: HH:MM
-    shortName = models.CharField(max_length=10)
+    shortName = models.CharField("Nombre corto", max_length=10)
 
     # full description: [HH:MM-HH:MM)
-    longName = models.CharField(max_length=20)
+    longName = models.CharField("Nombre largo", max_length=20)
 
+    authorityPeriodName = models.CharField("Período Transantiago", max_length=50)
     def __str__(self):
         return self.shortName
+
+    class Meta:
+        verbose_name = "Período de media hora"
+        verbose_name_plural = "Períodos de media hora"
 
 
 class Operator(models.Model):
