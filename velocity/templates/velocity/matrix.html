@@ -150,7 +150,7 @@
 $(document).ready(function(){
     // echarts stuffs
     var mChart = echarts.init(document.getElementById('main'));
-    mChart.title = 'velocityMatrixByService';
+    mChart.title = 'speedMatrixByService';
 
     // map stuffs
     var pzaDeArmas = [-33.437824, -70.650439];
@@ -164,7 +164,10 @@ $(document).ready(function(){
     });
     L.control.scale().addTo(map);
 
-    colors = ['#dfdfdf', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff'];
+    // vel_range = ['Sin Datos', ' < 15 k/h', '15-19 k/h', '19-21 k/h', '21-25 k/h', '25-30 k/h', ' > 30 k/h'];
+    vel_range = ['Sin Datos', ' < 5 k/h', '5-10 k/h', '10-15 k/h', '15-20 k/h', '20-25 k/h', '25-30 k/h', ' > 30 k/h'];
+    // colors = ['#dfdfdf', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff'];
+    colors = ['#dfdfdf', '#ff0000', '#ff4500', '#ff8000', '#ffff00', '#01df01', '#088a08', '#045fb4'];
     StartMarker = null;
     EndMarker = null;
     RoutePoints = [];
@@ -337,7 +340,6 @@ $(document).ready(function(){
         //       return;
         //   }
 
-      var vel_range = ['Sin Datos', ' < 15 k/h', '15-19 k/h', '19-21 k/h', '21-25 k/h', '25-30 k/h', ' > 30 k/h'];
       var segments = dataSource['segments'];
       matrix = dataSource['matrix'];
       data = [];
@@ -392,7 +394,8 @@ $(document).ready(function(){
               right: '5%',
               top: 'center',
               pieces: [
-                  {min: 5.5, label: vel_range[6]},
+                  {min: 6.5, max: 7.5, label: vel_range[7]},
+                  {min: 5.5, max: 6.5, label: vel_range[6]},
                   {min: 4.5, max: 5.5, label: vel_range[5]},
                   {min: 3.5, max: 4.5, label: vel_range[4]},
                   {min: 2.5, max: 3.5, label: vel_range[3]},
