@@ -18,16 +18,13 @@
     {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes True as dayType_select %}
     {% columns 2 2 12 dayType_select as col3 %}
 
-    {% inline_select "Período de despacho:" "periodFilter" periods True as period_select %}
+    {% inline_select "Período de subida en parada:" "periodFilter" periods True as period_select %}
     {% columns 2 2 12 period_select as col4 %}
 
-    {% inline_select "Media hora de despacho:" "minutePeriodFilter" minutes True as half_hour_select %}
-    {% columns 2 2 12 half_hour_select as col5 %}
-
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col6 %}
+    {% columns 12 12 12 update_button as col5 %}
 
-    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6 %}
+    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5 %}
     </div>
   </div>
 

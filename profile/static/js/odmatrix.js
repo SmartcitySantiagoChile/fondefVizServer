@@ -148,7 +148,6 @@ $(document).ready(function () {
         $("#routeFilter").select2({placeholder: "Servicio"});
         $("#dayTypeFilter").select2({placeholder: "Todos"});
         $("#periodFilter").select2({placeholder: "Todos"});
-        $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
         var app = new TransfersApp();
         var makeAjaxCall = true;
@@ -157,7 +156,6 @@ $(document).ready(function () {
             var route = $("#routeFilter").val();
             var dayType = $("#dayTypeFilter").val();
             var period = $("#periodFilter").val();
-            var minutes = $("#minutePeriodFilter").val();
 
             var params = {
                 day: day
@@ -170,9 +168,6 @@ $(document).ready(function () {
             }
             if (period) {
                 params["period"] = period;
-            }
-            if (minutes) {
-                params["halfHour"] = minutes;
             }
 
             if (makeAjaxCall) {
