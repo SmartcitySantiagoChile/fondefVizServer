@@ -120,8 +120,8 @@ class getLoadMatrixData(View):
             segmentedRouteByHour = []
             for section in response['segments']:
                 speed, n_obs = d_data.get((section, hour), (-1, 0))
-                interval = 6
-                for i, bound in enumerate([0, 15, 19, 21, 25, 30]):
+                interval = 7
+                for i, bound in enumerate([0, 5, 10, 15, 20, 25, 30]):
                     if speed < bound:
                         interval = i
                         break
@@ -382,20 +382,22 @@ class getLoadSpeedVariationData(View):
                     if value < 0:
                         color = 0
                     elif value == 0:
-                        color = 7
+                        color = 8
                         value = None
-                    elif value <= 90:
+                    elif value <= 30:
                         color = 1
-                    elif value <= 95:
+                    elif value <= 45:
                         color = 2
-                    elif value <= 100:
+                    elif value <= 60:
                         color = 3
-                    elif value <= 105:
+                    elif value <= 75:
                         color = 4
-                    elif value <= 110:
+                    elif value <= 90:
                         color = 5
-                    else:
+                    elif value <= 100:
                         color = 6
+                    else:
+                        color = 7
                 p_data.append([color, value, v_dia, v_mes, nob_dia, nob_mes, dia_stats, mes_stats])
             data.append(p_data)
         response = {
