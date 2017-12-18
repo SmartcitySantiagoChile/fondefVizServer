@@ -12,14 +12,14 @@
     {% inline_select "Día:" "dayFilter" days as days_select %}
     {% columns 2 2 12 days_select as col1 %}
 
-    {% inline_select "Servicio-sentido:" "routeFilter" routes True as route_select %}
-    {% columns 2 2 12 route_select as col2 %}
-
     {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes True as dayType_select %}
-    {% columns 2 2 12 dayType_select as col3 %}
+    {% columns 2 2 12 dayType_select as col2 %}
 
     {% inline_select "Período de subida en parada:" "periodFilter" periods True as period_select %}
-    {% columns 2 2 12 period_select as col4 %}
+    {% columns 2 2 12 period_select as col3 %}
+
+    {% inline_select "Servicio-sentido:" "routeFilter" routes as route_select %}
+    {% columns 2 2 12 route_select as col4 %}
 
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
     {% columns 12 12 12 update_button as col5 %}

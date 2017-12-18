@@ -9,7 +9,7 @@ $(document).ready(function () {
             _chart.resize();
         };
 
-        this.updateChart = function (xData, yData, values) {
+        this.updateChart = function (xData, yData, values, maxValue) {
             var options = {
                 tooltip: {
                     show: true,
@@ -60,7 +60,7 @@ $(document).ready(function () {
                 },
                 visualMap: {
                     min: 0,
-                    max: 1000,
+                    max: maxValue,
                     calculable: true,
                     orient: 'horizontal',
                     left: 'center',
@@ -113,6 +113,7 @@ $(document).ready(function () {
         }
 
         var matrix = dataSource.data.matrix;
+        var maxValue = dataSource.data.maximum;
 
         var yAxis = [];
         var xAxis = [];
@@ -123,20 +124,21 @@ $(document).ready(function () {
         matrix.forEach(function (row) {
             var origin = row.origin;
             var destination = row.destination;
-            yAxis.push(origin);
+            yAxis.push(origin.authStopCode);
             destination.forEach(function (column) {
-                var oldXAxis = xAxis.indexOf(column.name);
+                var columnName = column.authStopCode;
+                var oldXAxis = xAxis.indexOf(columnName);
                 if (oldXAxis >= 0) {
-                    data.push([oldXAxis, yIndex, column.value]);
+                    data.push([oldXAxis, yIndex, column.value.toFixed(2)]);
                 } else {
-                    xAxis.push(column.name);
-                    data.push([xIndex, yIndex, column.value]);
+                    xAxis.push(columnName);
+                    data.push([xIndex, yIndex, column.value.toFixed(2)]);
                     xIndex++;
                 }
             });
             yIndex++;
         });
-        app.updateChart(xAxis, yAxis, data);
+        app.updateChart(xAxis, yAxis, data, maxValue, matrix);
     }
 
     // load filters
