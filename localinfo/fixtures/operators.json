@@ -1,0 +1,9 @@
+[
+  {"model": "localinfo.operator", "pk":1 , "fields":{ "esId":"1", "name":"Alsacia",  "description":"recorridos 100" }},
+  {"model": "localinfo.operator", "pk":2 , "fields":{ "esId":"2", "name":"Su Bus",  "description":"recorridos 200 y G" }},
+  {"model": "localinfo.operator", "pk":3 , "fields":{ "esId":"3", "name":"Buses Vule",  "description":"recorridos 300, E,H e I" }},
+  {"model": "localinfo.operator", "pk":4 , "fields":{ "esId":"4", "name":"Express",  "description":"recorridos 400 y D" }},
+  {"model": "localinfo.operator", "pk":5 , "fields":{ "esId":"5", "name":"Buses Metropolitana",  "description":"recorridos 500 y J" }},
+  {"model": "localinfo.operator", "pk":6 , "fields":{ "esId":"6", "name":"Red Bus Urbano",  "description":"recorridos B y C" }},
+  {"model": "localinfo.operator", "pk":7 , "fields":{ "esId":"7", "name":"STP Santiago",  "description":"recorridos F" }}
+]

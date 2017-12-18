@@ -138,6 +138,7 @@
 
 {% block js %}
 <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+<script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
 {% with "components/gentelella/vendors/" as gentelella_static %}
 <script src="{% static gentelella_static|add:"echarts/dist/echarts.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
@@ -174,6 +175,7 @@ $(document).ready(function(){
     StartMarker = null;
     EndMarker = null;
     MultiSegment = [];
+    MultiDecorator = [];
     var startEnd = null;
     var _datatable = null;
     var periods = [
@@ -191,6 +193,9 @@ $(document).ready(function(){
         $.each(MultiSegment, function(i, elem){
             map.removeLayer(elem);
         });
+        $.each(MultiDecorator, function(i, elem){
+            map.removeLayer(elem);
+        });
     }
     function showSegment(section, dataSource){
         clearMap();
@@ -201,18 +206,38 @@ $(document).ready(function(){
             var start = elem[0];
             var end = elem[1];
             var seg = RoutePoints.slice(start, end+1);
-            segpol = new L.Polyline(seg, {
+
+            var aux = L.polyline(seg, {
                 color: colors[valuesRoute[i]],
                 weight: 5,
                 opacity: 1,
                 smoothFactor: 1
             });
+
+            segpol = L.polylineDecorator(aux, {
+                patterns: [
+    			    {offset: 0,
+                     endOffset: 0,
+      			     repeat: '40',
+                     symbol: L.Symbol.arrowHead(
+                        {pixelSize: 10,
+                         polygon: true,
+                         pathOptions: {
+                             fillOpacity: 1,
+                             color: colors[valuesRoute[i]],
+                             stroke: true}
+                        })
+                    }
+                ]
+            });
             if(i==section){
                 StartMarker = L.marker(RoutePoints[start]);
                 EndMarker = L.marker(RoutePoints[end]);
-                selected = segpol;
+                selected = aux;
             }
-            MultiSegment.push(segpol);
+            MultiDecorator.push(segpol);
+            MultiSegment.push(aux);
+            aux.addTo(map);
             segpol.addTo(map);
         });
         StartMarker.addTo(map).bindPopup("<b>Inicio</b>");

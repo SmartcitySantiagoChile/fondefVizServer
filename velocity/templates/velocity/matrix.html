@@ -133,6 +133,7 @@
 
 {% block js %}
 <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+<script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
 {% with "components/gentelella/vendors/" as gentelella_static %}
 <script src="{% static gentelella_static|add:"echarts/dist/echarts.min.js" %}"></script>
 <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
@@ -149,7 +150,7 @@
 $(document).ready(function(){
     // echarts stuffs
     var mChart = echarts.init(document.getElementById('main'));
-    mChart.title = 'velocityMatrixByService';
+    mChart.title = 'speedMatrixByService';
 
     // map stuffs
     var pzaDeArmas = [-33.437824, -70.650439];
@@ -161,14 +162,26 @@ $(document).ready(function(){
         zoom: 15,
         layers: [black]
     });
-    colors = ['#dfdfdf', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff'];
+    L.control.scale().addTo(map);
+
+    // vel_range = ['Sin Datos', ' < 15 k/h', '15-19 k/h', '19-21 k/h', '21-25 k/h', '25-30 k/h', ' > 30 k/h'];
+    vel_range = ['Sin Datos', ' < 5 k/h', '5-10 k/h', '10-15 k/h', '15-20 k/h', '20-25 k/h', '25-30 k/h', ' > 30 k/h'];
+    // colors = ['#dfdfdf', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff'];
+    colors = ['#dfdfdf', '#ff0000', '#ff4500', '#ff8000', '#ffff00', '#01df01', '#088a08', '#045fb4'];
     StartMarker = null;
     EndMarker = null;
     RoutePoints = [];
+    RoutePoints_before = [];
+    RoutePoints_after = [];
     RoutePolyline = null;
+    RoutePolyline2 = null;
+    RouteDeco = null;
+    RouteDeco2 = null;
     MultiSegment = []
+    MultiDecorator = []
     SegmentPoints = [];
     SegmentPolyline = null;
+    SegmentDeco = null;
     var startEnd = null;
     var periods = [
         '00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
@@ -181,8 +194,20 @@ $(document).ready(function(){
         if (RoutePolyline){
             map.removeLayer(RoutePolyline);
         }
+        if (RoutePolyline2){
+            map.removeLayer(RoutePolyline2);
+        }
+        if (RouteDeco){
+            map.removeLayer(RouteDeco);
+        }
+        if (RouteDeco2){
+            map.removeLayer(RouteDeco2);
+        }
         if (SegmentPolyline){
             map.removeLayer(SegmentPolyline);
+        }
+        if (SegmentDeco){
+            map.removeLayer(SegmentDeco);
         }
         if (StartMarker){
             map.removeLayer(StartMarker);
@@ -191,6 +216,9 @@ $(document).ready(function(){
             map.removeLayer(EndMarker);
         }
         $.each(MultiSegment, function(i, elem){
+            map.removeLayer(elem);
+        });
+        $.each(MultiDecorator, function(i, elem){
             map.removeLayer(elem);
         });
     }
@@ -205,10 +233,17 @@ $(document).ready(function(){
         // draw route and segment in map
         clearMap();
         SegmentPoints = [];
+        RoutePoints_before = [];
+        RoutePoints_after = [];
+        var start = startEnd[segment][0];
+        var end = startEnd[segment][1];
         $.each(RoutePoints, function(i, elem){
-            var start = startEnd[segment][0];
-            var end = startEnd[segment][1];
-
+            if(i<=start){
+                RoutePoints_before.push(elem);
+            }
+            if(end<=i){
+                RoutePoints_after.push(elem);
+            }
             if(i==start){
                 StartMarker = L.marker(elem);
             }
@@ -219,20 +254,78 @@ $(document).ready(function(){
                 SegmentPoints.push(elem);
             }
         });
-        RoutePolyline = new L.Polyline(RoutePoints, {
+        RoutePolyline = new L.Polyline(RoutePoints_before, {
             color: '#000000',
             weight: 3,
             opacity: 1,
             smoothFactor: 1
         });
-        RoutePolyline.addTo(map);
+        RouteDeco = L.polylineDecorator(RoutePolyline, {
+            patterns: [
+                {offset: 0,
+                 endOffset: 0,
+                 repeat: '40',
+                 symbol: L.Symbol.arrowHead(
+                    {pixelSize: 10,
+                     polygon: true,
+                     pathOptions: {
+                         fillOpacity: 1,
+                         color: '#000000',
+                         stroke: true}
+                    })
+                }
+            ]
+        });
+        RoutePolyline2 = new L.Polyline(RoutePoints_after, {
+            color: '#000000',
+            weight: 3,
+            opacity: 1,
+            smoothFactor: 1
+        });
+        RouteDeco2 = L.polylineDecorator(RoutePolyline2, {
+            patterns: [
+                {offset: 0,
+                 endOffset: 0,
+                 repeat: '40',
+                 symbol: L.Symbol.arrowHead(
+                    {pixelSize: 10,
+                     polygon: true,
+                     pathOptions: {
+                         fillOpacity: 1,
+                         color: '#000000',
+                         stroke: true}
+                    })
+                }
+            ]
+        });
         SegmentPolyline = new L.Polyline(SegmentPoints, {
             color: colors[velocity_cat],
             weight: 5,
             opacity: 1,
             smoothFactor: 1
         });
+        SegmentDeco = L.polylineDecorator(SegmentPolyline, {
+            patterns: [
+                {offset: 0,
+                 endOffset: 0,
+                 repeat: '40',
+                 symbol: L.Symbol.arrowHead(
+                    {pixelSize: 10,
+                     polygon: true,
+                     pathOptions: {
+                         fillOpacity: 1,
+                         color: colors[velocity_cat],
+                         stroke: true}
+                    })
+                }
+            ]
+        });
+        RoutePolyline.addTo(map);
+        RouteDeco.addTo(map);
+        RoutePolyline2.addTo(map);
+        RouteDeco2.addTo(map);
         SegmentPolyline.addTo(map);
+        SegmentDeco.addTo(map);
         StartMarker.addTo(map).bindPopup("<b>Inicio</b>");
         EndMarker.addTo(map).bindPopup("<b>Fin</b>");
         map.fitBounds(SegmentPolyline.getBounds());
@@ -240,7 +333,6 @@ $(document).ready(function(){
     });
 
     function processData(dataSource){
-      console.log(dataSource);
       mChart.hideLoading();
         //   if(dataSource['status']){
         //       let status = dataSource['status'];
@@ -248,7 +340,6 @@ $(document).ready(function(){
         //       return;
         //   }
 
-      var vel_range = ['Sin Datos', ' < 15 k/h', '15-19 k/h', '19-21 k/h', '21-25 k/h', '25-30 k/h', ' > 30 k/h'];
       var segments = dataSource['segments'];
       matrix = dataSource['matrix'];
       data = [];
@@ -303,7 +394,8 @@ $(document).ready(function(){
               right: '5%',
               top: 'center',
               pieces: [
-                  {min: 5.5, label: vel_range[6]},
+                  {min: 6.5, max: 7.5, label: vel_range[7]},
+                  {min: 5.5, max: 6.5, label: vel_range[6]},
                   {min: 4.5, max: 5.5, label: vel_range[5]},
                   {min: 3.5, max: 4.5, label: vel_range[4]},
                   {min: 2.5, max: 3.5, label: vel_range[3]},
@@ -356,8 +448,24 @@ $(document).ready(function(){
           opacity: 1,
           smoothFactor: 1
       });
+      RouteDeco = L.polylineDecorator(RoutePolyline, {
+          patterns: [
+              {offset: 0,
+               endOffset: 0,
+               repeat: '40',
+               symbol: L.Symbol.arrowHead(
+                  {pixelSize: 10,
+                   polygon: true,
+                   pathOptions: {
+                       fillOpacity: 1,
+                       color: '#000000',
+                       stroke: true}
+                  })
+              }
+          ]
+      });
       RoutePolyline.addTo(map);
-      L.control.scale().addTo(map);
+      RouteDeco.addTo(map);
       map.fitBounds(RoutePolyline.getBounds());
     };
 
@@ -405,8 +513,26 @@ $(document).ready(function(){
                     opacity: 1,
                     smoothFactor: 1
                 });
+                deco = new L.polylineDecorator(segpol, {
+                    patterns: [
+                        {offset: 0,
+                         endOffset: 0,
+                         repeat: '40',
+                         symbol: L.Symbol.arrowHead(
+                            {pixelSize: 10,
+                             polygon: true,
+                             pathOptions: {
+                                 fillOpacity: 1,
+                                 color: colors[valuesRoute[i][0]],
+                                 stroke: true}
+                            })
+                        }
+                    ]
+                });
                 MultiSegment.push(segpol);
+                MultiDecorator.push(deco);
                 segpol.addTo(map);
+                deco.addTo(map);
             });
             RoutePolyline = new L.Polyline(RoutePoints, {
                 color: '#000000',
