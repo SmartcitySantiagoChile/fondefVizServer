@@ -23,8 +23,10 @@ $(document).ready(function () {
                             var labelDestination = "<br />Destino: ";
                             var labelTransactions = "<br />N° Transacciones: ";
 
-                            var origin = xData[params.data[0]] + " CódigoTransantiago " + "Nombre parada";
-                            var destination = yData[params.data[1]] + " CódigoTransantiago " + "Nombre parada";
+                            var originData = xData[params.data[0]];
+                            var origin = originData.userStopCode + " " + originData.authStopCode + " " + originData.userStopName;
+                            var destinationData = yData[params.data[1]];
+                            var destination = destinationData.userStopCode + " " + destinationData.authStopCode + " " + destinationData.userStopName;
                             var transactions = params.data[2];
 
                             var legend = labelOrigin + origin + labelDestination + destination + labelTransactions + transactions;
@@ -49,14 +51,14 @@ $(document).ready(function () {
                 xAxis: {
                     type: 'category',
                     position: 'top',
-                    data: xData,
+                    data: xData.map(function(el){ return el.userStopCode;}),
                     splitArea: {
                         show: true
                     }
                 },
                 yAxis: {
                     type: 'category',
-                    data: yData,
+                    data: yData.map(function(el){ return el.userStopCode;}),
                     splitArea: {
                         show: true
                     }
@@ -97,7 +99,7 @@ $(document).ready(function () {
             });
         };
 
-        this.updateGraphChart = function (stopCode, stopList, links, maxValue) {
+        this.updateGraphChart = function (stopCode, stopObjList, links, maxValue) {
             var colors = ['#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'];
             function getColor(value) {
                 var quantity = colors.length;
@@ -107,9 +109,9 @@ $(document).ready(function () {
             var data = [];
             var y = 0;
             var x = 0;
-            stopList.forEach(function (targetStopCode, index) {
+            stopObjList.forEach(function (stopObj) {
                 data.push({
-                    name: targetStopCode,
+                    name: stopObj.userStopCode,
                     x: x,
                     y: y
                 });
@@ -134,11 +136,13 @@ $(document).ready(function () {
                     show: true,
                     position: 'top',
                     formatter: function (params) {
+                        console.log(params);
                         if (params.componentType === "series" && params.seriesType === "graph") {
                             var legend = "";
                             if (params.dataType === "node") {
                                 var labelOrigin = "Parada: ";
-                                legend = labelOrigin + params.name;
+                                var stopObj = stopObjList.filter(function(el){ return params.name===el.userStopCode})[0];
+                                legend = labelOrigin + params.name + " " + stopObj.authStopCode + " " + stopObj.userStopName;
                             } else if (params.dataType === "edge") {
                                 var labelTransactions = "<br />N° Transacciones: ";
                                 var transactions = params.value.toFixed(2);
@@ -276,6 +280,7 @@ $(document).ready(function () {
         var maxValue = dataSource.data.maximum;
 
         var yAxis = [];
+        var nameXAxis = [];
         var xAxis = [];
         var data = [];
 
@@ -284,24 +289,27 @@ $(document).ready(function () {
         var dictionary = {};
         var links = {};
         matrix.forEach(function (row) {
-            var originCode = row.origin.userStopCode;
+            var origin = row.origin;
             var destination = row.destination;
 
-            yAxis.push(originCode);
-            links[originCode] = [];
+            yAxis.push(origin);
+            links[origin.userStopCode] = [];
             destination.forEach(function (column) {
                 var columnName = column.userStopCode;
-                var oldXAxis = xAxis.indexOf(columnName);
+                var oldXAxis = nameXAxis.indexOf(columnName);
                 if (oldXAxis >= 0) {
                     data.push([oldXAxis, yIndex, column.value.toFixed(2)]);
                 } else {
-                    xAxis.push(columnName);
+                    nameXAxis.push(columnName);
+                    xAxis.push(column);
                     data.push([xIndex, yIndex, column.value.toFixed(2)]);
                     xIndex++;
                 }
                 if (column.value > 0) {
-                    links[originCode].push({
-                        source: originCode,
+                    links[origin.userStopCode].push({
+                        sourceObj: origin,
+                        targetObj: column,
+                        source: origin.userStopCode,
                         target: columnName,
                         value: column.value
                     });
@@ -311,7 +319,7 @@ $(document).ready(function () {
         });
         app.updateMatrixChart(xAxis, yAxis, data, maxValue, dictionary);
         app.updateClickNodeEvent(xAxis, links, maxValue);
-        buildStopButtons(xAxis, function(stopCode){
+        buildStopButtons(nameXAxis, function(stopCode){
             app.updateGraphChart(stopCode, xAxis, links[stopCode], maxValue);
         });
     }
