@@ -152,8 +152,14 @@ function setupMapInfoBar(options) {
 }
 
 function setupMapInfoBar2(options) {
+    ws_data.map_info = L.control({position: 'topright'});
     ws_data.map_info2 = L.control({position: 'topright'});
 
+    ws_data.map_info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+    };
     ws_data.map_info2.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
         this.update();
@@ -161,27 +167,55 @@ function setupMapInfoBar2(options) {
     };
 
     // method that we will use to update the control based on feature properties passed
-    ws_data.map_info2.update = function (props) {
+    ws_data.map_info.update = function (values) {
         this._div.innerHTML = '<h4>Zonificación 777</h4>';
-        if (props) {
-            this._div.innerHTML += '<b>Datos de la zona ' + props.id + '</b>';
+        if (values && values != []) {
 
-            var zone = getDataZoneById(ws_data.data, props.id, options);
-            if (zone != null) {
-                this._div.innerHTML +=
-                    '<br/> - # Datos: ' + zone.doc_count +
-                    '<br/> - # Etapas: ' + zone.n_etapas.value.toFixed(2) +
-                    '<br/> - Duración: ' + zone.tviaje.value.toFixed(1) + ' [min]' +
-                    '<br/> - Distancia (en ruta): ' + (zone.distancia_ruta.value / 1000.0).toFixed(2) + ' [km]' +
-                    '<br/> - Distancia (euclideana): ' + (zone.distancia_eucl.value / 1000.0).toFixed(2) + ' [km]';
+            var zones = getDataZoneByIds(ws_data.data.origin_zones, values, options);
+            if (zones != null && zones.length > 0) {
+                var totalCount = zones.map(function(x){return x[0].doc_count;}).reduce(function(s, v){return s + v});
+                this._div.innerHTML += '<b>'+values.length+' zona(s) seleccionada(s): </b>';
+                this._div.innerHTML += '<br/> - # Datos: ' + totalCount;
+                this._div.innerHTML += '<br/> - # Etapas: ' + zones.map(function(x){return x[0].n_etapas.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(2);
+                this._div.innerHTML += '<br/> - Duración: ' + zones.map(function(x){return x[0].tviaje.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
+                this._div.innerHTML += '<br/> - Distancia (en ruta): ' + zones.map(function(x){return x[0].distancia_ruta.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
+                this._div.innerHTML += '<br/> - Distancia (euclideana): ' + zones.map(function(x){return x[0].distancia_eucl.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
+                '';
             } else {
-                this._div.innerHTML +=
-                    '<br/> Sin información para los filtros'
-                    + '<br/> seleccionados';
+                if(values.length > 0){
+                    this._div.innerHTML += 'Zona(s) sin datos';
+                }else{
+                    this._div.innerHTML += 'Selecciona una zona';
+                }
             }
-
         } else {
-            this._div.innerHTML += 'Pon el ratón sobre una zona';
+            this._div.innerHTML += 'Selecciona una zona';
+        }
+    };
+    // method that we will use to update the control based on feature properties passed
+    ws_data.map_info2.update = function (values) {
+        this._div.innerHTML = '<h4>Zonificación 777</h4>';
+        if (values && values != []) {
+
+            var zones = getDataZoneByIds(ws_data.data.destination_zones, values, options);
+            if (zones != null && zones.length > 0) {
+                var totalCount = zones.map(function(x){return x[0].doc_count;}).reduce(function(s, v){return s + v});
+                this._div.innerHTML += '<b>'+values.length+' zona(s) seleccionada(s): </b>';
+                this._div.innerHTML += '<br/> - # Datos: ' + totalCount;
+                this._div.innerHTML += '<br/> - # Etapas: ' + zones.map(function(x){return x[0].n_etapas.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(2);
+                this._div.innerHTML += '<br/> - Duración: ' + zones.map(function(x){return x[0].tviaje.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
+                this._div.innerHTML += '<br/> - Distancia (en ruta): ' + zones.map(function(x){return x[0].distancia_ruta.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
+                this._div.innerHTML += '<br/> - Distancia (euclideana): ' + zones.map(function(x){return x[0].distancia_eucl.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
+                '';
+            } else {
+                if(values.length > 0){
+                    this._div.innerHTML += 'Zona(s) sin datos';
+                }else{
+                    this._div.innerHTML += 'Selecciona una zona';
+                }
+            }
+        } else {
+            this._div.innerHTML += 'Selecciona una zona';
         }
     };
 }
@@ -280,7 +314,6 @@ function zoomToZoneEvent2(e) {
 function highlightZone(e) {
     var layer = e.target;
     layer.setStyle(styleZoneOnHover(layer.feature));
-    ws_data.map_info.update(layer.feature.properties);
 }
 
 function highlightZone2(e) {
@@ -305,12 +338,22 @@ function onEachODZoneFeatureMap1(feature, layer) {
         click: function(e) {
             var lyr = e.target;
             var zone_id = lyr.feature.properties.id;
-            origin = zone_id;
-            destination = -1;
+            var index = $.inArray(zone_id, origin);
+
+            if(index<0){
+                origin = origin.concat([zone_id]);
+            }else{
+                origin.splice(index, 1);
+            }
+            destination = [];
 
             updateServerData();
-
-            ws_data.map.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
+            console.log(e.target.getBounds());
+            if(origin.length>0){
+                ws_data.map.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
+            }else{
+                ws_data.map.fitBounds(ws_data.zones_layer.getBounds(), {maxZoom: options.map_default_zoom});
+            }
             ws_data.map2.fitBounds(ws_data.zones_layer2.getBounds(), {maxZoom: options.map_default_zoom});
         }
     });
@@ -321,12 +364,22 @@ function onEachODZoneFeatureMap2(feature, layer) {
         click: function(e) {
             var lyr = e.target;
             var zone_id = lyr.feature.properties.id;
-            destination = zone_id;
-            origin = -1;
+            var index = $.inArray(zone_id, destination);
+
+            if(index<0){
+                destination = destination.concat([zone_id]);
+            }else{
+                destination.splice(index, 1);
+            }
+            origin = [];
 
             updateServerData();
-
-            ws_data.map2.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
+            console.log(e.target.getBounds());
+            if(destination.length>0){
+                ws_data.map2.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
+            }else{
+                ws_data.map2.fitBounds(ws_data.zones_layer2.getBounds(), {maxZoom: options.map_default_zoom});
+            }
             ws_data.map.fitBounds(ws_data.zones_layer.getBounds(), {maxZoom: options.map_default_zoom});
         }
     });
@@ -541,7 +594,6 @@ function setupDoubleMap(options) {
             console.log(" - GeoJSON loading finished !")
 
             console.log(" - Setting up map info bar.")
-            setupMapInfoBar(options);
             setupMapInfoBar2(options);
             ws_data.map_info.addTo(ws_data.map);
             ws_data.map_info2.addTo(ws_data.map2);
@@ -795,23 +847,23 @@ function redraw2(options) {
     if (ws_data.ready && ws_data.ready2){
         // ws_data.map_legend.updateVisualization(options);
 
-        if(origin < 0 && destination < 0){
+        if(origin.length == 0 && destination.length == 0){
             var dcounts = ws_data.data.origin_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
             dcounts = dcounts.concat(ws_data.data.destination_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;}));
             var min_value = Math.min(...dcounts);
             var max_value = Math.max(...dcounts);
-        }else if(destination < 0){ // origin selected
+        }else if(destination.length == 0){ // origin selected
             var dcounts = ws_data.data.destination_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
             var min_value = Math.min(...dcounts);
             var max_value = Math.max(...dcounts);
-        }else if(origin < 0){ // destination selected
+        }else if(origin.length == 0){ // destination selected
             var dcounts = ws_data.data.origin_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
             var min_value = Math.min(...dcounts);
             var max_value = Math.max(...dcounts);
         }
 
         ws_data.origins_layer.clearLayers();
-        if(origin < 0){
+        if(origin.length == 0){
             ws_data.data.origin_zones.aggregations.by_zone.buckets.forEach(function(item, index) {
                 var cm = L.circleMarker(ws_data.zones_map[item.key], {
                     radius: options.min_size + (item.doc_count-min_value)*(options.max_size-options.min_size)/(max_value-min_value),
@@ -826,16 +878,16 @@ function redraw2(options) {
         ws_data.zones_layer.eachLayer(function (layer) {
             layer.setStyle({
                 weight: 1,
-                color: (layer.feature.properties.id==origin)?'#FFFF00':'#0000FF',
+                color: ($.inArray(layer.feature.properties.id, origin)>=0)?'#FFFF00':'#0000FF',
                 opacity: 0.5,
                 dashArray: '1',
-                fillOpacity: (layer.feature.properties.id==origin)?0.5:0.3,
-                fillColor: (layer.feature.properties.id==origin)?'#FFFF00':'#0000FF'
+                fillOpacity: ($.inArray(layer.feature.properties.id, origin)>=0)?0.5:0.3,
+                fillColor: ($.inArray(layer.feature.properties.id, origin)>=0)?'#FFFF00':'#0000FF'
             });
         });
 
         ws_data.destinations_layer.clearLayers();
-        if(destination < 0){
+        if(destination.length == 0){
             ws_data.data.destination_zones.aggregations.by_zone.buckets.forEach(function(item, index) {
                 var cm = L.circleMarker(ws_data.zones_map[item.key], {
                     radius: options.min_size + (item.doc_count-min_value)*(options.max_size-options.min_size)/(max_value-min_value),
@@ -850,11 +902,11 @@ function redraw2(options) {
         ws_data.zones_layer2.eachLayer(function (layer) {
             layer.setStyle({
                 weight: 1,
-                color: (layer.feature.properties.id==destination)?'#A900FF':'#0000FF',
+                color: ($.inArray(layer.feature.properties.id, destination)>=0)?'#A900FF':'#0000FF',
                 opacity: 0.5,
                 dashArray: '1',
-                fillOpacity: (layer.feature.properties.id==destination)?0.5:0.3,
-                fillColor: (layer.feature.properties.id==destination)?'#A900FF':'#0000FF'
+                fillOpacity: ($.inArray(layer.feature.properties.id, destination)>=0)?0.5:0.3,
+                fillColor: ($.inArray(layer.feature.properties.id, destination)>=0)?'#A900FF':'#0000FF'
             });
         });
     }

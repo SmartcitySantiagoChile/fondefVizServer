@@ -29,12 +29,27 @@ ws_data.map_info2;
 ws_data.map_layer_control;
 ws_data.map_layer_control2;
 
-var origin = -1;
-var destination = -1;
+var origin = [];
+var destination = [];
 
 // ============================================================================
 // SERVER DATA
 // ============================================================================
+function getDataZoneByIds(data, zone_ids, options) {
+    // missing data
+    if (data === null) return null;
+    if (zone_ids === undefined || zone_ids === null) return null;
+    if (options === undefined || options === null) return null;
+
+    var results = [];
+
+    data.aggregations.by_zone.buckets.forEach(function (zone, idx) {
+        if($.inArray(zone.key, zone_ids) >= 0) {
+            results.push([zone]);
+        }
+    });
+    return results;
+}
 
 function getDataZoneById(data, zone_id, options) {
     // missing data
@@ -59,6 +74,8 @@ function processData(response) {
     };
 
     redraw2(options);
+    ws_data.map_info.update(origin);
+    ws_data.map_info2.update(destination);
 }
 
 
