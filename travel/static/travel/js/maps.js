@@ -174,7 +174,11 @@ function setupMapInfoBar2(options) {
             var zones = getDataZoneByIds(ws_data.data.origin_zones, values, options);
             if (zones != null && zones.length > 0) {
                 var totalCount = zones.map(function(x){return x[0].doc_count;}).reduce(function(s, v){return s + v});
-                this._div.innerHTML += '<b>'+values.length+' zona(s) seleccionada(s): </b>';
+                if(values.length == 1){
+                    this._div.innerHTML += '<b>Zona seleccionada: '+ values[0] +'</b>';
+                }else{
+                    this._div.innerHTML += '<b>'+values.length+' zonas seleccionadas: </b>';
+                }
                 this._div.innerHTML += '<br/> - # Datos: ' + totalCount;
                 this._div.innerHTML += '<br/> - # Etapas: ' + zones.map(function(x){return x[0].n_etapas.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(2);
                 this._div.innerHTML += '<br/> - Duración: ' + zones.map(function(x){return x[0].tviaje.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
@@ -200,7 +204,11 @@ function setupMapInfoBar2(options) {
             var zones = getDataZoneByIds(ws_data.data.destination_zones, values, options);
             if (zones != null && zones.length > 0) {
                 var totalCount = zones.map(function(x){return x[0].doc_count;}).reduce(function(s, v){return s + v});
-                this._div.innerHTML += '<b>'+values.length+' zona(s) seleccionada(s): </b>';
+                if(values.length == 1){
+                    this._div.innerHTML += '<b>Zona seleccionada: '+ values[0] +'</b>';
+                }else{
+                    this._div.innerHTML += '<b>'+values.length+' zonas seleccionadas: </b>';
+                }
                 this._div.innerHTML += '<br/> - # Datos: ' + totalCount;
                 this._div.innerHTML += '<br/> - # Etapas: ' + zones.map(function(x){return x[0].n_etapas.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(2);
                 this._div.innerHTML += '<br/> - Duración: ' + zones.map(function(x){return x[0].tviaje.value*x[0].doc_count/totalCount;}).reduce(function(s, v){return s + v}).toFixed(1);
@@ -302,12 +310,24 @@ function setupMapLegendSizes(options) {
 // INTERACTIONS
 // ============================================================================
 
-function zoomToZoneEvent(e) {
-    ws_data.map.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
+function onEachBallFeatureMap1(e){
+    ws_data.map_info.update([e.target.options.zone_id]);
 }
 
-function zoomToZoneEvent2(e) {
-    ws_data.map2.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
+function onEachBallFeatureMap2(e){
+    ws_data.map_info2.update([e.target.options.zone_id]);
+}
+
+function resetStats1(e){
+    ws_data.map_info.update();
+}
+
+function resetStats2(e){
+    ws_data.map_info2.update([]);
+}
+
+function zoomToZoneEvent(e) {
+    ws_data.map.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
 }
 
 // sets feature highlight style and updates info window
@@ -316,19 +336,8 @@ function highlightZone(e) {
     layer.setStyle(styleZoneOnHover(layer.feature));
 }
 
-function highlightZone2(e) {
-    var layer = e.target;
-    layer.setStyle(styleZoneOnHover(layer.feature));
-    ws_data.map_info2.update(layer.feature.properties);
-}
-
 // resets style to default
 function resetZoneHighlight(e) {
-    ws_data.zones_layer.resetStyle(e.target);
-    ws_data.map_info.update();
-}
-
-function resetZoneHighlight2(e) {
     ws_data.zones_layer.resetStyle(e.target);
     ws_data.map_info.update();
 }
@@ -395,7 +404,10 @@ function onEachZoneFeature(feature, layer) {
 }
 
 function onEachZoneFeature2(feature, layer) {
-    layer.on({});
+    layer.on({
+        mouseover: showStats,
+        mouseout: resetStats
+    });
 }
 
 function onEachDistrictFeature(feature, layer) {
@@ -870,8 +882,11 @@ function redraw2(options) {
                     fillColor: '#FFFF00',
                     weight: 0,
                     opacity: 1,
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    zone_id: item.key
                 }).addTo(ws_data.origins_layer);
+                cm.on('mouseover', onEachBallFeatureMap1);
+                cm.on('mouseout', resetStats1);
                 ws_data.origins_layer.addTo(ws_data.map);
             });
         }
@@ -894,8 +909,11 @@ function redraw2(options) {
                     fillColor: '#A900FF',
                     weight: 0,
                     opacity: 1,
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    zone_id: item.key
                 }).addTo(ws_data.destinations_layer);
+                cm.on('mouseover', onEachBallFeatureMap2);
+                cm.on('mouseout', resetStats2);
                 ws_data.destinations_layer.addTo(ws_data.map2);
             });
         }

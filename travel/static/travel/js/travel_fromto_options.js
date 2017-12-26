@@ -8,8 +8,8 @@ options.default_sector = 'Centro';
 options.curr_sector = null;
 options.curr_visualization_type = 'count';
 
-options.min_size = 2;
-options.max_size = 22;
+options.min_size = 3;
+options.max_size = 23;
 
 // Orange Scale
 // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
