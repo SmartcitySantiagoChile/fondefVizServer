@@ -51,6 +51,7 @@ class GetDataGeneric(View):
         self.default_fields = [
             'tviaje',
             'n_etapas',
+            'modos',
             'factor_expansion',
             'comuna_subida',
             'comuna_bajada',

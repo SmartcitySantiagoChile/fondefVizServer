@@ -32,6 +32,57 @@ ws_data.map_layer_control2;
 var origin = [];
 var destination = [];
 
+function setupEtapasSelectors(options) {
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
+    elems.forEach(function(html) {
+        var switchery = new Switchery(html, {
+            size: 'small',
+            color: 'rgb(38, 185, 154)'
+        });
+        html.onchange = function() {
+            updateServerData();
+        };
+    });
+}
+
+function setupModosSelectors(options) {
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.modes_checkbox'));
+    elems.forEach(function(html) {
+        var switchery = new Switchery(html, {
+            size: 'small',
+            color: 'rgb(38, 185, 154)'
+        });
+        html.onchange = function() {
+            updateServerData();
+        };
+    });
+}
+
+function lookupNEtapasSelectors() {
+
+    var response = [];
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
+    elems.forEach(function(html) {
+        if (html.checked) {
+            response.push(html.getAttribute('data-ne-str'));
+        }
+    });
+    return response;
+}
+
+function lookupModosSelectors() {
+
+    var response = [];
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.modes_checkbox'));
+    elems.forEach(function(html) {
+        if (html.checked) {
+            response.push(html.getAttribute('data-ne-str'));
+        }
+    });
+    console.log("response", response);
+    return response;
+}
+
 // ============================================================================
 // SERVER DATA
 // ============================================================================
@@ -86,6 +137,8 @@ function updateServerData() {
     var toDate = $('#dateToFilter').val();
     var dayTypes = $('#dayTypeFilter').val();
     var periods = $('#periodFilter').val();
+    var nEtapas = lookupNEtapasSelectors();
+    var modos = lookupModosSelectors();
     // console.log("--- update charts ---");
     // console.log("from date: " + fromDate);
     // console.log("to date: " + toDate);
@@ -99,7 +152,9 @@ function updateServerData() {
         daytypes: dayTypes,
         periods: periods,
         origin: origin,
-        destination: destination
+        destination: destination,
+        n_etapas: nEtapas,
+        modos: modos
     };
 
     // put loading spinner
@@ -123,6 +178,10 @@ $(document).ready(function () {
     // Forms
     console.log("> Building forms.")
     setupDateForm(options);
+    setupHalfHours(options);
+    setupEtapasSelectors(options);
+    setupModosSelectors(options);
+
     setupDayTypeAndTSPeriodForm(options);
 
     // map

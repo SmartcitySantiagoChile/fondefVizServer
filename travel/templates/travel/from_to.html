@@ -15,12 +15,16 @@
         <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
         <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
 
+        {# switchery: pretty checkboxes #}
+        <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
+
         <!-- iCheck -->
         <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
     {% endwith %}
 
     <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
     <link href="{% static "travel/css/large.css" %}" rel="stylesheet">
+    <link href="{% static "travel/css/fromto.css" %}" rel="stylesheet">
 
 {% endblock %}
 
@@ -33,7 +37,86 @@
         {% include "./filters_to_from.html" %}
 
         <div class="row cols-same-height">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-list"></i> Número de etapas</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="netapas_checkbox_div">
+                            <input id="netapas_1" type="checkbox" class="netapas_checkbox" data-ne-str="1" />
+                            <span class="control-label">1 etapa</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="netapas_checkbox_div">
+                            <input id="netapas_2" type="checkbox" class="netapas_checkbox" data-ne-str="2" />
+                            <span class="control-label">2 etapas</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="netapas_checkbox_div">
+                            <input id="netapas_3" type="checkbox" class="netapas_checkbox" data-ne-str="3" />
+                            <span class="control-label">3 etapas</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="netapas_checkbox_div">
+                            <input id="netapas_4" type="checkbox" class="netapas_checkbox" data-ne-str="4" />
+                            <span class="control-label">4 etapas</span>
+                        </div>
+                    </div>
+                    <div class="x_title">
+                        <h2><i class="fa fa-subway"></i> Modos de viaje</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="modos_checkbox_div">
+                            <input id="B" type="checkbox" class="modes_checkbox" data-ne-str="1" />
+                            <span class="control-label">Bus</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="modos_checkbox_div">
+                            <input id="M" type="checkbox" class="modes_checkbox" data-ne-str="2" />
+                            <span class="control-label">Metro</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="modos_checkbox_div">
+                            <input id="T" type="checkbox" class="modes_checkbox" data-ne-str="4" />
+                            <span class="control-label">MetroTren</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="modos_checkbox_div">
+                            <input id="BM" type="checkbox" class="modes_checkbox" data-ne-str="3" />
+                            <span class="control-label">Bus + Metro</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="modos_checkbox_div">
+                            <input id="BT" type="checkbox" class="modes_checkbox" data-ne-str="5" />
+                            <span class="control-label">Bus + Metrotren</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="modos_checkbox_div">
+                            <input id="MT" type="checkbox" class="modes_checkbox" data-ne-str="6" />
+                            <span class="control-label">Metro + Metrotren</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                        <div class="modos_checkbox_div">
+                            <input id="BMT" type="checkbox" class="modes_checkbox" data-ne-str="7" />
+                            <span class="control-label">Bus + Metro + Metrotren</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
                 <div class="x_panel">
                     <div class="x_title">
                         <h2><i class="fa fa-map-o"></i> <span id="mapTitle">Mapa</span>
@@ -71,6 +154,8 @@
         <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+        {# switchery: pretty checkboxes #}
+        <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
 
     {% endwith %}
 

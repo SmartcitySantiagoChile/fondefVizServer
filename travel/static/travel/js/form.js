@@ -77,6 +77,28 @@ function setupDayTypeAndTSPeriodForm(options) {
     updateTSPeriods();
 }
 
+function setupHalfHours(options) {
+    // clear all
+    $('#halfHoursFilter').empty();
+    $('#halfHoursFilter').val(null).trigger('change');
+
+    $('#halfHoursFilter')
+        .select2({
+            placeholder: 'Todos',
+            allowClear: true,
+            minimumResultsForSearch: Infinity // hide search box
+    });
+
+    // append new options
+    ws_data._half_hours.map(function (item) {
+        var hh_id = item.pk;
+        var hh_name = item.fields.shortName;
+
+        var new_hh = new Option(hh_name, hh_id, false, false);
+        $('#halfHoursFilter').append(new_hh).trigger('change');
+    });
+}
+
 // Updates the list of options for the TS periods selector.
 //
 // - clears the multiselector
@@ -110,7 +132,7 @@ function updateTSPeriods() {
         if (day_match) {
             // select options which were already selected
             var mark_as_selected = $.grep(curr_TS_periods, function(item) {
-                return item.id == period_id; 
+                return item.id == period_id;
             }).length == 1;
 
             var new_period = new Option(period_name, period_id, mark_as_selected, mark_as_selected);
