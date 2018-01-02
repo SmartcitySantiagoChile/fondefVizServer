@@ -132,18 +132,14 @@ $(document).ready(function () {
             }, barChartOpt),
             $.extend(true, {title: {text: "Viajes por período"}, itemStyle: {normal: {color: "#EEE1F4"}}}, barChartOpt)
         ];
-        var chartIds = ["chart1", "chart2", "chart3", "chart4", "chart5", "chart6", "chart7", "chart8"];
+        var chartIds = ["chart1", "chart2", "chart3", "chart4"];
         var chartAttr = [
             ["transactionWithoutRoute", "transactionWithRoute"],
             ["transactionOnTrainNumber", "transactionOnMetroNumber",
                 "transactionOnBusNumber", "transactionOnBusStation"],
             ["tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages",
                 "tripsWithFourStages", "tripsWithFiveOrMoreStages"],
-            ["stagesWithBusAlighting", "stagesWithMetroAlighting", "stagesWithTrainAlighting", "stagesWithBusStationAlighting"],
-            ["averageVelocityOfTrips", "averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips"],
-            ["averageDistanceOfTrips", "averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips"],
-            ["averageTimeOfTrips", "averageTimeInMorningRushTrips", "averageTimeInAfternoonRushTrips"],
-            ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"]
+            ["stagesWithBusAlighting", "stagesWithMetroAlighting", "stagesWithTrainAlighting", "stagesWithBusStationAlighting"]
         ];
         chartIds.forEach(function (echartId, index) {
             var chart = echarts.init(document.getElementById(echartId), theme);
@@ -155,6 +151,26 @@ $(document).ready(function () {
             console.log(chartOpts[index]);
             chart.setOption(chartOpts[index]);
             charts.push(chart);
+        });
+
+        var labelAttributes = ["Velocidad promedio de viajes (km/h)", "Distancia promedio de viajes (metros)",
+            "Tiempo promedio de viajes (minutos)", "Viajes por período"];
+        var tableAttriubutes = [
+            ["averageVelocityOfTrips", "averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips"],
+            ["averageDistanceOfTrips", "averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips"],
+            ["averageTimeOfTrips", "averageTimeInMorningRushTrips", "averageTimeInAfternoonRushTrips"],
+            ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"]
+        ];
+
+        var dataTable = $("#dataTable");
+        dataTable.empty();
+        var tableRow = '<tr><th scope="row">{0}</th><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>';
+        tableAttriubutes.forEach(function (attrs, index) {
+            var label = labelAttributes[index];
+            var value0 = row[ids.indexOf(attrs[0])].toFixed(2);
+            var value1 = row[ids.indexOf(attrs[1])].toFixed(2);
+            var value2 = row[ids.indexOf(attrs[2])].toFixed(2);
+            dataTable.append(tableRow.replace('{0}', index + 1).replace('{1}', label).replace('{2}', value0).replace('{3}', value1).replace('{4}', value2));
         });
     };
 

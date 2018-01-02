@@ -162,7 +162,7 @@ class Detail(View):
 
         self.context["tiles_1"] = [
             {"title": DICTIONARY["dayType"]["name"], "title_icon": "fa-calendar", "value": "",
-             "value_id": "dayType", "sub_value_id": "date", "sub_title": "(día de la semana)"},
+             "value_id": "dayType", "sub_value_id": "date", "sub_title": ""},
             {"title": DICTIONARY["smartcardNumber"]["name"], "title_icon": "fa-credit-card", "value": "",
              "value_id": "smartcardNumber", "sub_value_id": "", "sub_title": ""},
             {"title": DICTIONARY["transactionNumber"]["name"], "title_icon": "fa-group", "value": "",
@@ -176,6 +176,9 @@ class Detail(View):
              "value_id": "validTripNumber", "sub_value_id": "", "sub_title": ""},
             #{"title": DICTIONARY["completeTripNumber"]["name"], "title_icon": "fa-group", "value": "",
             # "value_id": "completeTripNumber", "sub_value_id": "", "sub_title": ""},
+        ]
+
+        self.context["tiles_22"] = [
             {"title": DICTIONARY["tripsThatUseMetro"]["name"], "title_icon": "fa-rocket", "value": "",
              "value_id": "tripsThatUseMetro", "sub_value_id": "validTripNumber", "sub_title": ""},
             {"title": DICTIONARY["tripsWithOnlyMetro"]["name"], "title_icon": "fa-train", "value": "",
@@ -183,7 +186,6 @@ class Detail(View):
             {"title": DICTIONARY["tripsWithoutLastAlighting"]["name"], "title_icon": "fa-globe", "value": "",
              "value_id": "tripsWithoutLastAlighting", "sub_value_id": "", "sub_title": ""},
         ]
-
         self.context["tiles_3"] = [
             {"title": DICTIONARY["expeditionNumber"]["name"], "title_icon": "fa-truck", "value": "",
              "value_id": "expeditionNumber", "sub_value_id": "date", "sub_title": ""},
@@ -235,7 +237,7 @@ class Data(View):
                        "transactionOnTrainNumber", "transactionOnMetroNumber", "transactionOnBusNumber",
                        "transactionOnBusStation",
 
-                       "averageVelocityInAfternoonRushTrips", "averageTimeInAfternoonRushTrips"
+                       "averageVelocityInAfternoonRushTrips", "averageTimeInAfternoonRushTrips",
                                                               "averageDistanceInAfternoonRushTrips",
                        "tripNumberInAfternoonRushHour",
 
