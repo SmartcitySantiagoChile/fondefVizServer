@@ -272,38 +272,133 @@ function setupMapLegendSizes(options) {
     ws_data.map_legend2 = L.control({position: 'bottomright'});
 
     ws_data.map_legend.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'info legend');
+        var div = L.DomUtil.create('canvas', 'info legend');
         div.id = "map_legend";
         return div;
     };
     ws_data.map_legend2.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'info legend');
+        var div = L.DomUtil.create('canvas', 'info legend');
         div.id = "map_legend2";
         return div;
     };
 
     ws_data.map_legend.updateVisualization = function (options) {
-        if (options === undefined || options === null) { return; }
-        if (options.curr_visualization_type === null) { return div; }
-        var grades = options.visualization_mappings[options.curr_visualization_type].grades;
-        var grades_str = options.visualization_mappings[options.curr_visualization_type].grades_str;
-        var grades_post_str = options.visualization_mappings[options.curr_visualization_type].legend_post_str;
-
         // loop through our density intervals and generate a label with a colored square for each interval
         var div = document.getElementById("map_legend");
-        div.innerHTML = "";
-        for (var i = 0; i < grades.length-1; i++) {
-            div.innerHTML +=
-                '<i style="background:' + options.curr_map_color_scale[i] + '"></i> ' +
-                grades_str[i] + '&ndash;' + grades_str[i + 1] + ' ' + grades_post_str;
-            div.innerHTML += '<br>';
+        if (div==null){
+            return;
         }
-        div.innerHTML +=
-            '<i style="background:' + options.curr_map_color_scale[grades.length-1] + '"></i> ' +
-            grades_str[i] + '+ ' + grades_post_str;
-        div.innerHTML +=
-            '<br><i style="background:' + "#cccccc" + '"></i>Sin Datos<br>';
+        div.style.display = 'none';
+        if (options === undefined || options === null) {
+            return;
+        }
+
+        // draw stuffs
+        var dcounts = ws_data.data.origin_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
+        if (dcounts.length == 0 || origin.length > 0){
+            return;
+        }
+
+        if(destination.length == 0){
+            dcounts = dcounts.concat(ws_data.data.destination_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;}));
+        }
+        var min_value = Math.min(...dcounts);
+        var max_value = Math.max(...dcounts);
+
+        var ctx = div.getContext("2d");
+        // var width = 40+2*options.max_size+ctx.measureText(max_value.toFixed(0)).width;
+        var width = 40+2*options.max_size+50;
+        var height = 20+2*options.max_size;
+        var half = (options.max_size+options.min_size)/2.0
+
+        div.width = width;
+        div.height = height;
+        ctx.clearRect(0, 0, width, height);
+        ctx.beginPath();
+        ctx.arc(10+options.max_size, 10+options.max_size, options.max_size, 0, 2 * Math.PI);
+        ctx.moveTo(10+options.max_size, 10);
+        ctx.lineTo(20+2*options.max_size, 10);
+        ctx.font='small-caps 20px Arial';
+        ctx.fillText(max_value.toFixed(0), 20+2*options.max_size, 15);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(10+options.max_size, 10+2*options.max_size-half, half, 0, 2 * Math.PI);
+        ctx.moveTo(10+options.max_size, 10+2*options.max_size-2*half);
+        ctx.lineTo(20+2*options.max_size, 10+2*options.max_size-2*half);
+        ctx.font='small-caps 20px Arial';
+        ctx.fillText(((min_value+max_value)/2.0).toFixed(0), 20+2*options.max_size, 15+2*options.max_size-2*half);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(10+options.max_size, 10+2*options.max_size-options.min_size, options.min_size, 0, 2 * Math.PI);
+        ctx.moveTo(10+options.max_size, 10+2*options.max_size-2*options.min_size);
+        ctx.lineTo(20+2*options.max_size, 10+2*options.max_size-2*options.min_size);
+        ctx.font='small-caps 20px Arial';
+        ctx.fillText(min_value.toFixed(0), 20+2*options.max_size, 15+2*options.max_size-2*options.min_size);
+        ctx.stroke();
+
+        div.style.display = 'inline';
+    };
+    ws_data.map_legend2.updateVisualization = function (options) {
+        // loop through our density intervals and generate a label with a colored square for each interval
+        var div = document.getElementById("map_legend2");
+        if (div==null){
+            return;
+        }
+        div.style.display = 'none';
+        if (options === undefined || options === null) {
+            return;
+        }
+
+        // draw stuffs
+        var dcounts = ws_data.data.destination_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
+        if (dcounts.length == 0 || destination.length > 0){
+            return;
+        }
+
+        if(origin.length == 0){
+            dcounts = dcounts.concat(ws_data.data.origin_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;}));
+        }
+        var min_value = Math.min(...dcounts);
+        var max_value = Math.max(...dcounts);
+
+        var ctx = div.getContext("2d");
+        // var width = 40+2*options.max_size+ctx.measureText(max_value.toFixed(0)).width;
+        var width = 40+2*options.max_size+50;
+        var height = 20+2*options.max_size;
+        var half = (options.max_size+options.min_size)/2.0
+
+        div.width = width;
+        div.height = height;
+        ctx.clearRect(0, 0, width, height);
+        ctx.beginPath();
+        ctx.arc(10+options.max_size, 10+options.max_size, options.max_size, 0, 2 * Math.PI);
+        ctx.moveTo(10+options.max_size, 10);
+        ctx.lineTo(20+2*options.max_size, 10);
+        ctx.font='small-caps 20px Arial';
+        ctx.fillText(max_value.toFixed(0), 20+2*options.max_size, 15);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(10+options.max_size, 10+2*options.max_size-half, half, 0, 2 * Math.PI);
+        ctx.moveTo(10+options.max_size, 10+2*options.max_size-2*half);
+        ctx.lineTo(20+2*options.max_size, 10+2*options.max_size-2*half);
+        ctx.font='small-caps 20px Arial';
+        ctx.fillText(((min_value+max_value)/2.0).toFixed(0), 20+2*options.max_size, 15+2*options.max_size-2*half);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(10+options.max_size, 10+2*options.max_size-options.min_size, options.min_size, 0, 2 * Math.PI);
+        ctx.moveTo(10+options.max_size, 10+2*options.max_size-2*options.min_size);
+        ctx.lineTo(20+2*options.max_size, 10+2*options.max_size-2*options.min_size);
+        ctx.font='small-caps 20px Arial';
+        ctx.fillText(min_value.toFixed(0), 20+2*options.max_size, 15+2*options.max_size-2*options.min_size);
+        ctx.stroke();
+
+        div.style.display = 'inline';
     }
+
 }
 
 // ============================================================================
@@ -467,7 +562,6 @@ function onEachSectorFeature2(layer) {
 // MAIN MAP
 // ============================================================================
 function setupDoubleMap(options) {
-
     ws_data.map = L.map("mapChart").setView(options.map_default_lat_lon, options.map_min_zoom);
     ws_data.map2 = L.map("mapChart2").setView(options.map_default_lat_lon, options.map_min_zoom);
 
@@ -857,7 +951,8 @@ function redraw(options) {
 
 function redraw2(options) {
     if (ws_data.ready && ws_data.ready2){
-        // ws_data.map_legend.updateVisualization(options);
+        ws_data.map_legend.updateVisualization(options);
+        ws_data.map_legend2.updateVisualization(options);
 
         if(origin.length == 0 && destination.length == 0){
             var dcounts = ws_data.data.origin_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});

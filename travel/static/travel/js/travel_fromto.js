@@ -79,7 +79,6 @@ function lookupModosSelectors() {
             response.push(html.getAttribute('data-ne-str'));
         }
     });
-    console.log("response", response);
     return response;
 }
 
