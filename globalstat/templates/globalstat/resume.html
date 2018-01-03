@@ -15,14 +15,8 @@
   <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
 
-    {% inline_select "Período:" "periodFilter" dates True as day_select %}
-    {% columns 2 2 12 day_select as col1 %}
-
-    {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes False as day_type_select %}
-    {% columns 2 2 12 day_type_select as col2 %}
-
-    {% inline_select "Métrica:" "metricFilter" metrics True as dayType_select %}
-    {% columns 8 8 12 dayType_select as col3 %}
+    {% inline_select "Métrica(s):" "metricFilter" metrics True as dayType_select %}
+    {% columns 12 12 12 dayType_select as col3 %}
 
     {% button "clean" "Quitar métricas" "warning" "filter-group" as btn1 %}
     {% button "transaction" "Transacciones" "default" "filter-group" as btn2 %}
@@ -39,7 +33,7 @@
     {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
     {% columns 12 12 12 update_button as col5 %}
 
-    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5 %}
+    {% panel "fa-filter" "Filtro" col3|add:col4|add:col5 %}
     </div>
   </div>
 

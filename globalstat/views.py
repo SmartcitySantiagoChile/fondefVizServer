@@ -123,10 +123,8 @@ class Resume(View):
     def __init__(self):
         """ Constructor """
         super(Resume, self).__init__()
-        self.es_helper = ESGlobalStaticHelper()
 
         self.context = {}
-        self.context.update(self.es_helper.get_form_data())
 
         attributes = []
         for key, value in DICTIONARY.items():
@@ -199,16 +197,6 @@ class Detail(View):
              "value_id": "licensePlateNumber", "sub_value_id": "", "sub_title": ""},
         ]
 
-        self.context["tiles_4"] = [
-            {"title": DICTIONARY["GPSPointsNumber"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "GPSPointsNumber", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["GPSNumberWithRoute"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "GPSNumberWithRoute", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["GPSNumberWithoutRoute"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "GPSNumberWithoutRoute", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["averageTimeBetweenGPSPoints"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "averageTimeBetweenGPSPoints", "sub_value_id": "", "sub_title": "Minutos"},
-        ]
 
     def get(self, request):
         template = "globalstat/detail.html"
@@ -228,7 +216,6 @@ class Data(View):
 
         metrics = request.GET.getlist("metrics[]")
         period = request.GET.getlist("period[]")
-        dayType = request.GET.get("dayType")
 
         esQuery = self.es_helper.get_base_query()
 
@@ -273,9 +260,6 @@ class Data(View):
                        ]
 
         esQuery = esQuery.source(["date"] + metrics)
-
-        if dayType is not None:
-            esQuery = esQuery.filter('term', dayType=dayType)
 
         timeRanges = None
         for date in period:

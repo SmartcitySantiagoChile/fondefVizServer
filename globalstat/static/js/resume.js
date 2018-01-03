@@ -3,14 +3,9 @@ $(document).ready(function () {
     var chart = echarts.init(document.getElementById("barChart"), theme);
 
     var UPDATE_BUTTON = $("#btnUpdateChart");
-    var PERIOD_FILTER = $("#periodFilter");
-    var DAY_TYPE_FILTER = $("#dayTypeFilter");
     var METRIC_FILTER = $("#metricFilter");
 
     var ALL_LABEL = "Todos";
-    PERIOD_FILTER.select2({placeholder: ALL_LABEL});
-    DAY_TYPE_FILTER.select2({placeholder: ALL_LABEL, allowClear: true});
-    DAY_TYPE_FILTER.val(null).trigger("change");
     METRIC_FILTER.select2({placeholder: ALL_LABEL});
 
     var makeAjaxCall = true;
@@ -23,12 +18,8 @@ $(document).ready(function () {
             var button = $(this).append(loadingIcon);
 
             var params = {
-                period: PERIOD_FILTER.val(),
                 metrics: METRIC_FILTER.val()
             };
-            if (DAY_TYPE_FILTER.val()) {
-                params.dayType = DAY_TYPE_FILTER.val();
-            }
             $.getJSON(Urls["globalstat:data"](), params, function (answer) {
                 updateChart(answer);
             }).always(function () {
@@ -132,6 +123,22 @@ $(document).ready(function () {
             legend: {
                 data: yAxisDataName
             },
+            dataZoom: [
+                {
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                    start: 70,
+                    end: 100,
+                    bottom: 40
+                },
+                {
+                    type: 'inside',
+                    xAxisIndex: [0],
+                    start: 70,
+                    end: 100
+                }
+            ],
             xAxis: [{
                 type: "category",
                 name: "Días",
@@ -145,6 +152,9 @@ $(document).ready(function () {
             tooltip: {
                 trigger: "axis"
             },
+            grid: {
+                bottom: 95
+            },
             toolbox: {
                 show: true,
                 itemSize: 20,
@@ -155,7 +165,14 @@ $(document).ready(function () {
                     restore: {show: false, title: "restaurar"},
                     saveAsImage: {show: true, title: "Guardar imagen", name: "estadísticas globales"},
                     magicType: {
-                        type: ["line", "bar", "stack", "tiled"]
+                        type: ["line", "bar"]
+                    },
+                    dataView: {
+                        show: true,
+                        title: "Ver datos",
+                        lang: ["Datos del gráfico", "cerrar", "refrescar"],
+                        buttonColor: "#169F85",
+                        readOnly: true
                     }
                 }
             },
