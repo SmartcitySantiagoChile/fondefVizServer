@@ -23,10 +23,10 @@ $(document).ready(function () {
                             var labelDestination = "<br />Destino: ";
                             var labelTransactions = "<br />N° Transacciones: ";
 
-                            var originData = xData[params.data[0]];
-                            var origin = originData.userStopCode + " " + originData.authStopCode + " " + originData.userStopName;
-                            var destinationData = yData[params.data[1]];
-                            var destination = destinationData.userStopCode + " " + destinationData.authStopCode + " " + destinationData.userStopName;
+                            var originData = yData[params.data[1]];
+                            var origin = originData.userStopCode + " " + originData.authStopCode + " " + originData.stopName;
+                            var destinationData = xData[params.data[0]];
+                            var destination = destinationData.userStopCode + " " + destinationData.authStopCode + " " + destinationData.stopName;
                             var transactions = params.data[2];
 
                             var legend = labelOrigin + origin + labelDestination + destination + labelTransactions + transactions;
@@ -61,7 +61,8 @@ $(document).ready(function () {
                     data: yData.map(function(el){ return el.userStopCode;}),
                     splitArea: {
                         show: true
-                    }
+                    },
+                    inverse: true
                 },
                 visualMap: {
                     min: 0,
@@ -130,6 +131,7 @@ $(document).ready(function () {
             });
 
             var options = {
+                backgroundColor: '#CDCDCD',
                 animationDurationUpdate: 1500,
                 animationEasingUpdate: "quinticInOut",
                 tooltip: {
@@ -142,7 +144,7 @@ $(document).ready(function () {
                             if (params.dataType === "node") {
                                 var labelOrigin = "Parada: ";
                                 var stopObj = stopObjList.filter(function(el){ return params.name===el.userStopCode})[0];
-                                legend = labelOrigin + params.name + " " + stopObj.authStopCode + " " + stopObj.userStopName;
+                                legend = labelOrigin + params.name + " " + stopObj.authStopCode + " " + stopObj.stopName;
                             } else if (params.dataType === "edge") {
                                 var labelTransactions = "<br />N° Transacciones: ";
                                 var transactions = params.value.toFixed(2);
@@ -279,32 +281,24 @@ $(document).ready(function () {
         var matrix = dataSource.data.matrix;
         var maxValue = dataSource.data.maximum;
 
-        var yAxis = [];
-        var nameXAxis = [];
-        var xAxis = [];
+        var yAxis = dataSource.data.stopList;
+        var nameXAxis = dataSource.data.stopList.map(function(el){ return el.userStopCode; });
+        var nameYAxis = nameXAxis.slice();
+        var xAxis = dataSource.data.stopList;
         var data = [];
 
-        var yIndex = 0;
-        var xIndex = 0;
-        var dictionary = {};
         var links = {};
         matrix.forEach(function (row) {
             var origin = row.origin;
             var destination = row.destination;
 
-            yAxis.push(origin);
             links[origin.userStopCode] = [];
             destination.forEach(function (column) {
                 var columnName = column.userStopCode;
-                var oldXAxis = nameXAxis.indexOf(columnName);
-                if (oldXAxis >= 0) {
-                    data.push([oldXAxis, yIndex, column.value.toFixed(2)]);
-                } else {
-                    nameXAxis.push(columnName);
-                    xAxis.push(column);
-                    data.push([xIndex, yIndex, column.value.toFixed(2)]);
-                    xIndex++;
-                }
+                var xIndex = nameXAxis.indexOf(columnName);
+                var yIndex = nameYAxis.indexOf(origin.userStopCode);
+                data.push([xIndex, yIndex, column.value.toFixed(2)]);
+
                 if (column.value > 0) {
                     links[origin.userStopCode].push({
                         sourceObj: origin,
@@ -315,9 +309,8 @@ $(document).ready(function () {
                     });
                 }
             });
-            yIndex++;
         });
-        app.updateMatrixChart(xAxis, yAxis, data, maxValue, dictionary);
+        app.updateMatrixChart(xAxis, yAxis, data, maxValue);
         app.updateClickNodeEvent(xAxis, links, maxValue);
         buildStopButtons(nameXAxis, function(stopCode){
             app.updateGraphChart(stopCode, xAxis, links[stopCode], maxValue);
