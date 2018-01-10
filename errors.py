@@ -71,7 +71,17 @@ class ESQueryStopParameterDoesNotExist(ESQueryError):
         super(ESQueryStopParameterDoesNotExist, self).__init__(404, message)
 
 
+class ESQueryOriginZoneParameterDoesNotExist(ESQueryError):
+    ''' It raises when user does not provide params to elastic search query '''
+
+    def __init__(self):
+        message = 'Debe indicar zona(s) de origen'
+        super(ESQueryOriginZoneParameterDoesNotExist, self).__init__(404, message)
 
 
+class ESQueryDestinationZoneParameterDoesNotExist(ESQueryError):
+    ''' It raises when user does not provide params to elastic search query '''
 
-
+    def __init__(self):
+        message = 'Debe indicar zona(s) de destino'
+        super(ESQueryDestinationZoneParameterDoesNotExist, self).__init__(404, message)

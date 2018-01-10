@@ -1,0 +1,124 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Indicadores: Viajes por Etapas{% endblock %}
+
+{% block css %}
+    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}"
+              rel="stylesheet">
+      <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.css" %}" rel="stylesheet">
+      <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.skinModern.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+
+        <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
+        {# switchery: pretty checkboxes #}
+        <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
+
+        <!-- iCheck -->
+        <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
+    {% endwith %}
+
+    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "travel/css/large.css" %}" rel="stylesheet">
+    <link href="{% static "travel/css/fromto.css" %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="">
+
+        {% include "./titlebar.html" with titlename="Viajes por Etapas" %}
+        {% include "./filters.html" %}
+
+        <div class="row cols-same-height">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2><i class="fa fa-map-o"></i> <span id="mapTitle">Origen y destino</span></h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_title col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_content" style="height:500px">
+                        <div id="mapChart" style="height:inherit;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+              <div class="x_panel">
+                <div class="x_title">
+                  <h2><i class="fa fa-chain"></i> Estrategias utilizadas</h2>
+                  <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                  <table id="tupleDetail" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
+                    <thead>
+                      <tr>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
+        <script src="{% static gentelella_static|add:"ion.rangeSlider/js/ion.rangeSlider.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.js" %}"></script>
+        <script src="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.js" %}"></script>
+        <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script><script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
+    {% endwith %}
+
+    <script>
+        var ws_data = {};
+        ws_data._day_types = JSON.parse("{{ daytypes|escapejs }}");
+        ws_data._TS_periods = {{ timeperiods|safe }};
+        ws_data._half_hours = {{ halfhours|safe }};
+        ws_data._communes = {{ communes|safe }};
+        // console.log(ws_data._day_types);
+        // console.log(ws_data._TS_periods);
+        // console.log(ws_data._half_hours);
+        // console.log(ws_data._communes);
+    </script>
+
+    <script src="{% static "travel/js/util.js" %}"></script>
+    <script src="{% static "travel/js/maps.js" %}"></script>
+    <script src="{% static "travel/js/form.js" %}"></script>
+    <script src="{% static "travel/js/travel_strategies_options.js" %}"></script>
+    <script src="{% static "travel/js/travel_strategies.js" %}"></script>
+
+{% endblock %}

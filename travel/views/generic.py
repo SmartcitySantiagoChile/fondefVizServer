@@ -108,7 +108,7 @@ class GetDataGeneric(View):
     # Supporting methods: queries
     # ========================================================
 
-    def build_base_query(self, request):
+    def build_base_query(self, request, multiquery=True):
         """
         TODO: realizar filtrado sólo 1 vez y no por cada query
 
@@ -116,7 +116,10 @@ class GetDataGeneric(View):
         raises ESQueryParametersDoesNotExist ?
         raises ESQueryDateRangeParametersDoesNotExist
         """
-        es_query = Search()
+        if multiquery:
+            es_query = Search()
+        else:
+            es_query = Search(using=settings.ES_CLIENT, index=LoadTravelsGeneric.INDEX_NAME)
 
         # filtering params
         from_date = request.GET.get('from', None)
@@ -151,5 +154,4 @@ class GetDataGeneric(View):
         if destination_zone:
             es_query = es_query.filter('terms', zona_bajada=destination_zone)
 
-        print(es_query.to_dict())
         return es_query
