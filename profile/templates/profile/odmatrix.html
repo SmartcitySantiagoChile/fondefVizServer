@@ -7,6 +7,8 @@
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
     {% header "Matriz origen-destino" "por servicio"|add:label %}
 
+    {% include "datamanager/availableDays.html" %}
+
   <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
     {% inline_select "Día:" "dayFilter" days as days_select %}
