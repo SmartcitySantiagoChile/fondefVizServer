@@ -16,11 +16,15 @@ class ESProfileHelper(ElasticSearchHelper):
         esTimePeriodQuery = self.get_unique_list_query("timePeriodInStartTime", size=50)
         esDayTypeQuery = self.get_unique_list_query("dayType", size=10)
         esDayQuery = self.get_histogram_query("expeditionStartTime", interval="day", format="yyy-MM-dd")
+        esAuthRouteQuery = self.get_unique_list_query("route", size=10000)
+        esUserRouteQuery = self.get_unique_list_query("userRoute", size=10000)
 
         result = {}
         result['periods'] = esTimePeriodQuery
         result['dayTypes'] = esDayTypeQuery
         result['days'] = esDayQuery
+        result["auth_routes"] = esAuthRouteQuery
+        result["user_routes"] = esUserRouteQuery
 
         return result
 
@@ -45,6 +49,13 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result
 
+    def ask_for_available_days(self):
+        searches = {
+            "days": self.get_histogram_query("expeditionStartTime", interval="day", format="yyy-MM-dd")
+        }
+        result = self.make_multisearch_query_for_aggs(searches)["days"]
+
+        return result
 
 class ESODByRouteHelper(ElasticSearchHelper):
 

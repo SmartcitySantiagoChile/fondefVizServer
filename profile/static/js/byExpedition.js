@@ -847,6 +847,8 @@ $(document).ready(function() {
         $("#routeFilter").select2({placeholder: "Servicio"});//, allowClear: true});
         $("#minutePeriodFilter").select2({placeholder: "Todos"});
 
+        loadAvailableDays(Urls["profile:getAvailableDays"]());
+
         var app = new ExpeditionApp();
         var makeAjaxCall = true;
         $("#btnUpdateChart").click(function () {

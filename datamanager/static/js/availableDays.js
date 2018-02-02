@@ -1,31 +1,14 @@
 /**
  * Calendar to show available days (dates with data)
  * */
-function loadAvailableDays(data) {
+function loadAvailableDays(data_url) {
     var availableDaysChart = echarts.init(document.getElementById("availableDays"), theme);
-    console.log(data)
-    function getVirtulData(year) {
-        year = year || '2017';
-        var date = +echarts.number.parseDate(year + '-01-01');
-        var end = +echarts.number.parseDate((+year + 1) + '-01-01');
-        var dayTime = 3600 * 24 * 1000;
-        var data = [];
-        for (var time = date; time < end; time += dayTime) {
-            data.push([
-                echarts.format.formatTime('yyyy-MM-dd', time),
-                Math.floor(Math.random() * 1000)
-            ]);
-        }
-        return data;
-    }
-    data = getVirtulData('2017');
-
     var opts = {
         tooltip: {
             position: 'top',
             formatter: function (p) {
                 var format = echarts.format.formatTime('yyyy-MM-dd', p.data[0]);
-                return format + ': ' + p.data[1];
+                return format;
             }
         },
         visualMap: {
@@ -39,7 +22,7 @@ function loadAvailableDays(data) {
         },
         calendar: {
             orient: 'horizontal',
-            range: '2017',
+            range: null,
             dayLabel: {
                 firstDay: 1,
                 nameMap: ['D', 'L', 'M', 'M', 'J', 'V', 'S']
@@ -54,11 +37,29 @@ function loadAvailableDays(data) {
         series: [{
             type: 'heatmap',
             coordinateSystem: 'calendar',
-            data: data
+            data: []
         }]
     };
-    availableDaysChart.setOption(opts, {notMerge: true});
     $(window).resize(function () {
         availableDaysChart.resize();
+    });
+
+    // ask per data
+    $.get(data_url, function (data) {
+        data = data.availableDays.map(function (el) {
+            return [el, 1];
+        });
+        if (data.length > 0) {
+            console.log(data);
+            firstDate = data[0][0];
+            lastDate = data[data.length-1][0];
+            lowerBound = firstDate.substring(0, firstDate.length - 3);
+            upperBound = lastDate.substring(0, lastDate.length - 3);
+            range = [lowerBound, upperBound];
+            opts.series[0].data = data;
+            opts.calendar.range = range;
+            console.log(range);
+            availableDaysChart.setOption(opts, {notMerge: true});
+        }
     });
 };

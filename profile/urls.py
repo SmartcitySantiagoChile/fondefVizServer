@@ -1,5 +1,6 @@
 from django.conf.urls import url
-from profile.views.LoadProfileByExpedition import LoadProfileByExpeditionView, GetLoadProfileByExpeditionData
+from profile.views.LoadProfileByExpedition import LoadProfileByExpeditionView, GetLoadProfileByExpeditionData, \
+    GetAvailableDays
 from profile.views.LoadProfileByStop import LoadProfileByStopView, GetLoadProfileByStopData, GetStopList
 from profile.views.ODMatrix import ODMatrixView, GetODMatrixData
 from profile.views.Transfers import TransfersView, GetTransfersData
@@ -19,4 +20,6 @@ urlpatterns = [
     url(r'^getStopList$', GetStopList.as_view(), name="getStopList"),
     url(r'^getTransfersData$', GetTransfersData.as_view(), name="getTransfersData"),
     url(r'^getODMatrixData$', GetODMatrixData.as_view(), name="getODMatrixData"),
+    # available data
+    url(r'^getAvailableDays$', GetAvailableDays.as_view(), name="getAvailableDays"),
 ]

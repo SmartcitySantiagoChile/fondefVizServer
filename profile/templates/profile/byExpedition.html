@@ -1,5 +1,5 @@
 {% extends 'profile/base.html' %}
-{% load static header panel inline_select table columns update_button label %}
+{% load static header panel inline_select table columns update_button label data_filter %}
 
 {% block title %}Perfil de carga por expedición{% endblock %}
 
@@ -9,35 +9,7 @@
 
     {% include "datamanager/availableDays.html" %}
 
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            {% inline_select "Día:" "dayFilter" days as days_select %}
-            {% columns 3 3 12 days_select as col1 %}
-
-            {% inline_select "Tipo de día:" "dayTypeFilter" day_types True as dayType_select %}
-            {% columns 3 3 12 dayType_select as col2 %}
-
-            {% inline_select "Período de despacho:" "periodFilter" periods True as period_select %}
-            {% columns 3 3 12 period_select as col3 %}
-
-            {% inline_select "Media hora de despacho:" "minutePeriodFilter" minutes True as half_hour_select %}
-            {% columns 3 3 12 half_hour_select as col4 %}
-
-            {% inline_select "Operador:" "operatorFilter" operators as route_select %}
-            {% columns 3 3 12 route_select as col5 %}
-
-            {% inline_select "Servicio usuario:" "userRouteFilter" user_routes as route_select %}
-            {% columns 3 3 12 route_select as col6 %}
-
-            {% inline_select "Servicio TS:" "authRouteFilter" auth_routes as route_select %}
-            {% columns 3 3 12 route_select as col7 %}
-
-            {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-            {% columns 12 12 12 update_button as col8 %}
-
-            {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6|add:col7|add:col8 %}
-        </div>
-    </div>
+    {% data_filter data_filter True False True False False True True True True True %}
 
     <div class="row">
         {% panel "fa-clock-o" "Expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
@@ -51,7 +23,6 @@
 
         {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:600px;"></div>' as panel4 %}
         {% columns 12 12 12 panel4 %}
-
     </div>
 
     <div class="row">
