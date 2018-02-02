@@ -853,7 +853,7 @@ $(document).ready(function() {
         var makeAjaxCall = true;
         $("#btnUpdateData").click(function () {
             var day = $("#dayFilter").val();
-            var route = $("#routeFilter").val();
+            var route = $("#authRouteFilter").val();
             var dayType = $("#dayTypeFilter").val();
             var period = $("#periodFilter").val();
             var minutes = $("#minutePeriodFilter").val();
