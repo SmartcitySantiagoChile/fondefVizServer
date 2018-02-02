@@ -851,7 +851,7 @@ $(document).ready(function() {
 
         var app = new ExpeditionApp();
         var makeAjaxCall = true;
-        $("#btnUpdateChart").click(function () {
+        $("#btnUpdateData").click(function () {
             var day = $("#dayFilter").val();
             var route = $("#routeFilter").val();
             var dayType = $("#dayTypeFilter").val();
