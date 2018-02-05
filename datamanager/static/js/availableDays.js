@@ -50,15 +50,25 @@ function loadAvailableDays(data_url) {
             return [el, 1];
         });
         if (data.length > 0) {
-            console.log(data);
             firstDate = data[0][0];
             lastDate = data[data.length-1][0];
+
             lowerBound = firstDate.substring(0, firstDate.length - 3);
             upperBound = lastDate.substring(0, lastDate.length - 3);
+
+            firstDateUTC = Date.UTC(...firstDate.split('-'));
+            lastDateUTC = Date.UTC(...lastDate.split('-'));
+            dayInMiliSeconds = 24 * 3600 * 1000;
+            days = (lastDateUTC - firstDateUTC) / dayInMiliSeconds;
+            if (days < 31) {
+                lastDateDivided = lastDate.split('-');
+                upperBound = new Date(lastDateUTC + 0 * dayInMiliSeconds);
+                upperBound = [upperBound.getUTCFullYear(), upperBound.getUTCMonth(), upperBound.getUTCDate()].join('-');
+            }
+
             range = [lowerBound, upperBound];
             opts.series[0].data = data;
             opts.calendar.range = range;
-            console.log(range);
             availableDaysChart.setOption(opts, {notMerge: true});
         }
     });
