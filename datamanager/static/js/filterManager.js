@@ -42,15 +42,14 @@ function filterManager(opts) {
 
     /* ENABLE select2 library */
 
-    $DAY_FILTER.select2({placeholder: PLACEHOLDER_ALL});
+    $DAY_FILTER.daterangepicker(optionDateRangePicker);
     $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MINUTE_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
+    $OPERATOR_FILTER.select2();
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE});
     $AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
 
-    $DAY_FILTER.select2({placeholder: PLACEHOLDER_ALL});
-    $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
 
     /* BUTTON ACTION */
     var _makeAjaxCall = true;
@@ -62,7 +61,8 @@ function filterManager(opts) {
         var minutes = $MINUTE_PERIOD_FILTER.val();
 
         var params = {
-            day: day
+            startDate: $DAY_FILTER.data("daterangepicker").startDate.format(),
+            endDate: $DAY_FILTER.data("daterangepicker").endDate.format()
         };
         if (authRoute) {
             params["authRoute"] = authRoute;

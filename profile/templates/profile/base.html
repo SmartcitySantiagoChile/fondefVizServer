@@ -2,29 +2,22 @@
 {% load static %}
 
 {% block css %}
+  <link href="{% static "css/filterManager.css" %}" rel="stylesheet">
 {% with "components/gentelella/vendors/" as gentelella_static %}
   <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
-<!-- iCheck -->
+  <!-- iCheck -->
   <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
+  <!-- Daterangepicker -->
+  <link href="{% static gentelella_static|add:'bootstrap-daterangepicker/daterangepicker.css' %}" rel="stylesheet">
 
   <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
-  <style>
-.select2-container .select2-choice:not(.select2-default) {
-    background-image: none !important;
-    background-color: #D9FFC7;
-}
-.select2-container--default .select2-selection--single {
-    min-height: 32px;
-}
-  </style>
 {% endwith %}
 {% endblock %}
-
 
 
 {% block js %}
@@ -42,12 +35,14 @@
         <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
 
         <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:'bootstrap-daterangepicker/daterangepicker.js' %}"></script>
     {% endwith %}
 
     <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
     <script src="{% static "components/echarts-wordcloud/dist/echarts-wordcloud.min.js" %}"></script>
 
     <script src="{% static "js/echartsTheme.js" %}"></script>
+    <script src="{% static "js/dateRangePickerOpt.js" %}"></script>
     <script src="{% static "js/filterManager.js" %}"></script>
     <script src="{% static "js/availableDays.js" %}"></script>
 {% endblock %}

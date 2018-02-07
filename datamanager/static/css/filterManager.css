@@ -1,0 +1,13 @@
+
+.select2-container .select2-choice:not(.select2-default) {
+    background-image: none !important;
+    background-color: #D9FFC7;
+}
+
+.select2-container--default .select2-selection--single {
+    min-height: 32px;
+}
+
+#dayFilter {
+    height: 32px;
+}

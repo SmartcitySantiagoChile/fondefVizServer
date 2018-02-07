@@ -22,7 +22,7 @@ class LoadProfileByExpeditionView(View):
         template = "profile/byExpedition.html"
 
         # add periods of thirty minutes
-        minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
+        minutes = [{'item': m[0], 'value': m[1]} for m in HalfHour.objects.all().order_by("id").values_list("longName", 'esId')]
         operators = [{'item': op[0], 'value': op[1]} for op in
                      Operator.objects.all().order_by('id').values_list('name', 'esId')]
 
@@ -61,7 +61,8 @@ class GetLoadProfileByExpeditionData(View):
     def buildQuery(self, request):
         """ create es-query based on params given by user """
 
-        day = request.GET.get('day')
+        startDate = request.GET.get('startDate')
+        endDate = request.GET.get('endDate')
         route = request.GET.get('authRoute')
         licensePlate = request.GET.getlist('licensePlate[]')
         dayType = request.GET.getlist('dayType[]')
@@ -88,43 +89,19 @@ class GetLoadProfileByExpeditionData(View):
         if period:
             esQuery = esQuery.filter('terms', timePeriodInStartTime=period)
         if halfHour:
-            # when this field exists
-            # esQuery = esQuery.filter('terms', halfHour=halfHour)
-            halfHourObjs = HalfHour.objects.filter(longName__in=halfHour).order_by("id")
+            halfHour = map(lambda x: int(x), halfHour)
+            esQuery = esQuery.filter('terms', halfHourInStartTime=halfHour)
 
-            dateRef = datetime(1970, 1, 1)
-            timeRanges = None
-            for day in [day]:
-                for index, halfHourObj in enumerate(halfHourObjs):
-                    startHour = halfHourObj.longName.split('-')[0]
-                    endHour = halfHourObj.longName.split('-')[1]
-                    startDate = day + " " + startHour
-                    endDate = day + " " + endHour
-
-                    startRange = int((datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S") - dateRef).total_seconds())
-                    endRange = int((datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S") - dateRef).total_seconds())
-
-                    timeRange = Q("range", expeditionStartTime={
-                        "gte": startRange,
-                        "lte": endRange,
-                        "format": "epoch_second"
-                    })
-                    if timeRanges is None:
-                        timeRanges = timeRange
-                    else:
-                        timeRanges = timeRanges | timeRange
-
-            esQuery = esQuery.query(timeRanges)
-
-        if not existsParameters or day is None:
+        if not existsParameters or startDate is None or endDate is None:
             raise ESQueryParametersDoesNotExist()
 
         esQuery = esQuery.filter("range", expeditionStartTime={
-            "gte": day + "||/d",
-            "lte": day + "||/d",
+            "gte": startDate[:10] + "||/d",
+            "lte": endDate[:10] + "||/d",
             "format": "yyyy-MM-dd",
             "time_zone": "+00:00"
         })
+        print(esQuery.to_dict())
 
         esQuery = esQuery.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'loadProfile',
                                   'expeditionDayId', 'userStopName', 'expandedAlighting', 'expandedBoarding',
