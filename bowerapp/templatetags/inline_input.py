@@ -10,7 +10,7 @@ register = template.Library()
 def inline_input(label, input_id):
     content = """
         <div class="form-group">
-            <label for="{1}">{0}:</label>
+            <label for="{1}">{0}</label>
             <input type="text" class="form-control" id="{1}" />
         </div>
         """

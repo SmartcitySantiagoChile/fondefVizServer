@@ -6,6 +6,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from bowerapp.templatetags.inline_select import inline_select
+from bowerapp.templatetags.inline_input import inline_input
 from bowerapp.templatetags.columns import columns
 from bowerapp.templatetags.panel import panel
 from bowerapp.templatetags.update_button import update_button
@@ -26,34 +27,34 @@ def data_filter(data_filter,
                 show_user_route_filter=False,
                 show_auth_route_filter=False):
     filters = [
-        {'show': show_day_filter, 'data_key': 'days',
-         'label': 'Día:', 'js_id': 'dayFilter', 'multi_select': False,
+        {'show': show_day_filter, 'data_key': '', 'input_type': 'text',
+         'label': 'Día:', 'js_id': 'dayFilter',
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_stop_filter, 'data_key': '',
+        {'show': show_stop_filter, 'data_key': 'stops', 'input_type': 'select',
          'label': 'Parada:', 'js_id': 'stopFilter', 'multi_select': False,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_day_type_filter, 'data_key': 'dayTypes',
+        {'show': show_day_type_filter, 'data_key': 'dayTypes', 'input_type': 'select',
          'label': 'Tipo de día:', 'js_id': 'dayTypeFilter', 'multi_select': True,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_pass_period_filter, 'data_key': 'periods',
+        {'show': show_pass_period_filter, 'data_key': 'periods', 'input_type': 'select',
          'label': 'Período de pasada:', 'js_id': 'periodFilter', 'multi_select': True,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_pass_minute_filter, 'data_key': 'minutes',
+        {'show': show_pass_minute_filter, 'data_key': 'minutes', 'input_type': 'select',
          'label': 'Media hora de pasada:', 'js_id': 'minutePeriodFilter', 'multi_select': True,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_dispatch_period_filter, 'data_key': 'periods',
+        {'show': show_dispatch_period_filter, 'data_key': 'periods', 'input_type': 'select',
          'label': 'Período de despacho:', 'js_id': 'periodFilter', 'multi_select': True,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_dispatch_minute_filter, 'data_key': 'minutes',
+        {'show': show_dispatch_minute_filter, 'data_key': 'minutes', 'input_type': 'select',
          'label': 'Media hora de despacho:', 'js_id': 'minutePeriodFilter', 'multi_select': True,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_operator_filter, 'data_key': 'operators',
+        {'show': show_operator_filter, 'data_key': 'operators', 'input_type': 'select',
          'label': 'Operador:', 'js_id': 'operatorFilter', 'multi_select': False,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_user_route_filter, 'data_key': 'user_routes',
+        {'show': show_user_route_filter, 'data_key': 'user_routes', 'input_type': 'select',
          'label': 'Servicio usuario:', 'js_id': 'userRouteFilter', 'multi_select': False,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
-        {'show': show_auth_route_filter, 'data_key': 'auth_routes',
+        {'show': show_auth_route_filter, 'data_key': 'auth_routes', 'input_type': 'select',
          'label': 'Servicio TS:', 'js_id': 'authRouteFilter', 'multi_select': False,
          'col-xs': 3, 'col-sm': 3, 'col-lg': 12}
     ]
@@ -64,10 +65,15 @@ def data_filter(data_filter,
             data = []
             if select_filter['data_key'] != '':
                 data = data_filter[select_filter['data_key']]
-            html_select = inline_select(select_filter['label'], select_filter['js_id'],
-                                        data, select_filter['multi_select'])
+            html_input = ''
+            if select_filter['input_type'] == 'select':
+                html_input = inline_select(select_filter['label'], select_filter['js_id'],
+                                           data, select_filter['multi_select'])
+            elif select_filter['input_type'] == 'text':
+                html_input = inline_input(select_filter['label'], select_filter['js_id'])
+
             html_column = columns(select_filter['col-xs'], select_filter['col-xs'], select_filter['col-xs'],
-                                  html_select)
+                                  html_input)
             panel_body += html_column
 
     # add update button
