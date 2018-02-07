@@ -36,31 +36,30 @@
 
   <div class="ln_solid"></div>
 
-  {% tile_stats 2 4 12 tiles_2 %}
+  {% tile_stats 4 4 12 tiles_2 %}
+  {% tile_stats 4 4 12 tiles_22 %}
 
   <div class="row">
     {% panel "" "" '<div id="chart3" style="height:300px;"></div>' as panel3 %}
     {% panel "" "" '<div id="chart4" style="height:300px;"></div>' as panel4 %}
 
-    {% panel "" "" '<div id="chart5" style="height:150px;"></div>' as panel5 %}
-    {% panel "" "" '<div id="chart6" style="height:150px;"></div>' as panel6 %}
-    {% panel "" "" '<div id="chart7" style="height:150px;"></div>' as panel7 %}
-    {% panel "" "" '<div id="chart8" style="height:150px;"></div>' as panel8 %}
+    {% with '<table class="table table-hover"><thead><tr><th>#</th><th>Atributo</th><th>Día</th><th>Punta mañana</th><th>Punta tarde</th></tr></thead><tbody id="dataTable"></tbody></table>' as data_table %}
+        {% panel "fa-table" "Otros" data_table as panel5 %}
 
-    {% columns 6 6 12 panel3 %}
-    {% columns 6 6 12 panel4 %}
+        {% columns 6 6 12 panel3 %}
+        {% columns 6 6 12 panel4 %}
 
-    {% columns 3 3 12 panel5 %}
-    {% columns 3 3 12 panel6 %}
-    {% columns 3 3 12 panel7 %}
-    {% columns 3 3 12 panel8 %}
+        {% columns 12 12 12 panel5 %}
+    {% endwith %}
   </div>
 
+  {% comment %}
   <div class="ln_solid"></div>
   {% tile_stats 2 4 12 tiles_3 %}
 
   <div class="ln_solid"></div>
   {% tile_stats 3 4 12 tiles_4 %}
+  {% endcomment %}
 {% endblock %}
 
 {% block js %}

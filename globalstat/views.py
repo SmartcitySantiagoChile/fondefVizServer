@@ -123,10 +123,8 @@ class Resume(View):
     def __init__(self):
         """ Constructor """
         super(Resume, self).__init__()
-        self.es_helper = ESGlobalStaticHelper()
 
         self.context = {}
-        self.context.update(self.es_helper.get_form_data())
 
         attributes = []
         for key, value in DICTIONARY.items():
@@ -162,7 +160,7 @@ class Detail(View):
 
         self.context["tiles_1"] = [
             {"title": DICTIONARY["dayType"]["name"], "title_icon": "fa-calendar", "value": "",
-             "value_id": "dayType", "sub_value_id": "date", "sub_title": "(día de la semana)"},
+             "value_id": "dayType", "sub_value_id": "date", "sub_title": ""},
             {"title": DICTIONARY["smartcardNumber"]["name"], "title_icon": "fa-credit-card", "value": "",
              "value_id": "smartcardNumber", "sub_value_id": "", "sub_title": ""},
             {"title": DICTIONARY["transactionNumber"]["name"], "title_icon": "fa-group", "value": "",
@@ -176,6 +174,9 @@ class Detail(View):
              "value_id": "validTripNumber", "sub_value_id": "", "sub_title": ""},
             #{"title": DICTIONARY["completeTripNumber"]["name"], "title_icon": "fa-group", "value": "",
             # "value_id": "completeTripNumber", "sub_value_id": "", "sub_title": ""},
+        ]
+
+        self.context["tiles_22"] = [
             {"title": DICTIONARY["tripsThatUseMetro"]["name"], "title_icon": "fa-rocket", "value": "",
              "value_id": "tripsThatUseMetro", "sub_value_id": "validTripNumber", "sub_title": ""},
             {"title": DICTIONARY["tripsWithOnlyMetro"]["name"], "title_icon": "fa-train", "value": "",
@@ -183,7 +184,6 @@ class Detail(View):
             {"title": DICTIONARY["tripsWithoutLastAlighting"]["name"], "title_icon": "fa-globe", "value": "",
              "value_id": "tripsWithoutLastAlighting", "sub_value_id": "", "sub_title": ""},
         ]
-
         self.context["tiles_3"] = [
             {"title": DICTIONARY["expeditionNumber"]["name"], "title_icon": "fa-truck", "value": "",
              "value_id": "expeditionNumber", "sub_value_id": "date", "sub_title": ""},
@@ -197,16 +197,6 @@ class Detail(View):
              "value_id": "licensePlateNumber", "sub_value_id": "", "sub_title": ""},
         ]
 
-        self.context["tiles_4"] = [
-            {"title": DICTIONARY["GPSPointsNumber"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "GPSPointsNumber", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["GPSNumberWithRoute"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "GPSNumberWithRoute", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["GPSNumberWithoutRoute"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "GPSNumberWithoutRoute", "sub_value_id": "", "sub_title": ""},
-            {"title": DICTIONARY["averageTimeBetweenGPSPoints"]["name"], "title_icon": "fa-globe", "value": "",
-             "value_id": "averageTimeBetweenGPSPoints", "sub_value_id": "", "sub_title": "Minutos"},
-        ]
 
     def get(self, request):
         template = "globalstat/detail.html"
@@ -226,7 +216,6 @@ class Data(View):
 
         metrics = request.GET.getlist("metrics[]")
         period = request.GET.getlist("period[]")
-        dayType = request.GET.get("dayType")
 
         esQuery = self.es_helper.get_base_query()
 
@@ -235,7 +224,7 @@ class Data(View):
                        "transactionOnTrainNumber", "transactionOnMetroNumber", "transactionOnBusNumber",
                        "transactionOnBusStation",
 
-                       "averageVelocityInAfternoonRushTrips", "averageTimeInAfternoonRushTrips"
+                       "averageVelocityInAfternoonRushTrips", "averageTimeInAfternoonRushTrips",
                                                               "averageDistanceInAfternoonRushTrips",
                        "tripNumberInAfternoonRushHour",
 
@@ -271,9 +260,6 @@ class Data(View):
                        ]
 
         esQuery = esQuery.source(["date"] + metrics)
-
-        if dayType is not None:
-            esQuery = esQuery.filter('term', dayType=dayType)
 
         timeRanges = None
         for date in period:

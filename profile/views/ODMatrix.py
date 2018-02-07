@@ -2,12 +2,10 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 
-from elasticsearch_dsl import Q
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
-from profile.esprofilehelper import ESODByRouteHelper
+from profile.esprofilehelper import ESODByRouteHelper, ESStopHelper
 
 from localinfo.models import HalfHour
-from datetime import datetime
 
 
 class ODMatrixView(View):
@@ -35,55 +33,9 @@ class GetODMatrixData(View):
     def __init__(self):
         """ constructor """
         super(GetODMatrixData, self).__init__()
-        self.es_helper = ESODByRouteHelper()
+        self.es_od_helper = ESODByRouteHelper()
+        self.es_stop_helper = ESStopHelper()
         self.context = {}
-
-    def transformESAnswer(self, esQuery):
-        """ transform ES answer to something util to web client """
-        trips = {}
-
-        for hit in esQuery.scan():
-            data = hit.to_dict()
-
-            expeditionId = data['expeditionDayId']
-            if expeditionId not in trips:
-                trips[expeditionId] = {'info': {}, 'stops': []}
-
-            trips[expeditionId]['info']['capacity'] = int(data['busCapacity'])
-            trips[expeditionId]['info']['licensePlate'] = data['licensePlate']
-            trips[expeditionId]['info']['route'] = data['route']
-            trips[expeditionId]['info']['authTimePeriod'] = data['timePeriodInStartTime']
-            trips[expeditionId]['info']['timeTripInit'] = data['expeditionStartTime'].replace('T', ' ').replace('.000Z',
-                                                                                                                '')
-            trips[expeditionId]['info']['timeTripEnd'] = data['expeditionEndTime'].replace('T', ' ').replace('.000Z',
-                                                                                                             '')
-            trips[expeditionId]['info']['dayType'] = data['dayType']
-
-            stop = {}
-            stop['name'] = data['userStopName']
-            stop['authStopCode'] = data['authStopCode']
-            stop['userStopCode'] = data['userStopCode']
-            stop['busStation'] = data['busStation'] == "1"
-            stop['authTimePeriod'] = data['timePeriodInStopTime']
-            stop['distOnPath'] = data['stopDistanceFromPathStart']
-            stop['stopTime'] = "" if data['expeditionStopTime'] == "0" else \
-                data['expeditionStopTime'].replace('T', ' ').replace('.000Z', '')
-            stop['order'] = int(data['expeditionStopOrder'])
-
-            # to avoid movement of distribution chart
-            stop['loadProfile'] = self.cleanData(data['loadProfile'])
-            stop['expandedGetIn'] = self.cleanData(data['expandedBoarding'])
-            stop['expandedGetOut'] = self.cleanData(data['expandedAlighting'])
-            trips[expeditionId]['stops'].append(stop)
-
-        for expeditionId in trips:
-            trips[expeditionId]['stops'] = sorted(trips[expeditionId]['stops'],
-                                                  key=lambda record: record['order'])
-
-        if len(trips.keys()) == 0:
-            raise ESQueryResultEmpty()
-
-        return trips
 
     def get(self, request):
         """ data data """
@@ -99,13 +51,17 @@ class GetODMatrixData(View):
             if not route:
                 raise ESQueryRouteParameterDoesNotExist()
 
-            matrix, max_value = self.es_helper.ask_for_od(route, period, dayType, day)
+            matrix, max_value = self.es_od_helper.ask_for_od(route, period, dayType, day)
+            stop_list = self.es_stop_helper.get_stop_list(route, day,
+                                                          fields=['userStopCode', 'stopName', 'authStopCode',
+                                                                  'order'])
 
             # esQuery = self.buildQuery(request)
             # response['trips'] = self.transformESAnswer(esQuery)
             response["data"] = {
                 "matrix": matrix,
-                "maximum": max_value
+                "maximum": max_value,
+                "stopList": stop_list
             }
 
             # debug
