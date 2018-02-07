@@ -1,5 +1,5 @@
 "use strict";
-$(document).ready(function() {
+$(document).ready(function () {
     // Constants
     var FILE_NAME = "Perfil de carga ";
 
@@ -83,7 +83,7 @@ $(document).ready(function() {
             _visibleTrips = 0;
         };
         this.setVisibilty = function (tripIdArray, value) {
-            tripIdArray.forEach(function(tripId){
+            tripIdArray.forEach(function (tripId) {
                 if (_trips[tripId].visible !== value) {
                     if (value === false) {
                         _visibleTrips--;
@@ -96,7 +96,7 @@ $(document).ready(function() {
         };
         this.checkAllAreVisible = function (tripIdArray) {
             var result = tripIdArray.length;
-            tripIdArray.forEach(function(tripId){
+            tripIdArray.forEach(function (tripId) {
                 if (!_trips[tripId].visible) {
                     result--;
                 }
@@ -144,7 +144,7 @@ $(document).ready(function() {
                     _yAxisData["expandedGetIn"][stopIndex] += trip.yAxisData["expandedGetIn"][key];
                     _yAxisData["loadProfile"][stopIndex] += trip.yAxisData["loadProfile"][key];
 
-                    if(_yAxisData["maxLoad"][stopIndex] < trip.yAxisData["loadProfile"][key]){
+                    if (_yAxisData["maxLoad"][stopIndex] < trip.yAxisData["loadProfile"][key]) {
                         _yAxisData["maxLoad"][stopIndex] = trip.yAxisData["loadProfile"][key]
                     }
 
@@ -352,10 +352,10 @@ $(document).ready(function() {
             this.updateDatatable();
         };
 
-        this.resizeCharts = function() {
+        this.resizeCharts = function () {
             _barChart.resize();
             _timePeriodChart.resize();
-            _wordcloudCharts.forEach(function(chart){
+            _wordcloudCharts.forEach(function (chart) {
                 chart.resize();
             });
         };
@@ -526,12 +526,12 @@ $(document).ready(function() {
             var yChartType = ["bar", "bar", "line", "line", "line"];
             var dataName = ["expandedGetIn", "expandedGetOut", "loadProfile", "maxLoad", "saturationRate"];
             var colors = [
-                {itemStyle:{normal:{color:"#BD4845"}}},
-                {itemStyle:{normal:{color:"#477BBA"}}},
-                {itemStyle:{normal:{color:"#1cd68c"}}},
-                {itemStyle:{normal:{color:"#4cd600"}}},
-                {lineStyle:{normal:{type:"dashed"}}, itemStyle:{normal:{color:"#EA8E4D"}}}
-                ];
+                {itemStyle: {normal: {color: "#BD4845"}}},
+                {itemStyle: {normal: {color: "#477BBA"}}},
+                {itemStyle: {normal: {color: "#1cd68c"}}},
+                {itemStyle: {normal: {color: "#4cd600"}}},
+                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#EA8E4D"}}}
+            ];
 
             var series = [];
             for (var index = 0; index < yAxisIndex.length; index++) {
@@ -583,7 +583,7 @@ $(document).ready(function() {
                     },
                     axisLabel: {
                         rotate: 90,
-                        interval: function(index) {
+                        interval: function (index) {
                             var labelWidth = 20;
                             var chartWidth = $("#barChart").width() - 82;
                             var div = chartWidth / labelWidth;
@@ -591,15 +591,15 @@ $(document).ready(function() {
                                 return true;
                             }
                             div = parseInt(xData.length / div);
-                            return index % div ? false:true;
+                            return index % div ? false : true;
                         },
                         textStyle: {
                             fontSize: 12
                         },
-                        formatter: function(value, index) {
-                            return (index + 1) + " " + value + " " + (xAxisData[index].busStation?"(ZP)":"");
+                        formatter: function (value, index) {
+                            return (index + 1) + " " + value + " " + (xAxisData[index].busStation ? "(ZP)" : "");
                         },
-                        color: function(label, index) {
+                        color: function (label, index) {
                             if (xAxisData[index].busStation) {
                                 return "red";
                             }
@@ -665,7 +665,7 @@ $(document).ready(function() {
                 grid: {
                     left: "37px",
                     right: "45px",
-                    bottom: maxLabelLength*5.5 + 20 + "px"
+                    bottom: maxLabelLength * 5.5 + 20 + "px"
                 },
                 toolbox: {
                     show: true,
@@ -682,7 +682,7 @@ $(document).ready(function() {
                             lang: ["Datos del gráfico", "cerrar", "refrescar"],
                             buttonColor: "#169F85",
                             readOnly: true,
-                            optionToContent: function(opt) {
+                            optionToContent: function (opt) {
                                 var axisData = opt.xAxis[0].data;
                                 var series = opt.series;
 
@@ -691,14 +691,14 @@ $(document).ready(function() {
                                 textarea.readOnly = "true";
 
                                 var header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
-                                series.forEach(function(el){
+                                series.forEach(function (el) {
                                     header += "\t" + el.name;
                                 });
                                 header += "\n";
                                 var body = "";
-                                axisData.forEach(function(el, index){
+                                axisData.forEach(function (el, index) {
                                     var serieValues = [];
-                                    series.forEach(function(serie){
+                                    series.forEach(function (serie) {
                                         serieValues.push(serie.data[index]);
                                     });
                                     serieValues = serieValues.join("\t");
@@ -713,9 +713,9 @@ $(document).ready(function() {
                             show: true,
                             title: "Cambiar porcentaje máximo",
                             icon: 'image:///static/img/percent.png',
-                            onclick: function(){
+                            onclick: function () {
                                 var percentage = prompt("Ingrese el porcentaje máximo");
-                                if(percentage !== "") {
+                                if (percentage !== "") {
                                     options.yAxis[1].max = percentage;
                                 } else {
                                     delete options.yAxis[1].max;
@@ -838,62 +838,28 @@ $(document).ready(function() {
 
     // load filters
     (function () {
-        // set locale
-        moment.locale("es");
-
-        $("#dayFilter").select2({placeholder: "Todos"});
-        $("#dayTypeFilter").select2({placeholder: "Todos"});
-        $("#periodFilter").select2({placeholder: "Todos"});
-        $("#routeFilter").select2({placeholder: "Servicio"});//, allowClear: true});
-        $("#minutePeriodFilter").select2({placeholder: "Todos"});
-
         loadAvailableDays(Urls["profile:getAvailableDays"]());
 
         var app = new ExpeditionApp();
-        var makeAjaxCall = true;
-        $("#btnUpdateData").click(function () {
-            var day = $("#dayFilter").val();
-            var route = $("#authRouteFilter").val();
-            var dayType = $("#dayTypeFilter").val();
-            var period = $("#periodFilter").val();
-            var minutes = $("#minutePeriodFilter").val();
+        var previousCall = function () {
+            app.showLoadingAnimationCharts();
+        };
+        var afterCall = function (data) {
+            processData(data, app);
+            app.hideLoadingAnimationCharts();
+        };
+        var opts = {
+            urlFilterData: Urls["profile:getExpeditionData"](),
+            previousCallData: previousCall,
+            afterCallData: afterCall
+        };
 
-            var params = {
-                day: day
-            };
-            if (route) {
-                params["route"] = route;
-            }
-            if (dayType) {
-                params["dayType"] = dayType;
-            }
-            if (period) {
-                params["period"] = period;
-            }
-            if (minutes) {
-                params["halfHour"] = minutes;
-            }
+        filterManager(opts);
 
-            if (makeAjaxCall) {
-                makeAjaxCall = false;
-                app.showLoadingAnimationCharts();
-                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
-                var previousMessage = $(this).html();
-                var button = $(this).append(loadingIcon);
-
-                $.getJSON(Urls["profile:getExpeditionData"](), params, function (data) {
-                    processData(data, app);
-                }).always(function () {
-                    makeAjaxCall = true;
-                    button.html(previousMessage);
-                    app.hideLoadingAnimationCharts();
-                });
-            }
+        $(window).resize(function () {
+            app.resizeCharts();
         });
-        $(window).resize(function() {
-          app.resizeCharts();
-        });
-        $("#menu_toggle").click(function() {
+        $("#menu_toggle").click(function () {
             app.resizeCharts();
         });
     })()

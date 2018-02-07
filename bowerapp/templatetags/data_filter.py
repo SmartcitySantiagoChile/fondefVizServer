@@ -14,9 +14,16 @@ register = template.Library()
 
 
 @register.simple_tag
-def data_filter(data_filter, show_day_filter=False, show_stop_filter=False, show_day_type_filter=False,
-                show_pass_period_filter=False, show_dispatch_period_filter=False, show_pass_minute_filter=False,
-                show_dispatch_minute_filter=False, show_operator_filter=False, show_user_route_filter=False,
+def data_filter(data_filter,
+                show_day_filter=False,
+                show_stop_filter=False,
+                show_day_type_filter=False,
+                show_pass_period_filter=False,
+                show_dispatch_period_filter=False,
+                show_pass_minute_filter=False,
+                show_dispatch_minute_filter=False,
+                show_operator_filter=False,
+                show_user_route_filter=False,
                 show_auth_route_filter=False):
     filters = [
         {'show': show_day_filter, 'data_key': 'days',

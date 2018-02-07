@@ -43,6 +43,9 @@ function loadAvailableDays(data_url) {
     $(window).resize(function () {
         availableDaysChart.resize();
     });
+    $('#menu_toggle').click(function () {
+        availableDaysChart.resize();
+    });
 
     // ask per data
     $.get(data_url, function (data) {
@@ -51,13 +54,17 @@ function loadAvailableDays(data_url) {
         });
         if (data.length > 0) {
             firstDate = data[0][0];
-            lastDate = data[data.length-1][0];
+            lastDate = data[data.length - 1][0];
 
             lowerBound = firstDate.substring(0, firstDate.length - 3);
             upperBound = lastDate.substring(0, lastDate.length - 3);
 
-            firstDateUTC = Date.UTC(...firstDate.split('-'));
-            lastDateUTC = Date.UTC(...lastDate.split('-'));
+            firstDateUTC = Date.UTC(...firstDate.split('-')
+        )
+            ;
+            lastDateUTC = Date.UTC(...lastDate.split('-')
+        )
+            ;
             dayInMiliSeconds = 24 * 3600 * 1000;
             days = (lastDateUTC - firstDateUTC) / dayInMiliSeconds;
             if (days < 31) {

@@ -62,7 +62,7 @@ class GetLoadProfileByExpeditionData(View):
         """ create es-query based on params given by user """
 
         day = request.GET.get('day')
-        route = request.GET.get('route')
+        route = request.GET.get('authRoute')
         licensePlate = request.GET.getlist('licensePlate[]')
         dayType = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
