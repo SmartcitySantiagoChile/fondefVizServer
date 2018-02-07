@@ -34,7 +34,7 @@
     <div class="">
 
         {% include "./titlebar.html" with titlename="Viajes por Etapas" %}
-        {% include "./filters_to_from.html" %}
+        {% include "./filters_fromto.html" %}
 
         <div class="row cols-same-height">
             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
@@ -125,11 +125,19 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_title col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_title">
+                            <h2>Origen</h2>
+                            <div class="clearfix"></div>
+                        </div>
                         <div class="x_content" style="height:500px">
                             <div id="mapChart" style="height:inherit;"></div>
                         </div>
                     </div>
                     <div class="x_title col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_title">
+                            <h2>Destino</h2>
+                            <div class="clearfix"></div>
+                        </div>
                         <div class="x_content" style="height:500px">
                             <div id="mapChart2" style="height:inherit;"></div>
                         </div>

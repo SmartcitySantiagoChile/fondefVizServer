@@ -53,8 +53,6 @@ class GetStrategiesData(GetDataGeneric):
             strategies_tuples = dict()
             for hit in es_query_dict.scan():
                 _data = hit.to_dict()
-                if _data['id'] == u'669600171':
-                    print(hit._meta)
                 t = ''
                 if _data['tipo_transporte_1'] == 2:
                     t += 'METRO'

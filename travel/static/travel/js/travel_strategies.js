@@ -77,12 +77,9 @@ function processData(response) {
         return {nviajes: ws_data.data.strategies[x].travels.length, etapa1: pieces[0], etapa2: pieces[1], etapa3: pieces[2], etapa4: pieces[3]};
     });
     var _datatable = $('#tupleDetail').DataTable();
-    console.log('2', _datatable);
     _datatable.clear();
     _datatable.rows.add(processed_data);
     _datatable.columns.adjust().draw();
-
-    console.log("fill the table here");
 }
 
 function setupStrategyTable(options){
@@ -100,7 +97,6 @@ function setupStrategyTable(options){
         ],
         order: [[0, 'desc']]
     });
-    console.log('1', _datatable);
 }
 
 // Update Charts from filters
