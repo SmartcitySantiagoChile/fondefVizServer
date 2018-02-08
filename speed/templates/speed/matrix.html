@@ -1,0 +1,71 @@
+{% extends 'speed/base.html' %}
+{% load static header data_filter panel %}
+
+{% block title %}Matriz de Velocidades{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.css" %}" rel="stylesheet">
+        <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.skinModern.css" %}" rel="stylesheet">
+    {% endwith %}
+    <style>
+        .select2-container .select2-choice:not(.select2-default) {
+            background-image: none !important;
+            background-color: #D9FFC7;
+        }
+
+        .aguila-color .irs-from,
+        .aguila-color .irs-to,
+        .aguila-color .irs-single {
+            background: #2A3F54;
+        }
+
+        .aguila-color .irs-bar,
+        .aguila-color .irs-bar-edge {
+            background: transparent;
+        }
+
+        .aguila-color .irs-single::after,
+        .aguila-color .irs-from::after,
+        .aguila-color .irs-to::after {
+            border-color: #2A3F54 transparent transparent;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="">
+    {% header "Matriz de Velocidades" "por servicio" %}
+
+    {% include "datamanager/availableDays.html" %}
+
+    {% data_filter data_filter True False True False False False False False True True True %}
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            {% with "<div id='main' style='height:400px;'></div>" as chart %}
+                {% panel "fa-tachometer" "Matriz de velocidades: <span id='route_name'></span>" chart %}
+            {% endwith %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            {% with "<label class='control-label' for='filterHourRange'>Horario:</label><input type='text' id='filterHourRange' name='hour_range' value=''/><div id='mapid' style='height: 500px;min-height: 500px'></div>" as map %}
+                {% panel "fa-map" "Posición en el mapa" map %}
+            {% endwith %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+    <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"ion.rangeSlider/js/ion.rangeSlider.min.js" %}"></script>
+    {% endwith %}
+    <script src="{% static "speed/js/matrix.js" %}"></script>
+{% endblock %}

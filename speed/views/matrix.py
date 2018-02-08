@@ -1,112 +1,80 @@
-import datetime
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db import connection
 from django.conf import settings
 
-from elasticsearch_dsl import Search, Q, A
-# Create your views here.
+from elasticsearch_dsl import Search, A
 
 from localinfo.models import TimePeriod
 
+import datetime
+
 # from errors import ESQueryDoesNotHaveParameters
 
+from speed.esspeedhelper import ESSpeedHelper, ESShapeHelper
+
+
 # elastic search index name
-SPEED_INDEX_NAME="speed"
 SHAPE_INDEX_NAME="shape"
 daytypes = 'LSD'
 
-def getRouteShape(route, dFrom, dTo):
-    client = settings.ES_CLIENT
 
-    esQuery = Search(using=client, index=SHAPE_INDEX_NAME)
-    esQuery = esQuery.filter('term', route=route)
-    esQuery = esQuery.filter('range', startDate={"gte": dFrom, "lte": dTo, "format": "dd/MM/yyyy"})
-
-    r = esQuery.execute()
-
-    if r.hits.total != 0:
-        raise Exception()
-
-    esQuery = Search(using=client, index=SHAPE_INDEX_NAME)
-    esQuery = esQuery.filter('term', route=route)
-    esQuery = esQuery.filter('range', startDate={"lte": dFrom, "format": "dd/MM/yyyy"})
-    esQuery = esQuery.sort('-startDate')
-
-    r = esQuery.execute()
-
-    if r.hits.total == 0:
-        raise Exception()
-
-    return (r.hits[0].points)
-
-class LoadMatrixView(View):
-    ''' '''
-
-    def __init__(self):
-        ''' contructor '''
-        self.context={}
-        self.context['dayTypes'] = TimePeriod.objects.all().distinct('dayType').values_list('dayType', flat=True)
-        self.context['routes'] = self.getRouteList()
-
-    def getRouteList(self):
-        ''' retrieve all routes availables in elasticsearch'''
-        client = settings.ES_CLIENT
-        esQuery = Search(using=client, index=SPEED_INDEX_NAME)
-        esQuery = esQuery[:0]
-        aggs = A('terms', field = 'route', size=2000)
-        esQuery.aggs.bucket('unique_routes', aggs)
-
-        routes = []
-        for tag in esQuery.execute().aggregations.unique_routes.buckets:
-            routes.append(tag.key)
-        routes.sort()
-
-        return routes
+class MatrixHTML(View):
 
     def get(self, request):
-        template = "velocity/matrix.html"
+        template = "speed/matrix.html"
+        self.es_helper = ESSpeedHelper()
+        self.context = self.es_helper.make_multisearch_query_for_aggs(self.es_helper.get_base_params())
 
         return render(request, template, self.context)
 
-class getLoadMatrixData(View):
+
+class GetAvailableDays(View):
+
+    def get(self, request):
+        self.es_helper = ESSpeedHelper()
+        available_days = self.es_helper.ask_for_available_days()
+
+        response = {}
+        response['availableDays'] = available_days
+
+        return JsonResponse(response)
+
+
+class GetAvailableRoutes(View):
+
+    def get(self, request):
+        self.es_helper = ESSpeedHelper()
+        available_days, op_dict = self.es_helper.ask_for_available_routes()
+
+        response = {}
+        response['availableRoutes'] = available_days
+        response['operatorDict'] = op_dict
+
+        return JsonResponse(response)
+
+
+class getMatrixData(View):
 
     def __init__(self):
         self.context = {}
+        self.es_shape_helper = ESShapeHelper()
+        self.es_speed_helper = ESSpeedHelper()
 
     def get(self, request):
-        fromDate = request.GET.get('from', None)
-        toDate = request.GET.get('to', None)
-        route = request.GET.get('route', None)
-        dayType = request.GET.getlist('dayType[]', None)
-        dayType = [daytypes.find(d[0]) for d in dayType]
+        start_date = request.GET.get('startDate', '')[:10]
+        end_date = request.GET.get('endDate', '')[:10]
+        route = request.GET.get('authRoute', None)
+        day_type = request.GET.getlist('dayType[]', None)
 
-        shape = getRouteShape(route, fromDate, toDate)
+        shape = self.es_shape_helper.get_route_shape(route, start_date, end_date)
         route_points = [[s['latitude'], s['longitude']] for s in shape]
         limits = [i for i,s in enumerate(shape) if s['segmentStart']==1]+[len(shape)-1]
 
-        client = settings.ES_CLIENT
-        esQuery = Search(using=client, index=SPEED_INDEX_NAME)
-        esQuery = esQuery.filter("term", route=route)
-        if dayType:
-            esQuery = esQuery.filter('terms', dayType=dayType)
-        esQuery = esQuery.filter("range", date={'gte': fromDate, 'lte': toDate, 'format': 'dd/MM/yyyy'})
-        aggs2 = A('terms', field = 'section', size=1000)
-        aggs1 = A('terms', field = 'periodId', size=1000)
-        aggs2.metric('distance', 'sum', field='totalDistance')
-        aggs2.metric('time', 'sum', field='totalTime')
-        aggs2.metric('n_obs', 'sum', field='nObs')
-        esQuery.aggs.bucket('periods', aggs1).bucket('sections', aggs2)
-
-        result = esQuery.execute()
-
-        d_data = {}
-        for period in result.aggregations.periods.buckets:
-            key_period = period.key
-            for section in period.sections.buckets:
-                key_section = section.key
-                d_data[(key_section, key_period)] = (-1 if section.time.value==0 else 3.6*section.distance.value/section.time.value, section.n_obs.value)
+        d_data = self.es_speed_helper.get_speed_data(route, day_type, start_date, end_date)
 
         max_section = len(limits)-1
 
@@ -125,11 +93,12 @@ class getLoadMatrixData(View):
                     if speed < bound:
                         interval = i
                         break
-                segmentedRouteByHour.append([interval, speed, n_obs]);
-            response['matrix'].append(segmentedRouteByHour);
+                segmentedRouteByHour.append([interval, speed, n_obs])
+            response['matrix'].append(segmentedRouteByHour)
 
         response['route'] = {'name': route, 'points': route_points, 'start_end': list(zip(limits[:-1], limits[1:]))}
         return JsonResponse(response, safe=False)
+
 
 class LoadRankingView(View):
     ''' '''

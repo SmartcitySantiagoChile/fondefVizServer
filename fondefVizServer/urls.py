@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^profile/', include('profile.urls')),
     url(r'^shape/', include('shape.urls')),
-    url(r'^speed/', include('velocity.urls')),
+    url(r'^speed/', include('speed.urls')),
     url(r'^travel/', include('travel.urls')),
     url(r'^globalstat/', include('globalstat.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
