@@ -40,10 +40,11 @@ class GetODMatrixData(View):
     def get(self, request):
         """ data data """
 
-        day = request.GET.get('day')
+        startDate = request.GET.get('startDate')
+        endDate = request.GET.get('endDate')
         dayType = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
-        route = request.GET.get('route')
+        route = request.GET.get('authRoute')
 
         response = {}
         response['data'] = {}
@@ -51,10 +52,11 @@ class GetODMatrixData(View):
             if not route:
                 raise ESQueryRouteParameterDoesNotExist()
 
-            matrix, max_value = self.es_od_helper.ask_for_od(route, period, dayType, day)
-            stop_list = self.es_stop_helper.get_stop_list(route, day,
-                                                          fields=['userStopCode', 'stopName', 'authStopCode',
-                                                                  'order'])
+            startDate = startDate[:10]
+            endDate = endDate[:10]
+            matrix, max_value = self.es_od_helper.ask_for_od(route, period, dayType, startDate, endDate)
+            stop_list = self.es_stop_helper.get_stop_list(route, startDate,
+                                                          fields=['userStopCode', 'stopName', 'authStopCode', 'order'])
 
             # esQuery = self.buildQuery(request)
             # response['trips'] = self.transformESAnswer(esQuery)
@@ -72,3 +74,28 @@ class GetODMatrixData(View):
             response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)
+
+
+class GetODAvailableDays(View):
+
+    def get(self, request):
+        self.es_helper = ESODByRouteHelper()
+        available_days = self.es_helper.ask_for_available_days()
+
+        response = {}
+        response['availableDays'] = available_days
+
+        return JsonResponse(response)
+
+
+class GetODAvailableRoutes(View):
+
+    def get(self, request):
+        self.es_helper = ESODByRouteHelper()
+        available_days, op_dict = self.es_helper.ask_for_available_routes()
+
+        response = {}
+        response['availableRoutes'] = available_days
+        response['operatorDict'] = op_dict
+
+        return JsonResponse(response)

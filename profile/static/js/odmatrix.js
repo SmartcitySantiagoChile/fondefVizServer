@@ -319,50 +319,23 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        // set locale
-        moment.locale("es");
-
-        $("#dayFilter").select2();
-        $("#routeFilter").select2({placeholder: "Servicio"});
-        $("#dayTypeFilter").select2({placeholder: "Todos"});
-        $("#periodFilter").select2({placeholder: "Todos"});
+        loadAvailableDays(Urls["profile:getODAvailableDays"]());
 
         var app = new TransfersApp();
-        var makeAjaxCall = true;
-        $("#btnUpdateChart").click(function () {
-            var day = $("#dayFilter").val();
-            var route = $("#routeFilter").val();
-            var dayType = $("#dayTypeFilter").val();
-            var period = $("#periodFilter").val();
-
-            var params = {
-                day: day
-            };
-            if (route) {
-                params["route"] = route;
-            }
-            if (dayType) {
-                params["dayType"] = dayType;
-            }
-            if (period) {
-                params["period"] = period;
-            }
-
-            if (makeAjaxCall) {
-                makeAjaxCall = false;
-                app.showLoadingAnimationCharts();
-                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
-                var previousMessage = $(this).html();
-                var button = $(this).append(loadingIcon);
-                $.getJSON(Urls["profile:getODMatrixData"](), params, function (data) {
-                    processData(data, app);
-                }).always(function () {
-                    makeAjaxCall = true;
-                    button.html(previousMessage);
-                    app.hideLoadingAnimationCharts();
-                });
-            }
-        });
+        var previousCall = function () {
+            app.showLoadingAnimationCharts();
+        };
+        var afterCall = function (data) {
+            processData(data, app);
+            app.hideLoadingAnimationCharts();
+        };
+        var opts = {
+            urlFilterData: Urls["profile:getODMatrixData"](),
+            urlRouteData: Urls["profile:getODAvailableRoutes"](),
+            previousCallData: previousCall,
+            afterCallData: afterCall
+        };
+        filterManager(opts);
         $(window).resize(function () {
             app.resizeCharts();
         });

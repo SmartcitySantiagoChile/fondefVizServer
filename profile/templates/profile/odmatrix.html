@@ -1,41 +1,22 @@
 {% extends 'profile/base.html' %}
-{% load static header panel inline_select table columns update_button label %}
+{% load static header panel inline_select table columns update_button label data_filter %}
 
 {% block title %}Matriz origen-destino{% endblock %}
 
 {% block content %}
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
-    {% header "Matriz origen-destino" "por servicio"|add:label %}
+    {% header "Matriz de etapas" "por servicio"|add:label %}
 
     {% include "datamanager/availableDays.html" %}
 
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-    {% inline_select "Día:" "dayFilter" days as days_select %}
-    {% columns 2 2 12 days_select as col1 %}
-
-    {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes True as dayType_select %}
-    {% columns 2 2 12 dayType_select as col2 %}
-
-    {% inline_select "Período de subida en parada:" "periodFilter" periods True as period_select %}
-    {% columns 2 2 12 period_select as col3 %}
-
-    {% inline_select "Servicio-sentido:" "routeFilter" routes as route_select %}
-    {% columns 2 2 12 route_select as col4 %}
-
-    {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col5 %}
-
-    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5 %}
-    </div>
-  </div>
+    {% data_filter data_filter True False True True False False False False True True True %}
 
   <div class="row">
     {% with toggleButton='<input id="chartSwitch" type="checkbox" data-toggle="toggle" data-on="Mostrando bajadas" data-off="Mostrando Subidas" data-size="large" data-width="270">' %}
       {% columns 12 12 12 toggleButton as col7 %}
     {% endwith %}
-    {% panel "fa-bar-chart" "Matriz de viaje" '<div id="matrixChart" style="height:600px;"></div>' as panel4 %}
-    {% panel "fa-bar-chart" "Viajes de una parada" '<div class="btn-group btn-group-xs" id="stops"></div><div id="graphChart" style="height:300px;"></div>' as panel5 %}
+    {% panel "fa-bar-chart" "Matriz de etapas" '<div id="matrixChart" style="height:600px;"></div>' as panel4 %}
+    {% panel "fa-bar-chart" "Etapas de una parada" '<div class="btn-group btn-group-xs" id="stops"></div><div id="graphChart" style="height:300px;"></div>' as panel5 %}
     {% columns 12 12 12 panel4 %}
     {% columns 12 12 12 panel5 %}
   </div>

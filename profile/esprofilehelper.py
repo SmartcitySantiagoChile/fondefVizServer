@@ -8,6 +8,8 @@ from elasticsearch_dsl.query import Match
 
 from localinfo.models import Operator
 
+from errors import ESQueryResultEmpty
+
 from bowerapp.eshelper.eshelper import ElasticSearchHelper
 
 
@@ -104,7 +106,38 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
         return result
 
-    def ask_for_od(self, auth_route_code, time_periods, day_type, days):
+    def ask_for_available_days(self):
+        searches = {
+            "days": self.get_histogram_query("date", interval="day", format="yyy-MM-dd")
+        }
+        result = self.make_multisearch_query_for_aggs(searches)["days"]
+
+        return result
+
+    def ask_for_available_routes(self):
+        esQuery = self.get_base_query()
+        esQuery = esQuery[:0]
+        esQuery = esQuery.source([])
+
+        aggs = A('terms', field="authRouteCode", size=5000)
+        esQuery.aggs.bucket('route', aggs)
+        esQuery.aggs['route']. \
+            metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRouteCode'])
+
+        operator_list = [{"id": op[0], "text": op[1]} for op in Operator.objects.values_list('esId', 'name')]
+
+        result = defaultdict(lambda: defaultdict(list))
+        for hit in esQuery.execute().aggregations.route.buckets:
+            data = hit.to_dict()
+            authRoute = data['key']
+            operatorId = data['additionalInfo']['hits']['hits'][0]['_source']['operator']
+            userRoute = data['additionalInfo']['hits']['hits'][0]['_source']['userRouteCode']
+
+            result[operatorId][userRoute].append(authRoute)
+
+        return result, operator_list
+
+    def ask_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date):
         """ ask to elasticsearch for a match values """
 
         es_query = self.get_base_query().filter('term', authRouteCode=auth_route_code)
@@ -112,8 +145,13 @@ class ESODByRouteHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', timePeriodInStopTime=time_periods)
         if day_type:
             es_query = es_query.filter('term', dayType=day_type)
-        if days:
-            es_query = es_query.filter('range', date={'gte': days})
+        if start_date and end_date:
+            es_query = es_query.filter("range", date={
+                "gte": start_date + "||/d",
+                "lte": end_date + "||/d",
+                "format": "yyyy-MM-dd",
+                "time_zone": "+00:00"
+            })
 
         es_query = es_query[:0]
         es_query = es_query.source([])
@@ -156,6 +194,10 @@ class ESODByRouteHelper(ElasticSearchHelper):
                 'origin': start,
                 'destination': destination
             })
+
+        if len(matrix) == 0:
+            raise ESQueryResultEmpty()
+
         matrix.sort(key=lambda e: e['origin']['order'])
 
         return matrix, max_value
