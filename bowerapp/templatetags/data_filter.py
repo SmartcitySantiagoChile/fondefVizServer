@@ -63,7 +63,7 @@ def data_filter(data_filter,
     for select_filter in filters:
         if select_filter['show']:
             data = []
-            if select_filter['data_key'] != '':
+            if select_filter['data_key'] in data_filter:
                 data = data_filter[select_filter['data_key']]
             html_input = ''
             if select_filter['input_type'] == 'select':
