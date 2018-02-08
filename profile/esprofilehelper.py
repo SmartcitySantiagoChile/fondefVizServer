@@ -1,7 +1,14 @@
-from bowerapp.eshelper.eshelper import ElasticSearchHelper
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from collections import defaultdict
 
 from elasticsearch_dsl import Search, A
 from elasticsearch_dsl.query import Match
+
+from localinfo.models import Operator
+
+from bowerapp.eshelper.eshelper import ElasticSearchHelper
 
 
 class ESProfileHelper(ElasticSearchHelper):
@@ -16,15 +23,11 @@ class ESProfileHelper(ElasticSearchHelper):
         esTimePeriodQuery = self.get_unique_list_query("timePeriodInStartTime", size=50)
         esDayTypeQuery = self.get_unique_list_query("dayType", size=10)
         esDayQuery = self.get_histogram_query("expeditionStartTime", interval="day", format="yyy-MM-dd")
-        esAuthRouteQuery = self.get_unique_list_query("route", size=10000)
-        esUserRouteQuery = self.get_unique_list_query("userRoute", size=10000)
 
         result = {}
         result['periods'] = esTimePeriodQuery
         result['dayTypes'] = esDayTypeQuery
         result['days'] = esDayQuery
-        result["auth_routes"] = esAuthRouteQuery
-        result["user_routes"] = esUserRouteQuery
 
         return result
 
@@ -56,6 +59,30 @@ class ESProfileHelper(ElasticSearchHelper):
         result = self.make_multisearch_query_for_aggs(searches)["days"]
 
         return result
+
+    def ask_for_available_routes(self):
+        esQuery = self.get_base_query()
+        esQuery = esQuery[:0]
+        esQuery = esQuery.source([])
+
+        aggs = A('terms', field="route", size=5000)
+        esQuery.aggs.bucket('route', aggs)
+        esQuery.aggs['route']. \
+            metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRoute'])
+
+        operator_list = [{"id": op[0], "text": op[1]} for op in Operator.objects.values_list('esId', 'name')]
+
+        result = defaultdict(lambda: defaultdict(list))
+        for hit in esQuery.execute().aggregations.route.buckets:
+            data = hit.to_dict()
+            authRoute = data['key']
+            operatorId = data['additionalInfo']['hits']['hits'][0]['_source']['operator']
+            userRoute = data['additionalInfo']['hits']['hits'][0]['_source']['userRoute']
+
+            result[operatorId][userRoute].append(authRoute)
+
+        return result, operator_list
+
 
 class ESODByRouteHelper(ElasticSearchHelper):
 

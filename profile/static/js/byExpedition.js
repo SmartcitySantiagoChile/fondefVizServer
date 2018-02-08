@@ -850,6 +850,7 @@ $(document).ready(function () {
         };
         var opts = {
             urlFilterData: Urls["profile:getExpeditionData"](),
+            urlRouteData: Urls["profile:getAvailableRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall
         };

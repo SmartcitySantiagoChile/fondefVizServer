@@ -2,12 +2,10 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 
-from elasticsearch_dsl import Q
 from errors import ESQueryParametersDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
 from profile.esprofilehelper import ESProfileHelper
 
-from localinfo.models import HalfHour, Operator
-from datetime import datetime
+from localinfo.models import HalfHour
 
 
 class LoadProfileByExpeditionView(View):
@@ -23,22 +21,15 @@ class LoadProfileByExpeditionView(View):
 
         # add periods of thirty minutes
         minutes = [{'item': m[0], 'value': m[1]} for m in HalfHour.objects.all().order_by("id").values_list("longName", 'esId')]
-        operators = [{'item': op[0], 'value': op[1]} for op in
-                     Operator.objects.all().order_by('id').values_list('name', 'esId')]
 
         context = {}
         context['data_filter'] = self.es_helper.make_multisearch_query_for_aggs(self.base_params)
         context['data_filter']['minutes'] = minutes
-        context['data_filter']['operators'] = operators
 
         return render(request, template, context)
 
 
 class GetAvailableDays(View):
-
-    def __init__(self):
-        super(GetAvailableDays, self).__init__()
-
 
     def get(self, request):
 
@@ -47,6 +38,20 @@ class GetAvailableDays(View):
 
         response = {}
         response['availableDays'] = available_days
+
+        return JsonResponse(response)
+
+
+class GetAvailableRoutes(View):
+
+    def get(self, request):
+
+        self.es_helper = ESProfileHelper()
+        available_days, op_dict = self.es_helper.ask_for_available_routes()
+
+        response = {}
+        response['availableRoutes'] = available_days
+        response['operatorDict'] = op_dict
 
         return JsonResponse(response)
 

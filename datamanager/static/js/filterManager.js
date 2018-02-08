@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Filter manager to select data
  *
@@ -10,35 +12,36 @@ function filterManager(opts) {
 
     /* OPTIONS */
 
-    var previousCall = function (){};
-    var afterCall = function (){};
+    var previousCall = undefined;
+    var afterCall = undefined;
     var urlFilterData = opts.urlFilterData;
+    var urlRouteData = opts.urlRouteData;
 
-    if (opts.hasOwnProperty('previousCallData')) {
+    if (opts.hasOwnProperty("previousCallData")) {
         previousCall = opts.previousCallData;
     }
-    if (opts.hasOwnProperty('afterCallData')) {
+    if (opts.hasOwnProperty("afterCallData")) {
         afterCall = opts.afterCallData;
     }
 
     /* VARIABLE DEFINITIONS */
 
-    var $DAY_FILTER = $('#dayFilter');
-    var $STOP_FILTER = $('#stopFilter');
-    var $DAY_TYPE_FILTER = $('#dayTypeFilter');
-    var $PERIOD_FILTER = $('#periodFilter');
-    var $MINUTE_PERIOD_FILTER = $('#minutePeriodFilter');
-    var $OPERATOR_FILTER = $('#operatorFilter');
-    var $USER_ROUTE_FILTER = $('#userRouteFilter');
-    var $AUTH_ROUTE_FILTER = $('#authRouteFilter');
+    var $DAY_FILTER = $("#dayFilter");
+    var $STOP_FILTER = $("#stopFilter");
+    var $DAY_TYPE_FILTER = $("#dayTypeFilter");
+    var $PERIOD_FILTER = $("#periodFilter");
+    var $MINUTE_PERIOD_FILTER = $("#minutePeriodFilter");
+    var $OPERATOR_FILTER = $("#operatorFilter");
+    var $USER_ROUTE_FILTER = $("#userRouteFilter");
+    var $AUTH_ROUTE_FILTER = $("#authRouteFilter");
 
-    var $BTN_UPDATE_DATA = $('#btnUpdateData');
+    var $BTN_UPDATE_DATA = $("#btnUpdateData");
 
     /* LABELS */
 
-    var PLACEHOLDER_ALL = 'Todos';
-    var PLACEHOLDER_USER_ROUTE = 'Servicio usuario';
-    var PLACEHOLDER_AUTH_ROUTE = 'Servicio transantiago';
+    var PLACEHOLDER_ALL = "Todos";
+    var PLACEHOLDER_USER_ROUTE = "Servicio usuario";
+    var PLACEHOLDER_AUTH_ROUTE = "Servicio transantiago";
 
     /* ENABLE select2 library */
 
@@ -50,11 +53,10 @@ function filterManager(opts) {
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE});
     $AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
 
-
     /* BUTTON ACTION */
+
     var _makeAjaxCall = true;
     $BTN_UPDATE_DATA.click(function () {
-        var day = $DAY_FILTER.val();
         var dayType = $DAY_TYPE_FILTER.val();
         var authRoute = $AUTH_ROUTE_FILTER.val();
         var period = $PERIOD_FILTER.val();
@@ -65,16 +67,16 @@ function filterManager(opts) {
             endDate: $DAY_FILTER.data("daterangepicker").endDate.format()
         };
         if (authRoute) {
-            params["authRoute"] = authRoute;
+            params.authRoute = authRoute;
         }
         if (dayType) {
-            params["dayType"] = dayType;
+            params.dayType = dayType;
         }
         if (period) {
-            params["period"] = period;
+            params.period = period;
         }
         if (minutes) {
-            params["halfHour"] = minutes;
+            params.halfHour = minutes;
         }
 
         if (_makeAjaxCall) {
@@ -84,14 +86,65 @@ function filterManager(opts) {
             var button = $(this).append(loadingIcon);
 
             // actions defined by user
-            previousCall();
+            if (previousCall) {
+                previousCall();
+            }
 
             $.getJSON(urlFilterData, params, function (data) {
-                afterCall(data);
+                if (afterCall) {
+                    afterCall(data);
+                }
             }).always(function () {
                 _makeAjaxCall = true;
                 button.html(previousMessage);
             });
         }
     });
+
+    /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
+    if ($AUTH_ROUTE_FILTER.length) {
+        var processRouteData = function (data) {
+            var updateAuthRouteList = function (operatorId, userRouteId) {
+                var authRouteList = data.availableRoutes[operatorId][userRouteId];
+                authRouteList.sort();
+                authRouteList = authRouteList.map(function (el) {
+                    return {id: el, text: el};
+                });
+                $AUTH_ROUTE_FILTER.empty();
+                $AUTH_ROUTE_FILTER.select2({data: authRouteList});
+            };
+            var updateUserRouteList = function (operatorId) {
+                var userRouteList = Object.keys(data.availableRoutes[operatorId]);
+                userRouteList.sort();
+                userRouteList = userRouteList.map(function (el) {
+                    return {id: el, text: el};
+                });
+                $USER_ROUTE_FILTER.empty();
+                $USER_ROUTE_FILTER.select2({data: userRouteList});
+                // call event to update auth route filter
+                var selectedItem = $USER_ROUTE_FILTER.select2("data")[0];
+                $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
+            };
+            $USER_ROUTE_FILTER.on("select2:select", function (e) {
+                var selectedItem = e.params.data;
+                var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(data.availableRoutes)[0];
+                updateAuthRouteList(operatorId, selectedItem.id);
+            });
+            // if operator filter is visible
+            if ($OPERATOR_FILTER.length) {
+                $OPERATOR_FILTER.select2({data: data.operatorDict});
+                $OPERATOR_FILTER.on("select2:select", function (e) {
+                    var selectedItem = e.params.data;
+                    // update user route filter and auth route filter
+                    updateUserRouteList(selectedItem.id);
+                });
+                // call event to update user route filter
+                var selectedItem = $OPERATOR_FILTER.select2("data")[0];
+                $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
+            }
+        };
+        $.getJSON(urlRouteData, function (data) {
+            processRouteData(data);
+        });
+    }
 }
