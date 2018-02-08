@@ -15,15 +15,17 @@ class LoadProfileByStopView(View):
     def __init__(self):
         super(LoadProfileByStopView, self).__init__()
         self.es_helper = ESProfileHelper()
-        self.base_params = self.es_helper.make_multisearch_query_for_aggs(self.es_helper.get_base_params())
+        self.base_params = self.es_helper.get_base_params()
 
     def get(self, request):
         template = "profile/byStop.html"
 
         # add periods of thirty minutes
-        minutes = HalfHour.objects.all().order_by("id").values_list("longName", flat=True)
-        context = self.base_params
-        context['minutes'] = minutes
+        minutes = [{'item': m[0], 'value': m[1]} for m in
+                   HalfHour.objects.all().order_by("id").values_list("longName", 'esId')]
+        context = {}
+        context['data_filter'] = self.es_helper.make_multisearch_query_for_aggs(self.base_params)
+        context['data_filter']['minutes'] = minutes
 
         return render(request, template, context)
 
@@ -38,7 +40,8 @@ class GetLoadProfileByStopData(View):
     def buildQuery(self, request):
         """ create es-query based on params given by user """
 
-        day = request.GET.get('day')
+        startDate = request.GET.get('startDate')
+        endDate = request.GET.get('endDate')
         dayType = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
         stopCode = request.GET.get('stopCode')
@@ -60,40 +63,14 @@ class GetLoadProfileByStopData(View):
         if period:
             esQuery = esQuery.filter('terms', timePeriodInStopTime=period)
         if halfHour:
-            # when this field exists
-            # esQuery = esQuery.filter('terms', halfHour=halfHour)
-            halfHourObjs = HalfHour.objects.filter(longName__in=halfHour).order_by("id")
+            esQuery = esQuery.filter('terms', halfHour=halfHour)
 
-            dateRef = datetime(1970, 1, 1)
-            timeRanges = None
-            for day in [day]:
-                for index, halfHourObj in enumerate(halfHourObjs):
-                    startHour = halfHourObj.longName.split('-')[0]
-                    endHour = halfHourObj.longName.split('-')[1]
-                    startDate = day + " " + startHour
-                    endDate = day + " " + endHour
-
-                    startRange = int((datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S") - dateRef).total_seconds())
-                    endRange = int((datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S") - dateRef).total_seconds())
-
-                    timeRange = Q("range", expeditionStopTime={
-                        "gte": startRange,
-                        "lte": endRange,
-                        "format": "epoch_second"
-                    })
-                    if timeRanges is None:
-                        timeRanges = timeRange
-                    else:
-                        timeRanges = timeRanges | timeRange
-
-            esQuery = esQuery.query(timeRanges)
-
-        if not existsParameters or day is None:
+        if not existsParameters or startDate is None or endDate is None:
             raise ESQueryParametersDoesNotExist()
 
         esQuery = esQuery.filter("range", expeditionStartTime={
-            "gte": day + "||/d",
-            "lte": day + "||/d",
+            "gte": startDate[:10] + "||/d",
+            "lte": endDate[:10] + "||/d",
             "format": "yyyy-MM-dd",
             "time_zone": "+00:00"
         })

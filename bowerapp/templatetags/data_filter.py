@@ -26,6 +26,9 @@ def data_filter(data_filter,
                 show_operator_filter=False,
                 show_user_route_filter=False,
                 show_auth_route_filter=False):
+
+    data_filter = [] if data_filter == '' else data_filter
+
     filters = [
         {'show': show_day_filter, 'data_key': '', 'input_type': 'text',
          'label': 'Día:', 'js_id': 'dayFilter',

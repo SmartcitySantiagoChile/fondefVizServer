@@ -20,8 +20,8 @@ class LoadProfileByExpeditionView(View):
         template = "profile/byExpedition.html"
 
         # add periods of thirty minutes
-        minutes = [{'item': m[0], 'value': m[1]} for m in HalfHour.objects.all().order_by("id").values_list("longName", 'esId')]
-
+        minutes = [{'item': m[0], 'value': m[1]} for m in
+                   HalfHour.objects.all().order_by("id").values_list("longName", 'esId')]
         context = {}
         context['data_filter'] = self.es_helper.make_multisearch_query_for_aggs(self.base_params)
         context['data_filter']['minutes'] = minutes
@@ -32,7 +32,6 @@ class LoadProfileByExpeditionView(View):
 class GetAvailableDays(View):
 
     def get(self, request):
-
         self.es_helper = ESProfileHelper()
         available_days = self.es_helper.ask_for_available_days()
 
@@ -45,7 +44,6 @@ class GetAvailableDays(View):
 class GetAvailableRoutes(View):
 
     def get(self, request):
-
         self.es_helper = ESProfileHelper()
         available_days, op_dict = self.es_helper.ask_for_available_routes()
 

@@ -53,12 +53,38 @@ function filterManager(opts) {
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE});
     $AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
 
+    if ($STOP_FILTER.length) {
+        $STOP_FILTER.select2({
+            ajax: {
+                delay: 500, // milliseconds
+                url: Urls["profile:getStopList"](),
+                dataType: "json",
+                data: function (params) {
+                    return {
+                        term: params.term
+                    }
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.items
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+            language: {
+                inputTooShort: function () {
+                    return "Ingresar 3 o más caracteres";
+                }
+            }
+        });
+    }
+
     /* BUTTON ACTION */
 
     var _makeAjaxCall = true;
     $BTN_UPDATE_DATA.click(function () {
         var dayType = $DAY_TYPE_FILTER.val();
-        var authRoute = $AUTH_ROUTE_FILTER.val();
         var period = $PERIOD_FILTER.val();
         var minutes = $MINUTE_PERIOD_FILTER.val();
 
@@ -66,8 +92,8 @@ function filterManager(opts) {
             startDate: $DAY_FILTER.data("daterangepicker").startDate.format(),
             endDate: $DAY_FILTER.data("daterangepicker").endDate.format()
         };
-        if (authRoute) {
-            params.authRoute = authRoute;
+        if ($AUTH_ROUTE_FILTER.length && $AUTH_ROUTE_FILTER.val()) {
+            params.authRoute = $AUTH_ROUTE_FILTER.val();
         }
         if (dayType) {
             params.dayType = dayType;
@@ -77,6 +103,9 @@ function filterManager(opts) {
         }
         if (minutes) {
             params.halfHour = minutes;
+        }
+        if ($STOP_FILTER.length && $STOP_FILTER.val()) {
+            params.stopCode = $STOP_FILTER.val()
         }
 
         if (_makeAjaxCall) {
@@ -141,6 +170,9 @@ function filterManager(opts) {
                 // call event to update user route filter
                 var selectedItem = $OPERATOR_FILTER.select2("data")[0];
                 $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
+            } else {
+                var operatorId = Object.keys(data.availableRoutes)[0];
+                updateUserRouteList(operatorId)
             }
         };
         $.getJSON(urlRouteData, function (data) {

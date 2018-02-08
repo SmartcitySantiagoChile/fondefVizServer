@@ -1,5 +1,5 @@
 {% extends 'profile/base.html' %}
-{% load static header panel inline_select columns update_button table label %}
+{% load static header panel inline_select columns update_button table label data_filter %}
 
 {% block title %}Perfil de carga por parada{% endblock %}
 
@@ -9,30 +9,7 @@
 
     {% include "datamanager/availableDays.html" %}
 
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-
-      {% inline_select "Día:" "dayFilter" days as days_select %}
-      {% columns 2 2 12 days_select as col1 %}
-
-      {% inline_select "Parada:" "stopFilter" stopCodes as stop_select %}
-      {% columns 2 2 12 stop_select as col2 %}
-
-      {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes True as dayType_select %}
-      {% columns 2 2 12 dayType_select as col3 %}
-
-      {% inline_select "Período de pasada:" "periodFilter" periods True as period_select %}
-      {% columns 2 2 12 period_select as col4 %}
-
-      {% inline_select "Media hora de pasada:" "minutePeriodFilter" minutes True as half_hour_select %}
-      {% columns 2 2 12 half_hour_select as col5 %}
-
-      {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-      {% columns 12 12 12 update_button as col6 %}
-
-      {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6 %}
-    </div>
-  </div>
+    {% data_filter data_filter True True True True False True False False False False %}
 
   <div class="row">
     {% panel "fa-clock-o" "Expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
