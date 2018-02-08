@@ -654,55 +654,24 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        // set locale
-        moment.locale("es");
-
-        $("#dayFilter").select2({placeholder: "Todos"});
-        $("#dayTypeFilter").select2({placeholder: "Todos"});
-        $("#periodFilter").select2({placeholder: "Todos"});
-        $("#routeFilter").select2({placeholder: "Servicio"});//, allowClear: true});
-        $("#minutePeriodFilter").select2({placeholder: "Todos"});
+        loadAvailableDays(Urls["profile:getAvailableDays"]());
 
         var app = new ExpeditionApp();
-        var makeAjaxCall = true;
-        $("#btnUpdateChart").click(function () {
-            var day = $("#dayFilter").val();
-            var route = $("#routeFilter").val();
-            var dayType = $("#dayTypeFilter").val();
-            var period = $("#periodFilter").val();
-            var minutes = $("#minutePeriodFilter").val();
-
-            var params = {
-                day: day
-            };
-            if (route) {
-                params["route"] = route;
-            }
-            if (dayType) {
-                params["dayType"] = dayType;
-            }
-            if (period) {
-                params["period"] = period;
-            }
-            if (minutes) {
-                params["halfHour"] = minutes;
-            }
-
-            if (makeAjaxCall) {
-                makeAjaxCall = false;
-                app.showLoadingAnimationCharts();
-                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
-                var previousMessage = $(this).html();
-                var button = $(this).append(loadingIcon);
-                $.getJSON(Urls["profile:getExpeditionData"](), params, function (data) {
-                    processData(data, app);
-                }).always(function () {
-                    makeAjaxCall = true;
-                    button.html(previousMessage);
-                    app.hideLoadingAnimationCharts();
-                });
-            }
-        });
+        var previousCall = function () {
+            app.showLoadingAnimationCharts();
+        };
+        var afterCall = function (data) {
+            processData(data, app);
+            app.hideLoadingAnimationCharts();
+        };
+        var opts = {
+            urlFilterData: Urls["profile:getExpeditionData"](),
+            urlRouteData: Urls["profile:getAvailableRoutes"](),
+            previousCallData: previousCall,
+            afterCallData: afterCall,
+            singleDatePicker: true
+        };
+        filterManager(opts);
         $(window).resize(function () {
             app.resizeCharts();
         });

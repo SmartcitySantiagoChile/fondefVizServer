@@ -1,5 +1,5 @@
 {% extends 'profile/base.html' %}
-{% load static header inline_select update_button panel columns table label %}
+{% load static header inline_select update_button panel columns table label data_filter %}
 
 {% block title %}Perfil a través de trayectoria{% endblock %}
 
@@ -15,30 +15,7 @@
 
     {% include "datamanager/availableDays.html" %}
 
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-
-    {% inline_select "Día:" "dayFilter" days as days_select %}
-    {% columns 2 2 12 days_select as col1 %}
-
-    {% inline_select "Servicio-sentido:" "routeFilter" routes as route_select %}
-    {% columns 2 2 12 route_select as col2 %}
-
-    {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes True as dayType_select %}
-    {% columns 2 2 12 dayType_select as col3 %}
-
-    {% inline_select "Período de despacho:" "periodFilter" periods True as period_select %}
-    {% columns 2 2 12 period_select as col4 %}
-
-    {% inline_select "Media hora de despacho:" "minutePeriodFilter" minutes True as period_select %}
-    {% columns 2 2 12 period_select as col5 %}
-
-    {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col6 %}
-
-    {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6 %}
-    </div>
-  </div>
+    {% data_filter data_filter True False True False True False True True True True %}
 
   <div class="row">
       <div class="col-md-12 col-sm-12 col-xs-12">

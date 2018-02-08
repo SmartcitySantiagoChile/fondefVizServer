@@ -16,6 +16,7 @@ function filterManager(opts) {
     var afterCall = undefined;
     var urlFilterData = opts.urlFilterData;
     var urlRouteData = opts.urlRouteData;
+    var singleDatePicker = opts.singleDatePicker || false;
 
     if (opts.hasOwnProperty("previousCallData")) {
         previousCall = opts.previousCallData;
@@ -45,6 +46,7 @@ function filterManager(opts) {
 
     /* ENABLE select2 library */
 
+    optionDateRangePicker.singleDatePicker = singleDatePicker;
     $DAY_FILTER.daterangepicker(optionDateRangePicker);
     $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
