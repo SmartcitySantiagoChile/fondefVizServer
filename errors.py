@@ -32,7 +32,7 @@ class ESQueryRouteParameterDoesNotExist(ESQueryError):
     ''' It raises when user does not provide params to elastic search query '''
 
     def __init__(self):
-        message = 'Debe indicar la ruta a evaluar (campo Servicio-sentido)'
+        message = 'Debe indicar la ruta a evaluar'
         super(ESQueryRouteParameterDoesNotExist, self).__init__(401, message)
 
 

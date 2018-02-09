@@ -26,44 +26,48 @@ def data_filter(data_filter,
                 show_dispatch_minute_filter=False,
                 show_operator_filter=False,
                 show_user_route_filter=False,
-                show_auth_route_filter=False):
+                show_auth_route_filter=False,
+                show_slider_hour_filter=False):
 
     data_filter = [] if data_filter == '' else data_filter
 
     filters = [
         {'show': show_day_filter, 'data_key': '', 'input_type': 'text',
          'label': 'Día:', 'js_id': 'dayFilter',
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_stop_filter, 'data_key': 'stops', 'input_type': 'select',
          'label': 'Parada:', 'js_id': 'stopFilter', 'multi_select': False,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_day_type_filter, 'data_key': 'dayTypes', 'input_type': 'select',
          'label': 'Tipo de día:', 'js_id': 'dayTypeFilter', 'multi_select': True,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_get_in_period_filter, 'data_key': 'periods', 'input_type': 'select',
          'label': 'Período de subida en parada:', 'js_id': 'periodFilter', 'multi_select': True,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_pass_period_filter, 'data_key': 'periods', 'input_type': 'select',
          'label': 'Período de pasada:', 'js_id': 'periodFilter', 'multi_select': True,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_pass_minute_filter, 'data_key': 'minutes', 'input_type': 'select',
          'label': 'Media hora de pasada:', 'js_id': 'minutePeriodFilter', 'multi_select': True,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_dispatch_period_filter, 'data_key': 'periods', 'input_type': 'select',
          'label': 'Período de despacho:', 'js_id': 'periodFilter', 'multi_select': True,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_dispatch_minute_filter, 'data_key': 'minutes', 'input_type': 'select',
          'label': 'Media hora de despacho:', 'js_id': 'minutePeriodFilter', 'multi_select': True,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_operator_filter, 'data_key': 'operators', 'input_type': 'select',
          'label': 'Operador:', 'js_id': 'operatorFilter', 'multi_select': False,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_user_route_filter, 'data_key': 'user_routes', 'input_type': 'select',
          'label': 'Servicio usuario:', 'js_id': 'userRouteFilter', 'multi_select': False,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_auth_route_filter, 'data_key': 'auth_routes', 'input_type': 'select',
          'label': 'Servicio TS:', 'js_id': 'authRouteFilter', 'multi_select': False,
-         'col-xs': 3, 'col-sm': 3, 'col-lg': 12}
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
+        {'show': show_slider_hour_filter, 'data_key': '', 'input_type': 'text',
+         'label': 'Rango horario:', 'js_id': 'hourRangeFilter',
+         'col-xs': 12, 'col-sm': 6, 'col-md': 6},
     ]
 
     panel_body = ''
@@ -79,7 +83,7 @@ def data_filter(data_filter,
             elif select_filter['input_type'] == 'text':
                 html_input = inline_input(select_filter['label'], select_filter['js_id'])
 
-            html_column = columns(select_filter['col-xs'], select_filter['col-xs'], select_filter['col-xs'],
+            html_column = columns(select_filter['col-md'], select_filter['col-sm'], select_filter['col-xs'],
                                   html_input)
             panel_body += html_column
 

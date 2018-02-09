@@ -2,21 +2,17 @@
 {% load static %}
 
 {% block css %}
-  <link href="{% static "css/filterManager.css" %}" rel="stylesheet">
-{% with "components/gentelella/vendors/" as gentelella_static %}
-  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
-  <!-- iCheck -->
-  <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
-  <!-- Daterangepicker -->
-  <link href="{% static gentelella_static|add:'bootstrap-daterangepicker/daterangepicker.css' %}" rel="stylesheet">
-
-  <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
-{% endwith %}
+    <link href="{% static "css/filterManager.css" %}" rel="stylesheet">
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+        <!-- iCheck -->
+        <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
+        <!-- Daterangepicker -->
+        <link href="{% static gentelella_static|add:'bootstrap-daterangepicker/daterangepicker.css' %}"
+              rel="stylesheet">
+    {% endwith %}
 {% endblock %}
 
 

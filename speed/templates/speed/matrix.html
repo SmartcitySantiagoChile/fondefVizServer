@@ -64,7 +64,6 @@
     <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
     <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
-        <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"ion.rangeSlider/js/ion.rangeSlider.min.js" %}"></script>
     {% endwith %}
     <script src="{% static "speed/js/matrix.js" %}"></script>
