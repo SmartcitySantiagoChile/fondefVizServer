@@ -5,9 +5,9 @@ from collections import defaultdict
 
 from elasticsearch_dsl import A
 
-from bowerapp.eshelper.eshelper import ElasticSearchHelper
+from esapi.helper.basehelper import ElasticSearchHelper
 
-from errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty
 
 from localinfo.models import Operator
 

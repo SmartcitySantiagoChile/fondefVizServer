@@ -12,9 +12,7 @@ from localinfo.models import TimePeriod
 
 import datetime
 
-from errors import ESQueryResultEmpty
-
-from speed.esspeedhelper import ESSpeedHelper, ESShapeHelper
+from speed.esspeedhelper import ESSpeedHelper
 
 
 class SpeedVariationHTML(View):

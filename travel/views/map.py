@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 
 from elasticsearch_dsl import A, query
-from errors import (
+from esapi.errors import (
     ESQueryParametersDoesNotExist,
     ESQueryDateRangeParametersDoesNotExist,
     ESQueryResultEmpty

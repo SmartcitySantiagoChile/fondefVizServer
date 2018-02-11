@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_js_reverse',
     'bowerapp',
+    'esapi',
     'datamanager',
     'localinfo',
     'profile',

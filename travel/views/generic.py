@@ -9,7 +9,7 @@ from django.conf import settings
 from localinfo.models import TimePeriod, Commune, HalfHour
 
 from elasticsearch_dsl import Search, MultiSearch
-from errors import (
+from esapi.errors import (
     ESQueryParametersDoesNotExist,
     ESQueryDateRangeParametersDoesNotExist,
     ESQueryResultEmpty

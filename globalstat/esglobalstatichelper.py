@@ -1,4 +1,4 @@
-from bowerapp.eshelper.eshelper import ElasticSearchHelper
+from esapi.helper.basehelper import ElasticSearchHelper
 
 class ESGlobalStaticHelper(ElasticSearchHelper):
 

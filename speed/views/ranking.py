@@ -12,7 +12,7 @@ from localinfo.models import TimePeriod
 
 import datetime
 
-from errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty
 
 from speed.esspeedhelper import ESSpeedHelper, ESShapeHelper
 

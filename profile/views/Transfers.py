@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
@@ -5,10 +8,10 @@ from django.http import JsonResponse
 from datetime import datetime
 
 from elasticsearch_dsl import Q
-from errors import ESQueryParametersDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
+from esapi.errors import ESQueryParametersDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
 
 from localinfo.models import HalfHour
-from profile.esprofilehelper import ESProfileHelper
+from esapi.helper.profile import ESProfileHelper
 
 
 class TransfersView(View):
