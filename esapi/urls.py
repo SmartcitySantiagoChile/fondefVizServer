@@ -38,8 +38,8 @@ urlpatterns = [
     url(r'^speed/speedVariation$', login_required(SpeedByRoute.as_view()), name="speedVariation"),
 
     # trip index
-    url(r'^trip', login_required(LoadData.as_view()), name="loadData"),
+    #url(r'^trip', login_required(LoadData.as_view()), name="loadData"),
 
     # shape index
-    url(r'^shape', login_required(DeleteData.as_view()), name="deleteData"),
+    #url(r'^shape', login_required(DeleteData.as_view()), name="deleteData"),
 ]
