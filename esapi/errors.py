@@ -7,8 +7,7 @@ class ESQueryError(Exception):
     MESSAGE_TYPE = 'error'
     CODE = 400
 
-    def __init__(self, code = None, message = None, title = None, messageType = None):
-
+    def __init__(self, code=None, message=None, title=None, messageType=None):
         self.message = message if message else self.DEFAULT_MESSAGE
         self.title = title if title else self.DEFAULT_TITLE
         self.messageType = messageType if messageType else self.MESSAGE_TYPE
@@ -52,7 +51,6 @@ class ESQueryDateRangeParametersDoesNotExist(ESQueryError):
         super(ESQueryDateRangeParametersDoesNotExist, self).__init__(402, message)
 
 
-
 class ESQueryResultEmpty(ESQueryError):
     ''' It raises when user does not provide params to elastic search query '''
 
@@ -69,9 +67,3 @@ class ESQueryStopParameterDoesNotExist(ESQueryError):
     def __init__(self):
         message = 'Debe indicar el paradero a evaluar (campo Paradero)'
         super(ESQueryStopParameterDoesNotExist, self).__init__(404, message)
-
-
-
-
-
-

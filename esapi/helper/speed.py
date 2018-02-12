@@ -2,14 +2,14 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-
 from elasticsearch_dsl import A
 
-from esapi.helper.basehelper import ElasticSearchHelper
+from localinfo.models import Operator
 
+from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryResultEmpty
 
-from localinfo.models import Operator
+import datetime
 
 
 class ESSpeedHelper(ElasticSearchHelper):
@@ -58,34 +58,34 @@ class ESSpeedHelper(ElasticSearchHelper):
         result = defaultdict(lambda: defaultdict(list))
         for hit in es_query.execute().aggregations.route.buckets:
             data = hit.to_dict()
-            authRoute = data['key']
+            auth_route = data['key']
             # TODO: remove this when data source is updated
             # operatorId = data['additionalInfo']['hits']['hits'][0]['_source']['operator']
             # userRoute = data['additionalInfo']['hits']['hits'][0]['_source']['userRoute']
 
             # TODO: remove this
-            operatorId = 1
-            userRoute = "506I"
-            result[operatorId][userRoute].append(authRoute)
+            operator_id = 1
+            user_route = "506I"
+            result[operator_id][user_route].append(auth_route)
 
         return result, operator_list
 
-    def get_speed_data(self, auth_route, day_type, start_date, end_date):
+    def ask_for_speed_data(self, auth_route, day_type, start_date, end_date):
 
-        esQuery = self.get_base_query()
-        esQuery = esQuery.filter("term", route=auth_route)
+        es_query = self.get_base_query()
+        es_query = es_query.filter("term", route=auth_route)
         if day_type:
-            esQuery = esQuery.filter('terms', dayType=day_type)
+            es_query = es_query.filter('terms', dayType=day_type)
 
-        esQuery = esQuery.filter("range", date={'gte': start_date, 'lte': end_date, 'format': 'yyyy-MM-dd'})
+        es_query = es_query.filter("range", date={'gte': start_date, 'lte': end_date, 'format': 'yyyy-MM-dd'})
         aggs2 = A('terms', field='section', size=1000)
         aggs1 = A('terms', field='periodId', size=1000)
         aggs2.metric('distance', 'sum', field='totalDistance')
         aggs2.metric('time', 'sum', field='totalTime')
         aggs2.metric('n_obs', 'sum', field='nObs')
-        esQuery.aggs.bucket('periods', aggs1).bucket('sections', aggs2)
+        es_query.aggs.bucket('periods', aggs1).bucket('sections', aggs2)
 
-        result = esQuery.execute()
+        result = es_query.execute()
 
         d_data = {}
         for period in result.aggregations.periods.buckets:
@@ -101,7 +101,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return d_data
 
-    def get_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type):
+    def ask_for_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type):
 
         data = []
 
@@ -112,17 +112,19 @@ class ESSpeedHelper(ElasticSearchHelper):
         chunks = [routes[i:j] for i, j in zip(indices[:-1], indices[1:])]
 
         for chunk in chunks:
-            esQuery = self.get_base_query()
-            esQuery = esQuery.filter('terms', route=chunk)
-            esQuery = esQuery.filter('range', date={
+            es_query = self.get_base_query()
+            es_query = es_query.filter('terms', route=chunk)
+            es_query = es_query.filter('range', date={
                 "gte": start_date,
                 "lte": end_date,
-                "format": "yyyy-MM-dd"})
-            esQuery = esQuery.filter('range', periodId={
+                "format": "yyyy-MM-dd"
+            })
+            es_query = es_query.filter('range', periodId={
                 "gte": hour_period_from,
-                "lte": hour_period_to})
+                "lte": hour_period_to
+            })
             if day_type:
-                esQuery = esQuery.filter('terms', dayType=day_type)
+                es_query = es_query.filter('terms', dayType=day_type)
 
             aggs0 = A('terms', field='merged', size=100000000)
             aggs0.metric('n_obs', 'sum', field='nObs')
@@ -130,9 +132,9 @@ class ESSpeedHelper(ElasticSearchHelper):
             aggs0.metric('time', 'sum', field='totalTime')
             aggs0.metric('speed', 'bucket_script', script='params.d / params.t',
                          buckets_path={'d': 'distance', 't': 'time'})
-            esQuery.aggs.bucket('tuples', aggs0)
+            es_query.aggs.bucket('tuples', aggs0)
 
-            for tup in esQuery.execute().aggregations.tuples.buckets:
+            for tup in es_query.execute().aggregations.tuples.buckets:
                 tha_key = tup.key
                 tha_value = 3.6 * tup.speed.value
                 # if tha_value < 15:
@@ -154,16 +156,16 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return data
 
-    def get_detail_ranking_data(self, route, start_date, end_date, period, day_type, limits):
+    def ask_for_detail_ranking_data(self, route, start_date, end_date, period, day_type, limits):
 
-        esQuery = self.get_base_query()
-        esQuery = esQuery.filter('term', route=route)
-        esQuery = esQuery.filter('range', date={
+        es_query = self.get_base_query()
+        es_query = es_query.filter('term', route=route)
+        es_query = es_query.filter('range', date={
             "gte": start_date,
             "lte": end_date, "format": "yyyy-MM-dd"})
-        esQuery = esQuery.filter('term', periodId=int(period))
+        es_query = es_query.filter('term', periodId=int(period))
         if day_type:
-            esQuery = esQuery.filter('terms', dayType=day_type)
+            es_query = es_query.filter('terms', dayType=day_type)
 
         aggs0 = A('terms', field='section', size=200)
         aggs0.metric('n_obs', 'sum', field='nObs')
@@ -171,10 +173,10 @@ class ESSpeedHelper(ElasticSearchHelper):
         aggs0.metric('time', 'sum', field='totalTime')
         aggs0.metric('speed', 'bucket_script', script='params.d / params.t',
                      buckets_path={'d': 'distance', 't': 'time'})
-        esQuery.aggs.bucket('sections', aggs0)
+        es_query.aggs.bucket('sections', aggs0)
 
         aux_data = {}
-        for sec in esQuery.execute().aggregations.sections.buckets:
+        for sec in es_query.execute().aggregations.sections.buckets:
             key = sec.key
             aux_data[key] = 3.6 * sec.speed.value
 
@@ -182,44 +184,44 @@ class ESSpeedHelper(ElasticSearchHelper):
         for i in range(len(limits) - 1):
             sp = aux_data.get(i, -1)
             interval = 6
-            for i, bound in enumerate([0, 15, 19, 21, 23, 30]):
+            for j, bound in enumerate([0, 15, 19, 21, 23, 30]):
                 if sp < bound:
-                    interval = i
+                    interval = j
                     break
             result.append(interval)
 
         return result
 
+    def ask_for_speed_variation(self, asked_date, day_type, routes):
 
-class ESShapeHelper(ElasticSearchHelper):
-
-    def __init__(self):
-        index_name = "shape"
-        super(ESShapeHelper, self).__init__(index_name)
-
-    def get_route_shape(self, route, start_date, end_date):
-
-        es_query = self.get_base_query()
-        es_query = es_query.filter('term', route=route)
-        es_query = es_query.filter('range', startDate={
-            "gte": start_date,
-            "lte": end_date,
+        date_format = "%Y-%m-%d"
+        asked_date_str = asked_date.strftime(date_format)
+        es_helper = ESSpeedHelper()
+        es_query = es_helper.get_base_query()
+        es_query = es_query.filter('range', date={
+            "gte": (asked_date - datetime.timedelta(days=31)).strftime(date_format),
+            "lte": asked_date_str,
             "format": "yyyy-MM-dd"
         })
+        if routes:
+            es_query = es_query.filter('terms', route=routes)
+        if day_type:
+            es_query = es_query.filter('terms', dayType=day_type)
 
-        r = es_query.execute()
+        aggs0 = A('terms', field='route', size=2000)
+        aggs1 = A('terms', field='periodId', size=50)
+        aggs2 = A('range', field='date', format='yyyy-MM-dd', ranges=[
+            {'to': asked_date_str},
+            {'from': asked_date_str}
+        ])
 
-        if r.hits.total != 0:
-            raise Exception()
+        aggs2.metric('distance', 'sum', field='totalDistance')
+        aggs2.metric('time', 'sum', field='totalTime')
+        aggs2.metric('n_obs', 'sum', field='nObs')
+        aggs2.metric('stats', 'extended_stats', field='speed')
+        aggs2.metric('speed', 'bucket_script', script='params.d / params.t',
+                     buckets_path={'d': 'distance', 't': 'time'})
+        es_query.aggs.bucket('routes', aggs0).bucket('periods', aggs1).bucket('days', aggs2)
 
-        es_query = self.get_base_query()
-        es_query = es_query.filter('term', route=route)
-        es_query = es_query.filter('range', startDate={"lte": start_date, "format": "yyyy-MM-dd"})
-        es_query = es_query.sort('-startDate')
-
-        r = es_query.execute()
-
-        if r.hits.total == 0:
-            raise Exception()
-
-        return (r.hits[0].points)
+        # print(str(esQuery.to_dict()).replace('\'', '"'))
+        return es_query.execute()

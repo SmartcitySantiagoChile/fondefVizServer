@@ -8,6 +8,7 @@ from esapi.views.profile import MatchedStopData, LoadProfileByStopData, Availabl
     LoadProfileByExpeditionData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.resume import ResumeData
+from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute
 
 app_name = "esapi"
 urlpatterns = [
@@ -29,7 +30,12 @@ urlpatterns = [
     url(r'^resume/data$', login_required(ResumeData.as_view()), name="resumeData"),
 
     # speed index
-    url(r'^speed$', login_required(getLoadFileData.as_view()), name="getloadfiledata"),
+    url(r'^speed/availableDays$', login_required(SAD.as_view()), name="availableSpeedDays"),
+    url(r'^speed/availableRoutes$', login_required(SAR.as_view()), name="availableSpeedRoutes"),
+    url(r'^speed/matrixData$', login_required(MatrixData.as_view()), name="matrixData"),
+    url(r'^speed/rankingData$', login_required(RankingData.as_view()), name="rankingData"),
+    url(r'^speed/speedByRoute$', login_required(SpeedByRoute.as_view()), name="speedByRoute"),
+    url(r'^speed/speedVariation$', login_required(SpeedByRoute.as_view()), name="speedVariation"),
 
     # trip index
     url(r'^trip', login_required(LoadData.as_view()), name="loadData"),
