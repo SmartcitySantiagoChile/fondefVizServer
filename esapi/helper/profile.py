@@ -145,8 +145,8 @@ class ESProfileHelper(ElasticSearchHelper):
         if period:
             es_query = es_query.filter('terms', timePeriodInStartTime=period)
         if half_hour:
-            halfHour = map(lambda x: int(x), half_hour)
-            es_query = es_query.filter('terms', halfHourInStartTime=halfHour)
+            half_hour = map(lambda x: int(x), half_hour)
+            es_query = es_query.filter('terms', halfHourInStartTime=half_hour)
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
