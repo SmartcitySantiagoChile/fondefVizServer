@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from esapi.views.profile import MatchedStopData, LoadProfileByStopData, AvailableDays, AvailableRoutes, \
     LoadProfileByExpeditionData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
+from esapi.views.resume import ResumeData
 
 app_name = "esapi"
 urlpatterns = [
@@ -23,6 +24,9 @@ urlpatterns = [
     url(r'^odbyroute/matrixData$', login_required(ODMatrixData.as_view()), name="ODMatrixData"),
     url(r'^odbyroute/availableDays$', login_required(ODAD.as_view()), name="availableODDays"),
     url(r'^odbyroute/availableRoutes$', login_required(ODAR.as_view()), name="availableODRoutes"),
+
+    # general index
+    url(r'^resume/data$', login_required(ResumeData.as_view()), name="resumeData"),
 
     # speed index
     url(r'^speed$', login_required(getLoadFileData.as_view()), name="getloadfiledata"),
