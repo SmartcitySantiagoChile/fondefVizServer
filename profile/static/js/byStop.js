@@ -826,7 +826,7 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["profile:getAvailableDays"]());
+        loadAvailableDays(Urls["esapi:availableProfileDays"]());
 
         var app = new ExpeditionApp();
         var previousCall = function () {
@@ -837,8 +837,8 @@ $(document).ready(function () {
             app.hideLoadingAnimationCharts();
         };
         var opts = {
-            urlFilterData: Urls["profile:getStopData"](),
-            urlRouteData: Urls["profile:getAvailableRoutes"](),
+            urlFilterData: Urls["esapi:loadProfileByStopData"](),
+            urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall
         };

@@ -182,7 +182,7 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["speed:getAvailableDays"]());
+        loadAvailableDays(Urls["esapi:availableSpeedDays"]());
 
         var app = new RankingApp();
 
@@ -190,8 +190,8 @@ $(document).ready(function () {
             processData(data, app);
         };
         var opts = {
-            urlFilterData: Urls["speed:getRankingData"](),
-            urlRouteData: Urls["speed:getAvailableRoutes"](),
+            urlFilterData: Urls["esapi:rankingData"](),
+            urlRouteData: Urls["esapi:availableSpeedRoutes"](),
             afterCallData: afterCall
         };
         filterManager(opts);

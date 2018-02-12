@@ -316,7 +316,7 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["speed:getAvailableDays"]());
+        loadAvailableDays(Urls["esapi:availableSpeedDays"]());
 
         var app = new MatrixApp();
 
@@ -339,8 +339,8 @@ $(document).ready(function () {
             app.hideLoadingAnimationCharts();
         };
         var opts = {
-            urlFilterData: Urls["speed:getMatrixData"](),
-            urlRouteData: Urls["speed:getAvailableRoutes"](),
+            urlFilterData: Urls["esapi:matrixData"](),
+            urlRouteData: Urls["esapi:availableSpeedRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall
         };

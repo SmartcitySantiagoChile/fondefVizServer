@@ -319,7 +319,7 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["profile:getODAvailableDays"]());
+        loadAvailableDays(Urls["esapi:availableODDays"]());
 
         var app = new TransfersApp();
         var previousCall = function () {
@@ -330,8 +330,8 @@ $(document).ready(function () {
             app.hideLoadingAnimationCharts();
         };
         var opts = {
-            urlFilterData: Urls["profile:getODMatrixData"](),
-            urlRouteData: Urls["profile:getODAvailableRoutes"](),
+            urlFilterData: Urls["esapi:ODMatrixData"](),
+            urlRouteData: Urls["esapi:availableODRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall
         };
