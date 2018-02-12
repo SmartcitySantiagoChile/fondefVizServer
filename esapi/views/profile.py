@@ -6,7 +6,7 @@ from django.http import JsonResponse
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, \
-    ESQueryRouteParameterDoesNotExist
+    ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist
 
 
 class MatchedStopData(View):
@@ -96,7 +96,7 @@ class LoadProfileByStopData(View):
         try:
             es_helper = ESProfileHelper()
             result_iterator = es_helper.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period,
-                                                                half_hour)
+                                                                half_hour).scan()
             response = self.transform_es_answer(result_iterator)
             # debug
             # response['query'] = esQuery.to_dict()
@@ -208,13 +208,13 @@ class LoadProfileByExpeditionData(View):
 
         try:
             result_iterator = es_helper.ask_for_profile_by_expedition(start_date, end_date, day_type, route, period,
-                                                                      half_hour)
+                                                                      half_hour).scan()
             response['trips'] = self.transform_answer(result_iterator)
             # debug
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except (ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)

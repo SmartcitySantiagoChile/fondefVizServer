@@ -70,4 +70,3 @@ class ElasticSearchHelper(object):
         query.aggs.bucket('unique', aggs)
 
         return query
-

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 
 class ESQueryError(Exception):
     ''' It raises when something goes wrong with elastic search query '''

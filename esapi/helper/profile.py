@@ -10,7 +10,7 @@ from localinfo.models import Operator
 
 from esapi.helper.basehelper import ElasticSearchHelper
 
-from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, \
+from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryRouteParameterDoesNotExist
 
 
@@ -27,10 +27,11 @@ class ESProfileHelper(ElasticSearchHelper):
         es_day_type_query = self.get_unique_list_query("dayType", size=10)
         es_day_query = self.get_histogram_query("expeditionStartTime", interval="day", format="yyy-MM-dd")
 
-        result = {}
-        result['periods'] = es_time_period_query
-        result['dayTypes'] = es_day_type_query
-        result['days'] = es_day_query
+        result = {
+            'periods': es_time_period_query,
+            'dayTypes': es_day_type_query,
+            'days': es_day_query
+        }
 
         return result
 
@@ -46,7 +47,7 @@ class ESProfileHelper(ElasticSearchHelper):
             raise ESQueryStopParameterDoesNotExist()
 
         if start_date is None or end_date is None:
-            raise ESQueryParametersDoesNotExist()
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
@@ -68,7 +69,7 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
                                     'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation'])
 
-        return es_query.scan()
+        return es_query
 
     def ask_for_stop(self, term):
         """ ask to elasticsearch for a match values """
@@ -127,7 +128,6 @@ class ESProfileHelper(ElasticSearchHelper):
 
         es_query = self.get_base_query()
 
-        existsParameters = False
         """
         if expeditionId:
             esQuery = esQuery.filter('terms', expeditionDayId=expeditionId)
@@ -148,8 +148,8 @@ class ESProfileHelper(ElasticSearchHelper):
             halfHour = map(lambda x: int(x), half_hour)
             es_query = es_query.filter('terms', halfHourInStartTime=halfHour)
 
-        if not existsParameters or start_date is None or end_date is None:
-            raise ESQueryParametersDoesNotExist()
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         es_query = es_query.filter("range", expeditionStartTime={
             "gte": start_date + "||/d",
@@ -164,4 +164,4 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
                                     'dayType', 'timePeriodInStopTime', 'fulfillment', "busStation"])
 
-        return es_query.scan()
+        return es_query
