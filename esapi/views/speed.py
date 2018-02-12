@@ -90,7 +90,7 @@ class MatrixData(View):
                 'start_end': list(zip(limits[:-1], limits[1:]))
             }
         except ESQueryResultEmpty as e:
-            response['status'] = e.getStatusResponse()
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
 
@@ -117,7 +117,7 @@ class RankingData(View):
             if len(response['data']) > 1000:
                 response['data'] = response['data'][:1000]
         except ESQueryResultEmpty as e:
-            response['status'] = e.getStatusResponse()
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
 

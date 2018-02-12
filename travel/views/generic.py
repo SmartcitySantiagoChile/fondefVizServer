@@ -99,7 +99,7 @@ class GetDataGeneric(View):
                     }
 
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
-            result['status'] = e.getStatusResponse()
+            result['status'] = e.get_status_response()
 
         return result
 

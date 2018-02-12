@@ -48,7 +48,7 @@ class GetLargeTravelsData(GetDataGeneric):
         try:
             es_query_dict['large'] = self.build_large_travels_query(request)
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
-            response['status'] = e.getStatusResponse()
+            response['status'] = e.get_status_response()
 
         # execute es queries and return as JSON
         response.update(self.execute_queries(es_query_dict))

@@ -48,7 +48,7 @@ class GetFromToMapsData(GetDataGeneric):
             es_query_dict['origin_zone'] = self.build_origin_travels(request)
             es_query_dict['destination_zone'] = self.build_destination_travels(request)
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
-            response['status'] = e.getStatusResponse()
+            response['status'] = e.get_status_response()
 
         # execute es queries and return as JSON
         response.update(self.execute_queries(es_query_dict))

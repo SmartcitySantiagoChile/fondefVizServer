@@ -212,6 +212,6 @@ class GetTransfersData(View):
                 # return JsonResponse(response, safe=False)
                 # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         except (ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
-            response['status'] = e.getStatusResponse()
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)

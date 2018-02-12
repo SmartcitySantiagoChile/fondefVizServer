@@ -31,13 +31,13 @@ class LoadProfileByExpedition(TestCase):
     def test_wrong_route(self):
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().getStatusResponse())
+        self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
 
     def test_wrong_parameter(self):
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().getStatusResponse())
+        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
 
     @mock.patch('elasticsearch_dsl.Search')
     def test_asd(self, es_query):

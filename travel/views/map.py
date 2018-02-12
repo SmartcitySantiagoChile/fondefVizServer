@@ -59,7 +59,7 @@ class GetMapData(GetDataGeneric):
         try:
             es_query_dict['map'] = self.build_map_query(request)
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
-            response['status'] = e.getStatusResponse()
+            response['status'] = e.get_status_response()
 
         # execute es queries and return as JSON
         response.update(self.execute_queries(es_query_dict))
