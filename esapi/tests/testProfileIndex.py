@@ -216,6 +216,11 @@ class AskForStops(TestCase):
             'term': ''
         }
 
+        self.item = mock.Mock()
+        type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
+        type(self.item).unique = mock.PropertyMock(return_value=self.item)
+        type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
+
     def test_empty_stop_pattern(self):
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -225,12 +230,8 @@ class AskForStops(TestCase):
     def test_exec_elasticsearch_query_with_result(self, es_multi_query):
         es_multi_query.return_value = es_multi_query
         es_multi_query.add.return_value = es_multi_query
-        item = mock.MagicMock()
-        item.agregations.return_value = item
-        item.unique.return_value = item
-        item.buckets.return_value = item
-        item.doc_count = 0
-        es_multi_query.execute.return_value = [item]
+        type(self.item).doc_count = 0
+        es_multi_query.execute.return_value = [self.item]
 
         self.data['term'] = 'PA4'
         response = self.client.get(self.url, self.data)
@@ -242,20 +243,113 @@ class AskForStops(TestCase):
     def test_exec_elasticsearch_query_with_result_with_key_as_string(self, es_multi_query):
         es_multi_query.return_value = es_multi_query
         es_multi_query.add.return_value = es_multi_query
-        item = mock.Mock()
-        type(item).agregations = mock.PropertyMock(return_value=item)
-        type(item).unique = mock.PropertyMock(return_value=item)
-        type(item).buckets = mock.PropertyMock()
-        item.buckets.__iter__.return_value = [item]
 
-        type(item).doc_count = mock.PropertyMock(return_value=1)
-        type(item).keys = mock.PropertyMock(return_value=['key_as_string'])
-        type(item).key_as_string = mock.PropertyMock(return_value='PA433')
-        es_multi_query.execute.return_value = [item]
+        type(self.item).doc_count = mock.PropertyMock(return_value=1)
+        self.item.__iter__ = mock.Mock(return_value=iter(['key_as_string']))
+        type(self.item).key_as_string = mock.PropertyMock(return_value='PA433')
+        es_multi_query.execute.return_value = [self.item]
 
         self.data['term'] = 'PA4'
         response = self.client.get(self.url, self.data)
 
         self.assertNotContains(response, 'status')
-        self.assertJSONEqual(response.content, {'items': ['PA433']})
+        answer = {
+            'items': [{
+                'id': 'PA433',
+                'text': 'PA433'
+            }]
+        }
+        self.assertJSONEqual(response.content, answer)
+        es_multi_query.execute.assert_called_once()
+
+    @mock.patch('esapi.helper.basehelper.MultiSearch')
+    def test_exec_elasticsearch_query_with_result_without_key_as_string(self, es_multi_query):
+        es_multi_query.return_value = es_multi_query
+        es_multi_query.add.return_value = es_multi_query
+        type(self.item).doc_count = mock.PropertyMock(return_value=1)
+        self.item.__iter__ = mock.Mock(return_value=iter([]))
+        type(self.item).key = mock.PropertyMock(return_value='PA433')
+        es_multi_query.execute.return_value = [self.item]
+
+        self.data['term'] = 'PA4'
+        response = self.client.get(self.url, self.data)
+
+        self.assertNotContains(response, 'status')
+        answer = {
+            'items': [{
+                'id': 'PA433',
+                'text': 'PA433'
+            }]
+        }
+        self.assertJSONEqual(response.content, answer)
+        es_multi_query.execute.assert_called_once()
+
+
+class AskForAvailableDays(TestCase):
+
+    def setUp(self):
+        self.helper = TestHelper(self)
+        self.client = self.helper.create_logged_client()
+
+        self.url = reverse('esapi:availableProfileDays')
+        self.data = {}
+        self.available_date = '2018-01-01'
+
+        self.item = mock.Mock()
+        type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
+        type(self.item).unique = mock.PropertyMock(return_value=self.item)
+        type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
+        type(self.item).doc_count = mock.PropertyMock(return_value=1)
+        self.item.__iter__ = mock.Mock(return_value=iter([]))
+        type(self.item).key = mock.PropertyMock(return_value=self.available_date)
+
+    @mock.patch('esapi.helper.basehelper.MultiSearch')
+    def test_ask_for_days_with_data(self, es_multi_query):
+        es_multi_query.return_value = es_multi_query
+        es_multi_query.add.return_value = es_multi_query
+        type(self.item).doc_count = 1
+        es_multi_query.execute.return_value = [self.item]
+
+        response = self.client.get(self.url, self.data)
+
+        self.assertNotContains(response, 'status')
+        answer = {
+            'availableDays': [self.available_date]
+        }
+        self.assertJSONEqual(response.content, answer)
+        es_multi_query.execute.assert_called_once()
+
+
+class AskForAvailableRoutes(TestCase):
+
+    def setUp(self):
+        self.helper = TestHelper(self)
+        self.client = self.helper.create_logged_client()
+
+        self.url = reverse('esapi:availableProfileRoutes')
+        self.data = {}
+        self.available_route = '506 00I'
+
+        self.item = mock.Mock()
+        type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
+        type(self.item).unique = mock.PropertyMock(return_value=self.item)
+        type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
+        type(self.item).doc_count = mock.PropertyMock(return_value=1)
+        self.item.__iter__ = mock.Mock(return_value=iter([]))
+        type(self.item).key = mock.PropertyMock(return_value=self.available_route)
+
+    @mock.patch('esapi.helper.basehelper.MultiSearch')
+    def test_ask_for_days_with_data(self, es_multi_query):
+        es_multi_query.return_value = es_multi_query
+        es_multi_query.add.return_value = es_multi_query
+        type(self.item).doc_count = 1
+        es_multi_query.execute.return_value = [self.item]
+
+        response = self.client.get(self.url, self.data)
+
+        self.assertNotContains(response, 'status')
+        answer = {
+            'availableRoutes': [self.available_route]
+        }
+        self.assertJSONEqual(response.content, answer)
         es_multi_query.execute.assert_called_once()
