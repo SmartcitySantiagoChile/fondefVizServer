@@ -34,7 +34,14 @@ class ElasticSearchHelper(object):
         result = {}
         for index, response in enumerate(responses):
             result_list = []
-
+            print(response)
+            print(response.agregations)
+            print(response.agregations.unique)
+            print(type(response.agregations.unique.buckets))
+            print(type(response.buckets))
+            print(list(response.buckets))
+            print(response.agregations.unique.buckets)
+            print(response.buckets)
             for tag in response.aggregations.unique.buckets:
                 if tag.doc_count == 0:
                     continue
