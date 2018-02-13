@@ -26,25 +26,25 @@ class ElasticSearchHelper(object):
         for key, esQuery in es_query_dict.iteritems():
             multiSearch = multiSearch.add(esQuery)
             keys.append(key)
-        
+
         # to see the query generated
         #print multiSearch.to_dict()
         responses = multiSearch.execute()
 
         result = {}
         for index, response in enumerate(responses):
-            resultList = []
+            result_list = []
             for tag in response.aggregations.unique.buckets:
                 if tag.doc_count == 0:
                     continue
 
                 if "key_as_string" in tag:
-                    resultList.append(tag.key_as_string)
+                    result_list.append(tag.key_as_string)
                 else:
-                    resultList.append(tag.key)
-            resultList.sort()
+                    result_list.append(tag.key)
+            result_list.sort()
 
-            result[keys[index]] = resultList
+            result[keys[index]] = result_list
 
         return result
 
