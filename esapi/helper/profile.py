@@ -39,14 +39,14 @@ class ESProfileHelper(ElasticSearchHelper):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
 
-        if stop_code is not None:
+        if stop_code:
             es_query = es_query.query(
                 Q({'term': {"authStopCode.keyword": stop_code}}) | Q({'term': {"userStopCode.keyword": stop_code}}) | Q(
                     {'term': {"userStopName.keyword": stop_code}}))
         else:
             raise ESQueryStopParameterDoesNotExist()
 
-        if start_date is None or end_date is None:
+        if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
 
         if day_type:

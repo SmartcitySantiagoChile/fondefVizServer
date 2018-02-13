@@ -5,7 +5,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 
 from esapi.helper.profile import ESProfileHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, \
+from esapi.errors import ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort, \
     ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist
 
 
@@ -14,21 +14,26 @@ class MatchedStopData(View):
 
     def get(self, request):
 
-        term = request.GET.get("term")
-
-        es_helper = ESProfileHelper()
-        results = es_helper.ask_for_stop(term)
+        term = request.GET.get("term", '')
 
         response = {
             'items': []
         }
+        try:
+            if len(term) < 3:
+                raise ESQueryStopPatternTooShort()
 
-        for _, result in results.iteritems():
-            result_list = []
-            for tag in result:
-                result_list.append({"id": tag, "text": tag})
+            es_helper = ESProfileHelper()
+            results = es_helper.ask_for_stop(term)
 
-            response["items"] += result_list
+            for _, result in results.iteritems():
+                result_list = []
+                for tag in result:
+                    result_list.append({"id": tag, "text": tag})
+
+                response["items"] += result_list
+        except ESQueryStopPatternTooShort as e:
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
 
@@ -86,12 +91,12 @@ class LoadProfileByStopData(View):
         """ expedition data """
         response = {}
 
-        start_date = request.GET.get('startDate')
-        end_date = request.GET.get('endDate')
-        day_type = request.GET.getlist('dayType[]')
-        stop_code = request.GET.get('stopCode')
-        period = request.GET.getlist('period[]')
-        half_hour = request.GET.getlist('halfHour[]')
+        start_date = request.GET.get('startDate', '')[:10]
+        end_date = request.GET.get('endDate', '')[:10]
+        day_type = request.GET.getlist('dayType[]', [])
+        stop_code = request.GET.get('stopCode', '')
+        period = request.GET.getlist('period[]', [])
+        half_hour = request.GET.getlist('halfHour[]', [])
 
         try:
             es_helper = ESProfileHelper()
@@ -102,7 +107,7 @@ class LoadProfileByStopData(View):
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryStopParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except (ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)

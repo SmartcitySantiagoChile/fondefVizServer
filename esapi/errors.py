@@ -67,5 +67,13 @@ class ESQueryStopParameterDoesNotExist(ESQueryError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
-        message = 'Debe indicar el paradero a evaluar (campo Paradero)'
+        message = 'Debe indicar el paradero a evaluar'
         super(ESQueryStopParameterDoesNotExist, self).__init__(404, message)
+
+
+class ESQueryStopPatternTooShort(ESQueryError):
+    """ It raises when user does not provide params to elastic search query """
+
+    def __init__(self):
+        message = 'El patrón indicado es demasiado corto'
+        super(ESQueryStopPatternTooShort, self).__init__(405, message)

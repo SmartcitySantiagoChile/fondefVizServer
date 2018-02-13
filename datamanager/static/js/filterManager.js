@@ -60,7 +60,7 @@ function filterManager(opts) {
         $STOP_FILTER.select2({
             ajax: {
                 delay: 500, // milliseconds
-                url: Urls["profile:getStopList"](),
+                url: Urls["esapi:matchedStopData"](),
                 dataType: "json",
                 data: function (params) {
                     return {
