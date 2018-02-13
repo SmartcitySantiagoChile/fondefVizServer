@@ -243,16 +243,17 @@ class AskForStops(TestCase):
         es_multi_query.return_value = es_multi_query
         es_multi_query.add.return_value = es_multi_query
         item = mock.MagicMock()
-        item.agregations.return_value = item
-        item.unique.return_value = item
-        item.buckets.return_value = item
-        item.doc_count = 1
-        item.key_as_string = 'PA433'
+        type(item).agregations = mock.PropertyMock(return_value=item)
+        type(item).unique = mock.PropertyMock(return_value=item)
+        type(item).buckets = mock.PropertyMock(return_value=[item])
+        type(item).doc_count = mock.PropertyMock(return_value=1)
+        type(item).keys = mock.PropertyMock(return_value=['key_as_string'])
+        type(item).key_as_string = mock.PropertyMock(return_value='PA433')
         es_multi_query.execute.return_value = [item]
-        print(es_multi_query)
 
         self.data['term'] = 'PA4'
         response = self.client.get(self.url, self.data)
-
+        print(response.content)
         self.assertNotContains(response, 'status')
+        self.assertJSONEqual(response.content, {'items': ['PA433']})
         es_multi_query.execute.assert_called_once()

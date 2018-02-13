@@ -20,20 +20,21 @@ class ElasticSearchHelper(object):
 
     def make_multisearch_query_for_aggs(self, es_query_dict):
         """ make multisearch request to es with aggregation """
-        multiSearch = MultiSearch(using=self.client, index=self.index_name)
+        multi_search = MultiSearch(using=self.client, index=self.index_name)
 
         keys = []
-        for key, esQuery in es_query_dict.iteritems():
-            multiSearch = multiSearch.add(esQuery)
+        for key, es_query in es_query_dict.iteritems():
+            multi_search = multi_search.add(es_query)
             keys.append(key)
 
         # to see the query generated
         #print multiSearch.to_dict()
-        responses = multiSearch.execute()
+        responses = multi_search.execute()
 
         result = {}
         for index, response in enumerate(responses):
             result_list = []
+
             for tag in response.aggregations.unique.buckets:
                 if tag.doc_count == 0:
                     continue
