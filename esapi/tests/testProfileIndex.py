@@ -332,24 +332,26 @@ class AskForAvailableRoutes(TestCase):
 
         self.item = mock.Mock()
         type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
-        type(self.item).unique = mock.PropertyMock(return_value=self.item)
+        type(self.item).route = mock.PropertyMock(return_value=self.item)
         type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
-        type(self.item).doc_count = mock.PropertyMock(return_value=1)
+        self.item.to_dict.return_value = mock.PropertyMock(return_value=1)
         self.item.__iter__ = mock.Mock(return_value=iter([]))
         type(self.item).key = mock.PropertyMock(return_value=self.available_route)
 
-    @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_ask_for_days_with_data(self, es_multi_query):
-        es_multi_query.return_value = es_multi_query
-        es_multi_query.add.return_value = es_multi_query
+    @mock.patch('esapi.helper.basehelper.Search')
+    def test_ask_for_days_with_data(self, es_query):
+        es_query.return_value = es_query
+        es_query.source.return_value = es_query
+        type(es_query).aggs = mock.PropertyMock()
         type(self.item).doc_count = 1
-        es_multi_query.execute.return_value = [self.item]
+        es_query.execute.return_value = [self.item]
 
         response = self.client.get(self.url, self.data)
 
         self.assertNotContains(response, 'status')
         answer = {
-            'availableRoutes': [self.available_route]
+            'availableRoutes': [self.available_route],
+            'operatorDict': []
         }
         self.assertJSONEqual(response.content, answer)
-        es_multi_query.execute.assert_called_once()
+        es_query.execute.assert_called_once()
