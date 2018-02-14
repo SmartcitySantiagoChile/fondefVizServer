@@ -180,18 +180,16 @@ class SpeedByRoute(View):
 
 class SpeedVariation(View):
 
-    def get(self, request):
-        _date = request.GET.get('startDate', None)
-        the_date = datetime.datetime.strptime(_date, '%Y-%m-%d')
-        routes = request.GET.getlist('route[]', None)
-        day_type = request.GET.getlist('dayType[]', None)
-
-        es_helper = ESSpeedHelper()
-        r = es_helper.ask_for_speed_variation(the_date, day_type, routes)
-
+    def transform_data(self, es_query):
         aux_data = {}
         l_routes = set()
-        for rou in r.execute().aggregations.routes.buckets:
+
+        result = es_query.execute().aggregations.routes.buckets
+
+        if not result:
+            raise ESQueryResultEmpty()
+
+        for rou in result:
             r_key = rou.key
             l_routes.add(r_key)
             for per in rou.periods.buckets:
@@ -248,9 +246,25 @@ class SpeedVariation(View):
                         color = 7
                 p_data.append([color, value, v_dia, v_mes, nob_dia, nob_mes, dia_stats, mes_stats])
             data.append(p_data)
+
+        return data, l_routes
+
+    def get(self, request):
+        _date = request.GET.get('startDate', '')[:10]
+        the_date = datetime.datetime.strptime(_date, '%Y-%m-%d')
+        operator = request.GET.get('operator', '')
+        userRoute = request.GET.get('userRoute', '')
+        day_type = request.GET.getlist('dayType[]', '')
+
         response = {
-            'variations': data,
-            'routes': l_routes
+            'variations': [],
+            'routes': []
         }
+        try:
+            es_helper = ESSpeedHelper()
+            es_query = es_helper.ask_for_speed_variation(the_date, day_type, operator, userRoute)
+            response['variations'], response['routes'] = self.transform_data(es_query)
+        except ESQueryResultEmpty as e:
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)

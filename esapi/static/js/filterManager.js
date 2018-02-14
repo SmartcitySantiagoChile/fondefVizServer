@@ -53,8 +53,8 @@ function filterManager(opts) {
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MINUTE_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $OPERATOR_FILTER.select2();
-    $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE});
     $AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
+    $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE, allowClear: Boolean($AUTH_ROUTE_FILTER.length)});
 
     if ($STOP_FILTER.length) {
         $STOP_FILTER.select2({
@@ -92,13 +92,17 @@ function filterManager(opts) {
         var minutes = $MINUTE_PERIOD_FILTER.val();
         var hourPeriodFrom = $HOUR_RANGE_FILTER.data("from");
         var hourPeriodTo = $HOUR_RANGE_FILTER.data("to");
+        var userRoute = $USER_ROUTE_FILTER.val();
+        var authRoute = $AUTH_ROUTE_FILTER.val();
+        var stopCode = $STOP_FILTER.val();
+        var operator = $OPERATOR_FILTER.val();
 
         var params = {
             startDate: $DAY_FILTER.data("daterangepicker").startDate.format(),
             endDate: $DAY_FILTER.data("daterangepicker").endDate.format()
         };
-        if ($AUTH_ROUTE_FILTER.length && $AUTH_ROUTE_FILTER.val()) {
-            params.authRoute = $AUTH_ROUTE_FILTER.val();
+        if ($AUTH_ROUTE_FILTER.length && authRoute) {
+            params.authRoute = authRoute;
         }
         if (dayType) {
             params.dayType = dayType;
@@ -109,12 +113,18 @@ function filterManager(opts) {
         if (minutes) {
             params.halfHour = minutes;
         }
-        if ($STOP_FILTER.length && $STOP_FILTER.val()) {
-            params.stopCode = $STOP_FILTER.val()
+        if ($STOP_FILTER.length && stopCode) {
+            params.stopCode = stopCode;
         }
         if ($HOUR_RANGE_FILTER.length) {
             params.hourPeriodFrom = hourPeriodFrom;
             params.hourPeriodTo = hourPeriodTo - 1;
+        }
+        if (!$AUTH_ROUTE_FILTER.length && userRoute) {
+            params.userRoute = userRoute;
+        }
+        if (operator) {
+            params.operator = operator;
         }
 
         if (_makeAjaxCall) {
@@ -140,8 +150,9 @@ function filterManager(opts) {
     });
 
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
-    if ($AUTH_ROUTE_FILTER.length) {
+    if ($OPERATOR_FILTER.length) {
         var processRouteData = function (data) {
+            // console.log(data);
             var updateAuthRouteList = function (operatorId, userRouteId) {
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
                 authRouteList.sort();
@@ -152,21 +163,30 @@ function filterManager(opts) {
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
             };
             var updateUserRouteList = function (operatorId) {
-                var userRouteList = Object.keys(data.availableRoutes[operatorId]);
+                var userRouteList = [];
+                if (data.availableRoutes[operatorId] !== undefined) {
+                    userRouteList = Object.keys(data.availableRoutes[operatorId]);
+                }
                 userRouteList.sort();
                 userRouteList = userRouteList.map(function (el) {
                     return {id: el, text: el};
                 });
                 $USER_ROUTE_FILTER.empty();
-                $USER_ROUTE_FILTER.select2({data: userRouteList});
-                // call event to update auth route filter
-                var selectedItem = $USER_ROUTE_FILTER.select2("data")[0];
-                $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
+                if ($AUTH_ROUTE_FILTER.length) {
+                    $USER_ROUTE_FILTER.select2({data: userRouteList});
+                    // call event to update auth route filter
+                    var selectedItem = $USER_ROUTE_FILTER.select2("data")[0];
+                    $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
+                } else {
+                    $USER_ROUTE_FILTER.select2({data: userRouteList, allowClear: true, placeholder: PLACEHOLDER_ALL});
+                }
             };
             $USER_ROUTE_FILTER.on("select2:select", function (e) {
                 var selectedItem = e.params.data;
                 var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(data.availableRoutes)[0];
-                updateAuthRouteList(operatorId, selectedItem.id);
+                if ($AUTH_ROUTE_FILTER.length) {
+                    updateAuthRouteList(operatorId, selectedItem.id);
+                }
             });
             // if operator filter is visible
             if ($OPERATOR_FILTER.length) {

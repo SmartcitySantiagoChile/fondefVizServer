@@ -176,7 +176,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_speed_variation(self, asked_date, day_type, routes):
+    def ask_for_speed_variation(self, asked_date, day_type, operator, user_route):
 
         date_format = "%Y-%m-%d"
         asked_date_str = asked_date.strftime(date_format)
@@ -187,8 +187,10 @@ class ESSpeedHelper(ElasticSearchHelper):
             "lte": asked_date_str,
             "format": "yyyy-MM-dd"
         })
-        if routes:
-            es_query = es_query.filter('terms', route=routes)
+        if operator:
+            es_query = es_query.filter('term', operator=operator)
+        if user_route:
+            es_query = es_query.filter('term', userRoute=user_route)
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
 

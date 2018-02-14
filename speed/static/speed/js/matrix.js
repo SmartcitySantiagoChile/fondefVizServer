@@ -262,7 +262,7 @@ $(document).ready(function () {
             mChart.hideLoading();
         };
 
-        this.resizeCharts = function () {
+        this.resizeChart = function () {
             mChart.resize();
         };
 
@@ -346,10 +346,10 @@ $(document).ready(function () {
         };
         filterManager(opts);
         $(window).resize(function () {
-            app.resizeCharts();
+            app.resizeChart();
         });
         $("#menu_toggle").click(function () {
-            app.resizeCharts();
+            app.resizeChart();
         });
     })();
 });
