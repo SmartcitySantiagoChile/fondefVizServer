@@ -334,24 +334,57 @@ class AskForAvailableRoutes(TestCase):
         type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
         type(self.item).route = mock.PropertyMock(return_value=self.item)
         type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
-        self.item.to_dict.return_value = mock.PropertyMock(return_value=1)
-        self.item.__iter__ = mock.Mock(return_value=iter([]))
-        type(self.item).key = mock.PropertyMock(return_value=self.available_route)
+        self.item.to_dict.return_value = {
+            'key': self.available_route,
+            'additionalInfo': {
+                'hits': {
+                    'hits': [{'_source': {
+                        'operator': 'Metbus',
+                        'userRoute': '506'
+                    }}]
+                }
+            }
+        }
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_ask_for_days_with_data(self, es_query):
         es_query.return_value = es_query
+        es_query.__getitem__.return_value = es_query
         es_query.source.return_value = es_query
         type(es_query).aggs = mock.PropertyMock()
-        type(self.item).doc_count = 1
-        es_query.execute.return_value = [self.item]
+        es_query.execute.return_value = self.item
 
         response = self.client.get(self.url, self.data)
 
         self.assertNotContains(response, 'status')
         answer = {
-            'availableRoutes': [self.available_route],
+            'availableRoutes': {
+                'Metbus': {
+                    '506': [self.available_route]
+                }
+            },
             'operatorDict': []
         }
         self.assertJSONEqual(response.content, answer)
         es_query.execute.assert_called_once()
+
+
+class AskForBaseParams(TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_ask_for_base_params(self):
+
+        from esapi.helper.profile import ESProfileHelper
+        from elasticsearch_dsl import Search
+
+        instance = ESProfileHelper()
+        result = instance.get_base_params()
+
+        self.assertIn('periods', result.keys())
+        self.assertIn('dayTypes', result.keys())
+        self.assertIn('days', result.keys())
+
+        for key in result:
+            self.assertIsInstance(result[key], Search)
