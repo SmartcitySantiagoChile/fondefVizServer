@@ -8,7 +8,8 @@ from esapi.views.profile import MatchedStopData, LoadProfileByStopData, Availabl
     LoadProfileByExpeditionData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.resume import ResumeData
-from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute
+from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
+    SpeedVariation
 
 app_name = 'esapi'
 urlpatterns = [
@@ -35,11 +36,11 @@ urlpatterns = [
     url(r'^speed/matrixData$', login_required(MatrixData.as_view()), name='matrixData'),
     url(r'^speed/rankingData$', login_required(RankingData.as_view()), name='rankingData'),
     url(r'^speed/speedByRoute$', login_required(SpeedByRoute.as_view()), name='speedByRoute'),
-    url(r'^speed/speedVariation$', login_required(SpeedByRoute.as_view()), name='speedVariation'),
+    url(r'^speed/speedVariation$', login_required(SpeedVariation.as_view()), name='speedVariation'),
 
     # trip index
-    #url(r'^trip', login_required(LoadData.as_view()), name='loadData'),
+    # url(r'^trip', login_required(LoadData.as_view()), name='loadData'),
 
     # shape index
-    #url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
+    # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
 ]

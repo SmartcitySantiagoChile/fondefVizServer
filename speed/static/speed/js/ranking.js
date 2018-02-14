@@ -154,7 +154,7 @@ $(document).ready(function () {
             var dayType = $("#dayTypeFilter").val();
 
             var params = {
-                route: route,
+                authRoute: route,
                 startDate: startDate,
                 endDate: endDate,
                 period: period
@@ -162,8 +162,8 @@ $(document).ready(function () {
             if (dayType) {
                 params.dayType = dayType;
             }
-            console.log(params);
-            $.getJSON(Urls["speed:getSpeedByRoute"](), params, function (response) {
+
+            $.getJSON(Urls["esapi:speedByRoute"](), params, function (response) {
                 return showSegment(section, response);
             });
         }

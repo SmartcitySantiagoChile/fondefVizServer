@@ -124,38 +124,64 @@ class RankingData(View):
 
 class SpeedByRoute(View):
 
+    def process_data(self, es_query, limits):
+        aux_data = {}
+        for sec in es_query.execute().aggregations.sections.buckets:
+            key = sec.key
+            aux_data[key] = 3.6 * sec.speed.value
+
+        result = []
+        for i in range(len(limits) - 1):
+            sp = aux_data.get(i, -1)
+            interval = 6
+            for j, bound in enumerate([0, 15, 19, 21, 23, 30]):
+                if sp < bound:
+                    interval = j
+                    break
+            result.append(interval)
+
+        return result
+
     def get(self, request):
-        route = request.GET.get('route', None)
+        route = request.GET.get('authRoute', '')
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
-        hour_period = request.GET.get('period', None)
-        day_type = request.GET.getlist('dayType[]', None)
-
-        es_helper = ESShapeHelper()
-        shape = es_helper.get_route_shape(route, start_date, end_date)
-        route_points = [[s['latitude'], s['longitude']] for s in shape]
-        limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
+        hour_period = request.GET.get('period', [])
+        day_type = request.GET.getlist('dayType[]', [])
 
         response = {
             'route': {
                 'name': route,
-                'points': route_points,
-                'start_end': list(zip(limits[:-1], limits[1:]))
+                'points': [],
+                'start_end': []
             },
             'speed': [],
         }
 
-        es_helper = ESSpeedHelper()
-        response['speed'] = es_helper.ask_for_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
-                                                                  limits)
+        try:
+            es_helper = ESShapeHelper()
+            shape = es_helper.get_route_shape(route, start_date, end_date)
+            route_points = [[s['latitude'], s['longitude']] for s in shape]
+            limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
+            start_end = list(zip(limits[:-1], limits[1:]))
+
+            response['route']['start_end'] = start_end
+            response['route']['points'] = route_points
+
+            es_helper = ESSpeedHelper()
+            es_query = es_helper.ask_for_detail_ranking_data(route, start_date, end_date, hour_period, day_type)
+            response['speed'] = self.process_data(es_query, limits)
+
+        except ESQueryResultEmpty as e:
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
 
 
-class SpeedVariationData(View):
+class SpeedVariation(View):
 
     def get(self, request):
-        _date = request.GET.get('date', None)
+        _date = request.GET.get('startDate', None)
         the_date = datetime.datetime.strptime(_date, '%Y-%m-%d')
         routes = request.GET.getlist('route[]', None)
         day_type = request.GET.getlist('dayType[]', None)
@@ -165,7 +191,7 @@ class SpeedVariationData(View):
 
         aux_data = {}
         l_routes = set()
-        for rou in r.aggregations.routes.buckets:
+        for rou in r.execute().aggregations.routes.buckets:
             r_key = rou.key
             l_routes.add(r_key)
             for per in rou.periods.buckets:

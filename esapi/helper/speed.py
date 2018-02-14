@@ -85,10 +85,9 @@ class ESSpeedHelper(ElasticSearchHelper):
         aggs2.metric('n_obs', 'sum', field='nObs')
         es_query.aggs.bucket('periods', aggs1).bucket('sections', aggs2)
 
-        result = es_query.execute()
-
+        # transform data
         d_data = {}
-        for period in result.aggregations.periods.buckets:
+        for period in es_query.execute().aggregations.periods.buckets:
             key_period = period.key
             for section in period.sections.buckets:
                 key_section = section.key
@@ -156,7 +155,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return data
 
-    def ask_for_detail_ranking_data(self, route, start_date, end_date, period, day_type, limits):
+    def ask_for_detail_ranking_data(self, route, start_date, end_date, period, day_type):
 
         es_query = self.get_base_query()
         es_query = es_query.filter('term', route=route)
@@ -175,22 +174,7 @@ class ESSpeedHelper(ElasticSearchHelper):
                      buckets_path={'d': 'distance', 't': 'time'})
         es_query.aggs.bucket('sections', aggs0)
 
-        aux_data = {}
-        for sec in es_query.execute().aggregations.sections.buckets:
-            key = sec.key
-            aux_data[key] = 3.6 * sec.speed.value
-
-        result = []
-        for i in range(len(limits) - 1):
-            sp = aux_data.get(i, -1)
-            interval = 6
-            for j, bound in enumerate([0, 15, 19, 21, 23, 30]):
-                if sp < bound:
-                    interval = j
-                    break
-            result.append(interval)
-
-        return result
+        return es_query
 
     def ask_for_speed_variation(self, asked_date, day_type, routes):
 
@@ -224,4 +208,4 @@ class ESSpeedHelper(ElasticSearchHelper):
         es_query.aggs.bucket('routes', aggs0).bucket('periods', aggs1).bucket('days', aggs2)
 
         # print(str(esQuery.to_dict()).replace('\'', '"'))
-        return es_query.execute()
+        return es_query
