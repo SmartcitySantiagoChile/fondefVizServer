@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty, ESQueryExistTwoShapesInTimePeriod
 
 
 class ESShapeHelper(ElasticSearchHelper):
@@ -22,7 +22,7 @@ class ESShapeHelper(ElasticSearchHelper):
         })
 
         if es_query.execute().hits.total != 0:
-            raise ESQueryResultEmpty()
+            raise ESQueryExistTwoShapesInTimePeriod()
 
         es_query = self.get_base_query()
         es_query = es_query.filter('term', route=route)

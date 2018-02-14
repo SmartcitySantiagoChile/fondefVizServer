@@ -77,3 +77,10 @@ class ESQueryStopPatternTooShort(ESQueryError):
     def __init__(self):
         message = 'El patrón indicado es demasiado corto'
         super(ESQueryStopPatternTooShort, self).__init__(405, message)
+
+class ESQueryExistTwoShapesInTimePeriod(ESQueryError):
+    """ It raises when user ask for a route shape with a time windows that contains more than one """
+
+    def __init__(self):
+        message = 'El período indicado contiene más de una ruta.'
+        super(ESQueryExistTwoShapesInTimePeriod, self).__init__(405, message)
