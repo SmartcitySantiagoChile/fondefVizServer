@@ -9,8 +9,8 @@ from mock import mock
 from esapi.helper.profile import ESProfileHelper
 from elasticsearch_dsl import Search
 from esapi.tests.helper import TestHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty, \
-    ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
+    ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
 
 import json
 
