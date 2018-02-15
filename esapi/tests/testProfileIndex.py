@@ -6,6 +6,8 @@ from django.urls import reverse
 
 from mock import mock
 
+from esapi.helper.profile import ESProfileHelper
+from elasticsearch_dsl import Search
 from esapi.tests.helper import TestHelper
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty, \
     ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
@@ -375,10 +377,6 @@ class AskForBaseParams(TestCase):
         pass
 
     def test_ask_for_base_params(self):
-
-        from esapi.helper.profile import ESProfileHelper
-        from elasticsearch_dsl import Search
-
         instance = ESProfileHelper()
         result = instance.get_base_params()
 
