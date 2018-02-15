@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from mock import mock
 
-from esapi.helper.profile import ESProfileHelper
+from esapi.helper.speed import ESSpeedHelper
 from elasticsearch_dsl import Search
 from esapi.tests.helper import TestHelper
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
@@ -15,20 +15,18 @@ from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangePara
 import json
 
 
-class LoadProfileByExpedition(TestCase):
+class MatrixData(TestCase):
 
     def setUp(self):
         self.helper = TestHelper(self)
         self.client = self.helper.create_logged_client()
 
-        self.url = reverse('esapi:loadProfileByExpeditionData')
+        self.url = reverse('esapi:matrixData')
         self.data = {
             'startDate': '',
             'endDate': '',
             'authRoute': '',
             'dayType[]': [],
-            'period[]': [],
-            'halfHour[]': []
         }
 
     def test_wrong_route(self):
@@ -55,6 +53,24 @@ class LoadProfileByExpedition(TestCase):
         es_query.return_value = es_query
         es_query.filter.return_value = es_query
         es_query.source.return_value = es_query
+        # for shape helper
+        es_query.execute.return_value = es_query
+        type(es_query).hits = mock.PropertyMock(return_value=es_query)
+        type(es_query).total = mock.PropertyMock(return_value=0)
+
+        # for speed data
+        period_mock = mock.Mock()
+        section_mock = mock.Mock()
+        type(period_mock).sections = mock.PropertyMock(return_value=period_mock)
+        type(period_mock).buckets = mock.PropertyMock(return_value=[section_mock])
+        type(section_mock).key = mock.PropertyMock(return_value='key')
+        type(section_mock).time = mock.PropertyMock(return_value=section_mock)
+        type(section_mock).value = mock.PropertyMock(return_value=0)
+
+        type(es_query).aggregations = mock.PropertyMock(return_value=es_query)
+        type(es_query).periods = mock.PropertyMock(return_value=es_query)
+        type(es_query).buckets = mock.PropertyMock(return_value=[period_mock])
+        # for scan
         item = mock.Mock()
         item.to_dict.return_value = {
             'expeditionStartTime': '2017-07-31T16:59:11.000Z',
@@ -83,13 +99,11 @@ class LoadProfileByExpedition(TestCase):
         data = {
             'startDate': '2018-01-01',
             'endDate': '2018-01-01',
+            'authRoute': '506 00I',
             'dayType[]': ['LABORAL'],
-            'period[]': [0, 1, 2],
-            'halfHour[]': [0, 1, 2],
-            'authRoute': '506 00I'
         }
         response = self.client.get(self.url, data)
-
+        print(response.content)
         self.assertNotContains(response, 'status')
         es_query.scan.assert_called_once()
 
@@ -293,7 +307,7 @@ class AskForAvailableDays(TestCase):
         self.helper = TestHelper(self)
         self.client = self.helper.create_logged_client()
 
-        self.url = reverse('esapi:availableProfileDays')
+        self.url = reverse('esapi:availableSpeedDays')
         self.data = {}
         self.available_date = '2018-01-01'
 
@@ -328,7 +342,7 @@ class AskForAvailableRoutes(TestCase):
         self.helper = TestHelper(self)
         self.client = self.helper.create_logged_client()
 
-        self.url = reverse('esapi:availableProfileRoutes')
+        self.url = reverse('esapi:availableSpeedRoutes')
         self.data = {}
         self.available_route = '506 00I'
 
@@ -341,8 +355,8 @@ class AskForAvailableRoutes(TestCase):
             'additionalInfo': {
                 'hits': {
                     'hits': [{'_source': {
-                        'operator': 'Metbus',
-                        'userRoute': '506'
+                        'operator': '1',
+                        'userRoute': '506I'
                     }}]
                 }
             }
@@ -361,8 +375,8 @@ class AskForAvailableRoutes(TestCase):
         self.assertNotContains(response, 'status')
         answer = {
             'availableRoutes': {
-                'Metbus': {
-                    '506': [self.available_route]
+                '1': {
+                    '506I': [self.available_route]
                 }
             },
             'operatorDict': []
@@ -374,12 +388,10 @@ class AskForAvailableRoutes(TestCase):
 class AskForBaseParams(TestCase):
 
     def test_ask_for_base_params(self):
-        instance = ESProfileHelper()
+        instance = ESSpeedHelper()
         result = instance.get_base_params()
 
-        self.assertIn('periods', result.keys())
         self.assertIn('day_types', result.keys())
-        self.assertIn('days', result.keys())
 
         for key in result:
             self.assertIsInstance(result[key], Search)

@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryExistTwoShapesInTimePeriod
+from esapi.errors import ESQueryResultEmpty, ESQueryExistTwoShapesInTimePeriod, ESQueryRouteParameterDoesNotExist, \
+    ESQueryDateRangeParametersDoesNotExist
 
 
 class ESShapeHelper(ElasticSearchHelper):
@@ -11,10 +12,16 @@ class ESShapeHelper(ElasticSearchHelper):
         index_name = 'shape'
         super(ESShapeHelper, self).__init__(index_name)
 
-    def get_route_shape(self, route, start_date, end_date):
+    def get_route_shape(self, auth_route, start_date, end_date):
+
+        if not auth_route:
+            raise ESQueryRouteParameterDoesNotExist()
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         es_query = self.get_base_query()
-        es_query = es_query.filter('term', route=route)
+        es_query = es_query.filter('term', route=auth_route)
         es_query = es_query.filter('range', startDate={
             'gte': start_date,
             'lte': end_date,
@@ -25,7 +32,7 @@ class ESShapeHelper(ElasticSearchHelper):
             raise ESQueryExistTwoShapesInTimePeriod()
 
         es_query = self.get_base_query()
-        es_query = es_query.filter('term', route=route)
+        es_query = es_query.filter('term', route=auth_route)
         es_query = es_query.filter('range', startDate={
             'lte': start_date,
             'format': 'yyyy-MM-dd'

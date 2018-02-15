@@ -6,7 +6,8 @@ from django.http import JsonResponse
 
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.shape import ESShapeHelper
-from esapi.errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, \
+    ESQueryDateRangeParametersDoesNotExist, ESQueryExistTwoShapesInTimePeriod
 
 import datetime
 
@@ -55,22 +56,23 @@ class MatrixData(View):
     def get(self, request):
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
-        route = request.GET.get('authRoute', None)
-        day_type = request.GET.getlist('dayType[]', None)
-
-        shape = self.es_shape_helper.get_route_shape(route, start_date, end_date)
-        route_points = [[s['latitude'], s['longitude']] for s in shape]
-        limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
-
-        max_section = len(limits) - 1
+        auth_route = request.GET.get('authRoute', '')
+        day_type = request.GET.getlist('dayType[]', [])
 
         response = {
-            'segments': list(range(max_section + 1)),
+            'segments': [],
             'matrix': [],
         }
 
         try:
-            d_data = self.es_speed_helper.ask_for_speed_data(route, day_type, start_date, end_date)
+            shape = self.es_shape_helper.get_route_shape(auth_route, start_date, end_date)
+            route_points = [[s['latitude'], s['longitude']] for s in shape]
+            limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
+
+            max_section = len(limits) - 1
+            response['segments'] = list(range(max_section + 1))
+
+            d_data = self.es_speed_helper.ask_for_speed_data(auth_route, day_type, start_date, end_date)
 
             for hour in range(len(hours)):
                 segmented_route_by_hour = []
@@ -85,11 +87,12 @@ class MatrixData(View):
                 response['matrix'].append(segmented_route_by_hour)
 
             response['route'] = {
-                'name': route,
+                'name': auth_route,
                 'points': route_points,
                 'start_end': list(zip(limits[:-1], limits[1:]))
             }
-        except ESQueryResultEmpty as e:
+        except (ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist,
+                ESQueryExistTwoShapesInTimePeriod) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
