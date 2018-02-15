@@ -91,7 +91,7 @@ class LoadProfileByExpedition(TestCase):
         response = self.client.get(self.url, data)
 
         self.assertNotContains(response, 'status')
-        es_query().scan.assert_called_once()
+        es_query.scan.assert_called_once()
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_exec_elasticsearch_query_without_result(self, es_query):
@@ -107,7 +107,7 @@ class LoadProfileByExpedition(TestCase):
 
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        es_query().scan.assert_called_once()
+        es_query.scan.assert_called_once()
 
 
 class LoadProfileByStop(TestCase):
@@ -187,7 +187,7 @@ class LoadProfileByStop(TestCase):
         response = self.client.get(self.url, data)
 
         self.assertNotContains(response, 'status')
-        es_query().scan.assert_called_once()
+        es_query.scan.assert_called_once()
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_exec_elasticsearch_query_without_result(self, es_query):
@@ -204,7 +204,7 @@ class LoadProfileByStop(TestCase):
 
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        es_query().scan.assert_called_once()
+        es_query.scan.assert_called_once()
 
 
 class AskForStops(TestCase):
