@@ -373,9 +373,6 @@ class AskForAvailableRoutes(TestCase):
 
 class AskForBaseParams(TestCase):
 
-    def setUp(self):
-        pass
-
     def test_ask_for_base_params(self):
         instance = ESProfileHelper()
         result = instance.get_base_params()
