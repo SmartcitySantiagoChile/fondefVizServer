@@ -378,7 +378,7 @@ class AskForBaseParams(TestCase):
         result = instance.get_base_params()
 
         self.assertIn('periods', result.keys())
-        self.assertIn('dayTypes', result.keys())
+        self.assertIn('day_types', result.keys())
         self.assertIn('days', result.keys())
 
         for key in result:

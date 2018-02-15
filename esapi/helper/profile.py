@@ -29,7 +29,7 @@ class ESProfileHelper(ElasticSearchHelper):
 
         result = {
             'periods': es_time_period_query,
-            'dayTypes': es_day_type_query,
+            'day_types': es_day_type_query,
             'days': es_day_query
         }
 
