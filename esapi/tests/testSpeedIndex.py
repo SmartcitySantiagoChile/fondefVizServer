@@ -9,8 +9,8 @@ from mock import mock
 from esapi.helper.speed import ESSpeedHelper
 from elasticsearch_dsl import Search
 from esapi.tests.helper import TestHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty, \
-    ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
+    ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
 
 import json
 
@@ -48,17 +48,16 @@ class MatrixData(TestCase):
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
 
-    @patch.object(my_app.models.FooClass, 'bar', fake_bar)
     @mock.patch('esapi.helper.basehelper.Search')
     def test_exec_elasticsearch_query_with_result(self, es_query):
         es_query.return_value = es_query
         es_query.filter.return_value = es_query
         es_query.source.return_value = es_query
         # for shape helper
-        shape_mock = mock.Mock()
-        es_query.execute.return_value = shape_mock
-        type(shape_mock).hits = mock.PropertyMock(return_value=shape_mock)
-        type(shape_mock).total = mock.PropertyMock(return_value=0)
+        es_query.execute.return_value = es_query
+        type(es_query).hits = mock.PropertyMock(return_value=es_query)
+        type(es_query).total = mock.PropertyMock(return_value=0)
+
         # for speed data
         period_mock = mock.Mock()
         section_mock = mock.Mock()
