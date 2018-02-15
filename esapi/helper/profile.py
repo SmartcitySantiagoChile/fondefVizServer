@@ -124,7 +124,7 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_profile_by_expedition(self, start_date, end_date, day_type, route, period, half_hour):
+    def ask_for_profile_by_expedition(self, start_date, end_date, day_type, auth_route, period, half_hour):
 
         es_query = self.get_base_query()
 
@@ -135,8 +135,8 @@ class ESProfileHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', licensePlate=licensePlate)
         """
 
-        if route:
-            es_query = es_query.filter('term', route=route)
+        if auth_route:
+            es_query = es_query.filter('term', route=auth_route)
         else:
             raise ESQueryRouteParameterDoesNotExist()
 

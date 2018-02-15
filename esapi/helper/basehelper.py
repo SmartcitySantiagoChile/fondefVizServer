@@ -8,7 +8,7 @@ class ElasticSearchHelper(object):
 
     def __init__(self, index_name):
 
-        if index_name is None:
+        if index_name is None or index_name == '':
             raise ValueError("Index name can't be none")
 
         self.index_name = index_name
@@ -49,7 +49,7 @@ class ElasticSearchHelper(object):
         return result
 
     def get_histogram_query(self, field, interval, format):
-        """ create agregation query of histogram """
+        """ create aggregation query of histogram """
 
         query = Search()
         query = query[:0]
