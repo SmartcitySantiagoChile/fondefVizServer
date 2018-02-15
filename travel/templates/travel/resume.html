@@ -1,0 +1,49 @@
+{% extends 'travel/base.html' %}
+{% load static header data_filter panel %}
+
+{% block title %}Indicadores: Resumen{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "travel/css/graphs.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="">
+        {% header "Resumen de viajes" "indicadores" %}
+
+        {% include "datamanager/availableDays.html" %}
+
+        {% data_filter data_filter True False True False False False False False False False False False True %}
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {% panel "fa-circle" "Indicadores" indicators %}
+            </div>
+        </div>
+
+        <div class="row cols-same-height">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                {% panel "fa-bar-chart-o" "Histograma" chart %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script>
+        var ws_data = {};
+        ws_data._day_types = JSON.parse("{{ daytypes|escapejs }}");
+        ws_data._TS_periods = {{ timeperiods|safe }};
+        ws_data._half_hours = {{ halfhours|safe }};
+        ws_data._communes = {{ communes|safe }};
+        // console.log(ws_data._day_types);
+        // console.log(ws_data._TS_periods);
+        // console.log(ws_data._half_hours);
+        // console.log(ws_data._communes);
+    </script>
+
+    <script src="{% static "travel/js/resume.js" %}"></script>
+{% endblock %}

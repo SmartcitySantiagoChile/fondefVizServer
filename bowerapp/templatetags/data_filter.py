@@ -27,7 +27,8 @@ def data_filter(data_filter,
                 show_operator_filter=False,
                 show_user_route_filter=False,
                 show_auth_route_filter=False,
-                show_slider_hour_filter=False):
+                show_slider_hour_filter=False,
+                show_boarding_period_filter=False):
 
     data_filter = [] if data_filter == '' else data_filter
 
@@ -68,6 +69,9 @@ def data_filter(data_filter,
         {'show': show_slider_hour_filter, 'data_key': '', 'input_type': 'text',
          'label': 'Rango horario:', 'js_id': 'hourRangeFilter',
          'col-xs': 12, 'col-sm': 6, 'col-md': 6},
+        {'show': show_boarding_period_filter, 'data_key': 'periods', 'input_type': 'select',
+         'label': 'Período de subida:', 'js_id': 'boardingPeriodFilter', 'multi_select': True,
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
     ]
 
     panel_body = ''

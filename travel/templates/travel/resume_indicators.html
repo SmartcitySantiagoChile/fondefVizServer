@@ -1,0 +1,37 @@
+<div class="row tile_count indicadores-section">
+    <div id="indicator-first-count" class="col-md-4 col-sm-12 col-xs-12 tile_stats_count text-center">
+        <span class="count_top"><i class="fa fa-bus"></i> Cantidad de Viajes</span>
+        <div class="count" id="indicator-viajes">-</div>
+        <span class="count_bottom"><i class="green" id="indicator-documentos">-</i> Viajes sin expandir</span>
+    </div>
+
+    <div class="col-md-8 col-sm-12 col-xs-12">
+        {# Just to simulate the left hand bar #}
+        <div class="col-xs-0 tile_stats_count"></div>
+
+        {# obs: bootstrap 3 does not support col-xl-* classes, but bootstrap 4 does. #}
+        <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+            <span class="count_top"><i class="fa fa-clock-o"></i> Tiempo de Viaje</span>
+            <div class="count" id="indicator-tviaje-avg">- min</div>
+            <span class="count_bottom">Mayor tiempo de viaje <i class="red" id="indicator-tviaje-max">- min</i></span>
+        </div>
+
+        <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+            <span class="count_top"><i class="fa fa-list-ol"></i> Cantidad de Etapas</span>
+            <div class="count" id="indicator-netapas-avg">- etapas</div>
+            <span class="count_bottom">Mayor cantidad de etapas <i class="red" id="indicator-netapas-max">-</i></span>
+        </div>
+
+        <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+            <span class="count_top"><i class="fa fa-road"></i> Distancia Euclideana</span>
+            <div class="count" id="indicator-dist-eucl-avg">- km</div>
+            <span class="count_bottom">Mayor distancia <i class="red" id="indicator-dist-eucl-max">- km</i></span>
+        </div>
+
+        <div class="indicator-stat col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 tile_stats_count">
+            <span class="count_top"><i class="fa fa-road"></i> Distancia en Ruta</span>
+            <div class="count" id="indicator-dist-ruta-avg">- km</div>
+            <span class="count_bottom">Mayor distancia <i class="red" id="indicator-dist-ruta-max">- km</i></span>
+        </div>
+    </div>
+</div>
