@@ -7,7 +7,7 @@ from elasticsearch_dsl import A
 from localinfo.models import Operator
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist
 
 import datetime
 
@@ -71,6 +71,12 @@ class ESSpeedHelper(ElasticSearchHelper):
         return result, operator_list
 
     def ask_for_speed_data(self, auth_route, day_type, start_date, end_date):
+
+        if not auth_route:
+            raise ESQueryRouteParameterDoesNotExist()
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         es_query = self.get_base_query()
         es_query = es_query.filter("term", route=auth_route)
