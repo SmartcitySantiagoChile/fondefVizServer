@@ -12,7 +12,113 @@ from esapi.tests.helper import TestHelper
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
 
+from localinfo.models import Operator
+
 import json
+
+
+class ESProfileIndexTest(TestCase):
+
+    def setUp(self):
+        self.instance = ESProfileHelper()
+
+    def test_ask_for_base_params(self):
+        result = self.instance.get_base_params()
+
+        self.assertIn('periods', result.keys())
+        self.assertIn('day_types', result.keys())
+        self.assertIn('days', result.keys())
+
+        for key in result:
+            self.assertIsInstance(result[key], Search)
+
+    def test_ask_for_profile_by_stop(self):
+        start_date = ''
+        end_date = ''
+        day_type = ['LABORAL']
+        stop_code = ''
+        period = [1, 2, 3]
+        half_hour = [1, 2, 3]
+
+        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.ask_for_profile_by_stop, start_date, end_date,
+                          day_type, stop_code, period, half_hour)
+        stop_code = 'PA433'
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_stop, start_date,
+                          end_date, day_type, stop_code, period, half_hour)
+        start_date = '2018-01-01'
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_stop, start_date,
+                          end_date, day_type, stop_code, period, half_hour)
+        end_date = '2018-01-02'
+        result = self.instance.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period, half_hour)
+
+        self.assertIsInstance(result, Search)
+
+    def test_ask_for_stop(self):
+        term = ''
+        result = self.instance.ask_for_stop(term)
+
+        self.assertIn('1', result.keys())
+        self.assertIn('1', result.keys())
+        self.assertIn('1', result.keys())
+        for key in result:
+            self.assertIsInstance(result[key], list)
+
+    @mock.patch('esapi.helper.profile.ElasticSearchHelper.make_multisearch_query_for_aggs')
+    def test_ask_for_available_days(self, mock_method):
+        mock_method.return_value = {'days': []}
+
+        result = self.instance.ask_for_available_days()
+        self.assertListEqual(result, [])
+
+    @mock.patch('esapi.helper.profile.Search.execute')
+    def test_ask_for_available_routes(self, mock_method):
+        mock_bucket = mock.Mock()
+        type(mock_bucket).aggregations = mock.PropertyMock(return_value=mock_bucket)
+        type(mock_bucket).route = mock.PropertyMock(return_value=mock_bucket)
+        mock_hit = mock.Mock()
+        mock_hit.to_dict.return_value = {
+            'key': '506 00I',
+            'additionalInfo': {
+                'hits': {
+                    'hits': [{'_source': {
+                        'operator': '1',
+                        'userRoute': '506'
+                    }}]
+                }
+            }
+        }
+        type(mock_bucket).buckets = mock.PropertyMock(return_value=[mock_hit])
+        mock_method.return_value = mock_bucket
+
+        # create operator
+        Operator.objects.create(esId=1, name='Metbus', description='description')
+
+        result, operator_list = self.instance.ask_for_available_routes()
+
+        self.assertDictEqual(result, {'1': {'506': ['506 00I']}})
+        self.assertListEqual(operator_list, [{'id': 1, 'text': 'Metbus'}])
+
+    def test_ask_for_profile_by_expedition(self):
+        start_date = ''
+        end_date = ''
+        day_type = ['LABORAL']
+        auth_route = ''
+        period = [1, 2, 3]
+        half_hour = [1, 2, 3]
+
+        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.ask_for_profile_by_expedition, start_date,
+                          end_date, day_type, auth_route, period, half_hour)
+        auth_route = '506 00I'
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_expedition,
+                          start_date, end_date, day_type, auth_route, period, half_hour)
+        start_date = '2018-01-01'
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_expedition,
+                          start_date, end_date, day_type, auth_route, period, half_hour)
+        end_date = '2018-02-01'
+
+        result = self.instance.ask_for_profile_by_expedition(start_date, end_date, day_type, auth_route, period,
+                                                             half_hour)
+        self.assertIsInstance(result, Search)
 
 
 class LoadProfileByExpedition(TestCase):
@@ -52,9 +158,9 @@ class LoadProfileByExpedition(TestCase):
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_exec_elasticsearch_query_with_result(self, es_query):
-        es_query.return_value = es_query
-        es_query.filter.return_value = es_query
-        es_query.source.return_value = es_query
+        es_query_instance = es_query.return_value
+        es_query_instance.filter.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
         item = mock.Mock()
         item.to_dict.return_value = {
             'expeditionStartTime': '2017-07-31T16:59:11.000Z',
@@ -78,7 +184,7 @@ class LoadProfileByExpedition(TestCase):
             'loadProfile': 36.33063507,
             'expandedAlighting': 1.073773265
         }
-        es_query.scan.return_value = [item]
+        es_query_instance.scan.return_value = [item]
 
         data = {
             'startDate': '2018-01-01',
@@ -91,14 +197,14 @@ class LoadProfileByExpedition(TestCase):
         response = self.client.get(self.url, data)
 
         self.assertNotContains(response, 'status')
-        es_query.scan.assert_called_once()
+        es_query_instance.scan.assert_called_once()
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_exec_elasticsearch_query_without_result(self, es_query):
-        es_query.return_value = es_query
-        es_query.filter.return_value = es_query
-        es_query.source.return_value = es_query
-        es_query.scan.return_value = []
+        es_query_instance = es_query.return_value
+        es_query_instance.filter.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
+        es_query_instance.scan.return_value = []
 
         self.data['startDate'] = '2018-01-01'
         self.data['endDate'] = '2018-01-01'
@@ -107,7 +213,7 @@ class LoadProfileByExpedition(TestCase):
 
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        es_query.scan.assert_called_once()
+        es_query_instance.scan.assert_called_once()
 
 
 class LoadProfileByStop(TestCase):
@@ -147,10 +253,10 @@ class LoadProfileByStop(TestCase):
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_exec_elasticsearch_query_with_result(self, es_query):
-        es_query.return_value = es_query
-        es_query.filter.return_value = es_query
-        es_query.query.return_value = es_query
-        es_query.source.return_value = es_query
+        es_query_instance = es_query.return_value
+        es_query_instance.filter.return_value = es_query_instance
+        es_query_instance.query.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
         item = mock.Mock()
         item.to_dict.return_value = {
             'expeditionStartTime': '2017-07-31T16:59:11.000Z',
@@ -174,7 +280,7 @@ class LoadProfileByStop(TestCase):
             'loadProfile': 36.33063507,
             'expandedAlighting': 1.073773265
         }
-        es_query.scan.return_value = [item]
+        es_query_instance.scan.return_value = [item]
 
         data = {
             'startDate': '2018-01-01',
@@ -187,15 +293,15 @@ class LoadProfileByStop(TestCase):
         response = self.client.get(self.url, data)
 
         self.assertNotContains(response, 'status')
-        es_query.scan.assert_called_once()
+        es_query_instance.scan.assert_called_once()
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_exec_elasticsearch_query_without_result(self, es_query):
-        es_query.return_value = es_query
-        es_query.filter.return_value = es_query
-        es_query.query.return_value = es_query
-        es_query.source.return_value = es_query
-        es_query.scan.return_value = []
+        es_query_instance = es_query.return_value
+        es_query_instance.filter.return_value = es_query_instance
+        es_query_instance.query.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
+        es_query_instance.scan.return_value = []
 
         self.data['startDate'] = '2018-01-01'
         self.data['endDate'] = '2018-01-01'
@@ -204,7 +310,7 @@ class LoadProfileByStop(TestCase):
 
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        es_query.scan.assert_called_once()
+        es_query_instance.scan.assert_called_once()
 
 
 class AskForStops(TestCase):
@@ -230,26 +336,26 @@ class AskForStops(TestCase):
 
     @mock.patch('esapi.helper.basehelper.MultiSearch')
     def test_exec_elasticsearch_query_with_result(self, es_multi_query):
-        es_multi_query.return_value = es_multi_query
-        es_multi_query.add.return_value = es_multi_query
+        es_multi_query_instance = es_multi_query.return_value
+        es_multi_query_instance.add.return_value = es_multi_query_instance
         type(self.item).doc_count = 0
-        es_multi_query.execute.return_value = [self.item]
+        es_multi_query_instance.execute.return_value = [self.item]
 
         self.data['term'] = 'PA4'
         response = self.client.get(self.url, self.data)
 
         self.assertNotContains(response, 'status')
-        es_multi_query.execute.assert_called_once()
+        es_multi_query_instance.execute.assert_called_once()
 
     @mock.patch('esapi.helper.basehelper.MultiSearch')
     def test_exec_elasticsearch_query_with_result_with_key_as_string(self, es_multi_query):
-        es_multi_query.return_value = es_multi_query
-        es_multi_query.add.return_value = es_multi_query
+        es_multi_query_instance = es_multi_query.return_value
+        es_multi_query_instance.add.return_value = es_multi_query_instance
 
         type(self.item).doc_count = mock.PropertyMock(return_value=1)
         self.item.__iter__ = mock.Mock(return_value=iter(['key_as_string']))
         type(self.item).key_as_string = mock.PropertyMock(return_value='PA433')
-        es_multi_query.execute.return_value = [self.item]
+        es_multi_query_instance.execute.return_value = [self.item]
 
         self.data['term'] = 'PA4'
         response = self.client.get(self.url, self.data)
@@ -262,16 +368,16 @@ class AskForStops(TestCase):
             }]
         }
         self.assertJSONEqual(response.content, answer)
-        es_multi_query.execute.assert_called_once()
+        es_multi_query_instance.execute.assert_called_once()
 
     @mock.patch('esapi.helper.basehelper.MultiSearch')
     def test_exec_elasticsearch_query_with_result_without_key_as_string(self, es_multi_query):
-        es_multi_query.return_value = es_multi_query
-        es_multi_query.add.return_value = es_multi_query
+        es_multi_query_instance = es_multi_query.return_value
+        es_multi_query_instance.add.return_value = es_multi_query_instance
         type(self.item).doc_count = mock.PropertyMock(return_value=1)
         self.item.__iter__ = mock.Mock(return_value=iter([]))
         type(self.item).key = mock.PropertyMock(return_value='PA433')
-        es_multi_query.execute.return_value = [self.item]
+        es_multi_query_instance.execute.return_value = [self.item]
 
         self.data['term'] = 'PA4'
         response = self.client.get(self.url, self.data)
@@ -284,7 +390,7 @@ class AskForStops(TestCase):
             }]
         }
         self.assertJSONEqual(response.content, answer)
-        es_multi_query.execute.assert_called_once()
+        es_multi_query_instance.execute.assert_called_once()
 
 
 class AskForAvailableDays(TestCase):
@@ -307,10 +413,10 @@ class AskForAvailableDays(TestCase):
 
     @mock.patch('esapi.helper.basehelper.MultiSearch')
     def test_ask_for_days_with_data(self, es_multi_query):
-        es_multi_query.return_value = es_multi_query
-        es_multi_query.add.return_value = es_multi_query
+        es_multi_query_instance = es_multi_query.return_value
+        es_multi_query_instance.add.return_value = es_multi_query_instance
         type(self.item).doc_count = 1
-        es_multi_query.execute.return_value = [self.item]
+        es_multi_query_instance.execute.return_value = [self.item]
 
         response = self.client.get(self.url, self.data)
 
@@ -319,7 +425,7 @@ class AskForAvailableDays(TestCase):
             'availableDays': [self.available_date]
         }
         self.assertJSONEqual(response.content, answer)
-        es_multi_query.execute.assert_called_once()
+        es_multi_query_instance.execute.assert_called_once()
 
 
 class AskForAvailableRoutes(TestCase):
@@ -350,11 +456,11 @@ class AskForAvailableRoutes(TestCase):
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_ask_for_days_with_data(self, es_query):
-        es_query.return_value = es_query
-        es_query.__getitem__.return_value = es_query
-        es_query.source.return_value = es_query
-        type(es_query).aggs = mock.PropertyMock()
-        es_query.execute.return_value = self.item
+        es_query_instance = es_query.return_value
+        es_query_instance.__getitem__.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
+        type(es_query_instance).aggs = mock.PropertyMock()
+        es_query_instance.execute.return_value = self.item
 
         response = self.client.get(self.url, self.data)
 
@@ -368,18 +474,4 @@ class AskForAvailableRoutes(TestCase):
             'operatorDict': []
         }
         self.assertJSONEqual(response.content, answer)
-        es_query.execute.assert_called_once()
-
-
-class AskForBaseParams(TestCase):
-
-    def test_ask_for_base_params(self):
-        instance = ESProfileHelper()
-        result = instance.get_base_params()
-
-        self.assertIn('periods', result.keys())
-        self.assertIn('day_types', result.keys())
-        self.assertIn('days', result.keys())
-
-        for key in result:
-            self.assertIsInstance(result[key], Search)
+        es_query_instance.execute.assert_called_once()

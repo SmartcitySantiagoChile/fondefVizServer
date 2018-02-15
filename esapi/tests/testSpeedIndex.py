@@ -6,13 +6,126 @@ from django.urls import reverse
 
 from mock import mock
 
-from esapi.helper.speed import ESSpeedHelper
 from elasticsearch_dsl import Search
+
+from esapi.helper.speed import ESSpeedHelper
 from esapi.tests.helper import TestHelper
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
 
+from localinfo.models import Operator
+
 import json
+
+
+class ESSpeedIndexTest(TestCase):
+
+    def setUp(self):
+        self.instance = ESSpeedHelper()
+
+    def test_ask_for_base_params(self):
+        result = self.instance.get_base_params()
+
+        self.assertIn('day_types', result.keys())
+
+        for key in result:
+            self.assertIsInstance(result[key], Search)
+
+    @mock.patch('esapi.helper.profile.ElasticSearchHelper.make_multisearch_query_for_aggs')
+    def test_get_route_list(self, mock_method):
+        mock_method.return_value = {'routes': []}
+
+        result = self.instance.get_route_list()
+        self.assertListEqual(result, [])
+
+    @mock.patch('esapi.helper.profile.ElasticSearchHelper.make_multisearch_query_for_aggs')
+    def test_ask_for_available_days(self, mock_method):
+        mock_method.return_value = {'days': []}
+
+        result = self.instance.ask_for_available_days()
+        self.assertListEqual(result, [])
+
+    @mock.patch('esapi.helper.profile.Search.execute')
+    def test_ask_for_available_routes(self, mock_method):
+        mock_bucket = mock.Mock()
+        type(mock_bucket).aggregations = mock.PropertyMock(return_value=mock_bucket)
+        type(mock_bucket).route = mock.PropertyMock(return_value=mock_bucket)
+        mock_hit = mock.Mock()
+        mock_hit.to_dict.return_value = {
+            'key': '506 00I',
+            'additionalInfo': {
+                'hits': {
+                    'hits': [{'_source': {
+                        'operator': '1',
+                        'userRoute': '506'
+                    }}]
+                }
+            }
+        }
+        type(mock_bucket).buckets = mock.PropertyMock(return_value=[mock_hit])
+        mock_method.return_value = mock_bucket
+
+        # create operator
+        Operator.objects.create(esId=1, name='Metbus', description='description')
+
+        result, operator_list = self.instance.ask_for_available_routes()
+
+        self.assertDictEqual(result, {1: {'506I': ['506 00I']}})
+        self.assertListEqual(operator_list, [{'id': 1, 'text': 'Metbus'}])
+
+    def test_ask_for_speed_data_with_error(self):
+        start_date = ''
+        end_date = ''
+        day_type = ['LABORAL']
+        auth_route = ''
+
+        self.assertRaises(ESQueryRouteParameterDoesNotExist,
+                          self.instance.ask_for_speed_data, auth_route, day_type, start_date, end_date)
+        auth_route = 'PA433'
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist,
+                          self.instance.ask_for_speed_data, auth_route, day_type, start_date, end_date)
+        start_date = '2018-01-01'
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist,
+                          self.instance.ask_for_speed_data, auth_route, day_type, start_date, end_date)
+
+    @mock.patch('esapi.helper.speed.Search.execute')
+    def test_ask_for_speed_data(self, mock_method):
+        mock_bucket = mock.Mock()
+        mock_period = mock.Mock()
+        mock_section = mock.Mock()
+
+        type(mock_bucket).aggregations = mock.PropertyMock(return_value=mock_bucket)
+        type(mock_bucket).periods = mock.PropertyMock(return_value=mock_bucket)
+
+        type(mock_period).key = mock.PropertyMock(return_value='key')
+        type(mock_period).sections = mock.PropertyMock(return_value=mock_period)
+
+        type(mock_section).key = mock.PropertyMock(return_value='key2')
+        type(mock_section).time = mock.PropertyMock(return_value=mock_section)
+        type(mock_section).value = mock.PropertyMock(return_value=0)
+        type(mock_section).n_obs = mock.PropertyMock(return_value=mock_section)
+
+        type(mock_period).buckets = mock.PropertyMock(return_value=[mock_section])
+        type(mock_bucket).buckets = mock.PropertyMock(return_value=[mock_period])
+        mock_method.return_value = mock_bucket
+
+        start_date = '2018-01-01'
+        end_date = '2018-02-01'
+        day_type = ['LABORAL']
+        auth_route = '506 00I'
+
+        result = self.instance.ask_for_speed_data(auth_route, day_type, start_date, end_date)
+
+        self.assertDictEqual(result, {('key2', 'key'): (-1, 0)})
+
+    def test_ask_for_ranking_data(self):
+        pass
+
+    def test_for_detail_ranking_data(self):
+        pass
+
+    def test_ask_for_speed_variation(self):
+        pass
 
 
 class MatrixData(TestCase):
@@ -73,26 +186,7 @@ class MatrixData(TestCase):
         # for scan
         item = mock.Mock()
         item.to_dict.return_value = {
-            'expeditionStartTime': '2017-07-31T16:59:11.000Z',
-            'expeditionStopTime': '2017-07-31T17:39:36.000Z',
-            'expeditionEndTime': '2017-07-31T18:39:41.000Z',
-            'dayType': 'LABORAL',
-            'stopDistanceFromPathStart': 9663,
-            'timePeriodInStartTime': '08 - FUERA DE PUNTA TARDE',
-            'timePeriodInStopTime': '09 - PUNTA TARDE',
-            'expeditionDayId': 152,
-            'expeditionStopOrder': 25,
-            'licensePlate': 'ZN-6496',
-            'route': 'T101 00I',
-            'busCapacity': 91,
-            'fulfillment': 'C',
-            'userStopName': 'Lo Espinoza esq- / Carmen Lidia',
-            'userStopCode': 'PJ2',
-            'authStopCode': 'T-8-65-NS-10',
-            'busStation': '0',
-            'expandedBoarding': 1.215768337,
-            'loadProfile': 36.33063507,
-            'expandedAlighting': 1.073773265
+
         }
         es_query.scan.return_value = [item]
 
@@ -385,13 +479,21 @@ class AskForAvailableRoutes(TestCase):
         es_query.execute.assert_called_once()
 
 
-class AskForBaseParams(TestCase):
+class TestESSpeedHelper(TestCase):
+
+    def setUp(self):
+        self.instance = ESSpeedHelper()
 
     def test_ask_for_base_params(self):
-        instance = ESSpeedHelper()
-        result = instance.get_base_params()
+        result = self.instance.get_base_params()
 
         self.assertIn('day_types', result.keys())
 
         for key in result:
             self.assertIsInstance(result[key], Search)
+
+    @mock.patch('esapi.helper.basehelper.Search')
+    def test_ask_for_route_list(self, es_query):
+        result = self.instance.get_route_list()
+        print(result)
+        self.assertIsInstance(result, list)
