@@ -114,7 +114,7 @@ DICTIONARY = {
 }
 
 
-class ResumeData(View):
+class GlobalData(View):
 
     def transformESAnswer(self, result_iterator):
         """ transform ES answer to something util to web client """
