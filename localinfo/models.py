@@ -75,3 +75,12 @@ class Operator(models.Model):
     class Meta:
         verbose_name = "Operador"
         verbose_name_plural = "Operadores"
+
+class DayType(models.Model):
+    """ operator code that exist in elasticsearch """
+    esId = models.IntegerField("Identificador", unique=True, null=False)
+    name = models.CharField("Nombre", max_length=50)
+
+    class Meta:
+        verbose_name = "Tipo de día"
+        verbose_name_plural = "Tipos de día"

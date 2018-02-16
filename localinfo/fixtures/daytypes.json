@@ -1,0 +1,5 @@
+[
+  {"model": "localinfo.daytype", "pk":1 , "fields":{ "esId": 0, "name": "Laboral" }},
+  {"model": "localinfo.daytype", "pk":2 , "fields":{ "esId": 1, "name": "Sábado" }},
+  {"model": "localinfo.daytype", "pk":3 , "fields":{ "esId": 2, "name": "Domingo" }}
+]
