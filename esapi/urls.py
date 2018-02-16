@@ -7,9 +7,10 @@ from django.contrib.auth.decorators import login_required
 from esapi.views.profile import MatchedStopData, LoadProfileByStopData, AvailableDays, AvailableRoutes, \
     LoadProfileByExpeditionData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
-from esapi.views.resume import ResumeData
+from esapi.views.resume import GlobalData
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
+from esapi.views.trip import ResumeData, AvailableDays as TAD
 
 app_name = 'esapi'
 urlpatterns = [
@@ -39,7 +40,8 @@ urlpatterns = [
     url(r'^speed/speedVariation$', login_required(SpeedVariation.as_view()), name='speedVariation'),
 
     # trip index
-    # url(r'^trip', login_required(LoadData.as_view()), name='loadData'),
+    url(r'^trip/resumeData', login_required(ResumeData.as_view()), name='resumeTripData'),
+    url(r'^trip/availableDays', login_required(TAD.as_view()), name='availableTripDays'),
 
     # shape index
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
