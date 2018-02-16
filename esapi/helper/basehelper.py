@@ -34,17 +34,21 @@ class ElasticSearchHelper(object):
         result = {}
         for index, response in enumerate(responses):
             result_list = []
-            for tag in response.aggregations.unique.buckets:
-                if tag.doc_count == 0:
-                    continue
+            aggregation_properties = dir(response.aggregations)
+            if len(aggregation_properties) == 1:
+                for tag in response.aggregations.unique.buckets:
+                    if tag.doc_count == 0:
+                        continue
 
-                if "key_as_string" in tag:
-                    result_list.append(tag.key_as_string)
-                else:
-                    result_list.append(tag.key)
-            result_list.sort()
+                    if "key_as_string" in tag:
+                        result_list.append(tag.key_as_string)
+                    else:
+                        result_list.append(tag.key)
+                result_list.sort()
 
-            result[keys[index]] = result_list
+                result[keys[index]] = result_list
+            else:
+                result[keys[index]] = response.aggregations.to_dict()
 
         return result
 

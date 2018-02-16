@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from elasticsearch_dsl import A
+from elasticsearch_dsl import A, Search
 
 from localinfo.models import Operator
 
