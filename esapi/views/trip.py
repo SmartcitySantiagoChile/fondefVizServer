@@ -66,9 +66,19 @@ class MapData(View):
             'Vitacura': [191, 192, 193, 195, 196],
             'Quilicura': [557, 831]
         }
+
+        KPIs = [
+            {'id': 'tviaje', 'text': 'Tiempo de viaje'},
+            {'id': 'distancia_ruta', 'text': 'Distancia en ruta'},
+            {'id': 'distancia_eucl', 'text': 'Distancia euclideana'},
+            {'id': 'n_etapas', 'text': 'Número de etapas'},
+            {'id': 'count', 'text': 'Cantidad de datos'}
+        ]
+
         response = {
             # 777 zones for each sector
-            'sectors': sectors
+            'sectors': sectors,
+            'KPIs': KPIs
         }
 
         try:
