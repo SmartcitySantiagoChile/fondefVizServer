@@ -33,17 +33,5 @@
 
 {% block js %}
     {{ block.super }}
-    <script>
-        var ws_data = {};
-        ws_data._day_types = JSON.parse("{{ daytypes|escapejs }}");
-        ws_data._TS_periods = {{ timeperiods|safe }};
-        ws_data._half_hours = {{ halfhours|safe }};
-        ws_data._communes = {{ communes|safe }};
-        // console.log(ws_data._day_types);
-        // console.log(ws_data._TS_periods);
-        // console.log(ws_data._half_hours);
-        // console.log(ws_data._communes);
-    </script>
-
     <script src="{% static "travel/js/resume.js" %}"></script>
 {% endblock %}
