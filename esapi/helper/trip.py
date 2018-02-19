@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from elasticsearch_dsl import A
+from elasticsearch_dsl.query import Q
+
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 
@@ -28,7 +31,7 @@ class ESTripHelper(ElasticSearchHelper):
 
         # up to 120 min
         add_histogram(base_es_query, 'tviaje', '15', 0, 120)
-        print(base_es_query.to_dict())
+
         # at least from 1 to 5 etapas
         add_histogram(base_es_query, 'n_etapas', '1', 1, 5)
 
@@ -96,3 +99,49 @@ class ESTripHelper(ElasticSearchHelper):
         result = self.make_multisearch_query_for_aggs(searches)["days"]
 
         return result
+
+    def ask_for_map_data(self, start_date, end_date, day_types, periods, sectors):
+        """
+        Builds a elastic search query for the travels map
+        """
+        es_query = self.get_base_query()
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        es_query = es_query.filter('range', tiempo_subida={
+            'gte': start_date + '||/d',
+            'lte': end_date + '||/d',
+            'format': 'yyyy-MM-dd',
+            'time_zone': 'America/Santiago'
+        })
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+
+        if periods:
+            es_query = es_query.filter('terms', periodo_subida=periods)
+
+        # obs: by using size=1000, we assume there are less than '1000' zones
+        by_zone_agg = A('terms', field='zona_subida', size=1000)
+
+        def add_remaining(query, sector, zones):
+            query.aggs \
+                .bucket(sector, A('filter', Q('terms', zona_bajada=zones))) \
+                .bucket('by_zone', by_zone_agg) \
+                .metric('tviaje', 'avg', field='tviaje') \
+                .metric('n_etapas', 'avg', field='n_etapas') \
+                .metric('distancia_ruta', 'avg', field='distancia_ruta') \
+                .metric('distancia_eucl', 'avg', field='distancia_eucl')
+
+        for key in sectors:
+            add_remaining(es_query, key, sectors[key])
+
+        # # limit fields
+        # return es_query.source(self.default_fields)
+
+        # return no hits!
+        print(es_query[:0].to_dict())
+        return {
+            'map': es_query[:0]
+        }
