@@ -1,29 +1,14 @@
 {% extends 'globalstat/base.html' %}
-{% load static header panel inline_select table columns update_button label button tile_stats %}
+{% load static header panel inline_select table columns update_button label button tile_stats data_filter %}
 
 {% block title %}Detalle de estadística global{% endblock %}
-
-{% block css %}
-    {% with "components/gentelella/vendors/" as gentelella_static %}
-        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
-    {% endwith %}
-{% endblock %}
 
 {% block content %}
   {% header "Estadísticas globales por día" %}
 
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
+    {% include "datamanager/availableDays.html" %}
 
-    {% inline_select "Día:" "periodFilter" dates False as day_select %}
-    {% columns 2 2 12 day_select as col1 %}
-
-    {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col2 %}
-
-    {% panel "fa-filter" "Filtro" col1|add:col2 %}
-    </div>
-  </div>
+    {% data_filter data_filter True %}
 
   {% tile_stats 4 8 12 tiles_1 %}
 
@@ -64,8 +49,5 @@
 
 {% block js %}
     {{ block.super }}
-    {% with "components/gentelella/vendors/" as gentelella_static %}
-        <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
-    {% endwith %}
     <script src="{% static "js/detail.js" %}"></script>
 {% endblock %}
