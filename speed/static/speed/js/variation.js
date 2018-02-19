@@ -207,7 +207,7 @@ $(document).ready(function () {
             afterCallData: afterCall,
             singleDatePicker: true
         };
-        filterManager(opts);
+        new FilterManager(opts);
         $(window).resize(function () {
             app.resizeChart();
         });

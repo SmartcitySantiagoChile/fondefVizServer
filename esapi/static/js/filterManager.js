@@ -8,10 +8,9 @@
  *        - previousCall: function to take actions previous to ask for data
  *        - afterCall: function to take actions after data. It receives data as first argument
  * */
-function filterManager(opts) {
+function FilterManager(opts) {
 
     /* OPTIONS */
-
     var previousCall = undefined;
     var afterCall = undefined;
     var urlFilterData = opts.urlFilterData;
@@ -231,4 +230,11 @@ function filterManager(opts) {
             values: periods
         });
     }
+
+    /**
+     * trigger click event over update button
+     * */
+    this.updateData = function () {
+        $BTN_UPDATE_DATA.trigger("click");
+    };
 }

@@ -194,6 +194,6 @@ $(document).ready(function () {
             urlRouteData: Urls["esapi:availableSpeedRoutes"](),
             afterCallData: afterCall
         };
-        filterManager(opts);
+        new FilterManager(opts);
     })();
 });

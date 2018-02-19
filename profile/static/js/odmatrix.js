@@ -335,7 +335,7 @@ $(document).ready(function () {
             previousCallData: previousCall,
             afterCallData: afterCall
         };
-        filterManager(opts);
+        new FilterManager(opts);
         $(window).resize(function () {
             app.resizeCharts();
         });
