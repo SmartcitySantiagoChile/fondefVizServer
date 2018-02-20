@@ -32,56 +32,6 @@ ws_data.map_layer_control2;
 var origin = [];
 var destination = [];
 
-function setupEtapasSelectors(options) {
-    var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
-    elems.forEach(function(html) {
-        var switchery = new Switchery(html, {
-            size: 'small',
-            color: 'rgb(38, 185, 154)'
-        });
-        html.onchange = function() {
-            updateServerData();
-        };
-    });
-}
-
-function setupModosSelectors(options) {
-    var elems = Array.prototype.slice.call(document.querySelectorAll('.modes_checkbox'));
-    elems.forEach(function(html) {
-        var switchery = new Switchery(html, {
-            size: 'small',
-            color: 'rgb(38, 185, 154)'
-        });
-        html.onchange = function() {
-            updateServerData();
-        };
-    });
-}
-
-function lookupNEtapasSelectors() {
-
-    var response = [];
-    var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
-    elems.forEach(function(html) {
-        if (html.checked) {
-            response.push(html.getAttribute('data-ne-str'));
-        }
-    });
-    return response;
-}
-
-function lookupModosSelectors() {
-
-    var response = [];
-    var elems = Array.prototype.slice.call(document.querySelectorAll('.modes_checkbox'));
-    elems.forEach(function(html) {
-        if (html.checked) {
-            response.push(html.getAttribute('data-ne-str'));
-        }
-    });
-    return response;
-}
-
 // ============================================================================
 // SERVER DATA
 // ============================================================================
@@ -119,15 +69,35 @@ function getDataZoneById(data, zone_id, options) {
 
 function processData(response) {
     ws_data.data = {
-        origin_zones: response.origin_zone,
-        destination_zones: response.destination_zone
+        strategies: response.strategies
     };
 
-    redraw2(options);
-    ws_data.map_info.update(origin);
-    ws_data.map_info2.update(destination);
+    var processed_data = Object.keys(ws_data.data.strategies).map(function(x){
+        var pieces = x.split(' | ');
+        return {nviajes: ws_data.data.strategies[x].travels.length, etapa1: pieces[0], etapa2: pieces[1], etapa3: pieces[2], etapa4: pieces[3]};
+    });
+    var _datatable = $('#tupleDetail').DataTable();
+    _datatable.clear();
+    _datatable.rows.add(processed_data);
+    _datatable.columns.adjust().draw();
 }
 
+function setupStrategyTable(options){
+    var _datatable = $('#tupleDetail').DataTable({
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+        language: {
+        url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
+        },
+        columns: [
+            {title: 'N° viajes', data: 'nviajes', searchable: true},
+            {title: 'Servicio Etapa 1', data: 'etapa1', className: 'text-right', searchable: false},
+            {title: 'Servicio Etapa 2', data: 'etapa2', className: 'text-right', searchable: false},
+            {title: 'Servicio Etapa 3', data: 'etapa3', className: 'text-right', searchable: false},
+            {title: 'Servicio Etapa 4', data: 'etapa4', className: 'text-right', searchable: false}
+        ],
+        order: [[0, 'desc']]
+    });
+}
 
 // Update Charts from filters
 function updateServerData() {
@@ -136,8 +106,6 @@ function updateServerData() {
     var toDate = $('#dateToFilter').val();
     var dayTypes = $('#dayTypeFilter').val();
     var periods = $('#periodFilter').val();
-    var nEtapas = lookupNEtapasSelectors();
-    var modos = lookupModosSelectors();
     // console.log("--- update charts ---");
     // console.log("from date: " + fromDate);
     // console.log("to date: " + toDate);
@@ -145,15 +113,20 @@ function updateServerData() {
     // console.log("periods: " + periods);
     // console.log("-- -- -- -- -- -- -- ");
 
+    if(origin.length==0 || destination.length==0){
+        console.log("Origen o destino vacio");
+        var update_button = $("#btnUpdateChart");
+        update_button.html('Actualizar Datos')
+        return;
+    }
+
     var request = {
         from: fromDate,
         to: toDate,
         daytypes: dayTypes,
         periods: periods,
         origin: origin,
-        destination: destination,
-        n_etapas: nEtapas,
-        modos: modos
+        destination: destination
     };
 
     // put loading spinner
@@ -162,7 +135,7 @@ function updateServerData() {
     update_button.html(loading_text);
 
     // load data and remove spinner
-    $.getJSON('getFromToMapsData', request, processData).always(function(){
+    $.getJSON('getStrategiesData', request, processData).always(function(){
         update_button.html('Actualizar Datos')
     });
 }
@@ -178,14 +151,13 @@ $(document).ready(function () {
     console.log("> Building forms.")
     setupDateForm(options);
     setupHalfHours(options);
-    setupEtapasSelectors(options);
-    setupModosSelectors(options);
 
     setupDayTypeAndTSPeriodForm(options);
 
+    setupStrategyTable(options);
     // map
     console.log("> Building Map ... ")
-    setupDoubleMap(options);
+    setupStrategiesMap(options);
 
     // load with default parameters
     console.log("> Loading default data ... ")
