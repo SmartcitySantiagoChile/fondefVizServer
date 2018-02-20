@@ -134,4 +134,4 @@ JS_REVERSE_SCRIPT_PREFIX = ""
 JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, os.path.join('bowerapp', os.path.join('static', 'js')))
 
 # User url
-LOGIN_URL = '/admin/login/'
+LOGIN_URL = '{0}/admin/login/'.format(JS_REVERSE_SCRIPT_PREFIX)
