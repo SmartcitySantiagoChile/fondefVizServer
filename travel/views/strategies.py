@@ -1,12 +1,12 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import functools
 from django.shortcuts import render
 from django.http import JsonResponse
 
 from elasticsearch_dsl import A, Q
-from errors import (
+from esapi.errors import (
     ESQueryParametersDoesNotExist,
     ESQueryDateRangeParametersDoesNotExist,
     ESQueryResultEmpty,
@@ -15,6 +15,7 @@ from errors import (
 )
 from django.views.generic import View
 from .generic import LoadTravelsGeneric, GetDataGeneric
+
 
 class LoadStrategiesView(LoadTravelsGeneric):
 
@@ -90,7 +91,8 @@ class GetStrategiesData(GetDataGeneric):
                 strategies_tuples[t]['travels'].append(_data['id'])
 
             response['strategies'] = strategies_tuples
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty, ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist) as e:
+        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
+                ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist) as e:
             response['status'] = e.getStatusResponse()
 
         return JsonResponse(response, safe=False)
