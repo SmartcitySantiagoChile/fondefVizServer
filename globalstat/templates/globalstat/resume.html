@@ -3,47 +3,40 @@
 
 {% block title %}Estadísticas globales por período{% endblock %}
 
-{% block css %}
-    {% with "components/gentelella/vendors/" as gentelella_static %}
-        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
-    {% endwith %}
-{% endblock %}
-
 {% block content %}
-  {% header "Estadísticas globales por período" %}
+    {% header "Estadísticas globales por período" %}
 
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
+    {% include "datamanager/availableDays.html" %}
 
-    {% inline_select "Métrica(s):" "metricFilter" metrics True as dayType_select %}
-    {% columns 12 12 12 dayType_select as col3 %}
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
 
-    {% button "clean" "Quitar métricas" "warning" "filter-group" as btn1 %}
-    {% button "transaction" "Transacciones" "default" "filter-group" as btn2 %}
-    {% button "dayTrip" "Viajes" "default" "filter-group" as btn3 %}
-    {% button "afternoonTrip" "Viajes punta tarde" "default" "filter-group" as btn4 %}
-    {% button "morningTrip" "Viajes punta mañana" "default" "filter-group" as btn5 %}
-    {% button "stage" "Etapas por modo de viaje" "default" "filter-group" as btn6 %}
-    {% button "tripByNumberOfStage" "Viajes según número de etapas" "default" "filter-group" as btn7 %}
-    {% button "expedition" "Expediciones" "default" "filter-group" as btn8 %}
-    {% button "gps" "GPS" "default" "filter-group" as btn9 %}
+            {% inline_select "Métrica(s):" "metricFilter" metrics True as dayType_select %}
+            {% columns 12 12 12 dayType_select as col3 %}
 
-    {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4|add:btn5|add:btn6|add:btn7|add:btn8|add:btn9 as col4 %}
+            {% button "clean" "Quitar métricas" "warning" "filter-group" as btn1 %}
+            {% button "transaction" "Transacciones" "default" "filter-group" as btn2 %}
+            {% button "dayTrip" "Viajes" "default" "filter-group" as btn3 %}
+            {% button "afternoonTrip" "Viajes punta tarde" "default" "filter-group" as btn4 %}
+            {% button "morningTrip" "Viajes punta mañana" "default" "filter-group" as btn5 %}
+            {% button "stage" "Etapas por modo de viaje" "default" "filter-group" as btn6 %}
+            {% button "tripByNumberOfStage" "Viajes según número de etapas" "default" "filter-group" as btn7 %}
+            {% button "expedition" "Expediciones" "default" "filter-group" as btn8 %}
+            {% button "gps" "GPS" "default" "filter-group" as btn9 %}
 
-    {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-    {% columns 12 12 12 update_button as col5 %}
+            {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4|add:btn5|add:btn6|add:btn7|add:btn8|add:btn9 as col4 %}
 
-    {% panel "fa-filter" "Filtro" col3|add:col4|add:col5 %}
+            {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
+            {% columns 12 12 12 update_button as col5 %}
+
+            {% panel "fa-filter" "Filtro" col3|add:col4|add:col5 %}
+        </div>
     </div>
-  </div>
 
-  {{ block.super }}
+    {{ block.super }}
 {% endblock %}
 
 {% block js %}
     {{ block.super }}
-    {% with "components/gentelella/vendors/" as gentelella_static %}
-        <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
-    {% endwith %}
     <script src="{% static "js/resume.js" %}"></script>
 {% endblock %}
