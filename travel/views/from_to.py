@@ -64,19 +64,14 @@ class GetFromToMapsData(GetDataGeneric):
         It is based on the requested filtering options
         """
         es_query = self.build_base_query(request)
-        print(request);
 
-        # 4 or more etapas
         n_etapas = request.GET.getlist('n_etapas[]', None)
         if n_etapas:
-            if "5+" in n_etapas:
-                n_etapas.remove("5+")
-                es_query = es_query.query(
-                    Q('terms', n_etapas=n_etapas) |
-                    Q('range', n_etapas={'gte': 5})
-                )
-            else:
-                es_query = es_query.filter('terms', n_etapas=n_etapas)
+            es_query = es_query.filter('terms', n_etapas=n_etapas)
+
+        # modos = request.GET.getlist('n_etapas[]', None)
+        # if modos:
+        #     es_query = es_query.filter('terms', ?=modos)
 
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_subida', size=1000)
@@ -102,17 +97,13 @@ class GetFromToMapsData(GetDataGeneric):
         """
         es_query = self.build_base_query(request)
 
-        # 4 or more etapas
         n_etapas = request.GET.getlist('n_etapas[]', None)
         if n_etapas:
-            if "5+" in n_etapas:
-                n_etapas.remove("5+")
-                es_query = es_query.query(
-                    Q('terms', n_etapas=n_etapas) |
-                    Q('range', n_etapas={'gte': 5})
-                )
-            else:
-                es_query = es_query.filter('terms', n_etapas=n_etapas)
+            es_query = es_query.filter('terms', n_etapas=n_etapas)
+
+        # modos = request.GET.getlist('n_etapas[]', None)
+        # if modos:
+        #     es_query = es_query.filter('terms', ?=modos)
 
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_bajada', size=1000)

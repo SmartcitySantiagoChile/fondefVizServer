@@ -4,6 +4,7 @@ from .views.map import (LoadMapView, GetMapData)
 from .views.resume import ResumeHTML
 from .views.large import (LoadLargeTravelsView, GetLargeTravelsData)
 from .views.from_to import (LoadFromToMapsView, GetFromToMapsData)
+from .views.strategies import (LoadStrategiesView, GetStrategiesData)
 
 
 app_name = 'travel'
@@ -13,7 +14,9 @@ urlpatterns = [
   url(r'^resume$', ResumeHTML.as_view(), name='graphs'),
   url(r'^large-travels$', LoadLargeTravelsView.as_view(), name='large-travels'),
   url(r'^fromToMaps$', LoadFromToMapsView.as_view(), name='from-to'),
+  url(r'^strategies$', LoadStrategiesView.as_view(), name='strategies'),
   url(r'^getMapData$', GetMapData.as_view()),
   url(r'^getLargeTravelsData$', GetLargeTravelsData.as_view()),
-  url(r'^getFromToMapsData$', GetFromToMapsData.as_view())
+  url(r'^getFromToMapsData$', GetFromToMapsData.as_view()),
+  url(r'^getStrategiesData$', GetStrategiesData.as_view())
 ]

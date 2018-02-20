@@ -78,9 +78,26 @@ class ESQueryStopPatternTooShort(ESQueryError):
         message = 'El patrón indicado es demasiado corto'
         super(ESQueryStopPatternTooShort, self).__init__(405, message)
 
+
+class ESQueryOriginZoneParameterDoesNotExist(ESQueryError):
+    """ It raises when user does not provide params to elastic search query """
+
+    def __init__(self):
+        message = 'Debe indicar zona(s) de origen'
+        super(ESQueryOriginZoneParameterDoesNotExist, self).__init__(406, message)
+
+
 class ESQueryExistTwoShapesInTimePeriod(ESQueryError):
     """ It raises when user ask for a route shape with a time windows that contains more than one """
 
     def __init__(self):
         message = 'El período indicado contiene más de una ruta.'
-        super(ESQueryExistTwoShapesInTimePeriod, self).__init__(405, message)
+        super(ESQueryExistTwoShapesInTimePeriod, self).__init__(407, message)
+
+
+class ESQueryDestinationZoneParameterDoesNotExist(ESQueryError):
+    ''' It raises when user does not provide params to elastic search query '''
+
+    def __init__(self):
+        message = 'Debe indicar zona(s) de destino'
+        super(ESQueryDestinationZoneParameterDoesNotExist, self).__init__(408, message)
