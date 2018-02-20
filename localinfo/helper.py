@@ -17,7 +17,7 @@ def get_operator_list_for_select_input():
 
 
 def get_timeperiod_list_for_select_input():
-    return _list_parser(TimePeriod.objects.values_list('esId', 'transantiagoPeriod'))
+    return _list_parser(TimePeriod.objects.values_list('esId', 'authorityPeriodName'))
 
 
 def get_halfhour_list_for_select_input():
