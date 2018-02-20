@@ -14,7 +14,7 @@ class ESTripHelper(ElasticSearchHelper):
         index_name = "travel"
         super(ESTripHelper, self).__init__(index_name)
 
-        self.default_fields = ['tviaje', 'n_etapas', 'factor_expansion', 'comuna_subida', 'comuna_bajada',
+        self.default_fields = ['tviaje', 'n_etapas', 'modos', 'factor_expansion', 'comuna_subida', 'comuna_bajada',
                                'zona_subida', 'zona_bajada']
 
     def _build_histogram_query(self, base_es_query):
@@ -59,7 +59,7 @@ class ESTripHelper(ElasticSearchHelper):
         # return no hits!
         return base_es_query[:0]
 
-    def ask_for_resume_data(self, start_date, end_date, day_types, periods, origin_zone, destination_zone):
+    def ask_for_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
 
         es_query = self.get_base_query()
 
@@ -79,11 +79,11 @@ class ESTripHelper(ElasticSearchHelper):
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
 
-        if origin_zone and origin_zone >= 0:
-            es_query = es_query.filter('term', zona_subida=origin_zone)
+        if origin_zones:
+            es_query = es_query.filter('terms', zona_subida=origin_zones)
 
-        if destination_zone and destination_zone >= 0:
-            es_query = es_query.filter('term', zona_bajada=destination_zone)
+        if destination_zones:
+            es_query = es_query.filter('terms', zona_bajada=destination_zones)
 
         es_query_dict = {
             'histogram': self._build_histogram_query(es_query),
@@ -141,7 +141,6 @@ class ESTripHelper(ElasticSearchHelper):
         # return es_query.source(self.default_fields)
 
         # return no hits!
-        print(es_query[:0].to_dict())
         return {
             'map': es_query[:0]
         }

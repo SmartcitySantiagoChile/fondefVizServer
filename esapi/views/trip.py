@@ -23,16 +23,16 @@ class ResumeData(View):
         end_date = request.GET.get('endDate', '')[:10]
         day_types = request.GET.getlist('daytypes[]', [])
         periods = request.GET.getlist('periods[]', [])
-        origin_zone = int(request.GET.get('origin', -1))
-        destination_zone = int(request.GET.get('destination', -1))
+        origin_zones = int(request.GET.getlist('origin[]', []))
+        destination_zones = int(request.GET.getlist('destination[]', []))
 
         es_helper = ESTripHelper()
 
         response = {}
 
         try:
-            es_query_dict = es_helper.ask_for_resume_data(start_date, end_date, day_types, periods, origin_zone,
-                                                          destination_zone)
+            es_query_dict = es_helper.ask_for_resume_data(start_date, end_date, day_types, periods, origin_zones,
+                                                          destination_zones)
             response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.get_status_response()
