@@ -1,5 +1,5 @@
 {% extends 'globalstat/base.html' %}
-{% load static header panel inline_select table columns update_button label button %}
+{% load static header panel inline_select table columns update_button label button data_filter %}
 
 {% block title %}Estadísticas globales por período{% endblock %}
 
@@ -8,30 +8,19 @@
 
     {% include "datamanager/availableDays.html" %}
 
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
+    {% button "clean" "Quitar métricas" "warning" "filter-group" as btn1 %}
+    {% button "transaction" "Transacciones" "default" "filter-group" as btn2 %}
+    {% button "dayTrip" "Viajes" "default" "filter-group" as btn3 %}
+    {% button "afternoonTrip" "Viajes punta tarde" "default" "filter-group" as btn4 %}
+    {% button "morningTrip" "Viajes punta mañana" "default" "filter-group" as btn5 %}
+    {% button "stage" "Etapas por modo de viaje" "default" "filter-group" as btn6 %}
+    {% button "tripByNumberOfStage" "Viajes según número de etapas" "default" "filter-group" as btn7 %}
+    {% button "expedition" "Expediciones" "default" "filter-group" as btn8 %}
+    {% button "gps" "GPS" "default" "filter-group" as btn9 %}
 
-            {% inline_select "Métrica(s):" "metricFilter" metrics True as dayType_select %}
-            {% columns 12 12 12 dayType_select as col3 %}
+    {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4|add:btn5|add:btn6|add:btn7|add:btn8|add:btn9 as col4 %}
 
-            {% button "clean" "Quitar métricas" "warning" "filter-group" as btn1 %}
-            {% button "transaction" "Transacciones" "default" "filter-group" as btn2 %}
-            {% button "dayTrip" "Viajes" "default" "filter-group" as btn3 %}
-            {% button "afternoonTrip" "Viajes punta tarde" "default" "filter-group" as btn4 %}
-            {% button "morningTrip" "Viajes punta mañana" "default" "filter-group" as btn5 %}
-            {% button "stage" "Etapas por modo de viaje" "default" "filter-group" as btn6 %}
-            {% button "tripByNumberOfStage" "Viajes según número de etapas" "default" "filter-group" as btn7 %}
-            {% button "expedition" "Expediciones" "default" "filter-group" as btn8 %}
-            {% button "gps" "GPS" "default" "filter-group" as btn9 %}
-
-            {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4|add:btn5|add:btn6|add:btn7|add:btn8|add:btn9 as col4 %}
-
-            {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-            {% columns 12 12 12 update_button as col5 %}
-
-            {% panel "fa-filter" "Filtro" col3|add:col4|add:col5 %}
-        </div>
-    </div>
+    {% data_filter data_filter show_day_filter=True show_metric_filter=True extra_html=col4 %}
 
     {{ block.super }}
 {% endblock %}

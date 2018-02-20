@@ -22,7 +22,9 @@ class ResumeHTML(View):
             })
 
         context = {
-            'metrics': attributes
+            'data_filter': {
+                'metrics': attributes
+            }
         }
 
         return render(request, template, context)

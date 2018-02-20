@@ -28,8 +28,9 @@ def data_filter(data_filter,
                 show_user_route_filter=False,
                 show_auth_route_filter=False,
                 show_slider_hour_filter=False,
-                show_boarding_period_filter=False):
-
+                show_boarding_period_filter=False,
+                show_metric_filter=False,
+                extra_html=''):
     data_filter = [] if data_filter == '' else data_filter
 
     filters = [
@@ -72,6 +73,9 @@ def data_filter(data_filter,
         {'show': show_boarding_period_filter, 'data_key': 'periods', 'input_type': 'select',
          'label': 'Período de subida:', 'js_id': 'boardingPeriodFilter', 'multi_select': True,
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
+        {'show': show_metric_filter, 'data_key': 'metrics', 'input_type': 'select',
+         'label': 'Métroca(s):', 'js_id': 'metricFilter', 'multi_select': True,
+         'col-xs': 12, 'col-sm': 9, 'col-md': 9}
     ]
 
     panel_body = ''
@@ -91,6 +95,9 @@ def data_filter(data_filter,
                                   html_input)
             panel_body += html_column
 
+    # add extra html
+    panel_body += extra_html
+
     # add update button
     btn_js_id = 'btnUpdateData'
     btn_label = 'Actualizar datos'
@@ -103,11 +110,11 @@ def data_filter(data_filter,
     html_panel = panel(panel_icon, panel_title, mark_safe(panel_body))
 
     content = """
-<div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        {0}
-    </div>
-</div>
-"""
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {0}
+            </div>
+        </div>
+        """
 
     return format_html(content, mark_safe(html_panel))

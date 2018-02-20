@@ -36,6 +36,7 @@ function FilterManager(opts) {
     var $AUTH_ROUTE_FILTER = $("#authRouteFilter");
     var $HOUR_RANGE_FILTER = $("#hourRangeFilter");
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
+    var $METRIC_FILTER = $("#metricFilter");
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
 
@@ -56,6 +57,7 @@ function FilterManager(opts) {
     $AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE, allowClear: Boolean($AUTH_ROUTE_FILTER.length)});
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
+    $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
 
     if ($STOP_FILTER.length) {
         $STOP_FILTER.select2({
@@ -98,6 +100,7 @@ function FilterManager(opts) {
         var stopCode = $STOP_FILTER.val();
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
+        var metrics = $METRIC_FILTER.val();
 
         var params = {
             startDate: $DAY_FILTER.data("daterangepicker").startDate.format(),
@@ -130,6 +133,9 @@ function FilterManager(opts) {
         }
         if (boardingPeriod) {
             params.boardingPeriod = boardingPeriod;
+        }
+        if (metrics) {
+            params.metrics = metrics;
         }
 
         if (_makeAjaxCall) {
