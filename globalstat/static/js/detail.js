@@ -43,7 +43,7 @@ $(document).ready(function () {
                         normal: {
                             formatter: function (params) {
                                 var number = Number(params.value).toLocaleString();
-                                return params.data.name + "\n" + params.percent + "% (" + number + ")";
+                                return params.data.name + "\n" + params.percent.toLocaleString() + "% (" + number + ")";
                             }
                         }
                     }
@@ -145,9 +145,9 @@ $(document).ready(function () {
             var tableRow = "<tr><th scope='row'>{0}</th><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>";
             tableAttriubutes.forEach(function (attrs, index) {
                 var label = labelAttributes[index];
-                var value0 = row[ids.indexOf(attrs[0])].toFixed(2);
-                var value1 = row[ids.indexOf(attrs[1])].toFixed(2);
-                var value2 = row[ids.indexOf(attrs[2])].toFixed(2);
+                var value0 = Number(row[ids.indexOf(attrs[0])].toFixed(2)).toLocaleString();
+                var value1 = Number(row[ids.indexOf(attrs[1])].toFixed(2)).toLocaleString();
+                var value2 = Number(row[ids.indexOf(attrs[2])].toFixed(2)).toLocaleString();
                 dataTable.append(tableRow.replace("{0}", index + 1).replace("{1}", label).replace("{2}", value0).replace("{3}", value1).replace("{4}", value2));
             });
         };
