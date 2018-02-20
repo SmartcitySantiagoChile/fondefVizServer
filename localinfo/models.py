@@ -14,7 +14,7 @@ class TimePeriod(models.Model):
     esId = models.IntegerField()
 
     # Period standard name
-    transantiagoPeriod = models.CharField(max_length=30)
+    authorityPeriodName = models.CharField(max_length=30)
 
     # Initial time for the period
     initialTime = models.TimeField(auto_now=False, auto_now_add=False)
@@ -23,7 +23,7 @@ class TimePeriod(models.Model):
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
 
     def __str__(self):
-        return self.transantiagoPeriod
+        return self.authorityPeriodName
 
 
 class Commune(models.Model):
