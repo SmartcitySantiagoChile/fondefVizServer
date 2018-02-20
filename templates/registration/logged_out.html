@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}Fin de sesión{% endblock %} 
+
+{% block bodyclass %}login{% endblock %}
+
+{% block basecontent %}
+<div>
+  <a class="hiddenanchor" id="signup"></a>
+  <a class="hiddenanchor" id="signin"></a>
+
+  <div class="login_wrapper">
+    <div class="animate form login_form"> 
+      <section class="login_content">
+        <h1>{% trans "Fin de sesión" %}</h1>
+        
+        <p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
+        <p><a class="btn btn-success btn-lg" href="{% url 'admin:index' %}">{% trans 'Log in again' %}</a></p>
+
+        <div class="clearfix"></div> 
+
+        <div class="separator">
+          <div class="clearfix"></div>
+          <br />
+
+          <div>
+            <h1><i class="fa fa-dashboard"></i> AGUILA web!</h1>
+            <p>©2017 todos los derechos reservados.</p>
+          </div>
+        </div>
+      </section>
+    </dIv>
+  </div>
+</div>
+{% endblock %}
