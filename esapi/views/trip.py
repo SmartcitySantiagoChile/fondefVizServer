@@ -23,8 +23,8 @@ class ResumeData(View):
         end_date = request.GET.get('endDate', '')[:10]
         day_types = request.GET.getlist('daytypes[]', [])
         periods = request.GET.getlist('periods[]', [])
-        origin_zones = int(request.GET.getlist('origin[]', []))
-        destination_zones = int(request.GET.getlist('destination[]', []))
+        origin_zones = map(lambda x: int(x), request.GET.getlist('origin[]', []))
+        destination_zones = map(lambda x: int(x), request.GET.getlist('destination[]', []))
 
         es_helper = ESTripHelper()
 
