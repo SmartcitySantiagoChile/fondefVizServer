@@ -231,8 +231,8 @@ class StrategiesData(View):
         day_types = request.GET.getlist('daytypes[]', [])
         periods = request.GET.getlist('periods[]', [])
         minutes = request.GET.getlist('minutes[]', [])
-        origin_zone = request.GET.getlist('origin[]', [])
-        destination_zone = request.GET.getlist('destination[]', [])
+        origin_zone = request.GET.getlist('origins[]', [])
+        destination_zone = request.GET.getlist('destinations[]', [])
 
         response = {}
 
