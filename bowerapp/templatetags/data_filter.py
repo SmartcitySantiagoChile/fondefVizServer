@@ -30,6 +30,8 @@ def data_filter(data_filter,
                 show_slider_hour_filter=False,
                 show_boarding_period_filter=False,
                 show_metric_filter=False,
+                show_start_trip_period_filter=False,
+                show_start_trip_minute_filter=False,
                 extra_html=''):
     data_filter = [] if data_filter == '' else data_filter
 
@@ -75,7 +77,13 @@ def data_filter(data_filter,
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_metric_filter, 'data_key': 'metrics', 'input_type': 'select',
          'label': 'Métroca(s):', 'js_id': 'metricFilter', 'multi_select': True,
-         'col-xs': 12, 'col-sm': 9, 'col-md': 9}
+         'col-xs': 12, 'col-sm': 9, 'col-md': 9},
+        {'show': show_start_trip_period_filter, 'data_key': 'periods', 'input_type': 'select',
+         'label': 'Período de inicio de viajes:', 'js_id': 'periodFilter', 'multi_select': True,
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
+        {'show': show_start_trip_minute_filter, 'data_key': 'minutes', 'input_type': 'select',
+         'label': 'Media hora de inicio de viajes:', 'js_id': 'minutePeriodFilter', 'multi_select': True,
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3}
     ]
 
     panel_body = ''
