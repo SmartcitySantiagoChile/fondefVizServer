@@ -96,8 +96,18 @@ class ESQueryExistTwoShapesInTimePeriod(ESQueryError):
 
 
 class ESQueryDestinationZoneParameterDoesNotExist(ESQueryError):
-    ''' It raises when user does not provide params to elastic search query '''
+    """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
         message = 'Debe indicar zona(s) de destino'
         super(ESQueryDestinationZoneParameterDoesNotExist, self).__init__(408, message)
+
+
+class ESQueryStagesEmpty(ESQueryError):
+    """ It raises when user does not provide stages to filter elastic search query """
+
+    def __init__(self):
+        message = 'Debe seleccionar las etapas que desea visualizar'
+        title = 'Información'
+        message_type = 'info'
+        super(ESQueryStagesEmpty, self).__init__(409, message, title, message_type)
