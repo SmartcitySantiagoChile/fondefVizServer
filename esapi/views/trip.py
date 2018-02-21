@@ -5,7 +5,8 @@ from django.views import View
 from django.http import JsonResponse
 
 from esapi.helper.trip import ESTripHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist
+from esapi.errors import ESQueryResultEmpty, ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
+    ESQueryStagesEmpty
 
 
 class ResumeData(View):
@@ -128,7 +129,8 @@ class LargeTravelData(View):
         try:
             es_query_dict = es_helper.ask_for_large_travel_data(start_date, end_date, day_types, periods, stages)
             response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
+                ESQueryStagesEmpty) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
