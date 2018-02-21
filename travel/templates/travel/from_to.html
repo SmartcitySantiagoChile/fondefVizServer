@@ -19,8 +19,8 @@
     <div class="">
         {% header "Orígenes y destinos" "Indicadores" %}
         {% include "datamanager/availableDays.html" %}
-        {% columns 12 12 12 "Número de etapas<br />"|add:stage_selectors as col1 %}
-        {% columns 12 12 12 "Modo de viaje<br />"|add:mode_selectors as col2 %}
+        {% columns 12 12 12 "<label>Número de etapas:</label><br />"|add:stage_selectors as col1 %}
+        {% columns 12 12 12 "<label>Modo de viaje:</label><br />"|add:mode_selectors as col2 %}
         {% with extra_html=col1|add:col2 %}
             {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True extra_html=extra_html %}
         {% endwith %}
@@ -57,7 +57,7 @@
     </script>
     <script src="{% static "travel/js/util.js" %}"></script>
     <script src="{% static "travel/js/maps.js" %}"></script>
-    <script src="{% static "travel/js/form.js" %}"></script>
+    <!-- <script src="{% static "travel/js/form.js" %}"></script> -->
     <script src="{% static "travel/js/travel_fromto_options.js" %}"></script>
     <script src="{% static "travel/js/travel_fromto.js" %}"></script>
 {% endblock %}
