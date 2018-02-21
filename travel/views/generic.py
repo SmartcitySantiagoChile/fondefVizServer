@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import json
 from django.views.generic import View
@@ -51,7 +51,6 @@ class GetDataGeneric(View):
         self.default_fields = [
             'tviaje',
             'n_etapas',
-            'modos',
             'factor_expansion',
             'comuna_subida',
             'comuna_bajada',
@@ -108,7 +107,7 @@ class GetDataGeneric(View):
     # Supporting methods: queries
     # ========================================================
 
-    def build_base_query(self, request, multiquery=True):
+    def build_base_query(self, request):
         """
         TODO: realizar filtrado sólo 1 vez y no por cada query
 
@@ -116,18 +115,15 @@ class GetDataGeneric(View):
         raises ESQueryParametersDoesNotExist ?
         raises ESQueryDateRangeParametersDoesNotExist
         """
-        if multiquery:
-            es_query = Search()
-        else:
-            es_query = Search(using=settings.ES_CLIENT, index=LoadTravelsGeneric.INDEX_NAME)
+        es_query = Search()
 
         # filtering params
         from_date = request.GET.get('from', None)
         to_date = request.GET.get('to', None)
         day_types = request.GET.getlist('daytypes[]', None)
         periods = request.GET.getlist('periods[]', None)
-        origin_zone = request.GET.getlist('origin[]', None)
-        destination_zone = request.GET.getlist('destination[]', None)
+        origin_zone = int(request.GET.get('origin', -1))
+        destination_zone = int(request.GET.get('destination', -1))
         # common filtering
         if from_date and to_date:
             es_query = es_query.filter(
@@ -148,10 +144,11 @@ class GetDataGeneric(View):
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
 
-        if origin_zone:
-            es_query = es_query.filter('terms', zona_subida=origin_zone)
+        if origin_zone and origin_zone >= 0:
+            es_query = es_query.filter('term', zona_subida=origin_zone)
 
-        if destination_zone:
-            es_query = es_query.filter('terms', zona_bajada=destination_zone)
+        if destination_zone and destination_zone >= 0:
+            es_query = es_query.filter('term', zona_bajada=destination_zone)
 
+        print(es_query.to_dict())
         return es_query

@@ -1,123 +1,24 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.views import View
+from django.template.loader import render_to_string
 
-from elasticsearch_dsl import A, Q
-from esapi.errors import (
-    ESQueryParametersDoesNotExist,
-    ESQueryDateRangeParametersDoesNotExist,
-    ESQueryResultEmpty
-)
-from .generic import LoadTravelsGeneric, GetDataGeneric
+from localinfo.helper import get_timeperiod_list_for_select_input, get_day_type_list_for_select_input, \
+    get_halfhour_list_for_select_input
 
-class LoadFromToMapsView(LoadTravelsGeneric):
 
-    def __init__(self):
-        """"""
-        es_query_dict = dict()
-        super(LoadFromToMapsView, self).__init__(es_query_dict)
+class FromToMapHTML(View):
 
     def get(self, request):
-        return render(request, "travel/from_to.html", self.context)
-
-
-class GetFromToMapsData(GetDataGeneric):
-
-    def __init__(self):
-        super(GetDataGeneric, self).__init__()
-
-    # ========================================================
-    # View Interface
-    # ========================================================
-    # only 'get' method
-
-    def get(self, request):
-        """
-        It returns travel data based on the requested filters.
-        The data is optimized for by_time views.
-
-        The response is a Json document.
-        """
-        response = dict()
-
-        # build es multisearch dictionary
-        es_query_dict = dict()
-        try:
-            es_query_dict['origin_zone'] = self.build_origin_travels(request)
-            es_query_dict['destination_zone'] = self.build_destination_travels(request)
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
-            response['status'] = e.get_status_response()
-
-        # execute es queries and return as JSON
-        response.update(self.execute_queries(es_query_dict))
-        return JsonResponse(response, safe=False)
-
-    # ========================================================
-    # Supporting methods: queries
-    # ========================================================
-
-    def build_origin_travels(self, request):
-        """
-        Builds a elastic search query for the travels map
-        It is based on the requested filtering options
-        """
-        es_query = self.build_base_query(request)
-
-        n_etapas = request.GET.getlist('n_etapas[]', None)
-        if n_etapas:
-            es_query = es_query.filter('terms', n_etapas=n_etapas)
-
-        # modos = request.GET.getlist('n_etapas[]', None)
-        # if modos:
-        #     es_query = es_query.filter('terms', ?=modos)
-
-        # obs: by using size=1000, we assume there are less than '1000' zones
-        by_zone_agg = A('terms', field='zona_subida', size=1000)
-
-        # required stats
-        es_query.aggs\
-            .bucket('by_zone', by_zone_agg)\
-            .metric('tviaje', 'avg', field='tviaje')\
-            .metric('n_etapas', 'avg', field='n_etapas')\
-            .metric('distancia_ruta', 'avg', field='distancia_ruta')\
-            .metric('distancia_eucl', 'avg', field='distancia_eucl')
-
-        # # limit fields
-        # return es_query.source(self.default_fields)
-
-        # return no hits!
-        return es_query[:0]
-
-    def build_destination_travels(self, request):
-        """
-        Builds a elastic search query for the travels map
-        It is based on the requested filtering options
-        """
-        es_query = self.build_base_query(request)
-
-        n_etapas = request.GET.getlist('n_etapas[]', None)
-        if n_etapas:
-            es_query = es_query.filter('terms', n_etapas=n_etapas)
-
-        # modos = request.GET.getlist('n_etapas[]', None)
-        # if modos:
-        #     es_query = es_query.filter('terms', ?=modos)
-
-        # obs: by using size=1000, we assume there are less than '1000' zones
-        by_zone_agg = A('terms', field='zona_bajada', size=1000)
-
-        # required stats
-        es_query.aggs\
-            .bucket('by_zone', by_zone_agg)\
-            .metric('tviaje', 'avg', field='tviaje')\
-            .metric('n_etapas', 'avg', field='n_etapas')\
-            .metric('distancia_ruta', 'avg', field='distancia_ruta')\
-            .metric('distancia_eucl', 'avg', field='distancia_eucl')
-
-        # # limit fields
-        # return es_query.source(self.default_fields)
-
-        # return no hits!
-        return es_query[:0]
+        context = {
+            'data_filter': {
+                'dayTypes': get_day_type_list_for_select_input(),
+                'periods': get_timeperiod_list_for_select_input(),
+                'minutes': get_halfhour_list_for_select_input()
+            },
+            'mode_selectors': render_to_string('travel/from_to_mode_selectors.html'),
+            'stage_selectors': render_to_string('travel/from_to_stage_selectors.html'),
+        }
+        return render(request, "travel/from_to.html", context)
