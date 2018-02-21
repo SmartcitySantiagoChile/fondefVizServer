@@ -7,6 +7,8 @@ from elasticsearch_dsl.query import Q
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty
 
+import copy
+
 
 class ESTripHelper(ElasticSearchHelper):
 
@@ -146,7 +148,6 @@ class ESTripHelper(ElasticSearchHelper):
         }
 
     def ask_for_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas):
-
         """
         Builds a elastic search query for the travels map
         It is based on the requested filtering options
@@ -195,4 +196,51 @@ class ESTripHelper(ElasticSearchHelper):
         # return no hits!
         return {
             'large': es_query[:0]
+        }
+
+    def ask_for_from_to_map_data(self, start_date, end_date, day_types, periods, minutes, stages, modes):
+        es_query = self.get_base_query()
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        es_query = es_query.filter('range', tiempo_subida={
+            'gte': start_date + '||/d',
+            'lte': end_date + '||/d',
+            'format': 'yyyy-MM-dd',
+            'time_zone': 'America/Santiago'
+        })
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+        if periods:
+            es_query = es_query.filter('terms', periodo_subida=periods)
+        if minutes:
+            es_query = es_query.filter('terms', mediahora_subida=minutes)
+        if stages:
+            es_query = es_query.filter('terms', n_etapas=stages)
+        # if modes:
+        #    es_query = es_query.filter('terms', ?=modes)
+
+        es_query = es_query[:0]
+
+        def _query_by_zone(query, field):
+            by_zone_agg = A('terms', field=field, size=1000)
+
+            # required stats
+            query.aggs \
+                .bucket('by_zone', by_zone_agg) \
+                .metric('tviaje', 'avg', field='tviaje') \
+                .metric('n_etapas', 'avg', field='n_etapas') \
+                .metric('distancia_ruta', 'avg', field='distancia_ruta') \
+                .metric('distancia_eucl', 'avg', field='distancia_eucl')
+
+
+        destination_es_query = copy.copy(es_query)
+        _query_by_zone(es_query, 'zona_subida')
+        _query_by_zone(destination_es_query, 'zona_bajada')
+
+        return {
+            'origin_zone': es_query,
+            'destination_zone': destination_es_query
         }

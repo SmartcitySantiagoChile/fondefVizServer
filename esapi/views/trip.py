@@ -134,3 +134,37 @@ class LargeTravelData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
+
+
+class FromToMapData(View):
+
+    def process_data(self, data):
+        return data
+
+    def get(self, request):
+        """
+        It returns travel data based on the requested filters.
+        The data is optimized for by_time views.
+
+        The response is a Json document.
+        """
+        start_date = request.GET.get('startDate', '')[:10]
+        end_date = request.GET.get('endDate', '')[:10]
+        day_types = request.GET.getlist('daytypes[]', [])
+        periods = request.GET.getlist('periods[]', [])
+        minutes = request.GET.getlist('minutes[]', [])
+        stages = request.GET.getlist('stages[]', [])
+        modes = request.GET.getlist('modes[]', [])
+
+        response = {}
+
+        es_helper = ESTripHelper()
+
+        try:
+            es_query_dict = es_helper.ask_for_from_to_map_data(start_date, end_date, day_types, periods, minutes, stages, modes)
+            response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
+                ESQueryStagesEmpty) as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
