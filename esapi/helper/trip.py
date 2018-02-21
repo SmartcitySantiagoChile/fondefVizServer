@@ -5,7 +5,8 @@ from elasticsearch_dsl import A
 from elasticsearch_dsl.query import Q
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty, \
+    ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist
 
 import copy
 
@@ -235,7 +236,6 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('distancia_ruta', 'avg', field='distancia_ruta') \
                 .metric('distancia_eucl', 'avg', field='distancia_eucl')
 
-
         destination_es_query = copy.copy(es_query)
         _query_by_zone(es_query, 'zona_subida')
         _query_by_zone(destination_es_query, 'zona_bajada')
@@ -244,3 +244,32 @@ class ESTripHelper(ElasticSearchHelper):
             'origin_zone': es_query,
             'destination_zone': destination_es_query
         }
+
+    def ask_for_strategies_data(self, start_date, end_date, day_types, periods, minutes, origin_zones,
+                                destination_zones):
+        es_query = self.get_base_query()[:0]
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        if not origin_zones:
+            raise ESQueryOriginZoneParameterDoesNotExist()
+
+        if not destination_zones:
+            raise ESQueryDestinationZoneParameterDoesNotExist()
+
+        es_query = es_query.filter('range', tiempo_subida={
+            'gte': start_date + '||/d',
+            'lte': end_date + '||/d',
+            'format': 'yyyy-MM-dd',
+            'time_zone': 'America/Santiago'
+        })
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+        if periods:
+            es_query = es_query.filter('terms', periodo_subida=periods)
+        if minutes:
+            es_query = es_query.filter('terms', mediahora_subida=minutes)
+
+        return es_query

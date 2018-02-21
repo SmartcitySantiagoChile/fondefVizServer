@@ -4,9 +4,11 @@ from __future__ import unicode_literals
 from django.views import View
 from django.http import JsonResponse
 
+from collections import defaultdict
+
 from esapi.helper.trip import ESTripHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryStagesEmpty
+    ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist
 
 
 class ResumeData(View):
@@ -161,10 +163,88 @@ class FromToMapData(View):
         es_helper = ESTripHelper()
 
         try:
-            es_query_dict = es_helper.ask_for_from_to_map_data(start_date, end_date, day_types, periods, minutes, stages, modes)
+            es_query_dict = es_helper.ask_for_from_to_map_data(start_date, end_date, day_types, periods, minutes,
+                                                               stages, modes)
             response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty) as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
+
+
+class StrategiesData(View):
+
+    def process_data(self, es_query):
+        subway = 'METRO'
+        train = 'METROTREN'
+
+        strategies_tuples = defaultdict(lambda: {'travels': []})
+
+        for hit in es_query.scan():
+            _data = hit.to_dict()
+            t = ''
+            if _data['tipo_transporte_1'] == 2:
+                t += subway
+            elif _data['tipo_transporte_1'] == 4:
+                t += train
+            else:
+                t += _data['srv_1']
+            t += ' | '
+
+            if _data['tipo_transporte_2'] == 2:
+                t += subway
+            elif _data['tipo_transporte_2'] == 4:
+                t += train
+            else:
+                t += _data['srv_2']
+            t += ' | '
+
+            if _data['tipo_transporte_3'] == 2:
+                t += subway
+            elif _data['tipo_transporte_3'] == 4:
+                t += train
+            else:
+                t += _data['srv_3']
+            t += ' | '
+
+            if _data['tipo_transporte_4'] == 2:
+                t += subway
+            elif _data['tipo_transporte_4'] == 4:
+                t += train
+            else:
+                t += _data['srv_4']
+
+            strategies_tuples[t]['travels'].append(_data['id'])
+
+        return strategies_tuples
+
+    def get(self, request):
+        """
+        It returns travel data based on the requested filters.
+        The data is optimized for by_time views.
+
+        The response is a Json document.
+        """
+        start_date = request.GET.get('startDate', '')[:10]
+        end_date = request.GET.get('endDate', '')[:10]
+        day_types = request.GET.getlist('daytypes[]', [])
+        periods = request.GET.getlist('periods[]', [])
+        minutes = request.GET.getlist('minutes[]', [])
+        origin_zone = request.GET.getlist('origin[]', [])
+        destination_zone = request.GET.getlist('destination[]', [])
+
+        response = {}
+
+        es_helper = ESTripHelper()
+
+        try:
+            es_query = es_helper.ask_for_strategies_data(start_date, end_date, day_types, periods, minutes,
+                                                         origin_zone, destination_zone)
+            response['strategies'] = self.process_data(es_query)
+        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
+                ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist,
+                ESQueryDestinationZoneParameterDoesNotExist) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
