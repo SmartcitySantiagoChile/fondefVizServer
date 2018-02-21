@@ -16,6 +16,10 @@ function FilterManager(opts) {
     var urlFilterData = opts.urlFilterData;
     var urlRouteData = opts.urlRouteData;
     var singleDatePicker = opts.singleDatePicker || false;
+    /* function that return additional params to send to server */
+    var dataUrlParams = opts.dataUrlParams || function () {
+        return {};
+    };
 
     if (opts.hasOwnProperty("previousCallData")) {
         previousCall = opts.previousCallData;
@@ -102,10 +106,10 @@ function FilterManager(opts) {
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
 
-        var params = {
-            startDate: $DAY_FILTER.data("daterangepicker").startDate.format(),
-            endDate: $DAY_FILTER.data("daterangepicker").endDate.format()
-        };
+        var params = dataUrlParams();
+        params.startDate = $DAY_FILTER.data("daterangepicker").startDate.format();
+        params.endDate = $DAY_FILTER.data("daterangepicker").endDate.format();
+
         if ($AUTH_ROUTE_FILTER.length && authRoute) {
             params.authRoute = authRoute;
         }
@@ -240,7 +244,11 @@ function FilterManager(opts) {
     /**
      * trigger click event over update button
      * */
-    this.updateData = function () {
+    this.updateData = function (opts) {
+        // update params to send to server
+        if (opts !== undefined) {
+            dataUrlParams = opts.dataUrlParams || {};
+        }
         $BTN_UPDATE_DATA.trigger("click");
     };
 }
