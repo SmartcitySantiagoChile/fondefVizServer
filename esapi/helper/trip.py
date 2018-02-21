@@ -5,7 +5,7 @@ from elasticsearch_dsl import A
 from elasticsearch_dsl.query import Q
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty
 
 
 class ESTripHelper(ElasticSearchHelper):
@@ -175,6 +175,8 @@ class ESTripHelper(ElasticSearchHelper):
                 es_query = es_query.query(Q('terms', n_etapas=n_etapas) | Q('range', n_etapas={'gte': 5}))
             else:
                 es_query = es_query.filter('terms', n_etapas=n_etapas)
+        else:
+            raise ESQueryStagesEmpty()
 
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_subida', size=1000)
