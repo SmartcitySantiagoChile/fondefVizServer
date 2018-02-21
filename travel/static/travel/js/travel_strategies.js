@@ -9,12 +9,12 @@ ws_data.tile_layer;
 ws_data.tile_layer2;
 ws_data.subway_layer = L.geoJSON(); // empty layer
 ws_data.subway_layer2 = L.geoJSON(); // empty layer
-ws_data.districts_layer  = L.geoJSON(); // empty layer
-ws_data.districts_layer2  = L.geoJSON(); // empty layer
-ws_data.origins_layer  = L.featureGroup(); // empty layer
-ws_data.destinations_layer  = L.featureGroup(); // empty layer
-ws_data.zones_layer  = L.featureGroup(); // empty layer
-ws_data.zones_layer2  = L.featureGroup(); // empty layer
+ws_data.districts_layer = L.geoJSON(); // empty layer
+ws_data.districts_layer2 = L.geoJSON(); // empty layer
+ws_data.origins_layer = L.featureGroup(); // empty layer
+ws_data.destinations_layer = L.featureGroup(); // empty layer
+ws_data.zones_layer = L.featureGroup(); // empty layer
+ws_data.zones_layer2 = L.featureGroup(); // empty layer
 // ws_data.zones_layer  = L.geoJSON(); // empty layer
 // ws_data.zones_layer2  = L.geoJSON(); // empty layer
 ws_data.sector_layer = L.geoJSON(); // empty layer
@@ -37,14 +37,14 @@ var destination = [];
 // ============================================================================
 function getDataZoneByIds(data, zone_ids, options) {
     // missing data
-    if (data === null) return null;
-    if (zone_ids === undefined || zone_ids === null) return null;
-    if (options === undefined || options === null) return null;
+    if (data === null || (zone_ids === undefined || zone_ids === null) || (options === undefined || options === null)) {
+        return null;
+    }
 
     var results = [];
 
     data.aggregations.by_zone.buckets.forEach(function (zone, idx) {
-        if($.inArray(zone.key, zone_ids) >= 0) {
+        if ($.inArray(zone.key, zone_ids) >= 0) {
             results.push([zone]);
         }
     });
@@ -59,8 +59,8 @@ function getDataZoneById(data, zone_id, options) {
 
     // seek zone
     var result = null;
-    data.aggregations.by_zone.buckets.forEach(function (zone, idx) {
-        if (zone.key == zone_id) {
+    data.aggregations.by_zone.buckets.forEach(function (zone) {
+        if (zone.key === zone_id) {
             result = zone;
         }
     });
@@ -72,98 +72,63 @@ function processData(response) {
         strategies: response.strategies
     };
 
-    var processed_data = Object.keys(ws_data.data.strategies).map(function(x){
-        var pieces = x.split(' | ');
-        return {nviajes: ws_data.data.strategies[x].travels.length, etapa1: pieces[0], etapa2: pieces[1], etapa3: pieces[2], etapa4: pieces[3]};
+    var processed_data = Object.keys(ws_data.data.strategies).map(function (x) {
+        var pieces = x.split(" | ");
+        return {
+            nviajes: ws_data.data.strategies[x].travels.length,
+            etapa1: pieces[0],
+            etapa2: pieces[1],
+            etapa3: pieces[2],
+            etapa4: pieces[3]
+        };
     });
-    var _datatable = $('#tupleDetail').DataTable();
+    var _datatable = $("#tupleDetail").DataTable();
     _datatable.clear();
     _datatable.rows.add(processed_data);
     _datatable.columns.adjust().draw();
 }
 
-function setupStrategyTable(options){
-    var _datatable = $('#tupleDetail').DataTable({
+function setupStrategyTable() {
+    var _datatable = $("#tupleDetail").DataTable({
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
         language: {
-        url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
+            url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
         },
         columns: [
-            {title: 'N° viajes', data: 'nviajes', searchable: true},
-            {title: 'Servicio Etapa 1', data: 'etapa1', className: 'text-right', searchable: false},
-            {title: 'Servicio Etapa 2', data: 'etapa2', className: 'text-right', searchable: false},
-            {title: 'Servicio Etapa 3', data: 'etapa3', className: 'text-right', searchable: false},
-            {title: 'Servicio Etapa 4', data: 'etapa4', className: 'text-right', searchable: false}
+            {title: "N° viajes", data: "nviajes", searchable: true},
+            {title: "Servicio Etapa 1", data: "etapa1", className: "text-right", searchable: false},
+            {title: "Servicio Etapa 2", data: "etapa2", className: "text-right", searchable: false},
+            {title: "Servicio Etapa 3", data: "etapa3", className: "text-right", searchable: false},
+            {title: "Servicio Etapa 4", data: "etapa4", className: "text-right", searchable: false}
         ],
-        order: [[0, 'desc']]
+        order: [[0, "desc"]]
     });
 }
-
-// Update Charts from filters
-function updateServerData() {
-
-    var fromDate = $('#dateFromFilter').val();
-    var toDate = $('#dateToFilter').val();
-    var dayTypes = $('#dayTypeFilter').val();
-    var periods = $('#periodFilter').val();
-    // console.log("--- update charts ---");
-    // console.log("from date: " + fromDate);
-    // console.log("to date: " + toDate);
-    // console.log("day types: " + dayTypes);
-    // console.log("periods: " + periods);
-    // console.log("-- -- -- -- -- -- -- ");
-
-    if(origin.length==0 || destination.length==0){
-        console.log("Origen o destino vacio");
-        var update_button = $("#btnUpdateChart");
-        update_button.html('Actualizar Datos')
-        return;
-    }
-
-    var request = {
-        from: fromDate,
-        to: toDate,
-        daytypes: dayTypes,
-        periods: periods,
-        origin: origin,
-        destination: destination
-    };
-
-    // put loading spinner
-    var update_button = $(this);
-    var loading_text = "Actualizar Datos <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-    update_button.html(loading_text);
-
-    // load data and remove spinner
-    $.getJSON('getStrategiesData', request, processData).always(function(){
-        update_button.html('Actualizar Datos')
-    });
-}
-
 
 // ============================================================================
 // MAIN
 // ============================================================================
 
 $(document).ready(function () {
-
-    // Forms
-    console.log("> Building forms.")
-    setupDateForm(options);
-    setupHalfHours(options);
-
-    setupDayTypeAndTSPeriodForm(options);
+    loadAvailableDays(Urls["esapi:availableTripDays"]());
 
     setupStrategyTable(options);
-    // map
-    console.log("> Building Map ... ")
     setupStrategiesMap(options);
 
-    // load with default parameters
-    console.log("> Loading default data ... ")
-
-    updateServerData();
-
-    // buttons
-    $('#btnUpdateChart').click(updateServerData);
+    var afterCall = function (data) {
+        processData(data);
+    };
+    var opts = {
+        urlFilterData: Urls["esapi:tripStrategiesData"](),
+        afterCallData: afterCall,
+        dataUrlParams: function () {
+            return {
+                origins: origin,
+                destinations: destination
+            }
+        }
+    };
+    var manager = new FilterManager(opts);
+    // load first time
+    manager.updateData();
 });
