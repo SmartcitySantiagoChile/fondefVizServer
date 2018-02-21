@@ -144,3 +144,53 @@ class ESTripHelper(ElasticSearchHelper):
         return {
             'map': es_query[:0]
         }
+
+    def ask_for_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas):
+
+        """
+        Builds a elastic search query for the travels map
+        It is based on the requested filtering options
+        """
+        es_query = self.get_base_query()
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        es_query = es_query.filter('range', tiempo_subida={
+            'gte': start_date + '||/d',
+            'lte': end_date + '||/d',
+            'format': 'yyyy-MM-dd',
+            'time_zone': 'America/Santiago'
+        })
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+
+        if periods:
+            es_query = es_query.filter('terms', periodo_subida=periods)
+
+        if n_etapas:
+            if "5+" in n_etapas:
+                n_etapas.remove("5+")
+                es_query = es_query.query(Q('terms', n_etapas=n_etapas) | Q('range', n_etapas={'gte': 5}))
+            else:
+                es_query = es_query.filter('terms', n_etapas=n_etapas)
+
+        # obs: by using size=1000, we assume there are less than '1000' zones
+        by_zone_agg = A('terms', field='zona_subida', size=1000)
+
+        # required stats
+        es_query.aggs \
+            .bucket('by_zone', by_zone_agg) \
+            .metric('tviaje', 'avg', field='tviaje') \
+            .metric('n_etapas', 'avg', field='n_etapas') \
+            .metric('distancia_ruta', 'avg', field='distancia_ruta') \
+            .metric('distancia_eucl', 'avg', field='distancia_eucl')
+
+        # # limit fields
+        # return es_query.source(self.default_fields)
+
+        # return no hits!
+        return {
+            'large': es_query[:0]
+        }

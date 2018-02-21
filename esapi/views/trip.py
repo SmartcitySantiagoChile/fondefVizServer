@@ -101,3 +101,34 @@ class AvailableDays(View):
         }
 
         return JsonResponse(response)
+
+
+class LargeTravelData(View):
+
+    def process_data(self, data):
+        return data
+
+    def get(self, request):
+        """
+        It returns travel data based on the requested filters.
+        The data is optimized for by_time views.
+
+        The response is a Json document.
+        """
+        start_date = request.GET.get('startDate', '')[:10]
+        end_date = request.GET.get('endDate', '')[:10]
+        day_types = request.GET.getlist('daytypes[]', [])
+        periods = request.GET.getlist('periods[]', [])
+        stages = request.GET.getlist('stages[]', [])
+
+        response = {}
+
+        es_helper = ESTripHelper()
+
+        try:
+            es_query_dict = es_helper.ask_for_large_travel_data(start_date, end_date, day_types, periods, stages)
+            response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)

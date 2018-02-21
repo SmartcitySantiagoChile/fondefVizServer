@@ -35,7 +35,7 @@ class ElasticSearchHelper(object):
         for index, response in enumerate(responses):
             result_list = []
             aggregation_properties = dir(response.aggregations)
-            if len(aggregation_properties) == 1:
+            if len(aggregation_properties) == 1 and aggregation_properties[0] == 'unique':
                 for tag in response.aggregations.unique.buckets:
                     if tag.doc_count == 0:
                         continue
