@@ -24,8 +24,8 @@ class ResumeData(View):
         """
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('daytypes[]', [])
-        periods = request.GET.getlist('periods[]', [])
+        day_types = request.GET.getlist('dayType[]', [])
+        periods = request.GET.getlist('period[]', [])
         origin_zones = map(lambda x: int(x), request.GET.getlist('origin[]', []))
         destination_zones = map(lambda x: int(x), request.GET.getlist('destination[]', []))
 
@@ -56,8 +56,8 @@ class MapData(View):
         """
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('daytypes[]', [])
-        periods = request.GET.getlist('periods[]', [])
+        day_types = request.GET.getlist('dayType[]', [])
+        periods = request.GET.getlist('period[]', [])
 
         es_helper = ESTripHelper()
 
@@ -120,8 +120,8 @@ class LargeTravelData(View):
         """
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('daytypes[]', [])
-        periods = request.GET.getlist('periods[]', [])
+        day_types = request.GET.getlist('dayType[]', [])
+        periods = request.GET.getlist('period[]', [])
         stages = request.GET.getlist('stages[]', [])
 
         response = {}
@@ -152,9 +152,9 @@ class FromToMapData(View):
         """
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('daytypes[]', [])
-        periods = request.GET.getlist('periods[]', [])
-        minutes = request.GET.getlist('minutes[]', [])
+        day_types = request.GET.getlist('dayType[]', [])
+        periods = request.GET.getlist('period[]', [])
+        minutes = request.GET.getlist('halfHour[]', [])
         stages = request.GET.getlist('stages[]', [])
         modes = request.GET.getlist('modes[]', [])
 
@@ -229,8 +229,8 @@ class StrategiesData(View):
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
         day_types = request.GET.getlist('daytypes[]', [])
-        periods = request.GET.getlist('periods[]', [])
-        minutes = request.GET.getlist('minutes[]', [])
+        periods = request.GET.getlist('period[]', [])
+        minutes = request.GET.getlist('halfHour[]', [])
         origin_zone = request.GET.getlist('origins[]', [])
         destination_zone = request.GET.getlist('destinations[]', [])
 

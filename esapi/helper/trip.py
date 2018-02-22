@@ -271,5 +271,9 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', periodo_subida=periods)
         if minutes:
             es_query = es_query.filter('terms', mediahora_subida=minutes)
+        if origin_zones:
+            es_query = es_query.filter('terms', zona_subida=origin_zones)
+        if destination_zones:
+            es_query = es_query.filter('terms', zona_bajada=destination_zones)
 
         return es_query
