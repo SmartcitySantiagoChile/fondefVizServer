@@ -31,15 +31,9 @@
 
     {% header "Estrategias de viaje" "Indicadores" %}
     {% include "datamanager/availableDays.html" %}
-    {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True %}
-
-    <div class="row cols-same-height">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            {% with panel_body="<div id='mapChart' style='height:500px;'></div>" %}
-                {% panel "fa-map-o" "<span id='mapTitle'>Origen y destino</span>" panel_body %}
-            {% endwith %}
-        </div>
-    </div>
+    {% with panel_body="<div class='col-md-12 col-sm-12 col-xs-12'><label>Seleccione el origen y destino:</label><div id='mapChart' style='height:500px;'></div></div>" %}
+    {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True extra_html=panel_body %}
+    {% endwith %}
 
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
