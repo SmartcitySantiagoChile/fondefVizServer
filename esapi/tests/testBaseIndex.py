@@ -2,12 +2,12 @@
 from __future__ import unicode_literals
 
 from django.test import TestCase, override_settings
-
 from mock import mock
-
 from elasticsearch_dsl import Search
 
 from esapi.helper.basehelper import ElasticSearchHelper
+
+import __builtin__
 
 
 class IndexNameTest(TestCase):
@@ -38,8 +38,11 @@ class BaseIndexTest(TestCase):
         query = self.instance.get_base_query()
         self.assertIsInstance(query, Search)
 
-    @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_multisearch_query_for_aggs_without_docs(self, multi_search):
+    @mock.patch.object(__builtin__, 'dir')
+    @mock.patch('esapi.helper.basehelper.MultiSearch', )
+    def test_multisearch_query_for_aggs_without_docs(self, multi_search, dir_mock):
+        dir_mock.return_value = ['unique']
+
         mock_instance = multi_search.return_value
         mock_instance.add.return_value = mock_instance
 
@@ -50,6 +53,7 @@ class BaseIndexTest(TestCase):
         type(mock_item).aggregations = mock.PropertyMock(return_value=mock_item)
         type(mock_item).unique = mock.PropertyMock(return_value=mock_item)
         type(mock_item).buckets = mock.PropertyMock(return_value=[mock_tag])
+
         mock_instance.execute.return_value = [mock_item]
 
         queries = {
@@ -59,8 +63,10 @@ class BaseIndexTest(TestCase):
         mock_instance.execute.assert_called_once()
         self.assertDictEqual(result, {'query1': []})
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_multisearch_query_for_aggs_with_docs_with_key_as_string(self, multi_search):
+    def test_multisearch_query_for_aggs_with_docs_with_key_as_string(self, multi_search, dir_mock):
+        dir_mock.return_value = ['unique']
         mock_instance = multi_search.return_value
         mock_instance.add.return_value = mock_instance
 
@@ -82,8 +88,10 @@ class BaseIndexTest(TestCase):
         mock_instance.execute.assert_called_once()
         self.assertDictEqual(result, {'query1': ['key']})
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_multisearch_query_for_aggs_with_docs_without_key_as_string(self, multi_search):
+    def test_multisearch_query_for_aggs_with_docs_without_key_as_string(self, multi_search, dir_mock):
+        dir_mock.return_value = ['unique']
         mock_instance = multi_search.return_value
         mock_instance.add.return_value = mock_instance
 
@@ -104,6 +112,25 @@ class BaseIndexTest(TestCase):
         result = self.instance.make_multisearch_query_for_aggs(queries)
         mock_instance.execute.assert_called_once()
         self.assertDictEqual(result, {'query1': ['key']})
+
+    @mock.patch.object(__builtin__, 'dir')
+    @mock.patch('esapi.helper.basehelper.MultiSearch')
+    def test_multisearch_query_for_aggs_with_many_properties(self, multi_search, dir_mock):
+        dir_mock.return_value = []
+        mock_instance = multi_search.return_value
+        mock_instance.add.return_value = mock_instance
+
+        mock_item = mock.Mock()
+        type(mock_item).aggregations = mock.PropertyMock(return_value=mock_item)
+        mock_item.to_dict.return_value = {'test': 'test1'}
+        mock_instance.execute.return_value = [mock_item]
+
+        queries = {
+            'query1': self.instance.get_base_query()
+        }
+        result = self.instance.make_multisearch_query_for_aggs(queries)
+        mock_instance.execute.assert_called_once()
+        self.assertDictEqual(result, {'query1': {'test': 'test1'}})
 
     def test_get_histogram_query(self):
         field = 'field'
