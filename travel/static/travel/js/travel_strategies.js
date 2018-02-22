@@ -53,9 +53,9 @@ function getDataZoneByIds(data, zone_ids, options) {
 
 function getDataZoneById(data, zone_id, options) {
     // missing data
-    if (data === null) return null;
-    if (zone_id === undefined || zone_id === null) return null;
-    if (options === undefined || options === null) return null;
+    if (data === null || (zone_ids === undefined || zone_ids === null) || (options === undefined || options === null)) {
+        return null;
+    }
 
     // seek zone
     var result = null;
