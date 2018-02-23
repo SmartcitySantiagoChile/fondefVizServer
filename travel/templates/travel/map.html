@@ -43,25 +43,6 @@
         {# switchery: pretty checkboxes #}
         <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
     {% endwith %}
-    <!-- <script src="{% static "travel/js/map.js" %}"></script>
-    <script src="{% static "travel/js/mapApp.js" %}"></script> -->
-
-    <script>
-        var ws_data = {};
-        //ws_data._day_types = JSON.parse("{{ daytypes|escapejs }}");
-        //ws_data._TS_periods = {{ timeperiods|safe }};
-        //ws_data._half_hours = {{ halfhours|safe }};
-        //ws_data._communes = {{ communes|safe }};
-        ws_data._map_sectors = JSON.parse("{{ sectors|escapejs }}");
-        // console.log(ws_data._day_types);
-        // console.log(ws_data._TS_periods);
-        // console.log(ws_data._half_hours);
-        // console.log(ws_data._communes);
-        // console.log(ws_data._map_sectors);
-    </script>
-    <script src="{% static "travel/js/util.js" %}"></script>
-    <script src="{% static "travel/js/maps.js" %}"></script>
-    <script src="{% static "travel/js/form.js" %}"></script>
-    <script src="{% static "travel/js/travel_map_options.js" %}"></script>
-    <script src="{% static "travel/js/travel_map.js" %}"></script>
+    <script src="{% static "travel/js/map.js" %}"></script>
+    <script src="{% static "travel/js/mapApp.js" %}"></script>
 {% endblock %}
