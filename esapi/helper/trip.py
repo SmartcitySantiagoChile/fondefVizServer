@@ -97,7 +97,8 @@ class ESTripHelper(ElasticSearchHelper):
 
     def ask_for_available_days(self):
         searches = {
-            "days": self.get_histogram_query("tiempo_subida", interval="day", format="yyy-MM-dd")
+            "days": self.get_histogram_query("tiempo_subida", interval="day", format="yyy-MM-dd",
+                                             time_zone="America/Santiago")
         }
         result = self.make_multisearch_query_for_aggs(searches)["days"]
 
