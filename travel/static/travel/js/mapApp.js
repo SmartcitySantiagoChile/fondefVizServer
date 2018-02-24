@@ -86,6 +86,15 @@ $(document).ready(function () {
             });
         };
 
+        var getColorScale = function () {
+            var checkbox = document.querySelector("#colorscale_checkbox");
+            if (checkbox.checked) {
+                return "sequential";
+            } else {
+                return "divergent";
+            }
+        };
+
         var setScaleSwitch = function () {
             var checkbox = document.querySelector("#colorscale_checkbox");
             new Switchery(checkbox, {
@@ -97,11 +106,7 @@ $(document).ready(function () {
             });
             checkbox.onchange = function () {
                 var opts = {};
-                if (checkbox.checked) {
-                    opts.scale = "sequential";
-                } else {
-                    opts.scale = "divergent";
-                }
+                opts.scale = getColorScale();
                 _self.updateMap(opts);
             };
         };
@@ -112,15 +117,22 @@ $(document).ready(function () {
             setKPIs(KPIs);
         };
 
+        var printAmountOfData = function () {
+            var quantity = data.hits.total;
+            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "dato" : "datos";
+            document.getElementById("visualization_doc_count").innerHTML = quantity.toLocaleString();
+        };
+
         this.setData = function (newData) {
             data = newData;
+            printAmountOfData();
         };
 
         this.updateMap = function (opts) {
             console.log("updateMap method called!");
             // destination
             var selectedDestinationZone = opts.selectedSector || $SECTOR_SELECTOR.val();
-            var scale = opts.scale || "sequential";
+            var scale = opts.scale || getColorScale();
             var selectedKPI = opts.KPI || $KPI_SELECTOR.val();
 
             var destinationZoneIds = sectors[selectedDestinationZone];
@@ -138,7 +150,7 @@ $(document).ready(function () {
                 if (data === null) {
                     return null;
                 }
-                var zoneData = data[$SECTOR_SELECTOR.val()].by_zone.buckets;
+                var zoneData = data.aggregations[$SECTOR_SELECTOR.val()].by_zone.buckets;
                 var answer = zoneData.filter(function (el) {
                     return el.key === zoneId;
                 });
