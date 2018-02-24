@@ -48,7 +48,7 @@ class ElasticSearchHelper(object):
 
                 result[keys[index]] = result_list
             else:
-                result[keys[index]] = response.aggregations.to_dict()
+                result[keys[index]] = response.to_dict()
 
         return result
 
