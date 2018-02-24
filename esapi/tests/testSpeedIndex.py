@@ -16,6 +16,7 @@ from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangePara
 from localinfo.models import Operator
 
 import json
+import __builtin__
 
 
 class ESSpeedIndexTest(TestCase):
@@ -336,8 +337,10 @@ class AskForStops(TestCase):
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryStopPatternTooShort().get_status_response())
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result(self, es_multi_query):
+    def test_exec_elasticsearch_query_with_result(self, es_multi_query, mock_dir):
+        mock_dir.return_value = ['unique']
         es_multi_query.return_value = es_multi_query
         es_multi_query.add.return_value = es_multi_query
         type(self.item).doc_count = 0
@@ -349,8 +352,10 @@ class AskForStops(TestCase):
         self.assertNotContains(response, 'status')
         es_multi_query.execute.assert_called_once()
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result_with_key_as_string(self, es_multi_query):
+    def test_exec_elasticsearch_query_with_result_with_key_as_string(self, es_multi_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_multi_query.return_value = es_multi_query
         es_multi_query.add.return_value = es_multi_query
 
@@ -372,8 +377,10 @@ class AskForStops(TestCase):
         self.assertJSONEqual(response.content, answer)
         es_multi_query.execute.assert_called_once()
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result_without_key_as_string(self, es_multi_query):
+    def test_exec_elasticsearch_query_with_result_without_key_as_string(self, es_multi_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_multi_query.return_value = es_multi_query
         es_multi_query.add.return_value = es_multi_query
         type(self.item).doc_count = mock.PropertyMock(return_value=1)
@@ -413,8 +420,10 @@ class AskForAvailableDays(TestCase):
         self.item.__iter__ = mock.Mock(return_value=iter([]))
         type(self.item).key = mock.PropertyMock(return_value=self.available_date)
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_ask_for_days_with_data(self, es_multi_query):
+    def test_ask_for_days_with_data(self, es_multi_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_multi_query.return_value = es_multi_query
         es_multi_query.add.return_value = es_multi_query
         type(self.item).doc_count = 1

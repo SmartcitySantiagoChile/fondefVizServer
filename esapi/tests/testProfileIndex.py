@@ -15,6 +15,7 @@ from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangePara
 from localinfo.models import Operator
 
 import json
+import __builtin__
 
 
 class ESProfileIndexTest(TestCase):
@@ -53,13 +54,15 @@ class ESProfileIndexTest(TestCase):
 
         self.assertIsInstance(result, Search)
 
-    def test_ask_for_stop(self):
+    @mock.patch('esapi.helper.profile.ElasticSearchHelper.make_multisearch_query_for_aggs')
+    def test_ask_for_stop(self, mock_method):
+        mock_method.return_value = {'1': [], '2': [], '3': []}
         term = ''
         result = self.instance.ask_for_stop(term)
 
         self.assertIn('1', result.keys())
-        self.assertIn('1', result.keys())
-        self.assertIn('1', result.keys())
+        self.assertIn('2', result.keys())
+        self.assertIn('3', result.keys())
         for key in result:
             self.assertIsInstance(result[key], list)
 
@@ -334,8 +337,10 @@ class AskForStops(TestCase):
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryStopPatternTooShort().get_status_response())
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result(self, es_multi_query):
+    def test_exec_elasticsearch_query_with_result(self, es_multi_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_multi_query_instance = es_multi_query.return_value
         es_multi_query_instance.add.return_value = es_multi_query_instance
         type(self.item).doc_count = 0
@@ -347,8 +352,10 @@ class AskForStops(TestCase):
         self.assertNotContains(response, 'status')
         es_multi_query_instance.execute.assert_called_once()
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result_with_key_as_string(self, es_multi_query):
+    def test_exec_elasticsearch_query_with_result_with_key_as_string(self, es_multi_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_multi_query_instance = es_multi_query.return_value
         es_multi_query_instance.add.return_value = es_multi_query_instance
 
@@ -370,8 +377,10 @@ class AskForStops(TestCase):
         self.assertJSONEqual(response.content, answer)
         es_multi_query_instance.execute.assert_called_once()
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result_without_key_as_string(self, es_multi_query):
+    def test_exec_elasticsearch_query_with_result_without_key_as_string(self, es_multi_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_multi_query_instance = es_multi_query.return_value
         es_multi_query_instance.add.return_value = es_multi_query_instance
         type(self.item).doc_count = mock.PropertyMock(return_value=1)
@@ -411,8 +420,10 @@ class AskForAvailableDays(TestCase):
         self.item.__iter__ = mock.Mock(return_value=iter([]))
         type(self.item).key = mock.PropertyMock(return_value=self.available_date)
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_ask_for_days_with_data(self, es_multi_query):
+    def test_ask_for_days_with_data(self, es_multi_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_multi_query_instance = es_multi_query.return_value
         es_multi_query_instance.add.return_value = es_multi_query_instance
         type(self.item).doc_count = 1
@@ -454,8 +465,10 @@ class AskForAvailableRoutes(TestCase):
             }
         }
 
+    @mock.patch.object(__builtin__, 'dir')
     @mock.patch('esapi.helper.basehelper.Search')
-    def test_ask_for_days_with_data(self, es_query):
+    def test_ask_for_days_with_data(self, es_query, dir_mock):
+        dir_mock.return_value = ['unique']
         es_query_instance = es_query.return_value
         es_query_instance.__getitem__.return_value = es_query_instance
         es_query_instance.source.return_value = es_query_instance
