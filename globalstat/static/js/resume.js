@@ -103,7 +103,7 @@ $(document).ready(function () {
                         type: "slider",
                         show: true,
                         xAxisIndex: [0],
-                        start: 70,
+                        start: 0,
                         end: 100,
                         bottom: 40
                     },

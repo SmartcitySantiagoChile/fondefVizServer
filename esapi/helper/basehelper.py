@@ -52,15 +52,19 @@ class ElasticSearchHelper(object):
 
         return result
 
-    def get_histogram_query(self, field, interval, format):
+    def get_histogram_query(self, field, interval, format, time_zone=None):
         """ create aggregation query of histogram """
+
+        kwargs = {}
+        if time_zone is not None:
+            kwargs['time_zone'] = time_zone
 
         query = Search()
         query = query[:0]
         query.aggs.bucket("unique", "date_histogram",
                           field=field,
                           interval=interval,
-                          format=format)
+                          format=format, **kwargs)
         return query
 
     def get_unique_list_query(self, field, size=0, query=None):
