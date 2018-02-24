@@ -57,7 +57,7 @@ class MapData(View):
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
         day_types = request.GET.getlist('dayType[]', [])
-        periods = request.GET.getlist('period[]', [])
+        periods = request.GET.getlist('boardingPeriod[]', [])
 
         es_helper = ESTripHelper()
 
