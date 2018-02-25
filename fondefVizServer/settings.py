@@ -18,7 +18,6 @@ import fondefVizServer.keys.secret_key as secretKey
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -28,7 +27,8 @@ SECRET_KEY = secretKey.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u'10.0.2.15', u'127.0.0.1', u'localhost', '200.9.100.91', u'172.17.74.243', u'172.17.74.202', u'172.17.57.156']
+ALLOWED_HOSTS = [u'10.0.2.15', u'127.0.0.1', u'localhost', '200.9.100.91', u'172.17.74.243', u'172.17.74.202',
+                 u'172.17.57.156']
 
 # Application definition
 
@@ -81,7 +81,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fondefVizServer.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
@@ -119,7 +118,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
@@ -134,7 +132,7 @@ JS_REVERSE_SCRIPT_PREFIX = ""
 JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, os.path.join('bowerapp', os.path.join('static', 'js')))
 
 # User url
-LOGIN_URL = '{0}/admin/login/'.format(JS_REVERSE_SCRIPT_PREFIX)
+LOGIN_URL = '{0}/login/'.format(JS_REVERSE_SCRIPT_PREFIX)
 
 # user name to see all operator data
 GLOBAL_PERMISSION_GROUP_NAME = 'Transantiago'
