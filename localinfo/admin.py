@@ -31,7 +31,7 @@ class OperatorAdmin(admin.ModelAdmin):
             global_group.permissions.add(permission)
         elif 'esId' in form.changed_data or 'name' in form.changed_data:
             old_operator = Operator.objects.get(id=obj.id)
-            permission, _ = GlobalPermission.objects.get(codename=old_operator.esId)
+            permission = GlobalPermission.objects.get(codename=old_operator.esId)
             permission.codename = obj.esId
             permission.name = obj.name.lower()
             permission.save()
