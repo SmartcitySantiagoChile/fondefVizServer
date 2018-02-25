@@ -135,3 +135,6 @@ JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, os.path.join('bowerapp', os.path
 
 # User url
 LOGIN_URL = '{0}/admin/login/'.format(JS_REVERSE_SCRIPT_PREFIX)
+
+# user name to see all operator data
+GLOBAL_PERMISSION_GROUP_NAME = 'Transantiago'
