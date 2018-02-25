@@ -102,6 +102,7 @@ class GlobalPermission(Permission):
     class Meta:
         proxy = True
         verbose_name = "global_permission"
+        default_permissions = ()
 
     def save(self, *args, **kwargs):
         ct, created = ContentType.objects.get_or_create(
