@@ -272,9 +272,7 @@ $(document).ready(function () {
     function processData(dataSource, app) {
         console.log(dataSource);
 
-        if (dataSource["status"]) {
-            var status = dataSource["status"];
-            showMessage(status);
+        if (dataSource.status) {
             return;
         }
 
