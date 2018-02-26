@@ -7,7 +7,9 @@ from django.http import JsonResponse
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, \
-    ESQueryDateRangeParametersDoesNotExist, ESQueryExistTwoShapesInTimePeriod
+    ESQueryDateRangeParametersDoesNotExist, ESQueryExistTwoShapesInTimePeriod, ESQueryOperatorParameterDoesNotExist
+
+from localinfo.helper import PermissionBuilder
 
 import datetime
 
@@ -22,7 +24,8 @@ class AvailableDays(View):
 
     def get(self, request):
         es_helper = ESSpeedHelper()
-        available_days = es_helper.ask_for_available_days()
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        available_days = es_helper.ask_for_available_days(valid_operator_list)
 
         response = {
             'availableDays': available_days
@@ -34,13 +37,20 @@ class AvailableDays(View):
 class AvailableRoutes(View):
 
     def get(self, request):
-        es_helper = ESSpeedHelper()
-        available_days, op_dict = es_helper.ask_for_available_routes()
 
-        response = {
-            'availableRoutes': available_days,
-            'operatorDict': op_dict
-        }
+        # TODO: removed this when speed index has user route and operator data
+        from esapi.views.profile import AvailableRoutes
+        return AvailableRoutes().get(request)
+        response = {}
+        try:
+            es_helper = ESSpeedHelper()
+            valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+            available_days, op_dict = es_helper.ask_for_available_routes(valid_operator_list)
+
+            response['availableRoutes'] = available_days
+            response['operatorDict'] = op_dict
+        except ESQueryOperatorParameterDoesNotExist as e:
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response)
 
@@ -59,6 +69,8 @@ class MatrixData(View):
         auth_route = request.GET.get('authRoute', '')
         day_type = request.GET.getlist('dayType[]', [])
 
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+
         response = {
             'segments': [],
             'matrix': [],
@@ -72,7 +84,8 @@ class MatrixData(View):
             max_section = len(limits) - 1
             response['segments'] = list(range(max_section + 1))
 
-            d_data = self.es_speed_helper.ask_for_speed_data(auth_route, day_type, start_date, end_date)
+            d_data = self.es_speed_helper.ask_for_speed_data(auth_route, day_type, start_date, end_date,
+                                                             valid_operator_list)
 
             for hour in range(len(hours)):
                 segmented_route_by_hour = []
@@ -92,7 +105,7 @@ class MatrixData(View):
                 'start_end': list(zip(limits[:-1], limits[1:]))
             }
         except (ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist,
-                ESQueryExistTwoShapesInTimePeriod) as e:
+                ESQueryExistTwoShapesInTimePeriod, ESQueryOperatorParameterDoesNotExist) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)

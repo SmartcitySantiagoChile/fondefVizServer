@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from collections import defaultdict
 from elasticsearch_dsl import A, Search
 
-from localinfo.models import Operator
+from localinfo.helper import get_operator_list_for_select_input
 
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
@@ -53,51 +53,54 @@ class ESSpeedHelper(ElasticSearchHelper):
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
-            raise ESQueryOperatorParameterDoesNotExist
+            raise ESQueryOperatorParameterDoesNotExist()
 
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
-        # TODO: remove this when data source is updated
-        # es_query.aggs['route']. \
-        #    metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRoute'])
+        es_query.aggs['route']. \
+            metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRoute'])
 
-        operator_list = [{"id": op[0], "text": op[1]} for op in Operator.objects.values_list('esId', 'name')]
+        operator_list = get_operator_list_for_select_input(filter=valid_operator_list)
 
         result = defaultdict(lambda: defaultdict(list))
+
         for hit in es_query.execute().aggregations.route.buckets:
             data = hit.to_dict()
             auth_route = data['key']
-            # TODO: remove this when data source is updated
-            # operatorId = data['additionalInfo']['hits']['hits'][0]['_source']['operator']
-            # userRoute = data['additionalInfo']['hits']['hits'][0]['_source']['userRoute']
+            operator_id = data['additionalInfo']['hits']['hits'][0]['_source']['operator']
+            user_route = data['additionalInfo']['hits']['hits'][0]['_source']['userRoute']
 
-            # TODO: remove this
-            operator_id = 1
-            user_route = "506I"
             result[operator_id][user_route].append(auth_route)
 
         return result, operator_list
 
     def ask_for_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
 
-        if not auth_route:
+        es_query = self.get_base_query()
+
+        if valid_operator_list:
+            pass
+            # TODO: uncomment when speed data has operator data
+            #es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist()
+
+        if auth_route:
+            es_query = es_query.filter("term", route=auth_route)
+        else:
             raise ESQueryRouteParameterDoesNotExist()
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
 
-        es_query = self.get_base_query()
-        es_query = es_query.filter("term", route=auth_route)
-
-        if valid_operator_list:
-            es_query = es_query.filter('terms', operator=valid_operator_list)
-        else:
-            raise ESQueryOperatorParameterDoesNotExist
-
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
 
-        es_query = es_query.filter("range", date={'gte': start_date, 'lte': end_date, 'format': 'yyyy-MM-dd'})
+        es_query = es_query.filter("range", date={
+            'gte': start_date,
+            'lte': end_date,
+            'format': 'yyyy-MM-dd'
+        })
         aggs2 = A('terms', field='section', size=1000)
         aggs1 = A('terms', field='periodId', size=1000)
         aggs2.metric('distance', 'sum', field='totalDistance')
@@ -116,7 +119,7 @@ class ESSpeedHelper(ElasticSearchHelper):
                     section.n_obs.value)
 
         if len(d_data.keys()) == 0:
-            raise ESQueryResultEmpty
+            raise ESQueryResultEmpty()
 
         return d_data
 
@@ -171,7 +174,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         data.sort(key=lambda x: float(x['speed']))
 
         if len(data) == 0:
-            raise ESQueryResultEmpty
+            raise ESQueryResultEmpty()
 
         return data
 

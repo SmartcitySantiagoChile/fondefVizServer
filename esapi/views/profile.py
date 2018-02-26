@@ -123,8 +123,9 @@ class AvailableDays(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         available_days = es_helper.ask_for_available_days(valid_operator_list)
 
-        response = {}
-        response['availableDays'] = available_days
+        response = {
+            'availableDays': available_days
+        }
 
         return JsonResponse(response)
 
