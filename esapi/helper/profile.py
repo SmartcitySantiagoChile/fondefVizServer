@@ -128,13 +128,6 @@ class ESProfileHelper(ElasticSearchHelper):
 
         es_query = self.get_base_query()
 
-        """
-        if expeditionId:
-            esQuery = esQuery.filter('terms', expeditionDayId=expeditionId)
-        if licensePlate:
-            es_query = es_query.filter('terms', licensePlate=licensePlate)
-        """
-
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:

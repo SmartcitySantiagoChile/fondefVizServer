@@ -210,8 +210,7 @@ class LoadProfileByExpeditionData(View):
         period = request.GET.getlist('period[]')
         half_hour = request.GET.getlist('halfHour[]')
 
-        # license_plate = request.GET.getlist('licensePlate[]')
-        # expedition_id = request.GET.getlist('expeditionId[]')
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         es_helper = ESProfileHelper()
 
@@ -221,13 +220,14 @@ class LoadProfileByExpeditionData(View):
 
         try:
             result_iterator = es_helper.ask_for_profile_by_expedition(start_date, end_date, day_type, route, period,
-                                                                      half_hour).scan()
+                                                                      half_hour, valid_operator_list).scan()
             response['trips'] = self.transform_answer(result_iterator)
             # debug
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except (ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty,
+                ESQueryOperatorParameterDoesNotExist) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
