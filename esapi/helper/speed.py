@@ -217,7 +217,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_speed_variation(self, asked_date, day_type, valid_operator_list, user_route):
+    def ask_for_speed_variation(self, asked_date, day_type, user_route, valid_operator_list):
 
         date_format = "%Y-%m-%d"
         asked_date_str = asked_date.strftime(date_format)
@@ -229,7 +229,9 @@ class ESSpeedHelper(ElasticSearchHelper):
             "format": "yyyy-MM-dd"
         })
         if valid_operator_list:
-            es_query = es_query.filter('terms', operator=valid_operator_list)
+            pass
+            # TODO: removed when speed index has operator data
+            # es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
             raise ESQueryOperatorParameterDoesNotExist()
 
