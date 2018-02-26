@@ -100,10 +100,11 @@ class LoadProfileByStopData(View):
         period = request.GET.getlist('period[]', [])
         half_hour = request.GET.getlist('halfHour[]', [])
 
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         try:
             es_helper = ESProfileHelper()
             result_iterator = es_helper.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period,
-                                                                half_hour).scan()
+                                                                half_hour, valid_operator_list).scan()
             response = self.transform_es_answer(result_iterator)
             # debug
             # response['query'] = esQuery.to_dict()

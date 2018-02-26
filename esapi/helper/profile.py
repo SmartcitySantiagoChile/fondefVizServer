@@ -34,9 +34,15 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result
 
-    def ask_for_profile_by_stop(self, start_date, end_date, day_type, stop_code, period, half_hour):
+    def ask_for_profile_by_stop(self, start_date, end_date, day_type, stop_code, period, half_hour,
+                                valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
 
         if stop_code:
             es_query = es_query.query(
