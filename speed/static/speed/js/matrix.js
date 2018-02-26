@@ -295,9 +295,7 @@ $(document).ready(function () {
     }
 
     function processData(dataSource, app) {
-        if (dataSource["status"]) {
-            var status = dataSource["status"];
-            showMessage(status);
+        if (dataSource.status) {
             return;
         }
 

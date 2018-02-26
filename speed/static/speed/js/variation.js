@@ -170,8 +170,6 @@ $(document).ready(function () {
         console.log(dataSource);
 
         if (dataSource.status) {
-            var status = dataSource.status;
-            showMessage(status);
             return;
         }
 
