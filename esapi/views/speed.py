@@ -120,6 +120,8 @@ class RankingData(View):
         hour_period_to = request.GET.get('hourPeriodTo', None)
         day_type = request.GET.getlist('dayType[]', None)
 
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+
         response = {
             'hours': hours,
             'data': [],
@@ -128,11 +130,11 @@ class RankingData(View):
         try:
             es_helper = ESSpeedHelper()
             response['data'] = es_helper.ask_for_ranking_data(start_date, end_date, hour_period_from, hour_period_to,
-                                                              day_type)
+                                                              day_type, valid_operator_list)
 
             if len(response['data']) > 1000:
                 response['data'] = response['data'][:1000]
-        except ESQueryResultEmpty as e:
+        except (ESQueryResultEmpty, ESQueryOperatorParameterDoesNotExist) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -165,6 +167,8 @@ class SpeedByRoute(View):
         hour_period = request.GET.get('period', [])
         day_type = request.GET.getlist('dayType[]', [])
 
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+
         response = {
             'route': {
                 'name': route,
@@ -185,7 +189,8 @@ class SpeedByRoute(View):
             response['route']['points'] = route_points
 
             es_helper = ESSpeedHelper()
-            es_query = es_helper.ask_for_detail_ranking_data(route, start_date, end_date, hour_period, day_type)
+            es_query = es_helper.ask_for_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
+                                                             valid_operator_list)
             response['speed'] = self.process_data(es_query, limits)
 
         except ESQueryResultEmpty as e:

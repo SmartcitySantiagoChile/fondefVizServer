@@ -31,9 +31,11 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         es_query = self.get_base_query()[:0]
         if valid_operator_list:
-            es_query = es_query.filter('terms', operator=valid_operator_list)
+            pass
+            # TODO: removed when speed index has operator data
+            # es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
-            raise ESQueryOperatorParameterDoesNotExist
+            raise ESQueryOperatorParameterDoesNotExist()
 
         searches = {
             'routes': self.get_unique_list_query('route', size=5000, query=es_query)
@@ -81,7 +83,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         if valid_operator_list:
             pass
             # TODO: uncomment when speed data has operator data
-            #es_query = es_query.filter('terms', operator=valid_operator_list)
+            # es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
             raise ESQueryOperatorParameterDoesNotExist()
 
@@ -135,6 +137,14 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         for chunk in chunks:
             es_query = self.get_base_query()
+
+            if valid_operator_list:
+                pass
+                # TODO: removed when speed index has operator data
+                # es_query = es_query.filter('terms', operator=valid_operator_list)
+            else:
+                raise ESQueryOperatorParameterDoesNotExist()
+
             es_query = es_query.filter('terms', route=chunk)
             es_query = es_query.filter('range', date={
                 "gte": start_date,
@@ -183,9 +193,11 @@ class ESSpeedHelper(ElasticSearchHelper):
         es_query = self.get_base_query()
 
         if valid_operator_list:
-            es_query = es_query.filter('terms', operator=valid_operator_list)
+            pass
+            # TODO: removed when speed index has operator data
+            # es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
-            raise ESQueryOperatorParameterDoesNotExist
+            raise ESQueryOperatorParameterDoesNotExist()
 
         es_query = es_query.filter('term', route=route)
         es_query = es_query.filter('range', date={
@@ -219,7 +231,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
-            raise ESQueryOperatorParameterDoesNotExist
+            raise ESQueryOperatorParameterDoesNotExist()
 
         if user_route:
             es_query = es_query.filter('term', userRoute=user_route)
