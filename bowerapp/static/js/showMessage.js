@@ -3,9 +3,9 @@
  *  Use Pnotify library to show floating bubble with info message
  * */
 function showMessage(status) {
-    let message = status["message"];
-    let title = status["title"];
-    let type = status["type"];
+    var message = status.message;
+    var title = status.title;
+    var type = status.type;
 
     new PNotify({
         title: title,
