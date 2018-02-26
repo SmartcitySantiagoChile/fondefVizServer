@@ -28,7 +28,7 @@ class ElasticSearchHelper(object):
             keys.append(key)
 
         # to see the query generated
-        #print multiSearch.to_dict()
+        # print multiSearch.to_dict()
         responses = multi_search.execute()
 
         result = {}
@@ -52,20 +52,21 @@ class ElasticSearchHelper(object):
 
         return result
 
-    def get_histogram_query(self, field, interval, format, time_zone=None):
+    def get_histogram_query(self, field, interval, date_format, time_zone=None, es_query=None):
         """ create aggregation query of histogram """
 
         kwargs = {}
         if time_zone is not None:
             kwargs['time_zone'] = time_zone
 
-        query = Search()
-        query = query[:0]
-        query.aggs.bucket("unique", "date_histogram",
-                          field=field,
-                          interval=interval,
-                          format=format, **kwargs)
-        return query
+        if es_query is None:
+            es_query = Search()
+        es_query = es_query[:0]
+        es_query.aggs.bucket("unique", "date_histogram",
+                             field=field,
+                             interval=interval,
+                             format=date_format, **kwargs)
+        return es_query
 
     def get_unique_list_query(self, field, size=0, query=None):
         """ create query to get unique list of values from field """
@@ -78,3 +79,18 @@ class ElasticSearchHelper(object):
         query.aggs.bucket('unique', aggs)
 
         return query
+
+    def get_available_days(self, field, valid_operator_id_list=None, time_zone=None):
+
+        es_query = None
+        if valid_operator_id_list is not None:
+            es_query = self.get_base_query()[:0]
+            es_query = es_query.filter('terms', valid_operator_id_list)
+
+        searches = {
+            "days": self.get_histogram_query(field, interval="day", date_format="yyy-MM-dd", es_query=es_query,
+                                             time_zone=time_zone)
+        }
+        result = self.make_multisearch_query_for_aggs(searches)["days"]
+
+        return result

@@ -11,7 +11,7 @@ from localinfo.models import Operator
 from esapi.helper.basehelper import ElasticSearchHelper
 
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryRouteParameterDoesNotExist
+    ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
 
 
 class ESProfileHelper(ElasticSearchHelper):
@@ -93,18 +93,18 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result
 
-    def ask_for_available_days(self):
-        searches = {
-            "days": self.get_histogram_query("expeditionStartTime", interval="day", format="yyy-MM-dd")
-        }
-        result = self.make_multisearch_query_for_aggs(searches)["days"]
+    def ask_for_available_days(self, valid_operator_list):
+        return self.get_available_days('expeditionStartTime', valid_operator_list)
 
-        return result
-
-    def ask_for_available_routes(self):
+    def ask_for_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
 
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
@@ -124,7 +124,8 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_profile_by_expedition(self, start_date, end_date, day_type, auth_route, period, half_hour):
+    def ask_for_profile_by_expedition(self, start_date, end_date, day_type, auth_route, period, half_hour,
+                                      valid_operator_list):
 
         es_query = self.get_base_query()
 
@@ -134,6 +135,11 @@ class ESProfileHelper(ElasticSearchHelper):
         if licensePlate:
             es_query = es_query.filter('terms', licensePlate=licensePlate)
         """
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
 
         if auth_route:
             es_query = es_query.filter('term', route=auth_route)

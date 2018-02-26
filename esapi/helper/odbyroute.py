@@ -7,7 +7,7 @@ from elasticsearch_dsl import A
 
 from localinfo.models import Operator
 
-from esapi.errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
@@ -32,25 +32,26 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
         return result
 
-    def ask_for_available_days(self):
-        searches = {
-            "days": self.get_histogram_query("date", interval="day", format="yyy-MM-dd")
-        }
-        result = self.make_multisearch_query_for_aggs(searches)["days"]
+    def ask_for_available_days(self, valid_operator_list):
+        return self.get_available_days('date', valid_operator_list)
 
-        return result
-
-    def ask_for_available_routes(self):
+    def ask_for_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
 
         aggs = A('terms', field="authRouteCode", size=5000)
         es_query.aggs.bucket('route', aggs)
         es_query.aggs['route']. \
             metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRouteCode'])
 
-        operator_list = [{"id": op[0], "text": op[1]} for op in Operator.objects.values_list('esId', 'name')]
+        operator_list = [{"id": op[0], "text": op[1]} for op in
+                         Operator.objects.filter(esId__in=valid_operator_es_ids).values_list('esId', 'name')]
 
         result = defaultdict(lambda: defaultdict(list))
         for hit in es_query.execute().aggregations.route.buckets:
@@ -63,10 +64,19 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date):
+    def ask_for_od(self, auth_route_code, operator_list, time_periods, day_type, start_date, end_date):
         """ ask to elasticsearch for a match values """
 
-        es_query = self.get_base_query().filter('term', authRouteCode=auth_route_code)
+        if not auth_route_code:
+            es_query = self.get_base_query().filter('term', authRouteCode=auth_route_code)
+        else:
+            raise ESQueryRouteParameterDoesNotExist()
+
+        if not operator_list:
+            es_query = es_query.filter('terms', operator=operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist()
+
         if time_periods:
             es_query = es_query.filter('terms', timePeriodInStopTime=time_periods)
         if day_type:

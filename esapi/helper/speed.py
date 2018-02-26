@@ -7,7 +7,8 @@ from elasticsearch_dsl import A, Search
 from localinfo.models import Operator
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist
+from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
+    ESQueryOperatorParameterDoesNotExist
 
 import datetime
 
@@ -26,26 +27,33 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return result
 
-    def get_route_list(self):
+    def get_route_list(self, valid_operator_list):
+
+        es_query = self.get_base_query()[:0]
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
+
         searches = {
-            "routes": self.get_unique_list_query("route", size=5000)
+            'routes': self.get_unique_list_query('route', size=5000, query=es_query)
         }
-        result = self.make_multisearch_query_for_aggs(searches)["routes"]
+        result = self.make_multisearch_query_for_aggs(searches)['routes']
 
         return result
 
-    def ask_for_available_days(self):
-        searches = {
-            "days": self.get_histogram_query("date", interval="day", format="yyy-MM-dd")
-        }
-        result = self.make_multisearch_query_for_aggs(searches)["days"]
+    def ask_for_available_days(self, valid_operator_list):
+        return self.get_available_days('date', valid_operator_list)
 
-        return result
-
-    def ask_for_available_routes(self):
+    def ask_for_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
 
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
@@ -70,7 +78,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_speed_data(self, auth_route, day_type, start_date, end_date):
+    def ask_for_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
 
         if not auth_route:
             raise ESQueryRouteParameterDoesNotExist()
@@ -80,6 +88,12 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         es_query = self.get_base_query()
         es_query = es_query.filter("term", route=auth_route)
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
+
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
 
@@ -106,13 +120,13 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return d_data
 
-    def ask_for_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type):
-
+    def ask_for_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type,
+                             valid_operator_list):
         data = []
 
         # chunks of routes to make queries
         chunks_number = 6
-        routes = self.get_route_list()
+        routes = self.get_route_list(valid_operator_list)
         indices = [int(i * len(routes) / chunks_number) for i in range(chunks_number + 1)]
         chunks = [routes[i:j] for i, j in zip(indices[:-1], indices[1:])]
 
@@ -161,9 +175,15 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return data
 
-    def ask_for_detail_ranking_data(self, route, start_date, end_date, period, day_type):
+    def ask_for_detail_ranking_data(self, route, start_date, end_date, period, day_type, valid_operator_list):
 
         es_query = self.get_base_query()
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
+
         es_query = es_query.filter('term', route=route)
         es_query = es_query.filter('range', date={
             "gte": start_date,
@@ -182,7 +202,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_speed_variation(self, asked_date, day_type, operator, user_route):
+    def ask_for_speed_variation(self, asked_date, day_type, valid_operator_list, user_route):
 
         date_format = "%Y-%m-%d"
         asked_date_str = asked_date.strftime(date_format)
@@ -193,8 +213,11 @@ class ESSpeedHelper(ElasticSearchHelper):
             "lte": asked_date_str,
             "format": "yyyy-MM-dd"
         })
-        if operator:
-            es_query = es_query.filter('term', operator=operator)
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
+
         if user_route:
             es_query = es_query.filter('term', userRoute=user_route)
         if day_type:

@@ -96,13 +96,7 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query_dict
 
     def ask_for_available_days(self):
-        searches = {
-            "days": self.get_histogram_query("tiempo_subida", interval="day", format="yyy-MM-dd",
-                                             time_zone="America/Santiago")
-        }
-        result = self.make_multisearch_query_for_aggs(searches)["days"]
-
-        return result
+        return self.get_available_days('tiempo_subida', time_zone='America/Santiago')
 
     def ask_for_map_data(self, start_date, end_date, day_types, periods, sectors):
         """
