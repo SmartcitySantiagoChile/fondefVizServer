@@ -171,6 +171,12 @@ function FilterManager(opts) {
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
     if ($OPERATOR_FILTER.length) {
         var processRouteData = function (data) {
+            data.operatorDict = data.operatorDict.map(function(el){
+                return {
+                    id: el.value,
+                    text: el.item
+                }
+            });
             // console.log(data);
             var updateAuthRouteList = function (operatorId, userRouteId) {
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
