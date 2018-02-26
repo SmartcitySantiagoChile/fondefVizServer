@@ -18,7 +18,7 @@ def get_operator_list_for_select_input(filter=None):
     :return: list of dict {esId: elasticsearch_id, text: operator_name}
     """
     queryset = Operator.objects.values_list('esId', 'name')
-    if not filter:
+    if filter:
         queryset = queryset.filter(esId__in=filter)
     return _list_parser(queryset)
 
