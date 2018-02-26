@@ -12,8 +12,15 @@ def get_day_type_list_for_select_input():
     return _list_parser(DayType.objects.values_list('esId', 'name'))
 
 
-def get_operator_list_for_select_input():
-    return _list_parser(Operator.objects.values_list('esId', 'name'))
+def get_operator_list_for_select_input(filter=None):
+    """
+    :param filter: list of elasticsearch_id to be returned
+    :return: list of dict {esId: elasticsearch_id, text: operator_name}
+    """
+    queryset = Operator.objects.values_list('esId', 'name')
+    if not filter:
+        queryset = queryset.filter(esId__in=filter)
+    return _list_parser(queryset)
 
 
 def get_timeperiod_list_for_select_input():
