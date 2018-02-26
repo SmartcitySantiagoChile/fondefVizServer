@@ -15,6 +15,7 @@ class ODMatrixView(View):
         template = "profile/odmatrix.html"
 
         es_helper = ESODByRouteHelper()
+        # TODO: revisar porque parece que no es necesario esto
         base_params = es_helper.get_base_params()
 
         # add periods of thirty minutes
