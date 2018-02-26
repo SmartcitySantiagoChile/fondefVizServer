@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from elasticsearch_dsl import A
 
-from localinfo.models import Operator
+from localinfo.helper import get_operator_list_for_select_input
 
 from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
@@ -50,8 +50,7 @@ class ESODByRouteHelper(ElasticSearchHelper):
         es_query.aggs['route']. \
             metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRouteCode'])
 
-        operator_list = [{"id": op[0], "text": op[1]} for op in
-                         Operator.objects.filter(esId__in=valid_operator_es_ids).values_list('esId', 'name')]
+        operator_list = get_operator_list_for_select_input(filter=valid_operator_list)
 
         result = defaultdict(lambda: defaultdict(list))
         for hit in es_query.execute().aggregations.route.buckets:
@@ -64,18 +63,20 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_od(self, auth_route_code, operator_list, time_periods, day_type, start_date, end_date):
+    def ask_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
         """ ask to elasticsearch for a match values """
 
-        if not auth_route_code:
-            es_query = self.get_base_query().filter('term', authRouteCode=auth_route_code)
-        else:
-            raise ESQueryRouteParameterDoesNotExist()
+        es_query = self.get_base_query()
 
-        if not operator_list:
-            es_query = es_query.filter('terms', operator=operator_list)
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
             raise ESQueryOperatorParameterDoesNotExist()
+
+        if auth_route_code:
+            es_query = es_query.filter('term', authRouteCode=auth_route_code)
+        else:
+            raise ESQueryRouteParameterDoesNotExist()
 
         if time_periods:
             es_query = es_query.filter('terms', timePeriodInStopTime=time_periods)
