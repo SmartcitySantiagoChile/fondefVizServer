@@ -16,7 +16,7 @@ $(document).ready(function () {
             var options = {
                 tooltip: {
                     show: true,
-                    position: 'top',
+                    position: "top",
                     formatter: function (params) {
                         if (params.componentType === "series" && params.seriesType === "heatmap") {
                             var labelOrigin = "<br />Origen: ";
@@ -37,7 +37,7 @@ $(document).ready(function () {
                 },
                 animation: false,
                 grid: {
-                    height: '65%'
+                    height: "65%"
                 },
                 toolbox: {
                     show: true,
@@ -49,15 +49,15 @@ $(document).ready(function () {
                     }
                 },
                 xAxis: {
-                    type: 'category',
-                    position: 'top',
+                    type: "category",
+                    position: "top",
                     data: xData.map(function(el){ return el.userStopCode;}),
                     splitArea: {
                         show: true
                     }
                 },
                 yAxis: {
-                    type: 'category',
+                    type: "category",
                     data: yData.map(function(el){ return el.userStopCode;}),
                     splitArea: {
                         show: true
@@ -68,17 +68,17 @@ $(document).ready(function () {
                     min: 0,
                     max: maxValue,
                     calculable: true,
-                    orient: 'horizontal',
-                    left: 'center',
-                    bottom: '15%',
+                    orient: "horizontal",
+                    left: "center",
+                    bottom: "15%",
                     realtime: false,
                     inRange: {
-                        color: ['#F5EFB7', '#BE434D']
+                        color: ["#F5EFB7", "#BE434D"]
                     }
                 },
                 series: [{
-                    name: 'transfers',
-                    type: 'heatmap',
+                    name: "transfers",
+                    type: "heatmap",
                     data: values,
                     label: {
                         normal: {
@@ -87,7 +87,7 @@ $(document).ready(function () {
                     },
                     itemStyle: {
                         normal: {
-                            borderColor: 'black',
+                            borderColor: "black",
                             borderWidth: 0.5
                         }
                     }
@@ -101,7 +101,7 @@ $(document).ready(function () {
         };
 
         this.updateGraphChart = function (stopCode, stopObjList, links, maxValue) {
-            var colors = ['#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'];
+            var colors = ["#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"];
             function getColor(value) {
                 var quantity = colors.length;
                 var threshold = maxValue / quantity;
@@ -131,12 +131,12 @@ $(document).ready(function () {
             });
 
             var options = {
-                backgroundColor: '#CDCDCD',
+                backgroundColor: "#CDCDCD",
                 animationDurationUpdate: 1500,
                 animationEasingUpdate: "quinticInOut",
                 tooltip: {
                     show: true,
-                    position: 'top',
+                    position: "top",
                     formatter: function (params) {
                         console.log(params);
                         if (params.componentType === "series" && params.seriesType === "graph") {
@@ -181,19 +181,19 @@ $(document).ready(function () {
                         color: colors
                     },
                     outOfRange: {
-                        color: 'black'
+                        color: "black"
                     },
                     percision: 1,
-                    orient: 'horizontal',
-                    left: 'center',
+                    orient: "horizontal",
+                    left: "center",
                     bottom: 30
                 },
                 series: [{
-                    name: 'graph',
+                    name: "graph",
                     data: data,
                     links: links,
-                    type: 'graph',
-                    symbol: 'image:///static/img/stop.png',
+                    type: "graph",
+                    symbol: "image:///static/img/stop.png",
                     symbolSize: [15, 20],
                     roam: true,
                     circular: {
@@ -202,9 +202,9 @@ $(document).ready(function () {
                     label: {
                         normal: {
                             show: false,
-                            position: 'top',
+                            position: "top",
                             rotate: 45,
-                            color: 'black'
+                            color: "black"
                         },
                         emphasis: {
                             show: false
@@ -231,14 +231,14 @@ $(document).ready(function () {
         };
 
         this.updateClickNodeEvent = function(stopList, links, maxValue) {
-            _graphChart.off('click');
-            _graphChart.on('click', function(params){
+            _graphChart.off("click");
+            _graphChart.on("click", function(params){
                 console.log(params);
-                if (params.componentType === 'series' && params.componentSubType === 'graph') {
+                if (params.componentType === "series" && params.componentSubType === "graph") {
                     var clickedStopCode = params.data.name;
                     _self.updateGraphChart(clickedStopCode, stopList, links[clickedStopCode], maxValue);
-                    $("#stops>button.active").removeClass('active');
-                    $("#" + clickedStopCode).addClass('active');
+                    $("#stops>button.active").removeClass("active");
+                    $("#" + clickedStopCode).addClass("active");
                 }
             });
         };
@@ -262,8 +262,8 @@ $(document).ready(function () {
             var button = $("<button id='" + stopCode + "' class='btn btn-default' type='button'>" + stopCode + "</button>");
             button.click(function () {
                 buttonEventFunction(stopCode);
-                $("#stops>button.active").removeClass('active');
-                $("#" + stopCode).addClass('active');
+                $("#stops>button.active").removeClass("active");
+                $("#" + stopCode).addClass("active");
             });
             DIV.append(button);
         });
