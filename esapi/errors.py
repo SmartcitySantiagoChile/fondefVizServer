@@ -111,3 +111,11 @@ class ESQueryStagesEmpty(ESQueryError):
         title = 'Información'
         message_type = 'info'
         super(ESQueryStagesEmpty, self).__init__(409, message, title, message_type)
+
+
+class ESQueryOperatorParameterDoesNotExist(ESQueryError):
+    """ It raises when user does not have permission over operators """
+
+    def __init__(self):
+        message = 'No tiene permisos para preguntar por algún operador. Por favor contáctese con el administrador'
+        super(ESQueryOperatorParameterDoesNotExist, self).__init__(410, message)

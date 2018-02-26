@@ -6,14 +6,18 @@ from django.http import JsonResponse
 
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.stop import ESStopHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty, \
+    ESQueryOperatorParameterDoesNotExist
+
+from localinfo.helper import PermissionBuilder
 
 
 class AvailableDays(View):
 
     def get(self, request):
         es_helper = ESODByRouteHelper()
-        available_days = es_helper.ask_for_available_days()
+        valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(self.request.user)
+        available_days = es_helper.ask_for_available_days(valid_operator_id_list)
 
         response = {
             'availableDays': available_days
@@ -26,7 +30,8 @@ class AvailableRoutes(View):
 
     def get(self, request):
         es_helper = ESODByRouteHelper()
-        available_days, op_dict = es_helper.ask_for_available_routes()
+        valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(self.request.user)
+        available_days, op_dict = es_helper.ask_for_available_routes(valid_operator_id_list)
 
         response = {
             'availableRoutes': available_days,
@@ -54,11 +59,10 @@ class ODMatrixData(View):
         es_od_helper = ESODByRouteHelper()
         es_stop_helper = ESStopHelper()
 
-        try:
-            if not route:
-                raise ESQueryRouteParameterDoesNotExist()
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(self.request.user)
 
-            matrix, max_value = es_od_helper.ask_for_od(route, period, day_type, start_date, end_date)
+        try:
+            matrix, max_value = es_od_helper.ask_for_od(route, valid_operator_list, period, day_type, start_date, end_date)
             stop_list = es_stop_helper.get_stop_list(route, start_date,
                                                      fields=['userStopCode', 'stopName', 'authStopCode', 'order'])
 
@@ -72,7 +76,8 @@ class ODMatrixData(View):
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
+                ESQueryOperatorParameterDoesNotExist) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
