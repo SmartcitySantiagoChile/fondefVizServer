@@ -5,9 +5,11 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
-from django.conf import settings
+from django.db import transaction, IntegrityError
+from django.contrib import messages
 
-from localinfo.models import Operator, HalfHour, GlobalPermission
+from localinfo.models import Operator, HalfHour
+from localinfo.helper import PermissionBuilder
 
 admin.site.unregister(Group)
 admin.site.unregister(User)
@@ -18,45 +20,21 @@ class OperatorAdmin(admin.ModelAdmin):
     list_display = ('esId', 'name', 'description')
 
     def save_model(self, request, obj, form, change):
+        permission_builder = PermissionBuilder()
         if not change:
             super(OperatorAdmin, self).save_model(request, obj, form, change)
             # add permission to global group and create group related with operator after saved
-            obj.refresh_from_db()
-            permission, _ = GlobalPermission.objects.get_or_create(codename=obj.esId, name=obj.name.lower())
-
-            group, _ = Group.objects.get_or_create(name=obj.name.capitalize())
-            group.permissions.add(permission)
-
-            global_group, _ = Group.objects.get_or_create(name=settings.GLOBAL_PERMISSION_GROUP_NAME)
-            global_group.permissions.add(permission)
+            permission_builder.add_permission(obj)
         elif 'esId' in form.changed_data or 'name' in form.changed_data:
-            old_operator = Operator.objects.get(id=obj.id)
-            permission = GlobalPermission.objects.get(codename=old_operator.esId)
-            permission.codename = obj.esId
-            permission.name = obj.name.lower()
-            permission.save()
-
-            group = Group.objects.get(name=old_operator.name.capitalize())
-            group.name = obj.name.capitalize()
-            group.save()
+            permission_builder.update_permission(obj)
             super(OperatorAdmin, self).save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
         # delete permission for global group and delete group related with operator after saved
-        from django.db import transaction, IntegrityError
-        from django.contrib import messages
+        permission_builder = PermissionBuilder()
         try:
             with transaction.atomic():
-                permission = GlobalPermission.objects.get(codename=obj.esId)
-
-                group = Group.objects.get(name=obj.name.capitalize())
-                group.permissions.remove(permission)
-                group.delete()
-
-                global_group = Group.objects.get(name=settings.GLOBAL_PERMISSION_GROUP_NAME)
-                global_group.permissions.remove(permission)
-
-                permission.delete()
+                permission_builder.delete_permission(obj)
                 super(OperatorAdmin, self).delete_model(request, obj)
         except IntegrityError:
             message = _('El operador no puede ser eliminado porque existen usuarios asignados a ese permiso')
