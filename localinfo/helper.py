@@ -74,7 +74,6 @@ class PermissionBuilder(object):
         """
         create a new permission. It is used when user add new operator
         """
-        operator_obj.refresh_from_db()
         permission, _ = GlobalPermission.objects.get_or_create(codename=operator_obj.esId,
                                                                name=operator_obj.name.lower())
 
@@ -98,3 +97,14 @@ class PermissionBuilder(object):
         global_group.permissions.remove(permission)
 
         permission.delete()
+
+    def get_valid_operator_id_list(self, user):
+        """
+        return list of operator esId field valid for user
+        """
+        answer = []
+        for esId in Operator.objects.values_list('esId', flat=True):
+            if user.has_perm('localinfo.{0}'.format(esId)):
+                answer.append(esId)
+
+        return answer
