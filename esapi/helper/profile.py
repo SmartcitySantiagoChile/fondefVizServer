@@ -109,7 +109,7 @@ class ESProfileHelper(ElasticSearchHelper):
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
-            raise ESQueryOperatorParameterDoesNotExist
+            raise ESQueryOperatorParameterDoesNotExist()
 
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
@@ -137,7 +137,7 @@ class ESProfileHelper(ElasticSearchHelper):
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
-            raise ESQueryOperatorParameterDoesNotExist
+            raise ESQueryOperatorParameterDoesNotExist()
 
         if auth_route:
             es_query = es_query.filter('term', route=auth_route)
