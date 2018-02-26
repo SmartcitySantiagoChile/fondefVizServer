@@ -6,7 +6,9 @@ from django.http import JsonResponse
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort, \
-    ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist
+    ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryOperatorParameterDoesNotExist
+
+from localinfo.helper import PermissionBuilder
 
 
 class MatchedStopData(View):
@@ -117,7 +119,8 @@ class AvailableDays(View):
 
     def get(self, request):
         es_helper = ESProfileHelper()
-        available_days = es_helper.ask_for_available_days()
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        available_days = es_helper.ask_for_available_days(valid_operator_list)
 
         response = {}
         response['availableDays'] = available_days
@@ -128,12 +131,17 @@ class AvailableDays(View):
 class AvailableRoutes(View):
 
     def get(self, request):
-        es_helper = ESProfileHelper()
-        available_days, op_dict = es_helper.ask_for_available_routes()
 
         response = {}
-        response['availableRoutes'] = available_days
-        response['operatorDict'] = op_dict
+        try:
+            es_helper = ESProfileHelper()
+            valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+            available_days, op_dict = es_helper.ask_for_available_routes(valid_operator_list)
+
+            response['availableRoutes'] = available_days
+            response['operatorDict'] = op_dict
+        except ESQueryOperatorParameterDoesNotExist as e:
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response)
 

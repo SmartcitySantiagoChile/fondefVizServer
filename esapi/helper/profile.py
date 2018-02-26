@@ -6,10 +6,9 @@ from collections import defaultdict
 from elasticsearch_dsl import Search, A, Q
 from elasticsearch_dsl.query import Match
 
-from localinfo.models import Operator
+from localinfo.helper import get_operator_list_for_select_input
 
 from esapi.helper.basehelper import ElasticSearchHelper
-
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
 
@@ -25,7 +24,7 @@ class ESProfileHelper(ElasticSearchHelper):
 
         es_time_period_query = self.get_unique_list_query("timePeriodInStartTime", size=50)
         es_day_type_query = self.get_unique_list_query("dayType", size=10)
-        es_day_query = self.get_histogram_query("expeditionStartTime", interval="day", format="yyy-MM-dd")
+        es_day_query = self.get_histogram_query("expeditionStartTime", interval="day", date_format="yyy-MM-dd")
 
         result = {
             'periods': es_time_period_query,
@@ -111,7 +110,7 @@ class ESProfileHelper(ElasticSearchHelper):
         es_query.aggs['route']. \
             metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRoute'])
 
-        operator_list = [{"id": op[0], "text": op[1]} for op in Operator.objects.values_list('esId', 'name')]
+        operator_list = get_operator_list_for_select_input(filter=valid_operator_list)
 
         result = defaultdict(lambda: defaultdict(list))
         for hit in es_query.execute().aggregations.route.buckets:

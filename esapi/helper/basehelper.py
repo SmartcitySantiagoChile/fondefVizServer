@@ -60,8 +60,8 @@ class ElasticSearchHelper(object):
             kwargs['time_zone'] = time_zone
 
         if es_query is None:
-            es_query = Search()
-        es_query = es_query[:0]
+            es_query = Search()[:0]
+
         es_query.aggs.bucket("unique", "date_histogram",
                              field=field,
                              interval=interval,
@@ -80,12 +80,12 @@ class ElasticSearchHelper(object):
 
         return query
 
-    def get_available_days(self, field, valid_operator_id_list=None, time_zone=None):
+    def get_available_days(self, field, valid_operator_list=None, time_zone=None):
 
         es_query = None
-        if valid_operator_id_list is not None:
+        if not valid_operator_list:
             es_query = self.get_base_query()[:0]
-            es_query = es_query.filter('terms', valid_operator_id_list)
+            es_query = es_query.filter('terms', operator=valid_operator_list)
 
         searches = {
             "days": self.get_histogram_query(field, interval="day", date_format="yyy-MM-dd", es_query=es_query,
