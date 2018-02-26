@@ -156,7 +156,6 @@ function FilterManager(opts) {
             $.getJSON(urlFilterData, params, function (data) {
                 if (data.status) {
                     showMessage(data.status);
-                    return;
                 }
                 if (afterCall) {
                     afterCall(data);
