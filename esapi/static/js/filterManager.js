@@ -224,7 +224,11 @@ function FilterManager(opts) {
             }
         };
         $.getJSON(urlRouteData, function (data) {
-            processRouteData(data);
+            if (data.status) {
+                showMessage(data.status);
+            } else {
+                processRouteData(data);
+            }
         });
     }
 
