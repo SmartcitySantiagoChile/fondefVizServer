@@ -4,9 +4,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from speed.views.matrix import MatrixHTML
-from speed.views.ranking import RankingHTML
-from speed.views.variation import SpeedVariationHTML
+from speed.views import MatrixHTML, RankingHTML, SpeedVariationHTML
 
 app_name = 'speed'
 urlpatterns = [
