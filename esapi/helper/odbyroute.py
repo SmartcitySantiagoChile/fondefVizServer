@@ -21,7 +21,7 @@ class ESODByRouteHelper(ElasticSearchHelper):
         """ get unique list for: timePeriodInStartTime, dayType, expeditionStartTime """
 
         es_time_period_query = self.get_unique_list_query("timePeriodInStopTime", size=50)
-        es_date_query = self.get_histogram_query("date", interval="day", format="yyy-MM-dd")
+        es_date_query = self.get_histogram_query("date", interval="day", date_format="yyy-MM-dd")
         es_route_query = self.get_unique_list_query("authRouteCode", size=10000)
 
         result = {
