@@ -198,7 +198,7 @@ class MatrixData(TestCase):
             'dayType[]': ['LABORAL'],
         }
         response = self.client.get(self.url, data)
-        print(response.content)
+
         self.assertNotContains(response, 'status')
         es_query.scan.assert_called_once()
 
