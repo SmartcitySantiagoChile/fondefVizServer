@@ -9,7 +9,7 @@
 
     {% include "datamanager/availableDays.html" %}
 
-    {% data_filter data_filter True False True False False True False True True True True %}
+    {% data_filter data_filter True False True False False True False True True True True info_target_id="filterHelp"%}
 
     <div class="row">
         {% panel "fa-clock-o" "Expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
@@ -31,6 +31,8 @@
             {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">N</strong>)' expeditionTable %}
         </div>
     </div>
+
+    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Prueba" modal_body="esto es una prueba" %}
 {% endblock %}
 
 {% block js %}

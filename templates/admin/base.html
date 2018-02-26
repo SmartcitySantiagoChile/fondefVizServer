@@ -25,6 +25,11 @@
     <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
     <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
 
+    <style>
+    .panel_toolbox {
+        min-width: 0px;
+    }
+    </style>
     {% block extrastyle %}{% endblock %}
     {% block css %}{% endblock %}
     {% block extrahead %}{% endblock %}

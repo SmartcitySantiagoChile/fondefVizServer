@@ -32,7 +32,8 @@ def data_filter(data_filter,
                 show_metric_filter=False,
                 show_start_trip_period_filter=False,
                 show_start_trip_minute_filter=False,
-                extra_html=''):
+                extra_html='',
+                info_target_id=''):
     data_filter = [] if data_filter == '' else data_filter
 
     filters = [
@@ -115,7 +116,7 @@ def data_filter(data_filter,
 
     panel_icon = 'fa-filter'
     panel_title = 'Filtro'
-    html_panel = panel(panel_icon, panel_title, mark_safe(panel_body))
+    html_panel = panel(panel_icon, panel_title, mark_safe(panel_body), info_target_id=info_target_id)
 
     content = """
         <div class="row">
