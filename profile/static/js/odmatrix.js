@@ -50,6 +50,7 @@ $(document).ready(function () {
                 },
                 xAxis: {
                     type: "category",
+                    name: "Parada de origen",
                     position: "top",
                     data: xData.map(function(el){ return el.userStopCode;}),
                     splitArea: {
@@ -58,6 +59,7 @@ $(document).ready(function () {
                 },
                 yAxis: {
                     type: "category",
+                    name: "Parada de destino",
                     data: yData.map(function(el){ return el.userStopCode;}),
                     splitArea: {
                         show: true
