@@ -49,21 +49,26 @@
     <div class="">
         {% header "Ranking de velocidades" %}
 
-        {% include "datamanager/availableDays.html" %}
+        {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
-        {% data_filter data_filter True False True False False False False False False False False True %}
+        {% data_filter data_filter True False True False False False False False False False False True info_target_id="filterHelp" %}
 
         <div class="row">
             <div class="col-md-8 col-sm-12 col-xs-12">
                 {% with panel_body="<table id='tupleDetail' class='table table-striped table-bordered dt-responsive table-condensed nowrap' width='100%'><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead></table>" %}
-                    {% panel "fa-tachometer" "Ranking de Velocidades <strong id='horario'></strong>" panel_body %}
+                    {% panel "fa-tachometer" "Ranking de Velocidades <strong id='horario'></strong>" panel_body info_target_id="tableHelp" %}
                 {% endwith %}
             </div>
             <div class="col-md-4 col-sm-12 col-xs-12">
-                {% panel "fa-map" "Posición en el mapa" "<div id='mapid' style='height: 500px;min-height: 300px'></div>" %}
+                {% panel "fa-map" "Posición en el mapa" "<div id='mapid' style='height: 500px;min-height: 300px'></div>" info_target_id="mapHelp" %}
             </div>
         </div>
     </div>
+
+    {% include "datamanager/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
+    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "datamanager/modal.html" with modal_id="tableHelp" modal_title="Ranking de velocidades" modal_body="esto es una explicación del gráfico" %}
+    {% include "datamanager/modal.html" with modal_id="mapHelp" modal_title="Posición en el mapa" modal_body="esto es una explicación de la tabla" %}
 {% endblock %}
 
 {% block js %}
