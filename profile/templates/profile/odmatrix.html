@@ -7,19 +7,24 @@
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
     {% header "Matriz de etapas" "por servicio"|add:label %}
 
-    {% include "datamanager/availableDays.html" %}
+    {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
-    {% data_filter data_filter True False True True False False False False True True True %}
+    {% data_filter data_filter True False True True False False False False True True True info_target_id="filterHelp" %}
 
-  <div class="row">
-    {% with toggleButton='<input id="chartSwitch" type="checkbox" data-toggle="toggle" data-on="Mostrando bajadas" data-off="Mostrando Subidas" data-size="large" data-width="270">' %}
-      {% columns 12 12 12 toggleButton as col7 %}
-    {% endwith %}
-    {% panel "fa-bar-chart" "Matriz de etapas" '<div id="matrixChart" style="height:600px;"></div>' as panel4 %}
-    {% panel "fa-bar-chart" "Etapas de una parada" '<div class="btn-group btn-group-xs" id="stops"></div><div id="graphChart" style="height:300px;"></div>' as panel5 %}
-    {% columns 12 12 12 panel4 %}
-    {% columns 12 12 12 panel5 %}
-  </div>
+    <div class="row">
+        {% with toggleButton='<input id="chartSwitch" type="checkbox" data-toggle="toggle" data-on="Mostrando bajadas" data-off="Mostrando Subidas" data-size="large" data-width="270">' %}
+            {% columns 12 12 12 toggleButton as col7 %}
+        {% endwith %}
+        {% panel "fa-bar-chart" "Matriz de etapas" '<div id="matrixChart" style="height:600px;"></div>' info_target_id="chartHelp" as panel4 %}
+        {% panel "fa-bar-chart" "Etapas de una parada" '<div class="btn-group btn-group-xs" id="stops"></div><div id="graphChart" style="height:300px;"></div>' info_target_id="chart2Help" as panel5 %}
+        {% columns 12 12 12 panel4 %}
+        {% columns 12 12 12 panel5 %}
+    </div>
+
+    {% include "datamanager/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
+    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "datamanager/modal.html" with modal_id="chartHelp" modal_title="Matriz de etapas" modal_body="esto es una explicación del gráfico" %}
+    {% include "datamanager/modal.html" with modal_id="chart2Help" modal_title="Etapas de una parada" modal_body="esto es una explicación de la tabla" %}
 {% endblock %}
 
 {% block js %}

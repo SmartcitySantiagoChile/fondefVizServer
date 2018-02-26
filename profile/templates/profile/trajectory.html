@@ -5,35 +5,40 @@
 
 {% block css %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "components/bootstrap-toggle/css/bootstrap-toggle.min.css" %}" />
+    <link rel="stylesheet" href="{% static "components/bootstrap-toggle/css/bootstrap-toggle.min.css" %}"/>
 {% endblock %}
 
 {% block content %}
-<div class="">
-  {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
-  {% header "Perfil de carga" "por trayectoria"|add:label %}
+    <div class="">
+        {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
+        {% header "Perfil de carga" "por trayectoria"|add:label %}
 
-    {% include "datamanager/availableDays.html" %}
+        {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
-    {% data_filter data_filter True False True False False True False True True True True %}
+        {% data_filter data_filter True False True False False True False True True True True info_target_id="filterHelp" %}
 
-  <div class="row">
-      <div class="col-md-12 col-sm-12 col-xs-12">
-      {% with barChart='<div id="barChart" style="height:800px;"></div>' toggleButton='<input id="chartSwitch" type="checkbox" data-toggle="toggle" data-on="Mostrando bajadas" data-off="Mostrando Subidas" data-size="large" data-width="270">' %}
-          {% columns 12 12 12 barChart as col7 %}
-          {% columns 12 12 12 toggleButton as col8 %}
-          {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col8|add:col7 %}
-      {% endwith %}
-      </div>
-  </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {% with barChart='<div id="barChart" style="height:800px;"></div>' toggleButton='<input id="chartSwitch" type="checkbox" data-toggle="toggle" data-on="Mostrando bajadas" data-off="Mostrando Subidas" data-size="large" data-width="270">' %}
+                    {% columns 12 12 12 barChart as col7 %}
+                    {% columns 12 12 12 toggleButton as col8 %}
+                    {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col8|add:col7 info_target_id="chartHelp" %}
+                {% endwith %}
+            </div>
+        </div>
 
-  <div class="row">
-      <div class="col-md-12 col-sm-12 col-xs-12">
-        {% table "expeditionDetail" 6 as expeditionTable %}
-        {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">0</strong>)' expeditionTable %}
-      </div>
-  </div>
-</div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {% table "expeditionDetail" 6 as expeditionTable %}
+                {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">0</strong>)' expeditionTable info_target_id="tableHelp" %}
+            </div>
+        </div>
+    </div>
+
+    {% include "datamanager/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
+    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "datamanager/modal.html" with modal_id="chartHelp" modal_title="Perfil de carga" modal_body="esto es una explicación del gráfico" %}
+    {% include "datamanager/modal.html" with modal_id="tableHelp" modal_title="Expediciones" modal_body="esto es una explicación de la tabla" %}
 {% endblock %}
 
 {% block js %}

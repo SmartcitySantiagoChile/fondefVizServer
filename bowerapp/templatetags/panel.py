@@ -9,7 +9,7 @@ register = template.Library()
 
 @register.simple_tag
 def panel(title_icon, title, body, info_target_id='', title_id='', show_collapse=False):
-    help_button = '<li><a data-toggle="modal" data-target="{0}"><i class="fa fa-info-circle"></i></a></li>'. \
+    help_button = '<li><a data-toggle="modal" data-target="#{0}"><i class="fa fa-info-circle"></i></a></li>'. \
         format(info_target_id)
     collapse = '<li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>'
     if not show_collapse:
