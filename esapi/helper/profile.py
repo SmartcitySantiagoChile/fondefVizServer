@@ -80,13 +80,13 @@ class ESProfileHelper(ElasticSearchHelper):
         """ ask to elasticsearch for a match values """
 
         es_auth_stop_query = Search().query(Match(authStopCode={"query": term, "analyzer": "standard"}))
-        es_auth_stop_query = self.get_unique_list_query("authStopCode.keyword", size=15000, query=es_auth_stop_query)
+        es_auth_stop_query = self.get_unique_list_query("authStopCode.raw", size=15000, query=es_auth_stop_query)
 
         es_user_stop_query = Search().query(Match(userStopCode={"query": term, "analyzer": "standard"}))
-        es_user_stop_query = self.get_unique_list_query("userStopCode.keyword", size=15000, query=es_user_stop_query)
+        es_user_stop_query = self.get_unique_list_query("userStopCode.raw", size=15000, query=es_user_stop_query)
 
         es_user_stop_name_query = Search().query(Match(userStopName={"query": term, "operator": "and"}))
-        es_user_stop_name_query = self.get_unique_list_query("userStopName.keyword", size=15000,
+        es_user_stop_name_query = self.get_unique_list_query("userStopName.raw", size=15000,
                                                              query=es_user_stop_name_query)
 
         searches = {
@@ -94,6 +94,8 @@ class ESProfileHelper(ElasticSearchHelper):
             "2": es_user_stop_query,
             "3": es_user_stop_name_query
         }
+        for s in searches:
+            print(str(searches[s].to_dict()).replace('\'', '"'))
         result = self.make_multisearch_query_for_aggs(searches)
 
         return result
