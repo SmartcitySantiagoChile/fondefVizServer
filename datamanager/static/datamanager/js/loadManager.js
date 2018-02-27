@@ -1,11 +1,10 @@
 "use strict";
-$(document).ready(function() {
-    const URL = "loadManager/data";
-    $.get(URL, function (data) {
+$(document).ready(function () {
+    $.get(Urls["datamanager:getLoadFileData"](), function () {
         console.log(data);
-        let dictFiles = data["routeDictFiles"];
+        var dictFiles = data["routeDictFiles"];
 
-        let _datatableOpts = {
+        var _datatableOpts = {
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
@@ -27,7 +26,7 @@ $(document).ready(function() {
                     "orderable": false,
                     "className": "text-center",
                     render: function (data, type, full, meta) {
-                        return '<button type="button" class="btn btn-info btn-xs" >Cargar datos</button>';
+                        return "<button type='button' class='btn btn-info btn-xs' >Cargar datos</button>";
                     }
                 },
                 {
@@ -36,30 +35,30 @@ $(document).ready(function() {
                     "orderable": false,
                     "className": "text-center",
                     render: function (data, type, full, meta) {
-                        return '<button type="button" class="btn btn-danger btn-xs" >Eliminar</button>';
+                        return "<button type='button' class='btn btn-danger btn-xs' >Eliminar</button>";
                     }
-                },
+                }
             ],
             order: [[1, "desc"]],
             createdRow: function (row, data, index) {
                 if (data.line !== data.line) {
                     $(row).addClass("danger");
                 }
-            },
+            }
         };
 
-        for (let key in dictFiles) {
-            let files = dictFiles[key];
-            let opts = $.extend({data: files}, _datatableOpts);
-            let id = key + "Table";
-            let table = $("#" + id).DataTable(opts);
+        for (var key in dictFiles) {
+            var files = dictFiles[key];
+            var opts = $.extend({data: files}, _datatableOpts);
+            var id = key + "Table";
+            var table = $("#" + id).DataTable(opts);
 
             $("#" + id + " tbody").on("click", "button", function () {
-                let buttonName = $(this).html();
-                let data = table.row($(this).parents("tr")).data();
+                var buttonName = $(this).html();
+                var data = table.row($(this).parents("tr")).data();
 
-                let deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
-                let uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
+                var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
+                var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
                 if (buttonName === "Eliminar" && confirm(deleteMessage)) {
                     console.log("bbbbb");
                 } else if (buttonName === "Cargar datos" && confirm(uploadMessage)) {

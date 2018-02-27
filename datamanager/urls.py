@@ -8,7 +8,7 @@ from .views import LoadManager, getLoadFileData, LoadData, DeleteData
 app_name = 'datamanager'
 urlpatterns = [
     url(r'^loadManager$', login_required(LoadManager.as_view()), name='loadmanager'),
-    url(r'^loadManager/data$', login_required(getLoadFileData.as_view()), name='getloadfiledata'),
+    url(r'^loadManager/data$', login_required(getLoadFileData.as_view()), name='getLoadFileData'),
     url(r'^loadData', login_required(LoadData.as_view()), name='loadData'),
     url(r'^deleteData', login_required(DeleteData.as_view()), name='deleteData')
 ]
