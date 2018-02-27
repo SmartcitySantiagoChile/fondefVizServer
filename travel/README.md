@@ -16,7 +16,7 @@ POST /travel/_search
         {
           "range": {
             "tiempo_subida": {
-              "time_zone": "America/Santiago",
+              "time_zone": "+00:00",
               "gte": "13/03/2016 00:00",
               "lte": "15/03/2016 23:59",
               "format": "dd/MM/yyyy HH:mm"
@@ -55,7 +55,7 @@ POST /travel/_search
         {
           "range": {
             "tiempo_subida": {
-              "time_zone": "America/Santiago",
+              "time_zone": "+00:00",
               "gte": "13/03/2016 00:00",
               "lte": "15/03/2016 23:59",
               "format": "dd/MM/yyyy HH:mm"
@@ -142,7 +142,7 @@ POST /travel/_search
         {
           "range": {
             "tiempo_subida": {
-              "time_zone": "America/Santiago",
+              "time_zone": "+00:00",
               "gte": "13/03/2016 00:00",
               "lte": "15/03/2016 23:59",
               "format": "dd/MM/yyyy HH:mm"
@@ -200,7 +200,7 @@ POST /travel/_search
         {
           "range": {
             "tiempo_subida": {
-              "time_zone": "America/Santiago",
+              "time_zone": "+00:00",
               "gte": "13/03/2016 00:00",
               "lte": "15/03/2016 23:59",
               "format": "dd/MM/yyyy HH:mm"
