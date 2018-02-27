@@ -273,6 +273,7 @@ class SpeedVariation(View):
     def get(self, request):
         _date = request.GET.get('startDate', '')[:10]
         the_date = datetime.datetime.strptime(_date, '%Y-%m-%d')
+        operator = request.GET.get('operator', '')
         user_route = request.GET.get('userRoute', '')
         day_type = request.GET.getlist('dayType[]', '')
 
@@ -284,7 +285,7 @@ class SpeedVariation(View):
         }
         try:
             es_helper = ESSpeedHelper()
-            es_query = es_helper.ask_for_speed_variation(the_date, day_type, user_route, valid_operator_list)
+            es_query = es_helper.ask_for_speed_variation(the_date, day_type, user_route, operator, valid_operator_list)
             response['variations'], response['routes'] = self.transform_data(es_query)
         except ESQueryResultEmpty as e:
             response['status'] = e.get_status_response()
