@@ -45,7 +45,40 @@ $(document).ready(function () {
                     left: "center",
                     bottom: "0px",
                     feature: {
-                        saveAsImage: {show: true, title: "Guardar imagen", name: "506 00I"}
+                        saveAsImage: {show: true, title: "Guardar imagen", name: "506 00I"},
+                        dataView: {
+                            show: true,
+                            title: "Ver datos",
+                            lang: ["Datos del gráfico", "cerrar", "refrescar"],
+                            buttonColor: "#169F85",
+                            readOnly: true,
+                            optionToContent: function (opt) {
+                                var axisData = opt.xAxis[0].data;
+                                var series = opt.series;
+
+                                var textarea = document.createElement('textarea');
+                                textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;';
+                                textarea.readOnly = "true";
+
+                                var header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
+                                series.forEach(function (el) {
+                                    header += "\t" + el.name;
+                                });
+                                header += "\n";
+                                var body = "";
+                                axisData.forEach(function (el, index) {
+                                    var serieValues = [];
+                                    series.forEach(function (serie) {
+                                        serieValues.push(serie.data[index]);
+                                    });
+                                    serieValues = serieValues.join("\t");
+                                    body += [route, el.order, el.userCode, el.authCode, el.name, serieValues, "\n"].join("\t");
+                                });
+                                body = body.replace(/\./g, ",");
+                                textarea.value = header + body;
+                                return textarea;
+                            }
+                        }
                     }
                 },
                 xAxis: {
