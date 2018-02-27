@@ -83,7 +83,7 @@ class ElasticSearchHelper(object):
     def get_available_days(self, field, valid_operator_list=None, time_zone=None):
 
         es_query = None
-        if not valid_operator_list:
+        if valid_operator_list:
             es_query = self.get_base_query()[:0]
             es_query = es_query.filter('terms', operator=valid_operator_list)
 
