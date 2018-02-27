@@ -68,7 +68,7 @@ class LoadProfileByStopData(View):
             trips[expedition_id]['capacity'] = int(data['busCapacity'])
             trips[expedition_id]['licensePlate'] = data['licensePlate']
             trips[expedition_id]['route'] = data['route']
-            trips[expedition_id]['stopTime'] = "" if data['expeditionStopTime'] == 0 else data['expeditionStopTime']
+            trips[expedition_id]['stopTime'] = "" if data['expeditionStopTime'] == "0" else data['expeditionStopTime']
             trips[expedition_id]['stopTimePeriod'] = data['timePeriodInStopTime']
             trips[expedition_id]['dayType'] = data['dayType']
             trips[expedition_id]['distOnPath'] = data['stopDistanceFromPathStart']
@@ -183,7 +183,7 @@ class LoadProfileByExpeditionData(View):
             stop['busStation'] = data['busStation'] == "1"
             stop['authTimePeriod'] = data['timePeriodInStopTime']
             stop['distOnPath'] = data['stopDistanceFromPathStart']
-            stop['stopTime'] = "" if data['expeditionStopTime'] == 0 else data['expeditionStopTime']
+            stop['stopTime'] = "" if data['expeditionStopTime'] == "0" else data['expeditionStopTime']
             stop['order'] = int(data['expeditionStopOrder'])
 
             # to avoid movement of distribution chart
