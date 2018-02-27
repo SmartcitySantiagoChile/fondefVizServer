@@ -4,67 +4,72 @@
 {% block title %}Administrador de carga de datos{% endblock %}
 
 {% block css %}
-{% with "components/gentelella/vendors/" as gentelella_static %}
-  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
-<!-- iCheck -->
-  <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+        <!-- iCheck -->
+        <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
 
-  <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
-  <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}" rel="stylesheet">
-  <style>
-.select2-container .select2-choice:not(.select2-default) {
-    background-image: none !important;
-    background-color: #D9FFC7;
-}
-  .btn {
-      margin-bottom: 0px;
-      font-size: 12px;
-      padding-top: 0px;
-      padding-bottom: 0px;
-  }
-  </style>
-{% endwith %}
+        <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <style>
+            .select2-container .select2-choice:not(.select2-default) {
+                background-image: none !important;
+                background-color: #D9FFC7;
+            }
+
+            .btn {
+                margin-bottom: 0px;
+                font-size: 12px;
+                padding-top: 0px;
+                padding-bottom: 0px;
+            }
+        </style>
+    {% endwith %}
 {% endblock %}
 
 {% block content %}
-<div class="">
-  <div class="page-title">
-    <div class="title_left">
-      <h3>Administrador de carga de datos <small></small></h3>
-    </div>
-    <div class="title_right">
-    </div>
-  </div>
-  <div class="clearfix"></div>
-  <br />
-
-  <div class="row">
-      {% for table in tables %}
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            {% table id=table.id columns=6 as a %}
-            {% panel title_icon=table.title_icon title=table.title body=a %}
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Administrador de carga de datos
+                    <small></small>
+                </h3>
+            </div>
+            <div class="title_right">
+            </div>
         </div>
-      {% endfor %}
-  </div>
-</div>
+        <div class="clearfix"></div>
+        <br/>
+
+        <div class="row">
+            {% for table in tables %}
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    {% table id=table.id columns=6 as file_table %}
+                    {% panel title_icon=table.title_icon title=table.title body=file_table %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
-{% with "components/gentelella/vendors/" as gentelella_static %}
-    <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
-    <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
-{% endwith %}
-
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
+    {% endwith %}
     <script src="{% static "js/loadManager.js" %}"></script>
-<script>
-
-</script>
 {% endblock %}

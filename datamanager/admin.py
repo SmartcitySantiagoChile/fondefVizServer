@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import DataSourcePath
-from .models import DataSourceFile
+
+from datamanager.models import DataSourcePath
+from datamanager.models import DataSourceFile
 
 
 class DataSourceAdmin(admin.ModelAdmin):
