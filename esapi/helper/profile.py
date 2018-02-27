@@ -80,23 +80,24 @@ class ESProfileHelper(ElasticSearchHelper):
         """ ask to elasticsearch for a match values """
 
         es_auth_stop_query = Search().query(Match(authStopCode={"query": term, "analyzer": "standard"}))
-        es_auth_stop_query = self.get_unique_list_query("authStopCode.raw", size=15000, query=es_auth_stop_query)
+        es_auth_stop_query = self.get_unique_list_query("authStopCode.raw", size=100, query=es_auth_stop_query)
 
         es_user_stop_query = Search().query(Match(userStopCode={"query": term, "analyzer": "standard"}))
-        es_user_stop_query = self.get_unique_list_query("userStopCode.raw", size=15000, query=es_user_stop_query)
+        es_user_stop_query = self.get_unique_list_query("userStopCode.raw", size=100, query=es_user_stop_query)
 
-        es_user_stop_name_query = Search().query(Match(userStopName={"query": term, "operator": "and"}))
-        es_user_stop_name_query = self.get_unique_list_query("userStopName.raw", size=15000,
-                                                             query=es_user_stop_name_query)
+        es_user_stop_name_query = Search().query(
+            Match(userStopName={"query": term, "operator": "and", "analyzer": "autocomplete_analyzer"}))[:0]
+        aggs = A('terms', field='userStopName.raw', size=100, order={"max_score": "desc"})
+        es_user_stop_name_query.aggs.bucket('results', aggs).metric('max_score', 'max', script={'source': '_score'})
 
         searches = {
             "1": es_auth_stop_query,
             "2": es_user_stop_query,
             "3": es_user_stop_name_query
         }
-        for s in searches:
-            print(str(searches[s].to_dict()).replace('\'', '"'))
         result = self.make_multisearch_query_for_aggs(searches)
+
+        result["3"] = [x["key"] for x in result["3"]["aggregations"]["results"]["buckets"]]
 
         return result
 
