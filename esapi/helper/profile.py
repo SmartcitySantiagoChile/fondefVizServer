@@ -16,7 +16,7 @@ from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParam
 class ESProfileHelper(ElasticSearchHelper):
 
     def __init__(self):
-        index_name = "profiles"
+        index_name = "profile"
         super(ESProfileHelper, self).__init__(index_name)
 
     def get_base_params(self):
