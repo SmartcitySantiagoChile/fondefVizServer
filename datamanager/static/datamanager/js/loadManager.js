@@ -1,6 +1,6 @@
 "use strict";
 $(document).ready(function () {
-    $.get(Urls["datamanager:getLoadFileData"](), function () {
+    $.get(Urls["datamanager:getLoadFileData"](), function (data) {
         console.log(data);
         var dictFiles = data["routeDictFiles"];
 
