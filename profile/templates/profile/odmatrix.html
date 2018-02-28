@@ -14,7 +14,7 @@
     <div class="row">
         {% panel "fa-bar-chart" "Matriz de etapas" '<div id="matrixChart" style="height:600px;"></div>' info_target_id="chartHelp" as panel4 %}
 
-        {% with radioButton='<p>¿Qué desea buscar?:</p><div class="radio-inline"><label><input type="radio" class="flat" name="stopSelector" checked> Paradero de subida</label></div><div class="radio-inline"><label><input type="radio" class="flat" name="stopSelector"> Paradero de bajada</label></div>' %}
+        {% with radioButton='<p>¿Qué desea visualizar?:</p><div class="radio-inline"><label><input type="radio" class="flat" name="stopSelector" checked> Paradero de subida</label></div><div class="radio-inline"><label><input type="radio" class="flat" name="stopSelector"> Paradero de bajada</label></div>' %}
             {% columns 12 12 12 toggleButton as col7 %}
             {% panel "fa-bar-chart" "Etapas de una parada" radioButton|add:'<div class="btn-group btn-group-xs" id="stops"></div><div id="graphChart" style="height:300px;"></div>' info_target_id="chart2Help" as panel5 %}
             {% columns 12 12 12 panel4 %}
