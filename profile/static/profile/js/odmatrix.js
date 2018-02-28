@@ -53,26 +53,33 @@ $(document).ready(function () {
                             buttonColor: "#169F85",
                             readOnly: true,
                             optionToContent: function (opt) {
-                                var axisData = opt.xAxis[0].data;
-                                var series = opt.series;
-
-                                var textarea = document.createElement('textarea');
-                                textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;';
+                                console.log(opt);
+                                var textarea = document.createElement("textarea");
+                                textarea.style.cssText = "width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;";
                                 textarea.readOnly = "true";
 
-                                var header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
-                                series.forEach(function (el) {
-                                    header += "\t" + el.name;
-                                });
-                                header += "\n";
+                                var header = "Parada de origen\tPara de destino\tNúmero de etapas\n";
+                                var series = opt.series;
+
+                                var stopList = yData;
                                 var body = "";
-                                axisData.forEach(function (el, index) {
+
+                                series.forEach(function (serie) {
+                                    console.log(serie);
                                     var serieValues = [];
-                                    series.forEach(function (serie) {
-                                        serieValues.push(serie.data[index]);
+                                    serie.data.forEach(function (dataRow) {
+                                        var originId = dataRow[1];
+                                        var destinationId = dataRow[0];
+                                        var stageNumber = dataRow[2];
+
+                                        var originObj = stopList[originId];
+                                        var destinationObj = stopList[destinationId];
+                                        serieValues.push(originObj.userStopCode + " " + originObj.authStopCode + " " + originObj.stopName);
+                                        serieValues.push(destinationObj.userStopCode + " " + destinationObj.authStopCode + " " + destinationObj.stopName);
+                                        serieValues.push(stageNumber);
+                                        body += serieValues.join("\t") + "\n";
+                                        serieValues.length = 0;
                                     });
-                                    serieValues = serieValues.join("\t");
-                                    body += [route, el.order, el.userCode, el.authCode, el.name, serieValues, "\n"].join("\t");
                                 });
                                 body = body.replace(/\./g, ",");
                                 textarea.value = header + body;
@@ -83,17 +90,31 @@ $(document).ready(function () {
                 },
                 xAxis: {
                     type: "category",
-                    name: "Parada de origen",
+                    name: "Parada de destino",
+                    nameLocation: "center",
+                    nameTextStyle: {
+                        fontSize: 14
+                    },
+                    nameGap: 30,
                     position: "top",
-                    data: xData.map(function(el){ return el.userStopCode;}),
+                    data: xData.map(function (el) {
+                        return el.userStopCode;
+                    }),
                     splitArea: {
                         show: true
                     }
                 },
                 yAxis: {
                     type: "category",
-                    name: "Parada de destino",
-                    data: yData.map(function(el){ return el.userStopCode;}),
+                    name: "Parada de origen",
+                    nameLocation: "center",
+                    nameGap: 60,
+                    nameTextStyle: {
+                        fontSize: 14
+                    },
+                    data: yData.map(function (el) {
+                        return el.userStopCode;
+                    }),
                     splitArea: {
                         show: true
                     },
@@ -137,11 +158,13 @@ $(document).ready(function () {
 
         this.updateGraphChart = function (stopCode, stopObjList, links, maxValue) {
             var colors = ["#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"];
+
             function getColor(value) {
                 var quantity = colors.length;
                 var threshold = maxValue / quantity;
                 return colors[parseInt(value / threshold)];
             }
+
             var data = [];
             var y = 0;
             var x = 0;
@@ -178,7 +201,9 @@ $(document).ready(function () {
                             var legend = "";
                             if (params.dataType === "node") {
                                 var labelOrigin = "Parada: ";
-                                var stopObj = stopObjList.filter(function(el){ return params.name===el.userStopCode})[0];
+                                var stopObj = stopObjList.filter(function (el) {
+                                    return params.name === el.userStopCode
+                                })[0];
                                 legend = labelOrigin + params.name + " " + stopObj.authStopCode + " " + stopObj.stopName;
                             } else if (params.dataType === "edge") {
                                 var labelTransactions = "<br />N° Transacciones: ";
@@ -265,9 +290,9 @@ $(document).ready(function () {
             });
         };
 
-        this.updateClickNodeEvent = function(stopList, links, maxValue) {
+        this.updateClickNodeEvent = function (stopList, links, maxValue) {
             _graphChart.off("click");
-            _graphChart.on("click", function(params){
+            _graphChart.on("click", function (params) {
                 console.log(params);
                 if (params.componentType === "series" && params.componentSubType === "graph") {
                     var clickedStopCode = params.data.name;
@@ -315,7 +340,9 @@ $(document).ready(function () {
         var maxValue = dataSource.data.maximum;
 
         var yAxis = dataSource.data.stopList;
-        var nameXAxis = dataSource.data.stopList.map(function(el){ return el.userStopCode; });
+        var nameXAxis = dataSource.data.stopList.map(function (el) {
+            return el.userStopCode;
+        });
         var nameYAxis = nameXAxis.slice();
         var xAxis = dataSource.data.stopList;
         var data = [];
@@ -345,7 +372,7 @@ $(document).ready(function () {
         });
         app.updateMatrixChart(xAxis, yAxis, data, maxValue);
         app.updateClickNodeEvent(xAxis, links, maxValue);
-        buildStopButtons(nameXAxis, function(stopCode){
+        buildStopButtons(nameXAxis, function (stopCode) {
             app.updateGraphChart(stopCode, xAxis, links[stopCode], maxValue);
         });
     }
