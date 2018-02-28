@@ -316,6 +316,10 @@ $(document).ready(function () {
             _matrixChart.hideLoading();
             _graphChart.hideLoading();
         };
+
+        $("input[name='stopSelector']").on('ifChecked', function (event) {
+            alert(this.value); // alert value
+        });
     }
 
     function buildStopButtons(stopCodeList, buttonEventFunction) {
