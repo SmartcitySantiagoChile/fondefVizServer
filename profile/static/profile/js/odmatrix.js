@@ -158,6 +158,7 @@ $(document).ready(function () {
 
         this.updateGraphChart = function (stopCode, stopObjList, links, maxValue) {
             var colors = ["#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"];
+            colors = ["#006837", "#006837", "#006837", "#006837", "#006837"];
 
             function getColor(value) {
                 var quantity = colors.length;
@@ -189,7 +190,7 @@ $(document).ready(function () {
             });
 
             var options = {
-                backgroundColor: "#CDCDCD",
+                //backgroundColor: "#000000",
                 animationDurationUpdate: 1500,
                 animationEasingUpdate: "quinticInOut",
                 tooltip: {
@@ -231,6 +232,7 @@ $(document).ready(function () {
                     top: 0
                 },
                 visualMap: {
+                    show: false,
                     type: "piecewise",
                     min: 0,
                     max: maxValue,
@@ -243,7 +245,7 @@ $(document).ready(function () {
                     outOfRange: {
                         color: "black"
                     },
-                    percision: 1,
+                    precision: 1,
                     orient: "horizontal",
                     left: "center",
                     bottom: 30
@@ -255,6 +257,7 @@ $(document).ready(function () {
                     type: "graph",
                     symbol: "image:///static/profile/img/stop.png",
                     symbolSize: [15, 20],
+                    symbolOffset: [0, 7],
                     roam: true,
                     circular: {
                         rotateLabel: true
@@ -272,6 +275,7 @@ $(document).ready(function () {
                     },
                     edgeSymbol: ["circle", "arrow"],
                     edgeSymbolSize: [5, 12],
+                    focusNodeAdjacency: true,
                     edgeLabel: {
                         normal: {
                             textStyle: {
