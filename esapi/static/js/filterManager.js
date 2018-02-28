@@ -70,6 +70,13 @@ function FilterManager(opts) {
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
 
+    /* It saves last parameters sent to server */
+    var paramsBackup = {};
+    var serializeParameters = function () {
+        // TODO: terminar esta función
+        return "hola";
+    };
+
     if ($STOP_FILTER.length) {
         $STOP_FILTER.select2({
             ajax: {
@@ -119,11 +126,11 @@ function FilterManager(opts) {
 
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
-            var diffDays = function(startDate, endDate) {
+            var diffDays = function (startDate, endDate) {
                 startDate = new Date(startDate);
                 endDate = new Date(endDate);
                 var diff = new Date(endDate - startDate);
-                var daysWindow = diff/1000/60/60/24;
+                var daysWindow = diff / 1000 / 60 / 60 / 24;
                 return parseInt(daysWindow);
             };
 
@@ -188,6 +195,8 @@ function FilterManager(opts) {
                 if (afterCall) {
                     afterCall(data);
                 }
+                // update backup to the last request params sent to server
+                paramsBackup = params;
             }).always(function () {
                 _makeAjaxCall = true;
                 button.html(previousMessage);
@@ -198,7 +207,7 @@ function FilterManager(opts) {
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
     if ($OPERATOR_FILTER.length) {
         var processRouteData = function (data) {
-            data.operatorDict = data.operatorDict.map(function(el){
+            data.operatorDict = data.operatorDict.map(function (el) {
                 return {
                     id: el.value,
                     text: el.item
