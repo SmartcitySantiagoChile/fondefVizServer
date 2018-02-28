@@ -1,0 +1,31 @@
+{
+  "settings": {
+    "max_result_window": 10000
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "route": {
+          "type": "keyword"
+        },
+        "licensePlate": { 
+          "type": "keyword"
+        },
+        "expeditionStartTime": { 
+          "type": "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "expeditionEndTime": { 
+          "type": "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "fulfillment" : { 
+          "type": "keyword"
+        },
+        "periodId" : { 
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

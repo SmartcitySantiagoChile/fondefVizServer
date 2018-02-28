@@ -1,0 +1,143 @@
+{
+  "settings": {
+    "max_result_window": 15000,
+    "index": {
+      "analysis" : {
+        "analyzer": {
+          "autocomplete_analyzer": {
+            "type": "custom",
+            "tokenizer": "lowercase",
+            "filter": ["asciifolding", "title_ngram"]
+          },
+          "autocomplete_analyzer_for_code": {
+            "type": "custom",
+            "tokenizer": "whitespace",
+            "filter": ["lowercase", "asciifolding", "title_ngram"]
+          }
+        },
+        "filter": {
+          "title_ngram": {
+            "type": "nGram",
+            "min_gram": 3,
+            "max_gram": 5
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "operator": {
+          "type": "byte"
+        },
+        "route": {
+          "type": "keyword"
+        },
+        "userRoute": {
+          "type": "keyword"
+        },
+        "shapeRoute": {
+          "type": "keyword"
+        },
+        "licensePlate": { 
+          "type": "keyword",
+          "index": false
+        },
+        "authStopCode" : { 
+          "type": "text",
+          "analyzer": "autocomplete_analyzer_for_code",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "userStopCode": {
+          "type": "text",
+          "analyzer": "autocomplete_analyzer_for_code",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "userStopName": { 
+          "type": "text",
+          "analyzer": "autocomplete_analyzer",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "expeditionStartTime": { 
+          "type": "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "expeditionEndTime": { 
+          "type": "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "fulfillment" : { 
+          "type": "keyword"
+        },
+        "expeditionStopOrder": {
+          "type": "short",
+          "index": false
+        },
+        "expeditionDayId" : { 
+          "type": "integer",
+          "index": false
+        },
+        "stopDistanceFromPathStart" : { 
+          "type": "half_float",
+          "index": false
+        },
+        "expandedBoarding" : { 
+          "type": "half_float",
+          "index": false
+        },
+        "expandedAlighting": { 
+          "type": "half_float",
+          "index": false
+        },
+        "loadProfile": { 
+          "type": "half_float",
+          "index": false
+        },
+        "busCapacity" : { 
+          "type": "integer",
+          "index": false
+        },
+        "expeditionStopTime" : { 
+          "type": "text",
+          "index": false
+        },
+        "timePeriodInStartTime": {
+          "type": "keyword"
+        },
+        "timePeriodInStopTime": {
+          "type": "keyword"
+        },
+        "dayType": {
+          "type": "keyword"
+        },
+        "busStation": {
+          "type": "byte",
+          "index": false
+        },
+        "transactions" : { 
+          "type": "short",
+          "index": false
+        },
+        "halfHourInStartTime" : { 
+          "type": "short"
+        },
+        "halfHourInStopTime" : { 
+          "type": "short"
+        }
+      }
+    }
+  }
+}

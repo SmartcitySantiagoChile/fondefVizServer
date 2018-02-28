@@ -53,15 +53,25 @@ class PermissionBuilder(object):
         """
         group_names = []
         for operator in Operator.objects.all():
-            permission, _ = GlobalPermission.objects.get_or_create(codename=operator.esId, name=operator.name.lower())
+            permission, _ = GlobalPermission.objects.get_or_create(codename=operator.esId,
+                                                                   defaults={'name': operator.name.lower()})
             group_names.append((operator.name.capitalize(), permission))
 
         global_group, _ = Group.objects.get_or_create(name=settings.GLOBAL_PERMISSION_GROUP_NAME)
 
         for group_name, permission in group_names:
-            group, _ = Group.objects.get_or_create(name=group_name)
+            name = 'Datos de {0}'.format(group_name)
+            group, _ = Group.objects.get_or_create(name=name)
             group.permissions.add(permission)
             global_group.permissions.add(permission)
+
+        # create permission to see trip section and historical section
+        trip_permission, _ = GlobalPermission.objects.get_or_create(codename='travel',
+                                                               defaults={'name': 'viajes'})
+        general_permission, _ = GlobalPermission.objects.get_or_create(codename='globalstat',
+                                                               defaults={'name': 'estadísticas generales'})
+        advance_group, _ = Group.objects.get_or_create(name='Sección viajes y estadísticas generales')
+        advance_group.permissions.add(trip_permission, general_permission)
 
     def update_permission(self, new_operator_obj):
         """

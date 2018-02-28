@@ -68,8 +68,9 @@
                   <li><a href=" {% url "shape:map" %} "> mapa</a></li>
                 </ul>
               </li>
+              {% if perms.localinfo.travel %}
               <li>
-                <a><i class="fa fa-line-chart"></i> Indicadores de viaje<span
+                <a><i class="fa fa-line-chart"></i> Viajes<span
                     class="fa fa-chevron-down"></span></a>
                 <ul class="nav child_menu">
                     <li><a href=" {% url "travel:graphs" %} ">Resumen</a></li>
@@ -80,6 +81,8 @@
                     {# <li><a href=" {% url "travel:data" %} ">Datos</a></li> #}
                 </ul>
               </li>
+              {% endif %}
+              {% if perms.localinfo.globalstat %}
               <li>
                 <a><i class="fa fa-clone"></i> Est. globales<span
                     class="fa fa-chevron-down"></span></a>
@@ -88,6 +91,7 @@
                     <li><a href=" {% url "globalstat:detail" %} ">Detalle</a></li>
                 </ul>
               </li>
+              {% endif %}
             </ul>
           </div>
         </div>

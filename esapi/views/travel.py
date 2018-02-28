@@ -3,15 +3,17 @@ from __future__ import unicode_literals
 
 from django.views import View
 from django.http import JsonResponse
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from collections import defaultdict
 
-from esapi.helper.trip import ESTripHelper
+from esapi.helper.travel import ESTripHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist
 
 
-class ResumeData(View):
+class ResumeData(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def process_data(self, data_dict):
 
@@ -43,7 +45,8 @@ class ResumeData(View):
         return JsonResponse(response, safe=False)
 
 
-class MapData(View):
+class MapData(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def process_data(self, data_dict):
 
@@ -93,7 +96,8 @@ class MapData(View):
         return JsonResponse(response, safe=False)
 
 
-class AvailableDays(View):
+class AvailableDays(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def get(self, request):
         es_helper = ESTripHelper()
@@ -106,7 +110,8 @@ class AvailableDays(View):
         return JsonResponse(response)
 
 
-class LargeTravelData(View):
+class LargeTravelData(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def process_data(self, data):
         return data
@@ -138,7 +143,8 @@ class LargeTravelData(View):
         return JsonResponse(response)
 
 
-class FromToMapData(View):
+class FromToMapData(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def process_data(self, data):
         return data
@@ -173,7 +179,8 @@ class FromToMapData(View):
         return JsonResponse(response)
 
 
-class StrategiesData(View):
+class StrategiesData(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def process_data(self, es_query):
         subway = 'METRO'
