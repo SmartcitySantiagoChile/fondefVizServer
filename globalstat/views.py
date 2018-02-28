@@ -3,11 +3,13 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render
 from django.views.generic import View
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from esapi.views.resume import DICTIONARY
 
 
-class ResumeHTML(View):
+class ResumeHTML(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def get(self, request):
         template = 'globalstat/resume.html'
@@ -30,7 +32,8 @@ class ResumeHTML(View):
         return render(request, template, context)
 
 
-class DetailHTML(View):
+class DetailHTML(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def get(self, request):
         template = 'globalstat/detail.html'

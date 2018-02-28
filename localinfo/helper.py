@@ -66,10 +66,12 @@ class PermissionBuilder(object):
             global_group.permissions.add(permission)
 
         # create permission to see trip section and historical section
-        permission, _ = GlobalPermission.objects.get_or_create(codename='trips',
-                                                               defaults={'name': 'viajes y datos globales'})
-        trip_group, _ = Group.objects.get_or_create(name='Sección viajes y datos globales')
-        trip_group.permissions.add(permission)
+        trip_permission, _ = GlobalPermission.objects.get_or_create(codename='travel',
+                                                               defaults={'name': 'viajes'})
+        general_permission, _ = GlobalPermission.objects.get_or_create(codename='globalstat',
+                                                               defaults={'name': 'estadísticas generales'})
+        advance_group, _ = Group.objects.get_or_create(name='Sección viajes y estadísticas generales')
+        advance_group.permissions.add(trip_permission, general_permission)
 
     def update_permission(self, new_operator_obj):
         """

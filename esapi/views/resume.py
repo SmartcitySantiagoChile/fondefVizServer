@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.views.generic import View
 from django.http import JsonResponse
 from django.utils import dateparse
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.errors import ESQueryResultEmpty
@@ -115,7 +116,8 @@ DICTIONARY = {
 }
 
 
-class GlobalData(View):
+class GlobalData(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def transform_data(self, es_query):
         """ transform ES answer to something util to web client """
@@ -172,7 +174,8 @@ class GlobalData(View):
         return JsonResponse(response, safe=False)
 
 
-class AvailableDays(View):
+class AvailableDays(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.globalstat'
 
     def get(self, request):
         es_helper = ESResumeStatisticHelper()
