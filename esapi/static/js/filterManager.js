@@ -11,11 +11,18 @@
 function FilterManager(opts) {
 
     /* OPTIONS */
+    /* function executed before server returns data */
     var previousCall = undefined;
+    /* function executed after server returns data */
     var afterCall = undefined;
+    /* url where filter manager asks for data */
     var urlFilterData = opts.urlFilterData;
+    /* url where filter manager asks for route data (operator, user route code and authority route code) */
     var urlRouteData = opts.urlRouteData;
+    /* let user select just one day */
     var singleDatePicker = opts.singleDatePicker || false;
+    /* minimum day window that user has to select */
+    var minimumDateLimit = opts.minimumDateLimit || undefined;
     /* function that return additional params to send to server */
     var dataUrlParams = opts.dataUrlParams || function () {
         return {};
@@ -109,6 +116,27 @@ function FilterManager(opts) {
         var params = dataUrlParams();
         params.startDate = $DAY_FILTER.data("daterangepicker").startDate.format();
         params.endDate = $DAY_FILTER.data("daterangepicker").endDate.format();
+
+        // check diff days
+        if (minimumDateLimit !== undefined && !singleDatePicker) {
+            var diffDays = function(startDate, endDate) {
+                startDate = new Date(startDate);
+                endDate = new Date(endDate);
+                var diff = new Date(endDate - startDate);
+                var daysWindow = diff/1000/60/60/24;
+                return parseInt(daysWindow);
+            };
+
+            if (diffDays(params.startDate, params.endDate) < minimumDateLimit) {
+                var status = {
+                    message: "La período consultado debe ser mayor a 2 días",
+                    title: "Advertencia",
+                    type: "warning"
+                };
+                showMessage(status);
+                return;
+            }
+        }
 
         if ($AUTH_ROUTE_FILTER.length && authRoute) {
             params.authRoute = authRoute;

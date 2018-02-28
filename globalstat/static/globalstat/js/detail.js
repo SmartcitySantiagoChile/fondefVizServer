@@ -169,8 +169,6 @@ $(document).ready(function () {
         var app = new DetailApp();
         var afterCall = function (answer) {
             if (answer.status) {
-                var status = answer.status;
-                showMessage(status);
                 return;
             }
             app.updateMetrics(answer.data);

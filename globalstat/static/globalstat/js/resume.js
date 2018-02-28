@@ -182,15 +182,14 @@ $(document).ready(function () {
         var app = new ResumeApp();
         var afterCall = function (answer) {
             if (answer.status) {
-                var status = answer.status;
-                showMessage(status);
                 return;
             }
             app.updateMetrics(answer.data);
         };
         var opts = {
             urlFilterData: Urls["esapi:resumeData"](),
-            afterCallData: afterCall
+            afterCallData: afterCall,
+            minimumDateLimit: 2
         };
 
         new FilterManager(opts);
