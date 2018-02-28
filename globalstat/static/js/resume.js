@@ -46,7 +46,7 @@ $(document).ready(function () {
                 currentDate.setUTCDate(currentDate.getUTCDate() + 1);
             }
 
-            var data = dates.map(function (date) {
+            var rowData = dates.map(function (date) {
                 var row = header.map(function () {
                     return null;
                 });
@@ -58,7 +58,7 @@ $(document).ready(function () {
                 var index = dates.indexOf(day);
                 row.forEach(function (el, j) {
                     if (j !== 0) {
-                        data[index][j] = el;
+                        rowData[index][j] = el;
                     }
                 });
             });
@@ -78,7 +78,7 @@ $(document).ready(function () {
                 if (name === "Día" || name === "Tipo de día") {
                     return;
                 }
-                var attributeData = data.map(function (dateData) {
+                var attributeData = rowData.map(function (dateData) {
                     return dateData[index];
                 });
 
@@ -125,7 +125,20 @@ $(document).ready(function () {
                     position: "left"
                 }],
                 tooltip: {
-                    trigger: "axis"
+                    trigger: "axis",
+                    formatter: function (params) {
+                        if (Array.isArray(params)) {
+                            var head = params[0].axisValueLabel + "<br />";
+                            var info = [];
+                            params.forEach(function (el) {
+                                var ball = el.marker;
+                                var name = el.seriesName;
+                                var value = Number(Number(el.value).toFixed(2)).toLocaleString();
+                                info.push(ball + name + ": " + value);
+                            });
+                            return head + info.join("<br />");
+                        }
+                    }
                 },
                 grid: {
                     bottom: 95
