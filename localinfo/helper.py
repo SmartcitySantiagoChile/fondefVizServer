@@ -63,6 +63,12 @@ class PermissionBuilder(object):
             group.permissions.add(permission)
             global_group.permissions.add(permission)
 
+        # create permission to see trip section and historical section
+        permission, _ = GlobalPermission.objects.get_or_create(codename='trips',
+                                                               defaults={'name': 'viajes y datos globales'})
+        trip_group, _ = Group.objects.get_or_create(name='Sección viajes y datos globales')
+        trip_group.permissions.add(permission)
+
     def update_permission(self, new_operator_obj):
         """
         Modify permission if user change name or esId
