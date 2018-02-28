@@ -119,3 +119,46 @@ class ESQueryOperatorParameterDoesNotExist(ESQueryError):
     def __init__(self):
         message = 'No tiene permisos para preguntar por algún operador. Por favor contáctese con el administrador'
         super(ESQueryOperatorParameterDoesNotExist, self).__init__(410, message)
+
+
+class ESQueryStopListDoesNotExist(ESQueryError):
+    """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
+
+    def __init__(self, asked_date, available_days):
+        available_days = map(lambda x: '<li>{0}</li>'.format(x), available_days)
+        available_days = reduce(lambda x, y: '{0}{1}'.format(x, y), available_days, '')
+        first_paragraph = 'No existe programa de operación previo a la fecha señalada ({0})<br />'.format(asked_date)
+        second_paragraph = 'Los programas de operación disponible son: <br /><ul>{0}</ul>'.format(available_days)
+        message = '{0}{1}'.format(first_paragraph, second_paragraph)
+        super(ESQueryStopListDoesNotExist, self).__init__(411, message)
+
+
+class ESQueryThereIsMoreThanOneStopList(ESQueryError):
+    """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
+
+    def __init__(self, start_date, end_date, days_between):
+        days_between = map(lambda x: '<li>{0}</li>'.format(x), days_between)
+        days_between = reduce(lambda x, y: '{0}{1}'.format(x, y), days_between, '')
+        title = 'Existe más de un programa de operación entre {0} y {1}<br />'.format(
+            start_date, end_date)
+        first_paragraph = 'Programas de operación presentes en el período consultado: <br /><ul>{0}</ul>'.format(
+            days_between)
+        second_paragraph = '<b>Consejo:</b><br />Puede existir a lo más un programa de operación en el período de consulta y debe ser igual a la fecha inicial<br />'
+        message = '{0}{1}'.format(first_paragraph, second_paragraph)
+        super(ESQueryThereIsMoreThanOneStopList, self).__init__(412, message, title=title)
+
+
+class ESQueryStartDateParameterDoesNotExist(ESQueryError):
+    """ It raises when user does not provide start date param to elastic search query """
+
+    def __init__(self):
+        message = 'Debe indicar una fecha de inicio'
+        super(ESQueryStartDateParameterDoesNotExist, self).__init__(413, message)
+
+
+class ESQueryEndDateParameterDoesNotExist(ESQueryError):
+    """ It raises when user does not provide end date param to elastic search query """
+
+    def __init__(self):
+        message = 'Debe indicar una fecha de fin'
+        super(ESQueryEndDateParameterDoesNotExist, self).__init__(414, message)

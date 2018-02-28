@@ -6,8 +6,7 @@ from django.http import JsonResponse
 
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.stop import ESStopHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty, \
-    ESQueryOperatorParameterDoesNotExist
+from esapi.errors import ESQueryError
 
 from localinfo.helper import PermissionBuilder
 
@@ -64,8 +63,7 @@ class ODMatrixData(View):
 
             matrix, max_value = es_od_helper.ask_for_od(auth_route_code, period, day_type, start_date, end_date,
                                                         valid_operator_list)
-            stop_list = es_stop_helper.get_stop_list(auth_route_code, start_date,
-                                                     fields=['userStopCode', 'stopName', 'authStopCode', 'order'])
+            stop_list = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)
 
             response["data"] = {
                 "matrix": matrix,
@@ -77,8 +75,7 @@ class ODMatrixData(View):
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryRouteParameterDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
-                ESQueryOperatorParameterDoesNotExist) as e:
+        except ESQueryError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
