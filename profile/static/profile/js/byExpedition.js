@@ -712,7 +712,7 @@ $(document).ready(function () {
                         myPercentageEditor: {
                             show: true,
                             title: "Cambiar porcentaje máximo",
-                            icon: 'image:///static/img/percent.png',
+                            icon: 'image:///static/profile/img/percent.png',
                             onclick: function () {
                                 var percentage = prompt("Ingrese el porcentaje máximo");
                                 if (percentage !== "") {

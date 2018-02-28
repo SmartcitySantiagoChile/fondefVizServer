@@ -228,7 +228,7 @@ $(document).ready(function () {
                     data: data,
                     links: links,
                     type: "graph",
-                    symbol: "image:///static/img/stop.png",
+                    symbol: "image:///static/profile/img/stop.png",
                     symbolSize: [15, 20],
                     roam: true,
                     circular: {
