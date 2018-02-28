@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
     url(r'^admin/', include('datamanager.urls')),
+    url(r'^admin/django-rq/', include('django_rq.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^profile/', include('profile.urls')),
     url(r'^shape/', include('shape.urls')),

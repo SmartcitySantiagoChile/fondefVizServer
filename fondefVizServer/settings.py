@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_js_reverse',
+    'django_rq',
     'bowerapp',
     'esapi',
     'datamanager',
@@ -136,3 +137,11 @@ LOGIN_URL = '{0}/login/'.format(JS_REVERSE_SCRIPT_PREFIX)
 
 # user name to see all operator data
 GLOBAL_PERMISSION_GROUP_NAME = 'Transantiago'
+
+# django-rq task queueing
+# reference: https://github.com/ui/django-rq
+RQ_QUEUES = {
+    'default': {
+        'USE_REDIS_CACHE': 'default',
+    }
+}

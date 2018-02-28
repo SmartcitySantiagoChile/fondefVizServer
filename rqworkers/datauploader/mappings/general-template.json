@@ -1,0 +1,146 @@
+{
+  "settings": {
+    "max_result_window": 10000
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "date": {
+          "type": "date"
+        },
+        "dayType": { 
+          "type": "keyword"
+        },
+        "expeditionNumber" : { 
+          "type": "integer"
+        },
+        "minExpeditionTime": {
+          "type": "float"
+        },
+        "maxExpeditionTime": {
+          "type": "float"
+        },
+        "averageExpeditionTime": { 
+          "type": "float"
+        },
+        "licensePlateNumber": { 
+          "type": "integer"
+        },
+        "GPSPointsNumber": { 
+          "type": "integer"
+        },
+        "averageTimeBetweenGPSPoints": { 
+          "type": "float"
+        },
+        "GPSNumberWithRoute": { 
+          "type": "integer"
+        },
+        "GPSNumberWithoutRoute": { 
+          "type": "integer"
+        },
+        "transactionNumber": { 
+          "type": "integer"
+        },
+        "transactionOnBusNumber": { 
+          "type": "integer"
+        },
+        "transactionOnMetroNumber": { 
+          "type": "integer"
+        },
+        "transactionOnTrainNumber": { 
+          "type": "integer"
+        },
+        "transactionOnBusStation": { 
+          "type": "integer"
+        },
+        "smartcardNumber": { 
+          "type": "integer"
+        },
+        "transactionWithRoute": { 
+          "type": "integer"
+        },
+        "transactionWithoutRoute": { 
+          "type": "integer"
+        },
+        "stagesWithBusAlighting": { 
+          "type": "integer"
+        },
+        "stagesWithMetroAlighting": { 
+          "type": "integer"
+        },
+        "stagesWithTrainAlighting": { 
+          "type": "integer"
+        },
+        "stagesWithBusStationAlighting": { 
+          "type": "integer"
+        },
+        "tripNumber": { 
+          "type": "integer"
+        },
+        "completeTripNumber": { 
+          "type": "integer"
+        },
+        "tripsWithOneStage": { 
+          "type": "integer"
+        },
+        "tripsWithTwoStages": { 
+          "type": "integer"
+        },
+        "tripsWithThreeStages": { 
+          "type": "integer"
+        },
+        "tripsWithFourStages": { 
+          "type": "integer"
+        },
+        "tripsWithFiveOrMoreStages": { 
+          "type": "integer"
+        },
+        "tripsWithOnlyMetro": { 
+          "type": "integer"
+        },
+        "tripsThatUseMetro": { 
+          "type": "integer"
+        },
+        "tripsWithoutLastAlighting": { 
+          "type": "integer"
+        },
+        "validTripNumber": { 
+          "type": "float"
+        },
+        "averageTimeOfTrips": { 
+          "type": "float"
+        },
+        "averageDistanceOfTrips": { 
+          "type": "float"
+        },
+        "averageVelocityOfTrips": { 
+          "type": "float"
+        },
+        "tripNumberInMorningRushHour": { 
+          "type": "float"
+        },
+        "averageTimeInMorningRushTrips": { 
+          "type": "float"
+        },
+        "averageDistanceInMorningRushTrips": { 
+          "type": "float"
+        },
+        "averageVelocityInMorningRushTrips": { 
+          "type": "float"
+        },
+        "tripNumberInAfternoonRushHour": { 
+          "type": "float"
+        },
+        "averageTimeInAfternoonRushTrips": { 
+          "type": "float"
+        },
+        "averageDistanceInAfternoonRushTrips": { 
+          "type": "float"
+        },
+        "averageVelocityInAfternoonRushTrips": { 
+          "type": "float"
+        }
+      }
+    }
+  }
+}

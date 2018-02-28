@@ -1,0 +1,90 @@
+{
+  "settings": {},
+  "mappings": {
+    "doc" : {
+      "properties": {
+        "id" : {
+          "type": "long" 
+        },
+        "tipodia" : {
+          "type": "byte" 
+        },
+        "factor_expansion" : {
+          "type": "half_float" 
+        },
+        "n_etapas" : {
+          "type": "byte" 
+        },
+        "tviaje" : {
+          "type": "float" 
+        },
+        "distancia_eucl" : {
+          "type": "float" 
+        },
+        "distancia_ruta" : {
+          "type": "float" 
+        },
+        "tiempo_subida" : {
+          "type" : "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"},
+        "tiempo_bajada" : {
+          "type" : "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"},
+        "mediahora_subida" : {
+          "type": "byte" 
+        },
+        "mediahora_bajada" : {
+          "type": "byte" 
+        },
+        "periodo_subida" : {
+          "type": "byte" 
+        },
+        "periodo_bajada" : {
+          "type": "byte" 
+        },
+        "tipo_transporte_1" : {
+          "type": "byte" 
+        },
+        "tipo_transporte_2" : {
+          "type": "byte" 
+        },
+        "tipo_transporte_3" : {
+          "type": "byte" 
+        },
+        "tipo_transporte_4" : {
+          "type": "byte" 
+        },
+        "srv_1" : {
+          "type": "keyword" 
+        },
+        "srv_2" : {
+          "type": "keyword" 
+        },
+        "srv_3" : {
+          "type": "keyword" 
+        },
+        "srv_4" : {
+          "type": "keyword" 
+        },
+        "paradero_subida" : {
+          "type": "keyword" 
+        },
+        "paradero_bajada" : {
+          "type": "keyword" 
+        },
+        "comuna_subida" : {
+          "type": "integer" 
+        },
+        "comuna_bajada" : {
+          "type": "integer" 
+        },
+        "zona_subida" : {
+          "type": "short" 
+        },
+        "zona_bajada" : {
+          "type": "short" 
+        }
+      }
+    }
+  }
+}

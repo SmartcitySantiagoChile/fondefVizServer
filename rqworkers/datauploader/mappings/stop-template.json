@@ -1,0 +1,43 @@
+{
+  "settings": {
+    "max_result_window": 10000,
+    "index.mapping.ignore_malformed": false
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "authRouteCode" : { 
+          "type": "keyword"
+        },
+        "userRouteCode" : { 
+          "type": "keyword"
+        },
+        "operator": { 
+          "type": "integer"
+        },
+        "stops": {
+          "properties": {
+            "order" : { 
+              "type": "integer"
+            },
+            "longitude": {
+              "type": "float"
+            },
+            "latitude": {
+              "type": "float"
+            },
+            "authStopCode" : { 
+              "type": "keyword"
+            },
+            "userStopCode" : { 
+              "type": "keyword"
+            },
+            "stopName" : { 
+              "type": "text"
+            }
+          }
+        }
+      }
+    }
+  }
+}

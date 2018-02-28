@@ -1,0 +1,28 @@
+{
+  "settings": {},
+  "mappings": {
+    "doc": {
+      "properties": {
+        "route" : { 
+          "type": "keyword"
+        },
+        "startDate" : { 
+          "type": "date"
+        },
+        "points": {
+          "properties": {
+            "longitude": {
+              "type": "float"
+            },
+            "latitude": {
+              "type": "float"
+            },
+            "segmentStart": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }
+}
