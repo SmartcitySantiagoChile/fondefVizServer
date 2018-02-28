@@ -4,7 +4,7 @@ $(document).ready(function () {
         var charts = [];
 
         this.updateMetrics = function (data) {
-            var header = data.header;
+            // var header = data.header;
             var chartNames = data.chartNames;
             var ids = data.ids;
             var row = data.rows[0];
@@ -21,13 +21,19 @@ $(document).ready(function () {
                 try {
                     $("#" + id).html(value);
                 } catch (e) {
-                    console.log("error: ");
+                    console.log("error: " + e);
                 }
             });
 
+            var pieChartFormatter = function (params) {
+                var number = Number(params.value).toLocaleString();
+                return params.data.name + "\n" + params.percent.toLocaleString() + "% (" + number + ")";
+            };
+
             var pieChartOpt = {
                 tooltip: {
-                    trigger: "item"
+                    trigger: "item",
+                    formatter: pieChartFormatter
                 },
                 series: [{
                     type: "pie",
@@ -41,10 +47,7 @@ $(document).ready(function () {
                     },
                     label: {
                         normal: {
-                            formatter: function (params) {
-                                var number = Number(params.value).toLocaleString();
-                                return params.data.name + "\n" + params.percent.toLocaleString() + "% (" + number + ")";
-                            }
+                            formatter: pieChartFormatter
                         }
                     }
                 }]
@@ -145,9 +148,9 @@ $(document).ready(function () {
             var tableRow = "<tr><th scope='row'>{0}</th><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>";
             tableAttriubutes.forEach(function (attrs, index) {
                 var label = labelAttributes[index];
-                var value0 = Number(row[ids.indexOf(attrs[0])].toFixed(2)).toLocaleString();
-                var value1 = Number(row[ids.indexOf(attrs[1])].toFixed(2)).toLocaleString();
-                var value2 = Number(row[ids.indexOf(attrs[2])].toFixed(2)).toLocaleString();
+                var value0 = Number(Number(row[ids.indexOf(attrs[0])]).toFixed(2)).toLocaleString();
+                var value1 = Number(Number(row[ids.indexOf(attrs[1])]).toFixed(2)).toLocaleString();
+                var value2 = Number(Number(row[ids.indexOf(attrs[2])]).toFixed(2)).toLocaleString();
                 dataTable.append(tableRow.replace("{0}", index + 1).replace("{1}", label).replace("{2}", value0).replace("{3}", value1).replace("{4}", value2));
             });
         };
