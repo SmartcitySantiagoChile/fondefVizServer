@@ -45,7 +45,7 @@ $(document).ready(function () {
                     left: "center",
                     bottom: "0px",
                     feature: {
-                        saveAsImage: {show: true, title: "Guardar imagen", name: "506 00I"},
+                        saveAsImage: {show: true, title: "Guardar imagen", name: $("#authRouteFilter").val()},
                         dataView: {
                             show: true,
                             title: "Ver datos",
