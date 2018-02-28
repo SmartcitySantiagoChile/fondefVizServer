@@ -73,7 +73,7 @@ class ESTripHelper(ElasticSearchHelper):
             'gte': start_date + '||/d',
             'lte': end_date + '||/d',
             'format': 'yyyy-MM-dd',
-            'time_zone': 'America/Santiago'
+            'time_zone': '+00:00'
         })
 
         if day_types:
@@ -96,7 +96,7 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query_dict
 
     def ask_for_available_days(self):
-        return self.get_available_days('tiempo_subida', time_zone='America/Santiago')
+        return self.get_available_days('tiempo_subida')
 
     def ask_for_map_data(self, start_date, end_date, day_types, periods, sectors):
         """
@@ -111,7 +111,7 @@ class ESTripHelper(ElasticSearchHelper):
             'gte': start_date + '||/d',
             'lte': end_date + '||/d',
             'format': 'yyyy-MM-dd',
-            'time_zone': 'America/Santiago'
+            'time_zone': '+00:00'
         })
 
         if day_types:
@@ -157,7 +157,7 @@ class ESTripHelper(ElasticSearchHelper):
             'gte': start_date + '||/d',
             'lte': end_date + '||/d',
             'format': 'yyyy-MM-dd',
-            'time_zone': 'America/Santiago'
+            'time_zone': '+00:00'
         })
 
         if day_types:
@@ -204,7 +204,7 @@ class ESTripHelper(ElasticSearchHelper):
             'gte': start_date + '||/d',
             'lte': end_date + '||/d',
             'format': 'yyyy-MM-dd',
-            'time_zone': 'America/Santiago'
+            'time_zone': '+00:00'
         })
 
         if day_types:
@@ -257,7 +257,7 @@ class ESTripHelper(ElasticSearchHelper):
             'gte': start_date + '||/d',
             'lte': end_date + '||/d',
             'format': 'yyyy-MM-dd',
-            'time_zone': 'America/Santiago'
+            'time_zone': '+00:00'
         })
 
         if day_types:

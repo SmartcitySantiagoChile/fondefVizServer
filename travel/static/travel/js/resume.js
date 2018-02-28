@@ -302,7 +302,7 @@ $(document).ready(function () {
 
     function processData(data, app) {
         var vizType = $("#vizSelector").val();
-        app.updateChart(vizType, data.histogram, data.indicators);
+        app.updateChart(vizType, data.histogram.aggregations, data.indicators.aggregations);
     }
 
 // load filters

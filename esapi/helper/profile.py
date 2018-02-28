@@ -16,7 +16,7 @@ from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParam
 class ESProfileHelper(ElasticSearchHelper):
 
     def __init__(self):
-        index_name = "profiles"
+        index_name = "profile"
         super(ESProfileHelper, self).__init__(index_name)
 
     def get_base_params(self):
@@ -46,8 +46,8 @@ class ESProfileHelper(ElasticSearchHelper):
 
         if stop_code:
             es_query = es_query.query(
-                Q({'term': {"authStopCode.keyword": stop_code}}) | Q({'term': {"userStopCode.keyword": stop_code}}) | Q(
-                    {'term': {"userStopName.keyword": stop_code}}))
+                Q({'term': {"authStopCode.raw": stop_code}}) | Q({'term': {"userStopCode.raw": stop_code}}) | Q(
+                    {'term': {"userStopName.raw": stop_code}}))
         else:
             raise ESQueryStopParameterDoesNotExist()
 
@@ -80,14 +80,15 @@ class ESProfileHelper(ElasticSearchHelper):
         """ ask to elasticsearch for a match values """
 
         es_auth_stop_query = Search().query(Match(authStopCode={"query": term, "analyzer": "standard"}))
-        es_auth_stop_query = self.get_unique_list_query("authStopCode.keyword", size=15000, query=es_auth_stop_query)
+        es_auth_stop_query = self.get_unique_list_query("authStopCode.raw", size=100, query=es_auth_stop_query)
 
         es_user_stop_query = Search().query(Match(userStopCode={"query": term, "analyzer": "standard"}))
-        es_user_stop_query = self.get_unique_list_query("userStopCode.keyword", size=15000, query=es_user_stop_query)
+        es_user_stop_query = self.get_unique_list_query("userStopCode.raw", size=100, query=es_user_stop_query)
 
-        es_user_stop_name_query = Search().query(Match(userStopName={"query": term, "operator": "and"}))
-        es_user_stop_name_query = self.get_unique_list_query("userStopName.keyword", size=15000,
-                                                             query=es_user_stop_name_query)
+        es_user_stop_name_query = Search().query(
+            Match(userStopName={"query": term, "operator": "and", "analyzer": "autocomplete_analyzer"}))[:0]
+        aggs = A('terms', field='userStopName.raw', size=100, order={"max_score": "desc"})
+        es_user_stop_name_query.aggs.bucket('results', aggs).metric('max_score', 'max', script={'source': '_score'})
 
         searches = {
             "1": es_auth_stop_query,
@@ -95,6 +96,8 @@ class ESProfileHelper(ElasticSearchHelper):
             "3": es_user_stop_name_query
         }
         result = self.make_multisearch_query_for_aggs(searches)
+
+        result["3"] = [x["key"] for x in result["3"]["aggregations"]["results"]["buckets"]]
 
         return result
 
