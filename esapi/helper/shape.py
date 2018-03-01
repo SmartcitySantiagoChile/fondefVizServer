@@ -54,7 +54,7 @@ class ESShapeHelper(ElasticSearchHelper):
         es_query = es_query.sort('-startDate')
 
         try:
-            point_list = es_query.execute().hist.hits[0].points
+            point_list = es_query.execute().hits.hits[0]['_source']['points']
         except IndexError:
             # get available days
             es_query = self.get_unique_list_query('startDate', size=1000, query=self.get_base_query())
