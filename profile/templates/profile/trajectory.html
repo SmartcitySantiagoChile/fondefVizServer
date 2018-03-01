@@ -3,11 +3,6 @@
 
 {% block title %}Perfil a través de trayectoria{% endblock %}
 
-{% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "components/bootstrap-toggle/css/bootstrap-toggle.min.css" %}"/>
-{% endblock %}
-
 {% block content %}
     <div class="">
         {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
@@ -19,9 +14,9 @@
 
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
-                {% with barChart='<div id="barChart" style="height:800px;"></div>' toggleButton='<input id="chartSwitch" type="checkbox" data-toggle="toggle" data-on="Mostrando bajadas" data-off="Mostrando Subidas" data-size="large" data-width="270">' %}
+                {% with barChart='<div id="barChart" style="height:800px;"></div>' radioButton='<p>¿Qué desea visualizar?:</p><div class="radio-inline"><label><input type="radio" class="flat" name="dataSelector" value="boarding" checked> Subidas</label></div><div class="radio-inline"><label><input type="radio" class="flat" name="dataSelector" value="landing"> Bajadas</label></div>' %}
                     {% columns 12 12 12 barChart as col7 %}
-                    {% columns 12 12 12 toggleButton as col8 %}
+                    {% columns 12 12 12 radioButton as col8 %}
                     {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col8|add:col7 info_target_id="chartHelp" %}
                 {% endwith %}
             </div>
@@ -43,7 +38,6 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="{% static "components/bootstrap-toggle/js/bootstrap-toggle.min.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
     {% endwith %}

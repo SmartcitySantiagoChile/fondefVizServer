@@ -48,7 +48,7 @@ $(document).ready(function () {
                 return _trips;
             }
             _visibleTrips = 0;
-            trips.forEach(function(trip, index){
+            trips.forEach(function (trip, index) {
                 if (trip.visible) {
                     _visibleTrips++;
                 }
@@ -78,7 +78,7 @@ $(document).ready(function () {
             _visibleTrips = 0;
         };
         this.setVisibility = function (tripIdArray, value) {
-            tripIdArray.map(function(tripId) {
+            tripIdArray.map(function (tripId) {
                 if (_trips[tripId].visible !== value) {
                     if (value === false) {
                         _visibleTrips--;
@@ -91,7 +91,7 @@ $(document).ready(function () {
         };
         this.checkAllAreAggregated = function (tripIdArray) {
             var result = tripIdArray.length;
-            tripIdArray.map(function(tripId){
+            tripIdArray.map(function (tripId) {
                 if (!_trips[tripId].visible) {
                     result--;
                 }
@@ -101,7 +101,7 @@ $(document).ready(function () {
         this.getAttrGroup = function (attrName, formatFunc) {
             var values = [];
             var dict = {};
-            _trips.forEach(function(trip) {
+            _trips.forEach(function (trip) {
                 if (!trip.visible) {
                     return;
                 }
@@ -121,7 +121,7 @@ $(document).ready(function () {
         this.getDatatableData = function () {
             var values = [];
             var max = 0;
-            _trips.forEach(function(tripObj){
+            _trips.forEach(function (tripObj) {
                 var trip = $.extend({}, tripObj);
                 /*if(!trip.visible){
                   continue;
@@ -129,7 +129,7 @@ $(document).ready(function () {
                 trip.busDetail = trip.licensePlate + " (" + trip.busCapacity + ")";
                 var loadProfile = [];
                 var hasNegativeValue = false;
-                trip.data.forEach(function(data){
+                trip.data.forEach(function (data) {
                     var value = data[2];
                     if (value !== undefined && value < 0) {
                         hasNegativeValue = true;
@@ -278,8 +278,8 @@ $(document).ready(function () {
                 // activate iCheck in checkbox
                 var dtRows = _datatable.rows().nodes();
                 // attach events check and uncheck
-                $("input.flat", dtRows).off("ifToggled");
-                $("input.flat", dtRows).on("ifToggled", function (event) {
+                $("tbody input.flat", dtRows).off("ifToggled");
+                $("tbody input.flat", dtRows).on("ifToggled", function (event) {
                     var tr = $(this).parent().parent().parent();
                     var addToAggr = false;
                     if (event.target.checked) {
@@ -298,30 +298,16 @@ $(document).ready(function () {
             _datatable.clear();
             _datatable.rows.add(rows);
             _datatable.columns.adjust().draw();
-
-            // attach to attach event
-            // TODO: use if datatable is inside tab
-            var tab = $("#detail-tab");
-            tab.off("shown.bs.tab");
-            tab.on("shown.bs.tab", function (event) {
-                $(".spark:not(:has(canvas))").sparkline("html", {
-                    type: "bar",
-                    barColor: "#169f85",
-                    negBarColor: "red",
-                    chartRangeMax: maxHeight
-                });
-            })
         };
 
         var _updateBarChart = function () {
-
             var trips = _dataManager.trips();
             var series = [];
             var visualMaps = [];
             var scatterData = [];
             var seriesIndex = -1;
             var colors = ["#0008fc", "#d3d352", "#db9500", "#ff0707"];
-            trips.forEach(function(trip) {
+            trips.forEach(function (trip) {
                 if (!trip.visible) {
                     return;
                 }
@@ -344,7 +330,7 @@ $(document).ready(function () {
                     }
                 };
                 var previousPiece = null;
-                trip.data.forEach(function(data, index, arr){
+                trip.data.forEach(function (data, index, arr) {
                     // skip first iteration
                     if (index === 0) return;
 
@@ -395,8 +381,8 @@ $(document).ready(function () {
             // for scatter plot
             var label = "Subidas";
             var valueIndex = 5;
-            var seeLanding = $("#chartSwitch").prop("checked");
-            if (seeLanding) {
+            var seeLanding = $("input[name='dataSelector']:checked").val();
+            if (seeLanding === "landing") {
                 label = "Bajadas";
                 valueIndex = 4;
             }
@@ -406,10 +392,15 @@ $(document).ready(function () {
                 top: "top",
                 right: "right",
                 orient: "horizontal",
-                pieces: [{gte: 1, lt: 5, color: colors[0], label: "Línea: carga [0, 25) % | {}: [1, 5)".replace("{}", label)},
-                         {gte: 5, lt: 13, color: colors[1], label: "Línea: carga [25, 50) % | {}: [5, 13)".replace("{}", label)},
-                         {gte: 13, lt: 15, color: colors[2], label: "Línea: carga [25, 75) % | {}: [13, 15)".replace("{}", label)},
-                         {gte: 15, color: colors[3], label: "Línea: carga [75-100] % | {}: > 15".replace("{}", label)}],
+                pieces: [{
+                    gte: 1, lt: 5, color: colors[0], label: "Línea: carga [0, 25) % | {}: [1, 5)".replace("{}", label)
+                }, {
+                    gte: 5, lt: 13, color: colors[1],
+                    label: "Línea: carga [25, 50) % | {}: [5, 13)".replace("{}", label)
+                }, {
+                    gte: 13, lt: 15, color: colors[2],
+                    label: "Línea: carga [25, 75) % | {}: [13, 15)".replace("{}", label)
+                }, {gte: 15, color: colors[3], label: "Línea: carga [75-100] % | {}: > 15".replace("{}", label)}],
                 dimension: valueIndex,
                 seriesIndex: series.length
             };
@@ -548,9 +539,6 @@ $(document).ready(function () {
                 }
             };
 
-            // set height of chart
-            //$("#barChart").height(yMax * 0.1);
-            //_barChart.resize();
             _barChart.clear();
             _barChart.setOption(options, {
                 notMerge: true
@@ -581,9 +569,7 @@ $(document).ready(function () {
     function processData(dataSource, app) {
         console.log(dataSource);
 
-        if (dataSource["status"]) {
-            var status = dataSource["status"];
-            showMessage(status);
+        if (dataSource.status) {
             return;
         }
 
@@ -678,7 +664,7 @@ $(document).ready(function () {
         $("#menu_toggle").click(function () {
             app.resizeCharts();
         });
-        $("#chartSwitch").change(function(){
+        $("input[name='dataSelector']").on("ifChecked", function () {
             app.updateCharts();
         });
     })()
