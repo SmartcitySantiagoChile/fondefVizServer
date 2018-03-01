@@ -182,7 +182,7 @@ class LoadProfileByExpeditionData(View):
             stop['userStopCode'] = data['userStopCode']
             stop['busStation'] = data['busStation'] == "1"
             stop['authTimePeriod'] = data['timePeriodInStopTime']
-            stop['distOnPath'] = data['stopDistanceFromPathStart']
+            stop['distOnPath'] = int(data['stopDistanceFromPathStart'])
             stop['stopTime'] = "" if data['expeditionStopTime'] == "0" else data['expeditionStopTime']
             stop['order'] = int(data['expeditionStopOrder'])
 

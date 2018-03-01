@@ -278,8 +278,8 @@ $(document).ready(function () {
                 // activate iCheck in checkbox
                 var dtRows = _datatable.rows().nodes();
                 // attach events check and uncheck
-                $("tbody input.flat", dtRows).off("ifToggled");
-                $("tbody input.flat", dtRows).on("ifToggled", function (event) {
+                $("input.flat", dtRows).off("ifToggled");
+                $("input.flat", dtRows).on("ifToggled", function (event) {
                     var tr = $(this).parent().parent().parent();
                     var addToAggr = false;
                     if (event.target.checked) {
