@@ -9,11 +9,21 @@ from django.utils import timezone
 
 from collections import defaultdict
 
-from models import DataSourcePath, DataSourceFile
+from datamanager.models import DataSourcePath, DataSourceFile
+
+from rqworkers.tasks import test_func
 
 import os
 import re
 
+
+class TestTask(View):
+
+    def get(self, request):
+        # enqueue
+        test_func.delay(1, 2)
+
+        return JsonResponse({'status': 'wena'})
 
 class LoadData(View):
     """ Load data to elastic search """
@@ -21,7 +31,7 @@ class LoadData(View):
     def __init__(self):
         self.context = {}
 
-    def post(self):
+    def post(self, request):
         """  """
 
 
@@ -31,7 +41,7 @@ class DeleteData(View):
     def __init__(self):
         self.context = {}
 
-    def post(self):
+    def post(self, request):
         """  """
 
 
