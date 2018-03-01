@@ -165,7 +165,7 @@ $(document).ready(function () {
 
             function getColor(value) {
                 var quantity = colors.length;
-                var threshold = maxValue / quantity;
+                var threshold = (maxValue + 1) / quantity;
                 return colors[parseInt(value / threshold)];
             }
 
