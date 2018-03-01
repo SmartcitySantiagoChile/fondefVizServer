@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryStopListDoesNotExist, ESQueryStartDateParameterDoesNotExist, \
-    ESQueryEndDateParameterDoesNotExist, ESQueryThereIsMoreThanOneStopList, ESQueryRouteParameterDoesNotExist
+from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist
 
 
 class ESStopHelper(ElasticSearchHelper):
@@ -31,19 +31,17 @@ class ESStopHelper(ElasticSearchHelper):
 
         if len(days) == 1:
             if start_date != days[0]:
-                raise ESQueryThereIsMoreThanOneStopList(start_date, end_date, days)
+                raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, days)
         elif len(days) > 0:
-            raise ESQueryThereIsMoreThanOneStopList(start_date, end_date, days)
+            raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, days)
 
     def get_stop_list(self, auth_route_code, start_date, end_date):
         """ ask to elasticsearch for a match values """
 
         if not auth_route_code:
             raise ESQueryRouteParameterDoesNotExist()
-        if not start_date:
-            raise ESQueryStartDateParameterDoesNotExist()
-        if not end_date:
-            raise ESQueryEndDateParameterDoesNotExist()
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         self.check_operation_program_between_dates(auth_route_code, start_date, end_date)
 
@@ -61,6 +59,6 @@ class ESStopHelper(ElasticSearchHelper):
             # get available days
             es_query = self.get_unique_list_query('date', size=1000, query=self.get_base_query())
             available_days = [x.key_as_string[:10] for x in es_query.execute().aggregations.unique.buckets]
-            raise ESQueryStopListDoesNotExist(start_date, available_days)
+            raise ESQueryOperationProgramDoesNotExist(start_date, available_days)
 
         return stop_list
