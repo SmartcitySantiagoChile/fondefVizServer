@@ -6,10 +6,15 @@ $(document).ready(function () {
         var graphChartId = "graphChart";
         var _matrixChart = echarts.init(document.getElementById(matrixChartId), theme);
         var _graphChart = echarts.init(document.getElementById(graphChartId), theme);
+        var stopObjList = null;
 
         this.resizeCharts = function () {
             _matrixChart.resize();
             _graphChart.resize();
+        };
+
+        this.setStopObjList = function (newStopObjList) {
+            stopObjList = newStopObjList;
         };
 
         this.updateMatrixChart = function (xData, yData, values, maxValue) {
@@ -60,8 +65,6 @@ $(document).ready(function () {
 
                                 var header = "Parada de origen\tPara de destino\tNúmero de etapas\n";
                                 var series = opt.series;
-
-                                var stopList = yData;
                                 var body = "";
 
                                 series.forEach(function (serie) {
@@ -72,8 +75,8 @@ $(document).ready(function () {
                                         var destinationId = dataRow[0];
                                         var stageNumber = dataRow[2];
 
-                                        var originObj = stopList[originId];
-                                        var destinationObj = stopList[destinationId];
+                                        var originObj = stopObjList[originId];
+                                        var destinationObj = stopObjList[destinationId];
                                         serieValues.push(originObj.userStopCode + " " + originObj.authStopCode + " " + originObj.stopName);
                                         serieValues.push(destinationObj.userStopCode + " " + destinationObj.authStopCode + " " + destinationObj.stopName);
                                         serieValues.push(stageNumber);
@@ -156,7 +159,7 @@ $(document).ready(function () {
             });
         };
 
-        this.updateGraphChart = function (stopCode, stopObjList, links, maxValue) {
+        this.updateGraphChart = function (stopCode, links, maxValue) {
             var colors = ["#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"];
             colors = ["#006837", "#006837", "#006837", "#006837", "#006837"];
 
@@ -294,13 +297,12 @@ $(document).ready(function () {
             });
         };
 
-        this.updateClickNodeEvent = function (stopList, links, maxValue) {
+        this.updateClickNodeEvent = function (links, maxValue) {
             _graphChart.off("click");
             _graphChart.on("click", function (params) {
-                console.log(params);
                 if (params.componentType === "series" && params.componentSubType === "graph") {
                     var clickedStopCode = params.data.name;
-                    _self.updateGraphChart(clickedStopCode, stopList, links[clickedStopCode], maxValue);
+                    _self.updateGraphChart(clickedStopCode, links[clickedStopCode], maxValue);
                     $("#stops>button.active").removeClass("active");
                     $("#" + clickedStopCode).addClass("active");
                 }
@@ -317,24 +319,25 @@ $(document).ready(function () {
             _graphChart.hideLoading();
         };
 
-        $("input[name='stopSelector']").on('ifChecked', function (event) {
-            alert(this.value); // alert value
-        });
-    }
+        this.buildStopButtons = function (links, buttonEventFunction) {
+            var DIV = $("#stops");
+            DIV.empty();
 
-    function buildStopButtons(stopCodeList, buttonEventFunction) {
-        var DIV = $("#stops");
-        DIV.empty();
-
-        stopCodeList.forEach(function (stopCode) {
-            var button = $("<button id='" + stopCode + "' class='btn btn-default' type='button'>" + stopCode + "</button>");
-            button.click(function () {
-                buttonEventFunction(stopCode);
-                $("#stops>button.active").removeClass("active");
-                $("#" + stopCode).addClass("active");
+            stopObjList.forEach(function (stopObj) {
+                var stopCode = stopObj.userStopCode;
+                var btnWithoutDataClass = "";
+                if (!links.hasOwnProperty(stopCode)) {
+                    btnWithoutDataClass = "btn-danger";
+                }
+                var button = $("<button id='" + stopCode + "' class='btn btn-default " + btnWithoutDataClass + "' type='button'>" + stopCode + "</button>");
+                button.click(function () {
+                    buttonEventFunction(stopCode);
+                    $("#stops>button.active").removeClass("active");
+                    $("#" + stopCode).addClass("active");
+                });
+                DIV.append(button);
             });
-            DIV.append(button);
-        });
+        }
     }
 
     function processData(dataSource, app) {
@@ -355,34 +358,62 @@ $(document).ready(function () {
         var xAxis = dataSource.data.stopList;
         var data = [];
 
-        var links = {};
+        var linksFromOrigin = {};
+        var linksFromDestination = {};
         matrix.forEach(function (row) {
             var origin = row.origin;
             var destination = row.destination;
 
-            links[origin.userStopCode] = [];
+            linksFromOrigin[origin.userStopCode] = [];
             destination.forEach(function (column) {
+                if (!linksFromDestination.hasOwnProperty(column.userStopCode)) {
+                    linksFromDestination[column.userStopCode] = [];
+                }
                 var columnName = column.userStopCode;
                 var xIndex = nameXAxis.indexOf(columnName);
                 var yIndex = nameYAxis.indexOf(origin.userStopCode);
                 data.push([xIndex, yIndex, column.value.toFixed(2)]);
 
                 if (column.value > 0) {
-                    links[origin.userStopCode].push({
+                    var arrow = {
                         sourceObj: origin,
                         targetObj: column,
                         source: origin.userStopCode,
                         target: columnName,
                         value: column.value
-                    });
+                    };
+                    linksFromOrigin[origin.userStopCode].push(arrow);
+                    linksFromDestination[column.userStopCode].push(arrow);
                 }
             });
         });
+
+        app.setStopObjList(xAxis);
         app.updateMatrixChart(xAxis, yAxis, data, maxValue);
-        app.updateClickNodeEvent(xAxis, links, maxValue);
-        buildStopButtons(nameXAxis, function (stopCode) {
-            app.updateGraphChart(stopCode, xAxis, links[stopCode], maxValue);
+
+        var radioSelector = $("input[name='stopSelector']");
+        radioSelector.off("ifChecked");
+        radioSelector.on("ifChecked", function (event) {
+            var selectorValue = event.target.value;
+            if (selectorValue === "boarding") {
+                app.updateClickNodeEvent(linksFromOrigin, maxValue);
+                app.buildStopButtons(linksFromOrigin, function (stopCode) {
+                    app.updateGraphChart(stopCode, linksFromOrigin[stopCode], maxValue);
+                });
+                // update chart immediately
+                var firstStopCode = xAxis[0].userStopCode;
+                app.updateGraphChart(firstStopCode, linksFromOrigin[firstStopCode], maxValue);
+            } else {
+                app.updateClickNodeEvent(linksFromDestination, maxValue);
+                app.buildStopButtons(linksFromDestination, function (stopCode) {
+                    app.updateGraphChart(stopCode, linksFromDestination[stopCode], maxValue);
+                });
+                // update chart immediately
+                var lastStopCode = xAxis[xAxis.length - 1].userStopCode;
+                app.updateGraphChart(lastStopCode, linksFromDestination[lastStopCode], maxValue);
+            }
         });
+        radioSelector.iCheck("check");
     }
 
     // load filters
