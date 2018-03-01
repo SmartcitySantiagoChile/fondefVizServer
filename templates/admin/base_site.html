@@ -8,7 +8,7 @@
     <div class="col-md-3 left_col">
       <div class="left_col scroll-view">
         <div class="navbar nav_title" style="border: 0;">
-          <a href="index.html" class="site_title"><i class="fa fa-dashboard"></i> <span> AGUILA</span></a>
+          <a href="{% url "index" %}" class="site_title"><i class="fa fa-dashboard"></i> <span> AGUILA</span></a>
         </div>
 
         <div class="clearfix"></div>
@@ -44,6 +44,7 @@
                   <li><a href="{% url 'admin:localinfo_halfhour_changelist' %}"> Medias horas</a></li>
                   <li><a href="{% url 'admin:datamanager_datasourcepath_changelist' %}"> Fuentes de datos</a></li>
                   <li><a href="{% url 'datamanager:loadmanager' %}"> Carga de datos</a></li>
+                  <li><a href="{% url 'rq_home' %}"> Cola de carga</a></li>
                 </ul>
               </li>
               {% endif %}

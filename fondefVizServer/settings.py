@@ -142,6 +142,9 @@ GLOBAL_PERMISSION_GROUP_NAME = 'Transantiago'
 # reference: https://github.com/ui/django-rq
 RQ_QUEUES = {
     'default': {
-        'USE_REDIS_CACHE': 'default',
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 360,
     }
 }

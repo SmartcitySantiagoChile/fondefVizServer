@@ -33,4 +33,7 @@ urlpatterns = [
     url(r'^travel/', include('travel.urls')),
     url(r'^globalstat/', include('globalstat.urls')),
     url(r'^esapi/', include('esapi.urls'))
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
