@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from rq import Worker
 
 from rqworkers.datauploader.loadData import upload_file
