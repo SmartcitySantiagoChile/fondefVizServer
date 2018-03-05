@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rq import Worker
+from rqworkers.killClass import KillWorker
 
 
 # Same worker called with rqworker by default, created to be able to call it in the same way
 # as any other worker in the script for the service.
-class BaseWorker(Worker):
+class BaseWorker(KillWorker):
 
     def __init__(self, queues, name=None, default_result_ttl=None, connection=None,
                  exc_handler=None, exception_handlers=None, default_worker_ttl=None,

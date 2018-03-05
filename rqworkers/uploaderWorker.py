@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rq import Worker
-
+from rqworkers.killClass import KillWorker
 from rqworkers.datauploader.loadData import upload_file
 
 
-class UploaderWorker(Worker):
+class UploaderWorker(KillWorker):
     """ Worker that preloads the necessary imports to upload data """
 
     def __init__(self, queues, name=None, default_result_ttl=None, connection=None,
