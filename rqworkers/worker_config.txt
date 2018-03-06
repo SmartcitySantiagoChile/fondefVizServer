@@ -1,2 +1,3 @@
 3|default|baseWorker.BaseWorker
 3|data_uploader|uploaderWorker.UploaderWorker
+3|data_exporter|exporterWorker.ExporterWorker
