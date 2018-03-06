@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from rqworkers.killClass import KillWorker
-from rqworkers.datauploader.loadData import upload_file
+from rqworkers.dataUploader.loadData import upload_file
 
 
 class UploaderWorker(KillWorker):
