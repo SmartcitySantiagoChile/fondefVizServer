@@ -8,6 +8,13 @@ import os
 
 
 class DataSourcePath(models.Model):
+    GENERAL = 'general'
+    OD_BY_ROUTE = 'odbyroute'
+    STOP = 'stop'
+    SHAPE = 'shape'
+    TRIP = 'trip'
+    SPEED = 'speed'
+    PROFILE = 'profile'
     """ where i have to check for new files """
     # path to data source
     path = models.CharField("Ruta", max_length=200)
