@@ -128,7 +128,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 ES_CLIENT = Elasticsearch("172.17.75.218:9200", http_auth=('elastic', 'changeme'))
 
 # Django js reverse settings
-JS_REVERSE_EXCLUDE_NAMESPACES = ["admin"]
+JS_REVERSE_EXCLUDE_NAMESPACES = []
 JS_REVERSE_SCRIPT_PREFIX = ""
 JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, os.path.join('bowerapp', os.path.join('static', 'js')))
 
