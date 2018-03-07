@@ -10,6 +10,13 @@ from django.utils import timezone
 from collections import defaultdict
 from itertools import groupby
 
+from esapi.helper.profile import ESProfileHelper
+from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.trip import ESTripHelper
+from esapi.helper.stop import ESStopHelper
+from esapi.helper.shape import ESShapeHelper
+
 from datamanager.models import DataSourcePath, DataSourceFile
 
 from rqworkers.tasks import test_func
@@ -49,7 +56,7 @@ class DeleteData(View):
         """  """
 
 
-class LoadManager(View):
+class LoadManagerHTML(View):
     """ load  web page to load files """
 
     def get(self, request):
@@ -136,14 +143,6 @@ class getLoadFileData(View):
         return file_dict
 
     def get_uploaded_files(self):
-
-        from esapi.helper.profile import ESProfileHelper
-        from esapi.helper.speed import ESSpeedHelper
-        from esapi.helper.odbyroute import ESODByRouteHelper
-        from esapi.helper.trip import ESTripHelper
-        from esapi.helper.stop import ESStopHelper
-        from esapi.helper.shape import ESShapeHelper
-
         index_helper_list = [ESProfileHelper, ESSpeedHelper, ESODByRouteHelper, ESTripHelper, ESStopHelper,
                              ESShapeHelper]
         key_list = [DataSourcePath.PROFILE, DataSourcePath.SPEED, DataSourcePath.OD_BY_ROUTE, DataSourcePath.TRIP,
