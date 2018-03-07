@@ -1,9 +1,7 @@
 "use strict";
 $(document).ready(function () {
-    $.get(Urls["datamanager:getLoadFileData"](), function (data) {
-        console.log(data);
-        var dictFiles = data["routeDictFiles"];
-
+    function DataManagerApp() {
+        var _self = this;
         var _datatableOpts = {
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             language: {
@@ -20,6 +18,12 @@ $(document).ready(function () {
                 },
                 {title: "N° de líneas archivo", data: "lines", searchable: true},
                 {title: "N° de documentos en plataforma", data: "docNumber", searchable: true},
+                {
+                    title: "Documentos fuera de la plataforma",
+                    searchable: true,
+                    render: function (data, type, full, meta) {
+                        return full.lines - full.docNumber;
+                    }},
                 {
                     title: "Cargar datos a la plataforma",
                     "searchable": false,
@@ -39,39 +43,46 @@ $(document).ready(function () {
                     }
                 }
             ],
-            order: [[1, "desc"]],
+            order: [[4, "desc"]],
             createdRow: function (row, data, index) {
-                if (data.line !== data.line) {
+                if (data.line !== data.docNumber) {
                     $(row).addClass("danger");
                 }
             }
         };
 
-        for (var key in dictFiles) {
-            var files = dictFiles[key];
-            var opts = $.extend({data: files}, _datatableOpts);
-            var id = key + "Table";
-            var table = $("#" + id).DataTable(opts);
-
-            $("#" + id + " tbody").on("click", "button", function () {
-                var buttonName = $(this).html();
-                var data = table.row($(this).parents("tr")).data();
-
-                var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
-                var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
-                if (buttonName === "Eliminar" && confirm(deleteMessage)) {
-                    console.log("bbbbb");
-                } else if (buttonName === "Cargar datos" && confirm(uploadMessage)) {
-                    console.log("aaaa");
-                }
+        this.updateTables = function () {
+            $.get(Urls["datamanager:getLoadFileData"](), function (data) {
                 console.log(data);
+                var dictFiles = data.routeDictFiles;
+
+                for (var key in dictFiles) {
+                    var files = dictFiles[key];
+                    var opts = $.extend({data: files}, _datatableOpts);
+                    var id = key + "Table";
+                    var table = $("#" + id).DataTable(opts);
+
+                    $("#" + id + " tbody").on("click", "button", function () {
+                        var buttonName = $(this).html();
+                        var data = table.row($(this).parents("tr")).data();
+
+                        var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
+                        var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
+                        if (buttonName === "Eliminar" && confirm(deleteMessage)) {
+                            console.log("bbbbb");
+                        } else if (buttonName === "Cargar datos" && confirm(uploadMessage)) {
+                            console.log("aaaa");
+                        }
+                        console.log(data);
+                    });
+                }
             });
-        }
-    });
+        };
+    }
 
     // load filters
     (function () {
-        // set locale
-
+        var app = new DataManagerApp();
+        app.updateTables();
     })()
 });
