@@ -10,7 +10,7 @@ from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
-from esapi.views.travel import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData
+from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData
 
 app_name = 'esapi'
 urlpatterns = [
