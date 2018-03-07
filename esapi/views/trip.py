@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from collections import defaultdict
 
-from esapi.helper.travel import ESTripHelper
+from esapi.helper.trip import ESTripHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist
 
