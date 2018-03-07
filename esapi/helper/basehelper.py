@@ -97,10 +97,10 @@ class ElasticSearchHelper(object):
 
 
     def get_data_by_file(self):
-        """ return list with files and doc number associated to them """
+        """ return query with files and doc number associated to them """
 
         es_query = self.get_base_query()[:0]
         aggs = A('terms', field="path.keyword", size=5000)
         es_query.aggs.bucket('files', aggs)
 
-        return list(es_query.execute().aggregations.files.buckets)
+        return es_query

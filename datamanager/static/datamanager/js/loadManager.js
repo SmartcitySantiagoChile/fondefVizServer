@@ -19,7 +19,7 @@ $(document).ready(function () {
                     }
                 },
                 {title: "N° de líneas archivo", data: "lines", searchable: true},
-                {title: "N° de documentos en plataforma", data: "lines", searchable: true},
+                {title: "N° de documentos en plataforma", data: "docNumber", searchable: true},
                 {
                     title: "Cargar datos a la plataforma",
                     "searchable": false,
