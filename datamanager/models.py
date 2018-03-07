@@ -22,8 +22,8 @@ class DataSourcePath(models.Model):
         return os.path.join(self.path, self.filePattern)
 
     class Meta:
-        verbose_name = u'Orígen de archivo de carga'
-        verbose_name_plural = u'Orígenes de archivos de carga'
+        verbose_name = 'Orígen de archivo de carga'
+        verbose_name_plural = 'Orígenes de archivos de carga'
 
 
 class DataSourceFile(models.Model):

@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.contrib import admin
 
 from datamanager.models import DataSourcePath
-from datamanager.models import DataSourceFile
 
 
 class DataSourceAdmin(admin.ModelAdmin):
