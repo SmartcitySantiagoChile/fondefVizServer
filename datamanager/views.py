@@ -171,6 +171,7 @@ class getLoadFileData(View):
 
         for key in file_list:
             for file in file_list[key]:
+                del file['path']
                 file['docNumber'] = uploaded_files[file['name']] if file['name'] in uploaded_files else 0
 
         response = {
