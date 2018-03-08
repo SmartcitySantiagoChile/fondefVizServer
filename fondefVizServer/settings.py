@@ -105,7 +105,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -140,25 +139,17 @@ GLOBAL_PERMISSION_GROUP_NAME = 'Transantiago'
 
 # django-rq task queueing
 # reference: https://github.com/ui/django-rq
+REDIS_CONF = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'DB': 0,
+    'DEFAULT_TIMEOUT': 360,
+}
+
 RQ_QUEUES = {
-    'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 360,
-    },
-    'data_uploader': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 360,
-    },
-    'data_exporter': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 360,
-    }
+    'default': REDIS_CONF,
+    'data_uploader': REDIS_CONF,
+    'data_exporter': REDIS_CONF
 }
 
 # custom handler to failed jobs

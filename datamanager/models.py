@@ -53,13 +53,16 @@ class LoadFile(models.Model):
 
         return file_dict
 
+    def __unicode__(self):
+        return os.path.join(self.dataSourcePath, self.fileName)
+
 
 class JobExecution(models.Model):
     """ record about async execution """
     jobId = models.UUIDField('Identificador de trabajo', null=True)
     enqueueTimestamp = models.DateTimeField('Encolado')
     # time when execution started
-    executionStart = models.DateTimeField('Inicio')
+    executionStart = models.DateTimeField('Inicio', null=True)
     # time when execution finished
     executionEnd = models.DateTimeField('Fin', null=True)
     ENQUEUED = 'enqueued'

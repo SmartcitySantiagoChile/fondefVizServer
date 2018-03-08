@@ -8,6 +8,9 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
 from django.db.models import Prefetch
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 
 from collections import defaultdict
 from itertools import groupby
@@ -19,92 +22,24 @@ from esapi.helper.trip import ESTripHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.resume import ESResumeStatisticHelper
-
 from esapi.errors import GenericError
 
 from rqworkers.dataUploader.uploader.datafile import IndexNotEmptyError
+from rqworkers.tasks import upload_file_job
 
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, IndexWithDocumentError, \
-    BadFormatDocumentError
+    BadFormatDocumentError, ThereIsNotActiveJobError
 from datamanager.models import DataSourcePath, LoadFile, UploaderJobExecution
-from datamanager.messages import JobEnqueued, DataDeletedSuccessfully
+from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully
 
-from rqworkers.tasks import upload_file_job
+from rq.exceptions import NoSuchJobError
+from rq import Connection
+from rq.job import Job
+from rq.registry import StartedJobRegistry
+from redis import Redis
 
 import os
 import glob
-
-
-class LoadData(View):
-    """ Load data to elastic search """
-
-    def post(self, request):
-        file_name = request.POST.get('fileName', '')
-
-        response = {}
-        try:
-            if LoadFile.objects.filter(fileName=file_name).exists():
-                file_path_obj = LoadFile.objects.get(fileName=file_name)
-            else:
-                raise FileDoesNotExistError()
-
-            # check if exist job associate to file obj
-            if UploaderJobExecution.objects.filter(file=file_path_obj).filter(
-                    Q(status=UploaderJobExecution.ENQUEUED) | Q(status=UploaderJobExecution.RUNNING)).exists():
-                raise ThereIsPreviousJobUploadingTheFileError()
-
-            job_execution_obj = UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(),
-                                                                    status=UploaderJobExecution.ENQUEUED,
-                                                                    file=file_path_obj)
-            file_path = os.path.join(file_path_obj.path, file_name)
-            upload_file_job.delay(file_path, job_execution_obj)
-
-            response['status'] = JobEnqueued().get_status_response()
-        except GenericError as e:
-            response['status'] = e.get_status_response()
-        except IndexNotEmptyError:
-            response['status'] = IndexWithDocumentError().get_status_response()
-
-        return JsonResponse(response)
-
-
-class DeleteData(View):
-    """ Delete data from elastic search """
-
-    def post(self, request):
-        """  """
-        file_name = request.POST.get('fileName', '')
-
-        response = {}
-        try:
-            index = file_name.split('.')[1]
-
-            index_helper = None
-
-            if index == DataSourcePath.STOP:
-                index_helper = ESStopHelper
-            elif index == DataSourcePath.PROFILE:
-                index_helper = ESProfileHelper
-            elif index == DataSourcePath.SPEED:
-                index_helper = ESSpeedHelper
-            elif index == DataSourcePath.TRIP:
-                index_helper = ESTripHelper
-            elif index == DataSourcePath.SHAPE:
-                index_helper = ESShapeHelper
-            elif index == DataSourcePath.OD_BY_ROUTE:
-                index_helper = ESODByRouteHelper
-            elif index == DataSourcePath.GENERAL:
-                index_helper = ESResumeStatisticHelper
-
-            es_query = index_helper().delete_data_by_file(file_name)
-            result = es_query.execute()
-
-            response['total'] = result.total
-            response['status'] = DataDeletedSuccessfully().get_status_response()
-        except IndexError:
-            response['status'] = BadFormatDocumentError().get_status_response()
-
-        return JsonResponse(response)
 
 
 class LoadManagerHTML(View):
@@ -151,6 +86,138 @@ class LoadManagerHTML(View):
         return render(request, template, context)
 
 
+class LoadData(View):
+    """ Load data to elastic search """
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoadData, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        file_name = request.POST.get('fileName', '')
+
+        response = {}
+        try:
+            with transaction.atomic():
+                if LoadFile.objects.filter(fileName=file_name).exists():
+                    file_path_obj = LoadFile.objects.get(fileName=file_name)
+                else:
+                    raise FileDoesNotExistError()
+
+                # check if exist job associate to file obj
+                if UploaderJobExecution.objects.filter(file=file_path_obj).filter(
+                        Q(status=UploaderJobExecution.ENQUEUED) | Q(status=UploaderJobExecution.RUNNING)).exists():
+                    raise ThereIsPreviousJobUploadingTheFileError()
+
+                file_path = os.path.join(file_path_obj.dataSourcePath, file_name)
+                job = upload_file_job.delay(file_path)
+                UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(),
+                                                    status=UploaderJobExecution.ENQUEUED,
+                                                    file=file_path_obj, jobId=job.id)
+
+            response['status'] = JobEnqueued().get_status_response()
+        except GenericError as e:
+            response['status'] = e.get_status_response()
+        except IndexNotEmptyError:
+            response['status'] = IndexWithDocumentError().get_status_response()
+
+        return JsonResponse(response)
+
+
+class DeleteData(View):
+    """ Delete data from elastic search """
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(DeleteData, self).dispatch(request, *args, **kwargs)
+
+    def delete_data(self, file_name):
+        index = file_name.split('.')[1]
+
+        index_helper = None
+
+        if index == DataSourcePath.STOP:
+            index_helper = ESStopHelper
+        elif index == DataSourcePath.PROFILE:
+            index_helper = ESProfileHelper
+        elif index == DataSourcePath.SPEED:
+            index_helper = ESSpeedHelper
+        elif index == DataSourcePath.TRIP:
+            index_helper = ESTripHelper
+        elif index == DataSourcePath.SHAPE:
+            index_helper = ESShapeHelper
+        elif index == DataSourcePath.OD_BY_ROUTE:
+            index_helper = ESODByRouteHelper
+        elif index == DataSourcePath.GENERAL:
+            index_helper = ESResumeStatisticHelper
+
+        # TODO: uncomment when index is updated
+        # es_query = index_helper().delete_data_by_file(file_name)
+        # result = es_query.execute()
+
+        # return result.total
+        return 0
+
+    def post(self, request):
+        """  """
+        file_name = request.POST.get('fileName', '')
+
+        response = {}
+        try:
+            deleted_doc_number = self.delete_data(file_name)
+            response['status'] = DataDeletedSuccessfully(deleted_doc_number).get_status_response()
+        except IndexError:
+            response['status'] = BadFormatDocumentError().get_status_response()
+
+        return JsonResponse(response)
+
+
+class CancelData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CancelData, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        file_name = request.POST.get('fileName', '')
+
+        response = {}
+        try:
+            with transaction.atomic():
+                if not UploaderJobExecution.objects.filter(file__fileName=file_name).filter(
+                        Q(status=UploaderJobExecution.ENQUEUED) | Q(status=UploaderJobExecution.RUNNING)).exists():
+                    raise ThereIsNotActiveJobError()
+                job_obj = UploaderJobExecution.objects.get(
+                    Q(status=UploaderJobExecution.ENQUEUED) | Q(status=UploaderJobExecution.RUNNING),
+                    file__fileName=file_name)
+
+                queue_name = 'data_uploader'
+                host = settings.RQ_QUEUES[queue_name]['HOST']
+                port = settings.RQ_QUEUES[queue_name]['PORT']
+                with Connection(Redis(host, port)) as redis_conn:
+                    registry = StartedJobRegistry('default', connection=redis_conn)
+                    job = Job.fetch(str(job_obj.jobId), connection=redis_conn)
+                    if job_obj.jobId in registry.get_job_ids():
+                        job.kill()
+                    job.delete()
+                job_obj.status = UploaderJobExecution.CANCELED
+                job_obj.executionEnd = timezone.now()
+                job_obj.save()
+
+                # delete data uploaded previous to cancel
+                DeleteData().delete_data(file_name)
+
+            response['status'] = JobCanceledSuccessfully().get_status_response()
+        except GenericError as e:
+            response['status'] = e.get_status_response()
+        except NoSuchJobError:
+            response['status'] = ThereIsNotActiveJobError().get_status_response()
+        except IndexError:
+            response['status'] = BadFormatDocumentError().get_status_response()
+
+        return JsonResponse(response)
+
+
 class GetLoadFileData(View):
     """ """
 
@@ -182,11 +249,13 @@ class GetLoadFileData(View):
             path_name = os.path.join(path, data_source.filePattern)
             file_name_list = glob.glob(path_name)
 
+            # attach execution jobs which are enqueued or running
+            prefetch = Prefetch('uploaderjobexecution_set',
+                                queryset=UploaderJobExecution.objects.filter(
+                                    Q(status=UploaderJobExecution.ENQUEUED) | Q(
+                                        status=UploaderJobExecution.RUNNING)).order_by('-enqueueTimestamp'))
             for file_path in file_name_list:
                 file_name = os.path.basename(file_path)
-
-                prefetch = Prefetch('uploaderjobexecution_set',
-                                    queryset=UploaderJobExecution.objects.order_by('-enqueueTimestamp'))
                 file_obj, created = LoadFile.objects.prefetch_related(prefetch).get_or_create(fileName=file_name,
                                                                                               defaults={
                                                                                                   'dataSourcePath': path,

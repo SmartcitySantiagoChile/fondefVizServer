@@ -29,10 +29,10 @@ class DataSourceAdmin(admin.ModelAdmin):
 class UploaderJobExecutionAdmin(admin.ModelAdmin):
     """ manager for job execution """
     fieldsets = (
-        (None, {'fields': ('file',)}),
+        (None, {'fields': ('file', 'enqueueTimestamp')}),
         (None, {'fields': ('jobId', 'status')}),
         (None, {'fields': ('executionStart', 'executionEnd')}),
-        (None, {'fields': ('inputs', 'errorMessage')}),
+        (None, {'fields': ('errorMessage',)}),
     )
     list_filter = []
     list_display = ('jobId', 'status', 'executionStart', 'executionEnd')
@@ -42,10 +42,10 @@ class UploaderJobExecutionAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
 
-    def get_readonly_fields(self, request, obj=None):
-        return 'jobId', 'type', 'status', 'executionStart', 'executionEnd', 'inputs', 'errorMessage'
+    #def get_readonly_fields(self, request, obj=None):
+    #    return 'jobId', 'type', 'status', 'executionStart', 'executionEnd', 'errorMessage'
 
 
 admin.site.register(DataSourcePath, DataSourceAdmin)

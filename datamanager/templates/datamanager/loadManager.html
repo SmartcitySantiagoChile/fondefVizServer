@@ -42,7 +42,7 @@
         <div class="row">
             {% for table in tables %}
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    {% table html_id=table.id columns=7 with_checker=False as file_table %}
+                    {% table html_id=table.id columns=6 with_checker=False as file_table %}
                     {% panel title_icon=table.title_icon title=table.title body=file_table %}
                 </div>
             {% endfor %}

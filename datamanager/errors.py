@@ -16,7 +16,7 @@ class ThereIsPreviousJobUploadingTheFileError(GenericError):
     """ It raises when user tries to upload a file which is assigned to enqueued job """
 
     def __init__(self):
-        message = 'El archivo está siendo subido por otra tarea. Debe esperar a que termine'
+        message = 'El archivo está siendo cargado por otra tarea. Debe esperar a que termine o cancelarla'
         title = 'Advertencia'
         type = 'warning'
         super(ThereIsPreviousJobUploadingTheFileError, self).__init__(451, message, title, type)
@@ -36,3 +36,13 @@ class BadFormatDocumentError(GenericError):
     def __init__(self):
         message = 'El nombre del archivo seleccionado tiene un formato incorrecto',
         super(BadFormatDocumentError, self).__init__(453, message)
+
+
+class ThereIsNotActiveJobError(GenericError):
+    """ It raises when user try to cancel a job that does not exist """
+
+    def __init__(self):
+        message = 'No hay tareas de carga para cancelar',
+        title = 'Información'
+        message_type = 'info'
+        super(ThereIsNotActiveJobError, self).__init__(454, message, title, message_type)

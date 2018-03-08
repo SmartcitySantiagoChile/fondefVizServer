@@ -23,23 +23,18 @@ $(document).ready(function () {
                     searchable: true,
                     render: function (data, type, full, meta) {
                         return full.lines - full.docNumber;
-                    }},
-                {
-                    title: "Cargar datos a la plataforma",
-                    "searchable": false,
-                    "orderable": false,
-                    "className": "text-center",
-                    render: function (data, type, full, meta) {
-                        return "<button type='button' class='btn btn-info btn-xs' >Cargar datos</button>";
                     }
                 },
                 {
-                    title: "Eliminar datos de la plataforma",
+                    title: "Cargar datos a la plataforma|Cancelar carga|Eliminar datos de la plataforma",
                     "searchable": false,
                     "orderable": false,
                     "className": "text-center",
                     render: function (data, type, full, meta) {
-                        return "<button type='button' class='btn btn-danger btn-xs' >Eliminar</button>";
+                        var loadButton = "<button type='button' class='btn btn-info btn-xs' >Cargar datos</button>";
+                        var cancelButton = "<button type='button' class='btn btn-warning btn-xs' >Cancelar carga</button>";
+                        var deleteButton = "<button type='button' class='btn btn-danger btn-xs' >Eliminar</button>";
+                        return loadButton + cancelButton + deleteButton;
                     }
                 }
             ],
@@ -49,6 +44,33 @@ $(document).ready(function () {
                     $(row).addClass("danger");
                 }
             }
+        };
+
+        this.loadFile = function (fileName) {
+            var params = {
+                fileName: fileName
+            };
+            $.post(Urls["datamanager:loadData"](), params, function (data) {
+                showMessage(data.status);
+            });
+        };
+
+        this.deleteFile = function (fileName) {
+            var params = {
+                fileName: fileName
+            };
+            $.post(Urls["datamanager:deleteData"](), params, function (data) {
+                showMessage(data.status);
+            });
+        };
+
+        this.cancelFile = function (fileName) {
+            var params = {
+                fileName: fileName
+            };
+            $.post(Urls["datamanager:cancelData"](), params, function (data) {
+                showMessage(data.status);
+            });
         };
 
         this.updateTables = function () {
@@ -68,10 +90,13 @@ $(document).ready(function () {
 
                         var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
                         var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
+                        var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
                         if (buttonName === "Eliminar" && confirm(deleteMessage)) {
-                            console.log("bbbbb");
+                            _self.deleteFile(data.name);
                         } else if (buttonName === "Cargar datos" && confirm(uploadMessage)) {
-                            console.log("aaaa");
+                            _self.loadFile(data.name);
+                        } else if (buttonName === "Cancelar carga" && confirm(cancelMessage)) {
+                            _self.cancelFile(data.name);
                         }
                         console.log(data);
                     });

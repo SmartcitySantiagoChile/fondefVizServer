@@ -11,11 +11,19 @@ from rqworkers.dataUploader.loadData import upload_file
 
 from datamanager.models import UploaderJobExecution
 
+import time
 
-@job('default')
-def upload_file_job(path_to_file, job_execution_obj):
-    # update start timestamp
-    job_execution_obj.jobId = get_current_job().id
+
+@job('data_uploader')
+def upload_file_job(path_to_file):
+    # wait until UploaderJobExecution instance exists
+    while True:
+        try:
+            job_execution_obj = UploaderJobExecution.objects.get(jobId=get_current_job().id)
+            break
+        except UploaderJobExecution.DoesNotExist:
+            time.sleep(1)
+
     job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
 
