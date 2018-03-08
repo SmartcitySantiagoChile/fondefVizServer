@@ -2,17 +2,17 @@
 from __future__ import unicode_literals
 
 
-class ESQueryError(Exception):
+class GenericError(Exception):
     """ It raises when something goes wrong with elastic search query """
     DEFAULT_MESSAGE = 'Error al consultar elastic search'
     DEFAULT_TITLE = 'Error'
     MESSAGE_TYPE = 'error'
     CODE = 400
 
-    def __init__(self, code=None, message=None, title=None, messageType=None):
+    def __init__(self, code=None, message=None, title=None, message_type=None):
         self.message = message if message else self.DEFAULT_MESSAGE
         self.title = title if title else self.DEFAULT_TITLE
-        self.message_type = messageType if messageType else self.MESSAGE_TYPE
+        self.message_type = message_type if message_type else self.MESSAGE_TYPE
         self.code = code if code else self.CODE
 
     def __str__(self):
@@ -20,16 +20,17 @@ class ESQueryError(Exception):
 
     def get_status_response(self):
         """ message given to end user """
-        response = {}
-        response['code'] = self.code
-        response['message'] = self.message
-        response['title'] = self.title
-        response['type'] = self.message_type
+        response = {
+            'code': self.code,
+            'message': self.message,
+            'title': self.title,
+            'type': self.message_type
+        }
 
         return response
 
 
-class ESQueryRouteParameterDoesNotExist(ESQueryError):
+class ESQueryRouteParameterDoesNotExist(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -37,7 +38,7 @@ class ESQueryRouteParameterDoesNotExist(ESQueryError):
         super(ESQueryRouteParameterDoesNotExist, self).__init__(401, message)
 
 
-class ESQueryParametersDoesNotExist(ESQueryError):
+class ESQueryParametersDoesNotExist(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -45,7 +46,7 @@ class ESQueryParametersDoesNotExist(ESQueryError):
         super(ESQueryParametersDoesNotExist, self).__init__(402, message)
 
 
-class ESQueryDateRangeParametersDoesNotExist(ESQueryError):
+class ESQueryDateRangeParametersDoesNotExist(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -53,7 +54,7 @@ class ESQueryDateRangeParametersDoesNotExist(ESQueryError):
         super(ESQueryDateRangeParametersDoesNotExist, self).__init__(402, message)
 
 
-class ESQueryResultEmpty(ESQueryError):
+class ESQueryResultEmpty(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -63,7 +64,7 @@ class ESQueryResultEmpty(ESQueryError):
         super(ESQueryResultEmpty, self).__init__(403, message, title, message_type)
 
 
-class ESQueryStopParameterDoesNotExist(ESQueryError):
+class ESQueryStopParameterDoesNotExist(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -71,7 +72,7 @@ class ESQueryStopParameterDoesNotExist(ESQueryError):
         super(ESQueryStopParameterDoesNotExist, self).__init__(404, message)
 
 
-class ESQueryStopPatternTooShort(ESQueryError):
+class ESQueryStopPatternTooShort(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -79,7 +80,7 @@ class ESQueryStopPatternTooShort(ESQueryError):
         super(ESQueryStopPatternTooShort, self).__init__(405, message)
 
 
-class ESQueryOriginZoneParameterDoesNotExist(ESQueryError):
+class ESQueryOriginZoneParameterDoesNotExist(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -87,7 +88,7 @@ class ESQueryOriginZoneParameterDoesNotExist(ESQueryError):
         super(ESQueryOriginZoneParameterDoesNotExist, self).__init__(406, message)
 
 
-class ESQueryExistTwoShapesInTimePeriod(ESQueryError):
+class ESQueryExistTwoShapesInTimePeriod(GenericError):
     """ It raises when user ask for a route shape with a time windows that contains more than one """
 
     def __init__(self):
@@ -95,7 +96,7 @@ class ESQueryExistTwoShapesInTimePeriod(ESQueryError):
         super(ESQueryExistTwoShapesInTimePeriod, self).__init__(407, message)
 
 
-class ESQueryDestinationZoneParameterDoesNotExist(ESQueryError):
+class ESQueryDestinationZoneParameterDoesNotExist(GenericError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -103,7 +104,7 @@ class ESQueryDestinationZoneParameterDoesNotExist(ESQueryError):
         super(ESQueryDestinationZoneParameterDoesNotExist, self).__init__(408, message)
 
 
-class ESQueryStagesEmpty(ESQueryError):
+class ESQueryStagesEmpty(GenericError):
     """ It raises when user does not provide stages to filter elastic search query """
 
     def __init__(self):
@@ -113,7 +114,7 @@ class ESQueryStagesEmpty(ESQueryError):
         super(ESQueryStagesEmpty, self).__init__(409, message, title, message_type)
 
 
-class ESQueryOperatorParameterDoesNotExist(ESQueryError):
+class ESQueryOperatorParameterDoesNotExist(GenericError):
     """ It raises when user does not have permission over operators """
 
     def __init__(self):
@@ -121,7 +122,7 @@ class ESQueryOperatorParameterDoesNotExist(ESQueryError):
         super(ESQueryOperatorParameterDoesNotExist, self).__init__(410, message)
 
 
-class ESQueryOperationProgramDoesNotExist(ESQueryError):
+class ESQueryOperationProgramDoesNotExist(GenericError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
     def __init__(self, asked_date, available_days):
@@ -133,7 +134,7 @@ class ESQueryOperationProgramDoesNotExist(ESQueryError):
         super(ESQueryOperationProgramDoesNotExist, self).__init__(411, message)
 
 
-class ESQueryThereIsMoreThanOneOperationProgram(ESQueryError):
+class ESQueryThereIsMoreThanOneOperationProgram(GenericError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
     def __init__(self, start_date, end_date, days_between):
