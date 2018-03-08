@@ -138,7 +138,7 @@ class getLoadFileData(View):
                 if not created:
                     file_obj.lines = self.count_doc_in_file(data_source, path, file_name)
                     file_obj.save()
-                file_dict[data_source.code].append(file_obj.getDict())
+                file_dict[data_source.code].append(file_obj.get_dict())
 
         return file_dict
 
