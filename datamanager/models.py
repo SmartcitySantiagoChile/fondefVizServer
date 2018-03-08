@@ -41,9 +41,9 @@ class DataSourceFile(models.Model):
     discoverAt = models.DateTimeField("Primera vez encontrado", null=False)
     lines = models.IntegerField(default=0)
 
-    def getDict(self):
+    def get_dict(self):
         """ dictionary of record """
-        fileDict = {
+        file_dict = {
             "name": self.fileName,
             "path": self.dataSourcePath,
             "discoverAt": self.discoverAt,
@@ -51,25 +51,36 @@ class DataSourceFile(models.Model):
             "id": self.id
         }
 
-        return fileDict
+        return file_dict
 
 
-class DataSourceFileExecutionHistory(models.Model):
-    """ history of upload action for each file recorded on data source file model """
-    fileName = models.ForeignKey(DataSourceFile, on_delete=models.CASCADE)
+class JobExecution(models.Model):
+    """ record about async execution """
+    jobId = models.UUIDField("Identificador de trabajo", null=False)
+    EXPORTER = 'exporter'
+    UPLOADER = 'uploader'
+    TYPE_CHOICES = (
+        (EXPORTER, "Carga de datos"),
+        (UPLOADER, "Descarga de datos"),
+    )
+    type = models.CharField("Tipo", max_length=10, choices=TYPE_CHOICES)
     # time when execution started
     executionStart = models.DateTimeField("Inicio")
     # time when execution finished
     executionEnd = models.DateTimeField("Fin", null=True)
     RUNNING = "running"
-    FINISHED_WITH_ERROR = "error"
-    FINISHED_WITHOUT_ERROR = "ok"
-    STATE_CHOICES = (
+    FINISHED = "finished"
+    FAILED = "failed"
+    CANCELED = 'canceled'
+    STATUS_CHOICES = (
         (RUNNING, "cargando datos a elastic search"),
-        (FINISHED_WITHOUT_ERROR, "Finalización exitosa"),
-        (FINISHED_WITH_ERROR, "Finalización con error"),
+        (FINISHED, "Finalización exitosa"),
+        (FAILED, "Finalización con error"),
+        (CANCELED, "Cancelado por usuario"),
     )
     # state of execution
-    state = models.CharField("Razón de termino", max_length=30, choices=STATE_CHOICES)
-    # to save error messages
-    message = models.TextField("Mensaje de error", max_length=500, null=True)
+    status = models.CharField("Estado", max_length=10, choices=STATUS_CHOICES)
+    # inputs to job
+    inputs = models.TextField("Parámetros de llamada", max_length=500, null=True)
+    # for stack trace
+    errorMessage = models.TextField("Mensaje de error", max_length=500, null=True)
