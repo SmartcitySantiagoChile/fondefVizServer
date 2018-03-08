@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
+from django.db.models import Prefetch
 
 from collections import defaultdict
 from itertools import groupby
@@ -23,8 +24,10 @@ from esapi.errors import GenericError
 
 from rqworkers.dataUploader.uploader.datafile import IndexNotEmptyError
 
-from datamanager.errors import FileDoesNotExist, ThereIsPreviousJobUploadingTheFile
+from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, IndexWithDocumentError, \
+    BadFormatDocumentError
 from datamanager.models import DataSourcePath, LoadFile, UploaderJobExecution
+from datamanager.messages import JobEnqueued, DataDeletedSuccessfully
 
 from rqworkers.tasks import upload_file_job
 
@@ -43,12 +46,12 @@ class LoadData(View):
             if LoadFile.objects.filter(fileName=file_name).exists():
                 file_path_obj = LoadFile.objects.get(fileName=file_name)
             else:
-                raise FileDoesNotExist()
+                raise FileDoesNotExistError()
 
             # check if exist job associate to file obj
             if UploaderJobExecution.objects.filter(file=file_path_obj).filter(
                     Q(status=UploaderJobExecution.ENQUEUED) | Q(status=UploaderJobExecution.RUNNING)).exists():
-                raise ThereIsPreviousJobUploadingTheFile()
+                raise ThereIsPreviousJobUploadingTheFileError()
 
             job_execution_obj = UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(),
                                                                     status=UploaderJobExecution.ENQUEUED,
@@ -56,21 +59,11 @@ class LoadData(View):
             file_path = os.path.join(file_path_obj.path, file_name)
             upload_file_job.delay(file_path, job_execution_obj)
 
-            response['status'] = {
-                'code': 200,
-                'message': 'El archivo ha sido encolado para ser subido, esto puede tomar tiempo. Paciencia :-)',
-                'title': 'Datos eliminados',
-                'type': 'info'
-            }
+            response['status'] = JobEnqueued().get_status_response()
         except GenericError as e:
             response['status'] = e.get_status_response()
-        except IndexNotEmptyError as e:
-            response['status'] = {
-                'code': 499,
-                'message': 'Existen documentos asociados al archivo en elasticsearch, eliminelos antes de volver a intentar esta acción',
-                'title': 'Error',
-                'type': 'error'
-            }
+        except IndexNotEmptyError:
+            response['status'] = IndexWithDocumentError().get_status_response()
 
         return JsonResponse(response)
 
@@ -80,36 +73,36 @@ class DeleteData(View):
 
     def post(self, request):
         """  """
-        index = request.POST.get('index', '')
         file_name = request.POST.get('fileName', '')
 
-        index_helper = None
+        response = {}
+        try:
+            index = file_name.split('.')[1]
 
-        if index == DataSourcePath.STOP:
-            index_helper = ESStopHelper
-        elif index == DataSourcePath.PROFILE:
-            index_helper = ESProfileHelper
-        elif index == DataSourcePath.SPEED:
-            index_helper = ESSpeedHelper
-        elif index == DataSourcePath.TRIP:
-            index_helper = ESTripHelper
-        elif index == DataSourcePath.SHAPE:
-            index_helper = ESShapeHelper
-        elif index == DataSourcePath.OD_BY_ROUTE:
-            index_helper = ESODByRouteHelper
-        elif index == DataSourcePath.GENERAL:
-            index_helper = ESResumeStatisticHelper
+            index_helper = None
 
-        index_helper().delete_data_by_file(file_name)
+            if index == DataSourcePath.STOP:
+                index_helper = ESStopHelper
+            elif index == DataSourcePath.PROFILE:
+                index_helper = ESProfileHelper
+            elif index == DataSourcePath.SPEED:
+                index_helper = ESSpeedHelper
+            elif index == DataSourcePath.TRIP:
+                index_helper = ESTripHelper
+            elif index == DataSourcePath.SHAPE:
+                index_helper = ESShapeHelper
+            elif index == DataSourcePath.OD_BY_ROUTE:
+                index_helper = ESODByRouteHelper
+            elif index == DataSourcePath.GENERAL:
+                index_helper = ESResumeStatisticHelper
 
-        response = {
-            'status': {
-                'code': 200,
-                'message': 'Los datos fueron eliminados correctamente.',
-                'title': 'Datos eliminados',
-                'type': 'info'
-            }
-        }
+            es_query = index_helper().delete_data_by_file(file_name)
+            result = es_query.execute()
+
+            response['total'] = result.total
+            response['status'] = DataDeletedSuccessfully().get_status_response()
+        except IndexError:
+            response['status'] = BadFormatDocumentError().get_status_response()
 
         return JsonResponse(response)
 
@@ -191,16 +184,22 @@ class GetLoadFileData(View):
 
             for file_path in file_name_list:
                 file_name = os.path.basename(file_path)
-                file_obj, created = LoadFile.objects.get_or_create(fileName=file_name, defaults={
-                    'dataSourcePath': path,
-                    'discoverAt': timezone.now()
-                })
+
+                prefetch = Prefetch('uploaderjobexecution_set',
+                                    queryset=UploaderJobExecution.objects.order_by('-enqueueTimestamp'))
+                file_obj, created = LoadFile.objects.prefetch_related(prefetch).get_or_create(fileName=file_name,
+                                                                                              defaults={
+                                                                                                  'dataSourcePath': path,
+                                                                                                  'discoverAt': timezone.now()
+                                                                                              })
                 if created:
                     file_obj.lines = self.count_doc_in_file(data_source, file_path)
                 else:
                     file_obj.dataSourcePath = path
                 file_obj.save()
-                file_dict[data_source.code].append(file_obj.get_dict())
+                serialized_file = file_obj.get_dictionary()
+                serialized_file['executions'] = [x.get_dictionary() for x in file_obj.uploaderjobexecution_set.all()]
+                file_dict[data_source.code].append(serialized_file)
 
         return file_dict
 

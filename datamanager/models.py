@@ -41,7 +41,7 @@ class LoadFile(models.Model):
     discoverAt = models.DateTimeField('Primera vez encontrado', null=False)
     lines = models.IntegerField(default=0)
 
-    def get_dict(self):
+    def get_dictionary(self):
         """ dictionary of record """
         file_dict = {
             'name': self.fileName,
@@ -76,10 +76,17 @@ class JobExecution(models.Model):
     )
     # state of execution
     status = models.CharField('Estado', max_length=10, choices=STATUS_CHOICES)
-    # inputs to job
-    inputs = models.TextField('Parámetros de llamada', max_length=500, null=True)
     # for stack trace
     errorMessage = models.TextField('Mensaje de error', max_length=500, null=True)
+
+    def get_dictionary(self):
+        return {
+            'jobId': self.jobId,
+            'enqueueTimestamp': self.enqueueTimestamp,
+            'executionStart': self.executionStart,
+            'executionEnd':self.executionEnd,
+            'status': self.status,
+        }
 
     class Meta:
         abstract = True
