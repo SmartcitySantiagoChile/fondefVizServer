@@ -57,13 +57,6 @@ class LoadFile(models.Model):
 class JobExecution(models.Model):
     """ record about async execution """
     jobId = models.UUIDField('Identificador de trabajo', null=True)
-    EXPORTER = 'exporter'
-    UPLOADER = 'uploader'
-    TYPE_CHOICES = (
-        (EXPORTER, 'Carga de datos'),
-        (UPLOADER, 'Descarga de datos'),
-    )
-    type = models.CharField('Tipo', max_length=10, choices=TYPE_CHOICES)
     enqueueTimestamp = models.DateTimeField('Encolado')
     # time when execution started
     executionStart = models.DateTimeField('Inicio')

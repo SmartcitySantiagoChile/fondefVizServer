@@ -46,8 +46,7 @@ class LoadData(View):
             else:
                 raise ThereIsPreviousJobUploadingTheFile()
 
-            job_execution_obj = UploaderJobExecution.objects.create(type=UploaderJobExecution.UPLOADER,
-                                                                    enqueueTimestamp=timezone.now(),
+            job_execution_obj = UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(),
                                                                     status=UploaderJobExecution.ENQUEUED,
                                                                     file=file_path_obj)
             file_path = os.path.join(file_path_obj.path, file_name)

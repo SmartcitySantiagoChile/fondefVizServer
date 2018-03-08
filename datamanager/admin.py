@@ -30,12 +30,12 @@ class UploaderJobExecutionAdmin(admin.ModelAdmin):
     """ manager for job execution """
     fieldsets = (
         (None, {'fields': ('file',)}),
-        (None, {'fields': ('jobId', 'type', 'status')}),
+        (None, {'fields': ('jobId', 'status')}),
         (None, {'fields': ('executionStart', 'executionEnd')}),
         (None, {'fields': ('inputs', 'errorMessage')}),
     )
     list_filter = []
-    list_display = ('jobId', 'type', 'status', 'executionStart', 'executionEnd')
+    list_display = ('jobId', 'status', 'executionStart', 'executionEnd')
     actions = None
 
     def has_add_permission(self, request):
