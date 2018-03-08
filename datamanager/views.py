@@ -6,6 +6,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Q
 
 from collections import defaultdict
 from itertools import groupby
@@ -17,6 +18,10 @@ from esapi.helper.trip import ESTripHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.resume import ESResumeStatisticHelper
+
+from esapi.errors import GenericError
+
+from rqworkers.dataUploader.uploader.datafile import IndexNotEmptyError
 
 from datamanager.errors import FileDoesNotExist, ThereIsPreviousJobUploadingTheFile
 from datamanager.models import DataSourcePath, LoadFile, UploaderJobExecution
@@ -40,10 +45,9 @@ class LoadData(View):
             else:
                 raise FileDoesNotExist()
 
-            if True:
-                # check if exist job associate to file obj
-                pass
-            else:
+            # check if exist job associate to file obj
+            if UploaderJobExecution.objects.filter(file=file_path_obj).filter(
+                    Q(status=UploaderJobExecution.ENQUEUED) | Q(status=UploaderJobExecution.RUNNING)).exists():
                 raise ThereIsPreviousJobUploadingTheFile()
 
             job_execution_obj = UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(),
@@ -58,8 +62,15 @@ class LoadData(View):
                 'title': 'Datos eliminados',
                 'type': 'info'
             }
-        except FileDoesNotExist as e:
+        except GenericError as e:
             response['status'] = e.get_status_response()
+        except IndexNotEmptyError as e:
+            response['status'] = {
+                'code': 499,
+                'message': 'Existen documentos asociados al archivo en elasticsearch, eliminelos antes de volver a intentar esta acción',
+                'title': 'Error',
+                'type': 'error'
+            }
 
         return JsonResponse(response)
 

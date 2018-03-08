@@ -160,3 +160,6 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 360,
     }
 }
+
+# custom handler to failed jobs
+RQ_EXCEPTION_HANDLERS = ['rqworkers.tasks.exception_handler']
