@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from datamanager.models import DataSourcePath, JobExecution
+from datamanager.models import DataSourcePath, UploaderJobExecution
 
 
 class DataSourceAdmin(admin.ModelAdmin):
@@ -26,9 +26,10 @@ class DataSourceAdmin(admin.ModelAdmin):
         return 'timeStamp', 'code'
 
 
-class JobExecutionAdmin(admin.ModelAdmin):
+class UploaderJobExecutionAdmin(admin.ModelAdmin):
     """ manager for job execution """
     fieldsets = (
+        (None, {'fields': ('file',)}),
         (None, {'fields': ('jobId', 'type', 'status')}),
         (None, {'fields': ('executionStart', 'executionEnd')}),
         (None, {'fields': ('inputs', 'errorMessage')}),
@@ -48,4 +49,4 @@ class JobExecutionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(DataSourcePath, DataSourceAdmin)
-admin.site.register(JobExecution, JobExecutionAdmin)
+admin.site.register(UploaderJobExecution, UploaderJobExecutionAdmin)
