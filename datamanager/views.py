@@ -24,7 +24,7 @@ from esapi.helper.shape import ESShapeHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.errors import GenericError
 
-from rqworkers.dataUploader.uploader.datafile import IndexNotEmptyError
+from rqworkers.dataUploader.errors import IndexNotEmptyError
 from rqworkers.tasks import upload_file_job
 
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, IndexWithDocumentError, \
