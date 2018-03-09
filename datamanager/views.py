@@ -40,6 +40,8 @@ from redis import Redis
 
 import os
 import glob
+import io
+import zipfile
 
 
 class LoadManagerHTML(View):
@@ -221,32 +223,45 @@ class CancelData(View):
 class GetLoadFileData(View):
     """ """
 
-    def count_doc_in_file(self, data_source, file_path):
-        i = 0
-        if data_source.code in [DataSourcePath.SHAPE, DataSourcePath.STOP]:
-            with open(file_path) as f:
-                i = len(list(groupby(f, lambda row: row.split(str('|'))[0])))
-            # not count header
-            i -= 1
+    def get_file_object(self, file_path):
+        """
+        :param kwargs: dictionary to give encoding param
+        :return: file object
+        """
+        if zipfile.is_zipfile(file_path):
+            zip_file_obj = zipfile.ZipFile(file_path, 'r')
+            # it assumes that zip file has only one file
+            file_name = zip_file_obj.namelist()[0]
+            file_obj = io.TextIOWrapper(zip_file_obj.open(file_name, 'r'))
         else:
-            # how it starts from zero is not count header
-            with open(file_path) as f:
+            file_obj = io.open(file_path, str('rb'))
+
+        return file_obj
+
+    def count_doc_in_file(self, data_source_obj, file_path):
+        i = 0
+        with self.get_file_object(file_path) as f:
+            if data_source_obj.code in [DataSourcePath.SHAPE, DataSourcePath.STOP]:
+                i = len(list(groupby(f, lambda row: row.split(str('|'))[0])))
+                # not count header
+                i -= 1
+            else:
+                # how it starts from zero is not count header
                 for i, _ in enumerate(f):
                     pass
-
         return i
 
     def get_file_list(self):
         """ list all files in directory with code """
         file_dict = defaultdict(list)
 
-        for data_source in DataSourcePath.objects.all():
-            path = data_source.path
+        for data_source_obj in DataSourcePath.objects.all():
+            path = data_source_obj.path
             # if is running on windows
             if os.name == 'nt':
                 path = os.path.join(settings.BASE_DIR, 'media')
 
-            path_name = os.path.join(path, data_source.filePattern)
+            path_name = os.path.join(path, data_source_obj.filePattern)
             file_name_list = glob.glob(path_name)
 
             # attach execution jobs which are enqueued or running
@@ -262,13 +277,13 @@ class GetLoadFileData(View):
                                                                                                   'discoverAt': timezone.now()
                                                                                               })
                 if created:
-                    file_obj.lines = self.count_doc_in_file(data_source, file_path)
+                    file_obj.lines = self.count_doc_in_file(data_source_obj, file_path)
                 else:
                     file_obj.dataSourcePath = path
                 file_obj.save()
                 serialized_file = file_obj.get_dictionary()
                 serialized_file['executions'] = [x.get_dictionary() for x in file_obj.uploaderjobexecution_set.all()]
-                file_dict[data_source.code].append(serialized_file)
+                file_dict[data_source_obj.code].append(serialized_file)
 
         return file_dict
 
