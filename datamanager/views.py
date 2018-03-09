@@ -242,7 +242,8 @@ class GetLoadFileData(View):
         i = 0
         with self.get_file_object(file_path) as f:
             if data_source_obj.code in [DataSourcePath.SHAPE, DataSourcePath.STOP]:
-                i = len(list(groupby(f, lambda row: row.split(str('|'))[0])))
+                for _, __ in groupby(f, lambda row: row.split(str('|'))[0]):
+                    i += 1
                 # not count header
                 i -= 1
             else:
