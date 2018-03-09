@@ -262,7 +262,8 @@ class GetLoadFileData(View):
                 path = os.path.join(settings.BASE_DIR, 'media')
 
             path_name = os.path.join(path, data_source_obj.filePattern)
-            file_name_list = glob.glob(path_name)
+            zipped_path_name = os.path.join(path, '{0}.zip'.format(data_source_obj.filePattern))
+            file_name_list = glob.glob(path_name) + glob.glob(zipped_path_name)
 
             # attach execution jobs which are enqueued or running
             prefetch = Prefetch('uploaderjobexecution_set',
