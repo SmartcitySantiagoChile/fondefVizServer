@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from datamanager.models import DataSourcePath, UploaderJobExecution
+from datamanager.models import DataSourcePath, UploaderJobExecution, LoadFile
 
 
 class DataSourceAdmin(admin.ModelAdmin):
@@ -50,3 +50,4 @@ class UploaderJobExecutionAdmin(admin.ModelAdmin):
 
 admin.site.register(DataSourcePath, DataSourceAdmin)
 admin.site.register(UploaderJobExecution, UploaderJobExecutionAdmin)
+admin.site.register(LoadFile)
