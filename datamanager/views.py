@@ -232,9 +232,9 @@ class GetLoadFileData(View):
             zip_file_obj = zipfile.ZipFile(file_path, 'r')
             # it assumes that zip file has only one file
             file_name = zip_file_obj.namelist()[0]
-            file_obj = io.TextIOWrapper(zip_file_obj.open(file_name, 'r'))
+            file_obj = io.TextIOWrapper(zip_file_obj.open(file_name, 'r'), encoding='latin1')
         else:
-            file_obj = io.open(file_path, str('rb'))
+            file_obj = io.open(file_path, str('rb'), encoding='latin1')
 
         return file_obj
 
