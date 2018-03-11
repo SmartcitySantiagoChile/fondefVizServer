@@ -7,7 +7,6 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
-from django.db.models import Prefetch
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
@@ -266,25 +265,18 @@ class GetLoadFileData(View):
             zipped_path_name = os.path.join(path, '{0}.zip'.format(data_source_obj.filePattern))
             file_name_list = glob.glob(path_name) + glob.glob(zipped_path_name)
 
-            # attach execution jobs which are enqueued or running
-            prefetch = Prefetch('uploaderjobexecution_set',
-                                queryset=UploaderJobExecution.objects.filter(
-                                    Q(status=UploaderJobExecution.ENQUEUED) | Q(
-                                        status=UploaderJobExecution.RUNNING)).order_by('-enqueueTimestamp'))
             for file_path in file_name_list:
                 file_name = os.path.basename(file_path)
-                file_obj, created = LoadFile.objects.prefetch_related(prefetch).get_or_create(fileName=file_name,
-                                                                                              defaults={
-                                                                                                  'dataSourcePath': path,
-                                                                                                  'discoverAt': timezone.now()
-                                                                                              })
+                file_obj, created = LoadFile.objects.get_or_create(fileName=file_name, defaults={
+                    'dataSourcePath': path,
+                    'discoverAt': timezone.now()
+                })
                 if created:
                     file_obj.lines = self.count_doc_in_file(data_source_obj, file_path)
                 else:
                     file_obj.dataSourcePath = path
                 file_obj.save()
                 serialized_file = file_obj.get_dictionary()
-                serialized_file['executions'] = [x.get_dictionary() for x in file_obj.uploaderjobexecution_set.all()]
                 file_dict[data_source_obj.code].append(serialized_file)
 
         return file_dict

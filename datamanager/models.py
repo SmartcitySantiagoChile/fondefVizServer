@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.db.models import Prefetch
 from django.utils import timezone
 
 import os
@@ -33,6 +34,14 @@ class DataSourcePath(models.Model):
         verbose_name_plural = 'Orígenes de archivos de carga'
 
 
+class LoadFileManager(models.Manager):
+    def get_queryset(self):
+        # attach last execution job
+        prefetch = Prefetch('uploaderjobexecution_set',
+                            queryset=UploaderJobExecution.objects.order_by('-enqueueTimestamp').first())
+        return super(LoadFileManager, self).get_queryset().prefetch_related(prefetch)
+
+
 class LoadFile(models.Model):
     """ record to save data of each file found it """
     # file name found it in one of data source path
@@ -40,15 +49,22 @@ class LoadFile(models.Model):
     dataSourcePath = models.CharField(max_length=200)
     discoverAt = models.DateTimeField('Primera vez encontrado', null=False)
     lines = models.IntegerField(default=0)
+    objects = LoadFileManager()
 
     def get_dictionary(self):
         """ dictionary of record """
+        last_execution = None
+        execution_list = [x.get_dictionary() for x in self.uploaderjobexecution_set.all()]
+        if not execution_list:
+            last_execution = last_execution[0]
+
         file_dict = {
             'name': self.fileName,
             'path': self.dataSourcePath,
             'discoverAt': self.discoverAt,
             'lines': self.lines,
-            'id': self.id
+            'id': self.id,
+            'lastExecution': last_execution
         }
 
         return file_dict
