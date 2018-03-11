@@ -137,20 +137,18 @@ class DeleteData(View):
 
         index_helper = None
 
-        if index == DataSourcePath.STOP:
-            index_helper = ESStopHelper
-        elif index == DataSourcePath.PROFILE:
-            index_helper = ESProfileHelper
-        elif index == DataSourcePath.SPEED:
-            index_helper = ESSpeedHelper
-        elif index == DataSourcePath.TRIP:
-            index_helper = ESTripHelper
-        elif index == DataSourcePath.SHAPE:
-            index_helper = ESShapeHelper
-        elif index == DataSourcePath.OD_BY_ROUTE:
-            index_helper = ESODByRouteHelper
-        elif index == DataSourcePath.GENERAL:
-            index_helper = ESResumeStatisticHelper
+        helpers = [(DataSourcePath.STOP, ESStopHelper),
+                   (DataSourcePath.PROFILE, ESProfileHelper),
+                   (DataSourcePath.SPEED, ESSpeedHelper),
+                   (DataSourcePath.TRIP, ESTripHelper),
+                   (DataSourcePath.SHAPE, ESShapeHelper),
+                   (DataSourcePath.OD_BY_ROUTE, ESODByRouteHelper),
+                   (DataSourcePath.GENERAL, ESResumeStatisticHelper)]
+
+        for index_id, helper in helpers:
+            if index == index_id:
+                index_helper = helper
+                break
 
         es_query = index_helper().delete_data_by_file(file_name)
         result = es_query.execute()
@@ -273,7 +271,7 @@ class GetLoadFileData(View):
                     'discoveredAt': timezone.now(),
                     'lastModified': last_modified
                 })
-                if created or last_modified != file_obj.lastModified :
+                if created or last_modified != file_obj.lastModified:
                     file_obj.lines = self.count_doc_in_file(data_source_obj, file_path)
                 file_obj.dataSourcePath = path
                 file_obj.save()
