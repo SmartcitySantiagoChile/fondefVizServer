@@ -267,15 +267,15 @@ class GetLoadFileData(View):
 
             for file_path in file_name_list:
                 file_name = os.path.basename(file_path)
+                last_modified = timezone.make_aware(timezone.datetime.fromtimestamp(os.path.getmtime(file_path)))
                 file_obj, created = LoadFile.objects.get_or_create(fileName=file_name, defaults={
                     'dataSourcePath': path,
                     'discoveredAt': timezone.now(),
-                    'lastModified': os.path.getmtime(file_path)
+                    'lastModified': last_modified
                 })
-                if created or os.path.getmtime(file_path) :
+                if created or last_modified != file_obj.lastModified :
                     file_obj.lines = self.count_doc_in_file(data_source_obj, file_path)
-                else:
-                    file_obj.dataSourcePath = path
+                file_obj.dataSourcePath = path
                 file_obj.save()
                 serialized_file = file_obj.get_dictionary()
                 file_dict[data_source_obj.code].append(serialized_file)
