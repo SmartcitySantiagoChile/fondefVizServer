@@ -230,7 +230,7 @@ class GetLoadFileData(View):
             zip_file_obj = zipfile.ZipFile(file_path, 'r')
             # it assumes that zip file has only one file
             file_name = zip_file_obj.namelist()[0]
-            file_obj = io.TextIOWrapper(zip_file_obj.open(file_name, 'r'), encoding='latin1')
+            file_obj = zip_file_obj.open(file_name, 'rU')
         else:
             file_obj = io.open(file_path, str('rb'))
 
@@ -240,8 +240,10 @@ class GetLoadFileData(View):
         i = 0
         with self.get_file_object(file_path) as f:
             if data_source_obj.code in [DataSourcePath.SHAPE, DataSourcePath.STOP]:
-                for _, __ in groupby(f, lambda row: row.split(str('|'))[0]):
-                    i += 1
+                for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
+                    # lines with hyphen on first column are bad lines and must not be considered
+                    if group_id != '-':
+                        i += 1
                 # not count header
                 i -= 1
             else:
