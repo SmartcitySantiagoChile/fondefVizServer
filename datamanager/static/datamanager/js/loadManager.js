@@ -11,7 +11,7 @@ $(document).ready(function () {
             columns: [
                 {title: "Nombre de archivo", data: "name", searchable: true},
                 {
-                    title: "Última fecha de carga", data: "discoverAt", searchable: true,
+                    title: "Última modificación", data: "lastModified", searchable: true,
                     render: function (data, type, row, meta) {
                         return (new Date(data)).toLocaleString();
                     }

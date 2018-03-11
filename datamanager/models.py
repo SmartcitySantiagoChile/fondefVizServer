@@ -47,8 +47,9 @@ class LoadFile(models.Model):
     # file name found it in one of data source path
     fileName = models.CharField('Nombre de archivo', max_length=200, null=False, unique=True)
     dataSourcePath = models.CharField(max_length=200)
-    discoverAt = models.DateTimeField('Primera vez encontrado', null=False)
+    discoveredAt = models.DateTimeField('Primera vez encontrado', null=False)
     lines = models.IntegerField(default=0)
+    lastModified = models.DateTimeField('Última modificación', null=False)
     objects = LoadFileManager()
 
     def get_dictionary(self):
@@ -61,7 +62,8 @@ class LoadFile(models.Model):
         file_dict = {
             'name': self.fileName,
             'path': self.dataSourcePath,
-            'discoverAt': self.discoverAt,
+            'discoveredAt': self.discoveredAt,
+            'lastModified': self.lastModified,
             'lines': self.lines,
             'id': self.id,
             'lastExecution': last_execution

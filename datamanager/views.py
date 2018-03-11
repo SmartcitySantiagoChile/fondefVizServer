@@ -269,9 +269,10 @@ class GetLoadFileData(View):
                 file_name = os.path.basename(file_path)
                 file_obj, created = LoadFile.objects.get_or_create(fileName=file_name, defaults={
                     'dataSourcePath': path,
-                    'discoverAt': timezone.now()
+                    'discoveredAt': timezone.now(),
+                    'lastModified': os.path.getmtime(file_path)
                 })
-                if created:
+                if created or os.path.getmtime(file_path) :
                     file_obj.lines = self.count_doc_in_file(data_source_obj, file_path)
                 else:
                     file_obj.dataSourcePath = path
