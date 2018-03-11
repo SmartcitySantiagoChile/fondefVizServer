@@ -284,9 +284,9 @@ class GetLoadFileData(View):
 
     def get_uploaded_files(self):
         index_helper_list = [ESProfileHelper, ESSpeedHelper, ESODByRouteHelper, ESTripHelper, ESStopHelper,
-                             ESShapeHelper]
+                             ESShapeHelper, ESResumeStatisticHelper]
         key_list = [DataSourcePath.PROFILE, DataSourcePath.SPEED, DataSourcePath.OD_BY_ROUTE, DataSourcePath.TRIP,
-                    DataSourcePath.STOP, DataSourcePath.SHAPE]
+                    DataSourcePath.STOP, DataSourcePath.SHAPE, DataSourcePath.GENERAL]
 
         queries = {}
         index_helper_instance = None
