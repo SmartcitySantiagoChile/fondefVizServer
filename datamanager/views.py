@@ -153,12 +153,10 @@ class DeleteData(View):
         elif index == DataSourcePath.GENERAL:
             index_helper = ESResumeStatisticHelper
 
-        # TODO: uncomment when index is updated
-        # es_query = index_helper().delete_data_by_file(file_name)
-        # result = es_query.execute()
+        es_query = index_helper().delete_data_by_file(file_name)
+        result = es_query.execute()
 
-        # return result.total
-        return 0
+        return result.total
 
     def post(self, request):
         """  """
