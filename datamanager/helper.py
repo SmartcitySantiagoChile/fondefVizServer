@@ -164,6 +164,7 @@ class FileManager(object):
                 })
                 if created or last_modified != file_obj.lastModified:
                     file_obj.lines = self._count_doc_in_file(data_source_obj.code, file_path)
+                    file_obj.lastModified = last_modified
                 file_obj.dataSourcePath = path
                 file_obj.save()
                 serialized_file = file_obj.get_dictionary()
