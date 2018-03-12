@@ -194,16 +194,12 @@ class FileManager(object):
             queries[helper.get_index_name()] = helper.get_data_by_file()
 
         doc_number_by_file = {}
-        try:
-            answer = index_helper_instance.make_multisearch_query_for_aggs(queries)
+        answer = index_helper_instance.make_multisearch_query_for_aggs(queries)
 
-            for key in answer:
-                files = answer[key]['aggregations']['files']['buckets']
-                for data_file in files:
-                    doc_number_by_file[data_file['key']] = data_file['doc_count']
-        except TransportError as e:
-            if e.error != 'index_not_found_exception':
-                raise e
+        for key in answer:
+            files = answer[key]['aggregations']['files']['buckets']
+            for data_file in files:
+                doc_number_by_file[data_file['key']] = data_file['doc_count']
 
         return doc_number_by_file
 
