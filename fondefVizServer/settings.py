@@ -27,9 +27,10 @@ SECRET_KEY = secretKey.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u'10.0.2.15', u'127.0.0.1', u'localhost', '200.9.100.91', u'172.17.74.243', u'172.17.74.202',
-                 u'172.17.57.156']
+ALLOWED_HOSTS = ['10.0.2.15', '127.0.0.1', 'localhost', '200.9.100.91', '172.17.74.243', '172.17.74.202',
+                 '172.17.57.156']
 
+INTERNAL_IPS = ['172.17.57.156']
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,7 +50,9 @@ INSTALLED_APPS = [
     'shape',
     'travel',
     'speed',
-    'globalstat'
+    'globalstat',
+    'debug_toolbar',
+    'debug_panel',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_panel.middleware.DebugPanelMiddleware'
 ]
 
 ROOT_URLCONF = 'fondefVizServer.urls'
