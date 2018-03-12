@@ -35,7 +35,7 @@ class UploaderJobExecutionAdmin(admin.ModelAdmin):
         (None, {'fields': ('errorMessage',)}),
     )
     list_filter = []
-    list_display = ('jobId', 'status', 'executionStart', 'executionEnd')
+    list_display = ('jobId', 'file', 'status', 'executionStart', 'executionEnd')
     actions = None
 
     def has_add_permission(self, request):
@@ -44,8 +44,8 @@ class UploaderJobExecutionAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return True
 
-    #def get_readonly_fields(self, request, obj=None):
-    #    return 'jobId', 'type', 'status', 'executionStart', 'executionEnd', 'errorMessage'
+    def get_readonly_fields(self, request, obj=None):
+        return 'jobId', 'type', 'status', 'executionStart', 'executionEnd', 'errorMessage', 'enqueueTimestamp', 'file'
 
 
 admin.site.register(DataSourcePath, DataSourceAdmin)
