@@ -30,13 +30,13 @@ def upload_file_job(path_to_file):
     job_execution_obj.save()
     try:
         upload_file(settings.ES_CLIENT, path_to_file)
+
+        job_execution_obj.executionEnd = timezone.now()
+        job_execution_obj.status = UploaderJobExecution.FINISHED
+        job_execution_obj.save()
     except Exception:
         exc_type, exc_value, traceback = sys.exc_info()
         exception_handler(job_instance, exc_type, exc_value, traceback)
-
-    job_execution_obj.executionEnd = timezone.now()
-    job_execution_obj.status = UploaderJobExecution.FINISHED
-    job_execution_obj.save()
 
 
 def exception_handler(job_instance, exc_type, exc_value, traceback):
@@ -45,6 +45,7 @@ def exception_handler(job_instance, exc_type, exc_value, traceback):
     job_execution_obj.executionEnd = timezone.now()
     job_execution_obj.status = UploaderJobExecution.FAILED
     job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
+    job_execution_obj.save()
 
     # continue with the next handler if exists, for instance: failed queue
     return True
