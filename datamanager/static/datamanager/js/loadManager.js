@@ -56,7 +56,7 @@ $(document).ready(function () {
             var disableCancelButton = false;
             var isLoading = false;
 
-            if (data.lastExecution !== null && data.lastExecution.status === 'running') {
+            if (data.lastExecution !== null && data.lastExecution.status === "running") {
                 isLoading = true;
             }
 
@@ -122,7 +122,6 @@ $(document).ready(function () {
                         if (confirm(uploadMessage)) {
                             _self.uploadFile(data.name);
                         }
-                        console.log(data);
                     });
 
                     htmlSelector.on("click", "button.btn-warning", function () {
@@ -132,7 +131,6 @@ $(document).ready(function () {
                         if (confirm(cancelMessage)) {
                             _self.cancelFile(data.name);
                         }
-                        console.log(data);
                     });
 
                     htmlSelector.on("click", "button.btn-danger", function () {
@@ -142,7 +140,6 @@ $(document).ready(function () {
                         if (confirm(deleteMessage)) {
                             _self.deleteFile(data.name);
                         }
-                        console.log(data);
                     });
                 }
             });
