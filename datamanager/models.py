@@ -38,7 +38,7 @@ class LoadFileManager(models.Manager):
     def get_queryset(self):
         # attach last execution job
         prefetch = Prefetch('uploaderjobexecution_set',
-                            queryset=UploaderJobExecution.objects.order_by('-enqueueTimestamp').first())
+                            queryset=UploaderJobExecution.objects.order_by('-enqueueTimestamp'))
         return super(LoadFileManager, self).get_queryset().prefetch_related(prefetch)
 
 
@@ -55,7 +55,7 @@ class LoadFile(models.Model):
     def get_dictionary(self):
         """ dictionary of record """
         last_execution = None
-        execution_list = [x.get_dictionary() for x in self.uploaderjobexecution_set.all()]
+        execution_list = [x.get_dictionary() for x in self.uploaderjobexecution_set.first()]
         if execution_list:
             last_execution = last_execution[0]
 
