@@ -134,7 +134,7 @@ class FileManager(object):
             if data_source_code in [DataSourcePath.SHAPE, DataSourcePath.STOP]:
                 for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
                     # lines with hyphen on first column are bad lines and must not be considered
-                    if group_id != '-':
+                    if group_id != str('-'):
                         i += 1
                 # not count header
                 i -= 1

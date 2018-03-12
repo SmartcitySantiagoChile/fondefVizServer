@@ -54,10 +54,9 @@ class LoadFile(models.Model):
 
     def get_dictionary(self):
         """ dictionary of record """
-        last_execution = None
-        execution_list = [x.get_dictionary() for x in self.uploaderjobexecution_set.first()]
-        if execution_list:
-            last_execution = last_execution[0]
+        last_execution = self.uploaderjobexecution_set.first()
+        if last_execution is not None:
+            last_execution = last_execution.get_dictionary()
 
         file_dict = {
             'name': self.fileName,
