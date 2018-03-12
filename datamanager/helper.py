@@ -55,8 +55,10 @@ class UploaderManager(object):
 
             file_path = os.path.join(file_path_obj.dataSourcePath, self.file_name)
             job = upload_file_job.delay(file_path)
-            UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(), status=UploaderJobExecution.ENQUEUED,
-                                                file=file_path_obj, jobId=job.id)
+            job_obj = UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
+                                                          status=UploaderJobExecution.ENQUEUED, file=file_path_obj)
+
+            return job_obj
 
     def delete_data(self):
         helpers = [(DataSourcePath.STOP, ESStopHelper),
@@ -102,6 +104,8 @@ class UploaderManager(object):
 
             # delete data uploaded previous to cancel
             self.delete_data()
+
+            return job_obj
 
 
 class FileManager(object):

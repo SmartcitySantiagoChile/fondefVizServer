@@ -9,32 +9,29 @@ $(document).ready(function () {
             },
             searching: false,
             columns: [
-                {title: "Nombre de archivo", data: "name", searchable: true},
+                {title: "Archivo", data: "name", searchable: true},
                 {
                     title: "Última modificación", data: "lastModified", searchable: true,
                     render: function (data, type, row, meta) {
                         return (new Date(data)).toLocaleString();
                     }
                 },
-                {title: "N° de líneas archivo", data: "lines", searchable: true},
-                {title: "N° de documentos en plataforma", data: "docNumber", searchable: true},
+                {title: "Doc. en archivo", data: "lines", searchable: true},
+                {title: "Doc. en plataforma", data: "docNumber", searchable: true},
                 {
-                    title: "Documentos fuera de la plataforma",
+                    title: "Diferencia",
                     searchable: true,
                     render: function (data, type, full, meta) {
                         return full.lines - full.docNumber;
                     }
                 },
                 {
-                    title: "Cargar datos a la plataforma|Cancelar carga|Eliminar datos de la plataforma",
+                    title: "Acciones",
                     "searchable": false,
                     "orderable": false,
                     "className": "text-center",
                     render: function (data, type, full, meta) {
-                        var loadButton = "<button type='button' class='btn btn-info btn-xs' >Cargar datos</button>";
-                        var cancelButton = "<button type='button' class='btn btn-warning btn-xs' >Cancelar carga</button>";
-                        var deleteButton = "<button type='button' class='btn btn-danger btn-xs' >Eliminar</button>";
-                        return loadButton + cancelButton + deleteButton;
+                        return renderButtons(full);
                     }
                 }
             ],
@@ -46,7 +43,40 @@ $(document).ready(function () {
             }
         };
 
-        this.loadFile = function (fileName) {
+        var renderButtons = function (data) {
+            var createHTMLButton = function (buttonName, classButton, disabled) {
+                var disabledTxt = "";
+                if (disabled) {
+                    disabledTxt = "disabled";
+                }
+                return "<button type='button' class='btn btn-" + classButton + " btn-xs' " + disabledTxt + " >" + buttonName + "</button>";
+            };
+            var disableUploadButton = false;
+            var disableDeleteButton = false;
+            var disableCancelButton = false;
+            var isLoading = false;
+
+            if (data.lastExecution !== null && data.lastExecution.status === 'running') {
+                isLoading = true;
+            }
+
+            if (data.line === data.docNumber || isLoading) {
+                disableUploadButton = true;
+            }
+            if (!isLoading) {
+                disableCancelButton = true;
+            }
+            if (data.docNumber === 0) {
+                disableDeleteButton = true;
+            }
+            var uploadButton = createHTMLButton("Cargar datos", "info", disableUploadButton);
+            var deleteButton = createHTMLButton("Eiminar", "danger", disableDeleteButton);
+            var cancelButton = createHTMLButton("Cancelar carga", "warning", disableCancelButton);
+
+            return uploadButton + cancelButton + deleteButton;
+        };
+
+        this.uploadFile = function (fileName) {
             var params = {
                 fileName: fileName
             };
@@ -84,19 +114,33 @@ $(document).ready(function () {
                     var id = key + "Table";
                     var table = $("#" + id).DataTable(opts);
 
-                    $("#" + id + " tbody").on("click", "button", function () {
-                        var buttonName = $(this).html();
+                    var htmlSelector = $("#" + id + " tbody");
+                    htmlSelector.on("click", "button.btn-info", function () {
+                        var data = table.row($(this).parents("tr")).data();
+
+                        var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
+                        if (confirm(uploadMessage)) {
+                            _self.uploadFile(data.name);
+                        }
+                        console.log(data);
+                    });
+
+                    htmlSelector.on("click", "button.btn-warning", function () {
+                        var data = table.row($(this).parents("tr")).data();
+
+                        var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
+                        if (confirm(cancelMessage)) {
+                            _self.cancelFile(data.name);
+                        }
+                        console.log(data);
+                    });
+
+                    htmlSelector.on("click", "button.btn-danger", function () {
                         var data = table.row($(this).parents("tr")).data();
 
                         var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
-                        var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
-                        var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
-                        if (buttonName === "Eliminar" && confirm(deleteMessage)) {
+                        if (confirm(deleteMessage)) {
                             _self.deleteFile(data.name);
-                        } else if (buttonName === "Cargar datos" && confirm(uploadMessage)) {
-                            _self.loadFile(data.name);
-                        } else if (buttonName === "Cancelar carga" && confirm(cancelMessage)) {
-                            _self.cancelFile(data.name);
                         }
                         console.log(data);
                     });
