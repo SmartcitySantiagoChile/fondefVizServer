@@ -75,8 +75,7 @@ class UploaderManager(object):
                 index_helper = helper
                 break
 
-        es_query = index_helper.delete_data_by_file(self.file_name)
-        result = es_query.execute()
+        result = index_helper.delete_data_by_file(self.file_name)
 
         return result.total
 
