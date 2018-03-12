@@ -174,7 +174,7 @@ class FileManager(object):
                 file_obj.dataSourcePath = path
                 file_obj.save()
                 serialized_file = file_obj.get_dictionary()
-                file_dict[data_source_obj.code].append(serialized_file)
+                file_dict[data_source_obj.indexName].append(serialized_file)
 
         return file_dict
 
@@ -188,16 +188,10 @@ class FileManager(object):
             ESODByRouteHelper(),
             ESResumeStatisticHelper()
         ]
-        queries = {}
-        index_helper_instance = None
-        for helper in helpers:
-            queries[helper.get_index_name()] = helper.get_data_by_file()
 
         doc_number_by_file = {}
-        answer = index_helper_instance.make_multisearch_query_for_aggs(queries)
-
-        for key in answer:
-            files = answer[key]['aggregations']['files']['buckets']
+        for helper in helpers:
+            files = helper.get_data_by_file().execute().aggregations.files.buckets
             for data_file in files:
                 doc_number_by_file[data_file['key']] = data_file['doc_count']
 
