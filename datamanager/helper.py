@@ -6,6 +6,8 @@ from django.db import transaction
 from django.conf import settings
 from django.utils import timezone
 
+from elasticsearch.exceptions import TransportError
+
 from rq import Connection
 from rq.job import Job
 from rq.registry import StartedJobRegistry
@@ -183,13 +185,17 @@ class FileManager(object):
             index_helper_instance = helper()
             queries[index_id] = index_helper_instance.get_data_by_file()
 
-        answer = index_helper_instance.make_multisearch_query_for_aggs(queries)
-
         doc_number_by_file = {}
-        for key in answer:
-            files = answer[key]['aggregations']['files']['buckets']
-            for data_file in files:
-                doc_number_by_file[data_file['key']] = data_file['doc_count']
+        try:
+            answer = index_helper_instance.make_multisearch_query_for_aggs(queries)
+
+            for key in answer:
+                files = answer[key]['aggregations']['files']['buckets']
+                for data_file in files:
+                    doc_number_by_file[data_file['key']] = data_file['doc_count']
+        except TransportError as e:
+            if e.error != 'index_not_found_exception':
+                raise e
 
         return doc_number_by_file
 
