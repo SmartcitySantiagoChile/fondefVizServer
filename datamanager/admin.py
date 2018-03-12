@@ -10,7 +10,7 @@ class DataSourceAdmin(admin.ModelAdmin):
     """ manager for data sources """
     fieldsets = (
         (None, {'fields': ('path', 'filePattern')}),
-        (None, {'fields': ('code', 'timeStamp')}),
+        (None, {'fields': ('indexName', 'timeStamp')}),
     )
     list_filter = []
     list_display = ('path', 'filePattern', 'indexName', 'timeStamp')

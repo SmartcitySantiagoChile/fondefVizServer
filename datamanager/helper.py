@@ -6,8 +6,6 @@ from django.db import transaction
 from django.conf import settings
 from django.utils import timezone
 
-from elasticsearch.exceptions import TransportError
-
 from rq import Connection
 from rq.job import Job
 from rq.registry import StartedJobRegistry
