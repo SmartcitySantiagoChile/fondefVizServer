@@ -98,7 +98,6 @@ class ElasticSearchHelper(object):
 
         return result
 
-
     def get_data_by_file(self):
         """ return query with files and doc number associated to them """
 
@@ -112,6 +111,5 @@ class ElasticSearchHelper(object):
 
         es_query = self.get_base_query()
         es_query = es_query.filter('term', path=file_name)
-        es_query.delete()
 
-        return es_query
+        return es_query.delete()
