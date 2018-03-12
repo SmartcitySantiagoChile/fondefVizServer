@@ -100,7 +100,7 @@ class ElasticSearchHelper(object):
         """ return query with files and doc number associated to them """
 
         es_query = self.get_base_query()[:0]
-        aggs = A('terms', field="path.keyword", size=5000)
+        aggs = A('terms', field="path", size=5000)
         es_query.aggs.bucket('files', aggs)
 
         return es_query
