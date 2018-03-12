@@ -9,20 +9,13 @@ import os
 
 
 class DataSourcePath(models.Model):
-    GENERAL = 'general'
-    OD_BY_ROUTE = 'odbyroute'
-    STOP = 'stop'
-    SHAPE = 'shape'
-    TRIP = 'trip'
-    SPEED = 'speed'
-    PROFILE = 'profile'
     """ where i have to check for new files """
     # path to data source
     path = models.CharField('Ruta', max_length=200)
     # Patter of file which has to be searching in the path
     filePattern = models.CharField('Patrón de archivo', max_length=100)
-    # Id uses to identify path
-    code = models.CharField('Código', max_length=50)
+    # index name where it will upload the data
+    indexName = models.CharField('Nombre del índice', max_length=50)
     # last time record was updated
     timeStamp = models.DateTimeField('Última actualización', default=timezone.now)
 

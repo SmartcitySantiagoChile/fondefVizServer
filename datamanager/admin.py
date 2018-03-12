@@ -13,7 +13,7 @@ class DataSourceAdmin(admin.ModelAdmin):
         (None, {'fields': ('code', 'timeStamp')}),
     )
     list_filter = []
-    list_display = ('path', 'filePattern', 'code', 'timeStamp')
+    list_display = ('path', 'filePattern', 'indexName', 'timeStamp')
     actions = None
 
     def has_add_permission(self, request):

@@ -14,7 +14,7 @@ import copy
 class ESTripHelper(ElasticSearchHelper):
 
     def __init__(self):
-        index_name = "travel"
+        index_name = "trip"
         super(ESTripHelper, self).__init__(index_name)
 
         self.default_fields = ['tviaje', 'n_etapas', 'modos', 'factor_expansion', 'comuna_subida', 'comuna_bajada',

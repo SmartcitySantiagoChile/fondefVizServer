@@ -14,6 +14,9 @@ class ElasticSearchHelper(object):
         self.index_name = index_name
         self.client = settings.ES_CLIENT
 
+    def get_index_name(self):
+        return self.index_name
+
     def get_base_query(self):
         """ get query object with index and client assigned  """
         return Search(using=self.client, index=self.index_name)

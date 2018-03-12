@@ -61,21 +61,23 @@ class UploaderManager(object):
             return job_obj
 
     def delete_data(self):
-        helpers = [(DataSourcePath.STOP, ESStopHelper),
-                   (DataSourcePath.PROFILE, ESProfileHelper),
-                   (DataSourcePath.SPEED, ESSpeedHelper),
-                   (DataSourcePath.TRIP, ESTripHelper),
-                   (DataSourcePath.SHAPE, ESShapeHelper),
-                   (DataSourcePath.OD_BY_ROUTE, ESODByRouteHelper),
-                   (DataSourcePath.GENERAL, ESResumeStatisticHelper)]
+        helpers = [
+            ESStopHelper(),
+            ESProfileHelper(),
+            ESSpeedHelper(),
+            ESTripHelper(),
+            ESShapeHelper(),
+            ESODByRouteHelper(),
+            ESResumeStatisticHelper()
+        ]
 
         index_helper = None
-        for index_id, helper in helpers:
-            if self.index == index_id:
+        for helper in helpers:
+            if self.index == helper.get_index_name():
                 index_helper = helper
                 break
 
-        es_query = index_helper().delete_data_by_file(self.file_name)
+        es_query = index_helper.delete_data_by_file(self.file_name)
         result = es_query.execute()
 
         return result.total
@@ -131,7 +133,7 @@ class FileManager(object):
     def _count_doc_in_file(self, data_source_code, file_path):
         i = 0
         with self._get_file_object(file_path) as f:
-            if data_source_code in [DataSourcePath.SHAPE, DataSourcePath.STOP]:
+            if data_source_code in [ESShapeHelper().get_index_name(), ESStopHelper().get_index_name()]:
                 for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
                     # lines with hyphen on first column are bad lines and must not be considered
                     if group_id != str('-'):
@@ -177,18 +179,19 @@ class FileManager(object):
         return file_dict
 
     def _get_document_number_by_file_from_elasticsearch(self):
-        helpers = [(DataSourcePath.STOP, ESStopHelper),
-                   (DataSourcePath.PROFILE, ESProfileHelper),
-                   (DataSourcePath.SPEED, ESSpeedHelper),
-                   (DataSourcePath.TRIP, ESTripHelper),
-                   (DataSourcePath.SHAPE, ESShapeHelper),
-                   (DataSourcePath.OD_BY_ROUTE, ESODByRouteHelper),
-                   (DataSourcePath.GENERAL, ESResumeStatisticHelper)]
+        helpers = [
+            ESStopHelper(),
+            ESProfileHelper(),
+            ESSpeedHelper(),
+            ESTripHelper(),
+            ESShapeHelper(),
+            ESODByRouteHelper(),
+            ESResumeStatisticHelper()
+        ]
         queries = {}
         index_helper_instance = None
-        for index_id, helper in helpers:
-            index_helper_instance = helper()
-            queries[index_id] = index_helper_instance.get_data_by_file()
+        for helper in helpers:
+            queries[helper.get_index_name()] = helper.get_data_by_file()
 
         doc_number_by_file = {}
         try:
