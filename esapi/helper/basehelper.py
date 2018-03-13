@@ -98,10 +98,16 @@ class ElasticSearchHelper(object):
 
         return result
 
-    def get_data_by_file(self):
-        """ return query with files and doc number associated to them """
+    def get_data_by_file(self, filter=None):
+        """
+        return query with files and doc number associated to them
+        :param filter: list of path. I.e. ['2017-01-01.extension', ...]
+        :return: Search object
+        """
 
         es_query = self.get_base_query()[:0]
+        if filter is not None:
+            es_query = es_query.filter('terms', path=filter)
         aggs = A('terms', field="path", size=5000)
         es_query.aggs.bucket('files', aggs)
 
