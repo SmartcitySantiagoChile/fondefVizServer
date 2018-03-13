@@ -45,7 +45,9 @@ class LoadManagerHTML(View):
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de viajes',
                 'id': 'travelTable', 'title_icon': 'fa-line-chart', 'title': 'Viajes'
-            },
+            }
+        ]
+        operation_program_tables = [
             {
                 'bubble_title': '', 'bubble_content': 'Archivo con geometría de servicios',
                 'id': 'shapeTable', 'title_icon': 'fa-code-fork', 'title': 'Geometria de servicios'
@@ -56,7 +58,8 @@ class LoadManagerHTML(View):
             }
         ]
         context = {
-            'tables': tables
+            'tables': tables,
+            'operation_program_tables': operation_program_tables
         }
 
         return render(request, template, context)
