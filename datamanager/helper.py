@@ -53,10 +53,12 @@ class UploaderManager(object):
 
             file_path = os.path.join(file_path_obj.dataSourcePath, self.file_name)
             job = upload_file_job.delay(file_path)
-            job_obj = UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
-                                                          status=UploaderJobExecution.ENQUEUED, file=file_path_obj)
+            UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
+                                                status=UploaderJobExecution.ENQUEUED, file=file_path_obj)
 
-            return job_obj
+            # update data
+            file_path_obj = LoadFile.objects.get(fileName=self.file_name)
+            return file_path_obj
 
     def delete_data(self):
         helpers = [
@@ -104,7 +106,9 @@ class UploaderManager(object):
             # delete data uploaded previous to cancel
             self.delete_data()
 
-            return job_obj
+            # update data
+            file_path_obj = LoadFile.objects.get(fileName=self.file_name)
+            return file_path_obj
 
 
 class FileManager(object):
@@ -175,7 +179,7 @@ class FileManager(object):
 
         return file_dict
 
-    def _get_document_number_by_file_from_elasticsearch(self):
+    def get_document_number_by_file_from_elasticsearch(self, file_name=None):
         helpers = [
             ESStopHelper(),
             ESProfileHelper(),
@@ -187,15 +191,18 @@ class FileManager(object):
         ]
 
         doc_number_by_file = {}
+        file_name_list = None
+        if file_name is not None:
+            file_name_list = [file_name]
         for helper in helpers:
-            files = helper.get_data_by_file().execute().aggregations.files.buckets
+            files = helper.get_data_by_file(filter=file_name_list).execute().aggregations.files.buckets
             for data_file in files:
                 doc_number_by_file[data_file['key']] = data_file['doc_count']
 
         return doc_number_by_file
 
     def get_file_list(self):
-        uploaded_files = self._get_document_number_by_file_from_elasticsearch()
+        uploaded_files = self.get_document_number_by_file_from_elasticsearch()
         file_list = self._get_file_list()
 
         for key in file_list:

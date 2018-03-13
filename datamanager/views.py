@@ -77,7 +77,13 @@ class UploadData(View):
 
         response = {}
         try:
-            UploaderManager(file_name).upload_data()
+            file_data = UploaderManager(file_name).upload_data().get_dictionary()
+            file_data['docNumber'] = 0
+            doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(file_name)
+            if file_name in doc_number_by_file:
+                file_data['docNumber'] = doc_number_by_file[file_name]
+
+            response['data'] = file_data
             response['status'] = JobEnqueued().get_status_response()
         except GenericError as e:
             response['status'] = e.get_status_response()
@@ -101,6 +107,9 @@ class DeleteData(View):
         response = {}
         try:
             deleted_doc_number = UploaderManager(file_name).delete_data()
+            response['data'] = {
+                'deletedDocNumber': deleted_doc_number
+            }
             response['status'] = DataDeletedSuccessfully(deleted_doc_number).get_status_response()
         except IndexError:
             response['status'] = BadFormatDocumentError().get_status_response()
@@ -119,7 +128,13 @@ class CancelData(View):
 
         response = {}
         try:
-            UploaderManager(file_name).cancel_uploading()
+            file_data = UploaderManager(file_name).cancel_uploading().get_dictionary()
+            file_data['docNumber'] = 0
+            doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(file_name)
+            if file_name in doc_number_by_file:
+                file_data['docNumber'] = doc_number_by_file[file_name]
+
+            response['data'] = file_data
             response['status'] = JobCanceledSuccessfully().get_status_response()
         except GenericError as e:
             response['status'] = e.get_status_response()

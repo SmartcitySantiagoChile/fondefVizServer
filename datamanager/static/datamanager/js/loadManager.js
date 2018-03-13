@@ -37,8 +37,21 @@ $(document).ready(function () {
             ],
             order: [[4, "desc"]],
             createdRow: function (row, data, index) {
-                if (data.line !== data.docNumber) {
-                    $(row).addClass("danger");
+                addColorToRow(data, row);
+            }
+        };
+
+        var addColorToRow = function (data, row) {
+            $(row).removeClass("danger warning success");
+            if (data.line !== data.docNumber) {
+                $(row).addClass("danger");
+            } else {
+                $(row).addClass("success");
+            }
+            if (data.lastExecution !== null) {
+                if (["enqueued", "running"].indexOf(data.lastExecution.status) >= 0) {
+                    $(row).removeClass("danger success");
+                    $(row).addClass("warning");
                 }
             }
         };
@@ -51,25 +64,37 @@ $(document).ready(function () {
                 }
                 return "<button type='button' class='btn btn-" + classButton + " btn-xs' " + disabledTxt + " >" + buttonName + "</button>";
             };
+
             var disableUploadButton = false;
             var disableDeleteButton = false;
             var disableCancelButton = false;
-            var isLoading = false;
+            var LoadingOrReadyToLoad = false;
 
-            if (data.lastExecution !== null && data.lastExecution.status === "running") {
-                isLoading = true;
+            var uploadButtonName = "Cargar datos";
+
+            if (data.lastExecution !== null) {
+                if (data.lastExecution.status === "running") {
+                    uploadButtonName = "<i class='fa fa-spinner fa-sync'></i> " + uploadButtonName;
+                    LoadingOrReadyToLoad = true;
+                } else if (data.lastExecution.status === "enqueued") {
+                    uploadButtonName = "<i class='fa fa-spinner fa-pulse'></i> " + uploadButtonName;
+                    LoadingOrReadyToLoad = true;
+                } else if (data.lastExecution.status === "failed") {
+                    uploadButtonName = "<i class='fa fa-warning'></i> " + uploadButtonName;
+                }
             }
 
-            if (data.line === data.docNumber || isLoading) {
+            if (data.line === data.docNumber || LoadingOrReadyToLoad) {
                 disableUploadButton = true;
             }
-            if (!isLoading) {
+            if (!LoadingOrReadyToLoad) {
                 disableCancelButton = true;
             }
             if (data.docNumber === 0) {
                 disableDeleteButton = true;
             }
-            var uploadButton = createHTMLButton("Cargar datos", "info", disableUploadButton);
+
+            var uploadButton = createHTMLButton(uploadButtonName, "info", disableUploadButton);
             var deleteButton = createHTMLButton("Eiminar", "danger", disableDeleteButton);
             var cancelButton = createHTMLButton("Cancelar carga", "warning", disableCancelButton);
 
@@ -83,28 +108,40 @@ $(document).ready(function () {
             $.post(Urls["datamanager:uploadData"](), params, function (data) {
                 showMessage(data.status);
                 if (data.status.code === 201) {
-                    $(row).removeClass('danger');
-                    $(row).removeClass('success');
-                    $(row).addClass('warning');
+                    addColorToRow(data.data, row);
+                    var table = row.closest("table").DataTable();
+                    table.row(row).data(data.data).invalidate('data');
                 }
             });
         };
 
-        this.deleteFile = function (fileName) {
+        this.deleteFile = function (fileName, row) {
             var params = {
                 fileName: fileName
             };
             $.post(Urls["datamanager:deleteData"](), params, function (data) {
                 showMessage(data.status);
+                if (data.status.code === 202) {
+                    addColorToRow(data.data, row);
+                    var table = row.closest("table").DataTable();
+                    var currentData = table.row(row).data();
+                    currentData.docNumber = currentData.docNumber - data.data.deletedDocNumber;
+                    table.row(row).data(currentData).invalidate("data");
+                }
             });
         };
 
-        this.cancelFile = function (fileName) {
+        this.cancelFile = function (fileName, row) {
             var params = {
                 fileName: fileName
             };
             $.post(Urls["datamanager:cancelData"](), params, function (data) {
                 showMessage(data.status);
+                if (data.status.code === 203) {
+                    addColorToRow(data.data, row);
+                    var table = row.closest("table").DataTable();
+                    table.row(row).data(data.data).invalidate('data');
+                }
             });
         };
 
@@ -153,7 +190,7 @@ $(document).ready(function () {
                 });
             }
 
-            buttons.forEach(function(buttonInfo){
+            buttons.forEach(function (buttonInfo) {
                 activateEventButton(buttonInfo)
             });
         };
