@@ -16,8 +16,8 @@ $(document).ready(function () {
                         return (new Date(data)).toLocaleString();
                     }
                 },
-                {title: "Doc. en archivo", data: "lines", searchable: true},
-                {title: "Doc. en plataforma", data: "docNumber", searchable: true},
+                {title: "Registros en archivo", data: "lines", searchable: true},
+                {title: "Registros en plataforma", data: "docNumber", searchable: true},
                 {
                     title: "Diferencia",
                     searchable: true,
@@ -113,35 +113,38 @@ $(document).ready(function () {
                     var opts = $.extend({data: files}, _datatableOpts);
                     var id = key + "Table";
                     var table = $("#" + id).DataTable(opts);
-
-                    var htmlSelector = $("#" + id + " tbody");
-                    htmlSelector.on("click", "button.btn-info", function () {
-                        var data = table.row($(this).parents("tr")).data();
-
-                        var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
-                        if (confirm(uploadMessage)) {
-                            _self.uploadFile(data.name);
-                        }
-                    });
-
-                    htmlSelector.on("click", "button.btn-warning", function () {
-                        var data = table.row($(this).parents("tr")).data();
-
-                        var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
-                        if (confirm(cancelMessage)) {
-                            _self.cancelFile(data.name);
-                        }
-                    });
-
-                    htmlSelector.on("click", "button.btn-danger", function () {
-                        var data = table.row($(this).parents("tr")).data();
-
-                        var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
-                        if (confirm(deleteMessage)) {
-                            _self.deleteFile(data.name);
-                        }
-                    });
                 }
+
+                var htmlSelector = $("tbody");
+                htmlSelector.on("click", "button.btn-info", function () {
+                    var table = $(this).closest('table').DataTable();
+                    var data = table.row($(this).parents("tr")).data();
+                    console.log(data);
+                    var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
+                    if (confirm(uploadMessage)) {
+                        _self.uploadFile(data.name);
+                    }
+                });
+
+                htmlSelector.on("click", "button.btn-warning", function () {
+                    var table = $(this).closest('table').DataTable();
+                    var data = table.row($(this).parents("tr")).data();
+
+                    var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
+                    if (confirm(cancelMessage)) {
+                        _self.cancelFile(data.name);
+                    }
+                });
+
+                htmlSelector.on("click", "button.btn-danger", function () {
+                    var table = $(this).closest('table').DataTable();
+                    var data = table.row($(this).parents("tr")).data();
+
+                    var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
+                    if (confirm(deleteMessage)) {
+                        _self.deleteFile(data.name);
+                    }
+                });
             });
         };
     }
