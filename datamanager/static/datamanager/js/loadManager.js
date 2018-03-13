@@ -80,7 +80,7 @@ $(document).ready(function () {
             var params = {
                 fileName: fileName
             };
-            $.post(Urls["datamanager:loadData"](), params, function (data) {
+            $.post(Urls["datamanager:uploadData"](), params, function (data) {
                 showMessage(data.status);
             });
         };
@@ -112,12 +112,12 @@ $(document).ready(function () {
                     var files = dictFiles[key];
                     var opts = $.extend({data: files}, _datatableOpts);
                     var id = key + "Table";
-                    var table = $("#" + id).DataTable(opts);
+                    $("#" + id).DataTable(opts);
                 }
 
                 var htmlSelector = $("tbody");
                 htmlSelector.on("click", "button.btn-info", function () {
-                    var table = $(this).closest('table').DataTable();
+                    var table = $(this).closest("table").DataTable();
                     var data = table.row($(this).parents("tr")).data();
                     console.log(data);
                     var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
@@ -127,7 +127,7 @@ $(document).ready(function () {
                 });
 
                 htmlSelector.on("click", "button.btn-warning", function () {
-                    var table = $(this).closest('table').DataTable();
+                    var table = $(this).closest("table").DataTable();
                     var data = table.row($(this).parents("tr")).data();
 
                     var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
@@ -137,7 +137,7 @@ $(document).ready(function () {
                 });
 
                 htmlSelector.on("click", "button.btn-danger", function () {
-                    var table = $(this).closest('table').DataTable();
+                    var table = $(this).closest("table").DataTable();
                     var data = table.row($(this).parents("tr")).data();
 
                     var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
