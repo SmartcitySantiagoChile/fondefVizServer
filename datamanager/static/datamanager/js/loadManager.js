@@ -76,12 +76,17 @@ $(document).ready(function () {
             return uploadButton + cancelButton + deleteButton;
         };
 
-        this.uploadFile = function (fileName) {
+        this.uploadFile = function (fileName, row) {
             var params = {
                 fileName: fileName
             };
             $.post(Urls["datamanager:uploadData"](), params, function (data) {
                 showMessage(data.status);
+                if (data.status.code === 201) {
+                    $(row).removeClass('danger');
+                    $(row).removeClass('success');
+                    $(row).addClass('warning');
+                }
             });
         };
 
@@ -118,31 +123,34 @@ $(document).ready(function () {
                 var htmlSelector = $("tbody");
                 htmlSelector.on("click", "button.btn-info", function () {
                     var table = $(this).closest("table").DataTable();
-                    var data = table.row($(this).parents("tr")).data();
+                    var rowInstance = $(this).parents("tr");
+                    var data = table.row(rowInstance).data();
                     console.log(data);
                     var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
                     if (confirm(uploadMessage)) {
-                        _self.uploadFile(data.name);
+                        _self.uploadFile(data.name, rowInstance);
                     }
                 });
 
                 htmlSelector.on("click", "button.btn-warning", function () {
                     var table = $(this).closest("table").DataTable();
-                    var data = table.row($(this).parents("tr")).data();
+                    var rowInstance = $(this).parents("tr");
+                    var data = table.row(rowInstance).data();
 
                     var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
                     if (confirm(cancelMessage)) {
-                        _self.cancelFile(data.name);
+                        _self.cancelFile(data.name, rowInstance);
                     }
                 });
 
                 htmlSelector.on("click", "button.btn-danger", function () {
                     var table = $(this).closest("table").DataTable();
-                    var data = table.row($(this).parents("tr")).data();
+                    var rowInstance = $(this).parents("tr");
+                    var data = table.row(rowInstance).data();
 
                     var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
                     if (confirm(deleteMessage)) {
-                        _self.deleteFile(data.name);
+                        _self.deleteFile(data.name, rowInstance);
                     }
                 });
             });
@@ -153,5 +161,9 @@ $(document).ready(function () {
     (function () {
         var app = new DataManagerApp();
         app.updateTables();
+
+        setInterval(function(){
+            app.updateTables();
+        }, 1000 * 60);
     })()
 });
