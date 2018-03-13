@@ -17,7 +17,7 @@ admin.site.unregister(User)
 
 class OperatorAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ('esId', 'name', 'description')
+    list_display = ('esId', 'name')
 
     def save_model(self, request, obj, form, change):
         permission_builder = PermissionBuilder()
