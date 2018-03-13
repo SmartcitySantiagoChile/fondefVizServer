@@ -119,40 +119,42 @@ $(document).ready(function () {
                     var id = key + "Table";
                     $("#" + id).DataTable(opts);
                 }
+                _self.activeButtonEvents();
+            });
+        };
 
-                var htmlSelector = $("tbody");
-                htmlSelector.on("click", "button.btn-info", function () {
+        this.activeButtonEvents = function () {
+
+            var buttons = [{
+                selector: "button.btn-info",
+                message: "Este proceso puede tomar tiempo ¿está seguro de iniciarlo?",
+                action: _self.uploadFile
+            }, {
+                selector: "button.btn-danger",
+                message: "¿Está seguro que desea eliminar los datos? esta operación es irreversible.",
+                action: _self.deleteFile
+            }, {
+                selector: "button.btn-warning",
+                message: "Está seguro de cancelar la tarea de carga para este archivo?",
+                action: _self.cancelFile
+            }];
+
+            function activateEventButton(buttonInfo) {
+                var tbody = $("tbody");
+                tbody.off("click", buttonInfo.selector);
+                tbody.on("click", buttonInfo.selector, function () {
                     var table = $(this).closest("table").DataTable();
                     var rowInstance = $(this).parents("tr");
                     var data = table.row(rowInstance).data();
-                    console.log(data);
-                    var uploadMessage = "Este proceso dura unos minutos ¿está seguro de iniciarlo?";
-                    if (confirm(uploadMessage)) {
-                        _self.uploadFile(data.name, rowInstance);
+
+                    if (confirm(buttonInfo.message)) {
+                        buttonInfo.action(data.name, rowInstance);
                     }
                 });
+            }
 
-                htmlSelector.on("click", "button.btn-warning", function () {
-                    var table = $(this).closest("table").DataTable();
-                    var rowInstance = $(this).parents("tr");
-                    var data = table.row(rowInstance).data();
-
-                    var cancelMessage = "Está segur@ de cancelar la tarea de carga para este archivo?";
-                    if (confirm(cancelMessage)) {
-                        _self.cancelFile(data.name, rowInstance);
-                    }
-                });
-
-                htmlSelector.on("click", "button.btn-danger", function () {
-                    var table = $(this).closest("table").DataTable();
-                    var rowInstance = $(this).parents("tr");
-                    var data = table.row(rowInstance).data();
-
-                    var deleteMessage = "¿Está segur@ que desea eliminar los datos? Recuerde que esta operación es irreversible.";
-                    if (confirm(deleteMessage)) {
-                        _self.deleteFile(data.name, rowInstance);
-                    }
-                });
+            buttons.forEach(function(buttonInfo){
+                activateEventButton(buttonInfo)
             });
         };
     }
@@ -162,8 +164,9 @@ $(document).ready(function () {
         var app = new DataManagerApp();
         app.updateTables();
 
+        /*
         setInterval(function(){
             app.updateTables();
-        }, 1000 * 60);
+        }, 1000 * 0);*/
     })()
 });
