@@ -26,6 +26,7 @@ def upload_file_job(path_to_file):
         except UploaderJobExecution.DoesNotExist:
             time.sleep(1)
 
+    job_execution_obj.status = UploaderJobExecution.RUNNING
     job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
     try:
