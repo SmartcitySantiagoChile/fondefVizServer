@@ -80,13 +80,11 @@ class UploadData(View):
 
         response = {}
         try:
-            file_data = UploaderManager(file_name).upload_data().get_dictionary()
-            file_data['docNumber'] = 0
+            data_file = UploaderManager(file_name).upload_data().get_dictionary()
             doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(file_name)
-            if file_name in doc_number_by_file:
-                file_data['docNumber'] = doc_number_by_file[file_name]
+            data_file['docNumber'] = doc_number_by_file[file_name] if file_name in doc_number_by_file else 0
 
-            response['data'] = file_data
+            response['data'] = data_file
             response['status'] = JobEnqueued().get_status_response()
         except GenericError as e:
             response['status'] = e.get_status_response()
@@ -131,13 +129,11 @@ class CancelData(View):
 
         response = {}
         try:
-            file_data = UploaderManager(file_name).cancel_uploading().get_dictionary()
-            file_data['docNumber'] = 0
+            data_file = UploaderManager(file_name).cancel_uploading().get_dictionary()
             doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(file_name)
-            if file_name in doc_number_by_file:
-                file_data['docNumber'] = doc_number_by_file[file_name]
+            data_file['docNumber'] = doc_number_by_file[file_name] if file_name in doc_number_by_file else 0
 
-            response['data'] = file_data
+            response['data'] = data_file
             response['status'] = JobCanceledSuccessfully().get_status_response()
         except GenericError as e:
             response['status'] = e.get_status_response()

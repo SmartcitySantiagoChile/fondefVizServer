@@ -211,7 +211,6 @@ class FileManager(object):
 
         for key in file_list:
             for data_file in file_list[key]:
-                del data_file['path']
                 data_file['docNumber'] = uploaded_files[data_file['name']] if data_file['name'] in uploaded_files else 0
 
         return file_list
