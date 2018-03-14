@@ -109,6 +109,31 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "rq_console": {
+            "format": "%(asctime)s %(message)s",
+            "datefmt": "%H:%M:%S",
+        },
+    },
+    "handlers": {
+        "rq_console": {
+            "level": "DEBUG",
+            "class": "rq.utils.ColorizingStreamHandler",
+            "formatter": "rq_console",
+            "exclude": ["%(asctime)s"],
+        },
+    },
+    'loggers': {
+        "rq.worker": {
+            "handlers": ["rq_console"],
+            "level": "DEBUG"
+        },
+    }
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -147,13 +172,18 @@ REDIS_CONF = {
     'HOST': 'localhost',
     'PORT': 6379,
     'DB': 0,
-    'DEFAULT_TIMEOUT': 360,
+    'DEFAULT_TIMEOUT': 60 * 60 * 24,
 }
 
 RQ_QUEUES = {
     'default': REDIS_CONF,
     'data_uploader': REDIS_CONF,
     'data_exporter': REDIS_CONF
+}
+
+RQ = {
+    'DEFAULT_RESULT_TTL': 60 * 60 * 24,
+    'JOB_CLASS': 'rqworkers.killClass.KillJob',
 }
 
 # custom handler to failed jobs
