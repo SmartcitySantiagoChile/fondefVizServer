@@ -7,7 +7,6 @@ from django.conf import settings
 from django.utils import timezone
 
 from rq import Connection
-from rq.job import Job
 from rq.registry import StartedJobRegistry
 from redis import Redis
 
@@ -18,6 +17,7 @@ from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadin
 from datamanager.models import UploaderJobExecution, LoadFile, DataSourcePath
 
 from rqworkers.tasks import upload_file_job
+from rqworkers.killClass import KillJob
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.speed import ESSpeedHelper
@@ -93,11 +93,8 @@ class UploaderManager(object):
             host = settings.RQ_QUEUES[queue_name]['HOST']
             port = settings.RQ_QUEUES[queue_name]['PORT']
             with Connection(Redis(host, port)) as redis_conn:
-                registry = StartedJobRegistry('default', connection=redis_conn)
-                job = Job.fetch(str(job_obj.jobId), connection=redis_conn)
-                # if job started, kill it (stop process)
-                if job_obj.jobId in registry.get_job_ids():
-                    job.kill()
+                job = KillJob.fetch(str(job_obj.jobId), connection=redis_conn)
+                job.kill()
                 job.delete()
             job_obj.status = UploaderJobExecution.CANCELED
             job_obj.executionEnd = timezone.now()
