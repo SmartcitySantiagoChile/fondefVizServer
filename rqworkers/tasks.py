@@ -44,5 +44,5 @@ def exception_handler(job_instance, exc_type, exc_value, traceback):
     job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
     job_execution_obj.save()
 
-    # continue with the next handler if exists, for instance: failed queue
-    return True
+    # not continue with the next handler if exists, for instance: failed queue
+    return False
