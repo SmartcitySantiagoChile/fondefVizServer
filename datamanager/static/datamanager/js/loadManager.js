@@ -224,7 +224,7 @@ $(document).ready(function () {
                         htmlRow("14", "Fin de tarea:", executionEnd)
                     ];
 
-                    return rows.join();
+                    return rows.join("");
                 },
                 modalId: "modal",
                 action: function () {
