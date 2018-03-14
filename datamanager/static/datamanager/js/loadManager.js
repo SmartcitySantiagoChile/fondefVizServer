@@ -106,7 +106,7 @@ $(document).ready(function () {
             if (!LoadingOrReadyToLoad) {
                 disableCancelButton = true;
             }
-            if (data.docNumber === 0) {
+            if (data.docNumber === 0 || LoadingOrReadyToLoad) {
                 disableDeleteButton = true;
             }
 
