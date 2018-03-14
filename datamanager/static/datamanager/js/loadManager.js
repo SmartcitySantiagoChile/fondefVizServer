@@ -16,12 +16,25 @@ $(document).ready(function () {
                         return (new Date(data)).toLocaleString();
                     }
                 },
-                {title: "Registros en archivo", data: "lines", searchable: true},
-                {title: "Registros en plataforma", data: "docNumber", searchable: true},
+                {
+                    title: "Registros en archivo",
+                    data: "lines",
+                    searchable: true,
+                    render: $.fn.dataTable.render.number(".", ",")
+                },
+                {
+                    title: "Registros en plataforma",
+                    data: "docNumber",
+                    searchable: true,
+                    render: $.fn.dataTable.render.number(".", ",")
+                },
                 {
                     title: "Diferencia",
                     searchable: true,
                     render: function (data, type, full, meta) {
+                        if (type === "display") {
+                            return $.fn.dataTable.render.number(".", ",").display(full.lines - full.docNumber);
+                        }
                         return full.lines - full.docNumber;
                     }
                 },
@@ -264,7 +277,7 @@ $(document).ready(function () {
                 data.changes.forEach(function (rowData) {
                     var row = $("td:contains('" + rowData.name + "')").parents("tr");
                     var table = row.closest("table").DataTable();
-                    table.row(row).data(rowData).invalidate('data');
+                    table.row(row).data(rowData).invalidate("data");
                     addColorToRow(rowData, row);
                 });
             });
