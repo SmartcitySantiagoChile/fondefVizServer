@@ -6,6 +6,8 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+from django.db.models import Q
 
 from esapi.errors import GenericError
 
@@ -14,6 +16,7 @@ from rqworkers.dataUploader.errors import IndexNotEmptyError
 from datamanager.errors import IndexWithDocumentError, BadFormatDocumentError, ThereIsNotActiveJobError
 from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully
 from datamanager.helper import UploaderManager, FileManager
+from datamanager.models import LoadFile
 
 from rq.exceptions import NoSuchJobError
 
@@ -142,6 +145,23 @@ class CancelData(View):
             response['status'] = ThereIsNotActiveJobError().get_status_response()
         except IndexError:
             response['status'] = BadFormatDocumentError().get_status_response()
+
+        return JsonResponse(response)
+
+
+class LatestJobChanges(View):
+    """ return list of files which change last x minutes """
+
+    def get(self, request):
+        minutes = 2
+        lower_time_bound = timezone.now() - timezone.timedelta(minutes=minutes)
+
+        files = LoadFile.objects.filter(Q(uploaderjobexecution__executionStart__gte=lower_time_bound) | Q(
+            uploaderjobexecution__executionEnd__gte=lower_time_bound))
+
+        response = {
+            'changes': [data_file.get_dictionary() for data_file in files]
+        }
 
         return JsonResponse(response)
 

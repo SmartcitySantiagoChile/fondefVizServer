@@ -194,6 +194,17 @@ $(document).ready(function () {
                 activateEventButton(buttonInfo)
             });
         };
+
+        this.updateToLatestChanges = function(){
+            $.get(Urls["datamanager:latestJobChanges"](), function (data) {
+                data.changes.forEach(function(rowData){
+                    var row = $("td:contains('" + rowData.name + "')").parents("tr");
+                    var table = row.closest("table").DataTable();
+                    table.row(row).data(rowData).invalidate('data');
+                    addColorToRow(rowData, row);
+                });
+            });
+        };
     }
 
     // load filters
@@ -201,9 +212,8 @@ $(document).ready(function () {
         var app = new DataManagerApp();
         app.updateTables();
 
-        /*
         setInterval(function(){
-            app.updateTables();
-        }, 1000 * 0);*/
+            app.updateToLatestChanges();
+        }, 1000 * 5);
     })()
 });
