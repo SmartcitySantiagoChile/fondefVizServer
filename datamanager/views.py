@@ -16,7 +16,7 @@ from rqworkers.dataUploader.errors import IndexNotEmptyError
 from datamanager.errors import IndexWithDocumentError, BadFormatDocumentError, ThereIsNotActiveJobError
 from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully
 from datamanager.helper import UploaderManager, FileManager
-from datamanager.models import LoadFile
+from datamanager.models import LoadFile, UploaderJobExecution
 
 from rq.exceptions import NoSuchJobError
 
@@ -153,7 +153,8 @@ class LatestJobChanges(View):
         lower_time_bound = timezone.now() - timezone.timedelta(minutes=minutes)
 
         files = LoadFile.objects.filter(Q(uploaderjobexecution__executionStart__gte=lower_time_bound) | Q(
-            uploaderjobexecution__executionEnd__gte=lower_time_bound))
+            uploaderjobexecution__executionEnd__gte=lower_time_bound) | Q(
+            uploaderjobexecution__status=UploaderJobExecution.RUNNING))
 
         filter_list = map(lambda x: x.fileName, files)
         doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(filter_list)
