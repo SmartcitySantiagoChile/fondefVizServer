@@ -57,6 +57,8 @@
             {% endfor %}
         </div>
     </div>
+
+    {% include "datamanager/modal.html" with show_ok_button=True modal_id="modal" %}
 {% endblock %}
 
 {% block js %}

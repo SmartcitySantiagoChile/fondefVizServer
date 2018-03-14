@@ -69,6 +69,7 @@ $(document).ready(function () {
             var disableDeleteButton = false;
             var disableCancelButton = false;
             var LoadingOrReadyToLoad = false;
+            var disableJobInfoButton = false;
 
             var uploadButtonName = "Cargar datos";
 
@@ -82,6 +83,8 @@ $(document).ready(function () {
                 } else if (data.lastExecution.status === "failed") {
                     uploadButtonName = "<i class='fa fa-warning'></i> " + uploadButtonName;
                 }
+            } else {
+                disableJobInfoButton = true;
             }
 
             if (data.line === data.docNumber || LoadingOrReadyToLoad) {
@@ -97,8 +100,9 @@ $(document).ready(function () {
             var uploadButton = createHTMLButton(uploadButtonName, "info", disableUploadButton);
             var deleteButton = createHTMLButton("Eiminar", "danger", disableDeleteButton);
             var cancelButton = createHTMLButton("Cancelar carga", "warning", disableCancelButton);
+            var jobInfoButton = createHTMLButton("<i class='fa fa-info'></i>", "default", disableJobInfoButton);
 
-            return uploadButton + cancelButton + deleteButton;
+            return jobInfoButton + uploadButton + cancelButton + deleteButton;
         };
 
         this.uploadFile = function (fileName, row) {
@@ -111,6 +115,10 @@ $(document).ready(function () {
                     addColorToRow(data.data, row);
                     var table = row.closest("table").DataTable();
                     table.row(row).data(data.data).invalidate('data');
+
+                    // ask 3 seconds after because there are small file that upload quickly
+                    setTimeout(_self.updateToLatestChanges, 3000);
+                    setTimeout(_self.updateToLatestChanges, 6000);
                 }
             });
         };
@@ -164,16 +172,63 @@ $(document).ready(function () {
 
             var buttons = [{
                 selector: "button.btn-info",
-                message: "Este proceso puede tomar tiempo ¿está seguro de iniciarlo?",
+                modalTitle: function (data) {
+                    return "Cargar archivo " + data.name;
+                },
+                modalBody: function () {
+                    return "Este proceso puede tomar tiempo ¿está seguro de iniciarlo?";
+                },
+                modalId: "modal",
                 action: _self.uploadFile
             }, {
                 selector: "button.btn-danger",
-                message: "¿Está seguro que desea eliminar los datos? esta operación es irreversible.",
+                modalTitle: function (data) {
+                    return "Eliminar datos de archivo " + data.name;
+                },
+                modalBody: function () {
+                    return "¿Está seguro que desea eliminar los datos en la plataforma? esta operación es irreversible.";
+                },
+                modalId: "modal",
                 action: _self.deleteFile
             }, {
                 selector: "button.btn-warning",
-                message: "Está seguro de cancelar la tarea de carga para este archivo?",
+                modalTitle: function (data) {
+                    return "Cancelar carga de archivo " + data.name;
+                },
+                modalBody: function () {
+                    return "Está seguro de cancelar la tarea de carga para este archivo?";
+                },
+                modalId: "modal",
                 action: _self.cancelFile
+            }, {
+                selector: "button.btn-default",
+                modalTitle: function () {
+                    return "Información de última ejecución de carga de datos";
+                },
+                modalBody: function (data) {
+                    var exec = data.lastExecution;
+                    var enqueuedTimestamp = (new Date(exec.enqueueTimestamp)).toLocaleString();
+                    var executionStart = exec.executionStart !== null ? (new Date(exec.executionStart)).toLocaleString() : "";
+                    var executionEnd = exec.executionEnd !== null ? (new Date(exec.executionEnd)).toLocaleString() : "";
+
+                    function htmlRow(id, label, value) {
+                        return "<form class='form-horizontal'><div class='form-group'>" +
+                            "<label class='control-label col-sm-5' for='" + id + "'>" + label + "</label><div class='col-sm-7'>" +
+                            "<p class='form-control-static'>" + value + "</p></div></div></form>";
+                    }
+
+                    var rows = [
+                        htmlRow("11", "Estado:", exec.status),
+                        htmlRow("12", "Envío de tarea:", enqueuedTimestamp),
+                        htmlRow("13", "Inicio de tarea:", executionStart),
+                        htmlRow("14", "Fin de tarea:", executionEnd)
+                    ];
+
+                    return rows.join();
+                },
+                modalId: "modal",
+                action: function () {
+                }
             }];
 
             function activateEventButton(buttonInfo) {
@@ -184,9 +239,18 @@ $(document).ready(function () {
                     var rowInstance = $(this).parents("tr");
                     var data = table.row(rowInstance).data();
 
-                    if (confirm(buttonInfo.message)) {
-                        buttonInfo.action(data.name, rowInstance);
-                    }
+                    var modal = $("#" + buttonInfo.modalId);
+                    modal.off('show.bs.modal');
+                    modal.on('show.bs.modal', function () {
+                        modal.find('.modal-title').html(buttonInfo.modalTitle(data));
+                        modal.find('.modal-body').html(buttonInfo.modalBody(data));
+                        // accept event
+                        modal.off("click", "button.btn-info");
+                        modal.on("click", "button.btn-info", function () {
+                            buttonInfo.action(data.name, rowInstance);
+                        });
+                    });
+                    modal.modal("show");
                 });
             }
 
@@ -195,9 +259,9 @@ $(document).ready(function () {
             });
         };
 
-        this.updateToLatestChanges = function(){
+        this.updateToLatestChanges = function () {
             $.get(Urls["datamanager:latestJobChanges"](), function (data) {
-                data.changes.forEach(function(rowData){
+                data.changes.forEach(function (rowData) {
                     var row = $("td:contains('" + rowData.name + "')").parents("tr");
                     var table = row.closest("table").DataTable();
                     table.row(row).data(rowData).invalidate('data');
@@ -212,8 +276,8 @@ $(document).ready(function () {
         var app = new DataManagerApp();
         app.updateTables();
 
-        setInterval(function(){
+        setInterval(function () {
             app.updateToLatestChanges();
-        }, 1000 * 5);
+        }, 1000 * 60);
     })()
 });
