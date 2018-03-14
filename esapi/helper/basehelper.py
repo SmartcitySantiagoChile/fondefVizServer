@@ -115,7 +115,7 @@ class ElasticSearchHelper(object):
 
     def delete_data_by_file(self, file_name):
 
-        es_query = self.get_base_query()
+        es_query = self.get_base_query()[:0]
         es_query = es_query.filter('term', path=file_name)
 
         return es_query.delete()
