@@ -88,7 +88,7 @@ $(document).ready(function () {
 
             if (data.lastExecution !== null) {
                 if (data.lastExecution.status === "running") {
-                    uploadButtonName = "<i class='fa fa-spinner fa-sync'></i> " + uploadButtonName;
+                    uploadButtonName = "<i class='fa fa-sync fa-pulse'></i> " + uploadButtonName;
                     LoadingOrReadyToLoad = true;
                 } else if (data.lastExecution.status === "enqueued") {
                     uploadButtonName = "<i class='fa fa-spinner fa-pulse'></i> " + uploadButtonName;
