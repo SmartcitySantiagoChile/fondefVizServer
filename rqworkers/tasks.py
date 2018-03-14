@@ -12,7 +12,6 @@ from rqworkers.dataUploader.loadData import upload_file
 from datamanager.models import UploaderJobExecution
 
 import time
-import sys
 
 
 @job('data_uploader')
@@ -29,15 +28,12 @@ def upload_file_job(path_to_file):
     job_execution_obj.status = UploaderJobExecution.RUNNING
     job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
-    try:
-        upload_file(settings.ES_CLIENT, path_to_file)
 
-        job_execution_obj.executionEnd = timezone.now()
-        job_execution_obj.status = UploaderJobExecution.FINISHED
-        job_execution_obj.save()
-    except Exception:
-        exc_type, exc_value, traceback = sys.exc_info()
-        exception_handler(job_instance, exc_type, exc_value, traceback)
+    upload_file(settings.ES_CLIENT, path_to_file)
+
+    job_execution_obj.executionEnd = timezone.now()
+    job_execution_obj.status = UploaderJobExecution.FINISHED
+    job_execution_obj.save()
 
 
 def exception_handler(job_instance, exc_type, exc_value, traceback):

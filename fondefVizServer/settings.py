@@ -184,6 +184,7 @@ RQ_QUEUES = {
 RQ = {
     'DEFAULT_RESULT_TTL': 60 * 60 * 24,
     'JOB_CLASS': 'rqworkers.killClass.KillJob',
+    'QUEUE_CLASS': 'rqworkers.killClass.KillQueue',
 }
 
 # custom handler to failed jobs
