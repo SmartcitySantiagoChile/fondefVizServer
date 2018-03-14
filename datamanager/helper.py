@@ -179,7 +179,7 @@ class FileManager(object):
 
         return file_dict
 
-    def get_document_number_by_file_from_elasticsearch(self, file_name=None):
+    def get_document_number_by_file_from_elasticsearch(self, file_filter=None):
         helpers = [
             ESStopHelper(),
             ESProfileHelper(),
@@ -190,10 +190,14 @@ class FileManager(object):
             ESResumeStatisticHelper()
         ]
 
-        doc_number_by_file = {}
         file_name_list = None
-        if file_name is not None:
-            file_name_list = [file_name]
+        if file_filter is not None:
+            if isinstance(file_filter, str):
+                file_name_list = [file_filter]
+            else:
+                file_name_list = file_filter
+
+        doc_number_by_file = {}
         for helper in helpers:
             files = helper.get_data_by_file(filter=file_name_list).execute().aggregations.files.buckets
             for data_file in files:
