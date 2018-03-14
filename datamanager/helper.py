@@ -192,10 +192,10 @@ class FileManager(object):
 
         file_name_list = None
         if file_filter is not None:
-            if isinstance(file_filter, str):
-                file_name_list = [file_filter]
-            else:
+            if isinstance(file_filter, list):
                 file_name_list = file_filter
+            else:
+                file_name_list = [file_filter]
 
         doc_number_by_file = {}
         for helper in helpers:
