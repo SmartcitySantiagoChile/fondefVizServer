@@ -231,7 +231,7 @@ $(document).ready(function () {
                     }
 
                     var rows = [
-                        htmlRow("11", "Estado:", exec.status),
+                        htmlRow("11", "Estado:", exec.statusName),
                         htmlRow("12", "Envío de tarea:", enqueuedTimestamp),
                         htmlRow("13", "Inicio de tarea:", executionStart),
                         htmlRow("14", "Fin de tarea:", executionEnd)

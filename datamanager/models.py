@@ -99,6 +99,7 @@ class JobExecution(models.Model):
             'executionStart': self.executionStart,
             'executionEnd':self.executionEnd,
             'status': self.status,
+            'statusName': self.get_status_display()
         }
 
     class Meta:
