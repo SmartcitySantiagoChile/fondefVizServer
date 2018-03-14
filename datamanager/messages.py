@@ -58,3 +58,13 @@ class JobCanceledSuccessfully(GenericUserMessage):
         title = 'Carga de datos cancelada'
         message_type = 'success'
         super(JobCanceledSuccessfully, self).__init__(203, message, title, message_type)
+
+
+class DataIsDeleting(GenericUserMessage):
+    """  """
+
+    def __init__(self):
+        message = 'Los registros están siendo eliminados. Esta eliminación puede tomar tiempo, paciencia.'
+        title = 'Datos están siendo eliminados'
+        message_type = 'success'
+        super(DataIsDeleting, self).__init__(204, message, title, message_type)

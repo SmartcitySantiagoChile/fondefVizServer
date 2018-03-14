@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from elasticsearch_dsl import Search, A, MultiSearch
+from elasticsearch.exceptions import ConnectionTimeout
 
 
 class ElasticSearchHelper(object):
@@ -118,4 +119,8 @@ class ElasticSearchHelper(object):
         es_query = self.get_base_query()
         es_query = es_query.filter('term', path=file_name)
 
-        return es_query.delete()
+        try:
+            # if query select a lot of files this call will fail with timeout
+            return es_query.delete()
+        except ConnectionTimeout:
+            return None

@@ -7,7 +7,6 @@ from django.conf import settings
 from django.utils import timezone
 
 from rq import Connection
-from rq.registry import StartedJobRegistry
 from redis import Redis
 
 from collections import defaultdict
@@ -79,7 +78,10 @@ class UploaderManager(object):
 
         result = index_helper.delete_data_by_file(self.file_name)
 
-        return result.total
+        if result is not None:
+            result = result.total
+
+        return result
 
     def cancel_uploading(self):
         with transaction.atomic():
