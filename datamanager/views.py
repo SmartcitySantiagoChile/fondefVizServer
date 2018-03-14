@@ -155,12 +155,12 @@ class LatestJobChanges(View):
         files = LoadFile.objects.filter(Q(uploaderjobexecution__executionStart__gte=lower_time_bound) | Q(
             uploaderjobexecution__executionEnd__gte=lower_time_bound))
 
-        filter_list = map(lambda x: x.name, files)
+        filter_list = map(lambda x: x.fileName, files)
         doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(filter_list)
 
         changes = []
         for data_file in files:
-            file_name = data_file.name
+            file_name = data_file.fileName
             data_file = data_file.get_dictionary()
             data_file['docNumber'] = doc_number_by_file[file_name] if file_name in doc_number_by_file else 0
             changes.append(data_file)
