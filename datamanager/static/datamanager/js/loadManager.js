@@ -142,7 +142,7 @@ $(document).ready(function () {
             };
             $.post(Urls["datamanager:deleteData"](), params, function (data) {
                 showMessage(data.status);
-                if (data.status.code === 202) {
+                if (data.status.code === 202 || data.status.code === 204) {
                     var table = row.closest("table").DataTable();
                     var currentData = table.row(row).data();
                     currentData.docNumber = currentData.docNumber - data.data.deletedDocNumber;
