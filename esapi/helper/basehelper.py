@@ -64,7 +64,7 @@ class ElasticSearchHelper(object):
             kwargs['time_zone'] = time_zone
 
         if es_query is None:
-            es_query = Search()[:0]
+            es_query = self.get_base_query()[:0]
 
         es_query.aggs.bucket("unique", "date_histogram",
                              field=field,
@@ -76,7 +76,7 @@ class ElasticSearchHelper(object):
         """ create query to get unique list of values from field """
 
         if query is None:
-            query = Search()
+            query = self.get_base_query()
 
         query = query[:0]
         aggs = A('terms', field=field, size=size)
