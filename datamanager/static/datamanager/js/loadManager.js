@@ -85,16 +85,19 @@ $(document).ready(function () {
             var disableJobInfoButton = false;
 
             var uploadButtonName = "Cargar datos";
+            var deleteButtonName = "Eliminar";
+            var cancelButtonName = "Cancelar carga";
+            var infoButtonName = "<i class='fa fa-info'></i>";
 
             if (data.lastExecution !== null) {
                 if (data.lastExecution.status === "running") {
-                    uploadButtonName = "<i class='fa fa-refresh fa-pulse'></i> " + uploadButtonName;
+                    infoButtonName = "<i class='fa fa-refresh fa-pulse'></i> " + infoButtonName;
                     LoadingOrReadyToLoad = true;
                 } else if (data.lastExecution.status === "enqueued") {
-                    uploadButtonName = "<i class='fa fa-spinner fa-pulse'></i> " + uploadButtonName;
+                    infoButtonName = "<i class='fa fa-spinner fa-pulse'></i> " + infoButtonName;
                     LoadingOrReadyToLoad = true;
                 } else if (data.lastExecution.status === "failed") {
-                    uploadButtonName = "<i class='fa fa-warning'></i> " + uploadButtonName;
+                    infoButtonName = "<i class='fa fa-warning'></i> " + infoButtonName;
                 }
             } else {
                 disableJobInfoButton = true;
@@ -111,9 +114,9 @@ $(document).ready(function () {
             }
 
             var uploadButton = createHTMLButton(uploadButtonName, "info", disableUploadButton);
-            var deleteButton = createHTMLButton("Eiminar", "danger", disableDeleteButton);
-            var cancelButton = createHTMLButton("Cancelar carga", "warning", disableCancelButton);
-            var jobInfoButton = createHTMLButton("<i class='fa fa-info'></i>", "default", disableJobInfoButton);
+            var deleteButton = createHTMLButton(deleteButtonName, "danger", disableDeleteButton);
+            var cancelButton = createHTMLButton(cancelButtonName, "warning", disableCancelButton);
+            var jobInfoButton = createHTMLButton(infoButtonName, "default", disableJobInfoButton);
 
             return jobInfoButton + uploadButton + cancelButton + deleteButton;
         };
