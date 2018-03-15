@@ -108,16 +108,15 @@ class DeleteData(View):
         response = {}
         try:
             deleted_doc_number = UploaderManager(file_name).delete_data()
-            if deleted_doc_number is None:
-                raise DataIsDeleting()
             response['data'] = {
                 'deletedDocNumber': deleted_doc_number
             }
-            response['status'] = DataDeletedSuccessfully(deleted_doc_number).get_status_response()
+            if deleted_doc_number is None:
+                response['status'] = DataIsDeleting().get_status_response()
+            else:
+                response['status'] = DataDeletedSuccessfully(deleted_doc_number).get_status_response()
         except IndexError:
             response['status'] = BadFormatDocumentError().get_status_response()
-        except DataIsDeleting as e:
-            response['status'] = e.get_status_response()
 
         return JsonResponse(response)
 
