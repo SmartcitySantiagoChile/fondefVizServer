@@ -5,8 +5,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 
 from esapi.helper.profile import ESProfileHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort, \
-    ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryOperatorParameterDoesNotExist
+from esapi.errors import ESQueryResultEmpty, ESQueryStopPatternTooShort, FondefVizError
 
 from localinfo.helper import PermissionBuilder
 
@@ -109,7 +108,7 @@ class LoadProfileByStopData(View):
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -141,7 +140,7 @@ class AvailableRoutes(View):
 
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
-        except ESQueryOperatorParameterDoesNotExist as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
@@ -226,8 +225,7 @@ class LoadProfileByExpeditionData(View):
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except (ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty,
-                ESQueryOperatorParameterDoesNotExist) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
