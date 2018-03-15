@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from datamanager.models import DataSourcePath, UploaderJobExecution, LoadFile
+from datamanager.models import DataSourcePath, UploaderJobExecution, ExporterJobExecution, LoadFile
 
 
 class DataSourceAdmin(admin.ModelAdmin):
@@ -48,6 +48,30 @@ class UploaderJobExecutionAdmin(admin.ModelAdmin):
         return 'jobId', 'type', 'status', 'executionStart', 'executionEnd', 'errorMessage', 'enqueueTimestamp', 'file'
 
 
+class ExporterJobExecutionAdmin(admin.ModelAdmin):
+    """ manager for job execution """
+    fieldsets = (
+        (None, {'fields': ('file', 'query')}),
+        (None, {'fields': ('enqueueTimestamp', 'jobId', 'status')}),
+        (None, {'fields': ('executionStart', 'executionEnd')}),
+        (None, {'fields': ('errorMessage',)}),
+    )
+    list_filter = []
+    list_display = ('jobId', 'file', 'status', 'executionStart', 'executionEnd')
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+    def get_readonly_fields(self, request, obj=None):
+        return 'jobId', 'type', 'status', 'executionStart', 'executionEnd', 'errorMessage', 'enqueueTimestamp', \
+               'file', 'query'
+
+
 admin.site.register(DataSourcePath, DataSourceAdmin)
 admin.site.register(UploaderJobExecution, UploaderJobExecutionAdmin)
+admin.site.register(ExporterJobExecution, ExporterJobExecutionAdmin)
 admin.site.register(LoadFile)
