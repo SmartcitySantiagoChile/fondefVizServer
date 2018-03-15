@@ -237,6 +237,10 @@ $(document).ready(function () {
                         htmlRow("14", "Fin de tarea:", executionEnd)
                     ];
 
+                    if (exec.error !== null) {
+                        rows.push(htmlRow("15", "Error:", exec.error))
+                    }
+
                     return rows.join("");
                 },
                 modalId: "modal",

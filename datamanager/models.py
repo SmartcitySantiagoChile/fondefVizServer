@@ -97,9 +97,10 @@ class JobExecution(models.Model):
             'jobId': self.jobId,
             'enqueueTimestamp': self.enqueueTimestamp,
             'executionStart': self.executionStart,
-            'executionEnd':self.executionEnd,
+            'executionEnd': self.executionEnd,
             'status': self.status,
-            'statusName': self.get_status_display()
+            'statusName': self.get_status_display(),
+            'error': self.errorMessage
         }
 
     class Meta:
