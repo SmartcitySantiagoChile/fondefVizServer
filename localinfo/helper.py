@@ -31,7 +31,7 @@ def get_timeperiod_list_for_select_input():
 
 
 def get_halfhour_list_for_select_input():
-    return _list_parser(HalfHour.objects.values_list('esId', 'name'))
+    return _list_parser(HalfHour.objects.values_list('esId', 'longName'))
 
 
 def get_commune_list_for_select_input():

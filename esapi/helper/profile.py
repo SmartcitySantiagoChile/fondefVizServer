@@ -19,21 +19,6 @@ class ESProfileHelper(ElasticSearchHelper):
         index_name = "profile"
         super(ESProfileHelper, self).__init__(index_name)
 
-    def get_base_params(self):
-        """ get unique list for: timePeriodInStartTime, dayType, expeditionStartTime """
-
-        es_time_period_query = self.get_unique_list_query("timePeriodInStartTime", size=50)
-        es_day_type_query = self.get_unique_list_query("dayType", size=10)
-        es_day_query = self.get_histogram_query("expeditionStartTime", interval="day", date_format="yyy-MM-dd")
-
-        result = {
-            'periods': es_time_period_query,
-            'day_types': es_day_type_query,
-            'days': es_day_query
-        }
-
-        return result
-
     def ask_for_profile_by_stop(self, start_date, end_date, day_type, stop_code, period, half_hour,
                                 valid_operator_list):
         """ return iterator to process load profile by stop """
@@ -59,7 +44,7 @@ class ESProfileHelper(ElasticSearchHelper):
         if period:
             es_query = es_query.filter('terms', timePeriodInStopTime=period)
         if half_hour:
-            es_query = es_query.filter('terms', halfHour=half_hour)
+            es_query = es_query.filter('terms', halfHourInStopTime=half_hour)
 
         es_query = es_query.filter("range", expeditionStartTime={
             "gte": start_date + "||/d",

@@ -81,7 +81,7 @@ class ESODByRouteHelper(ElasticSearchHelper):
         if time_periods:
             es_query = es_query.filter('terms', timePeriodInStopTime=time_periods)
         if day_type:
-            es_query = es_query.filter('term', dayType=day_type)
+            es_query = es_query.filter('terms', dayType=day_type)
         if start_date and end_date:
             es_query = es_query.filter("range", date={
                 "gte": start_date + "||/d",
