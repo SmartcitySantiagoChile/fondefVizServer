@@ -176,15 +176,12 @@ REDIS_CONF = {
 }
 
 RQ_QUEUES = {
-    'default': REDIS_CONF,
     'data_uploader': REDIS_CONF,
     'data_exporter': REDIS_CONF
 }
 
 RQ = {
-    'DEFAULT_RESULT_TTL': 60 * 60 * 24,
-    'JOB_CLASS': 'rqworkers.killClass.KillJob',
-    'QUEUE_CLASS': 'rqworkers.killClass.KillQueue',
+    'DEFAULT_RESULT_TTL': 60 * 60 * 24
 }
 
 # custom handler to failed jobs
