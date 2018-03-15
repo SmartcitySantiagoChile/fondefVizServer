@@ -90,7 +90,7 @@ class JobExecution(models.Model):
     # state of execution
     status = models.CharField('Estado', max_length=10, choices=STATUS_CHOICES)
     # for stack trace
-    errorMessage = models.TextField('Mensaje de error', max_length=500, null=True)
+    errorMessage = models.TextField('Mensaje de error', max_length=500, null=False, default="")
 
     def get_dictionary(self):
         return {

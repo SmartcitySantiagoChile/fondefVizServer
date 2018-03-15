@@ -237,7 +237,7 @@ $(document).ready(function () {
                         htmlRow("14", "Fin de tarea:", executionEnd)
                     ];
 
-                    if (exec.error !== null) {
+                    if (exec.error !== "") {
                         rows.push(htmlRow("15", "Error:", exec.error))
                     }
 
