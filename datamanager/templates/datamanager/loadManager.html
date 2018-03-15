@@ -48,6 +48,7 @@
             {% endfor %}
         </div>
         {% header "Programa de operación" %}
+    {% bubble_message "" "<p>El programa de operación es representado dentro de la plataforma a través de dos archivos:</p><ul><li>Geometría de servicios: ruta física de cada servicio</li><li>Secuencia de paradas: secuencia de paradas de cada servicio</li></ul><p>Estos archivos generan umbrales temporales en los datos, es decir, datos generados con programas de operación distintos se consideran no comparables.</p>" "success" %}
         <div class="row">
             {% for table in operation_program_tables %}
                 <div class="col-md-12 col-sm-12 col-xs-12">
