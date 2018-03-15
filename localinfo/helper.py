@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod
+from django.contrib.auth.models import Group
+from django.conf import settings
+
+from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, GlobalPermission
 
 
 def _list_parser(list):
@@ -35,13 +38,6 @@ def get_commune_list_for_select_input():
     return _list_parser(Commune.objects.values_list('esId', 'name'))
 
 
-from django.contrib.auth.models import Group
-from django.conf import settings
-
-from localinfo.models import GlobalPermission
-from localinfo.models import Operator
-
-
 class PermissionBuilder(object):
 
     def __init__(self):
@@ -67,9 +63,9 @@ class PermissionBuilder(object):
 
         # create permission to see trip section and historical section
         trip_permission, _ = GlobalPermission.objects.get_or_create(codename='travel',
-                                                               defaults={'name': 'viajes'})
+                                                                    defaults={'name': 'viajes'})
         general_permission, _ = GlobalPermission.objects.get_or_create(codename='globalstat',
-                                                               defaults={'name': 'estadísticas generales'})
+                                                                       defaults={'name': 'estadísticas generales'})
         advance_group, _ = Group.objects.get_or_create(name='Sección viajes y estadísticas generales')
         advance_group.permissions.add(trip_permission, general_permission)
 
