@@ -56,7 +56,7 @@ $(document).ready(function () {
 
         var addColorToRow = function (data, row) {
             $(row).removeClass("danger warning success");
-            if (data.line !== data.docNumber) {
+            if (data.lines !== data.docNumber) {
                 $(row).addClass("danger");
             } else {
                 $(row).addClass("success");
