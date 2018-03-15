@@ -5,6 +5,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 
 from esapi.helper.profile import ESProfileHelper
+from esapi.helper.stop import ESStopHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryStopPatternTooShort, FondefVizError
 
 from localinfo.helper import PermissionBuilder
@@ -204,22 +205,25 @@ class LoadProfileByExpeditionData(View):
 
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
-        route = request.GET.get('authRoute')
+        auth_route_code = request.GET.get('authRoute')
         day_type = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
         half_hour = request.GET.getlist('halfHour[]')
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
-        es_helper = ESProfileHelper()
-
         response = {
             'trips': {}
         }
 
         try:
-            result_iterator = es_helper.ask_for_profile_by_expedition(start_date, end_date, day_type, route, period,
-                                                                      half_hour, valid_operator_list).scan()
+            es_stop_helper = ESStopHelper()
+            es_profile_helper = ESProfileHelper()
+
+            es_stop_helper.check_operation_program_between_dates(auth_route_code, start_date, end_date)
+            result_iterator = es_profile_helper.ask_for_profile_by_expedition(start_date, end_date, day_type,
+                                                                              auth_route_code, period,
+                                                                              half_hour, valid_operator_list).scan()
             response['trips'] = self.transform_answer(result_iterator)
             # debug
             # response['query'] = esQuery.to_dict()
