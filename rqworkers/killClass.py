@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rq import Worker
+from rq.worker import Worker
 from rq.job import Job
 from django_rq.queues import DjangoRQ
 
