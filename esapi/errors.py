@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 
-class GenericError(Exception):
+class FondefVizError(Exception):
     """ It raises when something goes wrong with elastic search query """
     DEFAULT_MESSAGE = 'Error al consultar elastic search'
     DEFAULT_TITLE = 'Error'
@@ -30,7 +30,7 @@ class GenericError(Exception):
         return response
 
 
-class ESQueryRouteParameterDoesNotExist(GenericError):
+class ESQueryRouteParameterDoesNotExist(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -38,7 +38,7 @@ class ESQueryRouteParameterDoesNotExist(GenericError):
         super(ESQueryRouteParameterDoesNotExist, self).__init__(401, message)
 
 
-class ESQueryParametersDoesNotExist(GenericError):
+class ESQueryParametersDoesNotExist(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -46,7 +46,7 @@ class ESQueryParametersDoesNotExist(GenericError):
         super(ESQueryParametersDoesNotExist, self).__init__(402, message)
 
 
-class ESQueryDateRangeParametersDoesNotExist(GenericError):
+class ESQueryDateRangeParametersDoesNotExist(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -54,7 +54,7 @@ class ESQueryDateRangeParametersDoesNotExist(GenericError):
         super(ESQueryDateRangeParametersDoesNotExist, self).__init__(402, message)
 
 
-class ESQueryResultEmpty(GenericError):
+class ESQueryResultEmpty(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -64,7 +64,7 @@ class ESQueryResultEmpty(GenericError):
         super(ESQueryResultEmpty, self).__init__(403, message, title, message_type)
 
 
-class ESQueryStopParameterDoesNotExist(GenericError):
+class ESQueryStopParameterDoesNotExist(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -72,7 +72,7 @@ class ESQueryStopParameterDoesNotExist(GenericError):
         super(ESQueryStopParameterDoesNotExist, self).__init__(404, message)
 
 
-class ESQueryStopPatternTooShort(GenericError):
+class ESQueryStopPatternTooShort(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -80,7 +80,7 @@ class ESQueryStopPatternTooShort(GenericError):
         super(ESQueryStopPatternTooShort, self).__init__(405, message)
 
 
-class ESQueryOriginZoneParameterDoesNotExist(GenericError):
+class ESQueryOriginZoneParameterDoesNotExist(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -88,7 +88,7 @@ class ESQueryOriginZoneParameterDoesNotExist(GenericError):
         super(ESQueryOriginZoneParameterDoesNotExist, self).__init__(406, message)
 
 
-class ESQueryExistTwoShapesInTimePeriod(GenericError):
+class ESQueryExistTwoShapesInTimePeriod(FondefVizError):
     """ It raises when user ask for a route shape with a time windows that contains more than one """
 
     def __init__(self):
@@ -96,7 +96,7 @@ class ESQueryExistTwoShapesInTimePeriod(GenericError):
         super(ESQueryExistTwoShapesInTimePeriod, self).__init__(407, message)
 
 
-class ESQueryDestinationZoneParameterDoesNotExist(GenericError):
+class ESQueryDestinationZoneParameterDoesNotExist(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -104,7 +104,7 @@ class ESQueryDestinationZoneParameterDoesNotExist(GenericError):
         super(ESQueryDestinationZoneParameterDoesNotExist, self).__init__(408, message)
 
 
-class ESQueryStagesEmpty(GenericError):
+class ESQueryStagesEmpty(FondefVizError):
     """ It raises when user does not provide stages to filter elastic search query """
 
     def __init__(self):
@@ -114,7 +114,7 @@ class ESQueryStagesEmpty(GenericError):
         super(ESQueryStagesEmpty, self).__init__(409, message, title, message_type)
 
 
-class ESQueryOperatorParameterDoesNotExist(GenericError):
+class ESQueryOperatorParameterDoesNotExist(FondefVizError):
     """ It raises when user does not have permission over operators """
 
     def __init__(self):
@@ -122,7 +122,7 @@ class ESQueryOperatorParameterDoesNotExist(GenericError):
         super(ESQueryOperatorParameterDoesNotExist, self).__init__(410, message)
 
 
-class ESQueryOperationProgramDoesNotExist(GenericError):
+class ESQueryOperationProgramDoesNotExist(FondefVizError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
     def __init__(self, asked_date, available_days):
@@ -134,7 +134,7 @@ class ESQueryOperationProgramDoesNotExist(GenericError):
         super(ESQueryOperationProgramDoesNotExist, self).__init__(411, message)
 
 
-class ESQueryThereIsMoreThanOneOperationProgram(GenericError):
+class ESQueryThereIsMoreThanOneOperationProgram(FondefVizError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
     def __init__(self, start_date, end_date, days_between):

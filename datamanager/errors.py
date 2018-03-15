@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from esapi.errors import GenericError
+from esapi.errors import FondefVizError
 
 
-class FileDoesNotExistError(GenericError):
+class FileDoesNotExistError(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
     def __init__(self):
@@ -12,7 +12,7 @@ class FileDoesNotExistError(GenericError):
         super(FileDoesNotExistError, self).__init__(450, message)
 
 
-class ThereIsPreviousJobUploadingTheFileError(GenericError):
+class ThereIsPreviousJobUploadingTheFileError(FondefVizError):
     """ It raises when user tries to upload a file which is assigned to enqueued job """
 
     def __init__(self):
@@ -22,7 +22,7 @@ class ThereIsPreviousJobUploadingTheFileError(GenericError):
         super(ThereIsPreviousJobUploadingTheFileError, self).__init__(451, message, title, type)
 
 
-class IndexWithDocumentError(GenericError):
+class IndexWithDocumentError(FondefVizError):
     """ It raises when user tries to upload a file which has documents already in the index """
 
     def __init__(self):
@@ -30,7 +30,7 @@ class IndexWithDocumentError(GenericError):
         super(IndexWithDocumentError, self).__init__(452, message)
 
 
-class BadFormatDocumentError(GenericError):
+class BadFormatDocumentError(FondefVizError):
     """ It raises when user send a file without extension """
 
     def __init__(self):
@@ -38,7 +38,7 @@ class BadFormatDocumentError(GenericError):
         super(BadFormatDocumentError, self).__init__(453, message)
 
 
-class ThereIsNotActiveJobError(GenericError):
+class ThereIsNotActiveJobError(FondefVizError):
     """ It raises when user try to cancel a job that does not exist """
 
     def __init__(self):

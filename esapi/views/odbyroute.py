@@ -6,7 +6,7 @@ from django.http import JsonResponse
 
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.stop import ESStopHelper
-from esapi.errors import GenericError
+from esapi.errors import FondefVizError
 
 from localinfo.helper import PermissionBuilder
 
@@ -75,7 +75,7 @@ class ODMatrixData(View):
             # response['query'] = esQuery.to_dict()
             # return JsonResponse(response, safe=False)
             # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
-        except GenericError as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)

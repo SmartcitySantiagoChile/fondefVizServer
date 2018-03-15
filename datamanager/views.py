@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db.models import Q
 
-from esapi.errors import GenericError
+from esapi.errors import FondefVizError
 
 from rqworkers.dataUploader.errors import IndexNotEmptyError
 
@@ -86,7 +86,7 @@ class UploadData(View):
 
             response['data'] = data_file
             response['status'] = JobEnqueued().get_status_response()
-        except GenericError as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
         except IndexNotEmptyError:
             response['status'] = IndexWithDocumentError().get_status_response()
@@ -138,7 +138,7 @@ class CancelData(View):
 
             response['data'] = data_file
             response['status'] = JobCanceledSuccessfully().get_status_response()
-        except GenericError as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
         except NoSuchJobError:
             response['status'] = ThereIsNotActiveJobError().get_status_response()
