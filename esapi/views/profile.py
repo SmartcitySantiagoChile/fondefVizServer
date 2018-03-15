@@ -220,7 +220,7 @@ class LoadProfileByExpeditionData(View):
             es_stop_helper = ESStopHelper()
             es_profile_helper = ESProfileHelper()
 
-            es_stop_helper.check_operation_program_between_dates(auth_route_code, start_date, end_date)
+            es_stop_helper.check_operation_program_between_dates(start_date, end_date)
             result_iterator = es_profile_helper.ask_for_profile_by_expedition(start_date, end_date, day_type,
                                                                               auth_route_code, period,
                                                                               half_hour, valid_operator_list).scan()

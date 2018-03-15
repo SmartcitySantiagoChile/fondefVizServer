@@ -6,8 +6,7 @@ from django.http import JsonResponse
 
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.shape import ESShapeHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, \
-    ESQueryDateRangeParametersDoesNotExist, ESQueryExistTwoShapesInTimePeriod, ESQueryOperatorParameterDoesNotExist
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryOperatorParameterDoesNotExist
 
 from localinfo.helper import PermissionBuilder
 
@@ -104,8 +103,7 @@ class MatrixData(View):
                 'points': route_points,
                 'start_end': list(zip(limits[:-1], limits[1:]))
             }
-        except (ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist,
-                ESQueryExistTwoShapesInTimePeriod, ESQueryOperatorParameterDoesNotExist) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -134,7 +132,7 @@ class RankingData(View):
 
             if len(response['data']) > 1000:
                 response['data'] = response['data'][:1000]
-        except (ESQueryResultEmpty, ESQueryOperatorParameterDoesNotExist) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -287,7 +285,7 @@ class SpeedVariation(View):
             es_helper = ESSpeedHelper()
             es_query = es_helper.ask_for_speed_variation(the_date, day_type, user_route, operator, valid_operator_list)
             response['variations'], response['routes'] = self.transform_data(es_query)
-        except (ESQueryResultEmpty, ESQueryOperatorParameterDoesNotExist) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)

@@ -12,12 +12,16 @@ class ESShapeHelper(ElasticSearchHelper):
         index_name = 'shape'
         super(ESShapeHelper, self).__init__(index_name)
 
-    def check_operation_program_between_dates(self, auth_route_code, start_date, end_date):
+    def check_operation_program_between_dates(self, start_date, end_date):
         """
         Check that there is not exist operation program between start date and end date, and if exists it has to be
         equal to start date
+
+        :param start_date: lower date bound
+        :param end_date: upper date bound
+        :return: None
         """
-        es_query = self.get_base_query().filter('term', route=auth_route_code)
+        es_query = self.get_base_query()
         es_query = es_query.filter('range', startDate={
             'gte': start_date,
             'lte': end_date,
@@ -42,7 +46,7 @@ class ESShapeHelper(ElasticSearchHelper):
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
 
-        self.check_operation_program_between_dates(auth_route_code, start_date, end_date)
+        self.check_operation_program_between_dates(start_date, end_date)
 
         es_query = self.get_base_query()
         es_query = es_query.filter('term', route=auth_route_code)
