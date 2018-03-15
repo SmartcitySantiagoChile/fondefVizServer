@@ -21,23 +21,29 @@ class ESShapeHelper(ElasticSearchHelper):
         :param end_date: upper date bound
         :return: None
         """
-        es_query = self.get_base_query()
-        es_query = es_query.filter('range', startDate={
+        es_query = self.get_base_query().filter('range', startDate={
             'gte': start_date,
             'lte': end_date,
             'format': 'yyyy-MM-dd'
         })
-        es_query = es_query.source(['startDate'])
-        es_query = es_query[:1000]
+        es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
+        dates = [x.key_as_string[:10] for x in es_query.execute().aggregations.unique.buckets]
+        days_quantity = len(dates)
 
-        result = es_query.execute()
-        days = [x['_source']['date'][:10] for x in result.hits.hits]
-
-        if len(days) == 1:
-            if start_date != days[0]:
-                raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, days)
-        elif len(days) > 0:
-            raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, days)
+        if days_quantity == 0:
+            # check if there is operation program previous to start_Date
+            es_query = self.get_base_query().filter('range', startDate={
+                'lt': start_date,
+                'format': 'yyyy-MM-dd'
+            })
+            es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
+            if len(es_query.execute().aggregations.unique.buckets) == 0:
+                raise ESQueryOperationProgramDoesNotExist(start_date, end_date)
+        elif days_quantity == 1:
+            if start_date != dates[0]:
+                raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
+        elif days_quantity > 0:
+            raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
 
     def get_route_shape(self, auth_route_code, start_date, end_date):
 
@@ -46,23 +52,13 @@ class ESShapeHelper(ElasticSearchHelper):
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
 
-        self.check_operation_program_between_dates(start_date, end_date)
-
         es_query = self.get_base_query()
         es_query = es_query.filter('term', route=auth_route_code)
         es_query = es_query.filter('range', startDate={
             'lte': start_date,
             'format': 'yyyy-MM-dd'
-        })
-        es_query = es_query[:1]
-        es_query = es_query.sort('-startDate')
+        }).sort('-startDate')[:1]
 
-        try:
-            point_list = es_query.execute().hits.hits[0]['_source']['points']
-        except IndexError:
-            # get available days
-            es_query = self.get_unique_list_query('startDate', size=1000, query=self.get_base_query())
-            available_days = [x.key_as_string[:10] for x in es_query.execute().aggregations.unique.buckets]
-            raise ESQueryOperationProgramDoesNotExist(start_date, available_days)
+        point_list = es_query.execute().hits.hits[0]['_source']['points']
 
         return point_list

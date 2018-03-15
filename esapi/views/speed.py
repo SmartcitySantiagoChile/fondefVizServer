@@ -126,8 +126,8 @@ class RankingData(View):
         }
 
         try:
-            es_helper = ESSpeedHelper()
-            response['data'] = es_helper.ask_for_ranking_data(start_date, end_date, hour_period_from, hour_period_to,
+            es_speed_helper = ESSpeedHelper()
+            response['data'] = es_speed_helper.ask_for_ranking_data(start_date, end_date, hour_period_from, hour_period_to,
                                                               day_type, valid_operator_list)
 
             if len(response['data']) > 1000:

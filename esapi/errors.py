@@ -2,6 +2,16 @@
 from __future__ import unicode_literals
 
 
+def format_date(date):
+    """
+    transform format string yyyy-MM-dd to dd-MM-yyy
+    :param date: string date with format yyyy-MM-dd
+    :return: string with new format dd-MM-yyyy
+    """
+    year, month, day = date.split('-')
+    return '{0}/{1}/{2}'.format(day, month, year)
+
+
 class FondefVizError(Exception):
     """ It raises when something goes wrong with elastic search query """
     DEFAULT_MESSAGE = 'Error al consultar elastic search'
@@ -125,12 +135,9 @@ class ESQueryOperatorParameterDoesNotExist(FondefVizError):
 class ESQueryOperationProgramDoesNotExist(FondefVizError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
-    def __init__(self, asked_date, available_days):
-        available_days = map(lambda x: '<li>{0}</li>'.format(x), available_days)
-        available_days = reduce(lambda x, y: '{0}{1}'.format(x, y), available_days, '')
-        first_paragraph = 'No existe programa de operación previo a la fecha señalada ({0})<br />'.format(asked_date)
-        second_paragraph = 'Los programas de operación disponible son: <br /><ul>{0}</ul>'.format(available_days)
-        message = '{0}{1}'.format(first_paragraph, second_paragraph)
+    def __init__(self, start_date, end_date):
+        message = 'No existe programa de operación para el período {0} - {1}<br />'.format(format_date(start_date),
+                                                                                           format_date(end_date))
         super(ESQueryOperationProgramDoesNotExist, self).__init__(411, message)
 
 
@@ -138,8 +145,7 @@ class ESQueryThereIsMoreThanOneOperationProgram(FondefVizError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
     def __init__(self, start_date, end_date, days_between):
-        days_between = map(lambda x: '<li>{0}</li>'.format(x), days_between)
-        days_between = reduce(lambda x, y: '{0}{1}'.format(x, y), days_between, '')
+        days_between = "".join(map(lambda x: '<li>{0}</li>'.format(format_date(x)), days_between))
         title = 'Existe más de un programa de operación entre {0} y {1}<br />'.format(
             start_date, end_date)
         first_paragraph = 'Programas de operación presentes en el período consultado: <br /><ul>{0}</ul>'.format(
@@ -147,3 +153,12 @@ class ESQueryThereIsMoreThanOneOperationProgram(FondefVizError):
         second_paragraph = '<b>Consejo:</b><br />Puede existir a lo más un programa de operación en el período de consulta y debe ser igual a la fecha inicial<br />'
         message = '{0}{1}'.format(first_paragraph, second_paragraph)
         super(ESQueryThereIsMoreThanOneOperationProgram, self).__init__(412, message, title=title)
+
+
+class ESQueryOperationProgramError(FondefVizError):
+    """ It raises when user upload one of both files of operation program (shape and stop) """
+
+    def __init__(self):
+        message = 'Existe un programa de operación incompleto. Por favor contáctese con el administrador'
+        title = 'Error en programa de operación'
+        super(ESQueryOperationProgramError, self).__init__(413, message, title)
