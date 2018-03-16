@@ -70,3 +70,19 @@ class TrajectoryHTML(View):
         }
 
         return render(request, template, context)
+
+
+class TransfersView(View):
+
+    def get(self, request):
+        template = "profile/transfers.html"
+
+        context = {
+            'data_filter': {
+                'minutes': get_halfhour_list_for_select_input(),
+                'periods': get_timeperiod_list_for_select_input(),
+                'dayTypes': get_day_type_list_for_select_input()
+            }
+        }
+
+        return render(request, template, context)

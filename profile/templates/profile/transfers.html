@@ -1,5 +1,5 @@
 {% extends 'profile/base.html' %}
-{% load static header panel inline_select columns update_button table label %}
+{% load static header panel inline_select columns update_button table label data_filter %}
 
 {% block title %}Transbordos por parada{% endblock %}
 
@@ -7,38 +7,20 @@
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
     {% header "Transbordos" "por parada"|add:label %}
 
-    {% include "datamanager/availableDays.html" %}
+    {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
+    {% data_filter data_filter True True True False True False True False False False False info_target_id="filterHelp" %}
 
-      {% inline_select "Día:" "dayFilter" days as days_select %}
-      {% columns 2 2 12 days_select as col1 %}
-
-      {% inline_select "Parada de transbordo:" "stopFilter" stopCodes as stop_select %}
-      {% columns 2 2 12 stop_select as col2 %}
-
-      {% inline_select "Tipo de día:" "dayTypeFilter" dayTypes True as dayType_select %}
-      {% columns 2 2 12 dayType_select as col3 %}
-
-      {% inline_select "Período de pasada:" "periodFilter" periods True as period_select %}
-      {% columns 2 2 12 period_select as col4 %}
-
-      {% inline_select "Media hora de pasada:" "minutePeriodFilter" minutes True as half_hour_select %}
-      {% columns 2 2 12 half_hour_select as col5 %}
-
-      {% update_button "btnUpdateChart" "Actualizar datos" as update_button %}
-      {% columns 12 12 12 update_button as col6 %}
-
-      {% panel "fa-filter" "Filtro" col1|add:col2|add:col3|add:col4|add:col5|add:col6 %}
+    <div class="row">
+        {% table "expeditionDetail" 7 False as transfersTable %}
+        {% label "Los servicios o estaciones de metro utilizadas para transbordar no está restringido a los servicios que se detienen en la parada. " "info" as label2 %}
+        {% panel "fa-bar-chart" "Transbordos" label2|add:transfersTable info_target_id="tableHelp" as panel1 %}
+        {% columns 12 12 12 panel1 %}
     </div>
-  </div>
 
-  <div class="row">
-    {% label "Los servicios o estaciones de metro utilizadas para transbordar no está restringido a los servicios que se detienen en la parada. " "info" as label2 %}
-    {% panel "fa-bar-chart" "Transbordos" label2|add:'<br /><div id="barChart" style="height:400px;"></div>' as panel1 %}
-    {% columns 12 12 12 panel1 %}
-  </div>
+    {% include "datamanager/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
+    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "datamanager/modal.html" with modal_id="tableHelp" modal_title="Expediciones" modal_body="esto es una explicación de la tabla" %}
 {% endblock %}
 
 {% block js %}
