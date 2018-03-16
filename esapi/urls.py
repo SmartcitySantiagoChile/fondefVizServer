@@ -10,7 +10,8 @@ from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
-from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData
+from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
+    TransfersData
 
 app_name = 'esapi'
 urlpatterns = [
@@ -47,6 +48,7 @@ urlpatterns = [
     url(r'^trip/strategiesData/$', login_required(StrategiesData.as_view()), name='tripStrategiesData'),
     url(r'^trip/mapData/$', login_required(MapData.as_view()), name='tripMapData'),
     url(r'^trip/availableDays/$', login_required(TAD.as_view()), name='availableTripDays'),
+    url(r'^trip/transfersData/$', login_required(TransfersData.as_view()), name='transfersData'),
 
     # shape index
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),

@@ -6,7 +6,8 @@ from elasticsearch_dsl.query import Q
 
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty, \
-    ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist
+    ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist, \
+    ESQueryStopParameterDoesNotExist
 
 import copy
 
@@ -270,5 +271,32 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', zona_subida=origin_zones)
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
+
+        return es_query
+
+    def ask_for_transfers_data(self, start_date, end_date, auth_stop_code, day_types, periods, half_hours):
+        es_query = self.get_base_query()[:0]
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        if not auth_stop_code:
+            raise ESQueryStopParameterDoesNotExist()
+
+        es_query = es_query.filter('range', tiempo_subida={
+            'gte': start_date + '||/d',
+            'lte': end_date + '||/d',
+            'format': 'yyyy-MM-dd',
+            'time_zone': '+00:00'
+        })
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+        if periods:
+            es_query = es_query.filter('terms', periodo_subida=periods)
+        if half_hours:
+            es_query = es_query.filter('terms', mediahora_subida=half_hours)
+
+        # TODO: hacer la agrupación
 
         return es_query

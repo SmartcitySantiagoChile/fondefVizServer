@@ -255,3 +255,35 @@ class StrategiesData(PermissionRequiredMixin, View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
+
+
+class TransfersData(View):
+
+    def process_data(self, es_query):
+
+        result = es_query.execute()
+
+        return result
+
+    def get(self, request):
+        start_date = request.GET.get('startDate', '')[:10]
+        end_date = request.GET.get('endDate', '')[:10]
+        stop_code = request.GET.get('stopCode', '')
+        day_types = request.GET.getlist('dayType[]', [])
+        periods = request.GET.getlist('period[]', [])
+        half_hours = request.GET.getlist('halfHour[]', [])
+
+        response = {}
+
+        es_helper = ESTripHelper()
+
+        try:
+            auth_stop_code = ''
+            es_query = es_helper.ask_for_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
+                                                        half_hours)
+            response.update(self.process_data(es_query))
+        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
+                ESQueryStagesEmpty) as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
