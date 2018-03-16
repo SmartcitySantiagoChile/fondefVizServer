@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.errors import FondefVizError
+from esapi.utils import check_operation_program
 
 from localinfo.helper import PermissionBuilder
 
@@ -58,6 +59,7 @@ class ODMatrixData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
+            check_operation_program(start_date, end_date)
             es_od_helper = ESODByRouteHelper()
             es_stop_helper = ESStopHelper()
 

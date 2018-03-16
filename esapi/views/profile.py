@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryStopPatternTooShort, FondefVizError
+from esapi.utils import check_operation_program
 
 from localinfo.helper import PermissionBuilder
 
@@ -217,6 +218,7 @@ class LoadProfileByExpeditionData(View):
         }
 
         try:
+            check_operation_program(start_date, end_date)
             es_stop_helper = ESStopHelper()
             es_profile_helper = ESProfileHelper()
 

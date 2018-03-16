@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.shape import ESShapeHelper
-from esapi.errors import FondefVizError, ESQueryOperationProgramError
+from esapi.errors import FondefVizError, ESQueryOperationProgramError, ESQueryDateRangeParametersDoesNotExist
 
 
 def check_operation_program(start_date, end_date):
@@ -14,6 +14,10 @@ def check_operation_program(start_date, end_date):
     :param end_date: upper date bound
     :return: None
     """
+
+    if not start_date or not end_date:
+        raise ESQueryDateRangeParametersDoesNotExist()
+
     operation_program_error_for_stop = False
     operation_program_error_for_shape = False
     error_raised = None
