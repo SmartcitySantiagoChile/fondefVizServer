@@ -39,10 +39,7 @@ class ESStopHelper(ElasticSearchHelper):
             es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
             if len(es_query.execute().aggregations.unique.buckets) == 0:
                 raise ESQueryOperationProgramDoesNotExist(start_date, end_date)
-        elif days_quantity == 1:
-            if start_date != dates[0]:
-                raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
-        elif days_quantity > 0:
+        elif days_quantity > 0 or (days_quantity == 1 and start_date != dates[0]):
             raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
 
     def get_most_recent_operation_program_date(self, asked_date):
