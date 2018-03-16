@@ -63,9 +63,8 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
-        """ ask to elasticsearch for a match values """
-
+    def get_base_query_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
+        """ base query to get raw data """
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -90,6 +89,13 @@ class ESODByRouteHelper(ElasticSearchHelper):
                 "time_zone": "+00:00"
             })
 
+        return es_query
+
+    def ask_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
+        """ ask to elasticsearch for a match values """
+
+        es_query = self.get_base_query_for_od(auth_route_code, time_periods, day_type, start_date, end_date,
+                                              valid_operator_list)
         es_query = es_query[:0]
         es_query = es_query.source([])
 

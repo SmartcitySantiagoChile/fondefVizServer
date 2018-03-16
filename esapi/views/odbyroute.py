@@ -11,6 +11,8 @@ from esapi.utils import check_operation_program
 
 from localinfo.helper import PermissionBuilder
 
+from datamanager.helper import ExporterManager
+
 
 class AvailableDays(View):
 
@@ -51,6 +53,7 @@ class ODMatrixData(View):
         day_type = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
         auth_route_code = request.GET.get('authRoute')
+        export_data = True if request.GET.get('exportData', False) == 'true' else False
 
         response = {
             'data': {}
@@ -63,20 +66,20 @@ class ODMatrixData(View):
             es_od_helper = ESODByRouteHelper()
             es_stop_helper = ESStopHelper()
 
-            matrix, max_value = es_od_helper.ask_for_od(auth_route_code, period, day_type, start_date, end_date,
-                                                        valid_operator_list)
-            stop_list = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)
+            if export_data:
+                es_query = es_od_helper.get_base_query_for_od(auth_route_code, period, day_type, start_date, end_date,
+                                                              valid_operator_list)
+                ExporterManager(es_query).export_data()
+            else:
+                matrix, max_value = es_od_helper.ask_for_od(auth_route_code, period, day_type, start_date, end_date,
+                                                            valid_operator_list)
+                stop_list = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)
 
-            response["data"] = {
-                "matrix": matrix,
-                "maximum": max_value,
-                "stopList": stop_list
-            }
-
-            # debug
-            # response['query'] = esQuery.to_dict()
-            # return JsonResponse(response, safe=False)
-            # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
+                response["data"] = {
+                    "matrix": matrix,
+                    "maximum": max_value,
+                    "stopList": stop_list
+                }
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

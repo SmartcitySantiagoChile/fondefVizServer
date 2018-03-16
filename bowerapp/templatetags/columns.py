@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django import template
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 
 register = template.Library()
 
@@ -15,4 +15,4 @@ def columns(md, sm, xs, body):
         </div>
         """
 
-    return format_html(content, md, sm, xs, body)
+    return format_html(content, md, sm, xs, mark_safe(body))

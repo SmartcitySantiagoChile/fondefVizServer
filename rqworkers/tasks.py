@@ -9,9 +9,11 @@ from rq import get_current_job
 
 from rqworkers.dataUploader.loadData import upload_file
 
-from datamanager.models import UploaderJobExecution
+from datamanager.models import UploaderJobExecution, ExporterJobExecution
 
 import time
+import os
+import csv
 
 
 @job('data_uploader')
@@ -36,13 +38,57 @@ def upload_file_job(path_to_file):
     job_execution_obj.save()
 
 
-def exception_handler(job_instance, exc_type, exc_value, traceback):
-    job_execution_obj = UploaderJobExecution.objects.get(jobId=job_instance.id)
+def upload_exception_handler(job_instance, exc_type, exc_value, traceback):
+    try:
+        job_execution_obj = UploaderJobExecution.objects.get(jobId=job_instance.id)
 
-    job_execution_obj.executionEnd = timezone.now()
-    job_execution_obj.status = UploaderJobExecution.FAILED
-    job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
+        job_execution_obj.executionEnd = timezone.now()
+        job_execution_obj.status = UploaderJobExecution.FAILED
+        job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
+        job_execution_obj.save()
+    except UploaderJobExecution.DoesNotExist:
+        pass
+    # continue with the next handler if exists, for instance: failed queue
+    return True
+
+
+@job('data_exporter')
+def export_data_job(es_query):
+    job_instance = get_current_job()
+    # wait until ExporterJobExecution instance exists
+    while True:
+        try:
+            job_execution_obj = ExporterJobExecution.objects.get(jobId=job_instance.id)
+            break
+        except ExporterJobExecution.DoesNotExist:
+            time.sleep(1)
+
+    job_execution_obj.status = ExporterJobExecution.RUNNING
+    job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
 
-    # not continue with the next handler if exists, for instance: failed queue
-    return False
+    # logic to export data here
+    file_name = "query.csv"
+    with open(os.path.join(settings.BASE_DIR, 'media', 'files', file_name), 'w') as output:
+        writter = csv.writer(output)
+        for doc in es_query.scan():
+            writter.writerow(["hola"])
+
+    job_execution_obj.executionEnd = timezone.now()
+    job_execution_obj.status = ExporterJobExecution.FINISHED
+    job_execution_obj.save()
+
+
+def export_exception_handler(job_instance, exc_type, exc_value, traceback):
+    try:
+        job_execution_obj = ExporterJobExecution.objects.get(jobId=job_instance.id)
+
+        job_execution_obj.executionEnd = timezone.now()
+        job_execution_obj.status = UploaderJobExecution.FAILED
+        job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
+        job_execution_obj.save()
+    except ExporterJobExecution.DoesNotExist:
+        pass
+
+    # continue with the next handler if exists, for instance: failed queue
+    return True

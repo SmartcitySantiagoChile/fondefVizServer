@@ -50,6 +50,7 @@ function FilterManager(opts) {
     var $METRIC_FILTER = $("#metricFilter");
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
+    var $BTN_EXPORT_DATA = $("#btnExportData");
 
     /* LABELS */
 
@@ -105,9 +106,7 @@ function FilterManager(opts) {
     }
 
     /* BUTTON ACTION */
-
-    var _makeAjaxCall = true;
-    $BTN_UPDATE_DATA.click(function () {
+    var getParameters = function () {
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
         var minutes = $MINUTE_PERIOD_FILTER.val();
@@ -177,8 +176,13 @@ function FilterManager(opts) {
             params.metrics = metrics;
         }
 
-        if (_makeAjaxCall) {
-            _makeAjaxCall = false;
+        return params;
+    };
+
+    var _makeAjaxCallForUpdateButton = true;
+    $BTN_UPDATE_DATA.click(function () {
+        if (_makeAjaxCallForUpdateButton) {
+            _makeAjaxCallForUpdateButton = false;
             var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
             var previousMessage = $(this).html();
             var button = $(this).append(loadingIcon);
@@ -188,6 +192,7 @@ function FilterManager(opts) {
                 previousCall();
             }
 
+            var params = getParameters();
             $.getJSON(urlFilterData, params, function (data) {
                 if (data.status) {
                     showMessage(data.status);
@@ -198,7 +203,28 @@ function FilterManager(opts) {
                 // update backup to the last request params sent to server
                 paramsBackup = params;
             }).always(function () {
-                _makeAjaxCall = true;
+                _makeAjaxCallForUpdateButton = true;
+                button.html(previousMessage);
+            });
+        }
+    });
+
+    var _makeAjaxCallForExportButton = true;
+    $BTN_EXPORT_DATA.click(function () {
+        if (_makeAjaxCallForExportButton) {
+            _makeAjaxCallForExportButton = false;
+            var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+            var previousMessage = $(this).html();
+            var button = $(this).append(loadingIcon);
+
+            var params = getParameters();
+            params.exportData = true;
+            $.getJSON(urlFilterData, params, function (data) {
+                if (data.status) {
+                    showMessage(data.status);
+                }
+            }).always(function () {
+                _makeAjaxCallForExportButton = true;
                 button.html(previousMessage);
             });
         }

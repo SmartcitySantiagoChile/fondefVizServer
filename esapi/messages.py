@@ -42,3 +42,13 @@ class SpeedVariationWithLessDaysMessage(GenericUserMessage):
         title = 'Información'
         message_type = 'info'
         super(SpeedVariationWithLessDaysMessage, self).__init__(250, message, title, message_type)
+
+
+class ExporterDataHasBeenEnqueuedMessage(GenericUserMessage):
+    """ message to show that task of exporter data job was enqueued """
+
+    def __init__(self):
+        message = 'Cuando el archivo se encuentre listo le será enviado un correo con un link para su descarga'
+        title = 'Requerimiento encolado'
+        message_type = 'success'
+        super(ExporterDataHasBeenEnqueuedMessage, self).__init__(251, message, title, message_type)

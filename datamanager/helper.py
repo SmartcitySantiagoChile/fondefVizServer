@@ -12,10 +12,11 @@ from redis import Redis
 from collections import defaultdict
 from itertools import groupby
 
-from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, ThereIsNotActiveJobError
-from datamanager.models import UploaderJobExecution, LoadFile, DataSourcePath
+from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, ThereIsNotActiveJobError, \
+    ThereIsPreviousJobExporterDataError
+from datamanager.models import UploaderJobExecution, LoadFile, DataSourcePath, ExporterJobExecution
 
-from rqworkers.tasks import upload_file_job
+from rqworkers.tasks import upload_file_job, export_data_job
 from rqworkers.killClass import KillJob
 
 from esapi.helper.profile import ESProfileHelper
@@ -30,6 +31,25 @@ import io
 import glob
 import os
 import zipfile
+
+
+class ExporterManager(object):
+
+    def __init__(self, es_query):
+        # Search instance
+        self.es_query = es_query
+
+    def export_data(self):
+        with transaction.atomic():
+            # check if exist job associate to file obj
+            if ExporterJobExecution.objects.filter(query=str(self.es_query.to_dict())).filter(
+                    Q(status=ExporterJobExecution.ENQUEUED) | Q(status=ExporterJobExecution.RUNNING)).exists():
+                raise ThereIsPreviousJobExporterDataError()
+
+            job = export_data_job.delay(self.es_query)
+            ExporterJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
+                                                status=ExporterJobExecution.ENQUEUED,
+                                                query=str(self.es_query.to_dict()))
 
 
 class UploaderManager(object):

@@ -46,3 +46,13 @@ class ThereIsNotActiveJobError(FondefVizError):
         title = 'Información'
         message_type = 'info'
         super(ThereIsNotActiveJobError, self).__init__(454, message, title, message_type)
+
+
+class ThereIsPreviousJobExporterDataError(FondefVizError):
+    """ It raises when user tries to export data which was assigned to enqueued job or running job"""
+
+    def __init__(self):
+        message = 'La consulta ya está siendo procesada'
+        title = 'Advertencia'
+        type = 'warning'
+        super(ThereIsPreviousJobExporterDataError, self).__init__(455, message, title, type)
