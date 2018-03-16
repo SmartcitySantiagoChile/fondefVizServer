@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist, ESQueryStopListDoesNotExist
 
 
 class ESStopHelper(ElasticSearchHelper):
@@ -59,6 +59,9 @@ class ESStopHelper(ElasticSearchHelper):
             'format': 'yyyy-MM-dd'
         }).sort('-date')[:1]
 
-        stop_list = es_query.execute().hits.hits[0]['_source']['stops']
+        try:
+            stop_list = es_query.execute().hits.hits[0]['_source']['stops']
+        except IndexError:
+            raise ESQueryStopListDoesNotExist()
 
         return stop_list

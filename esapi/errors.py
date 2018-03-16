@@ -98,14 +98,6 @@ class ESQueryOriginZoneParameterDoesNotExist(FondefVizError):
         super(ESQueryOriginZoneParameterDoesNotExist, self).__init__(406, message)
 
 
-class ESQueryExistTwoShapesInTimePeriod(FondefVizError):
-    """ It raises when user ask for a route shape with a time windows that contains more than one """
-
-    def __init__(self):
-        message = 'El período indicado contiene más de una ruta.'
-        super(ESQueryExistTwoShapesInTimePeriod, self).__init__(407, message)
-
-
 class ESQueryDestinationZoneParameterDoesNotExist(FondefVizError):
     """ It raises when user does not provide params to elastic search query """
 
@@ -162,3 +154,19 @@ class ESQueryOperationProgramError(FondefVizError):
         message = 'Existe un programa de operación incompleto. Por favor contáctese con el administrador'
         title = 'Error en programa de operación'
         super(ESQueryOperationProgramError, self).__init__(413, message, title)
+
+
+class ESQueryStopListDoesNotExist(FondefVizError):
+    """ It raises when user ask for stop list related to one route but this one does not exist """
+
+    def __init__(self):
+        message = 'No existe secuencia de paradas para el servicio'
+        super(ESQueryStopListDoesNotExist, self).__init__(414, message)
+
+
+class ESQueryShapeDoesNotExist(FondefVizError):
+    """ It raises when user ask for route shape but this one does not exist """
+
+    def __init__(self):
+        message = 'No existe la geometría para el servicio'
+        super(ESQueryShapeDoesNotExist, self).__init__(414, message)

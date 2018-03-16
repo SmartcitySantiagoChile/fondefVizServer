@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryRouteParameterDoesNotExist, \
-    ESQueryDateRangeParametersDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram
+    ESQueryDateRangeParametersDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram, ESQueryShapeDoesNotExist
 
 
 class ESShapeHelper(ElasticSearchHelper):
@@ -59,6 +59,9 @@ class ESShapeHelper(ElasticSearchHelper):
             'format': 'yyyy-MM-dd'
         }).sort('-startDate')[:1]
 
-        point_list = es_query.execute().hits.hits[0]['_source']['points']
+        try:
+            point_list = es_query.execute().hits.hits[0]['_source']['points']
+        except IndexError:
+            raise ESQueryShapeDoesNotExist()
 
         return point_list
