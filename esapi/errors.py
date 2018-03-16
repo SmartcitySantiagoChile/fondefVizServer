@@ -144,7 +144,7 @@ class ESQueryThereIsMoreThanOneOperationProgram(FondefVizError):
         title = 'Existe más de un programa de operación entre {0} y {1}<br />'.format(
             format_date(start_date), format_date(end_date))
         first_paragraph = 'Programas de operación presentes en el período consultado: <br /><ul>{0}</ul>'.format(
-            format_date(days_between))
+            days_between)
         second_paragraph = '<b>Consejo:</b><br />Puede existir a lo más un programa de operación en el período de consulta y debe ser igual a la fecha inicial<br />'
         message = '{0}{1}'.format(first_paragraph, second_paragraph)
         super(ESQueryThereIsMoreThanOneOperationProgram, self).__init__(412, message, title=title)
