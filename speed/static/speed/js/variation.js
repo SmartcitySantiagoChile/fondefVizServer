@@ -169,7 +169,7 @@ $(document).ready(function () {
     function processData(dataSource, app) {
         console.log(dataSource);
 
-        if (dataSource.status) {
+        if (dataSource.status && dataSource.status.code !== 250) {
             return;
         }
 

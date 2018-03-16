@@ -127,9 +127,12 @@ class ESQueryOperatorParameterDoesNotExist(FondefVizError):
 class ESQueryOperationProgramDoesNotExist(FondefVizError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
-    def __init__(self, start_date, end_date):
-        message = 'No existe programa de operación para el período {0} - {1}<br />'.format(format_date(start_date),
-                                                                                           format_date(end_date))
+    def __init__(self, start_date, end_date=None):
+        if end_date is not None:
+            msg = 'el período {0} - {1}'.format(format_date(start_date), format_date(end_date))
+        else:
+            msg = 'el día {0}'.format(format_date(start_date))
+        message = 'No existe programa de operación para {0}'.format(msg)
         super(ESQueryOperationProgramDoesNotExist, self).__init__(411, message)
 
 

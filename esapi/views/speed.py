@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryOperatorParameterDoesNotExist
+from esapi.messages import SpeedVariationWithLessDaysMessage
+from esapi.utils import check_operation_program
 
 from localinfo.helper import PermissionBuilder
 
@@ -76,6 +78,7 @@ class MatrixData(View):
         }
 
         try:
+            check_operation_program(start_date, end_date)
             shape = self.es_shape_helper.get_route_shape(auth_route, start_date, end_date)
             route_points = [[s['latitude'], s['longitude']] for s in shape]
             limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
@@ -126,9 +129,11 @@ class RankingData(View):
         }
 
         try:
+            check_operation_program(start_date, end_date)
             es_speed_helper = ESSpeedHelper()
-            response['data'] = es_speed_helper.ask_for_ranking_data(start_date, end_date, hour_period_from, hour_period_to,
-                                                              day_type, valid_operator_list)
+            response['data'] = es_speed_helper.ask_for_ranking_data(start_date, end_date, hour_period_from,
+                                                                    hour_period_to,
+                                                                    day_type, valid_operator_list)
 
             if len(response['data']) > 1000:
                 response['data'] = response['data'][:1000]
@@ -177,6 +182,8 @@ class SpeedByRoute(View):
         }
 
         try:
+            check_operation_program(start_date, end_date)
+
             es_helper = ESShapeHelper()
             shape = es_helper.get_route_shape(route, start_date, end_date)
             route_points = [[s['latitude'], s['longitude']] for s in shape]
@@ -269,8 +276,9 @@ class SpeedVariation(View):
         return data, l_routes
 
     def get(self, request):
-        _date = request.GET.get('startDate', '')[:10]
-        the_date = datetime.datetime.strptime(_date, '%Y-%m-%d')
+        end_date = request.GET.get('startDate', '')[:10]
+        # startDate is the variable name that represents the date we need to calculate speed variation with respect to
+        # previous days, that it's why we called end_date
         operator = int(request.GET.get('operator', 0))
         user_route = request.GET.get('userRoute', '')
         day_type = request.GET.getlist('dayType[]', '')
@@ -282,8 +290,23 @@ class SpeedVariation(View):
             'routes': []
         }
         try:
+            date_format = "%Y-%m-%d"
+
+            most_recent_op_program_date = ESShapeHelper().get_most_recent_operation_program_date(end_date)
+            most_recent_op_program_date_obj = datetime.datetime.strptime(most_recent_op_program_date, date_format)
+
+            end_date_obj = datetime.datetime.strptime(end_date, date_format)
+            days = 31
+            if (end_date_obj - most_recent_op_program_date_obj).days < days:
+                days = most_recent_op_program_date
+                response['status'] = SpeedVariationWithLessDaysMessage(days, most_recent_op_program_date)
+
+            start_date = (end_date_obj - datetime.timedelta(days=days)).strftime(date_format)
+            check_operation_program(start_date, end_date)
+
             es_helper = ESSpeedHelper()
-            es_query = es_helper.ask_for_speed_variation(the_date, day_type, user_route, operator, valid_operator_list)
+            es_query = es_helper.ask_for_speed_variation(start_date, end_date, day_type, user_route, operator,
+                                                         valid_operator_list)
             response['variations'], response['routes'] = self.transform_data(es_query)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
