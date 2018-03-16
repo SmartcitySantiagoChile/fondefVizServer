@@ -72,7 +72,7 @@ class ESStopHelper(ElasticSearchHelper):
         es_query = es_query.filter('range', startDate={
             'lte': start_date,
             'format': 'yyyy-MM-dd'
-        }).sort('-date')[:1]
+        }).sort('-startDate')[:1]
 
         try:
             stop_list = es_query.execute().hits.hits[0]['_source']['stops']
