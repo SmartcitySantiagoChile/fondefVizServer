@@ -11,8 +11,15 @@ def _list_parser(list):
     return [{'value': x[0], 'item': x[1]} for x in list]
 
 
-def get_day_type_list_for_select_input():
-    return _list_parser(DayType.objects.values_list('esId', 'name'))
+def _dict_parser(list):
+    return {x[0]: x[1] for x in list}
+
+
+def get_day_type_list_for_select_input(to_dict=False):
+    parser = _list_parser
+    if to_dict:
+        parser = _dict_parser
+    return parser(DayType.objects.values_list('esId', 'name'))
 
 
 def get_operator_list_for_select_input(filter=None):
@@ -26,16 +33,25 @@ def get_operator_list_for_select_input(filter=None):
     return _list_parser(queryset)
 
 
-def get_timeperiod_list_for_select_input():
-    return _list_parser(TimePeriod.objects.values_list('esId', 'authorityPeriodName'))
+def get_timeperiod_list_for_select_input(to_dict=False):
+    parser = _list_parser
+    if to_dict:
+        parser = _dict_parser
+    return parser(TimePeriod.objects.values_list('esId', 'authorityPeriodName'))
 
 
-def get_halfhour_list_for_select_input():
-    return _list_parser(HalfHour.objects.values_list('esId', 'longName'))
+def get_halfhour_list_for_select_input(to_dict=False):
+    parser = _list_parser
+    if to_dict:
+        parser = _dict_parser
+    return parser(HalfHour.objects.values_list('esId', 'longName'))
 
 
-def get_commune_list_for_select_input():
-    return _list_parser(Commune.objects.values_list('esId', 'name'))
+def get_commune_list_for_select_input(to_dict=False):
+    parser = _list_parser
+    if to_dict:
+        parser = _dict_parser
+    return parser(Commune.objects.values_list('esId', 'name'))
 
 
 class PermissionBuilder(object):
