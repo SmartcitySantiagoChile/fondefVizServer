@@ -127,8 +127,11 @@ class ESSpeedHelper(ElasticSearchHelper):
 
     def ask_for_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type,
                              valid_operator_list):
-        data = []
 
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        data = []
         # chunks of routes to make queries
         chunks_number = 6
         routes = self.get_route_list(valid_operator_list)
@@ -217,15 +220,22 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_speed_variation(self, asked_date, day_type, user_route, operator, valid_operator_list):
+    def ask_for_speed_variation(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
+        """
+        it calculates speed variation for end_date taking account the speed calculated from start_date to end_date - 1
 
-        date_format = "%Y-%m-%d"
-        asked_date_str = asked_date.strftime(date_format)
+        :param end_date:
+        :param day_type:
+        :param user_route:
+        :param operator:
+        :param valid_operator_list:
+        :return:
+        """
         es_helper = ESSpeedHelper()
         es_query = es_helper.get_base_query()
         es_query = es_query.filter('range', date={
-            "gte": (asked_date - datetime.timedelta(days=31)).strftime(date_format),
-            "lte": asked_date_str,
+            "gte": start_date,
+            "lte": end_date,
             "format": "yyyy-MM-dd"
         })
         if valid_operator_list and operator in valid_operator_list:
@@ -243,8 +253,8 @@ class ESSpeedHelper(ElasticSearchHelper):
         aggs0 = A('terms', field='route', size=2000)
         aggs1 = A('terms', field='periodId', size=50)
         aggs2 = A('range', field='date', format='yyyy-MM-dd', ranges=[
-            {'to': asked_date_str},
-            {'from': asked_date_str}
+            {'to': end_date},
+            {'from': end_date}
         ])
 
         aggs2.metric('distance', 'sum', field='totalDistance')
