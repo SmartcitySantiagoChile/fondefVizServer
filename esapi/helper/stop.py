@@ -37,13 +37,31 @@ class ESStopHelper(ElasticSearchHelper):
                 'format': 'yyyy-MM-dd'
             })
             es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
-            if len(es_query.execute().aggregations.dates.buckets) == 0:
+            if len(es_query.execute().aggregations.unique.buckets) == 0:
                 raise ESQueryOperationProgramDoesNotExist(start_date, end_date)
         elif days_quantity == 1:
             if start_date != dates[0]:
                 raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
         elif days_quantity > 0:
             raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
+
+    def get_most_recent_operation_program_date(self, asked_date):
+        """
+        :param asked_date: date with format yyyy-MM-dd
+        :return: date with most recen operation program:
+        """
+
+        # check if there is operation program previous to start_Date
+        es_query = self.get_base_query().filter('range', startDate={
+            'lte': asked_date,
+            'format': 'yyyy-MM-dd'
+        })
+        es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
+        dates = es_query.execute().aggregations.unique.buckets
+        if len(dates) == 0:
+            raise ESQueryOperationProgramDoesNotExist(asked_date)
+
+        return dates[0]
 
     def get_stop_list(self, auth_route_code, start_date, end_date):
         """ ask to elasticsearch for a match values """

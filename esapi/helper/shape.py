@@ -45,6 +45,24 @@ class ESShapeHelper(ElasticSearchHelper):
         elif days_quantity > 0:
             raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
 
+    def get_most_recent_operation_program_date(self, asked_date):
+        """
+        :param asked_date: date with format yyyy-MM-dd
+        :return: date with most recen operation program:
+        """
+
+        # check if there is operation program previous to start_Date
+        es_query = self.get_base_query().filter('range', startDate={
+            'lte': asked_date,
+            'format': 'yyyy-MM-dd'
+        })
+        es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
+        dates = es_query.execute().aggregations.unique.buckets
+        if len(dates) == 0:
+            raise ESQueryOperationProgramDoesNotExist(asked_date)
+
+        return dates[0]
+
     def get_route_shape(self, auth_route_code, start_date, end_date):
 
         if not auth_route_code:
