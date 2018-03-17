@@ -9,7 +9,9 @@ from esapi.helper.stop import ESStopHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryStopPatternTooShort, FondefVizError
 from esapi.utils import check_operation_program
 
-from localinfo.helper import PermissionBuilder
+from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
+
+from collections import defaultdict
 
 
 class MatchedStopData(View):
@@ -54,6 +56,9 @@ class LoadProfileByStopData(View):
         info = {}
         trips = {}
 
+        day_type_dict = get_day_type_list_for_select_input(to_dict=True)
+        time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
+
         for hit in result_iterator:
             data = hit.to_dict()
 
@@ -63,21 +68,21 @@ class LoadProfileByStopData(View):
                 info['name'] = data['userStopName']
                 info['busStation'] = data['busStation'] == "1"
 
-            expedition_id = data['expeditionDayId']
+            expedition_id = '{0}-{1}'.format(data['path'], data['expeditionDayId'])
 
-            trips[expedition_id] = {}
-            trips[expedition_id]['capacity'] = int(data['busCapacity'])
-            trips[expedition_id]['licensePlate'] = data['licensePlate']
-            trips[expedition_id]['route'] = data['route']
-            trips[expedition_id]['stopTime'] = "" if data['expeditionStopTime'] == "0" else data['expeditionStopTime']
-            trips[expedition_id]['stopTimePeriod'] = data['timePeriodInStopTime']
-            trips[expedition_id]['dayType'] = data['dayType']
-            trips[expedition_id]['distOnPath'] = data['stopDistanceFromPathStart']
-
-            # to avoid movement of distribution chart
-            trips[expedition_id]['loadProfile'] = self.clean_data(data['loadProfile'])
-            trips[expedition_id]['expandedGetIn'] = self.clean_data(data['expandedBoarding'])
-            trips[expedition_id]['expandedLanding'] = self.clean_data(data['expandedAlighting'])
+            trips[expedition_id] = {
+                'capacity': data['busCapacity'],
+                'licensePlate': data['licensePlate'],
+                'route': data['route'],
+                'stopTime': "" if data['expeditionStopTime'] == "0" else data['expeditionStopTime'],
+                'stopTimePeriod': time_period_dict[data['timePeriodInStopTime']],
+                'dayType': day_type_dict[data['dayType']],
+                'distOnPath': data['stopDistanceFromPathStart'],
+                # to avoid movement of distribution chart
+                'loadProfile': self.clean_data(data['loadProfile']),
+                'expandedGetIn': self.clean_data(data['expandedBoarding']),
+                'expandedLanding': self.clean_data(data['expandedAlighting'])
+            }
 
         if len(info.keys()) == 0:
             raise ESQueryResultEmpty()
@@ -149,44 +154,43 @@ class LoadProfileByExpeditionData(View):
     def clean_data(self, data):
         """ round to zero values between [-1, 0]"""
         value = float(data)
-        return 0 if (-1 < value and value < 0) else value
+        return 0 if (-1 < value < 0) else value
 
     def transform_answer(self, result_iterator):
         """ transform ES answer to something util to web client """
-        trips = {}
+        trips = defaultdict(lambda: {'info': {}, 'stops': []})
+
+        day_type_dict = get_day_type_list_for_select_input(to_dict=True)
+        time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
 
         for hit in result_iterator:
             data = hit.to_dict()
+            expedition_id = '{0}-{1}'.format(data['path'], data['expeditionDayId'])
 
-            expedition_id = data['expeditionDayId']
-            if expedition_id not in trips:
-                trips[expedition_id] = {'info': {}, 'stops': []}
+            trips[expedition_id]['info'] = {
+                'capacity': data['busCapacity'],
+                'licensePlate': data['licensePlate'],
+                'route': data['route'],
+                'authTimePeriod': time_period_dict[data['timePeriodInStartTime']],
+                'timeTripInit': data['expeditionStartTime'].replace('T', ' ').replace('.000Z', ''),
+                'timeTripEnd': data['expeditionEndTime'].replace('T', ' ').replace('.000Z', ''),
+                'dayType': day_type_dict[data['dayType']]
+            }
 
-            trips[expedition_id]['info']['capacity'] = int(data['busCapacity'])
-            trips[expedition_id]['info']['licensePlate'] = data['licensePlate']
-            trips[expedition_id]['info']['route'] = data['route']
-            trips[expedition_id]['info']['authTimePeriod'] = data['timePeriodInStartTime']
-            trips[expedition_id]['info']['timeTripInit'] = data['expeditionStartTime'].replace('T', ' ').replace(
-                '.000Z',
-                '')
-            trips[expedition_id]['info']['timeTripEnd'] = data['expeditionEndTime'].replace('T', ' ').replace('.000Z',
-                                                                                                              '')
-            trips[expedition_id]['info']['dayType'] = data['dayType']
-
-            stop = {}
-            stop['name'] = data['userStopName']
-            stop['authStopCode'] = data['authStopCode']
-            stop['userStopCode'] = data['userStopCode']
-            stop['busStation'] = data['busStation'] == "1"
-            stop['authTimePeriod'] = data['timePeriodInStopTime']
-            stop['distOnPath'] = int(data['stopDistanceFromPathStart'])
-            stop['stopTime'] = "" if data['expeditionStopTime'] == "0" else data['expeditionStopTime']
-            stop['order'] = int(data['expeditionStopOrder'])
-
-            # to avoid movement of distribution chart
-            stop['loadProfile'] = self.clean_data(data['loadProfile'])
-            stop['expandedGetIn'] = self.clean_data(data['expandedBoarding'])
-            stop['expandedGetOut'] = self.clean_data(data['expandedAlighting'])
+            stop = {
+                'order': data['expeditionStopOrder'],
+                'name': data['userStopName'],
+                'authStopCode': data['authStopCode'],
+                'userStopCode': data['userStopCode'],
+                'busStation': data['busStation'] == "1",
+                'authTimePeriod': time_period_dict[data['timePeriodInStopTime']],
+                'distOnPath': data['stopDistanceFromPathStart'],
+                'stopTime': "" if data['expeditionStopTime'] == "0" else data['expeditionStopTime'],
+                # to avoid movement of distribution chart
+                'loadProfile': self.clean_data(data['loadProfile']),
+                'expandedGetIn': self.clean_data(data['expandedBoarding']),
+                'expandedGetOut': self.clean_data(data['expandedAlighting']),
+            }
             trips[expedition_id]['stops'].append(stop)
 
         for expedition_id in trips:
