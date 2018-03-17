@@ -2,15 +2,13 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from elasticsearch_dsl import A, Search
+from elasticsearch_dsl import A
 
 from localinfo.helper import get_operator_list_for_select_input
 
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryOperatorParameterDoesNotExist
-
-import datetime
 
 
 class ESSpeedHelper(ElasticSearchHelper):
@@ -224,6 +222,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         """
         it calculates speed variation for end_date taking account the speed calculated from start_date to end_date - 1
 
+        :param start_date:
         :param end_date:
         :param day_type:
         :param user_route:
@@ -265,5 +264,5 @@ class ESSpeedHelper(ElasticSearchHelper):
                      buckets_path={'d': 'distance', 't': 'time'})
         es_query.aggs.bucket('routes', aggs0).bucket('periods', aggs1).bucket('days', aggs2)
 
-        # print(str(esQuery.to_dict()).replace('\'', '"'))
+        # print(str(esQuery.to_dict()).replace('u\'', '"').replace('\'', '"'))
         return es_query
