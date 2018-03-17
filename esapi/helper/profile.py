@@ -57,7 +57,7 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
                                     'stopDistanceFromPathStart', 'expeditionStartTime',
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                    'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation'])
+                                    'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path'])
 
         return es_query
 
@@ -154,6 +154,6 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'expeditionDayId', 'userStopName', 'expandedAlighting', 'expandedBoarding',
                                     'expeditionStopOrder', 'stopDistanceFromPathStart', 'expeditionStartTime',
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                    'dayType', 'timePeriodInStopTime', 'fulfillment', "busStation"])
+                                    'dayType', 'timePeriodInStopTime', 'fulfillment', 'busStation', 'path'])
 
         return es_query
