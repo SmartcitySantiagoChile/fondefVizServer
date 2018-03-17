@@ -47,7 +47,7 @@ class LoadProfileByStopData(View):
     def clean_data(self, data):
         """ round to zero values between [-1, 0]"""
         value = float(data)
-        return 0 if (-1 < value and value < 0) else value
+        return 0 if (-1 < value < 0) else value
 
     def transform_es_answer(self, result_iterator):
         """ transform ES answer to something util to web client """
@@ -106,10 +106,6 @@ class LoadProfileByStopData(View):
             result_iterator = es_helper.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period,
                                                                 half_hour, valid_operator_list).scan()
             response = self.transform_es_answer(result_iterator)
-            # debug
-            # response['query'] = esQuery.to_dict()
-            # return JsonResponse(response, safe=False)
-            # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -227,10 +223,6 @@ class LoadProfileByExpeditionData(View):
                                                                               auth_route_code, period,
                                                                               half_hour, valid_operator_list).scan()
             response['trips'] = self.transform_answer(result_iterator)
-            # debug
-            # response['query'] = esQuery.to_dict()
-            # return JsonResponse(response, safe=False)
-            # response['state'] = {'success': answer.success(), 'took': answer.took, 'total': answer.hits.total}
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
