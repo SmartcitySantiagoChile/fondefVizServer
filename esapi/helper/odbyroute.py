@@ -17,21 +17,6 @@ class ESODByRouteHelper(ElasticSearchHelper):
         index_name = "odbyroute"
         super(ESODByRouteHelper, self).__init__(index_name)
 
-    def get_base_params(self):
-        """ get unique list for: timePeriodInStartTime, dayType, expeditionStartTime """
-
-        es_time_period_query = self.get_unique_list_query("timePeriodInStopTime", size=50)
-        es_date_query = self.get_histogram_query("date", interval="day", date_format="yyy-MM-dd")
-        es_route_query = self.get_unique_list_query("authRouteCode", size=10000)
-
-        result = {
-            'periods': es_time_period_query,
-            'days': es_date_query,
-            'routes': es_route_query
-        }
-
-        return result
-
     def ask_for_available_days(self, valid_operator_list):
         return self.get_available_days('date', valid_operator_list)
 
