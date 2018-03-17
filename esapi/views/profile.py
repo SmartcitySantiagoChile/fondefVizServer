@@ -8,8 +8,11 @@ from esapi.helper.profile import ESProfileHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryStopPatternTooShort, FondefVizError
 from esapi.utils import check_operation_program
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
 from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
+
+from datamanager.helper import ExporterManager
 
 from collections import defaultdict
 
@@ -51,7 +54,7 @@ class LoadProfileByStopData(View):
         value = float(data)
         return 0 if (-1 < value < 0) else value
 
-    def transform_es_answer(self, result_iterator):
+    def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
         info = {}
         trips = {}
@@ -59,7 +62,7 @@ class LoadProfileByStopData(View):
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
 
-        for hit in result_iterator:
+        for hit in es_query.scan():
             data = hit.to_dict()
 
             if len(info.keys()) == 0:
@@ -104,13 +107,21 @@ class LoadProfileByStopData(View):
         stop_code = request.GET.get('stopCode', '')
         period = request.GET.getlist('period[]', [])
         half_hour = request.GET.getlist('halfHour[]', [])
+        export_data = True if request.GET.get('exportData', False) == 'true' else False
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+
         try:
+            check_operation_program(start_date, end_date)
             es_helper = ESProfileHelper()
-            result_iterator = es_helper.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period,
-                                                                half_hour, valid_operator_list).scan()
-            response = self.transform_es_answer(result_iterator)
+
+            es_query = es_helper.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period, half_hour,
+                                                         valid_operator_list).scan()
+            if export_data:
+                ExporterManager(es_query).export_data()
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                response = self.transform_es_answer(es_query)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -156,14 +167,14 @@ class LoadProfileByExpeditionData(View):
         value = float(data)
         return 0 if (-1 < value < 0) else value
 
-    def transform_answer(self, result_iterator):
+    def transform_answer(self, es_query):
         """ transform ES answer to something util to web client """
         trips = defaultdict(lambda: {'info': {}, 'stops': []})
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
 
-        for hit in result_iterator:
+        for hit in es_query.scan():
             data = hit.to_dict()
             expedition_id = '{0}-{1}'.format(data['path'], data['expeditionDayId'])
 
@@ -210,6 +221,7 @@ class LoadProfileByExpeditionData(View):
         day_type = request.GET.getlist('dayType[]')
         period = request.GET.getlist('period[]')
         half_hour = request.GET.getlist('halfHour[]')
+        export_data = True if request.GET.get('exportData', False) == 'true' else False
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
@@ -222,11 +234,14 @@ class LoadProfileByExpeditionData(View):
             es_stop_helper = ESStopHelper()
             es_profile_helper = ESProfileHelper()
 
-            es_stop_helper.check_operation_program_between_dates(start_date, end_date)
-            result_iterator = es_profile_helper.ask_for_profile_by_expedition(start_date, end_date, day_type,
-                                                                              auth_route_code, period,
-                                                                              half_hour, valid_operator_list).scan()
-            response['trips'] = self.transform_answer(result_iterator)
+            es_query = es_profile_helper.ask_for_profile_by_expedition(start_date, end_date, day_type, auth_route_code,
+                                                                       period, half_hour, valid_operator_list)
+            if export_data:
+                ExporterManager(es_query).export_data()
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                response['trips'] = self.transform_answer(es_query)
+                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
