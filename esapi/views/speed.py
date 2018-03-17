@@ -58,12 +58,6 @@ class AvailableRoutes(View):
 
 class MatrixData(View):
 
-    def __init__(self):
-        super(MatrixData, self).__init__()
-        self.context = {}
-        self.es_shape_helper = ESShapeHelper()
-        self.es_speed_helper = ESSpeedHelper()
-
     def get(self, request):
         start_date = request.GET.get('startDate', '')[:10]
         end_date = request.GET.get('endDate', '')[:10]
@@ -79,18 +73,20 @@ class MatrixData(View):
 
         try:
             check_operation_program(start_date, end_date)
-            shape = self.es_shape_helper.get_route_shape(auth_route, start_date, end_date)
+            es_shape_helper = ESShapeHelper()
+            es_speed_helper = ESSpeedHelper()
+
+            shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)
             route_points = [[s['latitude'], s['longitude']] for s in shape]
             limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
 
             max_section = len(limits) - 1
             response['segments'] = list(range(max_section + 1))
 
-            d_data = self.es_speed_helper.ask_for_speed_data(auth_route, day_type, start_date, end_date,
-                                                             valid_operator_list)
+            d_data = es_speed_helper.ask_for_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
 
             for hour in range(len(hours)):
-                segmented_route_by_hour = []
+                route_segment_by_hour = []
                 for section in response['segments']:
                     speed, n_obs = d_data.get((section, hour), (-1, 0))
                     interval = 7
@@ -98,8 +94,8 @@ class MatrixData(View):
                         if speed < bound:
                             interval = i
                             break
-                    segmented_route_by_hour.append([interval, speed, n_obs])
-                response['matrix'].append(segmented_route_by_hour)
+                    route_segment_by_hour.append([interval, speed, n_obs])
+                response['matrix'].append(route_segment_by_hour)
 
             response['route'] = {
                 'name': auth_route,
