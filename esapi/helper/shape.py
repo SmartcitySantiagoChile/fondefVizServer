@@ -81,5 +81,13 @@ class ESShapeHelper(ElasticSearchHelper):
 
         return point_list
 
-    def get_available_days(self, valid_operator_list):
-        return self._get_available_days('startDate', valid_operator_list)
+    def get_available_days(self):
+        return self._get_available_days('startDate', [])
+
+    def get_route_list(self):
+        searches = {
+            "days": self.get_unique_list_query('authRouteCode', size=5000)
+        }
+        result = self.make_multisearch_query_for_aggs(searches)["days"]
+
+        return result
