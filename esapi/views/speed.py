@@ -26,7 +26,7 @@ class AvailableDays(View):
     def get(self, request):
         es_helper = ESSpeedHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_days = es_helper.ask_for_available_days(valid_operator_list)
+        available_days = es_helper.get_available_days(valid_operator_list)
 
         response = {
             'availableDays': available_days
@@ -46,7 +46,7 @@ class AvailableRoutes(View):
         try:
             es_helper = ESSpeedHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-            available_days, op_dict = es_helper.ask_for_available_routes(valid_operator_list)
+            available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
 
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
@@ -83,7 +83,7 @@ class MatrixData(View):
             max_section = len(limits) - 1
             response['segments'] = list(range(max_section + 1))
 
-            d_data = es_speed_helper.ask_for_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
+            d_data = es_speed_helper.get_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
 
             for hour in range(len(hours)):
                 route_segment_by_hour = []
@@ -127,9 +127,9 @@ class RankingData(View):
         try:
             check_operation_program(start_date, end_date)
             es_speed_helper = ESSpeedHelper()
-            response['data'] = es_speed_helper.ask_for_ranking_data(start_date, end_date, hour_period_from,
-                                                                    hour_period_to,
-                                                                    day_type, valid_operator_list)
+            response['data'] = es_speed_helper.get_ranking_data(start_date, end_date, hour_period_from,
+                                                                hour_period_to,
+                                                                day_type, valid_operator_list)
 
             if len(response['data']) > 1000:
                 response['data'] = response['data'][:1000]
@@ -190,8 +190,8 @@ class SpeedByRoute(View):
             response['route']['points'] = route_points
 
             es_helper = ESSpeedHelper()
-            es_query = es_helper.ask_for_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
-                                                             valid_operator_list)
+            es_query = es_helper.get_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
+                                                         valid_operator_list)
             response['speed'] = self.process_data(es_query, limits)
 
         except ESQueryResultEmpty as e:
@@ -301,8 +301,8 @@ class SpeedVariation(View):
             check_operation_program(start_date, end_date)
 
             es_helper = ESSpeedHelper()
-            es_query = es_helper.ask_for_speed_variation(start_date, end_date, day_type, user_route, operator,
-                                                         valid_operator_list)
+            es_query = es_helper.get_speed_variation_data(start_date, end_date, day_type, user_route, operator,
+                                                          valid_operator_list)
             response['variations'], response['routes'] = self.transform_data(es_query)
         except FondefVizError as e:
             response['status'] = e.get_status_response()

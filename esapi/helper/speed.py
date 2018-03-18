@@ -34,10 +34,10 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return result
 
-    def ask_for_available_days(self, valid_operator_list):
+    def get_available_days(self, valid_operator_list):
         return self._get_available_days('date', valid_operator_list)
 
-    def ask_for_available_routes(self, valid_operator_list):
+    def get_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
@@ -66,7 +66,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
+    def get_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
 
         es_query = self.get_base_query()
 
@@ -115,8 +115,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return d_data
 
-    def ask_for_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type,
-                             valid_operator_list):
+    def get_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type, valid_operator_list):
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
@@ -181,7 +180,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return data
 
-    def ask_for_detail_ranking_data(self, route, start_date, end_date, period, day_type, valid_operator_list):
+    def get_detail_ranking_data(self, route, start_date, end_date, period, day_type, valid_operator_list):
 
         es_query = self.get_base_query()
 
@@ -210,7 +209,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_speed_variation(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
+    def get_speed_variation_data(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
         """
         it calculates speed variation for end_date taking account the speed calculated from start_date to end_date - 1
 

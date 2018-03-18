@@ -35,7 +35,7 @@ class ESSpeedIndexTest(TestCase):
     def test_ask_for_available_days(self, mock_method):
         mock_method.return_value = {'days': []}
 
-        result = self.instance.ask_for_available_days()
+        result = self.instance.get_available_days()
         self.assertListEqual(result, [])
 
     @mock.patch('esapi.helper.profile.Search.execute')
@@ -61,7 +61,7 @@ class ESSpeedIndexTest(TestCase):
         # create operator
         Operator.objects.create(esId=1, name='Metbus', description='description')
 
-        result, operator_list = self.instance.ask_for_available_routes()
+        result, operator_list = self.instance.get_available_routes()
 
         self.assertDictEqual(result, {1: {'506I': ['506 00I']}})
         self.assertListEqual(operator_list, [{'id': 1, 'text': 'Metbus'}])
@@ -73,13 +73,13 @@ class ESSpeedIndexTest(TestCase):
         auth_route = ''
 
         self.assertRaises(ESQueryRouteParameterDoesNotExist,
-                          self.instance.ask_for_speed_data, auth_route, day_type, start_date, end_date)
+                          self.instance.get_speed_data, auth_route, day_type, start_date, end_date)
         auth_route = 'PA433'
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist,
-                          self.instance.ask_for_speed_data, auth_route, day_type, start_date, end_date)
+                          self.instance.get_speed_data, auth_route, day_type, start_date, end_date)
         start_date = '2018-01-01'
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist,
-                          self.instance.ask_for_speed_data, auth_route, day_type, start_date, end_date)
+                          self.instance.get_speed_data, auth_route, day_type, start_date, end_date)
 
     @mock.patch('esapi.helper.speed.Search.execute')
     def test_ask_for_speed_data(self, mock_method):
@@ -107,7 +107,7 @@ class ESSpeedIndexTest(TestCase):
         day_type = ['LABORAL']
         auth_route = '506 00I'
 
-        result = self.instance.ask_for_speed_data(auth_route, day_type, start_date, end_date)
+        result = self.instance.get_speed_data(auth_route, day_type, start_date, end_date)
 
         self.assertDictEqual(result, {('key2', 'key'): (-1, 0)})
 
