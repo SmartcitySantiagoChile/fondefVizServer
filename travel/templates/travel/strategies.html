@@ -23,20 +23,24 @@
 
 {% block content %}
     <div class="">
+        {% header "Estrategias de viaje" "Indicadores" %}
+        {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+        {% with panel_body="<div class='col-md-12 col-sm-12 col-xs-12'><label>Seleccione el origen y destino:</label><div id='mapChart' style='height:500px;'></div></div>" %}
+            {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True extra_html=panel_body info_target_id="filterHelp" %}
+        {% endwith %}
 
-    {% header "Estrategias de viaje" "Indicadores" %}
-    {% include "datamanager/availableDays.html" %}
-    {% with panel_body="<div class='col-md-12 col-sm-12 col-xs-12'><label>Seleccione el origen y destino:</label><div id='mapChart' style='height:500px;'></div></div>" %}
-    {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True extra_html=panel_body %}
-    {% endwith %}
-
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            {% with panel_body="<table id='tupleDetail' class='table table-striped table-bordered dt-responsive table-condensed nowrap' width='100%'><thead><tr><th></th><th></th><th></th><th></th><th></th></tr></thead></table>" %}
-                {% panel "fa-chain" "Estrategias utilizadas" panel_body %}
-            {% endwith %}
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {% with panel_body="<table id='tupleDetail' class='table table-striped table-bordered dt-responsive table-condensed nowrap' width='100%'><thead><tr><th></th><th></th><th></th><th></th><th></th></tr></thead></table>" %}
+                    {% panel "fa-chain" "Estrategias utilizadas" panel_body info_target_id="mapHelp" %}
+                {% endwith %}
+            </div>
         </div>
     </div>
+
+    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "datamanager/modal.html" with modal_id="mapHelp" modal_title="Estrategias de viaje" modal_body="esto es una explicación del gráfico" %}
+    {{ block.super }}
 {% endblock %}
 
 {% block js %}
@@ -51,7 +55,7 @@
         <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
     {% endwith %}
     <script>
-    var ws_data = {};
+        var ws_data = {};
     </script>>
     <script src="{% static "travel/js/util.js" %}"></script>
     <script src="{% static "travel/js/maps.js" %}"></script>

@@ -11,6 +11,11 @@
     {% endwith %}
 {% endblock %}
 
+{% block content %}
+    {% include "datamanager/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
+    {% include "datamanager/modal.html" with show_ok_button=True modal_id="exportDataModal" modal_title="Exportar datos" modal_body="<p>El resultado de este requerimiento puede tomar tiempo por lo que cuando el archivo se encuentre disponible se le enviará un email al correo electrónico asociado a su cuenta de usuario con las instrucciones para descargarlo.</p>" %}
+{% endblock %}
+
 {% block js %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>

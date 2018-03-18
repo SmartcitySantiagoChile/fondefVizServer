@@ -12,10 +12,8 @@
 {% block content %}
     <div class="">
         {% header "Resumen de viajes" "indicadores" %}
-
-        {% include "datamanager/availableDays.html" %}
-
-        {% data_filter data_filter True False True False False False False False False False False False True %}
+        {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+        {% data_filter data_filter True False True False False False False False False False False False True info_target_id="filterHelp" %}
 
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -25,10 +23,14 @@
 
         <div class="row cols-same-height">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                {% panel "fa-bar-chart-o" "Histograma" chart %}
+                {% panel "fa-bar-chart-o" "Histograma" chart info_target_id="histogramHelp" %}
             </div>
         </div>
     </div>
+
+    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "datamanager/modal.html" with modal_id="histogramHelp" modal_title="Matriz de velocidades" modal_body="esto es una explicación del gráfico" %}
+    {{ block.super }}
 {% endblock %}
 
 {% block js %}

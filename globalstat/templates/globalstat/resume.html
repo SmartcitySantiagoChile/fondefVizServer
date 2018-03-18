@@ -20,7 +20,7 @@
 
     {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4|add:btn5|add:btn6|add:btn7|add:btn8|add:btn9 as col4 %}
 
-    {% data_filter data_filter show_day_filter=True show_metric_filter=True extra_html=col4 %}
+    {% data_filter data_filter show_day_filter=True show_metric_filter=True extra_html=col4 show_export_button=False %}
 
     {{ block.super }}
 {% endblock %}

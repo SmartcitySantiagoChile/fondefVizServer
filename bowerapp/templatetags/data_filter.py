@@ -32,6 +32,7 @@ def data_filter(data_filter,
                 show_metric_filter=False,
                 show_start_trip_period_filter=False,
                 show_start_trip_minute_filter=False,
+                show_export_button=True,
                 extra_html='',
                 info_target_id=''):
     data_filter = [] if data_filter == '' else data_filter
@@ -112,11 +113,14 @@ def data_filter(data_filter,
     update_btn_label = 'Actualizar datos'
     html_update_button = update_button(update_btn_js_id, update_btn_label, 'success')
 
-    export_btn_js_id = 'btnExportData'
-    export_btn_label = 'Descargar datos crudos'
-    html_export_button = update_button(export_btn_js_id, export_btn_label, 'warning', 'pull-right')
+    html_buttons = html_update_button
+    if show_export_button:
+        export_btn_js_id = 'btnExportData'
+        export_btn_label = 'Descargar datos crudos'
+        html_export_button = update_button(export_btn_js_id, export_btn_label, 'warning', 'pull-right')
+        html_buttons += html_export_button
 
-    html_button_column = columns(12, 12, 12, html_update_button + html_export_button)
+    html_button_column = columns(12, 12, 12, html_buttons)
     panel_body += '<div class = "row">' + columns(12,12,12, '<div class="ln_solid"></div>') + '</div>' + html_button_column
 
     panel_icon = 'fa-filter'

@@ -65,10 +65,10 @@
         </div>
     </div>
 
-    {% include "datamanager/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
     {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
     {% include "datamanager/modal.html" with modal_id="tableHelp" modal_title="Ranking de velocidades" modal_body="esto es una explicación del gráfico" %}
     {% include "datamanager/modal.html" with modal_id="mapHelp" modal_title="Posición en el mapa" modal_body="esto es una explicación de la tabla" %}
+    {{ block.super }}
 {% endblock %}
 
 {% block js %}
