@@ -32,7 +32,7 @@ class MatchedStopData(View):
                 raise ESQueryStopPatternTooShort()
 
             es_helper = ESProfileHelper()
-            results = es_helper.ask_for_stop(term)
+            results = es_helper.get_matched_stop_list(term)
 
             for _, result in results.iteritems():
                 result_list = []
@@ -115,8 +115,8 @@ class LoadProfileByStopData(View):
             check_operation_program(start_date, end_date)
             es_helper = ESProfileHelper()
 
-            es_query = es_helper.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period, half_hour,
-                                                         valid_operator_list).scan()
+            es_query = es_helper.get_profile_by_stop_data(start_date, end_date, day_type, stop_code, period, half_hour,
+                                                          valid_operator_list).scan()
             if export_data:
                 ExporterManager(es_query).export_data()
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
@@ -133,7 +133,7 @@ class AvailableDays(View):
     def get(self, request):
         es_helper = ESProfileHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_days = es_helper.ask_for_available_days(valid_operator_list)
+        available_days = es_helper.get_available_days(valid_operator_list)
 
         response = {
             'availableDays': available_days
@@ -150,7 +150,7 @@ class AvailableRoutes(View):
         try:
             es_helper = ESProfileHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-            available_days, op_dict = es_helper.ask_for_available_routes(valid_operator_list)
+            available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
 
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
@@ -234,8 +234,8 @@ class LoadProfileByExpeditionData(View):
             es_stop_helper = ESStopHelper()
             es_profile_helper = ESProfileHelper()
 
-            es_query = es_profile_helper.ask_for_profile_by_expedition(start_date, end_date, day_type, auth_route_code,
-                                                                       period, half_hour, valid_operator_list)
+            es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type, auth_route_code,
+                                                                        period, half_hour, valid_operator_list)
             if export_data:
                 ExporterManager(es_query).export_data()
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()

@@ -19,8 +19,8 @@ class ESProfileHelper(ElasticSearchHelper):
         index_name = "profile"
         super(ESProfileHelper, self).__init__(index_name)
 
-    def ask_for_profile_by_stop(self, start_date, end_date, day_type, stop_code, period, half_hour,
-                                valid_operator_list):
+    def get_profile_by_stop_data(self, start_date, end_date, day_type, stop_code, period, half_hour,
+                                 valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
 
@@ -61,7 +61,7 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_stop(self, term):
+    def get_matched_stop_list(self, term):
         """ ask to elasticsearch for a match values """
 
         es_auth_stop_query = Search().query(Match(authStopCode={"query": term, "analyzer": "standard"}))
@@ -86,10 +86,10 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result
 
-    def ask_for_available_days(self, valid_operator_list):
+    def get_available_days(self, valid_operator_list):
         return self._get_available_days('expeditionStartTime', valid_operator_list)
 
-    def ask_for_available_routes(self, valid_operator_list):
+    def get_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
@@ -117,8 +117,8 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def ask_for_profile_by_expedition(self, start_date, end_date, day_type, auth_route, period, half_hour,
-                                      valid_operator_list):
+    def get_profile_by_expedition_data(self, start_date, end_date, day_type, auth_route, period, half_hour,
+                                       valid_operator_list):
 
         es_query = self.get_base_query()
 

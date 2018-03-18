@@ -41,16 +41,16 @@ class ESProfileIndexTest(TestCase):
         period = [1, 2, 3]
         half_hour = [1, 2, 3]
 
-        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.ask_for_profile_by_stop, start_date, end_date,
+        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_profile_by_stop_data, start_date, end_date,
                           day_type, stop_code, period, half_hour)
         stop_code = 'PA433'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_stop, start_date,
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
                           end_date, day_type, stop_code, period, half_hour)
         start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_stop, start_date,
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
                           end_date, day_type, stop_code, period, half_hour)
         end_date = '2018-01-02'
-        result = self.instance.ask_for_profile_by_stop(start_date, end_date, day_type, stop_code, period, half_hour)
+        result = self.instance.get_profile_by_stop_data(start_date, end_date, day_type, stop_code, period, half_hour)
 
         self.assertIsInstance(result, Search)
 
@@ -58,7 +58,7 @@ class ESProfileIndexTest(TestCase):
     def test_ask_for_stop(self, mock_method):
         mock_method.return_value = {'1': [], '2': [], '3': []}
         term = ''
-        result = self.instance.ask_for_stop(term)
+        result = self.instance.get_matched_stop_list(term)
 
         self.assertIn('1', result.keys())
         self.assertIn('2', result.keys())
@@ -70,7 +70,7 @@ class ESProfileIndexTest(TestCase):
     def test_ask_for_available_days(self, mock_method):
         mock_method.return_value = {'days': []}
 
-        result = self.instance.ask_for_available_days()
+        result = self.instance.get_available_days()
         self.assertListEqual(result, [])
 
     @mock.patch('esapi.helper.profile.Search.execute')
@@ -96,7 +96,7 @@ class ESProfileIndexTest(TestCase):
         # create operator
         Operator.objects.create(esId=1, name='Metbus', description='description')
 
-        result, operator_list = self.instance.ask_for_available_routes()
+        result, operator_list = self.instance.get_available_routes()
 
         self.assertDictEqual(result, {'1': {'506': ['506 00I']}})
         self.assertListEqual(operator_list, [{'id': 1, 'text': 'Metbus'}])
@@ -109,18 +109,18 @@ class ESProfileIndexTest(TestCase):
         period = [1, 2, 3]
         half_hour = [1, 2, 3]
 
-        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.ask_for_profile_by_expedition, start_date,
+        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_profile_by_expedition_data, start_date,
                           end_date, day_type, auth_route, period, half_hour)
         auth_route = '506 00I'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_expedition,
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_expedition_data,
                           start_date, end_date, day_type, auth_route, period, half_hour)
         start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.ask_for_profile_by_expedition,
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_expedition_data,
                           start_date, end_date, day_type, auth_route, period, half_hour)
         end_date = '2018-02-01'
 
-        result = self.instance.ask_for_profile_by_expedition(start_date, end_date, day_type, auth_route, period,
-                                                             half_hour)
+        result = self.instance.get_profile_by_expedition_data(start_date, end_date, day_type, auth_route, period,
+                                                              half_hour)
         self.assertIsInstance(result, Search)
 
 
