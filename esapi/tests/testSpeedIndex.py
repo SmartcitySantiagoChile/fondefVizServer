@@ -24,14 +24,6 @@ class ESSpeedIndexTest(TestCase):
     def setUp(self):
         self.instance = ESSpeedHelper()
 
-    def test_ask_for_base_params(self):
-        result = self.instance.get_base_params()
-
-        self.assertIn('day_types', result.keys())
-
-        for key in result:
-            self.assertIsInstance(result[key], Search)
-
     @mock.patch('esapi.helper.profile.ElasticSearchHelper.make_multisearch_query_for_aggs')
     def test_get_route_list(self, mock_method):
         mock_method.return_value = {'routes': []}
@@ -492,14 +484,6 @@ class TestESSpeedHelper(TestCase):
 
     def setUp(self):
         self.instance = ESSpeedHelper()
-
-    def test_ask_for_base_params(self):
-        result = self.instance.get_base_params()
-
-        self.assertIn('day_types', result.keys())
-
-        for key in result:
-            self.assertIsInstance(result[key], Search)
 
     @mock.patch('esapi.helper.basehelper.Search')
     def test_ask_for_route_list(self, es_query):

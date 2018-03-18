@@ -17,14 +17,6 @@ class ESSpeedHelper(ElasticSearchHelper):
         index_name = "speed"
         super(ESSpeedHelper, self).__init__(index_name)
 
-    def get_base_params(self):
-        es_day_type_query = self.get_unique_list_query("dayType", size=10)
-        result = {
-            "day_types": es_day_type_query
-        }
-
-        return result
-
     def get_route_list(self, valid_operator_list):
 
         es_query = self.get_base_query()[:0]
