@@ -7,10 +7,10 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
         index_name = 'general'
         super(ESResumeStatisticHelper, self).__init__(index_name)
 
-    def ask_for_available_days(self):
+    def get_available_days(self):
         return self._get_available_days('date')
 
-    def ask_for_data(self, start_date, end_date, metrics):
+    def get_data(self, start_date, end_date, metrics):
 
         if len(metrics) == 0:
             metrics = ['transactionWithoutRoute', 'transactionWithRoute', 'transactionNumber',

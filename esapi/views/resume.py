@@ -165,7 +165,7 @@ class GlobalData(PermissionRequiredMixin, View):
         response = {}
         try:
             es_helper = ESResumeStatisticHelper()
-            es_query = es_helper.ask_for_data(start_date, end_date, metrics)
+            es_query = es_helper.get_data(start_date, end_date, metrics)
 
             response['data'] = self.transform_data(es_query)
         except ESQueryResultEmpty as e:
@@ -179,7 +179,7 @@ class AvailableDays(PermissionRequiredMixin, View):
 
     def get(self, request):
         es_helper = ESResumeStatisticHelper()
-        available_days = es_helper.ask_for_available_days()
+        available_days = es_helper.get_available_days()
 
         response = {
             'availableDays': available_days
