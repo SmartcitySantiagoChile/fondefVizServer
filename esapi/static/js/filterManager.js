@@ -209,25 +209,33 @@ function FilterManager(opts) {
         }
     });
 
+    // enable modal to export data
     var _makeAjaxCallForExportButton = true;
-    $BTN_EXPORT_DATA.click(function () {
-        if (_makeAjaxCallForExportButton) {
-            _makeAjaxCallForExportButton = false;
-            var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
-            var previousMessage = $(this).html();
-            var button = $(this).append(loadingIcon);
+    var $EXPORT_DATA_MODAL = $("#exportDataModal");
+    $EXPORT_DATA_MODAL.on('show.bs.modal', function () {
+        // accept event
+        $EXPORT_DATA_MODAL.on("click", "button.btn-info", function () {
+            if (_makeAjaxCallForExportButton) {
+                _makeAjaxCallForExportButton = false;
+                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+                var previousMessage = $BTN_EXPORT_DATA.html();
+                var button = $BTN_EXPORT_DATA.append(loadingIcon);
 
-            var params = getParameters();
-            params.exportData = true;
-            $.getJSON(urlFilterData, params, function (data) {
-                if (data.status) {
-                    showMessage(data.status);
-                }
-            }).always(function () {
-                _makeAjaxCallForExportButton = true;
-                button.html(previousMessage);
-            });
-        }
+                var params = getParameters();
+                params.exportData = true;
+                $.getJSON(urlFilterData, params, function (data) {
+                    if (data.status) {
+                        showMessage(data.status);
+                    }
+                }).always(function () {
+                    _makeAjaxCallForExportButton = true;
+                    button.html(previousMessage);
+                });
+            }
+        });
+    });
+    $BTN_EXPORT_DATA.click(function () {
+        $EXPORT_DATA_MODAL.modal("show");
     });
 
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */

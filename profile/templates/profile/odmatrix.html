@@ -26,10 +26,10 @@
         {% endwith %}
     </div>
 
-    {% include "datamanager/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
     {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
     {% include "datamanager/modal.html" with modal_id="chartHelp" modal_title="Matriz de etapas" modal_body="esto es una explicación del gráfico" %}
     {% include "datamanager/modal.html" with modal_id="chart2Help" modal_title="Etapas de una parada" modal_body="esto es una explicación de la tabla" %}
+    {{ block.super }}
 {% endblock %}
 
 {% block js %}
