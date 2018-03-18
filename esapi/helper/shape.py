@@ -80,3 +80,6 @@ class ESShapeHelper(ElasticSearchHelper):
             raise ESQueryShapeDoesNotExist()
 
         return point_list
+
+    def get_available_days(self, valid_operator_list):
+        return self._get_available_days('startDate', valid_operator_list)

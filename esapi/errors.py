@@ -173,3 +173,11 @@ class ESQueryShapeDoesNotExist(FondefVizError):
     def __init__(self):
         message = 'No existe la geometría para el servicio'
         super(ESQueryShapeDoesNotExist, self).__init__(414, message)
+
+
+class ESQueryDateParametersDoesNotExist(FondefVizError):
+    """ It raises when user does not provide date param to elastic search query """
+
+    def __init__(self):
+        message = 'Debe indicar una fecha'
+        super(ESQueryDateParametersDoesNotExist, self).__init__(415, message)

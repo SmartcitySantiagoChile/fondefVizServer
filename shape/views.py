@@ -1,68 +1,74 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from django.views.generic import View
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.conf import settings
 
-from elasticsearch_dsl import Search
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.stop import ESStopHelper
+from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
 
-# elastic search index name
-INDEX_NAME = "shape"
+from datetime import datetime
 
 
-class Route(View):
-    ''' get polyline of route '''
-
-    def __init__(self):
-        ''' contructor '''
-        super(View, self).__init__()
+class GetRouteInfo(View):
+    """ get shape and stop related with route """
 
     def get(self, request):
-        route = request.GET.get("route")
+        route = request.GET.get('route', '')
+        operation_program_date = request.GET.get('operationProgramDate', '')
 
-        client = settings.ES_CLIENT
-        routeQuery = Search(using=client, index=INDEX_NAME)
-        routeQuery = routeQuery.filter("term", route=route)
-        routeQuery = routeQuery.source(["points"])
+        response = {}
+        try:
+            if not route:
+                raise ESQueryRouteParameterDoesNotExist()
+            if not operation_program_date:
+                raise ESQueryDateParametersDoesNotExist()
 
-        points = []
-        for hit in routeQuery.scan():
-            data = hit.to_dict()
-            for point in data["points"]:
-                points.append({
-                    "latitude": point["latitude"],
-                    "longitude": point["longitude"]
-                })
+            es_shape_helper = ESShapeHelper()
+            es_stop_helper = ESStopHelper()
+
+            response["points"] = es_shape_helper.get_route_shape(route, operation_program_date, operation_program_date)
+            response["stops"] = es_stop_helper.get_stop_list(route, operation_program_date, operation_program_date)
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
+
+
+class GetBaseInfo(View):
+
+    def get(self, request):
+        # retrieve route list and available days
+        es_shape_helper = ESShapeHelper()
+        es_stop_helper = ESStopHelper()
+
+        stop_dates = es_stop_helper.get_unique_list_query('startDate', size=5000)
+        shape_dates = es_shape_helper.get_unique_list_query('startDate', size=5000)
+
+        dates = list(set(stop_dates + shape_dates))
+        dates.sort(key=lambda x: datetime.strptime('yyyy-MM-dd', x))
+
+        stop_routes = es_stop_helper.get_unique_list_query('authRouteCode')
+        shape_routes = es_stop_helper.get_unique_list_query('authRouteCode')
+
+        routes = list(set(stop_routes + shape_routes))
+        routes.sort()
 
         response = {
-            "points": points
+            'dates': dates,
+            'routes': routes
         }
 
-        return JsonResponse(response, safe=True)
+        return JsonResponse(response)
 
 
-class Map(View):
-    ''' load html map to show route polyline '''
-
-    def __init__(self):
-        ''' contructor '''
-        super(View, self).__init__()
-
-        client = settings.ES_CLIENT
-        routeQuery = Search(using=client, index=INDEX_NAME)
-        routeQuery = routeQuery.source(["route"])
-
-        routes = []
-        for hit in routeQuery.scan():
-            data = hit.to_dict()
-            routes.append(data["route"])
-
-        self.context = {
-            "routes": routes
-        }
+class MapHTML(View):
+    """ load html map to show route polyline """
 
     def get(self, request):
         template = "shape/map.html"
+        context = {}
 
-        return render(request, template, self.context)
+        return render(request, template, context)
