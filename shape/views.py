@@ -44,14 +44,14 @@ class GetBaseInfo(View):
         es_shape_helper = ESShapeHelper()
         es_stop_helper = ESStopHelper()
 
-        stop_dates = es_stop_helper.get_unique_list_query('startDate', size=5000)
-        shape_dates = es_shape_helper.get_unique_list_query('startDate', size=5000)
+        stop_dates = es_stop_helper.get_available_days()
+        shape_dates = es_shape_helper.get_available_days()
 
         dates = list(set(stop_dates + shape_dates))
         dates.sort(key=lambda x: datetime.strptime('yyyy-MM-dd', x))
 
-        stop_routes = es_stop_helper.get_unique_list_query('authRouteCode')
-        shape_routes = es_stop_helper.get_unique_list_query('authRouteCode')
+        stop_routes = es_stop_helper.get_route_list()
+        shape_routes = es_shape_helper.get_route_list()
 
         routes = list(set(stop_routes + shape_routes))
         routes.sort()
