@@ -24,6 +24,7 @@
     "echarts": "^4.0.4",
     "leaflet-control-topcenter": "https://github.com/FCOO/leaflet-control-topcenter.git#^2.0.1",
     "Leaflet.EasyButton": "^2.3.0",
-    "leaflet-control-window": "*"
+    "leaflet-control-window": "*",
+    "bootstrap-colorpicker": "^2.5.1"
   }
 }
