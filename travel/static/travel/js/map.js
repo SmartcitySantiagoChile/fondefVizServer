@@ -6,6 +6,7 @@ function MapApp(opts) {
     var getDataZoneById = opts.getDataZoneById || null;
     var getZoneValue = opts.getZoneValue || null;
     var getZoneColor = opts.getZoneColor || null;
+    var mapId = opts.mapId ||"mapChart";
 
     /* map options */
     var mapDefaultLocation = L.latLng(-33.459229, -70.645348);
@@ -13,7 +14,6 @@ function MapApp(opts) {
     var minZoom = 8;
     var maxZoom = 15;
 
-    var mapId = "mapChart";
     var map = L.map(mapId).setView(mapDefaultLocation, minZoom);
     L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
@@ -63,6 +63,9 @@ function MapApp(opts) {
     var mapInfoBar = L.control({position: "topright"});
     var mapLegend = L.control({position: "bottomright"});
 
+    this.getMapInstance = function() {
+        return map;
+    };
     // ============================================================================
     // MAP FEATURE STYLING
     // ============================================================================
