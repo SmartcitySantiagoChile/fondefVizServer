@@ -17,10 +17,10 @@ class ESODByRouteHelper(ElasticSearchHelper):
         index_name = "odbyroute"
         super(ESODByRouteHelper, self).__init__(index_name)
 
-    def ask_for_available_days(self, valid_operator_list):
-        return self.get_available_days('date', valid_operator_list)
+    def get_available_days(self, valid_operator_list):
+        return self._get_available_days('date', valid_operator_list)
 
-    def ask_for_available_routes(self, valid_operator_list):
+    def get_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
@@ -76,7 +76,7 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
+    def get_od_data(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
         """ ask to elasticsearch for a match values """
 
         es_query = self.get_base_query_for_od(auth_route_code, time_periods, day_type, start_date, end_date,

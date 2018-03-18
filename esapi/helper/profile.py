@@ -87,7 +87,7 @@ class ESProfileHelper(ElasticSearchHelper):
         return result
 
     def ask_for_available_days(self, valid_operator_list):
-        return self.get_available_days('expeditionStartTime', valid_operator_list)
+        return self._get_available_days('expeditionStartTime', valid_operator_list)
 
     def ask_for_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()

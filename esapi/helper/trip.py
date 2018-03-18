@@ -97,7 +97,7 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query_dict
 
     def ask_for_available_days(self):
-        return self.get_available_days('tiempo_subida')
+        return self._get_available_days('tiempo_subida')
 
     def ask_for_map_data(self, start_date, end_date, day_types, periods, sectors):
         """

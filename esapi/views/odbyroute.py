@@ -20,7 +20,7 @@ class AvailableDays(View):
     def get(self, request):
         es_helper = ESODByRouteHelper()
         valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_days = es_helper.ask_for_available_days(valid_operator_id_list)
+        available_days = es_helper.get_available_days(valid_operator_id_list)
 
         response = {
             'availableDays': available_days
@@ -34,7 +34,7 @@ class AvailableRoutes(View):
     def get(self, request):
         es_helper = ESODByRouteHelper()
         valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_days, op_dict = es_helper.ask_for_available_routes(valid_operator_id_list)
+        available_days, op_dict = es_helper.get_available_routes(valid_operator_id_list)
 
         response = {
             'availableRoutes': available_days,
@@ -73,8 +73,8 @@ class ODMatrixData(View):
                 ExporterManager(es_query).export_data()
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                matrix, max_value = es_od_helper.ask_for_od(auth_route_code, period, day_type, start_date, end_date,
-                                                            valid_operator_list)
+                matrix, max_value = es_od_helper.get_od_data(auth_route_code, period, day_type, start_date, end_date,
+                                                             valid_operator_list)
                 stop_list = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)
 
                 response["data"] = {

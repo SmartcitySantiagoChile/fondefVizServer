@@ -8,7 +8,7 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
         super(ESResumeStatisticHelper, self).__init__(index_name)
 
     def ask_for_available_days(self):
-        return self.get_available_days('date')
+        return self._get_available_days('date')
 
     def ask_for_data(self, start_date, end_date, metrics):
 

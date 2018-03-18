@@ -84,7 +84,7 @@ class ElasticSearchHelper(object):
 
         return query
 
-    def get_available_days(self, field, valid_operator_list=None, time_zone=None):
+    def _get_available_days(self, field, valid_operator_list=None, time_zone=None):
 
         es_query = None
         if valid_operator_list:
