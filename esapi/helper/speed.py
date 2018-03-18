@@ -38,6 +38,11 @@ class ESSpeedHelper(ElasticSearchHelper):
         return self._get_available_days('date', valid_operator_list)
 
     def get_available_routes(self, valid_operator_list):
+        """
+        This is used in data filter panel
+        :param valid_operator_list: operators which user can ask
+        :return: dicts with available routes for user
+        """
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
@@ -66,8 +71,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def get_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
-
+    def get_base_speed_data_query(self, auth_route, day_type, start_date, end_date, valid_operator_list):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -93,6 +97,12 @@ class ESSpeedHelper(ElasticSearchHelper):
             'lte': end_date,
             'format': 'yyyy-MM-dd'
         })
+
+        return es_query
+
+    def get_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
+        es_query = self.get_base_speed_data_query(auth_route, day_type, start_date, end_date, valid_operator_list)[:0]
+
         aggs2 = A('terms', field='section', size=1000)
         aggs1 = A('terms', field='periodId', size=1000)
         aggs2.metric('distance', 'sum', field='totalDistance')
@@ -115,6 +125,34 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return d_data
 
+    def get_base_ranking_data_query(self, start_date, end_date, hour_period_from, hour_period_to, day_type,
+                                    valid_operator_list, route_list):
+        es_query = self.get_base_query()
+
+        if valid_operator_list:
+            pass
+            # TODO: removed when speed index has operator data
+            # es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist()
+
+        es_query = es_query.filter('range', date={
+            "gte": start_date,
+            "lte": end_date,
+            "format": "yyyy-MM-dd"
+        })
+        es_query = es_query.filter('range', periodId={
+            "gte": hour_period_from,
+            "lte": hour_period_to
+        })
+
+        es_query = es_query.filter('terms', route=route_list)
+
+        if day_type:
+            es_query = es_query.filter('terms', dayType=day_type)
+
+        return es_query
+
     def get_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type, valid_operator_list):
 
         if not start_date or not end_date:
@@ -128,27 +166,8 @@ class ESSpeedHelper(ElasticSearchHelper):
         chunks = [routes[i:j] for i, j in zip(indices[:-1], indices[1:])]
 
         for chunk in chunks:
-            es_query = self.get_base_query()
-
-            if valid_operator_list:
-                pass
-                # TODO: removed when speed index has operator data
-                # es_query = es_query.filter('terms', operator=valid_operator_list)
-            else:
-                raise ESQueryOperatorParameterDoesNotExist()
-
-            es_query = es_query.filter('terms', route=chunk)
-            es_query = es_query.filter('range', date={
-                "gte": start_date,
-                "lte": end_date,
-                "format": "yyyy-MM-dd"
-            })
-            es_query = es_query.filter('range', periodId={
-                "gte": hour_period_from,
-                "lte": hour_period_to
-            })
-            if day_type:
-                es_query = es_query.filter('terms', dayType=day_type)
+            es_query = self.get_base_ranking_data_query(start_date, end_date, hour_period_from, hour_period_to,
+                                                        day_type, valid_operator_list, chunk)[:0]
 
             aggs0 = A('terms', field='merged', size=100000000)
             aggs0.metric('n_obs', 'sum', field='nObs')
@@ -180,8 +199,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return data
 
-    def get_detail_ranking_data(self, route, start_date, end_date, period, day_type, valid_operator_list):
-
+    def get_base_detail_ranking_data_query(self, route, start_date, end_date, period, day_type, valid_operator_list):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -199,6 +217,12 @@ class ESSpeedHelper(ElasticSearchHelper):
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
 
+        return es_query
+
+    def get_detail_ranking_data(self, route, start_date, end_date, period, day_type, valid_operator_list):
+        es_query = self.get_base_detail_ranking_data_query(route, start_date, end_date, period, day_type,
+                                                           valid_operator_list)[:0]
+
         aggs0 = A('terms', field='section', size=200)
         aggs0.metric('n_obs', 'sum', field='nObs')
         aggs0.metric('distance', 'sum', field='totalDistance')
@@ -209,20 +233,8 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_speed_variation_data(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
-        """
-        it calculates speed variation for end_date taking account the speed calculated from start_date to end_date - 1
-
-        :param start_date:
-        :param end_date:
-        :param day_type:
-        :param user_route:
-        :param operator:
-        :param valid_operator_list:
-        :return:
-        """
-        es_helper = ESSpeedHelper()
-        es_query = es_helper.get_base_query()
+    def get_base_variation_speed_query(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
+        es_query = self.get_base_query()
         es_query = es_query.filter('range', date={
             "gte": start_date,
             "lte": end_date,
@@ -239,6 +251,23 @@ class ESSpeedHelper(ElasticSearchHelper):
             es_query = es_query.filter('term', userRoute=user_route)
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
+
+        return es_query
+
+    def get_speed_variation_data(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
+        """
+        it calculates speed variation for end_date taking account the speed calculated from start_date to end_date - 1
+
+        :param start_date:
+        :param end_date:
+        :param day_type:
+        :param user_route:
+        :param operator:
+        :param valid_operator_list:
+        :return:
+        """
+        es_query = self.get_base_variation_speed_query(start_date, end_date, day_type, user_route, operator,
+                                                       valid_operator_list)[:0]
 
         aggs0 = A('terms', field='route', size=2000)
         aggs1 = A('terms', field='periodId', size=50)
