@@ -63,7 +63,7 @@ class ESTripHelper(ElasticSearchHelper):
         # return no hits!
         return base_es_query[:0]
 
-    def ask_for_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
+    def get_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
 
         es_query = self.get_base_query()
 
@@ -96,13 +96,10 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query_dict
 
-    def ask_for_available_days(self):
+    def get_available_days(self):
         return self._get_available_days('tiempo_subida')
 
-    def ask_for_map_data(self, start_date, end_date, day_types, periods, sectors):
-        """
-        Builds a elastic search query for the travels map
-        """
+    def get_base_map_data_query(self, start_date, end_date, day_types, periods, sectors):
         es_query = self.get_base_query()
 
         if not start_date or not end_date:
@@ -120,6 +117,23 @@ class ESTripHelper(ElasticSearchHelper):
 
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
+
+        # TODO: esta restricción no existe sobre la consulta inicialmente, verificar que no cambia el resultado.
+        """
+        if sectors:
+            destination_zones = []
+            for _, zones in sectors.items():
+                destination_zones += zones
+            es_query = es_query.filter('terms', zona_bajada=[sectors[x] for x in sectors])
+        """
+
+        return es_query
+
+    def get_map_data(self, start_date, end_date, day_types, periods, sectors):
+        """
+        Builds a elastic search query for the travels map
+        """
+        es_query = self.get_base_map_data_query(start_date, end_date, day_types, periods, sectors)[:0]
 
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_subida', size=1000)
@@ -139,16 +153,11 @@ class ESTripHelper(ElasticSearchHelper):
         # # limit fields
         # return es_query.source(self.default_fields)
 
-        # return no hits!
         return {
-            'map': es_query[:0]
+            'map': es_query
         }
 
-    def ask_for_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas):
-        """
-        Builds a elastic search query for the travels map
-        It is based on the requested filtering options
-        """
+    def get_base_large_travel_data_query(self, start_date, end_date, day_types, periods, n_etapas):
         es_query = self.get_base_query()
 
         if not start_date or not end_date:
@@ -176,6 +185,15 @@ class ESTripHelper(ElasticSearchHelper):
         else:
             raise ESQueryStagesEmpty()
 
+        return es_query
+
+    def get_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas):
+        """
+        Builds a elastic search query for the travels map
+        It is based on the requested filtering options
+        """
+        es_query = self.get_base_large_travel_data_query(start_date, end_date, day_types, periods, n_etapas)[:0]
+
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_subida', size=1000)
 
@@ -190,12 +208,11 @@ class ESTripHelper(ElasticSearchHelper):
         # # limit fields
         # return es_query.source(self.default_fields)
 
-        # return no hits!
         return {
-            'large': es_query[:0]
+            'large': es_query
         }
 
-    def ask_for_from_to_map_data(self, start_date, end_date, day_types, periods, minutes, stages, modes):
+    def get_base_from_to_map_data_query(self, start_date, end_date, day_types, periods, minutes, stages, modes):
         es_query = self.get_base_query()
 
         if not start_date or not end_date:
@@ -219,7 +236,11 @@ class ESTripHelper(ElasticSearchHelper):
         # if modes:
         #    es_query = es_query.filter('terms', ?=modes)
 
-        es_query = es_query[:0]
+        return es_query
+
+    def get_from_to_map_data(self, start_date, end_date, day_types, periods, minutes, stages, modes):
+        es_query = self.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes, stages,
+                                                        modes)[:0]
 
         def _query_by_zone(query, field):
             by_zone_agg = A('terms', field=field, size=1000)
@@ -241,9 +262,9 @@ class ESTripHelper(ElasticSearchHelper):
             'destination_zone': destination_es_query
         }
 
-    def ask_for_strategies_data(self, start_date, end_date, day_types, periods, minutes, origin_zones,
-                                destination_zones):
-        es_query = self.get_base_query()[:0]
+    def get_base_strategies_data_query(self, start_date, end_date, day_types, periods, minutes, origin_zones,
+                                       destination_zones):
+        es_query = self.get_base_query()
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
@@ -274,8 +295,17 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def ask_for_transfers_data(self, start_date, end_date, auth_stop_code, day_types, periods, half_hours):
-        es_query = self.get_base_query()[:0]
+    def get_strategies_data(self, start_date, end_date, day_types, periods, minutes, origin_zones,
+                            destination_zones):
+        es_query = self.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes, origin_zones,
+                                                       destination_zones)[:0]
+
+        # TODO: hacer agrupación para sacar el resultado, no iterar, muy ineficiente
+
+        return es_query
+
+    def get_base_transfers_data_query(self, start_date, end_date, auth_stop_code, day_types, periods, half_hours):
+        es_query = self.get_base_query()
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
@@ -297,6 +327,12 @@ class ESTripHelper(ElasticSearchHelper):
         if half_hours:
             es_query = es_query.filter('terms', mediahora_subida=half_hours)
 
+        return es_query
+
+    def get_transfers_data(self, start_date, end_date, auth_stop_code, day_types, periods, half_hours):
+
+        es_query = self.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types, periods,
+                                                      half_hours)[:0]
         # TODO: hacer la agrupación
 
         return es_query

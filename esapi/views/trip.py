@@ -36,8 +36,8 @@ class ResumeData(PermissionRequiredMixin, View):
         response = {}
 
         try:
-            es_query_dict = es_helper.ask_for_resume_data(start_date, end_date, day_types, periods, origin_zones,
-                                                          destination_zones)
+            es_query_dict = es_helper.get_resume_data(start_date, end_date, day_types, periods, origin_zones,
+                                                      destination_zones)
             response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.get_status_response()
@@ -88,7 +88,7 @@ class MapData(PermissionRequiredMixin, View):
         }
 
         try:
-            es_query_dict = es_helper.ask_for_map_data(start_date, end_date, day_types, periods, sectors)
+            es_query_dict = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
             response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.get_status_response()
@@ -101,7 +101,7 @@ class AvailableDays(PermissionRequiredMixin, View):
 
     def get(self, request):
         es_helper = ESTripHelper()
-        available_days = es_helper.ask_for_available_days()
+        available_days = es_helper.get_available_days()
 
         response = {
             'availableDays': available_days
@@ -134,7 +134,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
-            es_query_dict = es_helper.ask_for_large_travel_data(start_date, end_date, day_types, periods, stages)
+            es_query_dict = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
             response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty) as e:
@@ -169,8 +169,8 @@ class FromToMapData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
-            es_query_dict = es_helper.ask_for_from_to_map_data(start_date, end_date, day_types, periods, minutes,
-                                                               stages, modes)
+            es_query_dict = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes,
+                                                           stages, modes)
             response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty) as e:
@@ -246,8 +246,8 @@ class StrategiesData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
-            es_query = es_helper.ask_for_strategies_data(start_date, end_date, day_types, periods, minutes,
-                                                         origin_zone, destination_zone)
+            es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
+                                                     origin_zone, destination_zone)
             response['strategies'] = self.process_data(es_query)
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist,
@@ -279,8 +279,8 @@ class TransfersData(View):
 
         try:
             auth_stop_code = ''
-            es_query = es_helper.ask_for_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
-                                                        half_hours)
+            es_query = es_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
+                                                    half_hours)
             response.update(self.process_data(es_query))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty) as e:
