@@ -48,7 +48,7 @@ class GetBaseInfo(View):
         shape_dates = es_shape_helper.get_available_days()
 
         dates = list(set(stop_dates + shape_dates))
-        dates.sort(key=lambda x: datetime.strptime('yyyy-MM-dd', x))
+        dates.sort(key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
 
         stop_routes = es_stop_helper.get_route_list()
         shape_routes = es_shape_helper.get_route_list()

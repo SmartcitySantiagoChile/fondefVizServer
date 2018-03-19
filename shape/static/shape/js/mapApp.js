@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 $(document).ready(function () {
 
     function MapShapeApp() {
@@ -9,9 +9,9 @@ $(document).ready(function () {
         var app = new MapApp(mapOpts);
         var mapInstance = app.getMapInstance();
 
-        var addRouteControl = L.control({position: 'topleft'});
+        var addRouteControl = L.control({position: "topleft"});
         addRouteControl.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'info legend');
+            var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<button id="addRouteButton" class="btn btn-default btn-sm" >' +
                 '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta' +
                 '</button>';
@@ -20,9 +20,9 @@ $(document).ready(function () {
         };
         addRouteControl.addTo(mapInstance);
 
-        var routeListControl = L.control({position: 'topleft'});
+        var routeListControl = L.control({position: "topleft"});
         routeListControl.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'info legend');
+            var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="routeListContainer" class="form-inline"</div>';
             div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
@@ -30,16 +30,16 @@ $(document).ready(function () {
         };
         routeListControl.addTo(mapInstance);
 
-        var helpControl = L.control({position: 'topright'});
+        var helpControl = L.control({position: "topright"});
         helpControl.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'info legend');
+            var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>';
             div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
             return div;
         };
         helpControl.addTo(mapInstance);
         $("#helpButton").click(function () {
-            $("#helpModal").modal('show')
+            $("#helpModal").modal("show");
         });
 
         var $ROW_CONTAINER = $("#routeListContainer");
@@ -51,7 +51,12 @@ $(document).ready(function () {
             stops.forEach(function (stop) {
                 var latLng = L.latLng(stop.latitude, stop.longitude);
                 var marker = L.marker(latLng, {
-                    icon: L.BeautifyIcon.icon({icon: "bus", iconShape: "marker", borderColor: 'black', textColor: 'black'}),
+                    icon: L.BeautifyIcon.icon({
+                        icon: "bus",
+                        iconShape: "marker",
+                        borderColor: "black",
+                        textColor: "black"
+                    }),
                     zIndexOffset: -1000 // send stops below other layers
                 });
                 marker.bindPopup("<p> Servicio: <b>" + route + "</b><br /> Nombre: <b>" + stop.stopName + "</b><br /> Código transantiago: <b>" + stop.authStopCode + "</b><br /> Código usuario: <b>" + stop.userStopCode + "</b><br /> Posición en la ruta: <b>" + stop.order + "</b><p>");
@@ -63,7 +68,7 @@ $(document).ready(function () {
             });
 
             var polyline = L.polyline(points, {
-                color: 'black',
+                color: "black",
                 smoothFactor: 5.0
             });
             layers[layerId].addLayer(polyline);
@@ -71,13 +76,13 @@ $(document).ready(function () {
                 patterns: [{
                     offset: 0,
                     endOffset: 0,
-                    repeat: '40',
+                    repeat: "40",
                     symbol: L.Symbol.arrowHead({
                         pixelSize: 10,
                         polygon: true,
                         pathOptions: {
                             fillOpacity: 1,
-                            color: 'black',
+                            color: "black",
                             stroke: true
                         }
                     })
@@ -109,28 +114,10 @@ $(document).ready(function () {
                     operationProgramDate: $(this).closest(".selectorRow").find(".date").val()
                 };
 
-                $.getJSON(Urls['shape:route'](), params, function (data) {
-                    // TODO: delete this, just for testing purpouse
-                    data.points = [{
-                        latitude: -33.458407, longitude: -70.671952
-                    }, {
-                        latitude: -33.457333, longitude: -70.665214
-                    }, {
-                        latitude: -33.456796, longitude: -70.660193
-                    }, {
-                        latitude: -33.458300, longitude: -70.660064
-                    }];
-                    data.stops = [{
-                        longitude: -70.665214,
-                        latitude: -33.457333,
-                        authStopCode: "OP-12-12-31",
-                        userStopCode: "PA433",
-                        stopName: "Blanco encalada con no sé qué",
-                        order: 1
-                    }];
+                $.getJSON(Urls["shape:route"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
-                        //return;
+                        return;
                     }
 
                     // update map
@@ -145,8 +132,8 @@ $(document).ready(function () {
             $REMOVE_BUTTON.off("click");
             $REMOVE_BUTTON.click(function () {
                 var removeButtonRef = $(this);
-                modal.off('show.bs.modal');
-                modal.on('show.bs.modal', function () {
+                modal.off("show.bs.modal");
+                modal.on("show.bs.modal", function () {
                     modal.off("click", "button.btn-info");
                     modal.on("click", "button.btn-info", function () {
                         var layerId = removeButtonRef.parent().data("id");
@@ -164,7 +151,7 @@ $(document).ready(function () {
             $COLOR_BUTTON.off("changeColor");
             $COLOR_BUTTON.colorpicker({format: "rgb"}).on("changeColor", function (e) {
                 var color = e.color.toString("rgba");
-                var layerId = $(this).parent().data('id');
+                var layerId = $(this).parent().data("id");
                 layers[layerId].eachLayer(function (layer) {
                     if (layer instanceof L.Marker) {
                         var iconOpts = layer.options.icon.options;
@@ -172,34 +159,34 @@ $(document).ready(function () {
                         iconOpts.textColor = color;
                         var newIcon = L.BeautifyIcon.icon(iconOpts);
                         layer.setIcon(newIcon);
-                        // console.log('bus stop');
+                        // console.log("bus stop");
                     } else if (layer instanceof L.Polyline) {
-                        // console.log('polyline');
+                        // console.log("polyline");
                         layer.setStyle({color: color});
                     } else if (layer instanceof L.PolylineDecorator) {
-                        // console.log('polylinedecorator');
+                        // console.log("polylinedecorator");
                         layer.setStyle({color: color});
                         layer.options.patterns[0].symbol.options.pathOptions.color = color;
                     }
                 });
-                $(this).css('color', color);
+                $(this).css("color", color);
             });
         };
         this.refreshVisibilityButton = function () {
             var $VISIBILITY_BUTTON = $(".selectorRow .visibility");
-            $VISIBILITY_BUTTON.off('click');
+            $VISIBILITY_BUTTON.off("click");
             $VISIBILITY_BUTTON.click(function () {
                 var button = $(this);
-                var span = button.find('span');
+                var span = button.find("span");
                 var layerId = button.parent().data("id");
 
-                if (span.hasClass('glyphicon-eye-open')) {
-                    button.removeClass('btn-success').addClass("btn-warning");
-                    span.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
+                if (span.hasClass("glyphicon-eye-open")) {
+                    button.removeClass("btn-success").addClass("btn-warning");
+                    span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
                     mapInstance.removeLayer(layers[layerId]);
                 } else {
-                    button.removeClass('btn-warning').addClass("btn-success");
-                    span.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
+                    button.removeClass("btn-warning").addClass("btn-success");
+                    span.removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
                     mapInstance.addLayer(layers[layerId]);
                 }
             });
@@ -227,11 +214,8 @@ $(document).ready(function () {
         };
 
         this.loadBaseData = function () {
-            $.getJSON(Urls['shape:base'](), function (data) {
+            $.getJSON(Urls["shape:base"](), function (data) {
                 // data for selectors
-                // TODO: remove this, just for testing purpouse
-                data.routes = ["506 00I", "507 00R"];
-                data.dates = ["2017-01-01", "2018-01-01"];
                 var authorityRouteList = data.routes.map(function (el) {
                     return "<option>" + el + "</option>";
                 }).join("");
