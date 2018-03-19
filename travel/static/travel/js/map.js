@@ -6,23 +6,20 @@ function MapApp(opts) {
     var getDataZoneById = opts.getDataZoneById || null;
     var getZoneValue = opts.getZoneValue || null;
     var getZoneColor = opts.getZoneColor || null;
-    var mapId = opts.mapId ||"mapChart";
+    var mapId = opts.mapId || "mapChart";
+    var maxZoom = opts.maxZoom || 15;
+    var minZoom = opts.minZoom || 8;
 
     /* map options */
     var mapDefaultLocation = L.latLng(-33.459229, -70.645348);
     var accessToken = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
-    var minZoom = 8;
-    var maxZoom = 15;
 
     var map = L.map(mapId).setView(mapDefaultLocation, minZoom);
     L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
-        minZoom:
-        minZoom,
-        maxZoom:
-        maxZoom,
-        accessToken:
-        accessToken
+        minZoom: minZoom,
+        maxZoom: maxZoom,
+        accessToken: accessToken
     }).addTo(map);
 
     var visibleLimits = [0, 0];
@@ -63,7 +60,7 @@ function MapApp(opts) {
     var mapInfoBar = L.control({position: "topright"});
     var mapLegend = L.control({position: "bottomright"});
 
-    this.getMapInstance = function() {
+    this.getMapInstance = function () {
         return map;
     };
     // ============================================================================
