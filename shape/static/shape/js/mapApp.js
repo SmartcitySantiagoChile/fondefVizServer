@@ -16,7 +16,7 @@ $(document).ready(function () {
             div.innerHTML += '<button id="addRouteButton" class="btn btn-default btn-sm" >' +
                 '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta' +
                 '</button>';
-            div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+            L.DomEvent.disableClickPropagation(div);
             return div;
         };
         addRouteControl.addTo(mapInstance);
@@ -26,7 +26,7 @@ $(document).ready(function () {
             var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="routeListContainer" class="form-inline"</div>';
-            div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+            L.DomEvent.disableClickPropagation(div);
             return div;
         };
         routeListControl.addTo(mapInstance);
@@ -35,7 +35,7 @@ $(document).ready(function () {
         helpControl.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>';
-            div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+            L.DomEvent.disableClickPropagation(div);
             return div;
         };
         helpControl.addTo(mapInstance);
