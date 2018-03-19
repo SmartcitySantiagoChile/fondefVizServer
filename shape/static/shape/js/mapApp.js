@@ -4,7 +4,8 @@ $(document).ready(function () {
     function MapShapeApp() {
         var _self = this;
         var mapOpts = {
-            mapId: $(".right_col")[0]
+            mapId: $(".right_col")[0],
+            maxZoom: 18
         };
         var app = new MapApp(mapOpts);
         var mapInstance = app.getMapInstance();
@@ -47,6 +48,8 @@ $(document).ready(function () {
         var layers = {};
 
         this.addPolyline = function (layerId, points, stops, route) {
+            // clean featureGroup
+            layers[layerId].clearLayers();
             // markers
             stops.forEach(function (stop) {
                 var latLng = L.latLng(stop.latitude, stop.longitude);
