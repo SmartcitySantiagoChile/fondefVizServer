@@ -73,7 +73,8 @@ def export_data_job(es_query_dict, index_name):
     file_name = "query.csv"
     with open(os.path.join(settings.BASE_DIR, 'media', 'files', file_name), 'w') as output:
         writter = csv.writer(output)
-        for doc in Search(using=settings.ES_CLIENT, index=index_name).from_dict(es_query_dict).scan():
+        es_query = Search(using=settings.ES_CLIENT, index=index_name).from_dict(es_query_dict)
+        for doc in es_query.scan():
             writter.writerow(["hola"])
 
     job_execution_obj.executionEnd = timezone.now()
