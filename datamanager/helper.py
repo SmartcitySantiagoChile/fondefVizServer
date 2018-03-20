@@ -42,14 +42,15 @@ class ExporterManager(object):
     def export_data(self):
         with transaction.atomic():
             # check if exist job associate to file obj
-            if ExporterJobExecution.objects.filter(query=str(self.es_query.to_dict())).filter(
+            human_readable_query = str(self.es_query.to_dict()).replace('u\'', '"').replace('\'', '"')
+            if ExporterJobExecution.objects.filter(query=human_readable_query).filter(
                     Q(status=ExporterJobExecution.ENQUEUED) | Q(status=ExporterJobExecution.RUNNING)).exists():
                 raise ThereIsPreviousJobExporterDataError()
 
-            job = export_data_job.delay(self.es_query)
+            job = export_data_job.delay(self.es_query.to_dict())
             ExporterJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
                                                 status=ExporterJobExecution.ENQUEUED,
-                                                query=str(self.es_query.to_dict()))
+                                                query=human_readable_query)
 
 
 class UploaderManager(object):

@@ -5,6 +5,8 @@ from django_rq import job
 from django.conf import settings
 from django.utils import timezone
 
+from elasticsearch_dsl import Search
+
 from rq import get_current_job
 
 from rqworkers.dataUploader.loadData import upload_file
@@ -53,7 +55,7 @@ def upload_exception_handler(job_instance, exc_type, exc_value, traceback):
 
 
 @job('data_exporter')
-def export_data_job(es_query):
+def export_data_job(es_query_dict):
     job_instance = get_current_job()
     # wait until ExporterJobExecution instance exists
     while True:
@@ -71,7 +73,7 @@ def export_data_job(es_query):
     file_name = "query.csv"
     with open(os.path.join(settings.BASE_DIR, 'media', 'files', file_name), 'w') as output:
         writter = csv.writer(output)
-        for doc in es_query.scan():
+        for doc in Search().from_dict(es_query_dict).scan():
             writter.writerow(["hola"])
 
     job_execution_obj.executionEnd = timezone.now()
