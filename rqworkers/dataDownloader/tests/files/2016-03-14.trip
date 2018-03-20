@@ -1,0 +1,4 @@
+id|tipodia|factor_expansion|n_etapas|tviaje|distancia_eucl|distancia_ruta|tiempo_subida|tiempo_bajada|mediahora_subida|mediahora_bajada|periodo_subida|periodo_bajada|tipo_transporte_1|tipo_transporte_2|tipo_transporte_3|tipo_transporte_4|srv_1|srv_2|srv_3|srv_4|paradero_subida|paradero_bajada|comuna_subida|comuna_bajada|zona_subida|zona_bajada
+1090090|0|1.37|1|37.2833|8616.43|11610.00|2016-03-14 16:09:33|2016-03-14 16:46:50|32|33|8|8|2|-1|-1|-1|-|-|-|-|NUBLE|ZAPADORES|25|38|299|40
+1090090|0|1.30|2|37.6167|9169.53|12545.00|2016-03-14 20:30:07|2016-03-14 21:07:44|41|42|10|10|2|1|-1|-1|-|T445 00I|-|-|ZAPADORES|L-18-15-20-NS|38|25|40|238
+1092170|0|1.32|2|36.9833|12124.05|12328.00|2016-03-14 08:16:36|2016-03-14 08:53:35|16|17|4|5|1|2|-1|-1|T406 00R|-|-|-|T-17-136-OP-5|UNIVERSIDAD DE CHILE|3|34|211|285

@@ -1,0 +1,4 @@
+coverage==4.5.1
+elasticsearch==6.1.1
+elasticsearch-dsl==6.1.0
+mock==2.0.0

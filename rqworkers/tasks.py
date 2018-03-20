@@ -10,12 +10,13 @@ from elasticsearch_dsl import Search
 from rq import get_current_job
 
 from rqworkers.dataUploader.loadData import upload_file
+from rqworkers.dataDownloader.downloadData import download_file
 
 from datamanager.models import UploaderJobExecution, ExporterJobExecution
 
 import time
 import os
-import csv
+import json
 
 
 @job('data_uploader')
@@ -69,13 +70,9 @@ def export_data_job(es_query_dict, index_name):
     job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
 
-    # logic to export data here
-    file_name = "query.csv"
-    with open(os.path.join(settings.BASE_DIR, 'media', 'files', file_name), 'w') as output:
-        writter = csv.writer(output)
-        es_query = Search(using=settings.ES_CLIENT, index=index_name).update_from_dict(es_query_dict)
-        for doc in es_query.scan():
-            writter.writerow(["hola"])
+    file_name = "data_query.csv"
+    csv_file = os.path.join(settings.BASE_DIR, 'media', 'files', file_name)
+    download_file(settings.ES_CLIENT, json.dumps(es_query_dict), index_name, csv_file)
 
     job_execution_obj.executionEnd = timezone.now()
     job_execution_obj.status = ExporterJobExecution.FINISHED

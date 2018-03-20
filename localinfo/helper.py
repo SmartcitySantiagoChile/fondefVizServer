@@ -22,15 +22,18 @@ def get_day_type_list_for_select_input(to_dict=False):
     return parser(DayType.objects.values_list('esId', 'name'))
 
 
-def get_operator_list_for_select_input(filter=None):
+def get_operator_list_for_select_input(filter=None, to_dict=False):
     """
     :param filter: list of elasticsearch_id to be returned
     :return: list of dict {esId: elasticsearch_id, text: operator_name}
     """
+    parser = _list_parser
     queryset = Operator.objects.values_list('esId', 'name')
     if filter:
         queryset = queryset.filter(esId__in=filter)
-    return _list_parser(queryset)
+    if to_dict:
+        parser = _dict_parser
+    return parser(queryset)
 
 
 def get_timeperiod_list_for_select_input(to_dict=False):
@@ -40,11 +43,11 @@ def get_timeperiod_list_for_select_input(to_dict=False):
     return parser(TimePeriod.objects.values_list('esId', 'authorityPeriodName'))
 
 
-def get_halfhour_list_for_select_input(to_dict=False):
+def get_halfhour_list_for_select_input(to_dict=False, format='longName'):
     parser = _list_parser
     if to_dict:
         parser = _dict_parser
-    return parser(HalfHour.objects.values_list('esId', 'longName'))
+    return parser(HalfHour.objects.values_list('esId', format))
 
 
 def get_commune_list_for_select_input(to_dict=False):
