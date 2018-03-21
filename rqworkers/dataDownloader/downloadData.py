@@ -3,39 +3,39 @@ from __future__ import unicode_literals
 
 from elasticsearch import Elasticsearch
 
-from rqworkers.dataDownloader.downloader.odbyroute import OdByRouteFile
-from rqworkers.dataDownloader.downloader.profile import ProfileData
-from rqworkers.dataDownloader.downloader.shape import ShapeFile
-from rqworkers.dataDownloader.downloader.speed import SpeedFile
-from rqworkers.dataDownloader.downloader.stop import StopFile
-from rqworkers.dataDownloader.downloader.trip import TripFile
+# from rqworkers.dataDownloader.downloader.odbyroute import OdByRouteFile
+from downloader.profile import ProfileDataByExpedition, ProfileDataByStop
+# from rqworkers.dataDownloader.downloader.shape import ShapeFile
+# from rqworkers.dataDownloader.downloader.speed import SpeedFile
+# from rqworkers.dataDownloader.downloader.stop import StopFile
+# from rqworkers.dataDownloader.downloader.trip import TripFile
 
-from rqworkers.dataDownloader.errors import UnrecognizedIndexNameError
+from errors import UnrecognizedIndexNameError
 
 import argparse
 
 
-def download_file(es_instance, query, index_name, csv_file, chunk_size=5000, timeout=30):
+def download_file(es_instance, query, index_name, zip_file_path, chunk_size=5000, timeout=30):
     """ download file to elasticsearch """
 
     # Determine file type according to index name
     if index_name == 'odbyroute':
-        data_to_download = OdByRouteFile(csv_file)
+        data_to_download = OdByRouteFile()
     elif index_name == 'profile':
-        data_to_download = ProfileData(csv_file)
+        data_to_download = ProfileDataByExpedition()
     elif index_name == 'shape':
-        data_to_download = ShapeFile(csv_file)
+        data_to_download = ShapeFile()
     elif index_name == 'speed':
-        data_to_download = SpeedFile(csv_file)
+        data_to_download = SpeedFile()
     elif index_name == 'stop':
-        data_to_download = StopFile(csv_file)
+        data_to_download = StopFile()
     elif index_name == 'trip':
-        data_to_download = TripFile(csv_file)
+        data_to_download = TripFile()
     else:
-        raise UnrecognizedIndexNameError(csv_file)
+        raise UnrecognizedIndexNameError()
 
     # Load file to elasticsearch
-    data_to_download.download(es_instance, query, index_name, chunk_size, timeout)
+    data_to_download.download(es_instance, query, index_name, zip_file_path, chunk_size, timeout)
 
 
 def main():

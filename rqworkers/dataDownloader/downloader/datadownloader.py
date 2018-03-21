@@ -7,6 +7,8 @@ import csv
 import zipfile
 import json
 
+README_FILE_NAME = 'Léeme.txt'
+
 
 class DataDownloader:
 

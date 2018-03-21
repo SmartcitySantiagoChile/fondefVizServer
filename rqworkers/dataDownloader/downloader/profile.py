@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rqworkers.dataDownloader.downloader.datadownloader import DataDownloader
+from downloader.datadownloader import DataDownloader, README_FILE_NAME
 
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input
 
 
-class ProfileData(DataDownloader):
+class ProfileDataByExpedition(DataDownloader):
     """ Class that represents a profile downloader. """
 
     def __init__(self):
@@ -25,7 +25,7 @@ class ProfileData(DataDownloader):
                 'Código_parada_usuario', 'Nombre_parada', 'Hora_inicio_expedición', 'Hora_fin_expedición',
                 'Cumplimiento', 'Secuencia_parada', 'Identificador_expedición_día',
                 'Distancia_parada_desde_inicio_ruta', 'Subidas_expandidas', 'Bajadas_expandidas',
-                'Perfil_carga_al_llegar', 'Capacidad_bus', 'Hora_detención_en_parada',
+                'Perfil_carga_al_llegar', 'Capacidad_bus', 'Hora_en_parada',
                 'Periodo_transantiago_inicio_expedicion', 'Periodo_transantiago_parada_expedición', 'Tipo_dia',
                 'Zona_paga', 'Número_transacciones_en_parada', 'Media_hora_de_inicio_expedición',
                 'Media_hora_en_parada']
@@ -40,7 +40,7 @@ class ProfileData(DataDownloader):
 
     def add_additional_files(self, zip_file_obj):
         # copy readme file
-        with zip_file_obj.write("Léeme.txt", 'w') as output_file:
+        with zip_file_obj.write(README_FILE_NAME, 'w') as output_file:
             with open('profile.readme', 'rb') as input_file:
                 content = input_file.read()
                 # incluir filtros y archivos adicionales
@@ -66,3 +66,9 @@ class ProfileData(DataDownloader):
             formatted_row.append(value)
 
         return formatted_row
+
+
+class ProfileDataByStop(ProfileDataByExpedition):
+
+    def add_additional_files(self, zip_file_obj):
+        pass
