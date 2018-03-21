@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from downloader.datadownloader import DataDownloader, README_FILE_NAME
+
+from rqworkers.dataDownloader.downloader.datadownloader import DataDownloader, README_FILE_NAME
 
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input

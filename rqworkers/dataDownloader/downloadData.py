@@ -3,8 +3,11 @@ from __future__ import unicode_literals
 
 from elasticsearch import Elasticsearch
 
+import sys
+sys.path.append('D:\\PycharmProjects\\fondefVizServer')
+
 # from rqworkers.dataDownloader.downloader.odbyroute import OdByRouteFile
-from downloader.profile import ProfileDataByExpedition, ProfileDataByStop
+from rqworkers.dataDownloader.downloader.profile import ProfileDataByExpedition, ProfileDataByStop
 # from rqworkers.dataDownloader.downloader.shape import ShapeFile
 # from rqworkers.dataDownloader.downloader.speed import SpeedFile
 # from rqworkers.dataDownloader.downloader.stop import StopFile
