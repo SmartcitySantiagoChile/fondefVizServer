@@ -70,7 +70,7 @@ def export_data_job(es_query_dict, index_name):
     job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
 
-    file_name = "data_query.csv"
+    file_name = "data_query.zip"
     csv_file = os.path.join(settings.BASE_DIR, 'media', 'files', file_name)
     download_file(settings.ES_CLIENT, json.dumps(es_query_dict), index_name, csv_file)
 
