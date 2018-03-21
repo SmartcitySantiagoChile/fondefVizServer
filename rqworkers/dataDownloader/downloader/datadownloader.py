@@ -59,6 +59,10 @@ class DataDownloader:
     def get_filter_criteria(self):
         """ return list used to put in readme file to specify filters applied over data """
         formatted_filters = []
+
+        if 'bool' not in self.es_query['query']:
+            return ''
+
         filters = self.es_query['query']['bool']['filter']
 
         if not isinstance(filters, list):
