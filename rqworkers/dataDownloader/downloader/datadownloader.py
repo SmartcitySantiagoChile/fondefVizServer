@@ -80,11 +80,11 @@ class DataDownloader:
                 values = filter['terms'][field]
 
                 if field == 'dayType':
-                    values = [self.day_type_dict[x] for x in values]
+                    values = [self.day_type_dict[int(x)] for x in values]
                 elif field in ['timePeriodInStartTime', 'timePeriodInStopTime']:
-                    values = [self.timeperiod_dict[x] for x in values]
+                    values = [self.timeperiod_dict[int(x)] for x in values]
                 elif field in ['halfHourInStartTime', 'halfHourInStopTime']:
-                    values = [self.halfhour_dict[x] for x in values]
+                    values = [self.halfhour_dict[int(x)] for x in values]
 
                 line = '\t\t- {0}:'.format(self.translator[field])
                 formatted_filters.append(line)
