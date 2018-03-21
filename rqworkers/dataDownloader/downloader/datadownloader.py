@@ -41,7 +41,7 @@ class DataDownloader:
                     writter = UnicodeWriter(output, delimiter=str(','))
                     writter.writerow(self.get_header())
                     es_query = Search(using=es_client, index=index_name).update_from_dict(self.es_query)
-                    es_query.source(self.get_fields())
+                    es_query = es_query.source(self.get_fields())
                     es_query.params = {'request_timeout': timeout, 'size': chunk_size}
                     for doc in es_query.scan():
                         writter.writerow(self.row_parser(doc))
