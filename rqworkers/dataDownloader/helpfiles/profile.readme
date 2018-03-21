@@ -6,14 +6,12 @@ El archivo zip contiene los siguientes archivos:
 
     - Perfiles.csv: archivo de perfiles de carga, cada fila representa el cruce de una expedición por una parada de su
                     secuencia de parada.
-    <put_additional_files_here>
-    - Léeme.txt: ayuda
+    <put_additional_files_here>- Léeme.txt: ayuda
 
 
 Los datos contenidos en los archivos fueron construidos con los siguientes filtros:
 
 <put_filters_here>
-
 
 El archivo Perfiles.csv contiene las siguientes columnas:
 

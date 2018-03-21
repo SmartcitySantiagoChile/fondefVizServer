@@ -5,3 +5,6 @@ from __future__ import unicode_literals
 class UnrecognizedIndexNameError(Exception):
     pass
 
+
+class FilterHasToBeListErrpr(Exception):
+    pass

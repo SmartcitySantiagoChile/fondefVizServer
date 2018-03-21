@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys, os, django
+
+sys.path.append('C:\\Users\\cephei\\PycharmProjects\\fondefVizServer')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fondefVizServer.settings")
+django.setup()
+
 from elasticsearch import Elasticsearch
 
-import sys
-sys.path.append('D:\\PycharmProjects\\fondefVizServer')
-
-# from rqworkers.dataDownloader.downloader.odbyroute import OdByRouteFile
+from rqworkers.dataDownloader.downloader.odbyroute import OdByRouteFile
 from rqworkers.dataDownloader.downloader.profile import ProfileDataByExpedition, ProfileDataByStop
-# from rqworkers.dataDownloader.downloader.shape import ShapeFile
-# from rqworkers.dataDownloader.downloader.speed import SpeedFile
-# from rqworkers.dataDownloader.downloader.stop import StopFile
-# from rqworkers.dataDownloader.downloader.trip import TripFile
+from rqworkers.dataDownloader.downloader.shape import ShapeFile
+from rqworkers.dataDownloader.downloader.speed import SpeedFile
+from rqworkers.dataDownloader.downloader.stop import StopFile
+from rqworkers.dataDownloader.downloader.trip import TripFile
 
 from errors import UnrecognizedIndexNameError
 
 import argparse
+import json
 
 
 def download_file(es_instance, query, index_name, zip_file_path, chunk_size=5000, timeout=30):
@@ -23,22 +27,22 @@ def download_file(es_instance, query, index_name, zip_file_path, chunk_size=5000
 
     # Determine file type according to index name
     if index_name == 'odbyroute':
-        data_to_download = OdByRouteFile()
+        data_to_download = OdByRouteFile(query)
     elif index_name == 'profile':
-        data_to_download = ProfileDataByExpedition()
+        data_to_download = ProfileDataByExpedition(query)
     elif index_name == 'shape':
-        data_to_download = ShapeFile()
+        data_to_download = ShapeFile(query)
     elif index_name == 'speed':
-        data_to_download = SpeedFile()
+        data_to_download = SpeedFile(query)
     elif index_name == 'stop':
-        data_to_download = StopFile()
+        data_to_download = StopFile(query)
     elif index_name == 'trip':
-        data_to_download = TripFile()
+        data_to_download = TripFile(query)
     else:
         raise UnrecognizedIndexNameError()
 
     # Load file to elasticsearch
-    data_to_download.download(es_instance, query, index_name, zip_file_path, chunk_size, timeout)
+    data_to_download.download(es_instance, index_name, zip_file_path, chunk_size, timeout)
 
 
 def main():
@@ -70,6 +74,7 @@ def main():
     chunk_size = args.chunk
     timeout = args.timeout
 
+    query = json.loads(query.replace('\'', '"'))
     print('downloading data from index \'{0}\' to file {1}'.format(index_name, csv_file))
     download_file(es, query, index_name, csv_file, chunk_size, timeout)
 
