@@ -5,8 +5,6 @@ from django_rq import job
 from django.conf import settings
 from django.utils import timezone
 
-from elasticsearch_dsl import Search
-
 from rq import get_current_job
 
 from rqworkers.dataUploader.loadData import upload_file
@@ -16,7 +14,6 @@ from datamanager.models import UploaderJobExecution, ExporterJobExecution
 
 import time
 import os
-import json
 
 
 @job('data_uploader')
@@ -71,8 +68,8 @@ def export_data_job(es_query_dict, index_name):
     job_execution_obj.save()
 
     file_name = "data_query.zip"
-    csv_file = os.path.join(settings.BASE_DIR, 'media', 'files', file_name)
-    download_file(settings.ES_CLIENT, json.dumps(es_query_dict), index_name, csv_file)
+    zip_file = os.path.join(settings.BASE_DIR, 'media', 'files', file_name)
+    download_file(settings.ES_CLIENT, es_query_dict, index_name, zip_file)
 
     job_execution_obj.executionEnd = timezone.now()
     job_execution_obj.status = ExporterJobExecution.FINISHED
