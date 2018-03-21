@@ -47,7 +47,7 @@ class LoadManagerHTML(View):
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de viajes',
-                'id': 'travelTable', 'title_icon': 'fa-line-chart', 'title': 'Viajes'
+                'id': 'tripTable', 'title_icon': 'fa-line-chart', 'title': 'Viajes'
             }
         ]
         operation_program_tables = [
