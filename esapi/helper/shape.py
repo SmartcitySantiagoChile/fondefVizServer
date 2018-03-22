@@ -75,7 +75,7 @@ class ESShapeHelper(ElasticSearchHelper):
         }).sort('-startDate')[:1]
 
         try:
-            point_list = es_query.execute().hits.hits[0]['_source']['points']
+            point_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:
             raise ESQueryShapeDoesNotExist()
 

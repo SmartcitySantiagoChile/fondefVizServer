@@ -76,7 +76,7 @@ class MatrixData(View):
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
 
-            shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)
+            shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)['points']
             route_points = [[s['latitude'], s['longitude']] for s in shape]
             limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
 
@@ -181,7 +181,7 @@ class SpeedByRoute(View):
             check_operation_program(start_date, end_date)
 
             es_helper = ESShapeHelper()
-            shape = es_helper.get_route_shape(route, start_date, end_date)
+            shape = es_helper.get_route_shape(route, start_date, end_date)['points']
             route_points = [[s['latitude'], s['longitude']] for s in shape]
             limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
             start_end = list(zip(limits[:-1], limits[1:]))
