@@ -239,7 +239,7 @@ class LoadProfileByExpeditionData(View):
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response['trips'] = self.transform_answer(es_query)
-                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)
+                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)['stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

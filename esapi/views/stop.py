@@ -24,7 +24,8 @@ class GetRouteStop(View):
 
             es_stop_helper = ESStopHelper()
 
-            response["stops"] = es_stop_helper.get_stop_list(route, operation_program_date, operation_program_date)
+            response["stops"] = es_stop_helper.get_stop_list(route, operation_program_date, operation_program_date)[
+                'stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

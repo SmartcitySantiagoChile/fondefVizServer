@@ -75,7 +75,7 @@ class ESStopHelper(ElasticSearchHelper):
         }).sort('-startDate')[:1]
 
         try:
-            stop_list = es_query.execute().hits.hits[0]['_source']['stops']
+            stop_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:
             raise ESQueryStopListDoesNotExist()
 
