@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 
-class UnrecognizedIndexNameError(Exception):
+class UnrecognizedDownloaderNameError(Exception):
     pass
 
 

@@ -4,11 +4,10 @@ from __future__ import unicode_literals
 from elasticsearch_dsl import Search
 
 from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
+from rqworkers.dataDownloader.errors import FilterHasToBeListErrpr
 
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input
-
-from rqworkers.dataDownloader.errors import FilterHasToBeListErrpr
 
 import os
 import zipfile
@@ -18,9 +17,18 @@ README_FILE_NAME = 'Léeme.txt'
 
 
 class DataDownloader:
+    # files type
+    PROFILE_BY_EXPEDITION_DATA = 'profile_by_expedition'
+    PROFILE_BY_STOP_DATA = 'profile_by_stop'
+    OD_BY_ROUTE_DATA = 'od_by_route_data'
+    SHAPE_DATA = 'shape_data'
+    STOP_DATA = 'stop_data'
+    SPEED_MATRIX_DATA = 'speed_matrix_data'
 
-    def __init__(self, es_query):
+    def __init__(self, es_client, es_query, index_name):
+        self.es_client = es_client
         self.es_query = es_query
+        self.index_name = index_name
 
         self.operator_dict = get_operator_list_for_select_input(to_dict=True)
         self.day_type_dict = get_day_type_list_for_select_input(to_dict=True)
@@ -32,25 +40,39 @@ class DataDownloader:
         ]
         self.translator = self.create_translator()
 
-    def download(self, es_client, index_name, zip_file, chunk_size, timeout):
+    def download(self, zip_file, chunk_size=5000, timeout=30):
         # create zipfile
-        with zipfile.ZipFile(zip_file, 'w') as zip_file_obj:
-            tmp_file_name = str(uuid.uuid4())
-            try:
-                with open(tmp_file_name, 'wb') as output:
-                    writter = UnicodeWriter(output, delimiter=str(','))
-                    writter.writerow(self.get_header())
-                    es_query = Search(using=es_client, index=index_name).update_from_dict(self.es_query)
-                    es_query = es_query.source(self.get_fields())
-                    es_query.params = {'request_timeout': timeout, 'size': chunk_size}
-                    for doc in es_query.scan():
-                        writter.writerow(self.row_parser(doc))
+        close_zip_file = False
+        if isinstance(zip_file, zipfile.ZipFile):
+            zip_file_obj = zip_file
+        else:
+            zip_file_obj = zipfile.ZipFile(zip_file, 'w')
+            close_zip_file = True
 
-                zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
-            finally:
-                os.remove(tmp_file_name)
+        tmp_file_name = str(uuid.uuid4())
+        try:
+            with open(tmp_file_name, 'wb') as output:
+                writter = UnicodeWriter(output, delimiter=str(','))
+                writter.writerow(self.get_header())
+                es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
+                es_query = es_query.source(self.get_fields())
+                es_query.params = {'request_timeout': timeout, 'size': chunk_size}
+                for doc in es_query.scan():
+                    row = self.row_parser(doc)
+                    if isinstance(row[0], list):
+                        # there are more than one row in variable
+                        writter.writerows(row)
+                    else:
+                        writter.writerow(row)
 
-            self.add_additional_files(zip_file_obj)
+            zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
+        finally:
+            os.remove(tmp_file_name)
+
+        self.add_additional_files(zip_file_obj)
+
+        if close_zip_file:
+            zip_file_obj.close()
 
     def create_translator(self):
         """ create dict with structure es_name: csv_name """
@@ -68,20 +90,20 @@ class DataDownloader:
         if not isinstance(filters, list):
             raise FilterHasToBeListErrpr()
 
-        for filter in filters:
-            if 'term' in filter:
-                field = filter['term'].keys()[0]
-                value = filter['term'][field]
+        for query_filter in filters:
+            if 'term' in query_filter:
+                field = query_filter['term'].keys()[0]
+                value = query_filter['term'][field]
                 field = field.split('.')[0]
 
                 line = '\t\t- {0}: {1}'.format(self.translator[field], value)
                 formatted_filters.append(line)
-            elif 'terms' in filter:
+            elif 'terms' in query_filter:
                 # ignore operator filter
-                if 'operator' in filter['terms']:
+                if 'operator' in query_filter['terms']:
                     continue
-                field = filter['terms'].keys()[0]
-                values = filter['terms'][field]
+                field = query_filter['terms'].keys()[0]
+                values = query_filter['terms'][field]
 
                 if field == 'dayType':
                     values = [self.day_type_dict[int(x)] for x in values]
@@ -95,10 +117,10 @@ class DataDownloader:
                 for value in values:
                     line = '\t\t\t{0}'.format(value)
                     formatted_filters.append(line)
-            elif 'range' in filter:
-                field = filter['range'].keys()[0]
-                gte = filter['range'][field]["gte"].replace("||/d", "")
-                lte = filter['range'][field]["lte"].replace("||/d", "")
+            elif 'range' in query_filter:
+                field = query_filter['range'].keys()[0]
+                gte = query_filter['range'][field]["gte"].replace("||/d", "")
+                lte = query_filter['range'][field]["lte"].replace("||/d", "")
 
                 line = '\t\t- {0}: {1} - {2}'.format(self.translator[field], gte, lte)
                 formatted_filters.append(line)

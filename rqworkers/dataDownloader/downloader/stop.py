@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from itertools import groupby
+from rqworkers.dataDownloader.downloader.datadownloader import DataDownloader
 
-from rqworkers.dataUploader.uploader.datafile import DataFile, get_timestamp
-
-import csv
-import traceback
+from esapi.helper.stop import ESStopHelper
 
 
-class StopFile(DataFile):
+class StopFile(DataDownloader):
     """ Class that represents a stop file. """
 
-    def __init__(self, datafile):
-        DataFile.__init__(self, datafile)
-        self.fieldnames = ['authRouteCode', 'userRouteCode', 'operator', 'order', 'authStopCode', 'userStopCode',
-                           'stopName', 'latitude', 'longitude']
+    def __init__(self, es_client, es_query):
+        DataDownloader.__init__(self, es_client, es_query, ESStopHelper().get_index_name())
+
+        self.column_dict = [
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago'},
+            {'es_name': 'userRouteCode', 'csv_name': 'Servicio_transantiago'},
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago'},
+            {'es_name': 'startDate', 'csv_name': 'Fecha_inicio_programa_operación'},
+            {'es_name': 'points', 'csv_name': 'Latitud,Longitud'}
+        ]
+        self.translator = self.create_translator()
 
     def row_parser(self, row, path, timestamp):
         pass

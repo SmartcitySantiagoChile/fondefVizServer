@@ -2,6 +2,10 @@
 from __future__ import unicode_literals
 
 from rqworkers.dataDownloader.downloader.datadownloader import DataDownloader, README_FILE_NAME
+from rqworkers.dataDownloader.downloader.shape import ShapeFile
+from rqworkers.dataDownloader.downloader.stop import StopFile
+
+from esapi.helper.profile import ESProfileHelper
 
 import os
 
@@ -9,8 +13,8 @@ import os
 class ProfileDataByExpedition(DataDownloader):
     """ Class that represents a profile downloader. """
 
-    def __init__(self, es_query):
-        DataDownloader.__init__(self, es_query)
+    def __init__(self, es_client, es_query):
+        DataDownloader.__init__(self, es_client, es_query, ESProfileHelper().get_index_name())
         self.column_dict = [
             {'es_name': 'operator', 'csv_name': 'Operador'},
             {'es_name': 'route', 'csv_name': 'Servicio_transantiago'},
@@ -44,17 +48,33 @@ class ProfileDataByExpedition(DataDownloader):
         return 'Perfil.csv'
 
     def add_additional_files(self, zip_file_obj):
-        # copy readme file
+        # save shape file in zipfile
+        def get_route():
+            for query_filter in self.es_query['query']['bool']['filter']:
+                if 'term' in query_filter and 'route' in query_filter['term']:
+                    return query_filter
+
+        route = get_route()
+        shape_query = {'query': {'bool': {'filter': {'term': {'route': route}}}}}
+        shape_downloader = ShapeFile(self.es_client, shape_query)
+        shape_downloader.download(zip_file_obj)
+        additional_file = '\t- {0}: Geometría del servicio\r\n'.format(shape_downloader.get_data_file_name())
+
+        stop_query = {'query': {'bool': {'filter': {'term': {'authRouteCode': route}}}}}
+        stop_downloader = StopFile(self.es_client, stop_query)
+        stop_downloader.download(zip_file_obj)
+        additional_file += '\t- {0}: Secuencia de parada\r\n'.format(stop_downloader.get_data_file_name())
+
+        # create readme file
         file_name = 'profile.readme'
         file_path = os.path.join(os.path.dirname(__file__), '..', 'helpfiles', file_name)
-
         with open(file_path, 'r') as input_file:
             content = input_file.read()
             filter_description = self.get_filter_criteria().encode('utf-8')
             content.replace('\n'.encode('utf-8'), '\r\n'.encode('utf-8'))
             content = content.replace('<put_filters_here>'.encode('utf-8'), filter_description)
-            addional_files = '<put_additional_files_here>'.encode('utf-8')
-            content = content.replace(addional_files, ''.encode('utf-8'))
+            additional_files = '<put_additional_files_here>'.encode('utf-8')
+            content = content.replace(additional_files, additional_file.encode('utf-8'))
 
         zip_file_obj.writestr(README_FILE_NAME, content)
 
@@ -86,6 +106,9 @@ class ProfileDataByExpedition(DataDownloader):
 
 
 class ProfileDataByStop(ProfileDataByExpedition):
+
+    def __init__(self, es_query, index_name):
+        ProfileDataByExpedition.__init__(self, es_query, index_name)
 
     def add_additional_files(self, zip_file_obj):
         pass
