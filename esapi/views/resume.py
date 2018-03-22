@@ -9,6 +9,8 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.errors import ESQueryResultEmpty
 
+from datetime import datetime
+
 # to translate variable to user name
 DICTIONARY = {
     'date': {'name': 'Día', 'order': 1},
@@ -141,7 +143,7 @@ class GlobalData(PermissionRequiredMixin, View):
                 row[keys[key]] = value
             answer.append(row)
         # sort
-        answer = sorted(answer, key=lambda x: dateparse.parse_datetime(x[0]))
+        answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
 
         if len(answer) == 0:
             raise ESQueryResultEmpty()
