@@ -14,40 +14,39 @@ django.setup()
 
 from elasticsearch import Elasticsearch
 
-from rqworkers.dataDownloader.downloader.datadownloader import DataDownloader
-from rqworkers.dataDownloader.downloader.odbyroute import OdByRouteFile
-from rqworkers.dataDownloader.downloader.profile import ProfileDataByExpedition, ProfileDataByStop
-from rqworkers.dataDownloader.downloader.shape import ShapeFile
-from rqworkers.dataDownloader.downloader.speed import SpeedFile
-from rqworkers.dataDownloader.downloader.stop import StopFile
-from rqworkers.dataDownloader.downloader.trip import TripFile
+from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
+from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteFile
+from rqworkers.dataDownloader.csvhelper.speed import SpeedFile
+from rqworkers.dataDownloader.csvhelper.trip import TripFile
 
 from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
 
+import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 
-def download_file(es_instance, query, downloader, zip_file_path, chunk_size=5000, timeout=30):
+
+def download_file(es_instance, query, downloader, zip_file_path):
     """ download file to elasticsearch """
 
     # Determine file type according to index name
-    if downloader == DataDownloader.OD_BY_ROUTE_DATA:
+    if downloader == csv_helper.OD_BY_ROUTE_DATA:
         data_to_download = OdByRouteFile(es_instance, query)
-    elif downloader == DataDownloader.PROFILE_BY_EXPEDITION_DATA:
-        data_to_download = ProfileDataByExpedition(es_instance, query)
-    elif downloader == DataDownloader.PROFILE_BY_STOP_DATA:
+    elif downloader == csv_helper.PROFILE_BY_EXPEDITION_DATA:
+        data_to_download = ProfileByExpeditionData(es_instance, query)
+    elif downloader == csv_helper.PROFILE_BY_STOP_DATA:
         data_to_download = ProfileDataByStop(es_instance, query)
-    elif downloader == DataDownloader.SHAPE_DATA:
+    elif downloader == csv_helper.SHAPE_DATA:
         data_to_download = ShapeFile(es_instance, query)
-    elif downloader == DataDownloader.SPEED_MATRIX_DATA:
+    elif downloader == csv_helper.SPEED_MATRIX_DATA:
         data_to_download = SpeedFile(es_instance, query)
-    elif downloader == DataDownloader.STOP_DATA:
+    elif downloader == csv_helper.STOP_DATA:
         data_to_download = StopFile(es_instance, query)
-    elif downloader == DataDownloader.TRIP_DATA:
+    elif downloader == csv_helper.TRIP_DATA:
         data_to_download = TripFile(es_instance, query)
     else:
         raise UnrecognizedDownloaderNameError()
 
     # Download data to file from elasticsearch
-    data_to_download.download(zip_file_path, chunk_size, timeout)
+    data_to_download.build_file(zip_file_path)
 
 
 def main():
@@ -61,12 +60,9 @@ def main():
 
     parser.add_argument('query', help='dsl query')
     parser.add_argument('downloader', help='you can choose: profile_by_expedition, profile_by_stop, od_by_route_data, shape_data, stop_data, speed_matrix_data')
-    parser.add_argument('file', help='data file path, e.g. /path/to/file.csv')
+    parser.add_argument('file', help='data file path, e.g. /path/to/file.csvhelper')
     parser.add_argument('--host', default="127.0.0.1", help='elasticsearch host, default is "127.0.0.1"')
     parser.add_argument('--port', default=9200, help='port, default is 9200')
-    parser.add_argument('--chunk', default=5000, type=int, help='number of docs to send in one chunk, default is 5000')
-    parser.add_argument('--timeout', default=30, type=int,
-                        help='explicit timeout for each call, default is 30 (seconds)')
     args = parser.parse_args()
 
     # Get a client
@@ -74,14 +70,12 @@ def main():
 
     # Give names to arguments
     query = args.query
-    index_name = args.index
+    downloader = args.downloader
     csv_file = args.file
-    chunk_size = args.chunk
-    timeout = args.timeout
 
     query = json.loads(query.replace('\'', '"'))
-    print('downloading data from index \'{0}\' to file {1}'.format(index_name, csv_file))
-    download_file(es, query, index_name, csv_file, chunk_size, timeout)
+    print('downloading data to file {1} with downloader \'{1}\''.format(csv_file, downloader))
+    download_file(es, query, downloader, csv_file)
 
 
 if __name__ == "__main__":
