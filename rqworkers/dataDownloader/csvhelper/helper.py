@@ -7,7 +7,7 @@ from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
 from rqworkers.dataDownloader.errors import FilterHasToBeListErrpr
 
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
-    get_operator_list_for_select_input, get_halfhour_list_for_select_input
+    get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
@@ -69,6 +69,8 @@ class CSVHelper:
         self.day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         self.timeperiod_dict = get_timeperiod_list_for_select_input(to_dict=True)
         self.halfhour_dict = get_halfhour_list_for_select_input(to_dict=True, format='name')
+        self.commune_dict = get_commune_list_for_select_input(to_dict=True)
+
         self.translator = self.create_translator()
 
     def get_iterator(self, kwargs):
@@ -345,6 +347,81 @@ class ODByRouteCSVHelper(CSVHelper):
                     value = self.operator_dict[value]
                 elif column_name == 'timePeriodInStopTime':
                     value = self.timeperiod_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row
+
+
+class TripCSVHelper(CSVHelper):
+    """ Class that represents a odbyroute file. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESTripHelper.get_index_name())
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'id', 'csv_name': 'identificador_diario_viaje'},
+            {'es_name': 'tipodia', 'csv_name': 'Tipo_día'},
+            {'es_name': 'factor_expansion', 'csv_name': 'Factor_expansion'},
+            {'es_name': 'n_etapas', 'csv_name': 'Número_etapas'},
+            {'es_name': 'tviaje', 'csv_name': 'Tiempo_viaje'},
+            {'es_name': 'distancia_eucl', 'csv_name': 'Distancia_euclidiana'},
+            {'es_name': 'distancia_ruta', 'csv_name': 'Distancia_considerando_ruta'},
+            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida'},
+            {'es_name': 'tiempo_bajada', 'csv_name': 'Tiempo_bajada'},
+            {'es_name': 'mediahora_subida', 'csv_name': 'Media_hora_subida'},
+            {'es_name': 'mediahora_bajada', 'csv_name': 'Media_hora_bajada'},
+            {'es_name': 'periodo_subida', 'csv_name': 'Periodo_transantiago_subida'},
+            {'es_name': 'periodo_bajada', 'csv_name': 'Período_transantiago_bajada'},
+            {'es_name': 'tipo_transporte_1', 'csv_name': 'Tipo_transporte_etapa_1'},
+            {'es_name': 'tipo_transporte_2', 'csv_name': 'Tipo_transporte_etapa_1'},
+            {'es_name': 'tipo_transporte_3', 'csv_name': 'Tipo_transporte_etapa_1'},
+            {'es_name': 'tipo_transporte_4', 'csv_name': 'Tipo_transporte_etapa_1'},
+            {'es_name': 'srv_1', 'csv_name': 'Servicio_etapa_1'},
+            {'es_name': 'srv_2', 'csv_name': 'Servicio_etapa_2'},
+            {'es_name': 'srv_3', 'csv_name': 'Servicio_etapa_3'},
+            {'es_name': 'srv_4', 'csv_name': 'Servicio_etapa_4'},
+            {'es_name': 'paradero_subida', 'csv_name': 'Parada_subida'},
+            {'es_name': 'paradero_bajada', 'csv_name': 'Parada_bajada'},
+            {'es_name': 'comuna_subida', 'csv_name': 'Comuna_subida'},
+            {'es_name': 'comuna_bajada', 'csv_name': 'Comuna_bajada'},
+            {'es_name': 'zona_subida', 'csv_name': 'Zona_777_subida'},
+            {'es_name': 'zona_bajada', 'csv_name': 'Zona_777_bajada'},
+        ]
+
+    def get_data_file_name(self):
+        return 'Viajes.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa un viaje.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'tipodia':
+                    value = self.day_type_dict[value]
+                elif column_name in ['mediahora_subida', 'mediahora_bajada']:
+                    value = self.halfhour_dict[value]
+                elif column_name == ['periodo_subida', 'periodo_bajada']:
+                    value = self.timeperiod_dict[value]
+                elif column_name == ['tipo_transporte_1', 'tipo_transporte_2', 'tipo_transporte_3',
+                                     'tipo_transporte_4']:
+                    # TODO: apply dictionary
+                    value = value
+                elif column_name in ['comuna_subida', 'comuna_bajada']:
+                    value = self.commune_dict[value]
             except KeyError:
                 value = ""
 
