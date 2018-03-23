@@ -260,11 +260,11 @@ class SpeedVariation(View):
                 dia_stats = 0
                 for day in per.days.buckets:
                     if day.key[0] == '*' and day.time.value > 0:
-                        mes = 3.6 * day.speed.value
+                        mes = day.speed.value
                         nob_mes = day.n_obs.value
                         mes_stats = day.stats.std_deviation
                     elif day.key[-1] == '*' and day.time.value > 0:
-                        dia = 3.6 * day.speed.value
+                        dia = day.speed.value
                         nob_dia = day.n_obs.value
                         dia_stats = day.stats.std_deviation
 
@@ -307,7 +307,7 @@ class SpeedVariation(View):
 
         return data, l_routes
 
-    def process_request(self, request, params, export_data=True):
+    def process_request(self, request, params, export_data=False):
         end_date = params.get('startDate', '')[:10]
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date
@@ -330,8 +330,9 @@ class SpeedVariation(View):
             end_date_obj = datetime.datetime.strptime(end_date, date_format)
             days = 31
             if (end_date_obj - most_recent_op_program_date_obj).days < days:
-                days = most_recent_op_program_date
-                response['status'] = SpeedVariationWithLessDaysMessage(days, most_recent_op_program_date)
+                days = (end_date_obj - most_recent_op_program_date_obj).days
+                response['status'] = SpeedVariationWithLessDaysMessage(days, most_recent_op_program_date). \
+                    get_status_response()
 
             start_date = (end_date_obj - datetime.timedelta(days=days)).strftime(date_format)
             check_operation_program(start_date, end_date)
