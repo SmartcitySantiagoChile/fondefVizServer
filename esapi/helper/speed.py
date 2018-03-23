@@ -26,7 +26,7 @@ class ESSpeedHelper(ElasticSearchHelper):
             raise ESQueryOperatorParameterDoesNotExist()
 
         searches = {
-            'routes': self.get_unique_list_query('route', size=5000, query=es_query)
+            'routes': self.get_unique_list_query('authRouteCode', size=5000, query=es_query)
         }
         result = self.make_multisearch_query_for_aggs(searches)['routes']
 
