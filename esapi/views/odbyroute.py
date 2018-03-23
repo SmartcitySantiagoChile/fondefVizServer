@@ -46,15 +46,13 @@ class AvailableRoutes(View):
 
 class ODMatrixData(View):
 
-    def get(self, request):
-        """ data data """
+    def process_request(self, request, params, export_data=False):
 
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        day_type = request.GET.getlist('dayType[]')
-        period = request.GET.getlist('period[]')
-        auth_route_code = request.GET.get('authRoute')
-        export_data = True if request.GET.get('exportData', False) == 'true' else False
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        day_type = params.getlist('dayType[]')
+        period = params.getlist('period[]')
+        auth_route_code = params.get('authRoute')
 
         response = {
             'data': {}
@@ -86,3 +84,9 @@ class ODMatrixData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        self.process_request(request, request.GET)
+
+    def post(self, request):
+        self.process_request(request, request.POST, export_data=True)

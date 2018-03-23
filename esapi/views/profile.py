@@ -77,7 +77,7 @@ class LoadProfileByStopData(View):
                 'licensePlate': hit.licensePlate,
                 'route': hit.route,
                 'stopTime': "" if hit.expeditionStopTime == "0" else hit.expeditionStopTime,
-                'stopTimePeriod': time_period_dict[hit.timePeriodInStopTime] if hit.timePeriodInStopTime>-1 else None,
+                'stopTimePeriod': time_period_dict[hit.timePeriodInStopTime] if hit.timePeriodInStopTime > -1 else None,
                 'dayType': day_type_dict[hit.dayType],
                 'distOnPath': hit.stopDistanceFromPathStart,
                 # to avoid movement of distribution chart
@@ -96,17 +96,15 @@ class LoadProfileByStopData(View):
 
         return result
 
-    def get(self, request):
-        """ expedition data """
+    def process_request(self, request, params, export_data=False):
         response = {}
 
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        day_type = request.GET.getlist('dayType[]', [])
-        stop_code = request.GET.get('stopCode', '')
-        period = request.GET.getlist('period[]', [])
-        half_hour = request.GET.getlist('halfHour[]', [])
-        export_data = True if request.GET.get('exportData', False) == 'true' else False
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        day_type = params.getlist('dayType[]', [])
+        stop_code = params.get('stopCode', '')
+        period = params.getlist('period[]', [])
+        half_hour = params.getlist('halfHour[]', [])
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
@@ -125,6 +123,12 @@ class LoadProfileByStopData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        self.process_request(request, request.GET)
+
+    def post(self, request):
+        self.process_request(request, request.POST)
 
 
 class AvailableDays(View):
@@ -210,16 +214,13 @@ class LoadProfileByExpeditionData(View):
 
         return trips
 
-    def get(self, request):
-        """ expedition data """
-
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        auth_route_code = request.GET.get('authRoute')
-        day_type = request.GET.getlist('dayType[]')
-        period = request.GET.getlist('period[]')
-        half_hour = request.GET.getlist('halfHour[]')
-        export_data = True if request.GET.get('exportData', False) == 'true' else False
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        auth_route_code = params.get('authRoute')
+        day_type = params.getlist('dayType[]')
+        period = params.getlist('period[]')
+        half_hour = params.getlist('halfHour[]')
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
@@ -244,3 +245,9 @@ class LoadProfileByExpeditionData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        self.process_request(request, request.GET)
+
+    def post(self, request):
+        self.process_request(request, request.POST, export_data=True)

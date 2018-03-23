@@ -9,8 +9,11 @@ from esapi.helper.shape import ESShapeHelper
 from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryOperatorParameterDoesNotExist
 from esapi.messages import SpeedVariationWithLessDaysMessage
 from esapi.utils import check_operation_program
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
 from localinfo.helper import PermissionBuilder
+
+from datamanager.helper import ExporterManager
 
 import datetime
 
@@ -58,11 +61,11 @@ class AvailableRoutes(View):
 
 class MatrixData(View):
 
-    def get(self, request):
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        auth_route = request.GET.get('authRoute', '')
-        day_type = request.GET.getlist('dayType[]', [])
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        auth_route = params.get('authRoute', '')
+        day_type = params.getlist('dayType[]', [])
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
@@ -76,36 +79,48 @@ class MatrixData(View):
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
 
-            shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)['points']
-            route_points = [[s['latitude'], s['longitude']] for s in shape]
-            limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
+            if export_data:
+                es_query = es_speed_helper.get_base_speed_data_query(auth_route, day_type, start_date, end_date,
+                                                                     valid_operator_list)
+                ExporterManager(es_query).export_data()
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)['points']
+                route_points = [[s['latitude'], s['longitude']] for s in shape]
+                limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
 
-            max_section = len(limits) - 1
-            response['segments'] = list(range(max_section + 1))
+                max_section = len(limits) - 1
+                response['segments'] = list(range(max_section + 1))
 
-            d_data = es_speed_helper.get_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
+                d_data = es_speed_helper.get_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
 
-            for hour in range(len(hours)):
-                route_segment_by_hour = []
-                for section in response['segments']:
-                    speed, n_obs = d_data.get((section, hour), (-1, 0))
-                    interval = 7
-                    for i, bound in enumerate([0, 5, 10, 15, 20, 25, 30]):
-                        if speed < bound:
-                            interval = i
-                            break
-                    route_segment_by_hour.append([interval, speed, n_obs])
-                response['matrix'].append(route_segment_by_hour)
+                for hour in range(len(hours)):
+                    route_segment_by_hour = []
+                    for section in response['segments']:
+                        speed, n_obs = d_data.get((section, hour), (-1, 0))
+                        interval = 7
+                        for i, bound in enumerate([0, 5, 10, 15, 20, 25, 30]):
+                            if speed < bound:
+                                interval = i
+                                break
+                        route_segment_by_hour.append([interval, speed, n_obs])
+                    response['matrix'].append(route_segment_by_hour)
 
-            response['route'] = {
-                'name': auth_route,
-                'points': route_points,
-                'start_end': list(zip(limits[:-1], limits[1:]))
-            }
+                response['route'] = {
+                    'name': auth_route,
+                    'points': route_points,
+                    'start_end': list(zip(limits[:-1], limits[1:]))
+                }
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        self.process_request(request, request.GET)
+
+    def post(self, request):
+        self.process_request(request, request.POST, export_data=True)
 
 
 class RankingData(View):
