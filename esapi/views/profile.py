@@ -125,10 +125,10 @@ class LoadProfileByStopData(View):
         return JsonResponse(response, safe=False)
 
     def get(self, request):
-        self.process_request(request, request.GET)
+        return self.process_request(request, request.GET)
 
     def post(self, request):
-        self.process_request(request, request.POST)
+        return self.process_request(request, request.POST)
 
 
 class AvailableDays(View):
@@ -247,7 +247,7 @@ class LoadProfileByExpeditionData(View):
         return JsonResponse(response, safe=False)
 
     def get(self, request):
-        self.process_request(request, request.GET)
+        return self.process_request(request, request.GET)
 
     def post(self, request):
-        self.process_request(request, request.POST, export_data=True)
+        return self.process_request(request, request.POST, export_data=True)

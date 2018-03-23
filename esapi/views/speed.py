@@ -6,7 +6,7 @@ from django.http import JsonResponse
 
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.shape import ESShapeHelper
-from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryOperatorParameterDoesNotExist
+from esapi.errors import FondefVizError, ESQueryResultEmpty
 from esapi.messages import SpeedVariationWithLessDaysMessage
 from esapi.utils import check_operation_program
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -113,10 +113,10 @@ class MatrixData(View):
         return JsonResponse(response, safe=False)
 
     def get(self, request):
-        self.process_request(request, request.GET)
+        return self.process_request(request, request.GET)
 
     def post(self, request):
-        self.process_request(request, request.POST, export_data=True)
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class RankingData(View):
@@ -157,10 +157,10 @@ class RankingData(View):
         return JsonResponse(response, safe=False)
 
     def get(self, request):
-        self.process_request(request, request.GET)
+        return self.process_request(request, request.GET)
 
     def post(self, request):
-        self.process_request(request, request.POST, export_data=True)
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class SpeedByRoute(View):
@@ -230,10 +230,10 @@ class SpeedByRoute(View):
         return JsonResponse(response, safe=False)
 
     def get(self, request):
-        self.process_request(request, request.GET)
+        return self.process_request(request, request.GET)
 
     def post(self, request):
-        self.process_request(request, request.POST, export_data=True)
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class SpeedVariation(View):
@@ -353,7 +353,7 @@ class SpeedVariation(View):
         return JsonResponse(response, safe=False)
 
     def get(self, request):
-        self.process_request(request, request.GET)
+        return self.process_request(request, request.GET)
 
     def post(self, request):
-        self.process_request(request, request.POST, export_data=True)
+        return self.process_request(request, request.POST, export_data=True)
