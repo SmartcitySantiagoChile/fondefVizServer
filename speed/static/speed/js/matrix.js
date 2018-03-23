@@ -128,7 +128,7 @@ $(document).ready(function () {
                 segpol.addTo(map);
                 deco.addTo(map);
             });
-            map.flyToBounds(L.latLngBounds(routePoints[0], routePoints[routePoints.length - 1]));
+            map.flyToBounds(L.polyline(routePoints).getBounds());
         };
     }
 
