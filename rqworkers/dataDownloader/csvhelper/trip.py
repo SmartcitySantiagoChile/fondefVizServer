@@ -16,7 +16,8 @@ class TripData(object):
         trip_file = TripCSVHelper(self.es_client, self.es_query)
         trip_file.download(zip_manager)
 
-        template = 'trip.readme'
+        help_file_title = 'ARCHIVO DE VIAJES'
         data_filter = trip_file.get_filter_criteria()
         files_description = [trip_file.get_file_description()]
-        zip_manager.build_readme(template, "\r\n".join(files_description), data_filter)
+        explanation = trip_file.get_field_explanation()
+        zip_manager.build_readme(help_file_title, "\r\n".join(files_description), data_filter, explanation)

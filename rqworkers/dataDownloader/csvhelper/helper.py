@@ -25,8 +25,6 @@ README_FILE_NAME = 'Léeme.txt'
 PROFILE_BY_EXPEDITION_DATA = 'profile_by_expedition'
 PROFILE_BY_STOP_DATA = 'profile_by_stop'
 OD_BY_ROUTE_DATA = 'od_by_route_data'
-SHAPE_DATA = 'shape_data'
-STOP_DATA = 'stop_data'
 SPEED_MATRIX_DATA = 'speed_matrix_data'
 TRIP_DATA = 'trip_data'
 

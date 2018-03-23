@@ -40,8 +40,9 @@ class OdByRouteData(object):
         stop_file = StopCSVHelper(self.es_client)
         stop_file.download(zip_manager, routes=routes, start_date=start_date, end_date=end_date)
 
-        template = 'odbyroute.readme'
+        help_file_title = 'ARCHIVO DE MATRIZ DE ETAPA POR SERVICIO'
         files_description = [od_by_route_file.get_file_description(), shape_file.get_file_description(),
                              stop_file.get_file_description()]
         data_filter = od_by_route_file.get_filter_criteria()
-        zip_manager.build_readme(template, "\r\n".join(files_description), data_filter)
+        explanation = od_by_route_file.get_field_explanation()
+        zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
