@@ -296,6 +296,68 @@ class SpeedCSVHelper(CSVHelper):
         return formatted_row
 
 
+class ODByRouteCSVHelper(CSVHelper):
+    """ Class that represents a odbyroute file. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESODByRouteHelper.get_index_name())
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'date', 'csv_name': 'Fecha'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día'},
+            {'es_name': 'operator', 'csv_name': 'Operador'},
+            {'es_name': 'userRouteCode', 'csv_name': 'Servicio_usuario'},
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago'},
+            {'es_name': 'timePeriodInStopTime', 'csv_name': 'Período_transantiago_subida'},
+            {'es_name': 'startStopOrder', 'csv_name': 'Posición_parada_en_ruta_subida'},
+            {'es_name': 'endStopOrder', 'csv_name': 'Posición_parada_en_ruta_bajada'},
+            {'es_name': 'authStartStopCode', 'csv_name': 'Código_transantiago_parada_subida'},
+            {'es_name': 'authEndStopCode', 'csv_name': 'Código_transantiago_parada_najada'},
+            {'es_name': 'userStartStopCode', 'csv_name': 'Código_usuario_parada_subida'},
+            {'es_name': 'userEndStopCode', 'csv_name': 'Código_usuario_parada_najda'},
+            {'es_name': 'startStopName', 'csv_name': 'Nombre_parada_subida'},
+            {'es_name': 'endStopName', 'csv_name': 'Nombre_parada_subida'},
+            {'es_name': 'startZone', 'csv_name': 'Zona_777_subida'},
+            {'es_name': 'endZone', 'csv_name': 'Zona_777_bajada'},
+            {'es_name': 'tripNumber', 'csv_name': 'Número_etapas'},
+            {'es_name': 'tripWithoutLanding', 'csv_name': 'Número_etapas_sin_bajada'},
+            {'es_name': 'expandedTripNumber', 'csv_name': 'Número_etapas_expandido'},
+        ]
+
+    def get_data_file_name(self):
+        return 'Matriz_etapas_por_servicio.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa la cantidad de etapas realizadas entre dos paradas en un período ' \
+                      'transantiago.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'dayType':
+                    value = self.day_type_dict[value]
+                elif column_name == 'operator':
+                    value = self.operator_dict[value]
+                elif column_name == 'timePeriodInStopTime':
+                    value = self.timeperiod_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row
+
+
 class ShapeCSVHelper(CSVHelper):
     """ Class that represents a shape file. """
 
@@ -318,11 +380,11 @@ class ShapeCSVHelper(CSVHelper):
         return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
 
     def get_iterator(self, kwargs):
-        route = kwargs['route']
+        routes = kwargs['routes']
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
 
-        return [self.es_shape_helper.get_route_shape(route, start_date, end_date)]
+        return [self.es_shape_helper.get_route_shape(route, start_date, end_date) for route in routes]
 
     def row_parser(self, row):
         rows = []
@@ -369,11 +431,11 @@ class StopCSVHelper(CSVHelper):
         return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
 
     def get_iterator(self, kwargs):
-        route = kwargs['route']
+        routes = kwargs['routes']
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
 
-        return [self.es_stop_helper.get_stop_list(route, start_date, end_date)]
+        return [self.es_stop_helper.get_stop_list(route, start_date, end_date) for route in routes]
 
     def row_parser(self, row):
         rows = []

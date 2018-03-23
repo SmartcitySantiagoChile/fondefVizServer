@@ -11,10 +11,12 @@ class ProfileByExpeditionData(object):
         self.es_query = es_query
         self.es_client = es_client
 
-    def get_route(self):
+    def get_routes(self):
         for query_filter in self.es_query['query']['bool']['filter']:
             if 'term' in query_filter and 'route' in query_filter['term']:
-                return query_filter['term']['route']
+                return [query_filter['term']['route']]
+            if 'terms' in query_filter and 'route' in query_filter['terms']:
+                return query_filter['terms']['route']
 
     def get_date_range(self):
         for query_filter in self.es_query['query']['bool']['filter']:
@@ -29,14 +31,14 @@ class ProfileByExpeditionData(object):
         profile_file = ProfileCSVHelper(self.es_client, self.es_query)
         profile_file.download(zip_manager)
 
-        route = self.get_route()
+        routes = self.get_routes()
         start_date, end_date = self.get_date_range()
 
         shape_file = ShapeCSVHelper(self.es_client)
-        shape_file.download(zip_manager, route=route, start_date=start_date, end_date=end_date)
+        shape_file.download(zip_manager, routes=routes, start_date=start_date, end_date=end_date)
 
         stop_file = StopCSVHelper(self.es_client)
-        stop_file.download(zip_manager, route=route, start_date=start_date, end_date=end_date)
+        stop_file.download(zip_manager, routes=routes, start_date=start_date, end_date=end_date)
 
         template = 'profile.readme'
         files_description = [profile_file.get_file_description(), shape_file.get_file_description(),
