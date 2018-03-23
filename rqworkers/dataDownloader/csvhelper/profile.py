@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rqworkers.dataDownloader.csvhelper.helper import ZipManager
-from rqworkers.dataDownloader.csvhelper.helper import ProfileCSVHelper, ShapeCSVHelper, StopCSVHelper
+from rqworkers.dataDownloader.csvhelper.helper import ZipManager, ProfileCSVHelper, ShapeCSVHelper, StopCSVHelper
 
 
 class ProfileByExpeditionData(object):
+    """ class that build profile csv """
 
     def __init__(self, es_client, es_query):
         self.es_query = es_query
@@ -39,18 +39,17 @@ class ProfileByExpeditionData(object):
         stop_file.download(zip_manager, route=route, start_date=start_date, end_date=end_date)
 
         template = 'profile.readme'
-        files_decription = []
-        files_decription.append(profile_file.get_file_description())
-        files_decription.append(shape_file.get_file_description())
-        files_decription.append(stop_file.get_file_description())
+        files_description = [profile_file.get_file_description(), shape_file.get_file_description(),
+                             stop_file.get_file_description()]
         data_filter = profile_file.get_filter_criteria()
-        zip_manager.build_readme(template, "\r\n".join(files_decription), data_filter)
+        zip_manager.build_readme(template, "\r\n".join(files_description), data_filter)
 
 
-class ProfileDataByStop(ProfileByExpeditionData):
+class ProfileDataByStop(object):
 
     def __init__(self, es_client, es_query):
-        super(ProfileDataByStop, self).__init__(es_client, es_query)
+        self.es_query = es_query
+        self.es_client = es_client
 
     def build_file(self, file_path):
         zip_manager = ZipManager(file_path)
@@ -59,6 +58,5 @@ class ProfileDataByStop(ProfileByExpeditionData):
 
         template = 'profile.readme'
         data_filter = profile_file.get_filter_criteria()
-        files_decription = []
-        files_decription.append(profile_file.get_file_description())
-        zip_manager.build_readme(template, "\r\n".join(files_decription), data_filter)
+        files_description = [profile_file.get_file_description()]
+        zip_manager.build_readme(template, "\r\n".join(files_description), data_filter)

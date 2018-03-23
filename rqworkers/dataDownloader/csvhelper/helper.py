@@ -12,6 +12,9 @@ from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stop import ESStopHelper
+from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.trip import ESTripHelper
+from esapi.helper.odbyroute import ESODByRouteHelper
 
 import os
 import zipfile
@@ -240,6 +243,59 @@ class ProfileCSVHelper(CSVHelper):
         return formatted_row
 
 
+class SpeedCSVHelper(CSVHelper):
+    """ Class that represents a speed file. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESSpeedHelper.get_index_name())
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'operator', 'csv_name': 'Operador'},
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago'},
+            {'es_name': 'userRouteCode', 'csv_name': 'Servicio_usuario'},
+            {'es_name': 'section', 'csv_name': 'Identificador_tramo'},
+            {'es_name': 'date', 'csv_name': 'Fecha_de_medición'},
+            {'es_name': 'periodId', 'csv_name': 'Período_de_medición'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día'},
+            {'es_name': 'totalDistance', 'csv_name': 'Distancia_total'},
+            {'es_name': 'totalTime', 'csv_name': 'Tiempo_total'},
+            {'es_name': 'speed', 'csv_name': 'Velocidad_m/s'},
+            {'es_name': 'nObs', 'csv_name': 'Número_observaciones'},
+            {'es_name': 'nInvalidObs', 'csv_name': 'Número_observaciones_inválidas'},
+        ]
+
+    def get_data_file_name(self):
+        return 'Velocidad_tramos_500m.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa la medición de la velocidad para un servicio cada 500 metros en ' \
+                      'tramos horarios de media hora.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'dayType':
+                    value = self.day_type_dict[value]
+                elif column_name == 'operator':
+                    value = self.operator_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row
+
+
 class ShapeCSVHelper(CSVHelper):
     """ Class that represents a shape file. """
 
@@ -301,7 +357,7 @@ class StopCSVHelper(CSVHelper):
             {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago'},
             {'es_name': 'userRouteCode', 'csv_name': 'Servicio_usuario'},
             {'es_name': 'startDate', 'csv_name': 'Fecha_inicio_programa_operación'},
-            {'es_name': 'points',
+            {'es_name': 'stops',
              'csv_name': 'Posición_en_ruta,Latitud,Longitud,Código_parada_transantiago,Código_parada_usuario,Nombre_parada'}
         ]
 
