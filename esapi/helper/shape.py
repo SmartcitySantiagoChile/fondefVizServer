@@ -68,7 +68,7 @@ class ESShapeHelper(ElasticSearchHelper):
             raise ESQueryDateRangeParametersDoesNotExist()
 
         es_query = self.get_base_query()
-        es_query = es_query.filter('term', route=auth_route_code)
+        es_query = es_query.filter('term', authRouteCode=auth_route_code)
         es_query = es_query.filter('range', startDate={
             'lte': start_date,
             'format': 'yyyy-MM-dd'
