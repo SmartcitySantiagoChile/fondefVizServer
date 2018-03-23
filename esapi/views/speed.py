@@ -41,10 +41,6 @@ class AvailableDays(View):
 class AvailableRoutes(View):
 
     def get(self, request):
-
-        # TODO: removed this when speed index has user route and operator data
-        from esapi.views.profile import AvailableRoutes
-        return AvailableRoutes().get(request)
         response = {}
         try:
             es_helper = ESSpeedHelper()
@@ -53,7 +49,7 @@ class AvailableRoutes(View):
 
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
-        except ESQueryOperatorParameterDoesNotExist as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)

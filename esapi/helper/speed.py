@@ -50,10 +50,10 @@ class ESSpeedHelper(ElasticSearchHelper):
         else:
             raise ESQueryOperatorParameterDoesNotExist()
 
-        aggs = A('terms', field="route", size=5000)
+        aggs = A('terms', field="authRouteCode", size=5000)
         es_query.aggs.bucket('route', aggs)
         es_query.aggs['route']. \
-            metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRoute'])
+            metric('additionalInfo', 'top_hits', size=1, _source=['operator', 'userRouteCode'])
 
         operator_list = get_operator_list_for_select_input(filter=valid_operator_list)
 
@@ -63,7 +63,7 @@ class ESSpeedHelper(ElasticSearchHelper):
             data = hit.to_dict()
             auth_route = data['key']
             operator_id = data['additionalInfo']['hits']['hits'][0]['_source']['operator']
-            user_route = data['additionalInfo']['hits']['hits'][0]['_source']['userRoute']
+            user_route = data['additionalInfo']['hits']['hits'][0]['_source']['userRouteCode']
 
             result[operator_id][user_route].append(auth_route)
 
