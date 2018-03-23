@@ -14,7 +14,9 @@ class MatrixHTML(View):
     def get(self, request):
         template = "speed/matrix.html"
         context = {
-            'day_types': get_day_type_list_for_select_input()
+            'data_filter': {
+                'day_types': get_day_type_list_for_select_input()
+            }
         }
 
         return render(request, template, context)
@@ -25,7 +27,9 @@ class RankingHTML(View):
     def get(self, request):
         template = "speed/ranking.html"
         context = {
-            'day_types': get_day_type_list_for_select_input()
+            'data_filter': {
+                'day_types': get_day_type_list_for_select_input()
+            }
         }
 
         return render(request, template, context)
@@ -40,8 +44,10 @@ class SpeedVariationHTML(View):
         es_helper = ESSpeedHelper()
 
         context = {
-            'day_types': get_day_type_list_for_select_input(),
-            'routes': es_helper.get_route_list(valid_operator_list)
+            'data_filter': {
+                'day_types': get_day_type_list_for_select_input(),
+                'routes': es_helper.get_route_list(valid_operator_list)
+            }
         }
 
         return render(request, template, context)
