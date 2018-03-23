@@ -58,7 +58,7 @@ class ESStopHelper(ElasticSearchHelper):
         if len(dates) == 0:
             raise ESQueryOperationProgramDoesNotExist(asked_date)
 
-        return dates[0]
+        return dates[0].key_as_string[:10]
 
     def get_stop_list(self, auth_route_code, start_date, end_date):
         """ ask to elasticsearch for a match values """

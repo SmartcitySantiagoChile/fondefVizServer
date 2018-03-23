@@ -58,7 +58,7 @@ class ESShapeHelper(ElasticSearchHelper):
         if len(dates) == 0:
             raise ESQueryOperationProgramDoesNotExist(asked_date)
 
-        return dates[0]
+        return dates[0].key_as_string[:10]
 
     def get_route_shape(self, auth_route_code, start_date, end_date):
 
