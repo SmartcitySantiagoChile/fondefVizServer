@@ -15,7 +15,7 @@ class ResumeHTML(PermissionRequiredMixin, View):
     def get(self, request):
         context = {
             'data_filter': {
-                'dayTypes': get_day_type_list_for_select_input(),
+                'day_types': get_day_type_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input()
             },
             'indicators': render_to_string('travel/resume_indicators.html'),

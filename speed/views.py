@@ -40,7 +40,7 @@ class SpeedVariationHTML(View):
         es_helper = ESSpeedHelper()
 
         context = {
-            'dayTypes': get_day_type_list_for_select_input(),
+            'day_types': get_day_type_list_for_select_input(),
             'routes': es_helper.get_route_list(valid_operator_list)
         }
 

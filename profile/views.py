@@ -17,7 +17,7 @@ class LoadProfileByExpeditionHTML(View):
             'data_filter': {
                 'minutes': get_halfhour_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input(),
-                'dayTypes': get_day_type_list_for_select_input()
+                'day_types': get_day_type_list_for_select_input()
             }
         }
 
@@ -33,7 +33,7 @@ class LoadProfileByStopHTML(View):
             'data_filter': {
                 'minutes': get_halfhour_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input(),
-                'dayTypes': get_day_type_list_for_select_input()
+                'day_types': get_day_type_list_for_select_input()
             }
         }
 
@@ -49,7 +49,7 @@ class ODMatrixHTML(View):
             'data_filter': {
                 'minutes': get_halfhour_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input(),
-                'dayTypes': get_day_type_list_for_select_input()
+                'day_types': get_day_type_list_for_select_input()
             }
         }
 
@@ -65,7 +65,7 @@ class TrajectoryHTML(View):
             'data_filter': {
                 'minutes': get_halfhour_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input(),
-                'dayTypes': get_day_type_list_for_select_input()
+                'day_types': get_day_type_list_for_select_input()
             }
         }
 
@@ -81,7 +81,7 @@ class TransfersView(View):
             'data_filter': {
                 'minutes': get_halfhour_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input(),
-                'dayTypes': get_day_type_list_for_select_input()
+                'day_types': get_day_type_list_for_select_input()
             }
         }
 

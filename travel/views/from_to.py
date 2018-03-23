@@ -16,7 +16,7 @@ class FromToMapHTML(PermissionRequiredMixin, View):
     def get(self, request):
         context = {
             'data_filter': {
-                'dayTypes': get_day_type_list_for_select_input(),
+                'day_types': get_day_type_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input(),
                 'minutes': get_halfhour_list_for_select_input()
             },
