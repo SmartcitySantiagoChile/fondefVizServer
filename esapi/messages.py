@@ -37,7 +37,7 @@ class SpeedVariationWithLessDaysMessage(GenericUserMessage):
 
     def __init__(self, days_number, operation_program_date):
         message = 'El cálculo se ha realizado con los {0} días previos debido a que existe un cambio en el programa ' \
-                  'de operación el día {1} <br/>Por defecto la plataforma usa los 31 días previos'.format(
+                  'de operación el día {1}.<br/>Por defecto la plataforma usa los 31 días previos'.format(
             days_number, format_date(operation_program_date))
         title = 'Información'
         message_type = 'info'
