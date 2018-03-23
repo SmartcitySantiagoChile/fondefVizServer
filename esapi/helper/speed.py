@@ -126,7 +126,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         return d_data
 
     def get_base_ranking_data_query(self, start_date, end_date, hour_period_from, hour_period_to, day_type,
-                                    valid_operator_list, route_list):
+                                    valid_operator_list, route_list=None):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -146,7 +146,8 @@ class ESSpeedHelper(ElasticSearchHelper):
             "lte": hour_period_to
         })
 
-        es_query = es_query.filter('terms', route=route_list)
+        if route_list is not None:
+            es_query = es_query.filter('terms', route=route_list)
 
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)

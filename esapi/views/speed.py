@@ -125,12 +125,12 @@ class MatrixData(View):
 
 class RankingData(View):
 
-    def get(self, request):
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        hour_period_from = request.GET.get('hourPeriodFrom', None)
-        hour_period_to = request.GET.get('hourPeriodTo', None)
-        day_type = request.GET.getlist('dayType[]', None)
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        hour_period_from = params.get('hourPeriodFrom', None)
+        hour_period_to = params.get('hourPeriodTo', None)
+        day_type = params.getlist('dayType[]', None)
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
@@ -142,16 +142,29 @@ class RankingData(View):
         try:
             check_operation_program(start_date, end_date)
             es_speed_helper = ESSpeedHelper()
-            response['data'] = es_speed_helper.get_ranking_data(start_date, end_date, hour_period_from,
-                                                                hour_period_to,
-                                                                day_type, valid_operator_list)
 
-            if len(response['data']) > 1000:
-                response['data'] = response['data'][:1000]
+            if export_data:
+                es_query = es_speed_helper.get_base_ranking_data_query(start_date, end_date, hour_period_from,
+                                                                       hour_period_to, day_type, valid_operator_list)
+                ExporterManager(es_query).export_data()
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                response['data'] = es_speed_helper.get_ranking_data(start_date, end_date, hour_period_from,
+                                                                    hour_period_to,
+                                                                    day_type, valid_operator_list)
+
+                if len(response['data']) > 1000:
+                    response['data'] = response['data'][:1000]
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        self.process_request(request, request.GET)
+
+    def post(self, request):
+        self.process_request(request, request.POST, export_data=True)
 
 
 class SpeedByRoute(View):
@@ -174,12 +187,12 @@ class SpeedByRoute(View):
 
         return result
 
-    def get(self, request):
-        route = request.GET.get('authRoute', '')
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        hour_period = request.GET.get('period', [])
-        day_type = request.GET.getlist('dayType[]', [])
+    def process_request(self, request, params, export_data=False):
+        route = params.get('authRoute', '')
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        hour_period = params.get('period', [])
+        day_type = params.getlist('dayType[]', [])
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
@@ -194,25 +207,37 @@ class SpeedByRoute(View):
 
         try:
             check_operation_program(start_date, end_date)
+            es_shape_helper = ESShapeHelper()
+            es_speed_helper = ESSpeedHelper()
 
-            es_helper = ESShapeHelper()
-            shape = es_helper.get_route_shape(route, start_date, end_date)['points']
-            route_points = [[s['latitude'], s['longitude']] for s in shape]
-            limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
-            start_end = list(zip(limits[:-1], limits[1:]))
+            if export_data:
+                es_query = es_speed_helper.get_base_detail_ranking_data_query(route, start_date, end_date, hour_period,
+                                                                              day_type, valid_operator_list)
+                ExporterManager(es_query).export_data()
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                shape = es_shape_helper.get_route_shape(route, start_date, end_date)['points']
+                route_points = [[s['latitude'], s['longitude']] for s in shape]
+                limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
+                start_end = list(zip(limits[:-1], limits[1:]))
 
-            response['route']['start_end'] = start_end
-            response['route']['points'] = route_points
+                response['route']['start_end'] = start_end
+                response['route']['points'] = route_points
 
-            es_helper = ESSpeedHelper()
-            es_query = es_helper.get_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
-                                                         valid_operator_list)
-            response['speed'] = self.process_data(es_query, limits)
+                es_query = es_speed_helper.get_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
+                                                                   valid_operator_list)
+                response['speed'] = self.process_data(es_query, limits)
 
         except ESQueryResultEmpty as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        self.process_request(request, request.GET)
+
+    def post(self, request):
+        self.process_request(request, request.POST, export_data=True)
 
 
 class SpeedVariation(View):
@@ -286,13 +311,13 @@ class SpeedVariation(View):
 
         return data, l_routes
 
-    def get(self, request):
-        end_date = request.GET.get('startDate', '')[:10]
+    def process_request(self, request, params, export_data=True):
+        end_date = params.get('startDate', '')[:10]
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date
-        operator = int(request.GET.get('operator', 0))
-        user_route = request.GET.get('userRoute', '')
-        day_type = request.GET.getlist('dayType[]', '')
+        operator = int(params.get('operator', 0))
+        user_route = params.get('userRoute', '')
+        day_type = params.getlist('dayType[]', '')
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
@@ -315,11 +340,24 @@ class SpeedVariation(View):
             start_date = (end_date_obj - datetime.timedelta(days=days)).strftime(date_format)
             check_operation_program(start_date, end_date)
 
-            es_helper = ESSpeedHelper()
-            es_query = es_helper.get_speed_variation_data(start_date, end_date, day_type, user_route, operator,
-                                                          valid_operator_list)
-            response['variations'], response['routes'] = self.transform_data(es_query)
+            es_speed_helper = ESSpeedHelper()
+
+            if export_data:
+                es_query = es_speed_helper.get_base_variation_speed_query(start_date, end_date, day_type, user_route,
+                                                                          operator, valid_operator_list)
+                ExporterManager(es_query).export_data()
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                es_query = es_speed_helper.get_speed_variation_data(start_date, end_date, day_type, user_route,
+                                                                    operator, valid_operator_list)
+                response['variations'], response['routes'] = self.transform_data(es_query)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        self.process_request(request, request.GET)
+
+    def post(self, request):
+        self.process_request(request, request.POST, export_data=True)
