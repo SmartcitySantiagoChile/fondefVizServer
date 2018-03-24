@@ -193,10 +193,6 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query
 
     def get_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas):
-        """
-        Builds a elastic search query for the travels map
-        It is based on the requested filtering options
-        """
         es_query = self.get_base_large_travel_data_query(start_date, end_date, day_types, periods, n_etapas)[:0]
 
         # obs: by using size=1000, we assume there are less than '1000' zones
@@ -337,7 +333,15 @@ class ESTripHelper(ElasticSearchHelper):
     def get_transfers_data(self, start_date, end_date, auth_stop_code, day_types, periods, half_hours):
 
         es_query = self.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types, periods,
-                                                      half_hours)[:0]
+                                                      half_hours)
         # TODO: hacer la agrupación
+        first_stage = A('filter', Q('term', parada_bajada_1=auth_stop_code))
+        second_stage = A('filter', Q('term', parada_bajada_2=auth_stop_code))
+        third_stage = A('filter', Q('term', parada_bajada_3=auth_stop_code))
+        fourth_stage = A('filter', Q('term', parada_bajada_4=auth_stop_code))
+        es_query.aggs.bucket('first_stage', first_stage).bucket('connection', 'terms', field="parada_subida_2", size=2000)
+        es_query.aggs.bucket('second_stage', second_stage).bucket('connection', 'terms', field="parada_subida_3", size=2000)
+        es_query.aggs.bucket('third_stage', third_stage).bucket('connection', 'terms', field="parada_subida_4", size=2000)
+        es_query.aggs.bucket('fourth_stage', fourth_stage)
 
         return es_query

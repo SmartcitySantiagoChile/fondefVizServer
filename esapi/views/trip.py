@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from collections import defaultdict
 
 from esapi.helper.trip import ESTripHelper
-from esapi.errors import FondefVizError
+from esapi.errors import FondefVizError, ESQueryResultEmpty
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
 from datamanager.helper import ExporterManager
@@ -292,10 +292,16 @@ class StrategiesData(PermissionRequiredMixin, View):
 class TransfersData(View):
 
     def process_data(self, es_query):
+        print(str(es_query.to_dict()).replace("u'", "\"").replace("'", "\""))
+        result = es_query.execute().aggregations
 
-        result = es_query.execute()
+        print(result)
+        #if not result:
+        #    raise ESQueryResultEmpty()
 
-        return result
+        return {
+            'result': result.to_dict()
+        }
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
@@ -317,7 +323,7 @@ class TransfersData(View):
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query = es_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
-                                                        half_hours)
+                                                        half_hours)[:0]
                 response.update(self.process_data(es_query))
         except FondefVizError as e:
             response['status'] = e.get_status_response()
