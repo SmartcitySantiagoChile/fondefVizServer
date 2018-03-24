@@ -10,6 +10,11 @@ from collections import defaultdict
 from esapi.helper.trip import ESTripHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
+
+from datamanager.helper import ExporterManager
+
+import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 
 
 class ResumeData(PermissionRequiredMixin, View):
@@ -19,30 +24,38 @@ class ResumeData(PermissionRequiredMixin, View):
 
         return data_dict
 
-    def get(self, request):
-        """
-        It returns travel data based on the requested filters.
-        The data is optimized for by_time views.
-        """
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('dayType[]', [])
-        periods = request.GET.getlist('period[]', [])
-        origin_zones = map(lambda x: int(x), request.GET.getlist('origin[]', []))
-        destination_zones = map(lambda x: int(x), request.GET.getlist('destination[]', []))
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        day_types = params.getlist('dayType[]', [])
+        periods = params.getlist('period[]', [])
+        origin_zones = map(lambda x: int(x), params.getlist('origin[]', []))
+        destination_zones = map(lambda x: int(x), params.getlist('destination[]', []))
 
         es_helper = ESTripHelper()
 
         response = {}
 
         try:
-            es_query_dict = es_helper.get_resume_data(start_date, end_date, day_types, periods, origin_zones,
-                                                      destination_zones)
-            response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+            if export_data:
+                es_query = es_helper.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
+                                                                destination_zones)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                es_query_dict = es_helper.get_resume_data(start_date, end_date, day_types, periods, origin_zones,
+                                                          destination_zones)
+                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        return self.process_request(request, request.GET)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class MapData(PermissionRequiredMixin, View):
@@ -52,15 +65,11 @@ class MapData(PermissionRequiredMixin, View):
 
         return data_dict
 
-    def get(self, request):
-        """
-        It returns travel data based on the requested filters.
-        The data is optimized for by_time views.
-        """
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('dayType[]', [])
-        periods = request.GET.getlist('boardingPeriod[]', [])
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        day_types = params.getlist('dayType[]', [])
+        periods = params.getlist('boardingPeriod[]', [])
 
         es_helper = ESTripHelper()
 
@@ -88,12 +97,23 @@ class MapData(PermissionRequiredMixin, View):
         }
 
         try:
-            es_query_dict = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
-            response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+            if export_data:
+                es_query = es_helper.get_base_map_data_query(start_date, end_date, day_types, periods, sectors)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                es_query_dict = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
+                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+    def get(self, request):
+        return self.process_request(request, request.GET)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class AvailableDays(PermissionRequiredMixin, View):
@@ -116,31 +136,36 @@ class LargeTravelData(PermissionRequiredMixin, View):
     def process_data(self, data):
         return data
 
-    def get(self, request):
-        """
-        It returns travel data based on the requested filters.
-        The data is optimized for by_time views.
-
-        The response is a Json document.
-        """
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('dayType[]', [])
-        periods = request.GET.getlist('period[]', [])
-        stages = request.GET.getlist('stages[]', [])
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        day_types = params.getlist('dayType[]', [])
+        periods = params.getlist('period[]', [])
+        stages = params.getlist('stages[]', [])
 
         response = {}
 
         es_helper = ESTripHelper()
 
         try:
-            es_query_dict = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
-            response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+            if export_data:
+                es_query = es_helper.get_base_large_travel_data_query(start_date, end_date, day_types, periods, stages)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                es_query_dict = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
+                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
+
+    def get(self, request):
+        return self.process_request(request, request.GEt)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class FromToMapData(PermissionRequiredMixin, View):
@@ -149,34 +174,40 @@ class FromToMapData(PermissionRequiredMixin, View):
     def process_data(self, data):
         return data
 
-    def get(self, request):
-        """
-        It returns travel data based on the requested filters.
-        The data is optimized for by_time views.
-
-        The response is a Json document.
-        """
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('dayType[]', [])
-        periods = request.GET.getlist('period[]', [])
-        minutes = request.GET.getlist('halfHour[]', [])
-        stages = request.GET.getlist('stages[]', [])
-        modes = request.GET.getlist('modes[]', [])
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        day_types = params.getlist('dayType[]', [])
+        periods = params.getlist('period[]', [])
+        minutes = params.getlist('halfHour[]', [])
+        stages = params.getlist('stages[]', [])
+        modes = params.getlist('modes[]', [])
 
         response = {}
 
         es_helper = ESTripHelper()
 
         try:
-            es_query_dict = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes,
-                                                           stages, modes)
-            response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+            if export_data:
+                es_query = es_helper.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes,
+                                                                     stages, modes)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                es_query_dict = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes,
+                                                               stages, modes)
+                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
+
+    def get(self, request):
+        return self.process_request(request, request.GET)
+
+    def post(self, request):
+        return self.process_request(request, request.POST)
 
 
 class StrategiesData(PermissionRequiredMixin, View):
@@ -226,35 +257,41 @@ class StrategiesData(PermissionRequiredMixin, View):
 
         return strategies_tuples
 
-    def get(self, request):
-        """
-        It returns travel data based on the requested filters.
-        The data is optimized for by_time views.
-
-        The response is a Json document.
-        """
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        day_types = request.GET.getlist('daytypes[]', [])
-        periods = request.GET.getlist('period[]', [])
-        minutes = request.GET.getlist('halfHour[]', [])
-        origin_zone = request.GET.getlist('origins[]', [])
-        destination_zone = request.GET.getlist('destinations[]', [])
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        day_types = params.getlist('daytypes[]', [])
+        periods = params.getlist('period[]', [])
+        minutes = params.getlist('halfHour[]', [])
+        origin_zone = params.getlist('origins[]', [])
+        destination_zone = params.getlist('destinations[]', [])
 
         response = {}
 
         es_helper = ESTripHelper()
 
         try:
-            es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
-                                                     origin_zone, destination_zone)
-            response['strategies'] = self.process_data(es_query)
+            if export_data:
+                es_query = es_helper.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes,
+                                                                    origin_zone, destination_zone)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
+                                                         origin_zone, destination_zone)
+                response['strategies'] = self.process_data(es_query)
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist,
                 ESQueryDestinationZoneParameterDoesNotExist) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
+
+    def get(self, request):
+        return self.process_request(request, request.GET)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class TransfersData(View):
@@ -265,25 +302,36 @@ class TransfersData(View):
 
         return result
 
-    def get(self, request):
-        start_date = request.GET.get('startDate', '')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-        stop_code = request.GET.get('stopCode', '')
-        day_types = request.GET.getlist('dayType[]', [])
-        periods = request.GET.getlist('period[]', [])
-        half_hours = request.GET.getlist('halfHour[]', [])
+    def process_request(self, request, params, export_data=False):
+        start_date = params.get('startDate', '')[:10]
+        end_date = params.get('endDate', '')[:10]
+        auth_stop_code = params.get('stopCode', '')
+        day_types = params.getlist('dayType[]', [])
+        periods = params.getlist('period[]', [])
+        half_hours = params.getlist('halfHour[]', [])
 
         response = {}
 
         es_helper = ESTripHelper()
 
         try:
-            auth_stop_code = ''
-            es_query = es_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
-                                                    half_hours)
-            response.update(self.process_data(es_query))
+            if export_data:
+                es_query = es_helper.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types,
+                                                                   periods, half_hours)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                es_query = es_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
+                                                        half_hours)
+                response.update(self.process_data(es_query))
         except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
                 ESQueryStagesEmpty) as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
+
+    def get(self, request):
+        return self.process_request(request, request.GET)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)

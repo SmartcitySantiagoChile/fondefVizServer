@@ -70,7 +70,7 @@ class ODMatrixData(View):
             if export_data:
                 es_query = es_od_helper.get_base_query_for_od(auth_route_code, period, day_type, start_date, end_date,
                                                               valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.ODByRouteCSVHelper)
+                ExporterManager(es_query).export_data(csv_helper.OD_BY_ROUTE_DATA)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 matrix, max_value = es_od_helper.get_od_data(auth_route_code, period, day_type, start_date, end_date,
