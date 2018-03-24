@@ -108,7 +108,7 @@ class CSVHelper:
     def get_field_explanation(self):
         explanation = 'El archivo {0} contiene las siguientes columnas:\r\n'.format(self.get_data_file_name())
         explanation += "\r\n".join(['\t- \'{0}\': {1}'.format(field['csv_name'], field['definition']) for field in
-                        self.get_column_dict()])
+                                    self.get_column_dict()])
         return explanation
 
     def get_filter_criteria(self):
@@ -422,7 +422,24 @@ class TripCSVHelper(CSVHelper):
             {'es_name': 'comuna_subida', 'csv_name': 'Comuna_subida', 'definition': ''},
             {'es_name': 'comuna_bajada', 'csv_name': 'Comuna_bajada', 'definition': ''},
             {'es_name': 'zona_subida', 'csv_name': 'Zona_777_subida', 'definition': ''},
-            {'es_name': 'zona_bajada', 'csv_name': 'Zona_777_bajada', 'definition': ''}
+            {'es_name': 'zona_bajada', 'csv_name': 'Zona_777_bajada', 'definition': ''},
+            {'es_name': 'modos', 'csv_name': 'Modo_viajes', 'definition': ''},
+            {'es_name': 'zona_subida_1', 'csv_name': 'Zona_subidad_etapa_1', 'definition': ''},
+            {'es_name': 'zona_bajada_1', 'csv_name': 'Zona_bajada_etapa_1', 'definition': ''},
+            {'es_name': 'zona_subida_2', 'csv_name': 'Zona_subidad_etapa_2', 'definition': ''},
+            {'es_name': 'zona_bajada_2', 'csv_name': 'Zona_bajada_etapa_2', 'definition': ''},
+            {'es_name': 'zona_subida_3', 'csv_name': 'Zona_subidad_etapa_3', 'definition': ''},
+            {'es_name': 'zona_bajada_3', 'csv_name': 'Zona_bajada_etapa_3', 'definition': ''},
+            {'es_name': 'zona_subida_4', 'csv_name': 'Zona_subidad_etapa_4', 'definition': ''},
+            {'es_name': 'zona_bajada_4', 'csv_name': 'Zona_bajada_etapa_4', 'definition': ''},
+            {'es_name': 'mediahora_bajada_1', 'csv_name': 'mediahora_bajada_etapa_1', 'definition': ''},
+            {'es_name': 'mediahora_bajada_2', 'csv_name': 'mediahora_bajada_etapa_2', 'definition': ''},
+            {'es_name': 'mediahora_bajada_3', 'csv_name': 'mediahora_bajada_etapa_3', 'definition': ''},
+            {'es_name': 'mediahora_bajada_4', 'csv_name': 'mediahora_bajada_etapa_4', 'definition': ''},
+            {'es_name': 'periodo_bajada_1', 'csv_name': 'periodo_bajada_etapa_1', 'definition': ''},
+            {'es_name': 'periodo_bajada_2', 'csv_name': 'periodo_bajada_etapa_2', 'definition': ''},
+            {'es_name': 'periodo_bajada_3', 'csv_name': 'periodo_bajada_etapa_3', 'definition': ''},
+            {'es_name': 'periodo_bajada_4', 'csv_name': 'periodo_bajada_etapa_4', 'definition': ''}
         ]
 
     def get_data_file_name(self):
