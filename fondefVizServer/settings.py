@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 from elasticsearch import Elasticsearch
 
+from decouple import config, Csv
+
 import os
-import fondefVizServer.keys.database as database
-import fondefVizServer.keys.secret_key as secretKey
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,15 +22,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = secretKey.SECRET_KEY
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = ['10.0.2.15', '127.0.0.1', 'localhost', '200.9.100.91', '172.17.74.243', '172.17.74.202',
-                 '172.17.57.156']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-INTERNAL_IPS = ['172.17.57.156']
+INTERNAL_IPS = config('INTERNAL_IPS', cast=Csv())
 # Application definition
 
 INSTALLED_APPS = [
@@ -89,7 +88,16 @@ WSGI_APPLICATION = 'fondefVizServer.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = database.DATABASES
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASS'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT')
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -153,11 +161,11 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Elastic-Search settings
-ES_CLIENT = Elasticsearch("172.17.75.218:9200", http_auth=('elastic', 'changeme'), timeout=30)
+ES_CLIENT = Elasticsearch("{0}:{1}".format(config('ELASTICSEARCH_HOST'), config('ELASTICSEARCH_PORT')), timeout=30)
 
 # Django js reverse settings
 JS_REVERSE_EXCLUDE_NAMESPACES = []
-JS_REVERSE_SCRIPT_PREFIX = ""
+JS_REVERSE_SCRIPT_PREFIX = config('URL_PREFIX')
 JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, os.path.join('bowerapp', os.path.join('static', 'js')))
 
 # User url
@@ -169,9 +177,9 @@ GLOBAL_PERMISSION_GROUP_NAME = 'Transantiago'
 # django-rq task queueing
 # reference: https://github.com/ui/django-rq
 REDIS_CONF = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'DB': 0,
+    'HOST': config('REDIS_HOST'),
+    'PORT': config('REDIS_PORT'),
+    'DB': config('REDIS_DB'),
     'DEFAULT_TIMEOUT': 60 * 60 * 24,
 }
 
@@ -189,3 +197,13 @@ RQ_EXCEPTION_HANDLERS = ['rqworkers.tasks.upload_exception_handler', 'rqworkers.
 
 # path to download files
 DOWNLOAD_PATH = os.path.join(BASE_DIR, 'media', 'files')
+
+# email configuration
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
+
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+SERVER_EMAIL = config('SERVER_EMAIL')
