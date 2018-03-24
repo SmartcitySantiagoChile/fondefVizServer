@@ -63,8 +63,7 @@ class ESTripHelper(ElasticSearchHelper):
         # return no hits!
         return base_es_query[:0]
 
-    def get_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
-
+    def get_base_resume_data_query(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
         es_query = self.get_base_query()
 
         if not start_date or not end_date:
@@ -88,6 +87,12 @@ class ESTripHelper(ElasticSearchHelper):
 
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
+
+        return es_query
+
+    def get_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
+        es_query = self.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
+                                                   destination_zones)
 
         es_query_dict = {
             'histogram': self._build_histogram_query(es_query),
