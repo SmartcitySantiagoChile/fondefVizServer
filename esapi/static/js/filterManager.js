@@ -73,10 +73,6 @@ function FilterManager(opts) {
 
     /* It saves last parameters sent to server */
     var paramsBackup = {};
-    var serializeParameters = function () {
-        // TODO: terminar esta función
-        return "hola";
-    };
 
     if ($STOP_FILTER.length) {
         $STOP_FILTER.select2({
@@ -222,8 +218,7 @@ function FilterManager(opts) {
                 var button = $BTN_EXPORT_DATA.append(loadingIcon);
 
                 var params = getParameters();
-                params.exportData = true;
-                $.getJSON(urlFilterData, params, function (data) {
+                $.post(urlFilterData, params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
                     }
