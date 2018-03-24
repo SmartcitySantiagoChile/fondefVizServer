@@ -56,10 +56,10 @@ def main():
 
     parser.add_argument('query', help='dsl query')
     parser.add_argument('downloader',
-                        help='you can choose: profile_by_expedition, profile_by_stop, od_by_route_data, shape_data, stop_data, speed_matrix_data')
+                        help='you can choose: profile_by_expedition, profile_by_stop, od_by_route_data, trip_data, speed_matrix_data')
     parser.add_argument('file', help='data file path, e.g. /path/to/file.csvhelper')
     parser.add_argument('--host', default="127.0.0.1", help='elasticsearch host, default is "127.0.0.1"')
-    parser.add_argument('--port', default=9200, help='port, default is 9200')
+    parser.add_argument('--port', default=9200, help='elasticsearch port, default is 9200')
     args = parser.parse_args()
 
     # Get a client

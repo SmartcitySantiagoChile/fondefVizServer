@@ -392,7 +392,7 @@ class TripCSVHelper(CSVHelper):
     """ Class that represents a odbyroute file. """
 
     def __init__(self, es_client, es_query):
-        CSVHelper.__init__(self, es_client, es_query, ESTripHelper.get_index_name())
+        CSVHelper.__init__(self, es_client, es_query, ESTripHelper().get_index_name())
 
     def get_column_dict(self):
         return [
