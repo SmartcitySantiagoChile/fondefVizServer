@@ -39,7 +39,7 @@ class ExporterManager(object):
         # Search instance
         self.es_query = es_query
 
-    def export_data(self):
+    def export_data(self, downloader):
         with transaction.atomic():
             # check if exist job associate to file obj
             human_readable_query = str(self.es_query.to_dict()).replace('u\'', '"').replace('\'', '"')
@@ -47,7 +47,7 @@ class ExporterManager(object):
                     Q(status=ExporterJobExecution.ENQUEUED) | Q(status=ExporterJobExecution.RUNNING)).exists():
                 raise ThereIsPreviousJobExporterDataError()
 
-            job = export_data_job.delay(self.es_query.to_dict(), self.es_query._index[0])
+            job = export_data_job.delay(self.es_query.to_dict(), downloader)
             ExporterJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
                                                 status=ExporterJobExecution.ENQUEUED,
                                                 query=human_readable_query)

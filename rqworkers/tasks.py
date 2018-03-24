@@ -53,7 +53,7 @@ def upload_exception_handler(job_instance, exc_type, exc_value, traceback):
 
 
 @job('data_exporter')
-def export_data_job(es_query_dict, index_name):
+def export_data_job(es_query_dict, downloader):
     job_instance = get_current_job()
     # wait until ExporterJobExecution instance exists
     while True:
@@ -69,7 +69,7 @@ def export_data_job(es_query_dict, index_name):
 
     file_name = "data_query.zip"
     zip_file = os.path.join(settings.BASE_DIR, 'media', 'files', file_name)
-    download_file(settings.ES_CLIENT, es_query_dict, index_name, zip_file)
+    download_file(settings.ES_CLIENT, es_query_dict, downloader, zip_file)
 
     job_execution_obj.executionEnd = timezone.now()
     job_execution_obj.status = ExporterJobExecution.FINISHED

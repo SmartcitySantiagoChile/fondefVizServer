@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.views.generic import View
 from django.http import JsonResponse
-from django.utils import dateparse
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from esapi.helper.resume import ESResumeStatisticHelper

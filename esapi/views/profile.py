@@ -16,6 +16,8 @@ from datamanager.helper import ExporterManager
 
 from collections import defaultdict
 
+import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+
 
 class MatchedStopData(View):
     """ it gives a stop list with stops that match with patter given by user """
@@ -115,7 +117,7 @@ class LoadProfileByStopData(View):
             es_query = es_helper.get_profile_by_stop_data(start_date, end_date, day_type, stop_code, period, half_hour,
                                                           valid_operator_list)
             if export_data:
-                ExporterManager(es_query).export_data()
+                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_STOP_DATA)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response = self.transform_es_answer(es_query)
@@ -236,7 +238,7 @@ class LoadProfileByExpeditionData(View):
             es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type, auth_route_code,
                                                                         period, half_hour, valid_operator_list)
             if export_data:
-                ExporterManager(es_query).export_data()
+                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response['trips'] = self.transform_answer(es_query)
