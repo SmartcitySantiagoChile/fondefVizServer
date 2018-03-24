@@ -8,8 +8,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from collections import defaultdict
 
 from esapi.helper.trip import ESTripHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryParametersDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist
+from esapi.errors import FondefVizError
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
 from datamanager.helper import ExporterManager
@@ -46,7 +45,7 @@ class ResumeData(PermissionRequiredMixin, View):
                 es_query_dict = es_helper.get_resume_data(start_date, end_date, day_types, periods, origin_zones,
                                                           destination_zones)
                 response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -104,7 +103,7 @@ class MapData(PermissionRequiredMixin, View):
             else:
                 es_query_dict = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
                 response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -155,8 +154,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
             else:
                 es_query_dict = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
                 response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
-                ESQueryStagesEmpty) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
@@ -197,8 +195,7 @@ class FromToMapData(PermissionRequiredMixin, View):
                 es_query_dict = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes,
                                                                stages, modes)
                 response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
-                ESQueryStagesEmpty) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
@@ -280,9 +277,7 @@ class StrategiesData(PermissionRequiredMixin, View):
                 es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
                                                          origin_zone, destination_zone)
                 response['strategies'] = self.process_data(es_query)
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
-                ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist,
-                ESQueryDestinationZoneParameterDoesNotExist) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
@@ -305,7 +300,7 @@ class TransfersData(View):
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
         end_date = params.get('endDate', '')[:10]
-        auth_stop_code = params.get('stopCode', '')
+        auth_stop_code = params.get('stopCode', 'L-22-11-30-SN')
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         half_hours = params.getlist('halfHour[]', [])
@@ -324,8 +319,7 @@ class TransfersData(View):
                 es_query = es_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
                                                         half_hours)
                 response.update(self.process_data(es_query))
-        except (ESQueryDateRangeParametersDoesNotExist, ESQueryParametersDoesNotExist, ESQueryResultEmpty,
-                ESQueryStagesEmpty) as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
