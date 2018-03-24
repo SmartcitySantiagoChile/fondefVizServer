@@ -79,7 +79,7 @@ class MatrixData(View):
             if export_data:
                 es_query = es_speed_helper.get_base_speed_data_query(auth_route, day_type, start_date, end_date,
                                                                      valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA)
+                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)['points']
@@ -143,7 +143,7 @@ class RankingData(View):
             if export_data:
                 es_query = es_speed_helper.get_base_ranking_data_query(start_date, end_date, hour_period_from,
                                                                        hour_period_to, day_type, valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA)
+                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response['data'] = es_speed_helper.get_ranking_data(start_date, end_date, hour_period_from,
@@ -210,7 +210,7 @@ class SpeedByRoute(View):
             if export_data:
                 es_query = es_speed_helper.get_base_detail_ranking_data_query(route, start_date, end_date, hour_period,
                                                                               day_type, valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA)
+                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 shape = es_shape_helper.get_route_shape(route, start_date, end_date)['points']
@@ -343,7 +343,7 @@ class SpeedVariation(View):
             if export_data:
                 es_query = es_speed_helper.get_base_variation_speed_query(start_date, end_date, day_type, user_route,
                                                                           operator, valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA)
+                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query = es_speed_helper.get_speed_variation_data(start_date, end_date, day_type, user_route,

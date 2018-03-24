@@ -40,7 +40,7 @@ class ResumeData(PermissionRequiredMixin, View):
             if export_data:
                 es_query = es_helper.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
                                                                 destination_zones)
-                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query_dict = es_helper.get_resume_data(start_date, end_date, day_types, periods, origin_zones,
@@ -99,7 +99,7 @@ class MapData(PermissionRequiredMixin, View):
         try:
             if export_data:
                 es_query = es_helper.get_base_map_data_query(start_date, end_date, day_types, periods, sectors)
-                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query_dict = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
@@ -150,7 +150,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
         try:
             if export_data:
                 es_query = es_helper.get_base_large_travel_data_query(start_date, end_date, day_types, periods, stages)
-                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query_dict = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
@@ -191,7 +191,7 @@ class FromToMapData(PermissionRequiredMixin, View):
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes,
                                                                      stages, modes)
-                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query_dict = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes,
@@ -274,7 +274,7 @@ class StrategiesData(PermissionRequiredMixin, View):
             if export_data:
                 es_query = es_helper.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes,
                                                                     origin_zone, destination_zone)
-                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
@@ -318,7 +318,7 @@ class TransfersData(View):
             if export_data:
                 es_query = es_helper.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types,
                                                                    periods, half_hours)
-                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA)
+                ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query = es_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,

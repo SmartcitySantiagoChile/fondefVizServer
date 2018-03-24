@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.db.models import Prefetch
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 import os
 
@@ -122,6 +123,8 @@ class ExporterJobExecution(JobExecution):
     file = models.FileField(upload_to='files/', null=True)
     # elasticsearch query used to generate file rows
     query = models.TextField(null=False)
+    """ user who creates job """
+    user = models.ForeignKey(User)
 
     class Meta:
         verbose_name = 'Trabajo para exportar datos'

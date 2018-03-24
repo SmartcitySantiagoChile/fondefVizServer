@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django_rq import job
 from django.conf import settings
 from django.utils import timezone
+from django.core.mail import send_mail
 
 from rq import get_current_job
 
@@ -70,6 +71,8 @@ def export_data_job(es_query_dict, downloader):
     file_name = "data_query.zip"
     zip_file = os.path.join(settings.BASE_DIR, 'media', 'files', file_name)
     download_file(settings.ES_CLIENT, es_query_dict, downloader, zip_file)
+
+    send_mail()
 
     job_execution_obj.executionEnd = timezone.now()
     job_execution_obj.status = ExporterJobExecution.FINISHED

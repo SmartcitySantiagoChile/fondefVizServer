@@ -39,7 +39,7 @@ class ExporterManager(object):
         # Search instance
         self.es_query = es_query
 
-    def export_data(self, downloader):
+    def export_data(self, downloader, user):
         with transaction.atomic():
             # check if exist job associate to file obj
             human_readable_query = str(self.es_query.to_dict()).replace('u\'', '"').replace('\'', '"')
@@ -50,7 +50,7 @@ class ExporterManager(object):
             job = export_data_job.delay(self.es_query.to_dict(), downloader)
             ExporterJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
                                                 status=ExporterJobExecution.ENQUEUED,
-                                                query=human_readable_query)
+                                                query=human_readable_query, user=user)
 
 
 class UploaderManager(object):
