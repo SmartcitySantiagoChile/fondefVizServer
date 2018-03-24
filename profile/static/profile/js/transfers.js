@@ -32,7 +32,7 @@ $(document).ready(function () {
             processData(data, app);
         };
         var opts = {
-            urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),
+            urlFilterData: Urls["esapi:transfersData"](),
             afterCallData: afterCall
         };
         new FilterManager(opts);
