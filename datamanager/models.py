@@ -79,6 +79,7 @@ class JobExecution(models.Model):
     ENQUEUED = 'enqueued'
     RUNNING = 'running'
     FINISHED = 'finished'
+    FINISHED_BUT_MAIL_WAS_NOT_SENT = 'finished_m'
     FAILED = 'failed'
     CANCELED = 'canceled'
     STATUS_CHOICES = (

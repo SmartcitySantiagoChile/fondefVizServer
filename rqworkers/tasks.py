@@ -7,6 +7,8 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.core.files import File
 
+from smtplib import SMTPException
+
 from rq import get_current_job
 
 from rqworkers.dataUploader.loadData import upload_file
@@ -77,21 +79,26 @@ def export_data_job(es_query_dict, downloader):
     # update file path
     job_execution_obj.file.save(file_name, File(open(zip_file)))
 
-    subject = 'Los datos se encuentran disponibles'
-    body = """
-    Los datos que ha solicitado están disponibles en la siguiente dirección:
-    
-    {0}
-    
-    El link estará disponible por 30 días, luego de eso tendrá que volver a generar la consulta.
-    
-    Saludos
-    """.format(job_execution_obj.file.url)
-    sender = 'noreply@transapp.cl'
-    send_mail(subject, body, sender, [job_execution_obj.user.email])
+    try:
+        subject = 'Los datos se encuentran disponibles'
+        body = """
+        Los datos que ha solicitado están disponibles en la siguiente dirección:
+        
+        {0}
+        
+        El link estará disponible por 30 días, luego de eso tendrá que volver a generar la consulta.
+        
+        Saludos
+        """.format(job_execution_obj.file.url)
+        sender = 'noreply@transapp.cl'
+        send_mail(subject, body, sender, [job_execution_obj.user.email])
+
+        job_execution_obj.status = ExporterJobExecution.FINISHED
+    except SMTPException as e:
+        job_execution_obj.status = ExporterJobExecution.FINISHED_BUT_MAIL_WAS_NOT_SENT
+        job_execution_obj.errorMessage = str(e)
 
     job_execution_obj.executionEnd = timezone.now()
-    job_execution_obj.status = ExporterJobExecution.FINISHED
     job_execution_obj.save()
 
 
