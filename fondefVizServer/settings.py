@@ -186,3 +186,6 @@ RQ = {
 
 # custom handler to failed jobs
 RQ_EXCEPTION_HANDLERS = ['rqworkers.tasks.upload_exception_handler', 'rqworkers.tasks.export_exception_handler']
+
+# path to download files
+DOWNLOAD_PATH = os.path.join(BASE_DIR, 'media', 'files')

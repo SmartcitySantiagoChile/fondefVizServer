@@ -5,6 +5,7 @@ from django_rq import job
 from django.conf import settings
 from django.utils import timezone
 from django.core.mail import send_mail
+from django.core.files import File
 
 from rq import get_current_job
 
@@ -14,6 +15,7 @@ from rqworkers.dataDownloader.downloadData import download_file
 from datamanager.models import UploaderJobExecution, ExporterJobExecution
 
 import time
+import uuid
 import os
 
 
@@ -68,11 +70,25 @@ def export_data_job(es_query_dict, downloader):
     job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
 
-    file_name = "data_query.zip"
-    zip_file = os.path.join(settings.BASE_DIR, 'media', 'files', file_name)
+    file_name = "{0}.zip".format(uuid.uuid4())
+    zip_file = os.path.join(settings.DOWNLOAD_PATH, file_name)
     download_file(settings.ES_CLIENT, es_query_dict, downloader, zip_file)
 
-    send_mail()
+    # update file path
+    job_execution_obj.file.save(file_name, File(open(zip_file)))
+
+    subject = 'Los datos se encuentran disponibles'
+    body = """
+    Los datos que ha solicitado están disponibles en la siguiente dirección:
+    
+    {0}
+    
+    El link estará disponible por 30 días, luego de eso tendrá que volver a generar la consulta.
+    
+    Saludos
+    """.format(job_execution_obj.file.url)
+    sender = 'noreply@transapp.cl'
+    send_mail(subject, body, sender, [job_execution_obj.user.email])
 
     job_execution_obj.executionEnd = timezone.now()
     job_execution_obj.status = ExporterJobExecution.FINISHED
