@@ -124,8 +124,10 @@ class ExporterJobExecution(JobExecution):
     file = models.FileField(upload_to='files/', null=True)
     # elasticsearch query used to generate file rows
     query = models.TextField(null=False)
-    """ user who creates job """
+    # user who creates job
     user = models.ForeignKey(User)
+    # True if it was seen for first time
+    seen = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Trabajo para exportar datos'

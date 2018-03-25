@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django import template
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 
 register = template.Library()
 
 
 @register.simple_tag
-def table(html_id, columns, with_checker=True):
+def table(html_id, columns, with_checker=True, data=None):
     ths = ""
     if isinstance(columns, list):
         for header in columns:
@@ -23,15 +23,23 @@ def table(html_id, columns, with_checker=True):
             <input type='checkbox' id='checkbox-select-all' class='flat' checked>
         </th>
         """
+    rows = []
+    if data is not None:
+        for row in data:
+            html_row = '<tr>'
+            for column in row:
+                html_row += '<td>{0}</td>'.format(column)
+            rows.append('{0}</tr>'.format(html_row))
 
     html_table = """
-        <table id="{}" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
+        <table id="{0}" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
             <thead>
-              <tr>""" + checker + ths + """</tr>
+              <tr>{1}{2}</tr>
             </thead>
             <tbody>
+                {3}
             </tbody>
         </table>
         """
 
-    return format_html(html_table, html_id)
+    return format_html(html_table, html_id, mark_safe(checker), mark_safe(ths), mark_safe(''.join(rows)))

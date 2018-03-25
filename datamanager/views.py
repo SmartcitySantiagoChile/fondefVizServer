@@ -16,7 +16,7 @@ from rqworkers.dataUploader.errors import IndexNotEmptyError
 from datamanager.errors import IndexWithDocumentError, BadFormatDocumentError, ThereIsNotActiveJobError
 from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully, DataIsDeleting
 from datamanager.helper import UploaderManager, FileManager
-from datamanager.models import LoadFile, UploaderJobExecution
+from datamanager.models import LoadFile, UploaderJobExecution, ExporterJobExecution
 
 from rq.exceptions import NoSuchJobError
 
@@ -187,3 +187,25 @@ class GetLoadFileData(View):
         }
 
         return JsonResponse(response)
+
+
+class ExportJobHistoryHTML(View):
+    """ load  web page to load files """
+
+    def get(self, request):
+        template = 'datamanager/exportJobHistory.html'
+
+        ExporterJobExecution.objects.filter(user=request.user).update(seen=True)
+
+        data = []
+        jobs = ExporterJobExecution.objects.filter(user=request.user).order_by('enqueueTimestamp')
+
+        for job in jobs:
+            data.append([job.get_status_display(), job.enqueueTimestamp, job.executionStart, job.executionEnd, job.file.url])
+
+        context = {
+            'data': data,
+            'columns': ['Estado', 'Fecha encolación', 'Fecha inicio', 'Fecha Fin', 'Archivo']
+        }
+
+        return render(request, template, context)

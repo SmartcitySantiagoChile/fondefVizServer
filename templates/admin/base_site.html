@@ -120,11 +120,45 @@
               </a>
               <ul class="dropdown-menu dropdown-usermenu pull-right">
                 {% if user.has_usable_password %}
+                <li><a href="{% url 'datamanager:jobHistoryByUser' %}"><i class="fa fa-cloud-download pull-right"></i> Solicitudes de descarga</a></li>
                 <li><a href="{% url 'admin:password_change' %}"><i class="fa fa-edit pull-right"></i> Cambiar contraseña</a></li>
                 {% endif %}
                 <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out pull-right"></i> Cerrar sesión</a></li>
               </ul>
             </li>
+          <li role="presentation" class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-envelope-o"></i>
+                      {% if jobs %}
+                    <span class="badge bg-green">{{  jobs|length }}</span>
+                      {% endif %}
+                  </a>
+                  <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
+                      {% for job in jobs %}
+                    <li class="alert alert-{% if job.status == 'finished' %}success{% elif job.status == 'failed' %}error{% elif job.status == 'canceled' %}warning{% elif job.status == 'running' %}warning{% else %}info{% endif %}">
+                      <a href="{% url 'datamanager:jobHistoryByUser' %}">
+                        <span class="image"><i class="fa {% if job.status == 'running' %}fa-refresh fa-spin{% else %}fa-cloud-download{% endif %} pull-right"></i></span>
+                        <span>
+                          <span>{{ job.get_status_display }}</span>
+                          <span class="time">{{ job.enqueueTimestamp|timesince }}</span>
+                        </span>
+                        <span class="message">
+                          {{ job.description|truncatechars:40 }}
+                        </span>
+                      </a>
+                    </li>
+                      {% endfor %}
+                    <li>
+                      <div class="text-center">
+                        <a href="{% url 'datamanager:jobHistoryByUser' %}">
+                          <strong>Ver todas las solicitudes de descarga</strong>
+                          <i class="fa fa-angle-right"></i>
+                        </a>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
           </ul>
         </nav>
       </div>
