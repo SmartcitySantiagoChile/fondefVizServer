@@ -324,9 +324,19 @@ class ESTripHelper(ElasticSearchHelper):
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
         if periods:
-            es_query = es_query.filter('terms', periodo_subida=periods)
+            period_in_first_stage = Q('terms', periodo_bajada_1=periods)
+            period_in_second_stage = Q('terms', periodo_bajada_2=periods)
+            period_in_third_stage = Q('terms', periodo_bajada_3=periods)
+            period_in_fourth_stage = Q('terms', periodo_bajada_4=periods)
+            es_query = es_query.filter(
+                period_in_first_stage | period_in_second_stage | period_in_third_stage | period_in_fourth_stage)
         if half_hours:
-            es_query = es_query.filter('terms', mediahora_subida=half_hours)
+            half_hour_in_first_stage = Q('terms', mediahora_bajada_1=half_hours)
+            half_hour_in_second_stage = Q('terms', mediahora_bajada_2=half_hours)
+            half_hour_in_third_stage = Q('terms', mediahora_bajada_3=half_hours)
+            half_hour_in_fourth_stage = Q('terms', mediahora_bajada_4=half_hours)
+            es_query = es_query.filter(
+                half_hour_in_first_stage | half_hour_in_second_stage | half_hour_in_third_stage | half_hour_in_fourth_stage)
 
         return es_query
 
@@ -334,14 +344,25 @@ class ESTripHelper(ElasticSearchHelper):
 
         es_query = self.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types, periods,
                                                       half_hours)
-        # TODO: hacer la agrupación
-        first_stage = A('filter', Q('term', parada_bajada_1=auth_stop_code))
-        second_stage = A('filter', Q('term', parada_bajada_2=auth_stop_code))
-        third_stage = A('filter', Q('term', parada_bajada_3=auth_stop_code))
-        fourth_stage = A('filter', Q('term', parada_bajada_4=auth_stop_code))
-        es_query.aggs.bucket('first_stage', first_stage).bucket('connection', 'terms', field="parada_subida_2", size=2000)
-        es_query.aggs.bucket('second_stage', second_stage).bucket('connection', 'terms', field="parada_subida_3", size=2000)
-        es_query.aggs.bucket('third_stage', third_stage).bucket('connection', 'terms', field="parada_subida_4", size=2000)
-        es_query.aggs.bucket('fourth_stage', fourth_stage)
+
+        first_transfer = A('filter', Q('term', parada_bajada_1=auth_stop_code))
+        second_transfer = A('filter', Q('term', parada_bajada_2=auth_stop_code))
+        third_transfer = A('filter', Q('term', parada_bajada_3=auth_stop_code))
+        fourth_transfer = A('filter', Q('term', parada_bajada_4=auth_stop_code))
+
+        first_transfer_bucket = es_query.aggs.bucket('first_transfer', first_transfer)
+        first_transfer_bucket.bucket('route_from', 'terms', field="srv_1", size=5000)
+        first_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_2", size=5000)
+
+        second_transfer_bucket = es_query.aggs.bucket('second_transfer', second_transfer)
+        second_transfer_bucket.bucket('route_from', 'terms', field="srv_2", size=5000)
+        second_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_3", size=5000)
+
+        third_transfer_bucket = es_query.aggs.bucket('third_transfer', third_transfer)
+        third_transfer_bucket.bucket('route_from', 'terms', field="srv_3", size=5000)
+        third_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_4", size=5000)
+
+        fourth_transfer_bucket = es_query.aggs.bucket('fourth_transfer', fourth_transfer)
+        fourth_transfer_bucket.bucket('route_from', 'terms', field="srv_4", size=5000)
 
         return es_query

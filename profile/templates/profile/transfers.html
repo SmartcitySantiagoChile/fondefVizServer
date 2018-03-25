@@ -12,7 +12,7 @@
     {% data_filter data_filter True True True False True False True False False False False info_target_id="filterHelp" %}
 
     <div class="row">
-        {% table "expeditionDetail" 7 False as transfersTable %}
+        {% table "transferTable" 1 False as transfersTable %}
         {% label "Los servicios o estaciones de metro utilizadas para transbordar no está restringido a los servicios que se detienen en la parada. " "info" as label2 %}
         {% panel "fa-bar-chart" "Transbordos" label2|add:transfersTable info_target_id="tableHelp" as panel1 %}
         {% columns 12 12 12 panel1 %}

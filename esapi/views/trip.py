@@ -292,15 +292,24 @@ class StrategiesData(PermissionRequiredMixin, View):
 class TransfersData(View):
 
     def process_data(self, es_query):
-        print(str(es_query.to_dict()).replace("u'", "\"").replace("'", "\""))
         result = es_query.execute().aggregations
+        answer = defaultdict(lambda: defaultdict(lambda: 0))
 
-        print(result)
-        #if not result:
-        #    raise ESQueryResultEmpty()
+        for step in [result.first_transfer, result.second_transfer, result.third_transfer]:
+            for from_bucket in step.route_from.buckets:
+                for to_bucket in from_bucket.route_to.buckets:
+                    answer[from_bucket.key][to_bucket.key] += to_bucket.doc_count
 
+        for from_bucket in result.fourth_transfer.route_from.buckets:
+            answer[from_bucket.key]['-'] += from_bucket.doc_count
+
+        if not answer:
+            raise ESQueryResultEmpty()
+
+        print(str(es_query.to_dict()).replace("u'", "\"").replace("'", "\""))
         return {
-            'result': result.to_dict()
+            # 'result': result.to_dict(),
+            'data': answer
         }
 
     def process_request(self, request, params, export_data=False):
