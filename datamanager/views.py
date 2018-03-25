@@ -201,7 +201,11 @@ class ExportJobHistoryHTML(View):
         jobs = ExporterJobExecution.objects.filter(user=request.user).order_by('enqueueTimestamp')
 
         for job in jobs:
-            data.append([job.get_status_display(), job.enqueueTimestamp, job.executionStart, job.executionEnd, job.file.url])
+            file_url = ''
+            if bool(job.file):
+                file_url = job.file.url
+            data.append(
+                [job.get_status_display(), job.enqueueTimestamp, job.executionStart, job.executionEnd, file_url])
 
         context = {
             'data': data,

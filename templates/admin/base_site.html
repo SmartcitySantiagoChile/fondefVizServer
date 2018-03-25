@@ -134,7 +134,7 @@
                       {% endif %}
                   </a>
                   <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
-                      {% for job in jobs %}
+                    {% for job in jobs %}
                     <li class="alert alert-{% if job.status == 'finished' %}success{% elif job.status == 'failed' %}error{% elif job.status == 'canceled' %}warning{% elif job.status == 'running' %}warning{% else %}info{% endif %}">
                       <a href="{% url 'datamanager:jobHistoryByUser' %}">
                         <span class="image"><i class="fa {% if job.status == 'running' %}fa-refresh fa-spin{% else %}fa-cloud-download{% endif %} pull-right"></i></span>
@@ -148,7 +148,7 @@
                         </span>
                       </a>
                     </li>
-                      {% endfor %}
+                    {% endfor %}
                     <li>
                       <div class="text-center">
                         <a href="{% url 'datamanager:jobHistoryByUser' %}">

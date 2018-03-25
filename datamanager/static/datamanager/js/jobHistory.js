@@ -8,7 +8,32 @@ $(document).ready(function () {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
             searching: true,
-            order: [[1, "desc"]]
+            order: [[1, "desc"]],
+            columns: [
+                null, {
+                    render: function (data) {
+                        return (new Date(data)).toLocaleString();
+                    }
+                },
+                {
+                    render: function (data) {
+                        if (data !== "None") {
+                            return (new Date(data)).toLocaleString();
+                        } else {
+                            return "";
+                        }
+                    }
+                }, {
+                    render: function (data) {
+                        if (data !== "None") {
+                            return (new Date(data)).toLocaleString();
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+                null
+            ]
         };
         $("#history").DataTable(opts);
     })()
