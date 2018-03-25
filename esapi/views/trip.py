@@ -306,7 +306,7 @@ class TransfersData(View):
         if not answer:
             raise ESQueryResultEmpty()
 
-        print(str(es_query.to_dict()).replace("u'", "\"").replace("'", "\""))
+        # print(str(es_query.to_dict()).replace("u'", "\"").replace("'", "\""))
         return {
             # 'result': result.to_dict(),
             'data': answer
