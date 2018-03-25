@@ -139,11 +139,12 @@
                       <a href="{% url 'datamanager:jobHistoryByUser' %}">
                         <span class="image"><i class="fa {% if job.status == 'running' %}fa-refresh fa-spin{% else %}fa-cloud-download{% endif %} pull-right"></i></span>
                         <span>
-                          <span>{{ job.get_status_display }}</span>
-                          <span class="time">{{ job.enqueueTimestamp|timesince }}</span>
+                          <span>Solicitud de descarga</span>
+                          <span class="time">hace {{ job.enqueueTimestamp|timesince }} atrás</span>
                         </span>
                         <span class="message">
-                          {{ job.description|truncatechars:40 }}
+                          Estado: {{ job.get_status_display }}<br />
+                          {{ job.errorMessage|truncatechars:40 }}
                         </span>
                       </a>
                     </li>

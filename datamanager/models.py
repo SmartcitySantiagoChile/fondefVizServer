@@ -83,11 +83,12 @@ class JobExecution(models.Model):
     FAILED = 'failed'
     CANCELED = 'canceled'
     STATUS_CHOICES = (
-        (ENQUEUED, 'Encolado, esperando para ejecutar'),
-        (RUNNING, 'cargando datos a elastic search'),
+        (ENQUEUED, 'Encolado'),
+        (RUNNING, 'Cargando datos'),
         (FINISHED, 'Finalización exitosa'),
         (FAILED, 'Finalización con error'),
         (CANCELED, 'Cancelado por usuario'),
+        (FINISHED_BUT_MAIL_WAS_NOT_SENT, 'Finalización exitosa pero no se pudo envíar correo')
     )
     # state of execution
     status = models.CharField('Estado', max_length=10, choices=STATUS_CHOICES)
