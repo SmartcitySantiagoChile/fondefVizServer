@@ -70,6 +70,7 @@ def export_data_job(es_query_dict, downloader):
 
     job_execution_obj.status = ExporterJobExecution.RUNNING
     job_execution_obj.executionStart = timezone.now()
+    job_execution_obj.seen = False
     job_execution_obj.save()
 
     file_name = "{0}.zip".format(uuid.uuid4())
@@ -99,6 +100,7 @@ def export_data_job(es_query_dict, downloader):
         job_execution_obj.errorMessage = str(e)
 
     job_execution_obj.executionEnd = timezone.now()
+    job_execution_obj.seen = False
     job_execution_obj.save()
 
 
@@ -107,6 +109,7 @@ def export_exception_handler(job_instance, exc_type, exc_value, traceback):
         job_execution_obj = ExporterJobExecution.objects.get(jobId=job_instance.id)
 
         job_execution_obj.executionEnd = timezone.now()
+        job_execution_obj.seen = False
         job_execution_obj.status = UploaderJobExecution.FAILED
         job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
         job_execution_obj.save()
