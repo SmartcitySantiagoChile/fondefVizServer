@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.views import View
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.shape import ESShapeHelper
@@ -57,6 +59,10 @@ class AvailableRoutes(View):
 
 
 class MatrixData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(MatrixData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
@@ -122,6 +128,10 @@ class MatrixData(View):
 
 class RankingData(View):
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RankingData, self).dispatch(request, *args, **kwargs)
+
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
         end_date = params.get('endDate', '')[:10]
@@ -165,6 +175,10 @@ class RankingData(View):
 
 
 class SpeedByRoute(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(SpeedByRoute, self).dispatch(request, *args, **kwargs)
 
     def process_data(self, es_query, limits):
         aux_data = {}
@@ -238,6 +252,10 @@ class SpeedByRoute(View):
 
 
 class SpeedVariation(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(SpeedVariation, self).dispatch(request, *args, **kwargs)
 
     def transform_data(self, es_query):
         aux_data = {}

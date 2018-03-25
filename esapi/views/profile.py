@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.views.generic import View
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.stop import ESStopHelper
@@ -50,6 +52,10 @@ class MatchedStopData(View):
 
 class LoadProfileByStopData(View):
     """ It gives load profile for each bus in a stop given """
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoadProfileByStopData, self).dispatch(request, *args, **kwargs)
 
     def clean_data(self, data):
         """ round to zero values between [-1, 0]"""
@@ -166,6 +172,10 @@ class AvailableRoutes(View):
 
 
 class LoadProfileByExpeditionData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoadProfileByExpeditionData, self).dispatch(request, *args, **kwargs)
 
     def clean_data(self, data):
         """ round to zero values between [-1, 0]"""

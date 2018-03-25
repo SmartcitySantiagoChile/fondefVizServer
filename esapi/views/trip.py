@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from collections import defaultdict
 
@@ -18,6 +20,10 @@ import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 
 class ResumeData(PermissionRequiredMixin, View):
     permission_required = 'localinfo.globalstat'
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ResumeData, self).dispatch(request, *args, **kwargs)
 
     def process_data(self, data_dict):
 
@@ -59,6 +65,10 @@ class ResumeData(PermissionRequiredMixin, View):
 
 class MapData(PermissionRequiredMixin, View):
     permission_required = 'localinfo.globalstat'
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(MapData, self).dispatch(request, *args, **kwargs)
 
     def process_data(self, data_dict):
 
@@ -132,6 +142,10 @@ class AvailableDays(PermissionRequiredMixin, View):
 class LargeTravelData(PermissionRequiredMixin, View):
     permission_required = 'localinfo.globalstat'
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LargeTravelData, self).dispatch(request, *args, **kwargs)
+
     def process_data(self, data):
         return data
 
@@ -168,6 +182,10 @@ class LargeTravelData(PermissionRequiredMixin, View):
 
 class FromToMapData(PermissionRequiredMixin, View):
     permission_required = 'localinfo.globalstat'
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(FromToMapData, self).dispatch(request, *args, **kwargs)
 
     def process_data(self, data):
         return data
@@ -209,6 +227,10 @@ class FromToMapData(PermissionRequiredMixin, View):
 
 class StrategiesData(PermissionRequiredMixin, View):
     permission_required = 'localinfo.globalstat'
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(StrategiesData, self).dispatch(request, *args, **kwargs)
 
     def process_data(self, es_query):
         subway = 'METRO'
@@ -290,6 +312,10 @@ class StrategiesData(PermissionRequiredMixin, View):
 
 
 class TransfersData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(TransfersData, self).dispatch(request, *args, **kwargs)
 
     def process_data(self, es_query):
         result = es_query.execute().aggregations
