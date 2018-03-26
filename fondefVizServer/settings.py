@@ -208,3 +208,8 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 SERVER_EMAIL = config('SERVER_EMAIL')
+
+# crontab
+CRONJOBS = [
+    ('0 0 * * *', 'datamanager.cron.delete_old_file_job')  # at 00:00 every day
+]

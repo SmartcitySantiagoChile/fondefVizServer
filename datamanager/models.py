@@ -82,13 +82,15 @@ class JobExecution(models.Model):
     FINISHED_BUT_MAIL_WAS_NOT_SENT = 'finished_m'
     FAILED = 'failed'
     CANCELED = 'canceled'
+    EXPIRED = 'expired'
     STATUS_CHOICES = (
         (ENQUEUED, 'Encolado'),
         (RUNNING, 'Cargando datos'),
         (FINISHED, 'Finalización exitosa'),
         (FAILED, 'Finalización con error'),
         (CANCELED, 'Cancelado por usuario'),
-        (FINISHED_BUT_MAIL_WAS_NOT_SENT, 'Finalización exitosa pero no se pudo envíar correo')
+        (FINISHED_BUT_MAIL_WAS_NOT_SENT, 'Finalización exitosa pero no se pudo envíar correo'),
+        (EXPIRED, 'Vencido')
     )
     # state of execution
     status = models.CharField('Estado', max_length=10, choices=STATUS_CHOICES)
