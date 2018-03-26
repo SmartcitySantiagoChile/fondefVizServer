@@ -138,7 +138,7 @@ class CSVHelper:
                 field = query_filter['terms'].keys()[0]
                 values = query_filter['terms'][field]
 
-                if field == 'dayType':
+                if field in ['dayType', 'tipodia']:
                     values = [self.day_type_dict[int(x)] for x in values]
                 elif field in ['timePeriodInStartTime', 'timePeriodInStopTime']:
                     values = [self.timeperiod_dict[int(x)] for x in values]

@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
+
 from rqworkers.dataDownloader.csvhelper.helper import ZipManager, ProfileCSVHelper, ShapeCSVHelper, StopCSVHelper
 
 
 class ProfileByExpeditionData(object):
     """ class that build profile csv """
 
-    def __init__(self, es_client, es_query):
+    def __init__(self, es_query, es_client=None):
         self.es_query = es_query
-        self.es_client = es_client
+        self.es_client = settings.ES_CLIENT if es_client is None else es_client
 
     def get_routes(self):
         for query_filter in self.es_query['query']['bool']['filter']:
@@ -50,17 +52,20 @@ class ProfileByExpeditionData(object):
 
 class ProfileDataByStop(object):
 
-    def __init__(self, es_client, es_query):
+    def __init__(self, es_query, es_client=None):
         self.es_query = es_query
-        self.es_client = es_client
+        self.es_client = settings.ES_CLIENT if es_client is None else es_client
+        self.profile_file = ProfileCSVHelper(self.es_client, self.es_query)
+
+    def get_filters(self):
+        return self.profile_file.get_filter_criteria()
 
     def build_file(self, file_path):
         zip_manager = ZipManager(file_path)
-        profile_file = ProfileCSVHelper(self.es_client, self.es_query)
-        profile_file.download(zip_manager)
+        self.profile_file.download(zip_manager)
 
         help_file_title = 'ARCHIVO DE PERFILES'
-        files_description = [profile_file.get_file_description()]
-        data_filter = profile_file.get_filter_criteria()
-        explanation = profile_file.get_field_explanation()
+        files_description = [self.profile_file.get_file_description()]
+        data_filter = self.profile_file.get_filter_criteria()
+        explanation = self.profile_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)

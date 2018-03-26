@@ -8,9 +8,14 @@ $(document).ready(function () {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
             searching: true,
-            order: [[1, "desc"]],
+            order: [[3, "desc"]],
             columns: [
-                null, {
+                null,
+                null,{
+                    render: function (data) {
+                        return data.replace("\n", "<br />");
+                    }
+                },{
                     render: function (data) {
                         return (new Date(data)).toLocaleString();
                     }
@@ -32,7 +37,15 @@ $(document).ready(function () {
                         }
                     }
                 },
-                null
+                {
+                    render: function (data) {
+                        var link = "";
+                        if (data !== ""){
+                            link = "<a href='" + data + "'>Descargar</a>";
+                        }
+                        return link;
+                    }
+                }
             ]
         };
         $("#history").DataTable(opts);

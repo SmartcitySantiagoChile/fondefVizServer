@@ -29,15 +29,15 @@ def download_file(es_instance, query, downloader, zip_file_path):
 
     # Determine file type according to index name
     if downloader == csv_helper.OD_BY_ROUTE_DATA:
-        data_to_download = OdByRouteData(es_instance, query)
+        data_to_download = OdByRouteData(query, es_instance)
     elif downloader == csv_helper.PROFILE_BY_EXPEDITION_DATA:
-        data_to_download = ProfileByExpeditionData(es_instance, query)
+        data_to_download = ProfileByExpeditionData(query, es_instance)
     elif downloader == csv_helper.PROFILE_BY_STOP_DATA:
-        data_to_download = ProfileDataByStop(es_instance, query)
+        data_to_download = ProfileDataByStop(query, es_instance)
     elif downloader == csv_helper.SPEED_MATRIX_DATA:
-        data_to_download = SpeedData(es_instance, query)
+        data_to_download = SpeedData(query, es_instance)
     elif downloader == csv_helper.TRIP_DATA:
-        data_to_download = TripData(es_instance, query)
+        data_to_download = TripData(query, es_instance)
     else:
         raise UnrecognizedDownloaderNameError()
 

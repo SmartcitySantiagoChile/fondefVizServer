@@ -131,6 +131,20 @@ class ExporterJobExecution(JobExecution):
     user = models.ForeignKey(User)
     # True if it was seen for first time
     seen = models.BooleanField(default=False)
+    # indicate which data has been downloaded
+    OD_BY_ROUTE = 'odbyroute'
+    SPEED = 'speed'
+    TRIP = 'trip'
+    PROFILE = 'profile'
+    FILE_TYPE_CHOICES = (
+        (OD_BY_ROUTE, 'Matriz de etapa por servicio'),
+        (SPEED, 'Velocidades'),
+        (TRIP, 'Viajes'),
+        (PROFILE, 'Perfil de carga')
+    )
+    fileType = models.CharField(max_length=10, null=False, choices=FILE_TYPE_CHOICES)
+    # to save data downloader (name, filters, etc)
+    filters = models.TextField(null=True)
 
     class Meta:
         verbose_name = 'Trabajo para exportar datos'

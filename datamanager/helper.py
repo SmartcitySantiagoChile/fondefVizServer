@@ -18,6 +18,11 @@ from datamanager.models import UploaderJobExecution, LoadFile, DataSourcePath, E
 
 from rqworkers.tasks import upload_file_job, export_data_job
 from rqworkers.killClass import KillJob
+from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
+from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
+from rqworkers.dataDownloader.csvhelper.speed import SpeedData
+from rqworkers.dataDownloader.csvhelper.trip import TripData
+from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.speed import ESSpeedHelper
@@ -31,6 +36,7 @@ import io
 import glob
 import os
 import zipfile
+import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 
 
 class ExporterManager(object):
@@ -43,14 +49,33 @@ class ExporterManager(object):
         with transaction.atomic():
             # check if exist job associate to file obj
             human_readable_query = str(self.es_query.to_dict()).replace('u\'', '"').replace('\'', '"')
-            if ExporterJobExecution.objects.filter(query=human_readable_query).filter(
+            if ExporterJobExecution.objects.filter(query=human_readable_query, user=user).filter(
                     Q(status=ExporterJobExecution.ENQUEUED) | Q(status=ExporterJobExecution.RUNNING)).exists():
                 raise ThereIsPreviousJobExporterDataError()
 
+            # Determine file type according to index name
+            if downloader == csv_helper.OD_BY_ROUTE_DATA:
+                downloader_instance = OdByRouteData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.OD_BY_ROUTE
+            elif downloader == csv_helper.PROFILE_BY_EXPEDITION_DATA:
+                downloader_instance = ProfileByExpeditionData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.PROFILE
+            elif downloader == csv_helper.PROFILE_BY_STOP_DATA:
+                downloader_instance = ProfileDataByStop(self.es_query.to_dict())
+                file_type = ExporterJobExecution.PROFILE
+            elif downloader == csv_helper.SPEED_MATRIX_DATA:
+                downloader_instance = SpeedData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.SPEED
+            elif downloader == csv_helper.TRIP_DATA:
+                downloader_instance = TripData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.TRIP
+            else:
+                raise UnrecognizedDownloaderNameError()
+
             job = export_data_job.delay(self.es_query.to_dict(), downloader)
-            ExporterJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
-                                                status=ExporterJobExecution.ENQUEUED,
-                                                query=human_readable_query, user=user)
+            ExporterJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id, fileType=file_type,
+                                                status=ExporterJobExecution.ENQUEUED, query=human_readable_query,
+                                                user=user, filters=downloader_instance.get_filters())
 
 
 class UploaderManager(object):
