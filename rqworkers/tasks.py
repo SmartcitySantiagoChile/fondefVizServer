@@ -14,11 +14,18 @@ from rq import get_current_job
 from rqworkers.dataUploader.loadData import upload_file
 from rqworkers.dataDownloader.downloadData import download_file
 
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.stop import ESStopHelper
+
 from datamanager.models import UploaderJobExecution, ExporterJobExecution
+
+from itertools import groupby
 
 import time
 import uuid
 import os
+import zipfile
+import io
 
 
 @job('data_uploader')
@@ -118,3 +125,39 @@ def export_exception_handler(job_instance, exc_type, exc_value, traceback):
 
     # continue with the next handler if exists, for instance: failed queue
     return True
+
+
+@job('count_lines')
+def count_line_of_file_job(file_obj, data_source_code, file_path):
+    def get_file_object(_file_path):
+        """
+        :param _file_path: file path will upload
+        :return: file object
+        """
+        if zipfile.is_zipfile(_file_path):
+            zip_file_obj = zipfile.ZipFile(_file_path, 'r')
+            # it assumes that zip file has only one file
+            file_name = zip_file_obj.namelist()[0]
+            _file_obj = zip_file_obj.open(file_name, 'rU')
+        else:
+            _file_obj = io.open(_file_path, str('rb'))
+
+        return _file_obj
+
+    i = 0
+    with get_file_object(file_path) as f:
+        if data_source_code in [ESShapeHelper().get_index_name(), ESStopHelper().get_index_name()]:
+            for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
+                # lines with hyphen on first column are bad lines and must not be considered
+                if group_id != str('-'):
+                    i += 1
+            # not count header
+            i -= 1
+        else:
+            # how it starts from zero is not count header
+            for i, _ in enumerate(f):
+                pass
+
+    file_obj.refresh_from_db()
+    file_obj.lines = i
+    file_obj.save()

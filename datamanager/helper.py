@@ -10,13 +10,12 @@ from rq import Connection
 from redis import Redis
 
 from collections import defaultdict
-from itertools import groupby
 
-from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, ThereIsNotActiveJobError, \
-    ThereIsPreviousJobExporterDataError
+from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
+    ThereIsNotActiveJobError, ThereIsPreviousJobExporterDataError
 from datamanager.models import UploaderJobExecution, LoadFile, DataSourcePath, ExporterJobExecution
 
-from rqworkers.tasks import upload_file_job, export_data_job
+from rqworkers.tasks import upload_file_job, export_data_job, count_line_of_file_job
 from rqworkers.killClass import KillJob
 from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
 from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
@@ -32,10 +31,8 @@ from esapi.helper.stop import ESStopHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 
-import io
 import glob
 import os
-import zipfile
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 
 
@@ -161,37 +158,6 @@ class FileManager(object):
     def __init__(self):
         pass
 
-    def _get_file_object(self, file_path):
-        """
-        :param file_path: file path will upload
-        :return: file object
-        """
-        if zipfile.is_zipfile(file_path):
-            zip_file_obj = zipfile.ZipFile(file_path, 'r')
-            # it assumes that zip file has only one file
-            file_name = zip_file_obj.namelist()[0]
-            file_obj = zip_file_obj.open(file_name, 'rU')
-        else:
-            file_obj = io.open(file_path, str('rb'))
-
-        return file_obj
-
-    def _count_doc_in_file(self, data_source_code, file_path):
-        i = 0
-        with self._get_file_object(file_path) as f:
-            if data_source_code in [ESShapeHelper().get_index_name(), ESStopHelper().get_index_name()]:
-                for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
-                    # lines with hyphen on first column are bad lines and must not be considered
-                    if group_id != str('-'):
-                        i += 1
-                # not count header
-                i -= 1
-            else:
-                # how it starts from zero is not count header
-                for i, _ in enumerate(f):
-                    pass
-        return i
-
     def _get_file_list(self):
         """ list all files in directory with a given code """
         file_dict = defaultdict(list)
@@ -215,7 +181,7 @@ class FileManager(object):
                     'lastModified': last_modified
                 })
                 if created or last_modified != file_obj.lastModified:
-                    file_obj.lines = self._count_doc_in_file(data_source_obj.indexName, file_path)
+                    count_line_of_file_job.delay(file_obj, data_source_obj.indexName, file_path)
                     file_obj.lastModified = last_modified
                 file_obj.dataSourcePath = path
                 file_obj.save()
