@@ -205,13 +205,13 @@ class ExportJobHistoryHTML(View):
             if bool(job.file):
                 file_url = job.file.url
             data.append(
-                [job.get_status_display(), job.get_fileType_display(), job.filters, job.enqueueTimestamp,
-                 job.executionStart, job.executionEnd, file_url])
+                [job.get_status_display(), job.enqueueTimestamp, job.executionStart, job.executionEnd, file_url,
+                 job.get_fileType_display(), job.filters])
 
         context = {
             'data': data,
-            'columns': ['Estado', 'Fuente de datos', 'Filtros aplicados', 'Fecha encolación', 'Fecha inicio',
-                        'Fecha Fin', 'Archivo']
+            'columns': ['Estado', 'Fecha encolación', 'Fecha inicio', 'Fecha Fin', 'Archivo', 'Fuente de datos',
+                        'Filtros aplicados']
         }
 
         return render(request, template, context)

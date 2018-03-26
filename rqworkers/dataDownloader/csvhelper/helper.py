@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from elasticsearch_dsl import Search
 
 from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
-from rqworkers.dataDownloader.errors import FilterHasToBeListErrpr
+from rqworkers.dataDownloader.errors import FilterHasToBeListError
 
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input
@@ -111,17 +111,8 @@ class CSVHelper:
                                     self.get_column_dict()])
         return explanation
 
-    def get_filter_criteria(self):
-        """ return list used to put in readme file to specify filters applied over data """
+    def _process_filters(self, filters):
         formatted_filters = []
-
-        if 'bool' not in self.es_query['query']:
-            return ''
-
-        filters = self.es_query['query']['bool']['filter']
-
-        if not isinstance(filters, list):
-            raise FilterHasToBeListErrpr()
 
         for query_filter in filters:
             if 'term' in query_filter:
@@ -137,19 +128,23 @@ class CSVHelper:
                     continue
                 field = query_filter['terms'].keys()[0]
                 values = query_filter['terms'][field]
-
+                print(field)
                 if field in ['dayType', 'tipodia']:
                     values = [self.day_type_dict[int(x)] for x in values]
-                elif field in ['timePeriodInStartTime', 'timePeriodInStopTime']:
+                elif field in ['timePeriodInStartTime', 'timePeriodInStopTime', 'periodo_bajada_1',
+                               'periodo_bajada_2', 'periodo_bajada_3', 'periodo_bajada_4']:
                     values = [self.timeperiod_dict[int(x)] for x in values]
-                elif field in ['halfHourInStartTime', 'halfHourInStopTime']:
+                elif field in ['halfHourInStartTime', 'halfHourInStopTime', 'mediahora_bajada_1',
+                               'mediahora_bajada_2', 'mediahora_bajada_3', 'mediahora_bajada_4']:
                     values = [self.halfhour_dict[int(x)] for x in values]
 
-                line = '\t\t- {0}:'.format(self.translator[field])
-                formatted_filters.append(line)
+                header = '\t\t- {0}:'.format(self.translator[field])
+                formatted_values = []
                 for value in values:
-                    line = '\t\t\t{0}'.format(value)
-                    formatted_filters.append(line)
+                    line = '{0}'.format(value)
+                    formatted_values.append(line)
+
+                formatted_filters.append('{0} {1}'.format(header, ', '.join(formatted_values)))
             elif 'range' in query_filter:
                 field = query_filter['range'].keys()[0]
                 gte = query_filter['range'][field]["gte"].replace("||/d", "")
@@ -157,8 +152,24 @@ class CSVHelper:
 
                 line = '\t\t- {0}: {1} - {2}'.format(self.translator[field], gte, lte)
                 formatted_filters.append(line)
+            elif 'bool' in query_filter:
+                nested_filters = query_filter['bool']['should']
+                formatted_filters.append('[{0}]'.format(self._process_filters(nested_filters)))
 
         return '{0}'.format(os.linesep).join(formatted_filters)
+
+    def get_filter_criteria(self):
+        """ return list used to put in readme file to specify filters applied over data """
+
+        if 'bool' not in self.es_query['query']:
+            return ''
+
+        filters = self.es_query['query']['bool']['filter']
+
+        if not isinstance(filters, list):
+            raise FilterHasToBeListError()
+
+        return self._process_filters(filters)
 
     def row_parser(self, row):
         raise NotImplementedError()
@@ -436,6 +447,14 @@ class TripCSVHelper(CSVHelper):
             {'es_name': 'mediahora_bajada_2', 'csv_name': 'mediahora_bajada_etapa_2', 'definition': ''},
             {'es_name': 'mediahora_bajada_3', 'csv_name': 'mediahora_bajada_etapa_3', 'definition': ''},
             {'es_name': 'mediahora_bajada_4', 'csv_name': 'mediahora_bajada_etapa_4', 'definition': ''},
+            {'es_name': 'parada_subida_1', 'csv_name': 'parada_subida_1', 'definition': ''},
+            {'es_name': 'parada_subida_2', 'csv_name': 'parada_subida_2', 'definition': ''},
+            {'es_name': 'parada_subida_3', 'csv_name': 'parada_subida_3', 'definition': ''},
+            {'es_name': 'parada_subida_4', 'csv_name': 'parada_subida_4', 'definition': ''},
+            {'es_name': 'parada_bajada_1', 'csv_name': 'parada_bajada_1', 'definition': ''},
+            {'es_name': 'parada_bajada_2', 'csv_name': 'parada_bajada_2', 'definition': ''},
+            {'es_name': 'parada_bajada_3', 'csv_name': 'parada_bajada_3', 'definition': ''},
+            {'es_name': 'parada_bajada_4', 'csv_name': 'parada_bajada_4', 'definition': ''},
             {'es_name': 'periodo_bajada_1', 'csv_name': 'periodo_bajada_etapa_1', 'definition': ''},
             {'es_name': 'periodo_bajada_2', 'csv_name': 'periodo_bajada_etapa_2', 'definition': ''},
             {'es_name': 'periodo_bajada_3', 'csv_name': 'periodo_bajada_etapa_3', 'definition': ''},
@@ -457,9 +476,11 @@ class TripCSVHelper(CSVHelper):
             try:
                 if column_name == 'tipodia':
                     value = self.day_type_dict[value]
-                elif column_name in ['mediahora_subida', 'mediahora_bajada']:
+                elif column_name in ['mediahora_subida', 'mediahora_bajada', 'mediahora_bajada_1', 'mediahora_bajada_2',
+                                     'mediahora_bajada_3', 'mediahora_bajada_4']:
                     value = self.halfhour_dict[value]
-                elif column_name == ['periodo_subida', 'periodo_bajada']:
+                elif column_name == ['periodo_subida', 'periodo_bajada', 'periodo_bajada_1', 'periodo_bajada_2',
+                                     'periodo_bajada_3', 'periodo_bajada_4']:
                     value = self.timeperiod_dict[value]
                 elif column_name == ['tipo_transporte_1', 'tipo_transporte_2', 'tipo_transporte_3',
                                      'tipo_transporte_4']:

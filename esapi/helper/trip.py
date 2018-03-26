@@ -321,6 +321,13 @@ class ESTripHelper(ElasticSearchHelper):
             'time_zone': '+00:00'
         })
 
+        landing_stop_in_first_stage = Q('term', parada_bajada_1=auth_stop_code)
+        landing_stop_in_second_stage = Q('term', parada_bajada_2=auth_stop_code)
+        landing_stop_in_third_stage = Q('term', parada_bajada_3=auth_stop_code)
+        landing_stop_in_fourth_stage = Q('term', parada_bajada_4=auth_stop_code)
+        es_query = es_query.filter(
+            landing_stop_in_first_stage | landing_stop_in_second_stage | landing_stop_in_third_stage | landing_stop_in_fourth_stage)
+
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
         if periods:

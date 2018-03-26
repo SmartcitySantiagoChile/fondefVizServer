@@ -6,5 +6,5 @@ class UnrecognizedDownloaderNameError(Exception):
     pass
 
 
-class FilterHasToBeListErrpr(Exception):
+class FilterHasToBeListError(Exception):
     pass
