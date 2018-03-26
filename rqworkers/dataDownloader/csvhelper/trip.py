@@ -21,3 +21,5 @@ class TripData(object):
         files_description = [trip_file.get_file_description()]
         explanation = trip_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "\r\n".join(files_description), data_filter, explanation)
+
+        return data_filter

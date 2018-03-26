@@ -46,3 +46,5 @@ class OdByRouteData(object):
         data_filter = od_by_route_file.get_filter_criteria()
         explanation = od_by_route_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
+
+        return data_filter

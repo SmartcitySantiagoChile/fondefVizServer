@@ -64,3 +64,5 @@ class ProfileDataByStop(object):
         data_filter = profile_file.get_filter_criteria()
         explanation = profile_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
+
+        return data_filter
