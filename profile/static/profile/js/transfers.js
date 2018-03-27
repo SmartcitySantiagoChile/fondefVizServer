@@ -4,7 +4,7 @@ $(document).ready(function () {
         var _self = this;
         var tableId = "#transferTable";
         var firstColumn = {
-            title: "Servicios de llegada \\ Servicios de salida",
+            title: "Llegada \\ Salida",
             className: "text-center",
             data: "from"
         };
@@ -19,7 +19,8 @@ $(document).ready(function () {
                     }
                 }
                 return total;
-            }
+            },
+            render: $.fn.dataTable.render.number(".", ",", 0)
         };
         var datatableOpts = {
             searching: false,
@@ -48,8 +49,9 @@ $(document).ready(function () {
                             return x + b;
                         }, 0);
                         alignClass = "text-center";
+                        value = $.fn.dataTable.render.number(".", ",", 0).display(value);
                     }
-                    $("#footer" + index).html(value).parent().removeClass('text-center').addClass(alignClass);
+                    $("#footer" + index).html(value).parent().removeClass("text-center").addClass(alignClass);
                 });
             }
         };
@@ -61,7 +63,13 @@ $(document).ready(function () {
             var newColumns = columns.map(function (columnName) {
                 return {
                     title: columnName,
-                    data: columnName,
+                    data: function (row, type, set) {
+                        if (row[columnName] === undefined) {
+                            return null;
+                        }
+                        return row[columnName];
+                    },
+                    render: $.fn.dataTable.render.number(".", ",", 0),
                     className: "text-center"
                 };
             });
@@ -77,7 +85,7 @@ $(document).ready(function () {
             $(tableId).empty();
 
             // add footer
-            var footer = $(tableId).append('<tfoot><tr></tr></tfoot>').find("tfoot tr");
+            var footer = $(tableId).append("<tfoot><tr></tr></tfoot>").find("tfoot tr");
             for (var i = 0; i < columns.length + 2; i++) {
                 footer.append("<th><span id='footer" + i + "'></span></th>");
             }
@@ -98,23 +106,30 @@ $(document).ready(function () {
             return;
         }
 
+        var endOfTripLabel = "Fin de viaje";
         var data = dataSource.data;
         var rows = [];
         var columns = [];
         for (var route_from in data) {
+            if (route_from === "-") {
+                continue;
+            }
+            var row = {
+                from: route_from
+            };
             for (var route_to in data[route_from]) {
                 var key = route_to;
-                if (route_to === '-') {
-                    key = "Fin de viaje";
+                if (route_to === "-") {
+                    key = endOfTripLabel;
                 }
-                var row = {
-                    from: route_from
-                };
                 row[key] = data[route_from][route_to];
-                rows.push(row);
-                columns.push(key);
+                if (columns.indexOf(key) < 0 && key !== endOfTripLabel) {
+                    columns.push(key);
+                }
             }
+            rows.push(row);
         }
+        columns.push(endOfTripLabel);
 
         app.updateTable(rows, columns);
     }
