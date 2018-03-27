@@ -140,6 +140,12 @@ class ESSpeedHelper(ElasticSearchHelper):
             "lte": hour_period_to
         })
 
+        # ignore first section
+        es_query = es_query.exclude('term', section=0)
+
+        # ignore last section
+        es_query = es_query.exclude('term', isEndSection=1)
+
         if route_list is not None:
             es_query = es_query.filter('terms', authRouteCode=route_list)
 
@@ -154,39 +160,30 @@ class ESSpeedHelper(ElasticSearchHelper):
             raise ESQueryDateRangeParametersDoesNotExist()
 
         data = []
-        # chunks of routes to make queries
-        chunks_number = 6
-        routes = self.get_route_list(valid_operator_list)
-        indices = [int(i * len(routes) / chunks_number) for i in range(chunks_number + 1)]
-        chunks = [routes[i:j] for i, j in zip(indices[:-1], indices[1:])]
+        es_query = self.get_base_ranking_data_query(start_date, end_date, hour_period_from, hour_period_to,
+                                                    day_type, valid_operator_list)[:0]
+        aggs0 = A('terms', field='merged', size=5000, order={'avg_speed': 'asc'})
+        aggs0.metric('n_obs', 'sum', field='nObs')
+        aggs0.metric('avg_speed', 'avg', field='speed')
+        aggs0.metric('distance', 'sum', field='totalDistance')
+        aggs0.metric('time', 'sum', field='totalTime')
+        aggs0.metric('speed', 'bucket_script', script='params.d / params.t * 3.6',
+                     buckets_path={'d': 'distance', 't': 'time'})
+        es_query.aggs.bucket('tuples', aggs0)
 
-        for chunk in chunks:
-            es_query = self.get_base_ranking_data_query(start_date, end_date, hour_period_from, hour_period_to,
-                                                        day_type, valid_operator_list, chunk)[:0]
-
-            aggs0 = A('terms', field='merged', size=100000000)
-            aggs0.metric('n_obs', 'sum', field='nObs')
-            aggs0.metric('distance', 'sum', field='totalDistance')
-            aggs0.metric('time', 'sum', field='totalTime')
-            aggs0.metric('speed', 'bucket_script', script='params.d / params.t',
-                         buckets_path={'d': 'distance', 't': 'time'})
-            es_query.aggs.bucket('tuples', aggs0)
-
-            for tup in es_query.execute().aggregations.tuples.buckets:
-                tha_key = tup.key
-                tha_value = 3.6 * tup.speed.value
-                # if tha_value < 15:
-                sep_key = tha_key.split('-')
-                data.append({
-                    'route': sep_key[0],
-                    'section': int(sep_key[1]),
-                    'period': int(sep_key[2]),
-                    'n_obs': tup.n_obs.value,
-                    'distance': tup.distance.value,
-                    'time': tup.time.value,
-                    'speed': tha_value
-                })
-
+        for tup in es_query.execute().aggregations.tuples.buckets:
+            if tup.n_obs.value < 5:
+                continue
+            sep_key = tup.key.split('-')
+            data.append({
+                'route': sep_key[0],
+                'section': int(sep_key[1]),
+                'period': int(sep_key[2]),
+                'n_obs': tup.n_obs.value,
+                'distance': tup.distance.value,
+                'time': tup.time.value,
+                'speed': tup.speed.value
+            })
         data.sort(key=lambda x: float(x['speed']))
 
         if len(data) == 0:
@@ -229,12 +226,14 @@ class ESSpeedHelper(ElasticSearchHelper):
     def get_base_variation_speed_query(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
         es_query = self.get_base_query()
         es_query = es_query.filter('range', date={
-            "gte": start_date,
-            "lte": end_date,
-            "format": "yyyy-MM-dd"
+            "gte": start_date + "||/d",
+            "lte": end_date + "||/d",
+            "format": "yyyy-MM-dd",
+            "time_zone": "+00:00"
         })
+
         if valid_operator_list and operator in valid_operator_list:
-            es_query = es_query.filter('terms', operator=operator)
+            es_query = es_query.filter('term', operator=operator)
         else:
             raise ESQueryOperatorParameterDoesNotExist()
 
@@ -260,7 +259,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         es_query = self.get_base_variation_speed_query(start_date, end_date, day_type, user_route, operator,
                                                        valid_operator_list)[:0]
 
-        aggs0 = A('terms', field='route', size=2000)
+        aggs0 = A('terms', field='authRouteCode', size=2000)
         aggs1 = A('terms', field='periodId', size=50)
         aggs2 = A('range', field='date', format='yyyy-MM-dd', ranges=[
             {'to': end_date},
@@ -271,9 +270,8 @@ class ESSpeedHelper(ElasticSearchHelper):
         aggs2.metric('time', 'sum', field='totalTime')
         aggs2.metric('n_obs', 'sum', field='nObs')
         aggs2.metric('stats', 'extended_stats', field='speed')
-        aggs2.metric('speed', 'bucket_script', script='params.d / params.t',
+        aggs2.metric('speed', 'bucket_script', script='params.d / params.t * 3.6',
                      buckets_path={'d': 'distance', 't': 'time'})
         es_query.aggs.bucket('routes', aggs0).bucket('periods', aggs1).bucket('days', aggs2)
 
-        # print(str(esQuery.to_dict()).replace('u\'', '"').replace('\'', '"'))
         return es_query

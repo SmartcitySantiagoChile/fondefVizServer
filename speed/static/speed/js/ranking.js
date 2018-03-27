@@ -1,24 +1,23 @@
 $(document).ready(function () {
     // map stuffs
     var pzaDeArmas = [-33.437824, -70.650439];
-    var mbAttr = 'flp',
-        mbUrl = 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
-    var black = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr});
-    var map = L.map('mapid', {
+    var mbAttr = "flp",
+        mbUrl = "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
+    var black = L.tileLayer(mbUrl, {id: "mapbox.light", attribution: mbAttr});
+    var map = L.map("mapid", {
         center: pzaDeArmas,
         zoom: 15,
         layers: [black]
     });
-    colors = ['#dfdfdf', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#007f00', '#0000ff'];
-    recievedDataParams = null;
-    StartMarker = null;
-    EndMarker = null;
-    MultiSegment = [];
-    MultiDecorator = [];
+    var colors = ["#dfdfdf", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#007f00", "#0000ff"];
+    var StartMarker = null;
+    var EndMarker = null;
+    var MultiSegment = [];
+    var MultiDecorator = [];
     var periods = [
-        '00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
-        '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-        '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30', '00:00'
+        "00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00", "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30",
+        "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+        "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30", "00:00"
     ];
 
     function clearMap() {
@@ -38,8 +37,8 @@ $(document).ready(function () {
 
     function showSegment(section, dataSource) {
         clearMap();
-        RoutePoints = dataSource.route.points;
-        valuesRoute = dataSource.speed;
+        var RoutePoints = dataSource.route.points;
+        var valuesRoute = dataSource.speed;
         var selected = null;
         $.each(dataSource.route.start_end, function (i, elem) {
             var start = elem[0];
@@ -53,12 +52,12 @@ $(document).ready(function () {
                 smoothFactor: 1
             });
 
-            segpol = L.polylineDecorator(aux, {
+            var segpol = L.polylineDecorator(aux, {
                 patterns: [
                     {
                         offset: 0,
                         endOffset: 0,
-                        repeat: '40',
+                        repeat: "40",
                         symbol: L.Symbol.arrowHead(
                             {
                                 pixelSize: 10,
@@ -89,49 +88,49 @@ $(document).ready(function () {
 
     function RankingApp() {
         var _self = this;
-        var _datatable = $('#tupleDetail').DataTable({
+        var _datatable = $("#tupleDetail").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
+                url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
             columns: [
-                {title: 'Servicio', data: 'route', searchable: true},
-                {title: 'Tramo', data: 'section', className: 'text-right', searchable: false},
+                {title: "Servicio", data: "route", searchable: true},
+                {title: "Tramo", data: "section", className: "text-right", searchable: false},
                 {
-                    title: 'Periodo', data: 'period', searchable: true,
-                    render: function (data, type, full, meta) {
+                    title: "Periodo", data: "period", searchable: true,
+                    render: function (data) {
                         return periods[data] + " " + periods[data + 1];
                     }
                 },
                 {
-                    title: 'Velocidad<br>[km/h]', data: 'speed', className: 'text-right', searchable: false,
-                    render: function (data, type, full, meta) {
+                    title: "Velocidad [km/h]", data: "speed", className: "text-right", searchable: false,
+                    render: function (data) {
                         return data.toFixed(1);
                     }
                 },
                 {
-                    title: 'Tiempo<br>[s]', data: 'time', className: 'text-right', searchable: false,
-                    render: function (data, type, full, meta) {
+                    title: "Tiempo [s]", data: "time", className: "text-right", searchable: false,
+                    render: function (data) {
                         return data.toFixed(1);
                     }
                 },
                 {
-                    title: 'Distancia<br>[m]', data: 'distance', className: 'text-right', searchable: false,
-                    render: function (data, type, full, meta) {
+                    title: "Distancia [m]", data: "distance", className: "text-right", searchable: false,
+                    render: function (data) {
                         return data.toFixed(1);
                     }
                 },
-                {title: '# obs', data: 'n_obs', className: 'text-right', searchable: false}
+                {title: "# obs", data: "n_obs", className: "text-right", searchable: false}
             ],
-            order: [[6, 'asc']]
+            order: [[3, "asc"]]
         });
 
         // action when user clicks on a row
-        $('#tupleDetail tbody').on('click', 'tr', function () {
+        $("#tupleDetail tbody").on("click", "tr", function () {
             var data = _datatable.row(this).data();
             if (data !== undefined) {
-                _datatable.$('tr.success').removeClass('success').removeClass('dark');
-                $(this).addClass('success').addClass('dark');
+                _datatable.$("tr.success").removeClass("success").removeClass("dark");
+                $(this).addClass("success").addClass("dark");
 
                 _self.drawSegment(data.route, data.period, data.section);
             }
@@ -141,7 +140,7 @@ $(document).ready(function () {
             _datatable.clear();
             _datatable.rows.add(data);
             _datatable.columns.adjust().draw();
-            $(_datatable.row(0).node()).addClass('success').addClass('dark');
+            $(_datatable.row(0).node()).addClass("success").addClass("dark");
 
             var firstRow = _datatable.row(0).data();
             _self.drawSegment(firstRow.route, firstRow.period, firstRow.section);
