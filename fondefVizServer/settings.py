@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'localinfo',
     'profile',
     'shape',
-    'travel',
+    'trip',
     'speed',
     'globalstat',
     'debug_toolbar',
