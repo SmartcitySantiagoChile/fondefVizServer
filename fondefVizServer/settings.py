@@ -186,7 +186,8 @@ REDIS_CONF = {
 
 RQ_QUEUES = {
     'data_uploader': REDIS_CONF,
-    'data_exporter': REDIS_CONF
+    'data_exporter': REDIS_CONF,
+    'count_lines': REDIS_CONF
 }
 
 RQ = {
