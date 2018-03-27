@@ -174,7 +174,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
         return JsonResponse(response)
 
     def get(self, request):
-        return self.process_request(request, request.GEt)
+        return self.process_request(request, request.GET)
 
     def post(self, request):
         return self.process_request(request, request.POST, export_data=True)
