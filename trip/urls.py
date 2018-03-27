@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from travel.views.map import MapHTML
-from travel.views.resume import ResumeHTML
-from travel.views.large import LargeTravelsHTML
-from travel.views.from_to import FromToMapHTML
-from travel.views.strategies import TripStrategiesHTML
+from trip.views.map import MapHTML
+from trip.views.resume import ResumeHTML
+from trip.views.large import LargeTravelsHTML
+from trip.views.from_to import FromToMapHTML
+from trip.views.strategies import TripStrategiesHTML
 
 app_name = 'travel'
 urlpatterns = [

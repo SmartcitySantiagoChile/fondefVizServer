@@ -494,28 +494,28 @@ function onEachODZoneFeatureMap2(feature, layer) {
 
 function onEachODZoneFeatureMap3(feature, layer) {
     layer.on({
-        click: function(e) {
+        click: function (e) {
             var lyr = e.target;
             var zone_id = lyr.feature.properties.id;
             var index_o = $.inArray(zone_id, origin);
             var index_d = $.inArray(zone_id, destination);
 
-            if(index_o<0 && index_d<0){
+            if (index_o < 0 && index_d < 0) {
                 origin = origin.concat([zone_id]);
-            }else if(index_o>=0){
+            } else if (index_o >= 0) {
                 origin.splice(index_o, 1);
                 destination = destination.concat([zone_id]);
-            }else if(index_d>=0){
+            } else if (index_d >= 0) {
                 destination.splice(index_d, 1);
-            }else{
+            } else {
                 console.log("shoudn't be here, so it's an error");
             }
 
             redraw3();
 
-            if(origin.length>0 || destination.length>0){
+            if (origin.length > 0 || destination.length > 0) {
                 ws_data.map.fitBounds(e.target.getBounds(), {maxZoom: options.map_feature_zoom});
-            }else{
+            } else {
                 ws_data.map.fitBounds(ws_data.zones_layer.getBounds(), {maxZoom: options.map_default_zoom});
             }
         }
@@ -1040,7 +1040,7 @@ function setupStrategiesMap(options) {
                         layer.bindPopup(popup_text);
                     },
                     pointToLayer: function (feature, latlng) {
-                        if(feature.properties.line=="MetroTren"){
+                        if (feature.properties.line === "MetroTren") {
                             return L.circleMarker(latlng, {
                                 radius: 3,
                                 fillColor: feature.properties.color2,
@@ -1049,7 +1049,7 @@ function setupStrategiesMap(options) {
                                 opacity: 1,
                                 fillOpacity: 1.0
                             });
-                        }else{
+                        } else {
                             return L.circleMarker(latlng, {
                                 radius: 3,
                                 fillColor: feature.properties.color,
@@ -1066,7 +1066,7 @@ function setupStrategiesMap(options) {
     }
 
     $.when(loadZonesGeoJSON(), loadMetroGeoJson(), loadDistrictsGeoJSON()).done(
-        function(respZones, respMetro, respDist) {
+        function (respZones, respMetro, respDist) {
             console.log(" - GeoJSON loading finished!")
 
             // console.log(" - Setting up map info bar.")
@@ -1123,7 +1123,7 @@ function setupStrategiesMap(options) {
 }
 
 function redraw(options) {
-    if (ws_data.ready){
+    if (ws_data.ready) {
         ws_data.zones_layer.setStyle(styleZone);
         ws_data.map_legend.updateVisualization(options);
     }
@@ -1132,30 +1132,50 @@ function redraw(options) {
 }
 
 function redraw2(options) {
-    if (ws_data.ready && ws_data.ready2){
+    if (ws_data.ready && ws_data.ready2) {
         ws_data.map_legend.updateVisualization(options);
         ws_data.map_legend2.updateVisualization(options);
 
-        if(origin.length == 0 && destination.length == 0){
-            var dcounts = ws_data.data.origin_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
-            dcounts = dcounts.concat(ws_data.data.destination_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;}));
-            var min_value = Math.min(...dcounts);
-            var max_value = Math.max(...dcounts);
-        }else if(destination.length == 0){ // origin selected
-            var dcounts = ws_data.data.destination_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
-            var min_value = Math.min(...dcounts);
-            var max_value = Math.max(...dcounts);
-        }else if(origin.length == 0){ // destination selected
-            var dcounts = ws_data.data.origin_zones.aggregations.by_zone.buckets.map(function(v, i){return v.doc_count;});
-            var min_value = Math.min(...dcounts);
-            var max_value = Math.max(...dcounts);
+        if (origin.length === 0 && destination.length === 0) {
+            var dcounts = ws_data.data.origin_zones.by_zone.buckets.map(function (v, i) {
+                return v.doc_count;
+            });
+            dcounts = dcounts.concat(ws_data.data.destination_zones.by_zone.buckets.map(function (v, i) {
+                return v.doc_count;
+            }));
+            var min_value = Math.min(...dcounts
+        )
+            ;
+            var max_value = Math.max(...dcounts
+        )
+            ;
+        } else if (destination.length === 0) { // origin selected
+            var dcounts = ws_data.data.destination_zones.by_zone.buckets.map(function (v, i) {
+                return v.doc_count;
+            });
+            var min_value = Math.min(...dcounts
+        )
+            ;
+            var max_value = Math.max(...dcounts
+        )
+            ;
+        } else if (origin.length === 0) { // destination selected
+            var dcounts = ws_data.data.origin_zones.by_zone.buckets.map(function (v, i) {
+                return v.doc_count;
+            });
+            var min_value = Math.min(...dcounts
+        )
+            ;
+            var max_value = Math.max(...dcounts
+        )
+            ;
         }
 
         ws_data.origins_layer.clearLayers();
-        if(origin.length == 0){
-            ws_data.data.origin_zones.aggregations.by_zone.buckets.forEach(function(item, index) {
+        if (origin.length === 0) {
+            ws_data.data.origin_zones.by_zone.buckets.forEach(function (item, index) {
                 var cm = L.circleMarker(ws_data.zones_map[item.key], {
-                    radius: options.min_size + (item.doc_count-min_value)*(options.max_size-options.min_size)/(max_value-min_value),
+                    radius: options.min_size + (item.doc_count - min_value) * (options.max_size - options.min_size) / (max_value - min_value),
                     fillColor: '#FFFF00',
                     weight: 0,
                     opacity: 1,
@@ -1170,19 +1190,19 @@ function redraw2(options) {
         ws_data.zones_layer.eachLayer(function (layer) {
             layer.setStyle({
                 weight: 1,
-                color: ($.inArray(layer.feature.properties.id, origin)>=0)?'#FFFF00':'#0000FF',
+                color: ($.inArray(layer.feature.properties.id, origin) >= 0) ? '#FFFF00' : '#0000FF',
                 opacity: 0.5,
                 dashArray: '1',
-                fillOpacity: ($.inArray(layer.feature.properties.id, origin)>=0)?0.5:0.3,
-                fillColor: ($.inArray(layer.feature.properties.id, origin)>=0)?'#FFFF00':'#0000FF'
+                fillOpacity: ($.inArray(layer.feature.properties.id, origin) >= 0) ? 0.5 : 0.3,
+                fillColor: ($.inArray(layer.feature.properties.id, origin) >= 0) ? '#FFFF00' : '#0000FF'
             });
         });
 
         ws_data.destinations_layer.clearLayers();
-        if(destination.length == 0){
-            ws_data.data.destination_zones.aggregations.by_zone.buckets.forEach(function(item, index) {
+        if (destination.length === 0) {
+            ws_data.data.destination_zones.by_zone.buckets.forEach(function (item, index) {
                 var cm = L.circleMarker(ws_data.zones_map[item.key], {
-                    radius: options.min_size + (item.doc_count-min_value)*(options.max_size-options.min_size)/(max_value-min_value),
+                    radius: options.min_size + (item.doc_count - min_value) * (options.max_size - options.min_size) / (max_value - min_value),
                     fillColor: '#A900FF',
                     weight: 0,
                     opacity: 1,
@@ -1197,28 +1217,28 @@ function redraw2(options) {
         ws_data.zones_layer2.eachLayer(function (layer) {
             layer.setStyle({
                 weight: 1,
-                color: ($.inArray(layer.feature.properties.id, destination)>=0)?'#A900FF':'#0000FF',
+                color: ($.inArray(layer.feature.properties.id, destination) >= 0) ? '#A900FF' : '#0000FF',
                 opacity: 0.5,
                 dashArray: '1',
-                fillOpacity: ($.inArray(layer.feature.properties.id, destination)>=0)?0.5:0.3,
-                fillColor: ($.inArray(layer.feature.properties.id, destination)>=0)?'#A900FF':'#0000FF'
+                fillOpacity: ($.inArray(layer.feature.properties.id, destination) >= 0) ? 0.5 : 0.3,
+                fillColor: ($.inArray(layer.feature.properties.id, destination) >= 0) ? '#A900FF' : '#0000FF'
             });
         });
     }
-    if (ws_data.ready || ws_data.ready2){
+    if (ws_data.ready || ws_data.ready2) {
         updateMapDocCount(options);
         updateMapTitle(options);
     }
 }
 
 function redraw3(options) {
-    if (ws_data.ready){
-        var color = function(id){
-            if($.inArray(id, origin)>=0){
+    if (ws_data.ready) {
+        var color = function (id) {
+            if ($.inArray(id, origin) >= 0) {
                 return '#FFFF00';
-            }else if($.inArray(id, destination)>=0){
+            } else if ($.inArray(id, destination) >= 0) {
                 return '#A900FF';
-            }else{
+            } else {
                 return '#0000FF';
             }
         };
@@ -1249,17 +1269,17 @@ function updateMapDocCount(options) {
     var doc_count = document.getElementById("visualization_doc_count");
     var doc_count_txt = document.getElementById("visualization_doc_count_txt");
     var total = 0;
-    if (options.use_map_sectors && options.curr_sector !== null && options.curr_sector in ws_data.data.aggregations) {
-        total = ws_data.data.aggregations[options.curr_sector].doc_count;
+    if (options.use_map_sectors && options.curr_sector !== null && options.curr_sector in ws_data.data) {
+        total = ws_data.data[options.curr_sector].doc_count;
     } else if (!options.use_map_sectors) {
-        if(ws_data.data.large===undefined){
-            total = ws_data.data.origin_zones.hits.total;
-        }else{
+        if (ws_data.data.large === undefined) {
+            total = 0; //ws_data.data.origin_zones.hits.total;
+        } else {
             total = ws_data.data.hits.total;
         }
     }
     doc_count.innerHTML = total;
-    doc_count_txt.innerHTML = total == 1 ? "dato" : "datos";
+    doc_count_txt.innerHTML = total === 1 ? "dato" : "datos";
 }
 
 function updateSectorLayer(options) {
@@ -1268,7 +1288,10 @@ function updateSectorLayer(options) {
     ws_data.sector_layer.clearLayers();
 
     // append new GeoJSON objects
-    ws_data.zones_geojson.features.forEach(function(item, index) {
+    if (ws_data.zones_geojson === undefined) {
+        ws_data.zones_geojson = {features: []};
+    }
+    ws_data.zones_geojson.features.forEach(function (item, index) {
         var zone_id = item.properties.id;
         if (isZoneIdInCurrentSector(zone_id, options)) {
             ws_data.sector_layer.addData(item);
@@ -1291,7 +1314,7 @@ function updateSectorLayer2(options) {
     ws_data.sector_layer2.clearLayers();
 
     // append new GeoJSON objects
-    ws_data.zones_geojson2.features.forEach(function(item, index) {
+    ws_data.zones_geojson2.features.forEach(function (item, index) {
         var zone_id = item.properties.id;
         if (isZoneIdInCurrentSector(zone_id, options)) {
             ws_data.sector_layer2.addData(item);
@@ -1310,6 +1333,7 @@ function updateSectorLayer2(options) {
 
 function zoomToCurrentSector() {
     var bounds = ws_data.sector_layer.getBounds();
+    console.log(bounds);
     ws_data.map.fitBounds(bounds, {maxZoom: options.map_sector_zoom});
 }
 

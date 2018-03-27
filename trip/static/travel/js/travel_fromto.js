@@ -9,12 +9,12 @@ ws_data.tile_layer;
 ws_data.tile_layer2;
 ws_data.subway_layer = L.geoJSON(); // empty layer
 ws_data.subway_layer2 = L.geoJSON(); // empty layer
-ws_data.districts_layer  = L.geoJSON(); // empty layer
-ws_data.districts_layer2  = L.geoJSON(); // empty layer
-ws_data.origins_layer  = L.featureGroup(); // empty layer
-ws_data.destinations_layer  = L.featureGroup(); // empty layer
-ws_data.zones_layer  = L.featureGroup(); // empty layer
-ws_data.zones_layer2  = L.featureGroup(); // empty layer
+ws_data.districts_layer = L.geoJSON(); // empty layer
+ws_data.districts_layer2 = L.geoJSON(); // empty layer
+ws_data.origins_layer = L.featureGroup(); // empty layer
+ws_data.destinations_layer = L.featureGroup(); // empty layer
+ws_data.zones_layer = L.featureGroup(); // empty layer
+ws_data.zones_layer2 = L.featureGroup(); // empty layer
 // ws_data.zones_layer  = L.geoJSON(); // empty layer
 // ws_data.zones_layer2  = L.geoJSON(); // empty layer
 ws_data.sector_layer = L.geoJSON(); // empty layer
@@ -32,28 +32,28 @@ ws_data.map_layer_control2;
 var origin = [];
 var destination = [];
 
-function setupEtapasSelectors(options) {
+function setupEtapasSelectors(options, manager) {
     var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
-    elems.forEach(function(html) {
-        var switchery = new Switchery(html, {
+    elems.forEach(function (html) {
+        new Switchery(html, {
             size: 'small',
             color: 'rgb(38, 185, 154)'
         });
-        html.onchange = function() {
-            updateServerData();
+        html.onchange = function () {
+            manager.updateData();
         };
     });
 }
 
-function setupModosSelectors(options) {
+function setupModosSelectors(options, manager) {
     var elems = Array.prototype.slice.call(document.querySelectorAll('.modes_checkbox'));
-    elems.forEach(function(html) {
-        var switchery = new Switchery(html, {
+    elems.forEach(function (html) {
+        new Switchery(html, {
             size: 'small',
             color: 'rgb(38, 185, 154)'
         });
-        html.onchange = function() {
-            updateServerData();
+        html.onchange = function () {
+            manager.updateData();
         };
     });
 }
@@ -62,7 +62,7 @@ function lookupNEtapasSelectors() {
 
     var response = [];
     var elems = Array.prototype.slice.call(document.querySelectorAll('.netapas_checkbox'));
-    elems.forEach(function(html) {
+    elems.forEach(function (html) {
         if (html.checked) {
             response.push(html.getAttribute('data-ne-str'));
         }
@@ -74,7 +74,7 @@ function lookupModosSelectors() {
 
     var response = [];
     var elems = Array.prototype.slice.call(document.querySelectorAll('.modes_checkbox'));
-    elems.forEach(function(html) {
+    elems.forEach(function (html) {
         if (html.checked) {
             response.push(html.getAttribute('data-ne-str'));
         }
@@ -94,7 +94,7 @@ function getDataZoneByIds(data, zone_ids, options) {
     var results = [];
 
     data.aggregations.by_zone.buckets.forEach(function (zone, idx) {
-        if($.inArray(zone.key, zone_ids) >= 0) {
+        if ($.inArray(zone.key, zone_ids) >= 0) {
             results.push([zone]);
         }
     });
@@ -128,70 +128,32 @@ function processData(response) {
     ws_data.map_info2.update(destination);
 }
 
-
-// Update Charts from filters
-function updateServerData() {
-
-    var fromDate = $('#dateFromFilter').val();
-    var toDate = $('#dateToFilter').val();
-    var dayTypes = $('#dayTypeFilter').val();
-    var periods = $('#periodFilter').val();
-    var nEtapas = lookupNEtapasSelectors();
-    var modos = lookupModosSelectors();
-    // console.log("--- update charts ---");
-    // console.log("from date: " + fromDate);
-    // console.log("to date: " + toDate);
-    // console.log("day types: " + dayTypes);
-    // console.log("periods: " + periods);
-    // console.log("-- -- -- -- -- -- -- ");
-
-    var request = {
-        from: fromDate,
-        to: toDate,
-        daytypes: dayTypes,
-        periods: periods,
-        origin: origin,
-        destination: destination,
-        n_etapas: nEtapas,
-        modos: modos
-    };
-
-    // put loading spinner
-    var update_button = $(this);
-    var loading_text = "Actualizar Datos <i class='fa fa-cog fa-spin fa-2x fa-fw'>";
-    update_button.html(loading_text);
-
-    // load data and remove spinner
-    $.getJSON('getFromToMapsData', request, processData).always(function(){
-        update_button.html('Actualizar Datos')
-    });
-}
-
-
 // ============================================================================
 // MAIN
 // ============================================================================
 
 $(document).ready(function () {
+    loadAvailableDays(Urls["esapi:availableTripDays"]());
 
-    // Forms
-    console.log("> Building forms.")
-    setupDateForm(options);
-    setupHalfHours(options);
-    setupEtapasSelectors(options);
-    setupModosSelectors(options);
+    var afterCall = function (data) {
+        processData(data);
+    };
+    var opts = {
+        urlFilterData: Urls["esapi:fromToMapData"](),
+        afterCallData: afterCall,
+        dataUrlParams: function() {
+            return {
+                stages: lookupNEtapasSelectors(),
+                modex: lookupModosSelectors()
+            }
+        }
+    };
+    var manager = new FilterManager(opts);
 
-    setupDayTypeAndTSPeriodForm(options);
-
+    setupEtapasSelectors(options, manager);
+    setupModosSelectors(options, manager);
     // map
-    console.log("> Building Map ... ")
     setupDoubleMap(options);
 
-    // load with default parameters
-    console.log("> Loading default data ... ")
-
-    updateServerData();
-
-    // buttons
-    $('#btnUpdateChart').click(updateServerData);
+    manager.updateData();
 });
