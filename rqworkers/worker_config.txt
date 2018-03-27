@@ -1,3 +1,2 @@
 3|default|baseWorker.BaseWorker
-3|data_uploader|uploaderWorker.UploaderWorker
-3|data_exporter|exporterWorker.ExporterWorker
+3|data_uploader,data_exporter,count_lines|fondefWorker.FondefWorker
