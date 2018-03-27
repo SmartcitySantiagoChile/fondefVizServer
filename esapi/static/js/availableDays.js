@@ -57,17 +57,14 @@ function loadAvailableDays(data_url) {
             var firstDate = data[0][0];
             var lastDate = data[data.length - 1][0];
 
-            var lowerBound = firstDate.substring(0, firstDate.length - 3);
-            var upperBound = lastDate.substring(0, lastDate.length - 3);
-
-            var firstDateUTC = Date.UTC(...firstDate.split("-"));
-            var lastDateUTC = Date.UTC(...lastDate.split("-"));
             var dayInMiliSeconds = 24 * 3600 * 1000;
-            var days = (lastDateUTC - firstDateUTC) / dayInMiliSeconds;
-            if (days < 31) {
-                upperBound = new Date(lastDateUTC);
-                upperBound = [upperBound.getUTCFullYear(), upperBound.getUTCMonth() + 1].join("-");
-            }
+            var lowerBound = firstDate.substring(0, firstDate.length - 3);
+
+            var lastDateUTC = Date.UTC(...lastDate.split("-"));
+            lastDateUTC += dayInMiliSeconds * 30;
+
+            var upperBound = new Date(lastDateUTC);
+            upperBound = [upperBound.getUTCFullYear(), upperBound.getUTCMonth()].join("-");
 
             var range = [lowerBound, upperBound];
             opts.series[0].data = data;
