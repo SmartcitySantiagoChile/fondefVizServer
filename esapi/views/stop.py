@@ -25,12 +25,11 @@ class MatchedStopData(View):
             es_helper = ESStopHelper()
             results = es_helper.get_matched_stop_list(term)
 
-            for _, result in results.items():
-                result_list = []
-                for tag in result:
-                    result_list.append({"id": tag, "text": tag})
+            result_list = []
+            for text, text_id in results:
+                result_list.append({"id": text_id, "text": text})
 
-                response["items"] += result_list
+            response['items'] = result_list
         except ESQueryStopPatternTooShort as e:
             response['status'] = e.get_status_response()
 
