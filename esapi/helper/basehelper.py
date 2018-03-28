@@ -45,37 +45,21 @@ class ElasticSearchHelper(object):
 
         return result_list
 
-    def make_multisearch_query_for_aggs(self, es_query_dict):
-        """ make multisearch request to es with aggregation """
+    def make_multisearch_query_for_aggs(self, *args, **kwargs):
+        """
+        Make multisearch request to es with aggregation
+        :param args: list of queries
+        :return: list of result for each query
+        """
         multi_search = MultiSearch(using=self.client, index=self.index_name)
 
-        keys = []
-        for key, es_query in es_query_dict.items():
+        for es_query in args:
             multi_search = multi_search.add(es_query)
-            keys.append(key)
 
-        # to see the query generated
-        # print multiSearch.to_dict()
-        responses = multi_search.execute()
+        result = multi_search.execute()
 
-        result = {}
-        for index, response in enumerate(responses):
-            result_list = []
-            aggregation_properties = dir(response.aggregations)
-            if len(aggregation_properties) == 1 and aggregation_properties[0] == 'unique':
-                for tag in response.aggregations.unique.buckets:
-                    if tag.doc_count == 0:
-                        continue
-
-                    if "key_as_string" in tag:
-                        result_list.append(tag.key_as_string)
-                    else:
-                        result_list.append(tag.key)
-                result_list.sort()
-
-                result[keys[index]] = result_list
-            else:
-                result[keys[index]] = response.to_dict()
+        if len(result) == 1 and getattr(kwargs, 'flat', False):
+            return result[0]
 
         return result
 
@@ -114,11 +98,10 @@ class ElasticSearchHelper(object):
             es_query = self.get_base_query()[:0]
             es_query = es_query.filter('terms', operator=valid_operator_list)
 
-        searches = {
-            "days": self.get_histogram_query(field, interval="day", date_format="yyy-MM-dd", es_query=es_query,
-                                             time_zone=time_zone)
-        }
-        result = self.make_multisearch_query_for_aggs(searches)["days"]
+        es_query = self.get_histogram_query(field, interval="day", date_format="yyy-MM-dd", es_query=es_query,
+                                            time_zone=time_zone)
+
+        result = self.get_attr_list(self.make_multisearch_query_for_aggs(es_query, flat=True), 'unique')
 
         return result
 

@@ -33,13 +33,12 @@ class ESStopHelper(ElasticSearchHelper):
         es_user_stop_name_query.aggs['results'].metric('max_score', 'max', script={'source': '_score'})
         es_user_stop_name_query.aggs['results'].metric('additional_info', 'top_hits', _source=['userCode'])
 
-        searches = {
-            "1": es_auth_stop_query,
-            "2": es_user_stop_query,
-            "3": es_user_stop_name_query
-        }
-        result = self.make_multisearch_query_for_aggs(searches)
+        results = self.make_multisearch_query_for_aggs(es_auth_stop_query, es_user_stop_query, es_user_stop_name_query)
 
+        # TODO: corregir esto para que retorne la lista con los elementos (cosa a mostrar al usuario, código parada usuario)
+        answer = {}
+        for result in results:
+            result['']
         result["3"] = [x["key"] for x in result["3"]["aggregations"]["results"]["buckets"]]
 
         return result
