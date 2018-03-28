@@ -210,7 +210,7 @@ class FileManager(object):
 
         doc_number_by_file = {}
         for helper in helpers:
-            files = helper.get_data_by_file(filter=file_name_list).execute().aggregations.files.buckets
+            files = helper.get_data_by_file(file_filter=file_name_list).execute().aggregations.files.buckets
             for data_file in files:
                 doc_number_by_file[data_file['key']] = data_file['doc_count']
 

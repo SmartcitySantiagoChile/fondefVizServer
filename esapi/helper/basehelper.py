@@ -22,12 +22,35 @@ class ElasticSearchHelper(object):
         """ get query object with index and client assigned  """
         return Search(using=self.client, index=self.index_name)
 
+    def get_attr_list(self, es_query_result, aggs_name, sort=True):
+        """
+        Extract key from aggregation query
+        :param es_query_result: Search object
+        :param aggs_name: aggregation name present in @es_query_result
+        :param sort: if return sorted values, default: True
+        :return: list of values
+        """
+        result_list = []
+        for tag in es_query_result.aggregations[aggs_name].buckets:
+            if tag.doc_count == 0:
+                continue
+
+            if "key_as_string" in tag:
+                result_list.append(tag.key_as_string)
+            else:
+                result_list.append(tag.key)
+
+        if sort:
+            result_list.sort()
+
+        return result_list
+
     def make_multisearch_query_for_aggs(self, es_query_dict):
         """ make multisearch request to es with aggregation """
         multi_search = MultiSearch(using=self.client, index=self.index_name)
 
         keys = []
-        for key, es_query in es_query_dict.iteritems():
+        for key, es_query in es_query_dict.items():
             multi_search = multi_search.add(es_query)
             keys.append(key)
 
@@ -99,16 +122,16 @@ class ElasticSearchHelper(object):
 
         return result
 
-    def get_data_by_file(self, filter=None):
+    def get_data_by_file(self, file_filter=None):
         """
         return query with files and doc number associated to them
-        :param filter: list of path. I.e. ['2017-01-01.extension', ...]
+        :param file_filter: list of path. I.e. ['2017-01-01.extension', ...]
         :return: Search object
         """
 
         es_query = self.get_base_query()[:0]
-        if filter is not None:
-            es_query = es_query.filter('terms', path=filter)
+        if file_filter is not None:
+            es_query = es_query.filter('terms', path=file_filter)
         aggs = A('terms', field="path", size=5000)
         es_query.aggs.bucket('files', aggs)
 
