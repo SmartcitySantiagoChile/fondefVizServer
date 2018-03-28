@@ -29,9 +29,7 @@ class ESProfileHelper(ElasticSearchHelper):
             raise ESQueryOperatorParameterDoesNotExist
 
         if stop_code:
-            es_query = es_query.query(
-                Q({'term': {"authStopCode.raw": stop_code}}) | Q({'term': {"userStopCode.raw": stop_code}}) | Q(
-                    {'term': {"userStopName.raw": stop_code}}))
+            es_query = es_query.query(Q({'term': {"authStopCode.raw": stop_code}}))
         else:
             raise ESQueryStopParameterDoesNotExist()
 
