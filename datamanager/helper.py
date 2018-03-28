@@ -28,6 +28,7 @@ from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.helper.stop import ESStopHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 
@@ -120,6 +121,8 @@ class UploaderManager(object):
                 break
 
         result = index_helper.delete_data_by_file(self.file_name)
+        if index_helper.get_index_name() == ESStopByRouteHelper().get_index_name():
+            ESStopHelper().delete_data_by_file(self.file_name)
 
         if result is not None:
             result = result.total
