@@ -11,7 +11,7 @@ from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
@@ -556,7 +556,7 @@ class StopCSVHelper(CSVHelper):
     """ Class that represents a stop file. """
 
     def __init__(self, es_client):
-        self.es_stop_helper = ESStopHelper()
+        self.es_stop_helper = ESStopByRouteHelper()
         CSVHelper.__init__(self, es_client, "", self.es_stop_helper.get_index_name())
 
     def get_column_dict(self):

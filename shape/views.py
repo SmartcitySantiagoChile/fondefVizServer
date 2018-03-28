@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 
 from esapi.helper.shape import ESShapeHelper
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
 
 from datetime import datetime
@@ -27,7 +27,7 @@ class GetRouteInfo(View):
                 raise ESQueryDateParametersDoesNotExist()
 
             es_shape_helper = ESShapeHelper()
-            es_stop_helper = ESStopHelper()
+            es_stop_helper = ESStopByRouteHelper()
 
             response["points"] = es_shape_helper.get_route_shape(route, operation_program_date, operation_program_date)[
                 'points']
@@ -44,7 +44,7 @@ class GetBaseInfo(View):
     def get(self, request):
         # retrieve route list and available days
         es_shape_helper = ESShapeHelper()
-        es_stop_helper = ESStopHelper()
+        es_stop_helper = ESStopByRouteHelper()
 
         stop_dates = es_stop_helper.get_available_days()
         shape_dates = es_shape_helper.get_available_days()

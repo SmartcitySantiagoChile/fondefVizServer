@@ -6,11 +6,11 @@ from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryDateRangePa
     ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist, ESQueryStopListDoesNotExist
 
 
-class ESStopHelper(ElasticSearchHelper):
+class ESStopByRouteHelper(ElasticSearchHelper):
 
     def __init__(self):
         index_name = "stop"
-        super(ESStopHelper, self).__init__(index_name)
+        super(ESStopByRouteHelper, self).__init__(index_name)
 
     def check_operation_program_between_dates(self, start_date, end_date):
         """

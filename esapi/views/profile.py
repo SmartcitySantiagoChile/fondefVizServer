@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 from esapi.helper.profile import ESProfileHelper
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryStopPatternTooShort, FondefVizError
 from esapi.utils import check_operation_program
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -242,7 +242,7 @@ class LoadProfileByExpeditionData(View):
 
         try:
             check_operation_program(start_date, end_date)
-            es_stop_helper = ESStopHelper()
+            es_stop_helper = ESStopByRouteHelper()
             es_profile_helper = ESProfileHelper()
 
             es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type, auth_route_code,
