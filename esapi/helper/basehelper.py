@@ -58,7 +58,8 @@ class ElasticSearchHelper(object):
 
         result = multi_search.execute()
 
-        if len(result) == 1 and getattr(kwargs, 'flat', False):
+        flat = kwargs.get('flat', False)
+        if len(result) == 1 and flat:
             return result[0]
 
         return result
