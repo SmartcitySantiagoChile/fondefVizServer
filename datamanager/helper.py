@@ -105,7 +105,7 @@ class UploaderManager(object):
 
     def delete_data(self):
         helpers = [
-            ESStopByRouteHelper(),
+            ESStopHelper(),
             ESProfileHelper(),
             ESSpeedHelper(),
             ESTripHelper(),
@@ -121,8 +121,8 @@ class UploaderManager(object):
                 break
 
         result = index_helper.delete_data_by_file(self.file_name)
-        if index_helper.get_index_name() == ESStopByRouteHelper().get_index_name():
-            ESStopHelper().delete_data_by_file(self.file_name)
+        if index_helper.get_index_name() == ESStopHelper().get_index_name():
+            ESStopByRouteHelper().delete_data_by_file(self.file_name)
 
         if result is not None:
             result = result.total
