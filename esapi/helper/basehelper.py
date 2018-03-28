@@ -7,16 +7,26 @@ from elasticsearch.exceptions import ConnectionTimeout
 class ElasticSearchHelper(object):
     """ helper to ask elasticsearch """
 
-    def __init__(self, index_name):
+    def __init__(self, index_name, file_extensions):
 
         if index_name is None or index_name == '':
             raise ValueError("Index name can't be none")
 
-        self.index_name = index_name
+        self._index_name = index_name
+        self._file_extensions = file_extensions
         self.client = settings.ES_CLIENT
 
-    def get_index_name(self):
-        return self.index_name
+    @property
+    def index_name(self):
+        return self._index_name
+
+    @property
+    def file_extensions(self):
+        """
+        file extension that can manipulate this helper
+        :return: list of file extensions
+        """
+        return self._file_extensions
 
     def get_base_query(self):
         """ get query object with index and client assigned  """

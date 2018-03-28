@@ -9,8 +9,9 @@ from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryDateRangePa
 class ESStopByRouteHelper(ElasticSearchHelper):
 
     def __init__(self):
-        index_name = "stopbyroute"
-        super(ESStopByRouteHelper, self).__init__(index_name)
+        index_name = 'stopbyroute'
+        file_extensions = ['stop', 'stopbyroute']
+        super(ESStopByRouteHelper, self).__init__(index_name, file_extensions)
 
     def check_operation_program_between_dates(self, start_date, end_date):
         """

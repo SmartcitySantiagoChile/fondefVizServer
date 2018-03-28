@@ -33,5 +33,5 @@ class Command(BaseCommand):
         ]
 
         for helper in helpers:
-            settings.ES_CLIENT.indices.delete(index=helper.get_index_name(), ignore=[400, 404])
-            self.stdout.write(self.style.SUCCESS('Index {0} deleted successfully'.format(helper.get_index_name())))
+            settings.ES_CLIENT.indices.delete(index=helper.index_name, ignore=[400, 404])
+            self.stdout.write(self.style.SUCCESS('Index {0} deleted successfully'.format(helper.index_name)))

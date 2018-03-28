@@ -5,7 +5,8 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
 
     def __init__(self):
         index_name = 'general'
-        super(ESResumeStatisticHelper, self).__init__(index_name)
+        file_extensions = ['general']
+        super(ESResumeStatisticHelper, self).__init__(index_name, file_extensions)
 
     def get_available_days(self):
         return self._get_available_days('date')

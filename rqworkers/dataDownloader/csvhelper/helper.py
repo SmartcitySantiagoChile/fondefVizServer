@@ -195,7 +195,7 @@ class ProfileCSVHelper(CSVHelper):
     """ Class that represents a profile downloader. """
 
     def __init__(self, es_client, es_query):
-        CSVHelper.__init__(self, es_client, es_query, ESProfileHelper().get_index_name())
+        CSVHelper.__init__(self, es_client, es_query, ESProfileHelper().index_name)
 
     def get_column_dict(self):
         return [
@@ -288,7 +288,7 @@ class SpeedCSVHelper(CSVHelper):
     """ Class that represents a speed file. """
 
     def __init__(self, es_client, es_query):
-        CSVHelper.__init__(self, es_client, es_query, ESSpeedHelper.get_index_name())
+        CSVHelper.__init__(self, es_client, es_query, ESSpeedHelper.index_name)
 
     def get_column_dict(self):
         return [
@@ -341,7 +341,7 @@ class ODByRouteCSVHelper(CSVHelper):
     """ Class that represents a odbyroute file. """
 
     def __init__(self, es_client, es_query):
-        CSVHelper.__init__(self, es_client, es_query, ESODByRouteHelper.get_index_name())
+        CSVHelper.__init__(self, es_client, es_query, ESODByRouteHelper.index_name)
 
     def get_column_dict(self):
         return [
@@ -403,7 +403,7 @@ class TripCSVHelper(CSVHelper):
     """ Class that represents a odbyroute file. """
 
     def __init__(self, es_client, es_query):
-        CSVHelper.__init__(self, es_client, es_query, ESTripHelper().get_index_name())
+        CSVHelper.__init__(self, es_client, es_query, ESTripHelper().index_name)
 
     def get_column_dict(self):
         return [
@@ -506,7 +506,7 @@ class ShapeCSVHelper(CSVHelper):
 
     def __init__(self, es_client):
         self.es_shape_helper = ESShapeHelper()
-        CSVHelper.__init__(self, es_client, "", self.es_shape_helper.get_index_name())
+        CSVHelper.__init__(self, es_client, "", self.es_shape_helper.index_name)
 
     def get_column_dict(self):
         """ this class uses this just to build csv header """
@@ -557,7 +557,7 @@ class StopCSVHelper(CSVHelper):
 
     def __init__(self, es_client):
         self.es_stop_helper = ESStopByRouteHelper()
-        CSVHelper.__init__(self, es_client, "", self.es_stop_helper.get_index_name())
+        CSVHelper.__init__(self, es_client, "", self.es_stop_helper.index_name)
 
     def get_column_dict(self):
         """ this class uses this just to build csv header """

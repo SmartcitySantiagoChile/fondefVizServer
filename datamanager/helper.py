@@ -37,6 +37,30 @@ import os
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 
 
+def get_util_helpers(file_path):
+    """ return a list of helpers that match with file extension """
+    file_extension = os.path.basename(file_path).split('.')[1]
+
+    helpers = [
+        ESStopByRouteHelper(),
+        ESStopHelper(),
+        ESProfileHelper(),
+        ESSpeedHelper(),
+        ESTripHelper(),
+        ESShapeHelper(),
+        ESODByRouteHelper(),
+        ESResumeStatisticHelper()
+    ]
+
+    result_helpers = []
+
+    for helper in helpers:
+        if file_extension in helper.file_extensions:
+            result_helpers.append(helper)
+
+    return result_helpers
+
+
 class ExporterManager(object):
 
     def __init__(self, es_query):
@@ -95,7 +119,9 @@ class UploaderManager(object):
                 raise ThereIsPreviousJobUploadingTheFileError()
 
             file_path = os.path.join(file_path_obj.dataSourcePath, self.file_name)
-            job = upload_file_job.delay(file_path)
+
+            job = upload_file_job.delay(file_path, [helper.index_name for helper in get_util_helpers(file_path)])
+
             UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
                                                 status=UploaderJobExecution.ENQUEUED, file=file_path_obj)
 
@@ -104,25 +130,9 @@ class UploaderManager(object):
             return file_path_obj
 
     def delete_data(self):
-        helpers = [
-            ESStopHelper(),
-            ESProfileHelper(),
-            ESSpeedHelper(),
-            ESTripHelper(),
-            ESShapeHelper(),
-            ESODByRouteHelper(),
-            ESResumeStatisticHelper()
-        ]
-
-        index_helper = None
-        for helper in helpers:
-            if self.index == helper.get_index_name():
-                index_helper = helper
-                break
-
-        result = index_helper.delete_data_by_file(self.file_name)
-        if index_helper.get_index_name() == ESStopHelper().get_index_name():
-            ESStopByRouteHelper().delete_data_by_file(self.file_name)
+        result = None
+        for helper in get_util_helpers(self.file_name):
+            result = helper.delete_data_by_file(self.file_name)
 
         if result is not None:
             result = result.total
@@ -195,7 +205,7 @@ class FileManager(object):
 
     def get_document_number_by_file_from_elasticsearch(self, file_filter=None):
         helpers = [
-            ESStopByRouteHelper(),
+            ESStopHelper(),
             ESProfileHelper(),
             ESSpeedHelper(),
             ESTripHelper(),

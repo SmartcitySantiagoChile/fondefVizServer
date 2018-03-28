@@ -16,7 +16,8 @@ class ESProfileHelper(ElasticSearchHelper):
 
     def __init__(self):
         index_name = "profile"
-        super(ESProfileHelper, self).__init__(index_name)
+        file_extensions = ['profile']
+        super(ESProfileHelper, self).__init__(index_name, file_extensions)
 
     def get_profile_by_stop_data(self, start_date, end_date, day_type, stop_code, period, half_hour,
                                  valid_operator_list):

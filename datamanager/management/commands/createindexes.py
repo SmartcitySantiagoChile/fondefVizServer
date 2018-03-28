@@ -37,11 +37,11 @@ class Command(BaseCommand):
         def get_mapping_file(helper):
             current_dir = os.path.dirname(__file__)
             path_to_mapping_files = os.path.join(current_dir, '..', '..', '..', 'rqworkers', 'dataUploader', 'mappings')
-            mapping_file = os.path.join(path_to_mapping_files, '{0}-template.json'.format(helper.get_index_name()))
+            mapping_file = os.path.join(path_to_mapping_files, '{0}-template.json'.format(helper.index_name))
             return mapping_file
 
         for helper in helpers:
             # Create index with mapping. If it already exists, ignore this
             with open(get_mapping_file(helper), 'r') as mapping:
-                settings.ES_CLIENT.indices.create(index=helper.get_index_name(), ignore=400, body=mapping.read())
-                self.stdout.write(self.style.SUCCESS('Index {0} created successfully'.format(helper.get_index_name())))
+                settings.ES_CLIENT.indices.create(index=helper.index_name, ignore=400, body=mapping.read())
+                self.stdout.write(self.style.SUCCESS('Index {0} created successfully'.format(helper.index_name)))

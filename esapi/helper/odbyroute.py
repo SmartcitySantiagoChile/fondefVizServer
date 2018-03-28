@@ -15,7 +15,8 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
     def __init__(self):
         index_name = "odbyroute"
-        super(ESODByRouteHelper, self).__init__(index_name)
+        file_extensions = ['odbyroute']
+        super(ESODByRouteHelper, self).__init__(index_name, file_extensions)
 
     def get_available_days(self, valid_operator_list):
         return self._get_available_days('date', valid_operator_list)

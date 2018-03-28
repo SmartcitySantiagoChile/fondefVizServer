@@ -11,7 +11,8 @@ class ESStopHelper(ElasticSearchHelper):
 
     def __init__(self):
         index_name = "stop"
-        super(ESStopHelper, self).__init__(index_name)
+        file_extensions = ['stop']
+        super(ESStopHelper, self).__init__(index_name, file_extensions)
 
     def get_matched_stop_list(self, term):
         """ ask to elasticsearch for a match values """

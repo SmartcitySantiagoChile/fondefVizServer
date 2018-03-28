@@ -16,7 +16,8 @@ class ESTripHelper(ElasticSearchHelper):
 
     def __init__(self):
         index_name = "trip"
-        super(ESTripHelper, self).__init__(index_name)
+        file_extensions = ['trip']
+        super(ESTripHelper, self).__init__(index_name, file_extensions)
 
         self.default_fields = ['tviaje', 'n_etapas', 'modos', 'factor_expansion', 'comuna_subida', 'comuna_bajada',
                                'zona_subida', 'zona_bajada']

@@ -10,7 +10,8 @@ class ESShapeHelper(ElasticSearchHelper):
 
     def __init__(self):
         index_name = 'shape'
-        super(ESShapeHelper, self).__init__(index_name)
+        file_extensions = ['shape']
+        super(ESShapeHelper, self).__init__(index_name, file_extensions)
 
     def check_operation_program_between_dates(self, start_date, end_date):
         """

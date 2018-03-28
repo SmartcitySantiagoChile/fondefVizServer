@@ -29,7 +29,7 @@ import io
 
 
 @job('data_uploader')
-def upload_file_job(path_to_file):
+def upload_file_job(path_to_file, index_name_list):
     job_instance = get_current_job()
     # wait until UploaderJobExecution instance exists
     while True:
@@ -43,7 +43,8 @@ def upload_file_job(path_to_file):
     job_execution_obj.executionStart = timezone.now()
     job_execution_obj.save()
 
-    upload_file(settings.ES_CLIENT, path_to_file)
+    for index_name in index_name_list:
+        upload_file(settings.ES_CLIENT, path_to_file, index_name)
 
     job_execution_obj.executionEnd = timezone.now()
     job_execution_obj.status = UploaderJobExecution.FINISHED
@@ -146,7 +147,7 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
 
     i = 0
     with get_file_object(file_path) as f:
-        if data_source_code in [ESShapeHelper().get_index_name(), ESStopByRouteHelper().get_index_name()]:
+        if data_source_code in [ESShapeHelper().index_name, ESStopByRouteHelper().index_name]:
             for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
                 # lines with hyphen on first column are bad lines and must not be considered
                 if group_id != str('-'):
