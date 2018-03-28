@@ -80,8 +80,7 @@ class ESODByRouteHelper(ElasticSearchHelper):
         """ ask to elasticsearch for a match values """
 
         es_query = self.get_base_query_for_od(auth_route_code, time_periods, day_type, start_date, end_date,
-                                              valid_operator_list)
-        es_query = es_query[:0]
+                                              valid_operator_list)[:0]
         es_query = es_query.source([])
 
         aggs = A('terms', field="authStartStopCode", size=500)
