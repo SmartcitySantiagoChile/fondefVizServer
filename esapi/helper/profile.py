@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 
-from elasticsearch_dsl import Search, A, Q
-from elasticsearch_dsl.query import Match
+from elasticsearch_dsl import A, Q
 
 from localinfo.helper import get_operator_list_for_select_input
 
@@ -60,31 +59,6 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path'])
 
         return es_query
-
-    def get_matched_stop_list(self, term):
-        """ ask to elasticsearch for a match values """
-
-        es_auth_stop_query = Search().query(Match(authStopCode={"query": term, "analyzer": "standard"}))
-        es_auth_stop_query = self.get_unique_list_query("authStopCode.raw", size=100, query=es_auth_stop_query)
-
-        es_user_stop_query = Search().query(Match(userStopCode={"query": term, "analyzer": "standard"}))
-        es_user_stop_query = self.get_unique_list_query("userStopCode.raw", size=100, query=es_user_stop_query)
-
-        es_user_stop_name_query = Search().query(
-            Match(userStopName={"query": term, "operator": "and", "analyzer": "autocomplete_analyzer"}))[:0]
-        aggs = A('terms', field='userStopName.raw', size=100, order={"max_score": "desc"})
-        es_user_stop_name_query.aggs.bucket('results', aggs).metric('max_score', 'max', script={'source': '_score'})
-
-        searches = {
-            "1": es_auth_stop_query,
-            "2": es_user_stop_query,
-            "3": es_user_stop_name_query
-        }
-        result = self.make_multisearch_query_for_aggs(searches)
-
-        result["3"] = [x["key"] for x in result["3"]["aggregations"]["results"]["buckets"]]
-
-        return result
 
     def get_available_days(self, valid_operator_list):
         return self._get_available_days('expeditionStartTime', valid_operator_list)

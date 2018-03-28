@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from esapi.views.profile import MatchedStopData, LoadProfileByStopData, AvailableDays, AvailableRoutes, \
+from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
     LoadProfileByExpeditionData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
@@ -12,11 +12,11 @@ from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, Matr
     SpeedVariation
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
     TransfersData
+from esapi.views.stop import MatchedStopData
 
 app_name = 'esapi'
 urlpatterns = [
     # profile index
-    url(r'^profile/matchedStopData/$', login_required(MatchedStopData.as_view()), name='matchedStopData'),
     url(r'^profile/loadProfileByStopData/$', login_required(LoadProfileByStopData.as_view()),
         name='loadProfileByStopData'),
     url(r'^profile/loadProfileByExpeditionData/$', login_required(LoadProfileByExpeditionData.as_view()),
@@ -49,6 +49,9 @@ urlpatterns = [
     url(r'^trip/mapData/$', login_required(MapData.as_view()), name='tripMapData'),
     url(r'^trip/availableDays/$', login_required(TAD.as_view()), name='availableTripDays'),
     url(r'^trip/transfersData/$', login_required(TransfersData.as_view()), name='transfersData'),
+
+    # stop indes
+    url(r'^stop/matchedStopData/$', login_required(MatchedStopData.as_view()), name='matchedStopData'),
 
     # shape index
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
