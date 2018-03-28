@@ -10,7 +10,7 @@ from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.trip import ESTripHelper
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 
 
 class Command(BaseCommand):
@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         helpers = [
-            ESStopHelper(),
+            ESStopByRouteHelper(),
             ESProfileHelper(),
             ESSpeedHelper(),
             ESTripHelper(),

@@ -2,15 +2,15 @@
 from __future__ import unicode_literals
 
 from esapi.helper.basehelper import ElasticSearchHelper
-from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryRouteParameterDoesNotExist, \
-    ESQueryDateRangeParametersDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram, ESQueryShapeDoesNotExist
+from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist, ESQueryStopListDoesNotExist
 
 
-class ESShapeHelper(ElasticSearchHelper):
+class ESStopByRouteHelper(ElasticSearchHelper):
 
     def __init__(self):
-        index_name = 'shape'
-        super(ESShapeHelper, self).__init__(index_name)
+        index_name = "stop"
+        super(ESStopByRouteHelper, self).__init__(index_name)
 
     def check_operation_program_between_dates(self, start_date, end_date):
         """
@@ -60,26 +60,26 @@ class ESShapeHelper(ElasticSearchHelper):
 
         return dates[0].key_as_string[:10]
 
-    def get_route_shape(self, auth_route_code, start_date, end_date):
+    def get_stop_list(self, auth_route_code, start_date, end_date):
+        """ ask to elasticsearch for a match values """
 
         if not auth_route_code:
             raise ESQueryRouteParameterDoesNotExist()
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
 
-        es_query = self.get_base_query()
-        es_query = es_query.filter('term', authRouteCode=auth_route_code)
+        es_query = self.get_base_query().filter('term', authRouteCode=auth_route_code)
         es_query = es_query.filter('range', startDate={
             'lte': start_date,
             'format': 'yyyy-MM-dd'
         }).sort('-startDate')[:1]
 
         try:
-            point_list = es_query.execute().hits.hits[0]['_source']
+            stop_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:
-            raise ESQueryShapeDoesNotExist()
+            raise ESQueryStopListDoesNotExist()
 
-        return point_list
+        return stop_list
 
     def get_available_days(self):
         return self._get_available_days('startDate', [])

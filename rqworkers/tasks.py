@@ -15,7 +15,7 @@ from rqworkers.dataUploader.loadData import upload_file
 from rqworkers.dataDownloader.downloadData import download_file
 
 from esapi.helper.shape import ESShapeHelper
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 
 from datamanager.models import UploaderJobExecution, ExporterJobExecution
 
@@ -146,7 +146,7 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
 
     i = 0
     with get_file_object(file_path) as f:
-        if data_source_code in [ESShapeHelper().get_index_name(), ESStopHelper().get_index_name()]:
+        if data_source_code in [ESShapeHelper().get_index_name(), ESStopByRouteHelper().get_index_name()]:
             for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
                 # lines with hyphen on first column are bad lines and must not be considered
                 if group_id != str('-'):

@@ -25,10 +25,6 @@ class ResumeData(PermissionRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
         return super(ResumeData, self).dispatch(request, *args, **kwargs)
 
-    def process_data(self, data_dict):
-
-        return data_dict
-
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
         end_date = params.get('endDate', '')[:10]
@@ -48,9 +44,11 @@ class ResumeData(PermissionRequiredMixin, View):
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query_dict = es_helper.get_resume_data(start_date, end_date, day_types, periods, origin_zones,
-                                                          destination_zones)
-                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+                histogram, indicators = es_helper.get_resume_data(start_date, end_date, day_types, periods,
+                                                                  origin_zones, destination_zones)
+                histogram, indicators = es_helper.make_multisearch_query_for_aggs(histogram, indicators)
+                response['histogram'] = histogram.to_dict()
+                response['indicators'] = indicators.to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -69,10 +67,6 @@ class MapData(PermissionRequiredMixin, View):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(MapData, self).dispatch(request, *args, **kwargs)
-
-    def process_data(self, data_dict):
-
-        return data_dict
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
@@ -111,8 +105,8 @@ class MapData(PermissionRequiredMixin, View):
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query_dict = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
-                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+                es_query = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
+                response['map'] = es_helper.make_multisearch_query_for_aggs(es_query, flat=True).to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -146,9 +140,6 @@ class LargeTravelData(PermissionRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
         return super(LargeTravelData, self).dispatch(request, *args, **kwargs)
 
-    def process_data(self, data):
-        return data
-
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
         end_date = params.get('endDate', '')[:10]
@@ -166,8 +157,8 @@ class LargeTravelData(PermissionRequiredMixin, View):
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query_dict = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
-                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+                es_query = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
+                response['large'] = es_helper.make_multisearch_query_for_aggs(es_query, flat=True).to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -186,9 +177,6 @@ class FromToMapData(PermissionRequiredMixin, View):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(FromToMapData, self).dispatch(request, *args, **kwargs)
-
-    def process_data(self, data):
-        return data
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
@@ -210,9 +198,11 @@ class FromToMapData(PermissionRequiredMixin, View):
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query_dict = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes,
-                                                               stages, modes)
-                response.update(self.process_data(es_helper.make_multisearch_query_for_aggs(es_query_dict)))
+                queries = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes, stages,
+                                                         modes)
+                origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
+                response['origin_zone'] = origin_zone.to_dict()
+                response['destination_zone'] = destination_zone.to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

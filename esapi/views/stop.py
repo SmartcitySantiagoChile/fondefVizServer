@@ -5,28 +5,34 @@ from django.http import JsonResponse
 from django.views import View
 
 from esapi.helper.stop import ESStopHelper
-from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
+from esapi.errors import ESQueryStopPatternTooShort
 
 
-class GetRouteStop(View):
-    """ get polyline of route """
+class MatchedStopData(View):
+    """ it gives a stop list with stops that match with patter given by user """
 
     def get(self, request):
-        route = request.GET.get('route', '')
-        operation_program_date = request.GET.get('operationProgramDate', '')
 
-        response = {}
+        term = request.GET.get("term", '')
+
+        response = {
+            'items': []
+        }
         try:
-            if not route:
-                raise ESQueryRouteParameterDoesNotExist()
-            if not operation_program_date:
-                raise ESQueryDateParametersDoesNotExist()
+            if len(term) < 3:
+                raise ESQueryStopPatternTooShort()
 
-            es_stop_helper = ESStopHelper()
+            es_helper = ESStopHelper()
+            results = es_helper.get_matched_stop_list(term)
 
-            response["stops"] = es_stop_helper.get_stop_list(route, operation_program_date, operation_program_date)[
-                'stops']
-        except FondefVizError as e:
+            for _, result in results.items():
+                result_list = []
+                for tag in result:
+                    result_list.append({"id": tag, "text": tag})
+
+                response["items"] += result_list
+        except ESQueryStopPatternTooShort as e:
             response['status'] = e.get_status_response()
 
-        return JsonResponse(response)
+        return JsonResponse(response, safe=False)
+

@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 from esapi.helper.odbyroute import ESODByRouteHelper
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.errors import FondefVizError
 from esapi.utils import check_operation_program
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -71,7 +71,7 @@ class ODMatrixData(View):
         try:
             check_operation_program(start_date, end_date)
             es_od_helper = ESODByRouteHelper()
-            es_stop_helper = ESStopHelper()
+            es_stop_helper = ESStopByRouteHelper()
 
             if export_data:
                 es_query = es_od_helper.get_base_query_for_od(auth_route_code, period, day_type, start_date, end_date,

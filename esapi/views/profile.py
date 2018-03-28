@@ -7,8 +7,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 from esapi.helper.profile import ESProfileHelper
-from esapi.helper.stop import ESStopHelper
-from esapi.errors import ESQueryResultEmpty, ESQueryStopPatternTooShort, FondefVizError
+from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.errors import ESQueryResultEmpty, FondefVizError
 from esapi.utils import check_operation_program
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
@@ -19,35 +19,6 @@ from datamanager.helper import ExporterManager
 from collections import defaultdict
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
-
-
-class MatchedStopData(View):
-    """ it gives a stop list with stops that match with patter given by user """
-
-    def get(self, request):
-
-        term = request.GET.get("term", '')
-
-        response = {
-            'items': []
-        }
-        try:
-            if len(term) < 3:
-                raise ESQueryStopPatternTooShort()
-
-            es_helper = ESProfileHelper()
-            results = es_helper.get_matched_stop_list(term)
-
-            for _, result in results.iteritems():
-                result_list = []
-                for tag in result:
-                    result_list.append({"id": tag, "text": tag})
-
-                response["items"] += result_list
-        except ESQueryStopPatternTooShort as e:
-            response['status'] = e.get_status_response()
-
-        return JsonResponse(response, safe=False)
 
 
 class LoadProfileByStopData(View):
@@ -242,7 +213,7 @@ class LoadProfileByExpeditionData(View):
 
         try:
             check_operation_program(start_date, end_date)
-            es_stop_helper = ESStopHelper()
+            es_stop_helper = ESStopByRouteHelper()
             es_profile_helper = ESProfileHelper()
 
             es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type, auth_route_code,

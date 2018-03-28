@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.errors import FondefVizError, ESQueryOperationProgramError, ESQueryDateRangeParametersDoesNotExist
 
@@ -23,7 +23,7 @@ def check_operation_program(start_date, end_date):
     error_raised = None
 
     try:
-        ESStopHelper().check_operation_program_between_dates(start_date, end_date)
+        ESStopByRouteHelper().check_operation_program_between_dates(start_date, end_date)
     except FondefVizError as e:
         operation_program_error_for_stop = True
         error_raised = e

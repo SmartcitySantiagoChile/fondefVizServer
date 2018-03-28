@@ -94,12 +94,7 @@ class ESTripHelper(ElasticSearchHelper):
         es_query = self.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
                                                    destination_zones)
 
-        es_query_dict = {
-            'histogram': self._build_histogram_query(es_query),
-            'indicators': self._build_indicators_query(es_query)
-        }
-
-        return es_query_dict
+        return self._build_histogram_query(es_query), self._build_indicators_query(es_query)
 
     def get_available_days(self):
         return self._get_available_days('tiempo_subida')
@@ -158,9 +153,7 @@ class ESTripHelper(ElasticSearchHelper):
         # # limit fields
         # return es_query.source(self.default_fields)
 
-        return {
-            'map': es_query
-        }
+        return es_query
 
     def get_base_large_travel_data_query(self, start_date, end_date, day_types, periods, n_etapas):
         es_query = self.get_base_query()
@@ -209,9 +202,7 @@ class ESTripHelper(ElasticSearchHelper):
         # # limit fields
         # return es_query.source(self.default_fields)
 
-        return {
-            'large': es_query
-        }
+        return es_query
 
     def get_base_from_to_map_data_query(self, start_date, end_date, day_types, periods, minutes, stages, modes):
         es_query = self.get_base_query()
@@ -258,10 +249,8 @@ class ESTripHelper(ElasticSearchHelper):
         _query_by_zone(es_query, 'zona_subida')
         _query_by_zone(destination_es_query, 'zona_bajada')
 
-        return {
-            'origin_zone': es_query,
-            'destination_zone': destination_es_query
-        }
+        # origin zone, destination zone
+        return es_query, destination_es_query
 
     def get_base_strategies_data_query(self, start_date, end_date, day_types, periods, minutes, origin_zones,
                                        destination_zones):

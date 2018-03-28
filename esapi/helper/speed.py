@@ -17,21 +17,6 @@ class ESSpeedHelper(ElasticSearchHelper):
         index_name = "speed"
         super(ESSpeedHelper, self).__init__(index_name)
 
-    def get_route_list(self, valid_operator_list):
-
-        es_query = self.get_base_query()[:0]
-        if valid_operator_list:
-            es_query = es_query.filter('terms', operator=valid_operator_list)
-        else:
-            raise ESQueryOperatorParameterDoesNotExist()
-
-        searches = {
-            'routes': self.get_unique_list_query('authRouteCode', size=5000, query=es_query)
-        }
-        result = self.make_multisearch_query_for_aggs(searches)['routes']
-
-        return result
-
     def get_available_days(self, valid_operator_list):
         return self._get_available_days('date', valid_operator_list)
 

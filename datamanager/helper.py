@@ -27,7 +27,7 @@ from esapi.helper.profile import ESProfileHelper
 from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.trip import ESTripHelper
-from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 
@@ -104,7 +104,7 @@ class UploaderManager(object):
 
     def delete_data(self):
         helpers = [
-            ESStopHelper(),
+            ESStopByRouteHelper(),
             ESProfileHelper(),
             ESSpeedHelper(),
             ESTripHelper(),
@@ -192,7 +192,7 @@ class FileManager(object):
 
     def get_document_number_by_file_from_elasticsearch(self, file_filter=None):
         helpers = [
-            ESStopHelper(),
+            ESStopByRouteHelper(),
             ESProfileHelper(),
             ESSpeedHelper(),
             ESTripHelper(),
@@ -210,7 +210,7 @@ class FileManager(object):
 
         doc_number_by_file = {}
         for helper in helpers:
-            files = helper.get_data_by_file(filter=file_name_list).execute().aggregations.files.buckets
+            files = helper.get_data_by_file(file_filter=file_name_list).execute().aggregations.files.buckets
             for data_file in files:
                 doc_number_by_file[data_file['key']] = data_file['doc_count']
 
