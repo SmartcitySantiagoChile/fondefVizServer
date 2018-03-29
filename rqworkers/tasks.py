@@ -115,7 +115,7 @@ def export_data_job(es_query_dict, downloader):
 
 def export_exception_handler(job_instance, exc_type, exc_value, ex_tb):
     try:
-        tb_str = traceback.print_tb(ex_tb)
+        tb_str = "".join(traceback.extract_tb(ex_tb))
         job_execution_obj = ExporterJobExecution.objects.get(jobId=job_instance.id)
 
         job_execution_obj.executionEnd = timezone.now()
