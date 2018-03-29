@@ -8,7 +8,7 @@ function loadAvailableDays(data_url) {
         tooltip: {
             position: "top",
             formatter: function (p) {
-                var formattedDate = echarts.format.formatTime("yyyy-MM-dd", p.data[0]);
+                var formattedDate = echarts.format.formatTime("dd/MM/yyyy", p.data[0]);
                 return formattedDate;
             }
         },
