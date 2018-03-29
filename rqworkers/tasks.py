@@ -26,6 +26,7 @@ import uuid
 import os
 import zipfile
 import io
+import traceback
 
 
 @job('data_uploader')
@@ -112,14 +113,15 @@ def export_data_job(es_query_dict, downloader):
     job_execution_obj.save()
 
 
-def export_exception_handler(job_instance, exc_type, exc_value, traceback):
+def export_exception_handler(job_instance, exc_type, exc_value, ex_tb):
     try:
+        tb_str = traceback.print_tb(ex_tb)
         job_execution_obj = ExporterJobExecution.objects.get(jobId=job_instance.id)
 
         job_execution_obj.executionEnd = timezone.now()
         job_execution_obj.seen = False
         job_execution_obj.status = UploaderJobExecution.FAILED
-        job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
+        job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, tb_str)
         job_execution_obj.save()
     except ExporterJobExecution.DoesNotExist:
         pass
