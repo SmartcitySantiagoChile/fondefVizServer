@@ -206,6 +206,7 @@ class FileManager(object):
     def get_document_number_by_file_from_elasticsearch(self, file_filter=None):
         helpers = [
             ESStopHelper(),
+            ESStopByRouteHelper(),
             ESProfileHelper(),
             ESSpeedHelper(),
             ESTripHelper(),
@@ -225,7 +226,7 @@ class FileManager(object):
         for helper in helpers:
             files = helper.get_data_by_file(file_filter=file_name_list).execute().aggregations.files.buckets
             for data_file in files:
-                doc_number_by_file[data_file['key']] = data_file['doc_count']
+                doc_number_by_file[data_file.key] = data_file.doc_count
 
         return doc_number_by_file
 
