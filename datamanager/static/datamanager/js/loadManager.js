@@ -130,7 +130,7 @@ $(document).ready(function () {
                 if (data.status.code === 201) {
                     addColorToRow(data.data, row);
                     var table = row.closest("table").DataTable();
-                    table.row(row).data(data.data).invalidate('data');
+                    table.row(row).data(data.data).invalidate("data");
 
                     // ask 3 seconds after because there are small file that upload quickly
                     setTimeout(_self.updateToLatestChanges, 3000);
