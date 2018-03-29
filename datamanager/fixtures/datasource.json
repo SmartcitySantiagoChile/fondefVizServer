@@ -3,7 +3,7 @@
   {"model": "datamanager.datasourcepath", "pk":2 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.speed",  "indexName":"speed" }},
   {"model": "datamanager.datasourcepath", "pk":3 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.trip",  "indexName":"trip" }},
   {"model": "datamanager.datasourcepath", "pk":4 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.shape",  "indexName":"shape" }},
-  {"model": "datamanager.datasourcepath", "pk":5 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.stop",  "indexName":"stop" }},
+  {"model": "datamanager.datasourcepath", "pk":5 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.stop",  "indexName":"stopbyroute" }},
   {"model": "datamanager.datasourcepath", "pk":6 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.expedition",  "indexName":"expedition" }},
   {"model": "datamanager.datasourcepath", "pk":7 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.odbyroute",  "indexName":"odbyroute" }},
   {"model": "datamanager.datasourcepath", "pk":8 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.general",  "indexName":"general" }}
