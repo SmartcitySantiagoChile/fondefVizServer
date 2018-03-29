@@ -52,13 +52,14 @@ def upload_file_job(path_to_file, index_name_list):
     job_execution_obj.save()
 
 
-def upload_exception_handler(job_instance, exc_type, exc_value, traceback):
+def upload_exception_handler(job_instance, exc_type, exc_value, exc_tb):
     try:
+        tb_str = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
         job_execution_obj = UploaderJobExecution.objects.get(jobId=job_instance.id)
 
         job_execution_obj.executionEnd = timezone.now()
         job_execution_obj.status = UploaderJobExecution.FAILED
-        job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, traceback)
+        job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, tb_str)
         job_execution_obj.save()
     except UploaderJobExecution.DoesNotExist:
         pass
@@ -113,9 +114,9 @@ def export_data_job(es_query_dict, downloader):
     job_execution_obj.save()
 
 
-def export_exception_handler(job_instance, exc_type, exc_value, ex_tb):
+def export_exception_handler(job_instance, exc_type, exc_value, exc_tb):
     try:
-        tb_str = "".join(traceback.extract_tb(ex_tb))
+        tb_str = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
         job_execution_obj = ExporterJobExecution.objects.get(jobId=job_instance.id)
 
         job_execution_obj.executionEnd = timezone.now()
