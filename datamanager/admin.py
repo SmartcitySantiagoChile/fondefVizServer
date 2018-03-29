@@ -57,8 +57,15 @@ class ExporterJobExecutionAdmin(admin.ModelAdmin):
         (None, {'fields': ('errorMessage',)}),
     )
     list_filter = []
-    list_display = ('jobId', 'file', 'status', 'executionStart', 'executionEnd')
+    list_display = ('jobId', 'user', 'get_file_link', 'status', 'executionStart', 'executionEnd')
     actions = None
+
+    def get_file_link(self, obj):
+        if bool(obj.file):
+            return '<a href="{0}">Descargar</a>'.format(obj.file.url)
+        return '<a class="disabled" href="#">No hay archivo</a>'
+    get_file_link.allow_tags = True
+    get_file_link.short_description = 'Descargar archivo'
 
     def has_add_permission(self, request):
         return False
