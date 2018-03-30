@@ -21,14 +21,10 @@
         {% data_filter data_filter True False True False False False False False False False False False True info_target_id="filterHelp" %}
 
         <div class="row cols-same-height">
-            {# Selection Bar #}
-            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                {% panel "fa-tasks" "¿Qué desea visualizar?" selectors %}
-            </div>
-            {# Map #}
-            <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+            {# Map with selector bar #}
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 {% with panel_body="<div id='mapChart' style='height:500px'></div>" %}
-                    {% panel "fa-map-o" "<span id='mapTitle'>Mapa</span> <span id='visualization_doc_count'>0</span> <span id='visualization_doc_count_txt'>datos</span>" panel_body title_id="mapTitle" info_target_id="mapHelp" %}
+                    {% panel "fa-map-o" "<span id='mapTitle'>Mapa</span> <span id='visualization_doc_count'>0</span> <span id='visualization_doc_count_txt'>datos</span>" selectors|add:panel_body title_id="mapTitle" info_target_id="mapHelp" %}
                 {% endwith %}
             </div>
         </div>
