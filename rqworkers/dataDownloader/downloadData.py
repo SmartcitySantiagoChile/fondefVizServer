@@ -7,8 +7,10 @@ import django
 import argparse
 import json
 
-sys.path.append('C:\\Users\\cephei\\PycharmProjects\\fondefVizServer')
-sys.path.append('D:\\PycharmProjects\\fondefVizServer')
+# add path so we can use function through command line
+new_path = os.path.join(os.path.dirname(__file__), '..', '..')
+sys.path.append(new_path)
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fondefVizServer.settings")
 django.setup()
 
