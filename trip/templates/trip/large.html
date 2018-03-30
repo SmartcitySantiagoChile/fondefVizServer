@@ -1,4 +1,4 @@
-{% extends 'travel/base.html' %}
+{% extends 'trip/base.html' %}
 {% load static header data_filter panel %}
 
 {% block title %}Indicadores: Viajes por Etapas{% endblock %}
@@ -13,8 +13,8 @@
         {# switchery: pretty checkboxes #}
         <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
     {% endwith %}
-    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
-    <link href="{% static "travel/css/large.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/large.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -61,9 +61,9 @@
         // console.log(ws_data._communes);
     </script>
 
-    <script src="{% static "travel/js/util.js" %}"></script>
-    <script src="{% static "travel/js/maps.js" %}"></script>
-    <script src="{% static "travel/js/form.js" %}"></script>
-    <script src="{% static "travel/js/travel_large_options.js" %}"></script>
-    <script src="{% static "travel/js/travel_large.js" %}"></script>
+    <script src="{% static "trip/js/util.js" %}"></script>
+    <script src="{% static "trip/js/maps.js" %}"></script>
+    <script src="{% static "trip/js/form.js" %}"></script>
+    <script src="{% static "trip/js/travel_large_options.js" %}"></script>
+    <script src="{% static "trip/js/travel_large.js" %}"></script>
 {% endblock %}

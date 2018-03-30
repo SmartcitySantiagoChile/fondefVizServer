@@ -1,12 +1,12 @@
-{% extends 'travel/base.html' %}
+{% extends 'trip/base.html' %}
 {% load static header data_filter panel %}
 
 {% block title %}Indicadores: Resumen{% endblock %}
 
 {% block css %}
     {{ block.super }}
-    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
-    <link href="{% static "travel/css/graphs.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/graphs.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -35,5 +35,5 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="{% static "travel/js/resume.js" %}"></script>
+    <script src="{% static "trip/js/resume.js" %}"></script>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'travel/base.html' %}
+{% extends 'trip/base.html' %}
 {% load static header data_filter panel %}
 
 {% block title %}Indicadores: Mapa{% endblock %}
@@ -10,8 +10,8 @@
         {# switchery: pretty checkboxes #}
         <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
     {% endwith %}
-    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
-    <link href="{% static "travel/css/map.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/map.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -46,6 +46,6 @@
         {# switchery: pretty checkboxes #}
         <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
     {% endwith %}
-    <script src="{% static "travel/js/map.js" %}"></script>
-    <script src="{% static "travel/js/mapApp.js" %}"></script>
+    <script src="{% static "trip/js/map.js" %}"></script>
+    <script src="{% static "trip/js/mapApp.js" %}"></script>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'travel/base.html' %}
+{% extends 'trip/base.html' %}
 {% load static header data_filter panel %}
 
 {% block title %}Indicadores: Estrategias de viaje{% endblock %}
@@ -16,9 +16,9 @@
         <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
               rel="stylesheet">
     {% endwith %}
-    <link href="{% static "travel/css/generic.css" %}" rel="stylesheet">
-    <link href="{% static "travel/css/large.css" %}" rel="stylesheet">
-    <link href="{% static "travel/css/fromto.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/generic.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/large.css" %}" rel="stylesheet">
+    <link href="{% static "trip/css/fromto.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -57,8 +57,8 @@
     <script>
         var ws_data = {};
     </script>>
-    <script src="{% static "travel/js/util.js" %}"></script>
-    <script src="{% static "travel/js/maps.js" %}"></script>
-    <script src="{% static "travel/js/travel_strategies_options.js" %}"></script>
-    <script src="{% static "travel/js/travel_strategies.js" %}"></script>
+    <script src="{% static "trip/js/util.js" %}"></script>
+    <script src="{% static "trip/js/maps.js" %}"></script>
+    <script src="{% static "trip/js/travel_strategies_options.js" %}"></script>
+    <script src="{% static "trip/js/travel_strategies.js" %}"></script>
 {% endblock %}
