@@ -4,13 +4,9 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from trip.views.map import MapHTML
-from trip.views.resume import ResumeHTML
-from trip.views.large import LargeTravelsHTML
-from trip.views.from_to import FromToMapHTML
-from trip.views.strategies import TripStrategiesHTML
+from trip.views import MapHTML, ResumeHTML, LargeTravelsHTML, FromToMapHTML, TripStrategiesHTML
 
-app_name = 'travel'
+app_name = 'trip'
 urlpatterns = [
     url(r'^$', login_required(MapHTML.as_view()), name='map'),  # dafaults to map
     url(r'^map/$', login_required(MapHTML.as_view()), name='map'),

@@ -22,10 +22,10 @@ class FromToMapHTML(PermissionRequiredMixin, View):
                 'periods': get_timeperiod_list_for_select_input(),
                 'minutes': get_halfhour_list_for_select_input()
             },
-            'mode_selectors': render_to_string('travel/from_to_mode_selectors.html'),
-            'stage_selectors': render_to_string('travel/from_to_stage_selectors.html'),
+            'mode_selectors': render_to_string('trip/from_to_mode_selectors.html'),
+            'stage_selectors': render_to_string('trip/from_to_stage_selectors.html'),
         }
-        return render(request, "travel/from_to.html", context)
+        return render(request, "trip/from_to.html", context)
 
 
 class LargeTravelsHTML(PermissionRequiredMixin, View):
@@ -37,10 +37,10 @@ class LargeTravelsHTML(PermissionRequiredMixin, View):
                 'day_types': get_day_type_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input()
             },
-            'selectors': render_to_string('travel/large_selectors.html')
+            'selectors': render_to_string('trip/large_selectors.html')
         }
 
-        return render(request, 'travel/large.html', context)
+        return render(request, 'trip/large.html', context)
 
 
 class MapHTML(PermissionRequiredMixin, View):
@@ -62,11 +62,11 @@ class MapHTML(PermissionRequiredMixin, View):
                 'day_types': get_day_type_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input()
             },
-            'selectors': render_to_string('travel/map_selectors.html'),
+            'selectors': render_to_string('trip/map_selectors.html'),
             'sectors': json.dumps(sectors)
         }
 
-        return render(request, 'travel/map.html', context)
+        return render(request, 'trip/map.html', context)
 
 
 class TripStrategiesHTML(PermissionRequiredMixin, View):
@@ -80,4 +80,20 @@ class TripStrategiesHTML(PermissionRequiredMixin, View):
                 'minutes': get_halfhour_list_for_select_input()
             }
         }
-        return render(request, "travel/strategies.html", context)
+        return render(request, "trip/strategies.html", context)
+
+
+class ResumeHTML(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.travel'
+
+    def get(self, request):
+        context = {
+            'data_filter': {
+                'day_types': get_day_type_list_for_select_input(),
+                'periods': get_timeperiod_list_for_select_input()
+            },
+            'indicators': render_to_string('trip/resume_indicators.html'),
+            'chart': render_to_string('trip/resume_chart.html'),
+        }
+
+        return render(request, 'trip/resume.html', context)
