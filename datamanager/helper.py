@@ -94,7 +94,9 @@ class ExporterManager(object):
             else:
                 raise UnrecognizedDownloaderNameError()
 
-            job = export_data_job.delay(self.es_query.to_dict(), downloader)
+            # TODO: if is running on windows, we do not use async tasks
+            export_func = export_data_job if os.name == 'nt' else export_data_job.delay
+            job = export_func(self.es_query.to_dict(), downloader)
             ExporterJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id, fileType=file_type,
                                                 status=ExporterJobExecution.ENQUEUED, query=human_readable_query,
                                                 user=user, filters=downloader_instance.get_filters())
@@ -120,7 +122,9 @@ class UploaderManager(object):
 
             file_path = os.path.join(file_path_obj.dataSourcePath, self.file_name)
 
-            job = upload_file_job.delay(file_path, [helper.index_name for helper in get_util_helpers(file_path)])
+            # TODO: if is running on windows, we do not use async tasks
+            upload_func = upload_file_job if os.name == 'nt' else upload_file_job.delay
+            job = upload_func(file_path, [helper.index_name for helper in get_util_helpers(file_path)])
 
             UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
                                                 status=UploaderJobExecution.ENQUEUED, file=file_path_obj)
@@ -194,7 +198,9 @@ class FileManager(object):
                     'lastModified': last_modified
                 })
                 if created or last_modified != file_obj.lastModified:
-                    count_line_of_file_job.delay(file_obj, data_source_obj.indexName, file_path)
+                    # TODO: if is running on windows, we do not use async tasks
+                    count_func = count_line_of_file_job if os.name == 'nt' else count_line_of_file_job.delay
+                    count_func(file_obj, data_source_obj.indexName, file_path)
                     file_obj.lastModified = last_modified
                 file_obj.dataSourcePath = path
                 file_obj.save()
