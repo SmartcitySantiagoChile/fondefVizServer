@@ -28,7 +28,7 @@ class FromToMapHTML(PermissionRequiredMixin, View):
         return render(request, "trip/from_to.html", context)
 
 
-class LargeTravelsHTML(PermissionRequiredMixin, View):
+class LargeTripsHTML(PermissionRequiredMixin, View):
     permission_required = 'localinfo.travel'
 
     def get(self, request):
