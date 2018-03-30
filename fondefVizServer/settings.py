@@ -198,7 +198,7 @@ RQ = {
 RQ_EXCEPTION_HANDLERS = ['rqworkers.tasks.upload_exception_handler', 'rqworkers.tasks.export_exception_handler']
 
 # path to download files
-DOWNLOAD_PATH = os.path.join(BASE_DIR, 'media', 'files')
+DOWNLOAD_PATH = config('DOWNLOAD_PATH')
 
 # email configuration
 EMAIL_HOST = config('EMAIL_HOST')
