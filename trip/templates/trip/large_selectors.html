@@ -1,48 +1,57 @@
 <div class="row viz-option-row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
-        <label>Cantidad de Etapas:</label>
-        <p class="text-warning">*Esto aplicará los filtros seleccionados.</p>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <h4>¿Qué desea visualizar?</h4>
     </div>
-    <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+        <label>Número de etapas en el viaje:</label>
+        <small class="text-warning">*Esto aplicará los filtros seleccionados.</small>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 form-group">
         <div class="netapas_checkbox_div">
             <input id="netapas_1" type="checkbox" class="netapas_checkbox" data-ne-str="1"/>
             <span class="control-label">1 etapa</span>
         </div>
     </div>
-    <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 form-group">
         <div class="netapas_checkbox_div">
             <input id="netapas_2" type="checkbox" class="netapas_checkbox" data-ne-str="2"/>
             <span class="control-label">2 etapas</span>
         </div>
     </div>
-    <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 form-group">
         <div class="netapas_checkbox_div">
             <input id="netapas_3" type="checkbox" class="netapas_checkbox" data-ne-str="3"/>
             <span class="control-label">3 etapas</span>
         </div>
     </div>
-    <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 form-group">
         <div class="netapas_checkbox_div">
             <input id="netapas_4" type="checkbox" class="netapas_checkbox" data-ne-str="4" checked/>
             <span class="control-label">4 etapas</span>
         </div>
     </div>
-    <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
+    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 form-group">
         <div class="netapas_checkbox_div">
             <input id="netapas_5_or_more" type="checkbox" class="netapas_checkbox" data-ne-str="5+" checked/>
             <span class="control-label">5+ etapas</span>
         </div>
     </div>
 </div>
-<div class="row viz-option-row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+<div class="row">
+    <div class="col-lg-3 col-md-4 col-sm-5 col-xs-12 form-group">
         <label>Escala de colores:</label>
-    </div>
-    <div class="col-lg-12 col-md-4 col-sm-4 col-xs-6 form-group">
         <div class="colorscale_checkbox_div">
             <span class="control-label">Divergente</span>
             <input id="colorscale_checkbox" type="checkbox"/>
             <span class="control-label">Secuencial</span>
         </div>
+    </div>
+    <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12 form-group">
+        <label>Regulador de escala de colores:</label>
+        <input type='text' id='dataLimits' name='data_limits' value='' />
     </div>
 </div>
