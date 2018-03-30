@@ -37,7 +37,8 @@ class LargeTripsHTML(PermissionRequiredMixin, View):
                 'day_types': get_day_type_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input()
             },
-            'selectors': render_to_string('trip/large_selectors.html')
+            'selectors': render_to_string('trip/large_color_scale.html'),
+            'stage_selectors': render_to_string('trip/large_stage_selectors.html')
         }
 
         return render(request, 'trip/large.html', context)
