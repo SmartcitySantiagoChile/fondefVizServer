@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^profile/', include('profile.urls')),
     url(r'^shape/', include('shape.urls')),
     url(r'^speed/', include('speed.urls')),
-    url(r'^travel/', include('trip.urls')),
+    url(r'^trip/', include('trip.urls')),
     url(r'^globalstat/', include('globalstat.urls')),
     url(r'^esapi/', include('esapi.urls'))
 ]
