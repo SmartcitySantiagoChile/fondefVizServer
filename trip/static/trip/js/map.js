@@ -9,6 +9,7 @@ function MapApp(opts) {
     var mapId = opts.mapId || "mapChart";
     var maxZoom = opts.maxZoom || 15;
     var minZoom = opts.minZoom || 8;
+    var maxBounds = opts.maxBounds || L.latLngBounds(L.latLng(-33.697721, -70.942223), L.latLng(-33.178138, -70.357465));
 
     /* map options */
     var mapDefaultLocation = L.latLng(-33.459229, -70.645348);
@@ -21,6 +22,7 @@ function MapApp(opts) {
         maxZoom: maxZoom,
         accessToken: accessToken
     }).addTo(map);
+    map.setMaxBounds(maxBounds);
 
     var visibleLimits = [0, 0];
     var defaultZoom = 11;

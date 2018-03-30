@@ -105,8 +105,9 @@ $(document).ready(function () {
                 jackSecondaryColor: "#fff"
             });
             checkbox.onchange = function () {
-                var opts = {};
-                opts.scale = getColorScale();
+                var opts = {
+                    scale: getColorScale()
+                };
                 _self.updateMap(opts);
             };
         };
