@@ -4,11 +4,14 @@ $(document).ready(function () {
         var _self = this;
         var $STAGES_SELECTOR = $(".netapas_checkbox");
         var $DATA_LIMITS = $("#dataLimits");
+        var $ORIGIN_OR_DESTINATION_SELECTOR = $("#originOrDestination");
 
-        $STAGES_SELECTOR.each(function (index, html) {
-            new Switchery(html, {
-                size: 'small',
-                color: 'rgb(38, 185, 154)'
+        [$STAGES_SELECTOR, $ORIGIN_OR_DESTINATION_SELECTOR].forEach(function(el){
+            el.each(function (index, html) {
+                new Switchery(html, {
+                    size: 'small',
+                    color: 'rgb(38, 185, 154)'
+                });
             });
         });
 
@@ -40,12 +43,15 @@ $(document).ready(function () {
         };
 
         this.getStages = function () {
-            var stages = $STAGES_SELECTOR.filter(function (index, el) {
+            return $STAGES_SELECTOR.filter(function (index, el) {
                 return el.checked;
             }).map(function (index, el) {
                 return el.getAttribute('data-ne-str')
             }).get();
-            return stages;
+        };
+
+        this.getOriginOrDestination = function () {
+            return $ORIGIN_OR_DESTINATION_SELECTOR.checked?"origin":"destination";
         };
 
         var getColorScale = function () {
@@ -175,7 +181,8 @@ $(document).ready(function () {
             afterCallData: afterCall,
             dataUrlParams: function () {
                 return {
-                    stages: app.getStages()
+                    stages: app.getStages(),
+                    originOrDestination: app.getOriginOrDestination()
                 }
             }
         };

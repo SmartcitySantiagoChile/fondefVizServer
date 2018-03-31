@@ -34,12 +34,12 @@
     font-weight: 200;
 }
 
-.netapas_checkbox_div {
+.netapas_checkbox_div, .origin_or_destination_checkbox_div {
     padding: 5px 0px;
     margin-left: 20px;
 }
 
-.netapas_checkbox_div span {
+.netapas_checkbox_div span, .origin_or_destination_checkbox_div span {
     margin-left: 10px;
 }
 
