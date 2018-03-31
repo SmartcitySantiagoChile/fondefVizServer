@@ -187,7 +187,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
         stages = params.getlist('stages[]', [])
-        modes = params.getlist('modes[]', [])
+        transport_modes = params.getlist('transportModes[]', [])
 
         response = {}
 
@@ -196,12 +196,12 @@ class FromToMapData(PermissionRequiredMixin, View):
         try:
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes,
-                                                                     stages, modes)
+                                                                     stages, transport_modes)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 queries = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes, stages,
-                                                         modes)
+                                                         transport_modes)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
                 response['origin_zone'] = origin_zone.to_dict()
                 response['destination_zone'] = destination_zone.to_dict()
