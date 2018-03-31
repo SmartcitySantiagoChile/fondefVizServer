@@ -6,7 +6,7 @@ $(document).ready(function () {
         var $DATA_LIMITS = $("#dataLimits");
         var $ORIGIN_OR_DESTINATION_SELECTOR = $("#originOrDestination");
 
-        [$STAGES_SELECTOR, $ORIGIN_OR_DESTINATION_SELECTOR].forEach(function(el){
+        [$STAGES_SELECTOR, $ORIGIN_OR_DESTINATION_SELECTOR].forEach(function (el) {
             el.each(function (index, html) {
                 new Switchery(html, {
                     size: 'small',
@@ -19,15 +19,13 @@ $(document).ready(function () {
             type: "double",
             min: 0,
             max: 1,
-            from: 0,
-            to: 1,
             onFinish: function (data) {
                 _self.setDataLimits(data.from, data.to);
-                redraw(options);
-                updateMapDocCount(options);
+                _self.updateMap();
             }
         });
-
+        var slider = $DATA_LIMITS.data("ionRangeSlider");
+        console.log(slider);
         // data given by server
         var data = null;
         var mapOpts = {
@@ -51,7 +49,7 @@ $(document).ready(function () {
         };
 
         this.getOriginOrDestination = function () {
-            return $ORIGIN_OR_DESTINATION_SELECTOR.get()[0].checked?"origin":"destination";
+            return $ORIGIN_OR_DESTINATION_SELECTOR.get()[0].checked ? "origin" : "destination";
         };
 
         var getColorScale = function () {
@@ -64,7 +62,6 @@ $(document).ready(function () {
         };
 
         this.setDataLimits = function (minVal, maxVal) {
-            var visibleLimits = [minVal, maxVal];
             var step = (maxVal - minVal) / 4;
             var expMin = Math.floor(Math.log(minVal) / Math.LN10);
             var expStep = Math.floor(Math.log(step) / Math.LN10);
@@ -72,14 +69,14 @@ $(document).ready(function () {
             var coefStep = Math.floor(10 * step / Math.pow(10, expStep)) / 10.0;
             var roundedMin = coefMin * Math.pow(10, expMin);
             var roundedStep = coefStep * Math.pow(10, expStep);
-/*
-            grades = [Math.max(1, roundedMin), roundedMin + roundedStep, roundedMin + 2 * roundedStep, roundedMin + 3 * roundedStep, roundedMin + 4 * roundedStep];
-            gradesStr = grades.map(function (x) {
+
+            var grades = [Math.max(1, roundedMin), roundedMin + roundedStep, roundedMin + 2 * roundedStep, roundedMin + 3 * roundedStep, roundedMin + 4 * roundedStep];
+
+            mapOpts.count.grades = grades;
+            mapOpts.count.grades_str = grades.map(function (x) {
                 return parseInt(x.toFixed(0)).toLocaleString();
             });
-            _self.updateMap({
-                visibleLimits: visibleLimits
-            });*/
+            _self.updateMap();
         };
 
         var setScaleSwitch = function () {
@@ -109,9 +106,17 @@ $(document).ready(function () {
         this.setData = function (newData) {
             data = newData;
             printAmountOfData();
+            var values = newData.aggregations.by_zone.buckets.map(function(el){
+                return el.doc_count;
+            });
+            slider.update({
+                min: Math.min(...values),
+                max: Math.max(...values)
+            });
         };
 
         this.updateMap = function (opts) {
+            opts = opts || {};
             console.log("updateMap method called!");
             var scale = opts.scale || getColorScale();
             var selectedKPI = 'count';
@@ -167,7 +172,7 @@ $(document).ready(function () {
             return;
         }
         app.setData(data.large);
-        app.updateMap({});
+        app.updateMap();
     }
 
     // load filters
