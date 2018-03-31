@@ -54,7 +54,7 @@ $(document).ready(function () {
                 }
             },
             count: {
-                name: "Cantidad de datos",
+                name: "Cantidad de viajes",
                 grades: [1, 5, 25, 50, 75],
                 grades_str: ["1", "5", "25", "50", "75"],
                 legend_post_str: "",
@@ -120,7 +120,7 @@ $(document).ready(function () {
 
         var printAmountOfData = function () {
             var quantity = data.hits.total;
-            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "dato" : "datos";
+            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "viaje" : "viajes";
             document.getElementById("visualization_doc_count").innerHTML = quantity.toLocaleString();
         };
 

@@ -233,15 +233,15 @@ function MapApp(opts) {
             console.log(zoneData);
             this._div.innerHTML = "<h4>Zonificación 777</h4>";
             if (zoneProps) {
-                this._div.innerHTML += "<b>Datos de la zona " + zoneProps.id + "</b>";
+                this._div.innerHTML += "<b>Información de la zona " + zoneProps.id + "</b>";
 
                 if (zoneData !== undefined && zoneData !== null) {
                     this._div.innerHTML +=
-                        "<br/> - # Datos: " + zoneData.doc_count.toLocaleString() +
-                        "<br/> - # Etapas: " + Number(zoneData.n_etapas.value.toFixed(2)).toLocaleString() +
-                        "<br/> - Duración: " + Number(zoneData.tviaje.value.toFixed(1)).toLocaleString() + " [min]" +
-                        "<br/> - Distancia (en ruta): " + Number((zoneData.distancia_ruta.value / 1000.0).toFixed(2)).toLocaleString() + " [km]" +
-                        "<br/> - Distancia (euclideana): " + Number((zoneData.distancia_eucl.value / 1000.0).toFixed(2)).toLocaleString() + " [km]";
+                        "<br/> - # Viajes: " + zoneData.doc_count.toLocaleString() +
+                        "<br/> - # Etapas promedio: " + Number(zoneData.n_etapas.value.toFixed(2)).toLocaleString() +
+                        "<br/> - Duración promedio: " + Number(zoneData.tviaje.value.toFixed(1)).toLocaleString() + " [min]" +
+                        "<br/> - Distancia promedio (en ruta): " + Number((zoneData.distancia_ruta.value / 1000.0).toFixed(2)).toLocaleString() + " [km]" +
+                        "<br/> - Distancia promedio (euclideana): " + Number((zoneData.distancia_eucl.value / 1000.0).toFixed(2)).toLocaleString() + " [km]";
                 } else {
                     this._div.innerHTML += "<br/> Sin información para los filtros<br/> seleccionados";
                 }
