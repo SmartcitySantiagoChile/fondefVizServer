@@ -6,7 +6,6 @@ $(document).ready(function () {
         var $DATA_LIMITS = $("#dataLimits");
 
         $STAGES_SELECTOR.each(function (index, html) {
-            console.log(html);
             new Switchery(html, {
                 size: 'small',
                 color: 'rgb(38, 185, 154)'
@@ -28,14 +27,24 @@ $(document).ready(function () {
 
         // data given by server
         var data = null;
+        var mapOpts = {
+            count: {
+                name: 'Cantidad de viajes',
+                grades: [1, 10, 20, 30, 40],
+                grades_str: ["1", "10", "20", "30", "40"],
+                legend_post_str: "",
+                map_fn: function (zone) {
+                    return zone.doc_count;
+                }
+            }
+        };
 
-        this.getStages = function(){
-            var stages = $STAGES_SELECTOR.filter(function(index, el){
+        this.getStages = function () {
+            var stages = $STAGES_SELECTOR.filter(function (index, el) {
                 return el.checked;
-            }).map(function(index, el){
+            }).map(function (index, el) {
                 return el.getAttribute('data-ne-str')
             }).get();
-            console.log(stages);
             return stages;
         };
 
@@ -48,9 +57,6 @@ $(document).ready(function () {
             }
         };
 
-        var grades = null;
-        var gradesStr = null;
-
         this.setDataLimits = function (minVal, maxVal) {
             var visibleLimits = [minVal, maxVal];
             var step = (maxVal - minVal) / 4;
@@ -60,14 +66,14 @@ $(document).ready(function () {
             var coefStep = Math.floor(10 * step / Math.pow(10, expStep)) / 10.0;
             var roundedMin = coefMin * Math.pow(10, expMin);
             var roundedStep = coefStep * Math.pow(10, expStep);
-
+/*
             grades = [Math.max(1, roundedMin), roundedMin + roundedStep, roundedMin + 2 * roundedStep, roundedMin + 3 * roundedStep, roundedMin + 4 * roundedStep];
             gradesStr = grades.map(function (x) {
                 return parseInt(x.toFixed(0)).toLocaleString();
             });
             _self.updateMap({
                 visibleLimits: visibleLimits
-            });
+            });*/
         };
 
         var setScaleSwitch = function () {
@@ -90,7 +96,7 @@ $(document).ready(function () {
 
         var printAmountOfData = function () {
             var quantity = data.hits.total;
-            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "dato" : "datos";
+            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "viaje" : "viajes";
             document.getElementById("visualization_doc_count").innerHTML = quantity.toLocaleString();
         };
 
@@ -102,13 +108,13 @@ $(document).ready(function () {
         this.updateMap = function (opts) {
             console.log("updateMap method called!");
             var scale = opts.scale || getColorScale();
-
+            var selectedKPI = 'count';
             var legendOpts = {
-                grades: grades,
-                grades_str: gradesStr,
-                legend_post_str: "hola"
+                grades: mapOpts[selectedKPI].grades,
+                grades_str: mapOpts[selectedKPI].grades_str,
+                legend_post_str: mapOpts[selectedKPI].legend_post_str
             };
-            mapApp.refreshMap(destinationZoneIds, scale, selectedKPI, legendOpts);
+            mapApp.refreshMap([], scale, selectedKPI, legendOpts);
         };
 
         var opts = {
@@ -116,7 +122,7 @@ $(document).ready(function () {
                 if (data === null) {
                     return null;
                 }
-                var zoneData = data.aggregations[$SECTOR_SELECTOR.val()].by_zone.buckets;
+                var zoneData = data.aggregations.by_zone.buckets;
                 var answer = zoneData.filter(function (el) {
                     return el.key === zoneId;
                 });
