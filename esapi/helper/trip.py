@@ -186,11 +186,15 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas):
+    def get_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas, origin_or_destination):
         es_query = self.get_base_large_travel_data_query(start_date, end_date, day_types, periods, n_etapas)[:0]
 
+        field_aggs_name = 'zona_subida'
+        if origin_or_destination == 'destination':
+            field_aggs_name = 'zona_bajada'
+
         # obs: by using size=1000, we assume there are less than '1000' zones
-        by_zone_agg = A('terms', field='zona_subida', size=1000)
+        by_zone_agg = A('terms', field=field_aggs_name, size=1000)
 
         # required stats
         es_query.aggs \

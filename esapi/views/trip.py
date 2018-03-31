@@ -146,6 +146,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         stages = params.getlist('stages[]', [])
+        origin_or_destination = params.get('originOrDestination', 'origin')
 
         response = {}
 
@@ -157,7 +158,8 @@ class LargeTravelData(PermissionRequiredMixin, View):
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages)
+                es_query = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages,
+                                                           origin_or_destination)
                 response['large'] = es_helper.make_multisearch_query_for_aggs(es_query, flat=True).to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
