@@ -60,6 +60,7 @@ class HalfHour(models.Model):
     longName = models.CharField("Nombre largo", max_length=20)
 
     authorityPeriodName = models.CharField("Período Transantiago", max_length=50)
+
     def __str__(self):
         return self.shortName
 
@@ -77,6 +78,7 @@ class Operator(models.Model):
         verbose_name = "Operador"
         verbose_name_plural = "Operadores"
 
+
 class DayType(models.Model):
     """ operator code that exist in elasticsearch """
     esId = models.IntegerField("Identificador", unique=True, null=False)
@@ -85,6 +87,16 @@ class DayType(models.Model):
     class Meta:
         verbose_name = "Tipo de día"
         verbose_name_plural = "Tipos de día"
+
+
+class TransportMode(models.Model):
+    """ transport modes used on trips """
+    esId = models.IntegerField("Identificador", unique=True, null=False)
+    name = models.CharField("Nombre", max_length=50)
+
+    class Meta:
+        verbose_name = "Modo de transporte"
+        verbose_name_plural = "Modos de transporte"
 
 
 class GlobalPermissionManager(models.Manager):

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import Group
 from django.conf import settings
 
-from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, GlobalPermission
+from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission
 
 
 def _list_parser(list):
@@ -55,6 +55,13 @@ def get_commune_list_for_select_input(to_dict=False):
     if to_dict:
         parser = _dict_parser
     return parser(Commune.objects.values_list('esId', 'name'))
+
+
+def get_transport_mode_list_for_select_input(to_dict=False):
+    parser = _list_parser
+    if to_dict:
+        parser = _dict_parser
+    return parser(TransportMode.objects.values_list('esId', 'name'))
 
 
 class PermissionBuilder(object):

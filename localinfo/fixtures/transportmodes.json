@@ -1,0 +1,9 @@
+[
+  {"model": "localinfo.transportmode", "pk":1 , "fields":{ "esId": 1, "name": "Bus" }},
+  {"model": "localinfo.transportmode", "pk":2 , "fields":{ "esId": 2, "name": "Metro" }},
+  {"model": "localinfo.transportmode", "pk":3 , "fields":{ "esId": 3, "name": "Bus + Metro" }},
+  {"model": "localinfo.transportmode", "pk":4 , "fields":{ "esId": 4, "name": "MetroTren" }},
+  {"model": "localinfo.transportmode", "pk":5 , "fields":{ "esId": 5, "name": "Bus + Metrotren" }},
+  {"model": "localinfo.transportmode", "pk":6 , "fields":{ "esId": 6, "name": "Metro + Metrotren" }},
+  {"model": "localinfo.transportmode", "pk":7 , "fields":{ "esId": 7, "name": "Bus + Metro + Metrotren" }}
+]
