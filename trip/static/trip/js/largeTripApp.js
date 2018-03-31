@@ -51,7 +51,7 @@ $(document).ready(function () {
         };
 
         this.getOriginOrDestination = function () {
-            return $ORIGIN_OR_DESTINATION_SELECTOR.checked?"origin":"destination";
+            return $ORIGIN_OR_DESTINATION_SELECTOR.get()[0].checked?"origin":"destination";
         };
 
         var getColorScale = function () {
@@ -163,6 +163,9 @@ $(document).ready(function () {
     }
 
     function processData(data, app) {
+        if (data.status) {
+            return;
+        }
         app.setData(data.large);
         app.updateMap({});
     }
