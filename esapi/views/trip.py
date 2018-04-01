@@ -203,6 +203,10 @@ class FromToMapData(PermissionRequiredMixin, View):
                 queries = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes, stages,
                                                          transport_modes)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
+
+                if origin_zone.hits.total == 0 or destination_zone.hits.total == 0:
+                    raise ESQueryResultEmpty
+
                 response['origin_zone'] = origin_zone.to_dict()
                 response['destination_zone'] = destination_zone.to_dict()
         except FondefVizError as e:
