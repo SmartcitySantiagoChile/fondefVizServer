@@ -54,11 +54,6 @@
         <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
     {% endwith %}
-    <script>
-        var ws_data = {};
-    </script>>
-    <script src="{% static "trip/js/util.js" %}"></script>
-    <script src="{% static "trip/js/maps.js" %}"></script>
-    <script src="{% static "trip/js/travel_strategies_options.js" %}"></script>
-    <script src="{% static "trip/js/travel_strategies.js" %}"></script>
+    <script src="{% static "trip/js/map.js" %}"></script>
+    <script src="{% static "trip/js/strategyApp.js" %}"></script>
 {% endblock %}
