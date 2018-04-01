@@ -10,6 +10,8 @@ function MapApp(opts) {
     var maxZoom = opts.maxZoom || 15;
     var minZoom = opts.minZoom || 8;
     var maxBounds = opts.maxBounds || L.latLngBounds(L.latLng(-33.697721, -70.942223), L.latLng(-33.178138, -70.357465));
+    var showMetroStations= opts.showMetroStations===undefined?true:opts.showMetroStations;
+    var showMacroZones = opts.showMacroZones===undefined?true:opts.showMacroZones;
 
     /* map options */
     var mapDefaultLocation = L.latLng(-33.459229, -70.645348);
@@ -229,8 +231,8 @@ function MapApp(opts) {
 
         // method that we will use to update the control based on feature properties passed
         mapInfoBar.update = function (zoneProps, zoneData) {
-            console.log(zoneProps);
-            console.log(zoneData);
+            // console.log(zoneProps);
+            // console.log(zoneData);
             this._div.innerHTML = "<h4>Zonificación 777</h4>";
             if (zoneProps) {
                 this._div.innerHTML += "<b>Información de la zona " + zoneProps.id + "</b>";
@@ -351,16 +353,30 @@ function MapApp(opts) {
             });
         }
 
-        $.when(loadZoneGeoJSON(), loadSubwayGeoJSON(), loadDistrictGeoJSON())
+        var shapesToLoad = [loadZoneGeoJSON()];
+        if (showMetroStations){
+            shapesToLoad.push(loadSubwayGeoJSON());
+        }
+        if(showMacroZones){
+            shapesToLoad.push(loadDistrictGeoJSON());
+        }
+
+        $.when(...shapesToLoad)
             .done(function () {
                 setupMapInfoBar();
                 setupMapLegend();
 
                 var controlMapping = {
-                    "Zonas 777": zoneLayer,
-                    "Comunas": districtLayer,
-                    "Estaciones de Metro": subwayLayer
+                    "Zonas 777": zoneLayer
                 };
+                if (showMetroStations){
+                    controlMapping["Estaciones de Metro"] = subwayLayer;
+                    subwayLayer.addTo(map);
+                }
+                if (showMacroZones){
+                    controlMapping["Comunas"] = districtLayer;
+                    districtLayer.addTo(map);
+                }
                 L.control.layers(
                     null,
                     controlMapping, {
@@ -370,9 +386,7 @@ function MapApp(opts) {
                     }).addTo(map);
 
                 zoneLayer.addTo(map);
-                districtLayer.addTo(map);
                 destinationZoneLayer.addTo(map);
-                subwayLayer.addTo(map);
 
                 map.flyToBounds(zoneLayer.getBounds());
                 if (readyFunction !== undefined) {
