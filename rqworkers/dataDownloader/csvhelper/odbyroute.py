@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 
-from rqworkers.dataDownloader.csvhelper.helper import ZipManager, ODByRouteCSVHelper, ShapeCSVHelper, StopCSVHelper
+from rqworkers.dataDownloader.csvhelper.helper import ZipManager, ODByRouteCSVHelper, ShapeCSVHelper, StopByRouteCSVHelper
 
 
 class OdByRouteData(object):
@@ -42,7 +42,7 @@ class OdByRouteData(object):
         shape_file = ShapeCSVHelper(self.es_client)
         shape_file.download(zip_manager, routes=routes, start_date=start_date, end_date=end_date)
 
-        stop_file = StopCSVHelper(self.es_client)
+        stop_file = StopByRouteCSVHelper(self.es_client)
         stop_file.download(zip_manager, routes=routes, start_date=start_date, end_date=end_date)
 
         help_file_title = 'ARCHIVO DE MATRIZ DE ETAPA POR SERVICIO'
