@@ -23,6 +23,7 @@
     "leaflet": "^1.3.1",
     "echarts": "^4.0.4",
     "bootstrap-colorpicker": "^2.5.1",
-    "BeautifyMarker": "https://github.com/marslan390/BeautifyMarker.git"
+    "BeautifyMarker": "https://github.com/marslan390/BeautifyMarker.git",
+    "Leaflet.Sync": "leaflet.sync#^0.2.2"
   }
 }
