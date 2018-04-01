@@ -263,13 +263,13 @@ class ESTripHelper(ElasticSearchHelper):
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
-
+        """
         if not origin_zones:
             raise ESQueryOriginZoneParameterDoesNotExist()
 
         if not destination_zones:
             raise ESQueryDestinationZoneParameterDoesNotExist()
-
+        """
         es_query = es_query.filter('range', tiempo_subida={
             'gte': start_date + '||/d',
             'lte': end_date + '||/d',
@@ -277,6 +277,9 @@ class ESTripHelper(ElasticSearchHelper):
             'time_zone': '+00:00'
         })
 
+        # TODO: removed this
+        origin_zones = range(0, 50)
+        destination_zones = range(0, 100)
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
         if periods:
@@ -295,7 +298,21 @@ class ESTripHelper(ElasticSearchHelper):
         es_query = self.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes, origin_zones,
                                                        destination_zones)[:0]
 
-        # TODO: hacer agrupación para sacar el resultado, no iterar, muy ineficiente
+        first_transport_mode = A('terms', field='srv_1', size=2000)
+        second_transport_mode = A('terms', field='srv_2', size=2000)
+        third_transport_mode = A('terms', field='srv_3', size=2000)
+        fourth_transport_mode = A('terms', field='srv_4', size=2000)
+
+        es_query.aggs.bucket('strategies', first_transport_mode).bucket('second', second_transport_mode). \
+            bucket('third', third_transport_mode).bucket('fourth', fourth_transport_mode)
+        es_query.aggs['strategies']. \
+            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_1'])
+        es_query.aggs['strategies']['second']. \
+            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_2'])
+        es_query.aggs['strategies']['second']['third']. \
+            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_3'])
+        es_query.aggs['strategies']['second']['third']['fourth']. \
+            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_4'])
 
         return es_query
 

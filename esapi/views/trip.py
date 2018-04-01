@@ -232,45 +232,25 @@ class StrategiesData(PermissionRequiredMixin, View):
         subway = 'METRO'
         train = 'METROTREN'
 
-        strategies_tuples = defaultdict(lambda: {'travels': []})
+        trips = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))))
+        for first in es_query.execute().aggregations.strategies.buckets:
+            first_type = first.additionalInfo.hits.hits[0]['_source']['tipo_transporte_1']
+            first_mode = subway if first_type == 2 else train if first_type == 4 else first.key
+            for second in first.second.buckets:
+                second_type = second.additionalInfo.hits.hits[0]['_source']['tipo_transporte_2']
+                second_mode = subway if second_type == 2 else train if second_type == 4 else second.key
+                for third in second.third.buckets:
+                    third_type = third.additionalInfo.hits.hits[0]['_source']['tipo_transporte_3']
+                    third_mode = subway if third_type == 2 else train if third_type == 4 else third.key
+                    for fourth in third.fourth.buckets:
+                        fourth_type = fourth.additionalInfo.hits.hits[0]['_source']['tipo_transporte_4']
+                        fourth_mode = subway if fourth_type == 2 else train if fourth_type == 4 else fourth.key
 
-        for hit in es_query.scan():
-            _data = hit.to_dict()
-            t = ''
-            if _data['tipo_transporte_1'] == 2:
-                t += subway
-            elif _data['tipo_transporte_1'] == 4:
-                t += train
-            else:
-                t += _data['srv_1']
-            t += ' | '
+                        trips[first_mode][second_mode][third_mode][fourth_mode] += fourth.doc_count
 
-            if _data['tipo_transporte_2'] == 2:
-                t += subway
-            elif _data['tipo_transporte_2'] == 4:
-                t += train
-            else:
-                t += _data['srv_2']
-            t += ' | '
-
-            if _data['tipo_transporte_3'] == 2:
-                t += subway
-            elif _data['tipo_transporte_3'] == 4:
-                t += train
-            else:
-                t += _data['srv_3']
-            t += ' | '
-
-            if _data['tipo_transporte_4'] == 2:
-                t += subway
-            elif _data['tipo_transporte_4'] == 4:
-                t += train
-            else:
-                t += _data['srv_4']
-
-            strategies_tuples[t]['travels'].append(_data['id'])
-
-        return strategies_tuples
+        return {
+            'trips': trips
+        }
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
