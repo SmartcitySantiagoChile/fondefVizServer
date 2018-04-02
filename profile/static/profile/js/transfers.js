@@ -4,14 +4,14 @@ $(document).ready(function () {
         var _self = this;
         var tableId = "#transferTable";
         var firstColumn = {
-            title: "Llegada \\ Salida",
+            title: "Salida \\ Llegada",
             className: "text-center",
-            data: "from"
+            data: "to"
         };
         var lastColumn = {
             title: "Total",
             className: "text-center",
-            data: function (data, type, full, meta) {
+            data: function (data) {
                 var total = 0;
                 for (var key in data) {
                     if (!isNaN(data[key])) {
@@ -110,26 +110,22 @@ $(document).ready(function () {
         var data = dataSource.data;
         var rows = [];
         var columns = [];
-        for (var route_from in data) {
-            if (route_from === "-") {
-                continue;
+        for (var route_to in data) {
+            var key = route_to;
+            if (key === "end") {
+                key = endOfTripLabel;
             }
             var row = {
-                from: route_from
+                to: key
             };
-            for (var route_to in data[route_from]) {
-                var key = route_to;
-                if (route_to === "-") {
-                    key = endOfTripLabel;
-                }
-                row[key] = data[route_from][route_to];
-                if (columns.indexOf(key) < 0 && key !== endOfTripLabel) {
-                    columns.push(key);
+            for (var route_from in data[route_to]) {
+                row[route_from] = data[route_to][route_from];
+                if (columns.indexOf(route_from) < 0) {
+                    columns.push(route_from);
                 }
             }
             rows.push(row);
         }
-        columns.push(endOfTripLabel);
 
         app.updateTable(rows, columns);
     }

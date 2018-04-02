@@ -306,7 +306,7 @@ class TransfersData(View):
         for step in [result.first_transfer, result.second_transfer, result.third_transfer]:
             for from_bucket in step.route_from.buckets:
                 for to_bucket in from_bucket.route_to.buckets:
-                    answer[from_bucket.key][to_bucket.key] += to_bucket.expansion_factor.value
+                    answer[to_bucket.key][from_bucket.key] += to_bucket.expansion_factor.value
 
         for step in [result.first_transfer_is_end, result.second_transfer_is_end, result.third_transfer_is_end]:
             for from_bucket in step.route_from.buckets:
@@ -314,24 +314,22 @@ class TransfersData(View):
                     end = to_bucket.key
                     if end == '-':
                         end = 'end'
-                    answer[from_bucket.key][end] += to_bucket.expansion_factor.value
+                    answer[end][from_bucket.key] += to_bucket.expansion_factor.value
 
         for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
-            answer[from_bucket.key]['end'] += from_bucket.expansion_factor.value
+            answer['end'][from_bucket.key] += from_bucket.expansion_factor.value
 
         if not answer:
             raise ESQueryResultEmpty()
 
-        # print(str(es_query.to_dict()).replace("u'", "\"").replace("'", "\""))
         return {
-            # 'result': result.to_dict(),
             'data': answer
         }
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
         end_date = params.get('endDate', '')[:10]
-        auth_stop_code = params.get('stopCode', 'L-22-11-30-SN')
+        auth_stop_code = params.get('stopCode', '')
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         half_hours = params.getlist('halfHour[]', [])

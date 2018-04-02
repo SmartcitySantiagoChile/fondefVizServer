@@ -380,6 +380,7 @@ class ESTripHelper(ElasticSearchHelper):
         add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4')
         add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None)
 
+        # hay que agregar un or
         subway = [{'term': {'n_etapas': 1}}, {}]
         # add_aggregation('first_transfer_is_end', 'parada_bajada_1', , 'srv_1', 'srv_2')
         return es_query
