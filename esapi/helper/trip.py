@@ -139,7 +139,7 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('n_etapas', 'avg', field='n_etapas') \
                 .metric('distancia_ruta', 'avg', field='distancia_ruta') \
                 .metric('distancia_eucl', 'avg', field='distancia_eucl') \
-                .metric('expansion_factor', 'sum', field='expansion_factor')
+                .metric('expansion_factor', 'sum', field='factor_expansion')
             # TODO; usar expansion_factor en el javascript
 
         for key in sectors:
@@ -194,7 +194,7 @@ class ESTripHelper(ElasticSearchHelper):
             .metric('n_etapas', 'avg', field='n_etapas') \
             .metric('distancia_ruta', 'avg', field='distancia_ruta') \
             .metric('distancia_eucl', 'avg', field='distancia_eucl') \
-            .metric('expansion_factor', 'sum', field='expansion_factor')
+            .metric('expansion_factor', 'sum', field='factor_expansion')
         # TODO: usar expansion_factor en el javascript para contar los viajes
 
         return es_query
@@ -240,7 +240,7 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('n_etapas', 'avg', field='n_etapas') \
                 .metric('distancia_ruta', 'avg', field='distancia_ruta') \
                 .metric('distancia_eucl', 'avg', field='distancia_eucl') \
-                .metric('expansion_factor', 'sum', field='expansion_factor')
+                .metric('expansion_factor', 'sum', field='factor_expansion')
             # TODO: en el javascript contar el expansion_factor, no el doc_count
 
         destination_es_query = copy.copy(es_query)
@@ -306,7 +306,7 @@ class ESTripHelper(ElasticSearchHelper):
             metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_3'])
         es_query.aggs['strategies']['second']['third']['fourth']. \
             metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_4']). \
-            metric('expansion_factor', 'sum', field='expansion_factor')
+            metric('expansion_factor', 'sum', field='factor_expansion')
 
         return es_query
 
@@ -365,20 +365,20 @@ class ESTripHelper(ElasticSearchHelper):
         first_transfer_bucket = es_query.aggs.bucket('first_transfer', first_transfer)
         first_transfer_bucket.bucket('route_from', 'terms', field="srv_1", size=5000)
         first_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_2", size=5000)
-        first_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='expansion_factor')
+        first_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='factor_expansion')
 
         second_transfer_bucket = es_query.aggs.bucket('second_transfer', second_transfer)
         second_transfer_bucket.bucket('route_from', 'terms', field="srv_2", size=5000)
         second_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_3", size=5000)
-        second_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='expansion_factor')
+        second_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='factor_expansion')
 
         third_transfer_bucket = es_query.aggs.bucket('third_transfer', third_transfer)
         third_transfer_bucket.bucket('route_from', 'terms', field="srv_3", size=5000)
         third_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_4", size=5000)
-        third_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='expansion_factor')
+        third_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='factor_expansion')
 
         fourth_transfer_bucket = es_query.aggs.bucket('fourth_transfer', fourth_transfer)
         fourth_transfer_bucket.bucket('route_from', 'terms', field="srv_4", size=5000)
-        fourth_transfer_bucket.aggs['route_from'].metric('expansion_factor', 'sum', field='expansion_factor')
+        fourth_transfer_bucket.aggs['route_from'].metric('expansion_factor', 'sum', field='factor_expansion')
 
         return es_query
