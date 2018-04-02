@@ -246,7 +246,9 @@ class StrategiesData(PermissionRequiredMixin, View):
                         fourth_type = fourth.additionalInfo.hits.hits[0]['_source']['tipo_transporte_4']
                         fourth_mode = subway if fourth_type == 2 else train if fourth_type == 4 else fourth.key
 
-                        trips[first_mode][second_mode][third_mode][fourth_mode] += fourth.doc_count
+                        # TODO: expansion factor es cero, consultar con mauricio
+                        value = fourth.expansion_factor.value if fourth.expansion_factor.value != 0 else fourth.doc_count
+                        trips[first_mode][second_mode][third_mode][fourth_mode] += value
 
         return {
             'trips': trips
@@ -300,7 +302,9 @@ class TransfersData(View):
         for step in [result.first_transfer, result.second_transfer, result.third_transfer]:
             for from_bucket in step.route_from.buckets:
                 for to_bucket in from_bucket.route_to.buckets:
-                    answer[from_bucket.key][to_bucket.key] += to_bucket.doc_count
+                    # TODO: expansion factor es cero, consultar con mauricio
+                    value = to_bucket.expansion_factor.value if to_bucket.expansion_factor.value != 0 else to_bucket.doc_count
+                    answer[from_bucket.key][to_bucket.key] += value
 
         for from_bucket in result.fourth_transfer.route_from.buckets:
             answer[from_bucket.key]['-'] += from_bucket.doc_count

@@ -37,18 +37,14 @@ class ESTripHelper(ElasticSearchHelper):
         # up to 120 min
         add_histogram(base_es_query, 'tviaje', '15', 0, 120)
 
-        # at least from 1 to 5 etapas
+        # at least from 1 to 5 stages
         add_histogram(base_es_query, 'n_etapas', '1', 1, 5)
 
         # distances are this values right?
         add_histogram(base_es_query, 'distancia_ruta', '5000', 0, 30000)
         add_histogram(base_es_query, 'distancia_eucl', '5000', 0, 30000)
 
-        # # limit fields
-        # return es_query.source(self.default_fields)
-
-        # return no hits!
-        return base_es_query[:0]
+        return base_es_query
 
     def _build_indicators_query(self, base_es_query):
         base_es_query.aggs.metric('documentos', 'value_count', field='id')
@@ -58,11 +54,7 @@ class ESTripHelper(ElasticSearchHelper):
         base_es_query.aggs.metric('distancia_ruta', 'stats', field='distancia_ruta')
         base_es_query.aggs.metric('distancia_eucl', 'stats', field='distancia_eucl')
 
-        # # limit fields
-        # return base_es_query.source(self.default_fields)
-
-        # return no hits!
-        return base_es_query[:0]
+        return base_es_query
 
     def get_base_resume_data_query(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
         es_query = self.get_base_query()
@@ -93,7 +85,7 @@ class ESTripHelper(ElasticSearchHelper):
 
     def get_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
         es_query = self.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
-                                                   destination_zones)
+                                                   destination_zones)[:0]
 
         return self._build_histogram_query(es_query), self._build_indicators_query(es_query)
 
@@ -146,13 +138,12 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('tviaje', 'avg', field='tviaje') \
                 .metric('n_etapas', 'avg', field='n_etapas') \
                 .metric('distancia_ruta', 'avg', field='distancia_ruta') \
-                .metric('distancia_eucl', 'avg', field='distancia_eucl')
+                .metric('distancia_eucl', 'avg', field='distancia_eucl') \
+                .metric('expansion_factor', 'sum', field='expansion_factor')
+            # TODO; usar expansion_factor en el javascript
 
         for key in sectors:
             add_remaining(es_query, key, sectors[key])
-
-        # # limit fields
-        # return es_query.source(self.default_fields)
 
         return es_query
 
@@ -202,10 +193,9 @@ class ESTripHelper(ElasticSearchHelper):
             .metric('tviaje', 'avg', field='tviaje') \
             .metric('n_etapas', 'avg', field='n_etapas') \
             .metric('distancia_ruta', 'avg', field='distancia_ruta') \
-            .metric('distancia_eucl', 'avg', field='distancia_eucl')
-
-        # # limit fields
-        # return es_query.source(self.default_fields)
+            .metric('distancia_eucl', 'avg', field='distancia_eucl') \
+            .metric('expansion_factor', 'sum', field='expansion_factor')
+        # TODO: usar expansion_factor en el javascript para contar los viajes
 
         return es_query
 
@@ -230,6 +220,7 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', mediahora_subida=minutes)
         if stages:
             es_query = es_query.filter('terms', n_etapas=stages)
+        # TODO: uncomment this
         # if modes:
         #    es_query = es_query.filter('terms', ?=modes)
 
@@ -248,7 +239,9 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('tviaje', 'avg', field='tviaje') \
                 .metric('n_etapas', 'avg', field='n_etapas') \
                 .metric('distancia_ruta', 'avg', field='distancia_ruta') \
-                .metric('distancia_eucl', 'avg', field='distancia_eucl')
+                .metric('distancia_eucl', 'avg', field='distancia_eucl') \
+                .metric('expansion_factor', 'sum', field='expansion_factor')
+            # TODO: en el javascript contar el expansion_factor, no el doc_count
 
         destination_es_query = copy.copy(es_query)
         _query_by_zone(es_query, 'zona_subida')
@@ -312,7 +305,8 @@ class ESTripHelper(ElasticSearchHelper):
         es_query.aggs['strategies']['second']['third']. \
             metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_3'])
         es_query.aggs['strategies']['second']['third']['fourth']. \
-            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_4'])
+            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_4']). \
+            metric('expansion_factor', 'sum', field='expansion_factor')
 
         return es_query
 
@@ -371,16 +365,20 @@ class ESTripHelper(ElasticSearchHelper):
         first_transfer_bucket = es_query.aggs.bucket('first_transfer', first_transfer)
         first_transfer_bucket.bucket('route_from', 'terms', field="srv_1", size=5000)
         first_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_2", size=5000)
+        first_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='expansion_factor')
 
         second_transfer_bucket = es_query.aggs.bucket('second_transfer', second_transfer)
         second_transfer_bucket.bucket('route_from', 'terms', field="srv_2", size=5000)
         second_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_3", size=5000)
+        second_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='expansion_factor')
 
         third_transfer_bucket = es_query.aggs.bucket('third_transfer', third_transfer)
         third_transfer_bucket.bucket('route_from', 'terms', field="srv_3", size=5000)
         third_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_4", size=5000)
+        third_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='expansion_factor')
 
         fourth_transfer_bucket = es_query.aggs.bucket('fourth_transfer', fourth_transfer)
         fourth_transfer_bucket.bucket('route_from', 'terms', field="srv_4", size=5000)
+        fourth_transfer_bucket.aggs['route_from'].metric('expansion_factor', 'sum', field='expansion_factor')
 
         return es_query
