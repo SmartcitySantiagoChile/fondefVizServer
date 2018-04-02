@@ -220,7 +220,6 @@ $(document).ready(function () {
         };
 
         this.updateIndicators = function (data) {
-            console.log(data);
             var viajes = data.viajes.value || 0;
             var documents = data.documentos.value || 0;
             var tviaje_avg = data.tviaje.avg || 0;

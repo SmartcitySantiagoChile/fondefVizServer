@@ -19,30 +19,27 @@ class ESTripHelper(ElasticSearchHelper):
         file_extensions = ['trip']
         super(ESTripHelper, self).__init__(index_name, file_extensions)
 
-        self.default_fields = ['tviaje', 'n_etapas', 'modos', 'factor_expansion', 'comuna_subida', 'comuna_bajada',
-                               'zona_subida', 'zona_bajada']
-
     def _build_histogram_query(self, base_es_query):
         """
         Builds a elastic search query for the travels histogram
         It is based on the requested filtering options
         """
 
-        def add_histogram(es_query, field, interval, b_min, b_max):
-            es_query.aggs.bucket(field, 'histogram', field=field, interval=interval,
+        def add_histogram(field, interval, b_min, b_max):
+            base_es_query.aggs.bucket(field, 'histogram', field=field, interval=interval,
                                  min_doc_count=0, extended_bounds={'min': b_min, 'max': b_max}) \
                 .metric('bin', 'sum', field='factor_expansion') \
                 .pipeline('total', 'cumulative_sum', buckets_path='bin')
 
         # up to 120 min
-        add_histogram(base_es_query, 'tviaje', '15', 0, 120)
+        add_histogram('tviaje', '15', 0, 120)
 
         # at least from 1 to 5 stages
-        add_histogram(base_es_query, 'n_etapas', '1', 1, 5)
+        add_histogram('n_etapas', '1', 1, 5)
 
         # distances are this values right?
-        add_histogram(base_es_query, 'distancia_ruta', '5000', 0, 30000)
-        add_histogram(base_es_query, 'distancia_eucl', '5000', 0, 30000)
+        add_histogram('distancia_ruta', '5000', 0, 30000)
+        add_histogram('distancia_eucl', '5000', 0, 30000)
 
         return base_es_query
 
@@ -86,8 +83,8 @@ class ESTripHelper(ElasticSearchHelper):
     def get_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
         es_query = self.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
                                                    destination_zones)[:0]
-
-        return self._build_histogram_query(es_query), self._build_indicators_query(es_query)
+        histogram_es_query = copy.copy(es_query)
+        return self._build_histogram_query(histogram_es_query), self._build_indicators_query(es_query)
 
     def get_available_days(self):
         return self._get_available_days('tiempo_subida')
@@ -358,28 +355,31 @@ class ESTripHelper(ElasticSearchHelper):
         es_query = self.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types, periods,
                                                       half_hours)
 
-        first_transfer = A('filter', Q('term', parada_bajada_1=auth_stop_code))
-        second_transfer = A('filter', Q('term', parada_bajada_2=auth_stop_code))
-        third_transfer = A('filter', Q('term', parada_bajada_3=auth_stop_code))
-        fourth_transfer = A('filter', Q('term', parada_bajada_4=auth_stop_code))
+        def add_aggregation(bucket_name, stop_name, additonal_conditions, stage_route_init, stage_route_end):
+            conditions = [{'term': {}}] + additonal_conditions
+            conditions[0]['term'][stop_name] = auth_stop_code
+            aggregation = A('filter', Q({'bool': {'must': conditions}}))
 
-        first_transfer_bucket = es_query.aggs.bucket('first_transfer', first_transfer)
-        first_transfer_bucket.bucket('route_from', 'terms', field="srv_1", size=5000)
-        first_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_2", size=5000)
-        first_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='factor_expansion')
+            transfer_bucket = es_query.aggs.bucket(bucket_name, aggregation)
+            transfer_bucket.bucket('route_from', 'terms', field=stage_route_init, size=5000)
+            if stage_route_end is None:
+                transfer_bucket.aggs['route_from'].metric('expansion_factor', 'sum', field='factor_expansion')
+            else:
+                transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field=stage_route_end, size=5000)
+                transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum',
+                                                                      field='factor_expansion')
 
-        second_transfer_bucket = es_query.aggs.bucket('second_transfer', second_transfer)
-        second_transfer_bucket.bucket('route_from', 'terms', field="srv_2", size=5000)
-        second_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_3", size=5000)
-        second_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='factor_expansion')
+            return transfer_bucket
 
-        third_transfer_bucket = es_query.aggs.bucket('third_transfer', third_transfer)
-        third_transfer_bucket.bucket('route_from', 'terms', field="srv_3", size=5000)
-        third_transfer_bucket.aggs['route_from'].bucket('route_to', 'terms', field="srv_4", size=5000)
-        third_transfer_bucket.aggs['route_from']['route_to'].metric('expansion_factor', 'sum', field='factor_expansion')
+        add_aggregation('first_transfer', 'parada_bajada_1', [{'range': {'n_etapas': {'gt': 1}}}], 'srv_1', 'srv_2')
+        add_aggregation('second_transfer', 'parada_bajada_2', [{'range': {'n_etapas': {'gt': 2}}}], 'srv_2', 'srv_3')
+        add_aggregation('third_transfer', 'parada_bajada_3', [{'range': {'n_etapas': {'gt': 3}}}], 'srv_3', 'srv_4')
 
-        fourth_transfer_bucket = es_query.aggs.bucket('fourth_transfer', fourth_transfer)
-        fourth_transfer_bucket.bucket('route_from', 'terms', field="srv_4", size=5000)
-        fourth_transfer_bucket.aggs['route_from'].metric('expansion_factor', 'sum', field='factor_expansion')
+        add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2')
+        add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3')
+        add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4')
+        add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None)
 
+        subway = [{'term': {'n_etapas': 1}}, {}]
+        # add_aggregation('first_transfer_is_end', 'parada_bajada_1', , 'srv_1', 'srv_2')
         return es_query
