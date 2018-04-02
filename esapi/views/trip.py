@@ -47,6 +47,10 @@ class ResumeData(PermissionRequiredMixin, View):
                 histogram, indicators = es_helper.get_resume_data(start_date, end_date, day_types, periods,
                                                                   origin_zones, destination_zones)
                 histogram, indicators = es_helper.make_multisearch_query_for_aggs(histogram, indicators)
+
+                if histogram.hits.total == 0:
+                    raise ESQueryResultEmpty
+
                 response['histogram'] = histogram.to_dict()
                 response['indicators'] = indicators.to_dict()
         except FondefVizError as e:
@@ -302,12 +306,18 @@ class TransfersData(View):
         for step in [result.first_transfer, result.second_transfer, result.third_transfer]:
             for from_bucket in step.route_from.buckets:
                 for to_bucket in from_bucket.route_to.buckets:
-                    # TODO: expansion factor es cero, consultar con mauricio
-                    value = to_bucket.expansion_factor.value if to_bucket.expansion_factor.value != 0 else to_bucket.doc_count
-                    answer[from_bucket.key][to_bucket.key] += value
+                    answer[from_bucket.key][to_bucket.key] += to_bucket.expansion_factor.value
 
-        for from_bucket in result.fourth_transfer.route_from.buckets:
-            answer[from_bucket.key]['-'] += from_bucket.doc_count
+        for step in [result.first_transfer_is_end, result.second_transfer_is_end, result.third_transfer_is_end]:
+            for from_bucket in step.route_from.buckets:
+                for to_bucket in from_bucket.route_to.buckets:
+                    end = to_bucket.key
+                    if end == '-':
+                        end = 'end'
+                    answer[from_bucket.key][end] += to_bucket.expansion_factor.value
+
+        for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
+            answer[from_bucket.key]['end'] += from_bucket.expansion_factor.value
 
         if not answer:
             raise ESQueryResultEmpty()
