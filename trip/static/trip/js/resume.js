@@ -171,10 +171,10 @@ $(document).ready(function () {
         };
 
         this.updateChart = function (vizType, histogram, indicators) {
-            if(histogram !== undefined) {
+            if (histogram !== undefined) {
                 histogramData = histogram;
             }
-            if(indicators !== undefined) {
+            if (indicators !== undefined) {
                 _self.updateIndicators(indicators);
             }
             var chartData = _self.getChartData(vizType);
@@ -301,6 +301,9 @@ $(document).ready(function () {
     }
 
     function processData(data, app) {
+        if (data.status) {
+            return;
+        }
         var vizType = $("#vizSelector").val();
         app.updateChart(vizType, data.histogram.aggregations, data.indicators.aggregations);
     }
