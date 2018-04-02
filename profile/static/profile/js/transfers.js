@@ -20,7 +20,7 @@ $(document).ready(function () {
                 }
                 return total;
             },
-            render: $.fn.dataTable.render.number(".", ",", 0)
+            render: $.fn.dataTable.render.number(".", ",", 2)
         };
         var datatableOpts = {
             searching: false,
@@ -49,7 +49,7 @@ $(document).ready(function () {
                             return x + b;
                         }, 0);
                         alignClass = "text-center";
-                        value = $.fn.dataTable.render.number(".", ",", 0).display(value);
+                        value = $.fn.dataTable.render.number(".", ",", 2).display(value);
                     }
                     $("#footer" + index).html(value).parent().removeClass("text-center").addClass(alignClass);
                 });
@@ -69,7 +69,7 @@ $(document).ready(function () {
                         }
                         return row[columnName];
                     },
-                    render: $.fn.dataTable.render.number(".", ",", 0),
+                    render: $.fn.dataTable.render.number(".", ",", 2),
                     className: "text-center"
                 };
             });
