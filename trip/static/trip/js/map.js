@@ -239,7 +239,8 @@ function MapApp(opts) {
 
                 if (zoneData !== undefined && zoneData !== null) {
                     this._div.innerHTML +=
-                        "<br/> - # Viajes: " + zoneData.doc_count.toLocaleString() +
+                        "<br/> - # Datos: " + zoneData.doc_count.toLocaleString() +
+                        "<br/> - # Viajes: " + zoneData.expansion_factor.value.toLocaleString() +
                         "<br/> - # Etapas promedio: " + Number(zoneData.n_etapas.value.toFixed(2)).toLocaleString() +
                         "<br/> - Duración promedio: " + Number(zoneData.tviaje.value.toFixed(1)).toLocaleString() + " [min]" +
                         "<br/> - Distancia promedio (en ruta): " + Number((zoneData.distancia_ruta.value / 1000.0).toFixed(2)).toLocaleString() + " [km]" +

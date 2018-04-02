@@ -59,7 +59,7 @@ $(document).ready(function () {
                 grades_str: ["1", "5", "25", "50", "75"],
                 legend_post_str: "",
                 map_fn: function (zone) {
-                    return zone.doc_count;
+                    return zone.expansion_factor.value;
                 }
             }
         };
@@ -119,9 +119,13 @@ $(document).ready(function () {
         };
 
         var printAmountOfData = function () {
-            var quantity = data.hits.total;
-            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "viaje" : "viajes";
-            document.getElementById("visualization_doc_count").innerHTML = quantity.toLocaleString();
+            var tripQuantity = data.aggregations.sum_expansion_factor.value;
+            var dataQuantity = data.hits.total;
+            document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
+            document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
+
+            document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
+            document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
         };
 
         this.setData = function (newData) {

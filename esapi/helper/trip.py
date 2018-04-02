@@ -140,10 +140,11 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('distancia_ruta', 'avg', field='distancia_ruta') \
                 .metric('distancia_eucl', 'avg', field='distancia_eucl') \
                 .metric('expansion_factor', 'sum', field='factor_expansion')
-            # TODO; usar expansion_factor en el javascript
 
         for key in sectors:
             add_remaining(es_query, key, sectors[key])
+
+        es_query.aggs.metric('sum_expansion_factor', 'sum', field='factor_expansion')
 
         return es_query
 
