@@ -30,7 +30,7 @@ class ProfileByExpeditionData(object):
                 return gte, lte
 
     def get_filters(self):
-        return self.profile_file.get_filter_criteria()
+        return self.profile_file.get_filter_criteria(ProfileCSVHelper.FORMATTER_FOR_WEB)
 
     def build_file(self, file_path):
         zip_manager = ZipManager(file_path)
@@ -48,7 +48,7 @@ class ProfileByExpeditionData(object):
         help_file_title = 'ARCHIVO DE PERFILES'
         files_description = [self.profile_file.get_file_description(), shape_file.get_file_description(),
                              stop_file.get_file_description()]
-        data_filter = self.profile_file.get_filter_criteria()
+        data_filter = self.profile_file.get_filter_criteria(ProfileCSVHelper.FORMATTER_FOR_FILE)
         explanation = self.profile_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
 
@@ -61,7 +61,7 @@ class ProfileDataByStop(object):
         self.profile_file = ProfileCSVHelper(self.es_client, self.es_query)
 
     def get_filters(self):
-        return self.profile_file.get_filter_criteria()
+        return self.profile_file.get_filter_criteria(ProfileCSVHelper.FORMATTER_FOR_WEB)
 
     def build_file(self, file_path):
         zip_manager = ZipManager(file_path)
@@ -69,6 +69,6 @@ class ProfileDataByStop(object):
 
         help_file_title = 'ARCHIVO DE PERFILES'
         files_description = [self.profile_file.get_file_description()]
-        data_filter = self.profile_file.get_filter_criteria()
+        data_filter = self.profile_file.get_filter_criteria(ProfileCSVHelper.FORMATTER_FOR_FILE)
         explanation = self.profile_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
