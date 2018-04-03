@@ -198,7 +198,7 @@ class CSVHelper:
         description = ''
         for element in elements:
             if 'group' in element:
-                description += '{0}({1})'.format(sep, self._formatter_for_web(element['value'], '\t{0}'.format(sep)))
+                description += '{0}({1})'.format(sep, self._formatter_for_file(element['value'], '\t{0}'.format(sep)))
             else:
                 value = element['value']
                 if isinstance(value, list):
