@@ -71,4 +71,5 @@ class SpeedData(object):
         template = 'speed.readme'
         files_description = [self.speed_file.get_file_description()]
         data_filter = self.speed_file.get_filter_criteria()
-        zip_manager.build_readme(template, "\r\n".join(files_description), data_filter)
+        explanation = self.speed_file.get_field_explanation()
+        zip_manager.build_readme(template, "\r\n".join(files_description), data_filter, explanation)
