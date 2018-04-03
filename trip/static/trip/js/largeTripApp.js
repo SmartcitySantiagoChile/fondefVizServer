@@ -25,7 +25,7 @@ $(document).ready(function () {
             }
         });
         var slider = $DATA_LIMITS.data("ionRangeSlider");
-        console.log(slider);
+
         // data given by server
         var data = null;
         var mapOpts = {
@@ -111,12 +111,17 @@ $(document).ready(function () {
             data = newData;
             printAmountOfData();
             var values = newData.aggregations.by_zone.buckets.map(function(el){
-                return el.doc_count;
+                return parseFloat(el.expansion_factor.value.toFixed(2));
             });
+            var min = Math.min(...values);
+            var max = Math.max(...values);
             slider.update({
-                min: Math.min(...values),
-                max: Math.max(...values)
+                min: min,
+                max: max,
+                from: min,
+                to: max
             });
+            _self.setDataLimits(min, max);
         };
 
         this.updateMap = function (opts) {
@@ -124,11 +129,7 @@ $(document).ready(function () {
             console.log("updateMap method called!");
             var scale = opts.scale || getColorScale();
             var selectedKPI = 'count';
-            var legendOpts = {
-                grades: mapOpts[selectedKPI].grades,
-                grades_str: mapOpts[selectedKPI].grades_str,
-                legend_post_str: mapOpts[selectedKPI].legend_post_str
-            };
+            var legendOpts = mapOpts[selectedKPI];
             mapApp.refreshMap([], scale, selectedKPI, legendOpts);
         };
 

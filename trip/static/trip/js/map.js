@@ -263,6 +263,7 @@ function MapApp(opts) {
         };
 
         mapLegend.update = function (options) {
+            var name = options.name || "";
             var grades = options.grades;
             var grades_str = options.grades_str;
             var grades_post_str = options.legend_post_str;
@@ -270,7 +271,7 @@ function MapApp(opts) {
 
             // loop through our density intervals and generate a label with a colored square for each interval
             var div = document.getElementById("map_legend");
-            div.innerHTML = "";
+            div.innerHTML = name + "<br />";
             for (var i = 0; i < grades.length - 1; i++) {
                 div.innerHTML += "<i style='background:" + scale[i] + "'></i> " +
                     grades_str[i] + "&ndash;" + grades_str[i + 1] + " " + grades_post_str;
