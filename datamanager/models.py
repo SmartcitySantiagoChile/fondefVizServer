@@ -145,9 +145,9 @@ class ExporterJobExecution(JobExecution):
         (TRIP, 'Viajes'),
         (PROFILE, 'Perfil de carga')
     )
-    fileType = models.CharField(max_length=10, null=False, choices=FILE_TYPE_CHOICES)
+    fileType = models.CharField('Fuente de datos', max_length=10, null=False, choices=FILE_TYPE_CHOICES)
     # to save data downloader (name, filters, etc)
-    filters = models.TextField(null=True)
+    filters = models.TextField('Filtros aplicados',null=True)
 
     class Meta:
         verbose_name = 'Trabajo para exportar datos'

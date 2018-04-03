@@ -51,7 +51,7 @@ class UploaderJobExecutionAdmin(admin.ModelAdmin):
 class ExporterJobExecutionAdmin(admin.ModelAdmin):
     """ manager for job execution """
     fieldsets = (
-        (None, {'fields': ('file', 'query')}),
+        (None, {'fields': ('file', 'query', 'filters', 'fileType')}),
         (None, {'fields': ('enqueueTimestamp', 'jobId', 'status')}),
         (None, {'fields': ('executionStart', 'executionEnd')}),
         (None, {'fields': ('errorMessage',)}),
@@ -75,7 +75,7 @@ class ExporterJobExecutionAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         return 'jobId', 'type', 'status', 'executionStart', 'executionEnd', 'errorMessage', 'enqueueTimestamp', \
-               'file', 'query'
+               'file', 'query', 'filters', 'fileType'
 
 
 admin.site.register(DataSourcePath, DataSourceAdmin)
