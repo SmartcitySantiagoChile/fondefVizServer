@@ -593,7 +593,7 @@ class ShapeCSVHelper(CSVHelper):
     def row_parser(self, row):
         rows = []
 
-        route = row['route']
+        route = row['authRouteCode']
         start_date = row['startDate'][:10]
         points = row['points']
 
