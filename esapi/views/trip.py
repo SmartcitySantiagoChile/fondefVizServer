@@ -303,7 +303,9 @@ class TransfersData(View):
         result = es_query.execute().aggregations
         answer = defaultdict(lambda: defaultdict(lambda: 0))
 
-        for step in [result.first_transfer, result.second_transfer, result.third_transfer]:
+        for step in [result.first_transfer, result.second_transfer, result.third_transfer,
+                     result.first_transfer_to_subway, result.second_transfer_to_subway,
+                     result.third_transfer_to_subway]:
             for from_bucket in step.route_from.buckets:
                 for to_bucket in from_bucket.route_to.buckets:
                     answer[to_bucket.key][from_bucket.key] += to_bucket.expansion_factor.value

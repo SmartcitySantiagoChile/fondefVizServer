@@ -27,7 +27,7 @@ class ESTripHelper(ElasticSearchHelper):
 
         def add_histogram(field, interval, b_min, b_max):
             base_es_query.aggs.bucket(field, 'histogram', field=field, interval=interval,
-                                 min_doc_count=0, extended_bounds={'min': b_min, 'max': b_max}) \
+                                      min_doc_count=0, extended_bounds={'min': b_min, 'max': b_max}) \
                 .metric('bin', 'sum', field='factor_expansion') \
                 .pipeline('total', 'cumulative_sum', buckets_path='bin')
 
@@ -355,10 +355,13 @@ class ESTripHelper(ElasticSearchHelper):
         es_query = self.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types, periods,
                                                       half_hours)
 
-        def add_aggregation(bucket_name, stop_name, additonal_conditions, stage_route_init, stage_route_end):
-            conditions = [{'term': {}}] + additonal_conditions
+        def add_aggregation(bucket_name, stop_name, additonal_conditions, stage_route_init, stage_route_end,
+                            not_conditions=None):
+            conditions = [{'term': {}}]
             conditions[0]['term'][stop_name] = auth_stop_code
-            aggregation = A('filter', Q({'bool': {'must': conditions}}))
+            conditions += additonal_conditions
+            not_conditions = [] if not_conditions is None else not_conditions
+            aggregation = A('filter', Q({'bool': {'must': conditions, 'must_not': not_conditions}}))
 
             transfer_bucket = es_query.aggs.bucket(bucket_name, aggregation)
             transfer_bucket.bucket('route_from', 'terms', field=stage_route_init, size=5000)
@@ -371,16 +374,25 @@ class ESTripHelper(ElasticSearchHelper):
 
             return transfer_bucket
 
-        add_aggregation('first_transfer', 'parada_bajada_1', [{'range': {'n_etapas': {'gt': 1}}}], 'srv_1', 'srv_2')
-        add_aggregation('second_transfer', 'parada_bajada_2', [{'range': {'n_etapas': {'gt': 2}}}], 'srv_2', 'srv_3')
-        add_aggregation('third_transfer', 'parada_bajada_3', [{'range': {'n_etapas': {'gt': 3}}}], 'srv_3', 'srv_4')
+        first_condition = [{'range': {'n_etapas': {'gt': 1}}}]
+        second_condition = [{'range': {'n_etapas': {'gt': 2}}}]
+        third_condition = [{'range': {'n_etapas': {'gt': 3}}}]
+
+        first_not_condition = [{'term': {'tipo_transporte_2': 2}}]
+        second_not_condition = [{'term': {'tipo_transporte_3': 2}}]
+        third_not_condition = [{'term': {'tipo_transporte_4': 2}}]
+
+        add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2', first_not_condition)
+        add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3', second_not_condition)
+        add_aggregation('third_transfer', 'parada_bajada_3', third_condition, 'srv_3', 'srv_4', third_not_condition)
 
         add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2')
         add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3')
         add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4')
         add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None)
 
-        # hay que agregar un or
-        subway = [{'term': {'n_etapas': 1}}, {}]
-        # add_aggregation('first_transfer_is_end', 'parada_bajada_1', , 'srv_1', 'srv_2')
+        add_aggregation('first_transfer_to_subway', 'parada_bajada_1', first_condition + first_not_condition, 'srv_1', 'parada_subida_2')
+        add_aggregation('second_transfer_to_subway', 'parada_bajada_2', second_condition + second_not_condition, 'srv_2', 'parada_subida_3')
+        add_aggregation('third_transfer_to_subway', 'parada_bajada_3', third_condition + third_not_condition, 'srv_3', 'parada_subida_4')
+
         return es_query
