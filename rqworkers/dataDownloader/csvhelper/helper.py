@@ -113,7 +113,7 @@ class CSVHelper:
                                     self.get_column_dict()])
         return explanation
 
-    def _process_filters(self, filters):
+    def _process_filters(self, filters, glue):
         formatted_filters = []
 
         for query_filter in filters:
@@ -156,9 +156,9 @@ class CSVHelper:
                 formatted_filters.append(line)
             elif 'bool' in query_filter:
                 nested_filters = query_filter['bool']['should']
-                formatted_filters.append('({0})'.format(self._process_filters(nested_filters)))
+                formatted_filters.append('({0})'.format(self._process_filters(nested_filters, ' o ')))
 
-        return ' y '.join(formatted_filters)
+        return glue.join(formatted_filters)
 
     def get_filter_criteria(self):
         """ return list used to put in readme file to specify filters applied over data """
@@ -171,7 +171,7 @@ class CSVHelper:
         if not isinstance(filters, list):
             raise FilterHasToBeListError()
 
-        return self._process_filters(filters)
+        return self._process_filters(filters, ' y ')
 
     def row_parser(self, row):
         raise NotImplementedError()
