@@ -23,8 +23,6 @@ To download data from index to file, the usage is:
 
     --host: the IP where ES is running. Default:"127.0.0.1".
     --port: the port that application is listening on. Default: 9200.
-    --chunk: number of docs to be downloaded from ES for each scroll call. Default: 5000.
-    --timeout: timeout for each call to scan. Default:30 (in seconds.)
 
 The default chunk size is the ones that gave the best results when experimenting with different numbers, so using the defaults is recommended.
 

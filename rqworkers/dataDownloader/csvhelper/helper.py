@@ -58,7 +58,7 @@ class ZipManager:
 class CSVHelper:
     """ csv builder helper """
 
-    def __init__(self, es_client, es_query, index_name, chunk_size=5000, timeout=30):
+    def __init__(self, es_client, es_query, index_name):
         self.es_client = es_client
         self.es_query = es_query
         self.index_name = index_name
