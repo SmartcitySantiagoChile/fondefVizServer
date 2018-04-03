@@ -250,9 +250,7 @@ class StrategiesData(PermissionRequiredMixin, View):
                         fourth_type = fourth.additionalInfo.hits.hits[0]['_source']['tipo_transporte_4']
                         fourth_mode = subway if fourth_type == 2 else train if fourth_type == 4 else fourth.key
 
-                        # TODO: expansion factor es cero, consultar con mauricio
-                        value = fourth.expansion_factor.value if fourth.expansion_factor.value != 0 else fourth.doc_count
-                        trips[first_mode][second_mode][third_mode][fourth_mode] += value
+                        trips[first_mode][second_mode][third_mode][fourth_mode] += fourth.expansion_factor.value
 
         return {
             'trips': trips

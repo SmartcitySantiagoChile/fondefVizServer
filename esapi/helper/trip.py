@@ -193,7 +193,8 @@ class ESTripHelper(ElasticSearchHelper):
             .metric('distancia_ruta', 'avg', field='distancia_ruta') \
             .metric('distancia_eucl', 'avg', field='distancia_eucl') \
             .metric('expansion_factor', 'sum', field='factor_expansion')
-        # TODO: usar expansion_factor en el javascript para contar los viajes
+
+        es_query.aggs.metric('sum_expansion_factor', 'sum', field='factor_expansion')
 
         return es_query
 
@@ -218,9 +219,8 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', mediahora_subida=minutes)
         if stages:
             es_query = es_query.filter('terms', n_etapas=stages)
-        # TODO: uncomment this
-        # if modes:
-        #    es_query = es_query.filter('terms', ?=modes)
+        if modes:
+            es_query = es_query.filter('terms', modos=modes)
 
         return es_query
 

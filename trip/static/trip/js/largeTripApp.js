@@ -98,9 +98,13 @@ $(document).ready(function () {
         setScaleSwitch();
 
         var printAmountOfData = function () {
-            var quantity = data.hits.total;
-            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "viaje" : "viajes";
-            document.getElementById("visualization_doc_count").innerHTML = quantity.toLocaleString();
+            var tripQuantity = data.aggregations.sum_expansion_factor.value;
+            var dataQuantity = data.hits.total;
+            document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
+            document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
+
+            document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
+            document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
         };
 
         this.setData = function (newData) {

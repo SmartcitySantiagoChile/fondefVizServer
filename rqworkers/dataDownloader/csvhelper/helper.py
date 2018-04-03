@@ -7,7 +7,8 @@ from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
 from rqworkers.dataDownloader.errors import FilterHasToBeListError
 
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
-    get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input
+    get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input, \
+    get_transport_mode_list_for_select_input
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
@@ -69,6 +70,7 @@ class CSVHelper:
         self.timeperiod_dict = get_timeperiod_list_for_select_input(to_dict=True)
         self.halfhour_dict = get_halfhour_list_for_select_input(to_dict=True, format='name')
         self.commune_dict = get_commune_list_for_select_input(to_dict=True)
+        self.transport_mode_dict = get_transport_mode_list_for_select_input(to_dict=True)
 
         self.translator = self.create_translator()
 
@@ -293,17 +295,24 @@ class SpeedCSVHelper(CSVHelper):
     def get_column_dict(self):
         return [
             {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa que opera el servicio'},
-            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago', 'definition': 'Código transantiago del servicio'},
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago',
+             'definition': 'Código transantiago del servicio'},
             {'es_name': 'userRouteCode', 'csv_name': 'Servicio_usuario', 'definition': 'Código usuario del servicio'},
-            {'es_name': 'section', 'csv_name': 'Identificador_tramo', 'definition': 'Identificador del tramo de 500 metros (ejemplo: tramo 3 corresponde a la sección [1.500, 2.000] de la ruta del servicio)'},
+            {'es_name': 'section', 'csv_name': 'Identificador_tramo',
+             'definition': 'Identificador del tramo de 500 metros (ejemplo: tramo 3 corresponde a la sección [1.500, 2.000] de la ruta del servicio)'},
             {'es_name': 'date', 'csv_name': 'Fecha_de_medición', 'definition': 'Fecha de la medición'},
-            {'es_name': 'periodId', 'csv_name': 'Período_de_medición', 'definition': 'Período de media hora de la medición'},
+            {'es_name': 'periodId', 'csv_name': 'Período_de_medición',
+             'definition': 'Período de media hora de la medición'},
             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'Tipo de día en que se realizó la medicion'},
-            {'es_name': 'totalDistance', 'csv_name': 'Distancia_total', 'definition': 'Distancia recorrida por las expediciones que cruzaron en el tramo en el período de medición'},
-            {'es_name': 'totalTime', 'csv_name': 'Tiempo_total', 'definition': 'Tiempo usado por las expediciones que cruzaron el tramo en el período de medición'},
+            {'es_name': 'totalDistance', 'csv_name': 'Distancia_total',
+             'definition': 'Distancia recorrida por las expediciones que cruzaron en el tramo en el período de medición'},
+            {'es_name': 'totalTime', 'csv_name': 'Tiempo_total',
+             'definition': 'Tiempo usado por las expediciones que cruzaron el tramo en el período de medición'},
             {'es_name': 'speed', 'csv_name': 'Velocidad_m/s', 'definition': 'Velocidad del tramo, período'},
-            {'es_name': 'nObs', 'csv_name': 'Número_observaciones', 'definition': 'Número de puntos gps utilizados para realizar el cálculo de la velocidad'},
-            {'es_name': 'nInvalidObs', 'csv_name': 'Número_observaciones_inválidas', 'definition': 'Número de observaciones no usadas'}
+            {'es_name': 'nObs', 'csv_name': 'Número_observaciones',
+             'definition': 'Número de puntos gps utilizados para realizar el cálculo de la velocidad'},
+            {'es_name': 'nInvalidObs', 'csv_name': 'Número_observaciones_inválidas',
+             'definition': 'Número de observaciones no usadas'}
         ]
 
     def get_data_file_name(self):
@@ -349,21 +358,36 @@ class ODByRouteCSVHelper(CSVHelper):
             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'Tipo de día en que inició la etapa'},
             {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa que opera el servicio'},
             {'es_name': 'userRouteCode', 'csv_name': 'Servicio_usuario', 'definition': 'Código usuario del servicio'},
-            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago', 'definition': 'Código transantiago del servicio'},
-            {'es_name': 'timePeriodInStopTime', 'csv_name': 'Período_transantiago_subida', 'definition': 'Período transantiago en que la expedición pasó por la parada'},
-            {'es_name': 'startStopOrder', 'csv_name': 'Posición_parada_en_ruta_subida', 'definition': 'Posición de la parada de subida en la ruta del servicio'},
-            {'es_name': 'endStopOrder', 'csv_name': 'Posición_parada_en_ruta_bajada', 'definition': 'Posición de la parada de bajada en la ruta del servicio'},
-            {'es_name': 'authStartStopCode', 'csv_name': 'Código_transantiago_parada_subida', 'definition': 'Código transantiago de la parada de subida'},
-            {'es_name': 'authEndStopCode', 'csv_name': 'Código_transantiago_parada_bajada', 'definition': 'Código transantiago de la parada de bajada'},
-            {'es_name': 'userStartStopCode', 'csv_name': 'Código_usuario_parada_subida', 'definition': 'Código usuario de la parada de subida'},
-            {'es_name': 'userEndStopCode', 'csv_name': 'Código_usuario_parada_bajada', 'definition': 'Código usuario de la parada de bajada'},
-            {'es_name': 'startStopName', 'csv_name': 'Nombre_parada_subida', 'definition': 'Nombre de la parada de subida'},
-            {'es_name': 'endStopName', 'csv_name': 'Nombre_parada_subida', 'definition': 'Nombre de la parada de bajada'},
-            {'es_name': 'startZone', 'csv_name': 'Zona_777_subida', 'definition': 'Zona 777 asociada a la parada de subida'},
-            {'es_name': 'endZone', 'csv_name': 'Zona_777_bajada', 'definition': 'Zona 777 asociada a la parada de bajada'},
-            {'es_name': 'tripNumber', 'csv_name': 'Número_etapas', 'definition': 'Número de usuarios que realizó la etapa'},
-            {'es_name': 'tripWithoutLanding', 'csv_name': 'Número_etapas_sin_bajada', 'definition': 'Número de etapas sin bajada'},
-            {'es_name': 'expandedTripNumber', 'csv_name': 'Número_etapas_expandido', 'definition': 'Número de etapas expandido'}
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago',
+             'definition': 'Código transantiago del servicio'},
+            {'es_name': 'timePeriodInStopTime', 'csv_name': 'Período_transantiago_subida',
+             'definition': 'Período transantiago en que la expedición pasó por la parada'},
+            {'es_name': 'startStopOrder', 'csv_name': 'Posición_parada_en_ruta_subida',
+             'definition': 'Posición de la parada de subida en la ruta del servicio'},
+            {'es_name': 'endStopOrder', 'csv_name': 'Posición_parada_en_ruta_bajada',
+             'definition': 'Posición de la parada de bajada en la ruta del servicio'},
+            {'es_name': 'authStartStopCode', 'csv_name': 'Código_transantiago_parada_subida',
+             'definition': 'Código transantiago de la parada de subida'},
+            {'es_name': 'authEndStopCode', 'csv_name': 'Código_transantiago_parada_bajada',
+             'definition': 'Código transantiago de la parada de bajada'},
+            {'es_name': 'userStartStopCode', 'csv_name': 'Código_usuario_parada_subida',
+             'definition': 'Código usuario de la parada de subida'},
+            {'es_name': 'userEndStopCode', 'csv_name': 'Código_usuario_parada_bajada',
+             'definition': 'Código usuario de la parada de bajada'},
+            {'es_name': 'startStopName', 'csv_name': 'Nombre_parada_subida',
+             'definition': 'Nombre de la parada de subida'},
+            {'es_name': 'endStopName', 'csv_name': 'Nombre_parada_subida',
+             'definition': 'Nombre de la parada de bajada'},
+            {'es_name': 'startZone', 'csv_name': 'Zona_777_subida',
+             'definition': 'Zona 777 asociada a la parada de subida'},
+            {'es_name': 'endZone', 'csv_name': 'Zona_777_bajada',
+             'definition': 'Zona 777 asociada a la parada de bajada'},
+            {'es_name': 'tripNumber', 'csv_name': 'Número_etapas',
+             'definition': 'Número de usuarios que realizó la etapa'},
+            {'es_name': 'tripWithoutLanding', 'csv_name': 'Número_etapas_sin_bajada',
+             'definition': 'Número de etapas sin bajada'},
+            {'es_name': 'expandedTripNumber', 'csv_name': 'Número_etapas_expandido',
+             'definition': 'Número de etapas expandido'}
         ]
 
     def get_data_file_name(self):
@@ -407,46 +431,72 @@ class TripCSVHelper(CSVHelper):
 
     def get_column_dict(self):
         return [
-            {'es_name': 'id', 'csv_name': 'identificador_bip_viaje', 'definition': 'identificador de tarjeta bip asociada al viaje'},
+            {'es_name': 'id', 'csv_name': 'identificador_bip_viaje',
+             'definition': 'identificador de tarjeta bip asociada al viaje'},
             {'es_name': 'tipodia', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
-            {'es_name': 'factor_expansion', 'csv_name': 'Factor_expansion', 'definition': 'Factor de expansión asociado al viaje'},
-            {'es_name': 'n_etapas', 'csv_name': 'Número_etapas', 'definition': 'Número de etapas que constituyen el viaje'},
+            {'es_name': 'factor_expansion', 'csv_name': 'Factor_expansion',
+             'definition': 'Factor de expansión asociado al viaje'},
+            {'es_name': 'n_etapas', 'csv_name': 'Número_etapas',
+             'definition': 'Número de etapas que constituyen el viaje'},
             {'es_name': 'tviaje', 'csv_name': 'Tiempo_viaje', 'definition': ''},
-            {'es_name': 'distancia_eucl', 'csv_name': 'Distancia_euclidiana', 'definition': 'Distancia euclidiana del viaje'},
-            {'es_name': 'distancia_ruta', 'csv_name': 'Distancia_considerando_ruta', 'definition': 'distancia considerando la ruta de los modos utilizados durante el viaje'},
+            {'es_name': 'distancia_eucl', 'csv_name': 'Distancia_euclidiana',
+             'definition': 'Distancia euclidiana del viaje'},
+            {'es_name': 'distancia_ruta', 'csv_name': 'Distancia_considerando_ruta',
+             'definition': 'distancia considerando la ruta de los modos utilizados durante el viaje'},
             {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida', 'definition': ''},
             {'es_name': 'tiempo_bajada', 'csv_name': 'Tiempo_bajada', 'definition': ''},
             {'es_name': 'mediahora_subida', 'csv_name': 'Media_hora_subida', 'definition': ''},
             {'es_name': 'mediahora_bajada', 'csv_name': 'Media_hora_bajada', 'definition': ''},
             {'es_name': 'periodo_subida', 'csv_name': 'Periodo_transantiago_subida', 'definition': ''},
             {'es_name': 'periodo_bajada', 'csv_name': 'Período_transantiago_bajada', 'definition': ''},
-            {'es_name': 'tipo_transporte_1', 'csv_name': 'Tipo_transporte_etapa_1', 'definition': 'Modo de transporte utilizado en la etapa 1'},
-            {'es_name': 'tipo_transporte_2', 'csv_name': 'Tipo_transporte_etapa_1', 'definition': 'Modo de transporte utilizado en la etapa 2'},
-            {'es_name': 'tipo_transporte_3', 'csv_name': 'Tipo_transporte_etapa_1', 'definition': 'Modo de transporte utilizado en la etapa 3'},
-            {'es_name': 'tipo_transporte_4', 'csv_name': 'Tipo_transporte_etapa_1', 'definition': 'Modo de transporte utilizado en la etapa 4'},
+            {'es_name': 'tipo_transporte_1', 'csv_name': 'Tipo_transporte_etapa_1',
+             'definition': 'Modo de transporte utilizado en la etapa 1'},
+            {'es_name': 'tipo_transporte_2', 'csv_name': 'Tipo_transporte_etapa_1',
+             'definition': 'Modo de transporte utilizado en la etapa 2'},
+            {'es_name': 'tipo_transporte_3', 'csv_name': 'Tipo_transporte_etapa_1',
+             'definition': 'Modo de transporte utilizado en la etapa 3'},
+            {'es_name': 'tipo_transporte_4', 'csv_name': 'Tipo_transporte_etapa_1',
+             'definition': 'Modo de transporte utilizado en la etapa 4'},
             {'es_name': 'srv_1', 'csv_name': 'Servicio_etapa_1', 'definition': 'Servicio utilizado en la etapa 1'},
             {'es_name': 'srv_2', 'csv_name': 'Servicio_etapa_2', 'definition': 'Servicio utilizado en la etapa 2'},
             {'es_name': 'srv_3', 'csv_name': 'Servicio_etapa_3', 'definition': 'Servicio utilizado en la etapa 3'},
             {'es_name': 'srv_4', 'csv_name': 'Servicio_etapa_4', 'definition': 'Servicio utilizado en la etapa 4'},
             {'es_name': 'paradero_subida', 'csv_name': 'Parada_subida', 'definition': ''},
             {'es_name': 'paradero_bajada', 'csv_name': 'Parada_bajada', 'definition': ''},
-            {'es_name': 'comuna_subida', 'csv_name': 'Comuna_subida', 'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
-            {'es_name': 'comuna_bajada', 'csv_name': 'Comuna_bajada', 'definition': 'Comuna asociada a la parada de bajada de la última etapa del viaje'},
-            {'es_name': 'zona_subida', 'csv_name': 'Zona_777_subida', 'definition': 'Zona 777 asociada a la subida de la etapa 1 del viaje'},
-            {'es_name': 'zona_bajada', 'csv_name': 'Zona_777_bajada', 'definition': 'Zona 777 asociada a la bajada de la última etapa del viaje'},
-            {'es_name': 'modos', 'csv_name': 'Modo_viajes', 'definition': 'Modos de transporte utilizados en el viaje (resumen)'},
-            {'es_name': 'zona_subida_1', 'csv_name': 'Zona_subidad_etapa_1', 'definition': 'Zona 777 asociada a la subida de la etapa 1'},
-            {'es_name': 'zona_bajada_1', 'csv_name': 'Zona_bajada_etapa_1', 'definition': 'Zona 777 asociada a la bajada de la etapa 1'},
-            {'es_name': 'zona_subida_2', 'csv_name': 'Zona_subidad_etapa_2', 'definition': 'Zona 777 asociada a la subida de la etapa 2'},
-            {'es_name': 'zona_bajada_2', 'csv_name': 'Zona_bajada_etapa_2', 'definition': 'Zona 777 asociada a la bajada de la etapa 2'},
-            {'es_name': 'zona_subida_3', 'csv_name': 'Zona_subidad_etapa_3', 'definition': 'Zona 777 asociada a la subida de la etapa 3'},
-            {'es_name': 'zona_bajada_3', 'csv_name': 'Zona_bajada_etapa_3', 'definition': 'Zona 777 asociada a la bajada de la etapa 3'},
-            {'es_name': 'zona_subida_4', 'csv_name': 'Zona_subidad_etapa_4', 'definition': 'Zona 777 asociada a la subida de la etapa 4'},
-            {'es_name': 'zona_bajada_4', 'csv_name': 'Zona_bajada_etapa_4', 'definition': 'Zona 777 asociada a la bajada de la etapa 4'},
-            {'es_name': 'mediahora_bajada_1', 'csv_name': 'mediahora_bajada_etapa_1', 'definition': 'Media hora de la bajada asociada a la etapa 1'},
-            {'es_name': 'mediahora_bajada_2', 'csv_name': 'mediahora_bajada_etapa_2', 'definition': 'Media hora de la bajada asociada a la etapa 2'},
-            {'es_name': 'mediahora_bajada_3', 'csv_name': 'mediahora_bajada_etapa_3', 'definition': 'Media hora de la bajada asociada a la etapa 3'},
-            {'es_name': 'mediahora_bajada_4', 'csv_name': 'mediahora_bajada_etapa_4', 'definition': 'Media hora de la bajada asociada a la etapa 4'},
+            {'es_name': 'comuna_subida', 'csv_name': 'Comuna_subida',
+             'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
+            {'es_name': 'comuna_bajada', 'csv_name': 'Comuna_bajada',
+             'definition': 'Comuna asociada a la parada de bajada de la última etapa del viaje'},
+            {'es_name': 'zona_subida', 'csv_name': 'Zona_777_subida',
+             'definition': 'Zona 777 asociada a la subida de la etapa 1 del viaje'},
+            {'es_name': 'zona_bajada', 'csv_name': 'Zona_777_bajada',
+             'definition': 'Zona 777 asociada a la bajada de la última etapa del viaje'},
+            {'es_name': 'modos', 'csv_name': 'Modo_viajes',
+             'definition': 'Modos de transporte utilizados en el viaje (resumen)'},
+            {'es_name': 'zona_subida_1', 'csv_name': 'Zona_subidad_etapa_1',
+             'definition': 'Zona 777 asociada a la subida de la etapa 1'},
+            {'es_name': 'zona_bajada_1', 'csv_name': 'Zona_bajada_etapa_1',
+             'definition': 'Zona 777 asociada a la bajada de la etapa 1'},
+            {'es_name': 'zona_subida_2', 'csv_name': 'Zona_subidad_etapa_2',
+             'definition': 'Zona 777 asociada a la subida de la etapa 2'},
+            {'es_name': 'zona_bajada_2', 'csv_name': 'Zona_bajada_etapa_2',
+             'definition': 'Zona 777 asociada a la bajada de la etapa 2'},
+            {'es_name': 'zona_subida_3', 'csv_name': 'Zona_subidad_etapa_3',
+             'definition': 'Zona 777 asociada a la subida de la etapa 3'},
+            {'es_name': 'zona_bajada_3', 'csv_name': 'Zona_bajada_etapa_3',
+             'definition': 'Zona 777 asociada a la bajada de la etapa 3'},
+            {'es_name': 'zona_subida_4', 'csv_name': 'Zona_subidad_etapa_4',
+             'definition': 'Zona 777 asociada a la subida de la etapa 4'},
+            {'es_name': 'zona_bajada_4', 'csv_name': 'Zona_bajada_etapa_4',
+             'definition': 'Zona 777 asociada a la bajada de la etapa 4'},
+            {'es_name': 'mediahora_bajada_1', 'csv_name': 'mediahora_bajada_etapa_1',
+             'definition': 'Media hora de la bajada asociada a la etapa 1'},
+            {'es_name': 'mediahora_bajada_2', 'csv_name': 'mediahora_bajada_etapa_2',
+             'definition': 'Media hora de la bajada asociada a la etapa 2'},
+            {'es_name': 'mediahora_bajada_3', 'csv_name': 'mediahora_bajada_etapa_3',
+             'definition': 'Media hora de la bajada asociada a la etapa 3'},
+            {'es_name': 'mediahora_bajada_4', 'csv_name': 'mediahora_bajada_etapa_4',
+             'definition': 'Media hora de la bajada asociada a la etapa 4'},
             {'es_name': 'parada_subida_1', 'csv_name': 'parada_subida_1', 'definition': ''},
             {'es_name': 'parada_subida_2', 'csv_name': 'parada_subida_2', 'definition': ''},
             {'es_name': 'parada_subida_3', 'csv_name': 'parada_subida_3', 'definition': ''},
@@ -455,10 +505,14 @@ class TripCSVHelper(CSVHelper):
             {'es_name': 'parada_bajada_2', 'csv_name': 'parada_bajada_2', 'definition': ''},
             {'es_name': 'parada_bajada_3', 'csv_name': 'parada_bajada_3', 'definition': ''},
             {'es_name': 'parada_bajada_4', 'csv_name': 'parada_bajada_4', 'definition': ''},
-            {'es_name': 'periodo_bajada_1', 'csv_name': 'periodo_bajada_etapa_1', 'definition': 'Período transantiago de bajada asociada a la etapa 1'},
-            {'es_name': 'periodo_bajada_2', 'csv_name': 'periodo_bajada_etapa_2', 'definition': 'Período transantiago de bajada asociada a la etapa 2'},
-            {'es_name': 'periodo_bajada_3', 'csv_name': 'periodo_bajada_etapa_3', 'definition': 'Período transantiago de bajada asociada a la etapa 3'},
-            {'es_name': 'periodo_bajada_4', 'csv_name': 'periodo_bajada_etapa_4', 'definition': 'Período transantiago de bajada asociada a la etapa 4'}
+            {'es_name': 'periodo_bajada_1', 'csv_name': 'periodo_bajada_etapa_1',
+             'definition': 'Período transantiago de bajada asociada a la etapa 1'},
+            {'es_name': 'periodo_bajada_2', 'csv_name': 'periodo_bajada_etapa_2',
+             'definition': 'Período transantiago de bajada asociada a la etapa 2'},
+            {'es_name': 'periodo_bajada_3', 'csv_name': 'periodo_bajada_etapa_3',
+             'definition': 'Período transantiago de bajada asociada a la etapa 3'},
+            {'es_name': 'periodo_bajada_4', 'csv_name': 'periodo_bajada_etapa_4',
+             'definition': 'Período transantiago de bajada asociada a la etapa 4'}
         ]
 
     def get_data_file_name(self):
@@ -479,13 +533,15 @@ class TripCSVHelper(CSVHelper):
                 elif column_name in ['mediahora_subida', 'mediahora_bajada', 'mediahora_bajada_1', 'mediahora_bajada_2',
                                      'mediahora_bajada_3', 'mediahora_bajada_4']:
                     value = self.halfhour_dict[value]
-                elif column_name == ['periodo_subida', 'periodo_bajada', 'periodo_bajada_1', 'periodo_bajada_2',
+                elif column_name in ['periodo_subida', 'periodo_bajada', 'periodo_bajada_1', 'periodo_bajada_2',
                                      'periodo_bajada_3', 'periodo_bajada_4']:
                     value = self.timeperiod_dict[value]
-                elif column_name == ['tipo_transporte_1', 'tipo_transporte_2', 'tipo_transporte_3',
+                elif column_name in ['tipo_transporte_1', 'tipo_transporte_2', 'tipo_transporte_3',
                                      'tipo_transporte_4']:
                     # TODO: apply dictionary
                     value = value
+                elif column_name in ['modos']:
+                    value = self.transport_mode_dict[value]
                 elif column_name in ['comuna_subida', 'comuna_bajada']:
                     value = self.commune_dict[value]
             except KeyError:
@@ -512,10 +568,12 @@ class ShapeCSVHelper(CSVHelper):
         """ this class uses this just to build csv header """
         return [
             {'es_name': 'route', 'csv_name': 'Servicio_transantiago', 'definition': 'Código transantiago del servicio'},
-            {'es_name': 'startDate', 'csv_name': 'Fecha_inicio_programa_operación', 'definition': 'Fecha de inicio del programa de operación desde el que esta geometría es válida'},
+            {'es_name': 'startDate', 'csv_name': 'Fecha_inicio_programa_operación',
+             'definition': 'Fecha de inicio del programa de operación desde el que esta geometría es válida'},
             {'es_name': '', 'csv_name': 'Latitud', 'definition': 'Latitud'},
             {'es_name': '', 'csv_name': 'Longitud', 'definition': 'Longitud'},
-            {'es_name': '', 'csv_name': 'Inicio_segmento_500m', 'definition': 'Indica si el punto corresponde al inicio de un tramo de 500 metros (1: si, 0: no)'}
+            {'es_name': '', 'csv_name': 'Inicio_segmento_500m',
+             'definition': 'Indica si el punto corresponde al inicio de un tramo de 500 metros (1: si, 0: no)'}
         ]
 
     def get_data_file_name(self):
@@ -563,10 +621,13 @@ class StopByRouteCSVHelper(CSVHelper):
         """ this class uses this just to build csv header """
         return [
             {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa que opera el servicio'},
-            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago', 'definition': 'Código transantiago del servicio'},
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_transantiago',
+             'definition': 'Código transantiago del servicio'},
             {'es_name': 'userRouteCode', 'csv_name': 'Servicio_usuario', 'definition': 'Código usuario del servicio'},
-            {'es_name': 'startDate', 'csv_name': 'Fecha_inicio_programa_operación', 'definition': 'Fecha de inicio del programa de operación desde el que esta ruta es válida'},
-            {'es_name': '', 'csv_name': 'Posición_en_ruta', 'definition': 'Posición de la parada dentro de la secuencia de paradas del servicio'},
+            {'es_name': 'startDate', 'csv_name': 'Fecha_inicio_programa_operación',
+             'definition': 'Fecha de inicio del programa de operación desde el que esta ruta es válida'},
+            {'es_name': '', 'csv_name': 'Posición_en_ruta',
+             'definition': 'Posición de la parada dentro de la secuencia de paradas del servicio'},
             {'es_name': '', 'csv_name': 'Latitud', 'definition': 'Latitud'},
             {'es_name': '', 'csv_name': 'Longitud', 'definition': 'longitud'},
             {'es_name': '', 'csv_name': 'Código_parada_transantiago', 'definition': 'Código transantiago de la parada'},
