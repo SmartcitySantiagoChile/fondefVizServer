@@ -193,19 +193,18 @@ class CSVHelper:
 
         return description[2:]
 
-    def _formatter_for_file(self, elements, sep='\t- '):
-        break_line = '\r\n'
+    def _formatter_for_file(self, elements, sep='\t- ', break_line='\r\n', cut_first_two=False):
         description = ''
         for element in elements:
             if 'group' in element:
-                description += '{0}({1})'.format(sep, self._formatter_for_file(element['value'], ' o '))
+                description += '{0}({1})'.format(sep, self._formatter_for_file(element['value'], ' o ', '', True))
             else:
                 value = element['value']
                 if isinstance(value, list):
                     value = ' o '.join(value)
                 description += '{0}{1}: {2}{3}'.format(sep, element['field'], value, break_line)
 
-        return description
+        return description if not cut_first_two else description[2:]
 
     def get_filter_criteria(self, formatter):
         """ return list used to put in readme file to specify filters applied over data """
