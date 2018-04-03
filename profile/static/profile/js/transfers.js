@@ -107,6 +107,7 @@ $(document).ready(function () {
         }
 
         var endOfTripLabel = "Fin de viaje";
+        var unknownLabel = "Desconocido";
         var data = dataSource.data;
         var rows = [];
         var columns = [];
@@ -115,13 +116,20 @@ $(document).ready(function () {
             if (key === "end") {
                 key = endOfTripLabel;
             }
+            else if (key === "-") {
+                key = unknownLabel;
+            }
             var row = {
                 to: key
             };
             for (var route_from in data[route_to]) {
-                row[route_from] = data[route_to][route_from];
-                if (columns.indexOf(route_from) < 0) {
-                    columns.push(route_from);
+                var rowLabel = route_from;
+                if (route_from === "-") {
+                    rowLabel = unknownLabel;
+                }
+                row[rowLabel] = data[route_to][route_from];
+                if (columns.indexOf(rowLabel) < 0) {
+                    columns.push(rowLabel);
                 }
             }
             rows.push(row);
