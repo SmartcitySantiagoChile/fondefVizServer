@@ -191,7 +191,7 @@ class CSVHelper:
                     value = ' o '.join(value)
                 description += '{0}{1}: {2}{3}'.format(sep, element['field'], value, break_line)
 
-        return description
+        return description[2:]
 
     def _formatter_for_file(self, elements, sep='\t- '):
         break_line = '\r\n'
@@ -221,7 +221,7 @@ class CSVHelper:
         if formatter == self.FORMATTER_FOR_FILE:
             return self._formatter_for_file(self._process_filters(filters))
         elif formatter == self.FORMATTER_FOR_WEB:
-            return self._process_filters(filters)
+            return self._formatter_for_web(self._process_filters(filters))
         else:
             raise WrongFormatterError()
 
