@@ -156,7 +156,7 @@ class CSVHelper:
                 formatted_filters.append(line)
             elif 'bool' in query_filter:
                 nested_filters = query_filter['bool']['should']
-                formatted_filters.append('({0})'.format(self._process_filters(nested_filters, ' Y ')))
+                formatted_filters.append('({0})'.format(self._process_filters(nested_filters, ' o ')))
 
         return glue.join(formatted_filters)
 
@@ -171,7 +171,7 @@ class CSVHelper:
         if not isinstance(filters, list):
             raise FilterHasToBeListError()
 
-        return self._process_filters(filters, ' Y ')
+        return self._process_filters(filters, '\r\n')
 
     def row_parser(self, row):
         raise NotImplementedError()
