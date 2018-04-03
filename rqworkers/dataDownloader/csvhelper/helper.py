@@ -30,6 +30,10 @@ SPEED_MATRIX_DATA = 'speed_matrix_data'
 TRIP_DATA = 'trip_data'
 
 
+class WrongFormatterError(Exception):
+    pass
+
+
 class ZipManager:
     """ to manage zip file """
 
@@ -57,6 +61,8 @@ class ZipManager:
 
 class CSVHelper:
     """ csv builder helper """
+    FORMATTER_FOR_WEB = 'for_web'
+    FORMATTER_FOR_FILE = 'for_file'
 
     def __init__(self, es_client, es_query, index_name):
         self.es_client = es_client
@@ -113,7 +119,7 @@ class CSVHelper:
                                     self.get_column_dict()])
         return explanation
 
-    def _process_filters(self, filters, glue):
+    def _process_filters(self, filters):
         formatted_filters = []
 
         for query_filter in filters:
@@ -122,8 +128,11 @@ class CSVHelper:
                 value = query_filter['term'][field]
                 field = field.split('.')[0]
 
-                line = '{0}: {1}'.format(self.translator[field], value)
-                formatted_filters.append(line)
+                attr_filter = {
+                    'field': self.translator[field],
+                    'value': value
+                }
+                formatted_filters.append(attr_filter)
             elif 'terms' in query_filter:
                 # ignore operator filter
                 if 'operator' in query_filter['terms']:
@@ -140,27 +149,65 @@ class CSVHelper:
                                'mediahora_bajada_2', 'mediahora_bajada_3', 'mediahora_bajada_4']:
                     values = [self.halfhour_dict[int(x)] for x in values]
 
-                header = '{0}:'.format(self.translator[field])
                 formatted_values = []
                 for value in values:
-                    line = '{0}'.format(value)
-                    formatted_values.append(line)
+                    formatted_values.append(value)
 
-                formatted_filters.append('{0} {1}'.format(header, ' O '.join(formatted_values)))
+                attr_filter = {
+                    'field': self.translator[field],
+                    'value': formatted_values
+                }
+                formatted_filters.append(attr_filter)
             elif 'range' in query_filter:
                 field = query_filter['range'].keys()[0]
                 gte = query_filter['range'][field]["gte"].replace("||/d", "")
                 lte = query_filter['range'][field]["lte"].replace("||/d", "")
 
-                line = '{0}: entre {1} 00:00:00 y {2} 23:59:59'.format(self.translator[field], gte, lte)
-                formatted_filters.append(line)
+                attr_filter = {
+                    'field': self.translator[field],
+                    'value': 'entre {0} 00:00:00 y {1} 23:59:59'.format(gte, lte)
+                }
+                formatted_filters.append(attr_filter)
             elif 'bool' in query_filter:
                 nested_filters = query_filter['bool']['should']
-                formatted_filters.append('({0})'.format(self._process_filters(nested_filters, ' o ')))
+                attr_filter = {
+                    'group': True,
+                    'field': '',
+                    'value': self._process_filters(nested_filters)
+                }
+                formatted_filters.append(attr_filter)
 
-        return glue.join(formatted_filters)
+        return formatted_filters
 
-    def get_filter_criteria(self):
+    def _formatter_for_web(self, elements, sep=' y '):
+        break_line = '<br />'
+        description = ''
+        for element in elements:
+            if 'group' in element:
+                description += '({0})'.format(self._formatter_for_web(element['value'], ' o '))
+            else:
+                value = element['value']
+                if isinstance(value, list):
+                    value = ' o '.join(value)
+                description += '{0}{1}: {2}{3}'.format(sep, element['field'], value, break_line)
+
+        return description
+
+    def _formatter_for_file(self, elements, sep='\t- '):
+        break_line = '\r\n'
+        description = ''
+        for element in elements:
+            if 'group' in element:
+                description += '{0}({1})'.format(sep, self._formatter_for_web(element['value'], '\t{0}'.format(sep)))
+            else:
+                value = element['value']
+                if isinstance(value, list):
+                    value = ' o '.join(value)
+                description += '{0}{1}: {2}{3}'.format(sep, element['field'], value, break_line)
+
+        return description
+
+    def get_filter_criteria(self, formatter):
         """ return list used to put in readme file to specify filters applied over data """
 
         if 'bool' not in self.es_query['query']:
@@ -171,7 +218,12 @@ class CSVHelper:
         if not isinstance(filters, list):
             raise FilterHasToBeListError()
 
-        return self._process_filters(filters, '\r\n')
+        if formatter == self.FORMATTER_FOR_FILE:
+            return self._formatter_for_file(self._process_filters(filters))
+        elif formatter == self.FORMATTER_FOR_WEB:
+            return self._process_filters(filters)
+        else:
+            raise WrongFormatterError()
 
     def row_parser(self, row):
         raise NotImplementedError()

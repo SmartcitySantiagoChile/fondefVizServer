@@ -30,7 +30,7 @@ class OdByRouteData(object):
                 return gte, lte
 
     def get_filters(self):
-        return self.od_by_route_file.get_filter_criteria()
+        return self.od_by_route_file.get_filter_criteria(ODByRouteCSVHelper.FORMATTER_FOR_WEB)
 
     def build_file(self, file_path):
         zip_manager = ZipManager(file_path)
@@ -48,6 +48,6 @@ class OdByRouteData(object):
         help_file_title = 'ARCHIVO DE MATRIZ DE ETAPA POR SERVICIO'
         files_description = [self.od_by_route_file.get_file_description(), shape_file.get_file_description(),
                              stop_file.get_file_description()]
-        data_filter = self.od_by_route_file.get_filter_criteria()
+        data_filter = self.od_by_route_file.get_filter_criteria(ODByRouteCSVHelper.FORMATTER_FOR_FILE)
         explanation = self.od_by_route_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
