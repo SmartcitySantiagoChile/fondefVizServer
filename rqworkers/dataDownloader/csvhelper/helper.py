@@ -204,7 +204,7 @@ class CSVHelper:
                     value = ' o '.join(value)
                 description += '{0}{1}: {2}{3}'.format(sep, element['field'], value, break_line)
 
-        return description if not cut_first_two else description[2:]
+        return description if not cut_first_two else '{0}\r\n'.format(description[2:])
 
     def get_filter_criteria(self, formatter):
         """ return list used to put in readme file to specify filters applied over data """
