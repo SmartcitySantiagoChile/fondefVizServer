@@ -17,7 +17,7 @@ $(document).ready(function () {
         var vel_range = ["Sin Datos Mes", "< 30%", "]30% - 45%]", "]45% - 60%]", "]60% - 75%]", "]75% - 90%]", "]90% - 100%]", "> 100%", "Sin Datos Dia"];
 
         var colors = ["#ffffff", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#007f00", "#0000ff", "#dfdfdf"];
-        var options = {
+        var metaOptions = {
             tooltip: {
                 position: "top",
                 formatter: ""
@@ -110,10 +110,10 @@ $(document).ready(function () {
         };
 
         this.updateChart = function (nReal, data, routes, variations) {
-            var val = "" + (130 + Math.min(nReal, nPerPag) * 15) + "px";
+            var val = "" + (130 + nPerPag * 15) + "px";
             $("#main").css("height", val);
-            mChart.resize({height: val});
 
+            var options = $.extend({}, metaOptions);
             if (nReal > nPerPag) {
                 options.dataZoom = {
                     type: "slider",
@@ -126,7 +126,6 @@ $(document).ready(function () {
             }
             options.series[0].data = data;
             options.yAxis.data = routes;
-            options.grid.height = (Math.min(nReal, nPerPag) * 15) + "px";
 
             var formatter = function (obj) {
                 var s = "Horario: entre " + periods[obj.data[0]] + " y " + periods[(obj.data[0] + 1) % periods.length];
@@ -150,7 +149,10 @@ $(document).ready(function () {
             options.tooltip.formatter = formatter;
             console.log(nReal, nPerPag, 100 * nPerPag / nReal);
 
-            mChart.setOption(options);
+            mChart.setOption(options, {
+                notMerge: true
+            });
+            mChart.resize({});
         };
 
         this.showLoadingAnimationCharts = function () {
