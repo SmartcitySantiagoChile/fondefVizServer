@@ -34,7 +34,7 @@ $(document).ready(function () {
                     render: function (data) {
                         var link = "";
                         if (data !== "") {
-                            link = "<a href='" + data + "'>Descargar</a>";
+                            link = "<a class='btn btn-success btn-lg' href='" + data + "'>Descargar</a>";
                         }
                         return link;
                     }
