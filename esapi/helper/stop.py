@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from elasticsearch_dsl import Search, A
+from elasticsearch_dsl import Search, A, Q
 from elasticsearch_dsl.query import Match
 
 from esapi.helper.basehelper import ElasticSearchHelper
+from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateParametersDoesNotExist, \
+    ESQueryStopInfoDoesNotExist
 
 
 class ESStopHelper(ElasticSearchHelper):
@@ -41,3 +43,26 @@ class ESStopHelper(ElasticSearchHelper):
             answer += [(ans.key, ans.additional_info.hits[0].authCode) for ans in result.aggregations.unique.buckets]
 
         return answer
+
+    def get_stop_info(self, start_date, auth_stop_code):
+        """ ask to elasticsearch for a match values """
+
+        if not auth_stop_code:
+            raise ESQueryStopParameterDoesNotExist()
+        if not start_date:
+            raise ESQueryDateParametersDoesNotExist()
+
+        es_query = self.get_base_query().filter('term', **{'authCode.raw': auth_stop_code})
+        es_query = es_query.filter('range', startDate={
+            'lte': start_date,
+            'format': 'yyyy-MM-dd'
+        }).sort('-startDate')[:1]
+
+        try:
+            stop_info = es_query.execute().hits.hits[0]['_source']
+            del stop_info['path']
+            del stop_info['timestamp']
+        except IndexError:
+            raise ESQueryStopInfoDoesNotExist()
+
+        return stop_info

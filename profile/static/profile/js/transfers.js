@@ -78,6 +78,12 @@ $(document).ready(function () {
             return columnsConf.concat(newColumns);
         };
 
+        this.updateStopInfo = function(stopInfo) {
+            $("#stopName").html(stopInfo.name);
+            $("#userStopCode").html(stopInfo.userCode);
+            $("#authStopCode").html(stopInfo.authCode);
+        };
+
         this.updateTable = function (rows, columns) {
             if (datatableInstance !== null) {
                 datatableInstance.destroy();
@@ -136,6 +142,7 @@ $(document).ready(function () {
         }
 
         app.updateTable(rows, columns);
+        app.updateStopInfo(dataSource.stopInfo);
     }
 
     // load filters

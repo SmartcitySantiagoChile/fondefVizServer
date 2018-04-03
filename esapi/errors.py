@@ -172,7 +172,7 @@ class ESQueryShapeDoesNotExist(FondefVizError):
 
     def __init__(self):
         message = 'No existe la geometría para el servicio'
-        super(ESQueryShapeDoesNotExist, self).__init__(414, message)
+        super(ESQueryShapeDoesNotExist, self).__init__(415, message)
 
 
 class ESQueryDateParametersDoesNotExist(FondefVizError):
@@ -180,4 +180,12 @@ class ESQueryDateParametersDoesNotExist(FondefVizError):
 
     def __init__(self):
         message = 'Debe indicar una fecha'
-        super(ESQueryDateParametersDoesNotExist, self).__init__(415, message)
+        super(ESQueryDateParametersDoesNotExist, self).__init__(416, message)
+
+
+class ESQueryStopInfoDoesNotExist(FondefVizError):
+    """ It raises when user ask for stop info but this one does not exist """
+
+    def __init__(self):
+        message = 'No existe información de la parada en el período consultado'
+        super(ESQueryStopInfoDoesNotExist, self).__init__(417, message)

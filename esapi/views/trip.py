@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from collections import defaultdict
 
 from esapi.helper.trip import ESTripHelper
+from esapi.helper.stop import ESStopHelper
 from esapi.errors import FondefVizError, ESQueryResultEmpty
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
@@ -336,18 +337,20 @@ class TransfersData(View):
 
         response = {}
 
-        es_helper = ESTripHelper()
+        es_trip_helper = ESTripHelper()
+        es_stop_helper = ESStopHelper()
 
         try:
             if export_data:
-                es_query = es_helper.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types,
+                es_query = es_trip_helper.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types,
                                                                    periods, half_hours)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query = es_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
+                es_query = es_trip_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
                                                         half_hours)[:0]
                 response.update(self.process_data(es_query))
+                response['stopInfo'] = es_stop_helper.get_stop_info(start_date, auth_stop_code)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
