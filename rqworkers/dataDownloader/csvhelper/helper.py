@@ -146,7 +146,7 @@ class CSVHelper:
                     line = '{0}'.format(value)
                     formatted_values.append(line)
 
-                formatted_filters.append('{0} {1}'.format(header, ' o '.join(formatted_values)))
+                formatted_filters.append('{0} {1}'.format(header, ' O '.join(formatted_values)))
             elif 'range' in query_filter:
                 field = query_filter['range'].keys()[0]
                 gte = query_filter['range'][field]["gte"].replace("||/d", "")
@@ -156,7 +156,7 @@ class CSVHelper:
                 formatted_filters.append(line)
             elif 'bool' in query_filter:
                 nested_filters = query_filter['bool']['should']
-                formatted_filters.append('({0})'.format(self._process_filters(nested_filters, ' o ')))
+                formatted_filters.append('({0})'.format(self._process_filters(nested_filters, ' Y ')))
 
         return glue.join(formatted_filters)
 
@@ -171,7 +171,7 @@ class CSVHelper:
         if not isinstance(filters, list):
             raise FilterHasToBeListError()
 
-        return self._process_filters(filters, ' y ')
+        return self._process_filters(filters, ' Y ')
 
     def row_parser(self, row):
         raise NotImplementedError()
