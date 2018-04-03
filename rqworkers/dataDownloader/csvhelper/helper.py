@@ -122,7 +122,7 @@ class CSVHelper:
                 value = query_filter['term'][field]
                 field = field.split('.')[0]
 
-                line = '\t\t- {0}: {1}'.format(self.translator[field], value)
+                line = '{0}: {1}'.format(self.translator[field], value)
                 formatted_filters.append(line)
             elif 'terms' in query_filter:
                 # ignore operator filter
@@ -130,7 +130,7 @@ class CSVHelper:
                     continue
                 field = query_filter['terms'].keys()[0]
                 values = query_filter['terms'][field]
-                print(field)
+
                 if field in ['dayType', 'tipodia']:
                     values = [self.day_type_dict[int(x)] for x in values]
                 elif field in ['timePeriodInStartTime', 'timePeriodInStopTime', 'periodo_bajada_1',
@@ -140,25 +140,25 @@ class CSVHelper:
                                'mediahora_bajada_2', 'mediahora_bajada_3', 'mediahora_bajada_4']:
                     values = [self.halfhour_dict[int(x)] for x in values]
 
-                header = '\t\t- {0}:'.format(self.translator[field])
+                header = '{0}:'.format(self.translator[field])
                 formatted_values = []
                 for value in values:
                     line = '{0}'.format(value)
                     formatted_values.append(line)
 
-                formatted_filters.append('{0} {1}'.format(header, ', '.join(formatted_values)))
+                formatted_filters.append('{0} {1}'.format(header, ' o '.join(formatted_values)))
             elif 'range' in query_filter:
                 field = query_filter['range'].keys()[0]
                 gte = query_filter['range'][field]["gte"].replace("||/d", "")
                 lte = query_filter['range'][field]["lte"].replace("||/d", "")
 
-                line = '\t\t- {0}: {1} - {2}'.format(self.translator[field], gte, lte)
+                line = '{0}: entre {1} 00:00:00 y {2} 23:59:59'.format(self.translator[field], gte, lte)
                 formatted_filters.append(line)
             elif 'bool' in query_filter:
                 nested_filters = query_filter['bool']['should']
-                formatted_filters.append('[{0}]'.format(self._process_filters(nested_filters)))
+                formatted_filters.append('({0})'.format(self._process_filters(nested_filters)))
 
-        return '{0}'.format(os.linesep).join(formatted_filters)
+        return ' y '.join(formatted_filters)
 
     def get_filter_criteria(self):
         """ return list used to put in readme file to specify filters applied over data """
