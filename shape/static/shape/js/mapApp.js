@@ -47,9 +47,7 @@ $(document).ready(function () {
 
         var layers = {};
 
-        this.addPolyline = function (layerId, points, stops, route) {
-            // clean featureGroup
-            layers[layerId].clearLayers();
+        this.addPolyline = function (layer, points, stops, route) {
             // markers
             stops.forEach(function (stop) {
                 var latLng = L.latLng(stop.latitude, stop.longitude);
@@ -63,7 +61,7 @@ $(document).ready(function () {
                     zIndexOffset: -1000 // send stops below other layers
                 });
                 marker.bindPopup("<p> Servicio: <b>" + route + "</b><br /> Nombre: <b>" + stop.stopName + "</b><br /> Código transantiago: <b>" + stop.authStopCode + "</b><br /> Código usuario: <b>" + stop.userStopCode + "</b><br /> Posición en la ruta: <b>" + stop.order + "</b><p>");
-                layers[layerId].addLayer(marker);
+                layer.addLayer(marker);
             });
             // polyline
             points = points.map(function (el) {
@@ -74,8 +72,8 @@ $(document).ready(function () {
                 color: "black",
                 smoothFactor: 5.0
             });
-            layers[layerId].addLayer(polyline);
-            layers[layerId].addLayer(L.polylineDecorator(polyline, {
+            layer.addLayer(polyline);
+            layer.addLayer(L.polylineDecorator(polyline, {
                 patterns: [{
                     offset: 0,
                     endOffset: 0,
@@ -93,14 +91,17 @@ $(document).ready(function () {
             }));
 
             var bound = null;
-            for (layerId in layers) {
+            mapInstance.eachLayer(function (mapLayer) {
+                if (!(mapLayer instanceof L.LayerGroup || mapLayer instanceof L.FeatureGroup)) {
+                    return;
+                }
                 if (bound === null) {
-                    bound = layers[layerId].getBounds();
+                    bound = mapLayer.getBounds();
                 } else {
-                    var otherBound = layers[layerId].getBounds();
+                    var otherBound = mapLayer.getBounds();
                     bound = bound.extend(otherBound.getNorthEast());
                 }
-            }
+            });
             if (bound !== null) {
                 mapInstance.flyToBounds(bound);
             }
@@ -124,7 +125,10 @@ $(document).ready(function () {
                     }
 
                     // update map
-                    _self.addPolyline(layerId, data.points, data.stops, route);
+                    // clean featureGroup
+                    layers[layerId].clearLayers();
+                    var layer = layers[layerId]
+                    _self.addPolyline(layer, data.points, data.stops, route);
                 });
             });
         };
