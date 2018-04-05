@@ -12,13 +12,21 @@ function MapApp(opts) {
     var maxBounds = opts.maxBounds || L.latLngBounds(L.latLng(-33.697721, -70.942223), L.latLng(-33.178138, -70.357465));
     var showMetroStations= opts.showMetroStations===undefined?true:opts.showMetroStations;
     var showMacroZones = opts.showMacroZones===undefined?true:opts.showMacroZones;
+    var tileLayer = opts.tileLayer || "light";
+    var mapStartLocation = opts.startLocation || L.latLng(-33.459229, -70.645348);
+
+    var tileLayerURL = {
+        "light": "https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}",
+        "dark": "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}"
+    };
+    tileLayer = tileLayerURL[tileLayer];
 
     /* map options */
-    var mapDefaultLocation = L.latLng(-33.459229, -70.645348);
-    var accessToken = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
+    var accessToken = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
+    //var accessToken = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
 
-    var map = L.map(mapId).setView(mapDefaultLocation, minZoom);
-    L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
+    var map = L.map(mapId).setView(mapStartLocation, minZoom);
+    L.tileLayer(tileLayer, {
         attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
         minZoom: minZoom,
         maxZoom: maxZoom,
