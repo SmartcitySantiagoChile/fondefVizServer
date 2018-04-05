@@ -91,16 +91,21 @@ def export_data_job(es_query_dict, downloader):
     job_execution_obj.file.save(file_name, File(open(zip_file)))
 
     try:
-        subject = 'Los datos se encuentran disponibles'
+        subject = 'Los datos solicitados ya se encuentran disponibles'
         body = """
-        Los datos que ha solicitado están disponibles en la siguiente dirección:
+        Hola
         
-        {0}
+        Los datos que ha solicitado ya están disponibles en la platafora. Para acceder a ellos siga los siguientes pasos: 
         
-        El link estará disponible por 30 días, luego de eso tendrá que volver a generar la consulta.
+        - Ingrese a la plataforma
+        - En la sección superior derecha seleccione su nombre de ususario, se desplegará un menú
+        - En el menú presionar "Solicitudes de descarga"
+        - En este punto encontrará una lista con todas las solicitudes de datos ordenadas por antiguedad
+        
+        Recuerde que el archivo estará disponible por 30 días, luego de eso tendrá que volver a generar la consulta.
         
         Saludos
-        """.format(job_execution_obj.file.url)
+        """
         sender = 'noreply@transapp.cl'
         send_mail(subject, body, sender, [job_execution_obj.user.email])
 
