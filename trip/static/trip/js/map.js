@@ -426,7 +426,11 @@ function MapApp(opts) {
         }
     };
 
-    this.addPolyline = function (layer, points, stops, route) {
+    this.addPolyline = function (layer, points, opts) {
+        var stops = opts.stops || [];
+        var route = opts.route || null;
+        var drawSense = opts.drawSense || true;
+
         // markers
         stops.forEach(function (stop) {
             _self.addStop(layer, stop, {
@@ -443,22 +447,24 @@ function MapApp(opts) {
             smoothFactor: 5.0
         });
         layer.addLayer(polyline);
-        layer.addLayer(L.polylineDecorator(polyline, {
-            patterns: [{
-                offset: 0,
-                endOffset: 0,
-                repeat: "40",
-                symbol: L.Symbol.arrowHead({
-                    pixelSize: 10,
-                    polygon: true,
-                    pathOptions: {
-                        fillOpacity: 1,
-                        color: "black",
-                        stroke: true
-                    }
-                })
-            }]
-        }));
+        if (drawSense) {
+            layer.addLayer(L.polylineDecorator(polyline, {
+                patterns: [{
+                    offset: 0,
+                    endOffset: 0,
+                    repeat: "40",
+                    symbol: L.Symbol.arrowHead({
+                        pixelSize: 10,
+                        polygon: true,
+                        pathOptions: {
+                            fillOpacity: 1,
+                            color: "black",
+                            stroke: true
+                        }
+                    })
+                }]
+            }));
+        }
 
         var bound = null;
         map.eachLayer(function (mapLayer) {

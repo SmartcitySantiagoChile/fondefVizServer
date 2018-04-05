@@ -68,7 +68,10 @@ $(document).ready(function () {
                     // clean featureGroup
                     layers[layerId].clearLayers();
                     var layer = layers[layerId];
-                    app.addPolyline(layer, data.points, data.stops, route);
+                    app.addPolyline(layer, data.points, {
+                        stops: data.stops,
+                        route: route
+                    });
                 });
             });
         };
