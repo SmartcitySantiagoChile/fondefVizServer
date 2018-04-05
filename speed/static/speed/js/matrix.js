@@ -13,6 +13,7 @@ $(document).ready(function () {
         var _self = this;
 
         /* map setting */
+        var mapboxKey = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
 
         var baseLocation = [-33.437824, -70.650439];
         var mapboxUrl = "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=" + mapboxKey;
