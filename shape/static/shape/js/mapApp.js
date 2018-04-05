@@ -67,7 +67,7 @@ $(document).ready(function () {
                     // update map
                     // clean featureGroup
                     layers[layerId].clearLayers();
-                    var layer = layers[layerId]
+                    var layer = layers[layerId];
                     app.addPolyline(layer, data.points, data.stops, route);
                 });
             });
