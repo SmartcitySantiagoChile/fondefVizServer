@@ -47,66 +47,6 @@ $(document).ready(function () {
 
         var layers = {};
 
-        this.addPolyline = function (layer, points, stops, route) {
-            // markers
-            stops.forEach(function (stop) {
-                var latLng = L.latLng(stop.latitude, stop.longitude);
-                var marker = L.marker(latLng, {
-                    icon: L.BeautifyIcon.icon({
-                        icon: "bus",
-                        iconShape: "marker",
-                        borderColor: "black",
-                        textColor: "black"
-                    }),
-                    zIndexOffset: -1000 // send stops below other layers
-                });
-                marker.bindPopup("<p> Servicio: <b>" + route + "</b><br /> Nombre: <b>" + stop.stopName + "</b><br /> Código transantiago: <b>" + stop.authStopCode + "</b><br /> Código usuario: <b>" + stop.userStopCode + "</b><br /> Posición en la ruta: <b>" + stop.order + "</b><p>");
-                layer.addLayer(marker);
-            });
-            // polyline
-            points = points.map(function (el) {
-                return [el.latitude, el.longitude]
-            });
-
-            var polyline = L.polyline(points, {
-                color: "black",
-                smoothFactor: 5.0
-            });
-            layer.addLayer(polyline);
-            layer.addLayer(L.polylineDecorator(polyline, {
-                patterns: [{
-                    offset: 0,
-                    endOffset: 0,
-                    repeat: "40",
-                    symbol: L.Symbol.arrowHead({
-                        pixelSize: 10,
-                        polygon: true,
-                        pathOptions: {
-                            fillOpacity: 1,
-                            color: "black",
-                            stroke: true
-                        }
-                    })
-                }]
-            }));
-
-            var bound = null;
-            mapInstance.eachLayer(function (mapLayer) {
-                if (!(mapLayer instanceof L.LayerGroup || mapLayer instanceof L.FeatureGroup)) {
-                    return;
-                }
-                if (bound === null) {
-                    bound = mapLayer.getBounds();
-                } else {
-                    var otherBound = mapLayer.getBounds();
-                    bound = bound.extend(otherBound.getNorthEast());
-                }
-            });
-            if (bound !== null) {
-                mapInstance.flyToBounds(bound);
-            }
-        };
-
         this.refreshControlEvents = function () {
             var $FORM_CONTROLS = $(".form-control");
             $FORM_CONTROLS.off("change");
@@ -128,7 +68,7 @@ $(document).ready(function () {
                     // clean featureGroup
                     layers[layerId].clearLayers();
                     var layer = layers[layerId]
-                    _self.addPolyline(layer, data.points, data.stops, route);
+                    app.addPolyline(layer, data.points, data.stops, route);
                 });
             });
         };

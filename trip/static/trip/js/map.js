@@ -396,4 +396,84 @@ function MapApp(opts) {
                 }
             });
     };
+
+    this.addStop = function(layer, stopInfo, opts){
+        var flyTo = opts.flyTo || false;
+        var route = opts.route || null;
+
+        var latLng = L.latLng(stopInfo.latitude, stopInfo.longitude);
+        var marker = L.marker(latLng, {
+            icon: L.BeautifyIcon.icon({
+                icon: "bus",
+                iconShape: "marker",
+                borderColor: "black",
+                textColor: "black"
+            }),
+            zIndexOffset: -1000 // send stops below other layers
+        });
+        var popUpDescription = "<p>";
+        if (route !== null) {
+            popUpDescription += " Servicio: <b>" + route + "</b><br />";
+        }
+        popUpDescription += " Nombre: <b>" + stopInfo.stopName + "</b><br />";
+        popUpDescription += " Código transantiago: <b>" + stopInfo.authStopCode + "</b><br />";
+        popUpDescription += " Código usuario: <b>" + stopInfo.userStopCode + "</b><br />";
+        popUpDescription += " Posición en la ruta: <b>" + stopInfo.order + "</b>";
+        marker.bindPopup(popUpDescription + "</p>");
+        layer.addLayer(marker);
+        if (flyTo) {
+            map.flyTo(latLng);
+        }
+    };
+
+    this.addPolyline = function (layer, points, stops, route) {
+        // markers
+        stops.forEach(function (stop) {
+            _self.addStop(layer, stop, {
+                route: route
+            });
+        });
+        // polyline
+        points = points.map(function (el) {
+            return [el.latitude, el.longitude]
+        });
+
+        var polyline = L.polyline(points, {
+            color: "black",
+            smoothFactor: 5.0
+        });
+        layer.addLayer(polyline);
+        layer.addLayer(L.polylineDecorator(polyline, {
+            patterns: [{
+                offset: 0,
+                endOffset: 0,
+                repeat: "40",
+                symbol: L.Symbol.arrowHead({
+                    pixelSize: 10,
+                    polygon: true,
+                    pathOptions: {
+                        fillOpacity: 1,
+                        color: "black",
+                        stroke: true
+                    }
+                })
+            }]
+        }));
+
+        var bound = null;
+        map.eachLayer(function (mapLayer) {
+            if (!(mapLayer instanceof L.LayerGroup || mapLayer instanceof L.FeatureGroup)) {
+                return;
+            }
+            if (bound === null) {
+                bound = mapLayer.getBounds();
+            } else {
+                var otherBound = mapLayer.getBounds();
+                bound = bound.extend(otherBound.getNorthEast());
+            }
+        });
+        if (bound !== null) {
+            map.flyToBounds(bound);
+        }
+    };
 }
