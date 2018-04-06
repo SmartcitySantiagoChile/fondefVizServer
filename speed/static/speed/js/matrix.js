@@ -9,13 +9,13 @@ $(document).ready(function () {
         "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
     ];
 
-    function MappApp(colorScale) {
+    function DrawSegmentsApp(colorScale) {
         var _self = this;
 
         /* map setting */
+        var mapboxKey = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
 
         var baseLocation = [-33.437824, -70.650439];
-        var mapboxKey = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
         var mapboxUrl = "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=" + mapboxKey;
         var blackLayer = L.tileLayer(mapboxUrl, {
             id: "mapbox.light",
@@ -144,7 +144,7 @@ $(document).ready(function () {
         // colors = ["#dfdfdf", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#007f00", "#0000ff"];
         var colors = ["#dfdfdf", "#ff0000", "#ff4500", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
-        var mapApp = new MappApp(colors);
+        var mapApp = new DrawSegmentsApp(colors);
 
         var opts = {
             tooltip: {

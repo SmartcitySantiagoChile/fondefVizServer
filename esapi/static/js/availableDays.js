@@ -48,8 +48,12 @@ function loadAvailableDays(data_url) {
         availableDaysChart.resize();
     });
 
+    // show loading
+    var loadingText = "Cargando ...";
+    availableDaysChart.showLoading(null, {text: loadingText});
     // ask per data
     $.get(data_url, function (data) {
+        availableDaysChart.hideLoading();
         data = data.availableDays.map(function (el) {
             return [el, 1];
         });
