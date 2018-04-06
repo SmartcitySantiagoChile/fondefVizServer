@@ -108,57 +108,50 @@ $(document).ready(function () {
             var xAxisLength = _xAxisData.length;
             var counterByStop = [];
             var capacityByStop = [];
-            var tripQuantity = _trips.length;
 
             _yAxisData = {
-                "expandedGetOut": [],
-                "expandedGetIn": [],
-                "loadProfile": [],
-                "saturationRate": [],
-                "maxLoad": []
+                expandedGetOut: [],
+                expandedGetIn: [],
+                loadProfile: [],
+                saturationRate: [],
+                maxLoad: []
             };
 
             for (var i = 0; i < xAxisLength; i++) {
-                _yAxisData["expandedGetIn"].push(0);
-                _yAxisData["expandedGetOut"].push(0);
-                _yAxisData["loadProfile"].push(0);
-                _yAxisData["maxLoad"].push(0);
+                _yAxisData.expandedGetIn.push(0);
+                _yAxisData.expandedGetOut.push(0);
+                _yAxisData.loadProfile.push(0);
+                _yAxisData.maxLoad.push(0);
 
                 capacityByStop.push(0);
                 counterByStop.push(0);
             }
 
-            for (var tripIndex = 0; tripIndex < tripQuantity; tripIndex++) {
-                var trip = _trips[tripIndex];
-
+            _trips.forEach(function (trip) {
                 if (!trip.visible) {
-                    continue;
+                    return;
                 }
 
                 for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
-                    var key = _xAxisData[stopIndex]["authCode"];
-                    if (trip.yAxisData["expandedGetOut"][key] === undefined) {
-                        continue;
-                    }
-                    _yAxisData["expandedGetOut"][stopIndex] += trip.yAxisData["expandedGetOut"][key];
-                    _yAxisData["expandedGetIn"][stopIndex] += trip.yAxisData["expandedGetIn"][key];
-                    _yAxisData["loadProfile"][stopIndex] += trip.yAxisData["loadProfile"][key];
+                    _yAxisData.expandedGetOut[stopIndex] += trip.yAxisData.expandedGetOut[stopIndex];
+                    _yAxisData.expandedGetIn[stopIndex] += trip.yAxisData.expandedGetIn[stopIndex];
+                    _yAxisData.loadProfile[stopIndex] += trip.yAxisData.loadProfile[stopIndex];
 
-                    if (_yAxisData["maxLoad"][stopIndex] < trip.yAxisData["loadProfile"][key]) {
-                        _yAxisData["maxLoad"][stopIndex] = trip.yAxisData["loadProfile"][key]
+                    if (_yAxisData.maxLoad[stopIndex] < trip.yAxisData.loadProfile[stopIndex]) {
+                        _yAxisData.maxLoad[stopIndex] = trip.yAxisData.loadProfile[stopIndex]
                     }
 
                     capacityByStop[stopIndex] += trip.busCapacity;
                     counterByStop[stopIndex]++;
                 }
-            }
+            });
 
             // it calculates average
             for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
-                _yAxisData["expandedGetOut"][stopIndex] = _yAxisData["expandedGetOut"][stopIndex] / counterByStop[stopIndex];
-                _yAxisData["expandedGetIn"][stopIndex] = _yAxisData["expandedGetIn"][stopIndex] / counterByStop[stopIndex];
-                _yAxisData["saturationRate"].push((_yAxisData["loadProfile"][stopIndex] / capacityByStop[stopIndex]) * 100);
-                _yAxisData["loadProfile"][stopIndex] = _yAxisData["loadProfile"][stopIndex] / counterByStop[stopIndex];
+                _yAxisData.expandedGetOut[stopIndex] = _yAxisData.expandedGetOut[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.expandedGetIn[stopIndex] = _yAxisData.expandedGetIn[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.saturationRate.push((_yAxisData.loadProfile[stopIndex] / capacityByStop[stopIndex]) * 100);
+                _yAxisData.loadProfile[stopIndex] = _yAxisData.loadProfile[stopIndex] / counterByStop[stopIndex];
             }
         };
         this.getAttrGroup = function (attrName, formatFunc) {
@@ -190,12 +183,11 @@ $(document).ready(function () {
                 /*if(!trip.visible){
                   continue;
                 }*/
-                trip["busDetail"] = trip["licensePlate"] + " (" + trip["busCapacity"] + ")";
+                trip.busDetail = trip.licensePlate + " (" + trip.busCapacity + ")";
                 var loadProfile = [];
                 var hasNegativeValue = false;
                 for (var i = 0; i < _xAxisData.length; i++) {
-                    var authStopCode = _xAxisData[i]["authCode"];
-                    var value = trip.yAxisData["loadProfile"][authStopCode];
+                    var value = trip.yAxisData.loadProfile[i];
                     if (value !== undefined && value < 0) {
                         hasNegativeValue = true;
                     }
@@ -204,11 +196,14 @@ $(document).ready(function () {
                     }
                     loadProfile.push(value);
                 }
-                trip["sparkLoadProfile"] = loadProfile;
-                trip["hasNegativeValue"] = hasNegativeValue;
+                trip.sparkLoadProfile = loadProfile;
+                trip.hasNegativeValue = hasNegativeValue;
                 values.push(trip);
             }
-            return {"rows": values, "maxHeight": max};
+            return {
+                "rows": values,
+                "maxHeight": max
+            };
         };
 
         this.getDistributionData = function () {
@@ -222,25 +217,23 @@ $(document).ready(function () {
                 if (!trip.visible) {
                     continue;
                 }
-                tripData["name"] = trip["timeTripInit"];
+                tripData.name = trip.timeTripInit;
 
                 var loadProfile = [];
                 for (var i = 0; i < _xAxisData.length; i++) {
-                    var authStopCode = _xAxisData[i]["authCode"];
-                    var value = trip.yAxisData["loadProfile"][authStopCode];
-
+                    var value = trip.yAxisData.loadProfile[i];
                     if (globalMax < value) {
                         globalMax = value;
                     }
                     loadProfile.push(value);
                 }
-                tripData["loadProfile"] = loadProfile;
+                tripData.loadProfile = loadProfile;
                 trips.push(tripData);
             }
 
             var result = {};
-            result["globalMax"] = globalMax;
-            result["trips"] = trips;
+            result.globalMax = globalMax;
+            result.trips = trips;
 
             return result;
         }
@@ -283,7 +276,7 @@ $(document).ready(function () {
                     }
                 },
                 //{ title: "Servicio-sentido", data: "route",   searchable: true},
-                {title: "Patente(capacidad)", data: "busDetail", searchable: true},
+                {title: "Patente (capacidad)", data: "busDetail", searchable: true},
                 {title: "Período inicio expedición", data: "authTimePeriod", searchable: true},
                 {title: "Hora de inicio", data: "timeTripInit", searchable: true},
                 {title: "Hora de fin", data: "timeTripEnd", searchable: true},
@@ -391,7 +384,7 @@ $(document).ready(function () {
                 series: [{
                     singleAxisIndex: 0,
                     coordinateSystem: "singleAxis",
-                    type: "scatter",
+                    type: "bar",
                     data: values,
                     symbolSize: function (dataItem) {
                         return [10, dataItem[1] * 3];
@@ -460,8 +453,8 @@ $(document).ready(function () {
 
         var _updateDatatable = function () {
             var dataset = _dataManager.getDatatableData();
-            var rows = dataset["rows"];
-            var maxHeight = dataset["maxHeight"];
+            var rows = dataset.rows;
+            var maxHeight = dataset.maxHeight;
 
             _datatable.off("draw");
             _datatable.on("draw", function (oSettings) {
@@ -469,7 +462,10 @@ $(document).ready(function () {
                     type: "bar",
                     barColor: "#169f85",
                     negBarColor: "red",
-                    chartRangeMax: maxHeight
+                    chartRangeMax: maxHeight,
+                    numberFormatter: function(value) {
+                        return Number(value.toFixed(2)).toLocaleString();
+                    }
                 });
 
                 $("tbody input.flat").iCheck("destroy");
@@ -562,11 +558,11 @@ $(document).ready(function () {
 
             var maxLabelLength = 0;
             var xData = xAxisData.map(function (attr) {
-                var label = attr.order + " " + attr.name;
+                var label = attr.order + " " + attr.stopName;
                 if (maxLabelLength < label.length) {
                     maxLabelLength = label.length;
                 }
-                attr.value = attr.name;
+                attr.value = attr.stopName;
                 label = attr;
                 return label;
             });
@@ -641,13 +637,13 @@ $(document).ready(function () {
                     formatter: function (params) {
                         if (Array.isArray(params)) {
                             var xValue = params[0].dataIndex;
-                            var head = (xValue + 1) + "  " + xAxisData[xValue]["userCode"] + " " + xAxisData[xValue]["authCode"] + "  " + xAxisData[xValue]["name"] + "<br />";
+                            var head = (xValue + 1) + "  " + xAxisData[xValue].userStopCode + " " + xAxisData[xValue].authStopCode + "  " + xAxisData[xValue].stopName + "<br />";
                             var info = [];
                             for (var index in params) {
                                 var el = params[index];
                                 var ball = el.marker;
                                 var name = el.seriesName;
-                                var value = el.value.toFixed(2);
+                                var value = Number(el.value.toFixed(2)).toLocaleString();
                                 if (el.seriesIndex === 4) {
                                     value = value + " %";
                                 }
@@ -657,7 +653,7 @@ $(document).ready(function () {
                         } else {
                             var title = params.data.name;
                             var name = params.seriesName;
-                            var value = params.value.toFixed(2);
+                            var value = Number(params.value.toFixed(2)).toLocaleString();
                             return title + "<br />" + name + ": " + value;
                         }
                     }
@@ -773,56 +769,51 @@ $(document).ready(function () {
         }
 
         var trips = dataSource.trips;
+        var stops = dataSource.stops;
+        var busStations = dataSource.busStations;
+
         var dataManager = new DataManager();
-        var tripGroupXAxisData = [];
+        var tripGroupXAxisData = stops.map(function (stop) {
+            stop.busStation = busStations.indexOf(stop.authStopCode) >= 0;
+            return stop;
+        });
 
         for (var expeditionId in trips) {
             var trip = trips[expeditionId];
 
             // trip info
-            var capacity = trip["info"]["capacity"];
-            var licensePlate = trip["info"]["licensePlate"];
-            var route = trip["info"]["route"];
-            var timeTripInit = trip["info"]["timeTripInit"];
-            var timeTripEnd = trip["info"]["timeTripEnd"];
-            var authTimePeriod = trip["info"]["authTimePeriod"];
-            var dayType = trip["info"]["dayType"];
+            var capacity = trip.info.capacity;
+            var licensePlate = trip.info.licensePlate;
+            var route = trip.info.route;
+            var timeTripInit = trip.info.timeTripInit;
+            var timeTripEnd = trip.info.timeTripEnd;
+            var authTimePeriod = trip.info.authTimePeriod;
+            var dayType = trip.info.dayType;
 
             var yAxisData = {
-                "expandedGetOut": {},
-                "expandedGetIn": {},
-                "loadProfile": {},
-                "saturationRate": {}
+                "expandedGetOut": [],
+                "expandedGetIn": [],
+                "loadProfile": [],
+                "saturationRate": []
             };
 
-            var stopQuantity = trip["stops"].length;
+            var xAxisData = stops.map(function (stop) {
+                var item = trip.stops[stop.authStopCode];
 
-            var updateStopsName = false;
-            if (tripGroupXAxisData.length < stopQuantity) {
-                updateStopsName = true;
-                tripGroupXAxisData = [];
-            }
-            var xAxisData = [];
-            for (var stopIndex = 0; stopIndex < stopQuantity; stopIndex++) {
-                var stopInfo = trip["stops"][stopIndex];
-                var authStopCode = stopInfo["authStopCode"];
-                var userStopCode = stopInfo["userStopCode"];
+                var expandedGetOut = item.expandedGetOut === undefined ? 0 : item.expandedGetOut;
+                var expandedGetIn = item.expandedGetIn === undefined ? 0 : item.expandedGetIn;
+                var loadProfile = item.loadProfile === undefined ? 0 : item.loadProfile;
 
-                if (updateStopsName) {
-                    var xValue = {};
-                    xValue["name"] = stopInfo["name"];
-                    xValue["authCode"] = authStopCode;
-                    xValue["userCode"] = userStopCode;
-                    xValue["busStation"] = stopInfo["busStation"];
-                    xValue["order"] = stopInfo["order"];
-                    tripGroupXAxisData.push(xValue);
-                }
-                xAxisData.push({"authStopCode": authStopCode, "userStopCode": userStopCode});
-                yAxisData["expandedGetOut"][authStopCode] = stopInfo["expandedGetOut"];
-                yAxisData["expandedGetIn"][authStopCode] = stopInfo["expandedGetIn"];
-                yAxisData["loadProfile"][authStopCode] = stopInfo["loadProfile"];
-                yAxisData["saturationRate"][authStopCode] = (stopInfo["loadProfile"] / capacity) * 100;
-            }
+                yAxisData.expandedGetOut.push(expandedGetOut);
+                yAxisData.expandedGetIn.push(expandedGetIn);
+                yAxisData.loadProfile.push(loadProfile);
+                yAxisData.saturationRate.push(loadProfile / capacity * 100);
+
+                return {
+                    authStopCode: stop.authStopCode,
+                    userStopCode: stop.userStopCode
+                };
+            });
 
             trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit,
                 timeTripEnd, authTimePeriod, dayType, xAxisData, yAxisData);

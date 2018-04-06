@@ -123,10 +123,10 @@ class ESProfileHelper(ElasticSearchHelper):
         })
 
         es_query = es_query.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'loadProfile',
-                                    'expeditionDayId', 'userStopName', 'expandedAlighting', 'expandedBoarding',
-                                    'expeditionStopOrder', 'stopDistanceFromPathStart', 'expeditionStartTime',
-                                    'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                    'dayType', 'timePeriodInStopTime', 'fulfillment', 'busStation', 'path'])
+                                    'expeditionDayId', 'expandedAlighting', 'expandedBoarding',
+                                    'stopDistanceFromPathStart', 'expeditionStartTime', 'expeditionEndTime',
+                                    'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
+                                    'fulfillment', 'busStation', 'path'])
         return es_query
 
     def get_profile_by_expedition_data(self, start_date, end_date, day_type, auth_route, period, half_hour,

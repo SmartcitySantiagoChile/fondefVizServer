@@ -154,7 +154,8 @@ class LoadProfileByExpeditionData(View):
 
     def transform_answer(self, es_query):
         """ transform ES answer to something util to web client """
-        trips = defaultdict(lambda: {'info': {}, 'stops': []})
+        trips = defaultdict(lambda: {'info': {}, 'stops': {}})
+        bus_stations = []
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
@@ -172,12 +173,10 @@ class LoadProfileByExpeditionData(View):
                 'dayType': day_type_dict[hit.dayType]
             }
 
+            if hit.busStation == 1 and not hit.authStopCode in bus_stations:
+                bus_stations.append(hit.authStopCode)
+
             stop = {
-                'order': hit.expeditionStopOrder,
-                'name': hit.userStopName,
-                'authStopCode': hit.authStopCode,
-                'userStopCode': hit.userStopCode,
-                'busStation': hit.busStation == 1,
                 'authTimePeriod': time_period_dict[hit.timePeriodInStopTime] if hit.timePeriodInStopTime > -1 else None,
                 'distOnPath': hit.stopDistanceFromPathStart,
                 'stopTime': "" if hit.expeditionStopTime == "0" else hit.expeditionStopTime,
@@ -186,15 +185,12 @@ class LoadProfileByExpeditionData(View):
                 'expandedGetIn': self.clean_data(hit.expandedBoarding),
                 'expandedGetOut': self.clean_data(hit.expandedAlighting),
             }
-            trips[expedition_id]['stops'].append(stop)
-
-        for expedition_id in trips:
-            trips[expedition_id]['stops'] = sorted(trips[expedition_id]['stops'], key=lambda record: record['order'])
+            trips[expedition_id]['stops'][hit.authStopCode] = stop
 
         if len(trips.keys()) == 0:
             raise ESQueryResultEmpty()
 
-        return trips
+        return trips, bus_stations
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
@@ -206,9 +202,7 @@ class LoadProfileByExpeditionData(View):
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
-        response = {
-            'trips': {}
-        }
+        response = {}
 
         try:
             check_operation_program(start_date, end_date)
@@ -225,13 +219,13 @@ class LoadProfileByExpeditionData(View):
                 start_date_datetime = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date_datetime = datetime.strptime(end_date, '%Y-%m-%d')
                 diff_days = (end_date_datetime - start_date_datetime).days
-                print(diff_days)
-                if diff_days < 4:
+
+                if diff_days < 4000:
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list)
-                    response['trips'] = self.transform_answer(es_query)
+                    response['trips'], response['busStations']  = self.transform_answer(es_query)
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type,
                                                                                 auth_route_code, period, half_hour,
