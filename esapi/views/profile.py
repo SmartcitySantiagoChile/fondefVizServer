@@ -11,12 +11,11 @@ from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.errors import ESQueryResultEmpty, FondefVizError
 from esapi.utils import check_operation_program
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-
 from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
-
 from datamanager.helper import ExporterManager
 
 from collections import defaultdict
+from datetime import datetime
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 
@@ -216,13 +215,28 @@ class LoadProfileByExpeditionData(View):
             es_stop_helper = ESStopByRouteHelper()
             es_profile_helper = ESProfileHelper()
 
-            es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type, auth_route_code,
-                                                                        period, half_hour, valid_operator_list)
             if export_data:
+                es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date, day_type,
+                                                                                       auth_route_code, period,
+                                                                                       half_hour, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                response['trips'] = self.transform_answer(es_query)
+                start_date_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+                end_date_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+                diff_days = (end_date_datetime - start_date_datetime).days
+                print(diff_days)
+                if diff_days < 4:
+                    es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date,
+                                                                                           day_type, auth_route_code,
+                                                                                           period, half_hour,
+                                                                                           valid_operator_list)
+                    response['trips'] = self.transform_answer(es_query)
+                else:
+                    es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type,
+                                                                                auth_route_code, period, half_hour,
+                                                                                valid_operator_list)
+                    response['groupedTrips'] = es_query.execute().to_dict()
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)['stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()

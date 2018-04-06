@@ -90,9 +90,8 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def get_profile_by_expedition_data(self, start_date, end_date, day_type, auth_route, period, half_hour,
-                                       valid_operator_list):
-
+    def get_base_profile_by_expedition_data_query(self, start_date, end_date, day_type, auth_route, period, half_hour,
+                                                  valid_operator_list):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -128,5 +127,21 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'expeditionStopOrder', 'stopDistanceFromPathStart', 'expeditionStartTime',
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
                                     'dayType', 'timePeriodInStopTime', 'fulfillment', 'busStation', 'path'])
+        return es_query
+
+    def get_profile_by_expedition_data(self, start_date, end_date, day_type, auth_route, period, half_hour,
+                                       valid_operator_list):
+        es_query = self.get_base_profile_by_expedition_data_query(start_date, end_date, day_type, auth_route, period,
+                                                                  half_hour, valid_operator_list)[:0]
+        stops = A('terms', field='authStopCode.raw', size=500)
+        es_query.aggs.bucket('stops', stops). \
+            metric('expandedAlighting', 'avg', field='expandedAlighting'). \
+            metric('expandedBoarding', 'avg', field='expandedBoarding'). \
+            metric('loadProfile', 'avg', field='loadProfile'). \
+            metric('maxLoadProfile', 'max', field='loadProfile'). \
+            metric('sumLoadProfile', 'sum', field='loadProfile'). \
+            metric('sumBusCapacity', 'sum', field='busCapacity'). \
+            metric('busSaturation', 'bucket_script', script='params.d / params.t',
+                   buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'})
 
         return es_query
