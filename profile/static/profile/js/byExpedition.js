@@ -5,7 +5,7 @@ $(document).ready(function () {
 
     // define logic to manipulate data
     function Trip(expeditionDayId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, authTimePeriod, dayType,
-                  xAxisData, yAxisData, visible) {
+                  yAxisData, visible) {
         this.expeditionId = expeditionDayId;
         this.route = route;
         this.licensePlate = licensePlate;
@@ -14,7 +14,6 @@ $(document).ready(function () {
         this.timeTripEnd = timeTripEnd;
         this.authTimePeriod = authTimePeriod;
         this.dayType = dayType;
-        this.xAxisData = xAxisData;
         this.yAxisData = yAxisData;
         this.visible = visible || true;
     }
@@ -133,13 +132,13 @@ $(document).ready(function () {
                 }
 
                 for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
+                    if (trip.yAxisData.valueIsNull[stopIndex]) {
+                        continue;
+                    }
                     _yAxisData.expandedGetOut[stopIndex] += trip.yAxisData.expandedGetOut[stopIndex];
                     _yAxisData.expandedGetIn[stopIndex] += trip.yAxisData.expandedGetIn[stopIndex];
                     _yAxisData.loadProfile[stopIndex] += trip.yAxisData.loadProfile[stopIndex];
-
-                    if (_yAxisData.maxLoad[stopIndex] < trip.yAxisData.loadProfile[stopIndex]) {
-                        _yAxisData.maxLoad[stopIndex] = trip.yAxisData.loadProfile[stopIndex]
-                    }
+                    _yAxisData.maxLoad[stopIndex] = Math.max(_yAxisData.maxLoad[stopIndex], trip.yAxisData.loadProfile[stopIndex]);
 
                     capacityByStop[stopIndex] += trip.busCapacity;
                     counterByStop[stopIndex]++;
@@ -155,26 +154,30 @@ $(document).ready(function () {
             }
         };
         this.getAttrGroup = function (attrName, formatFunc) {
-            var values = [];
             var dict = {};
-            for (var i in _trips) {
-                var trip = _trips[i];
+            _trips.forEach(function (trip) {
                 if (!trip.visible) {
-                    continue;
+                    return;
                 }
                 var attrValue = trip[attrName];
-                attrValue = (formatFunc === undefined ? attrValue : formatFunc(attrValue));
+                attrValue = formatFunc === undefined ? attrValue : formatFunc(attrValue);
                 if (dict[attrValue]) {
                     dict[attrValue]++;
                 } else {
                     dict[attrValue] = 1;
                 }
-            }
+            });
+
+            var values = [];
             for (var name in dict) {
-                values.push({"name": name, "value": dict[name]});
+                values.push({
+                    name: name,
+                    value: dict[name]
+                });
             }
             return values;
         };
+
         this.getDatatableData = function () {
             var values = [];
             var max = 0;
@@ -186,14 +189,12 @@ $(document).ready(function () {
                 trip.busDetail = trip.licensePlate + " (" + trip.busCapacity + ")";
                 var loadProfile = [];
                 var hasNegativeValue = false;
-                for (var i = 0; i < _xAxisData.length; i++) {
-                    var value = trip.yAxisData.loadProfile[i];
+                for (var k = 0; k < _xAxisData.length; k++) {
+                    var value = trip.yAxisData.loadProfile[k];
                     if (value !== undefined && value < 0) {
                         hasNegativeValue = true;
                     }
-                    if (max < value) {
-                        max = value;
-                    }
+                    max = Math.max(max, value);
                     loadProfile.push(value);
                 }
                 trip.sparkLoadProfile = loadProfile;
@@ -220,8 +221,8 @@ $(document).ready(function () {
                 tripData.name = trip.timeTripInit;
 
                 var loadProfile = [];
-                for (var i = 0; i < _xAxisData.length; i++) {
-                    var value = trip.yAxisData.loadProfile[i];
+                for (var j = 0; j < _xAxisData.length; j++) {
+                    var value = trip.yAxisData.loadProfile[j];
                     if (globalMax < value) {
                         globalMax = value;
                     }
@@ -231,11 +232,10 @@ $(document).ready(function () {
                 trips.push(tripData);
             }
 
-            var result = {};
-            result.globalMax = globalMax;
-            result.trips = trips;
-
-            return result;
+            return {
+                globalMax: globalMax,
+                trips: trips
+            };
         }
     }
 
@@ -275,7 +275,6 @@ $(document).ready(function () {
                         return $("<i>").addClass("spark").append(data.join(","))[0].outerHTML;
                     }
                 },
-                //{ title: "Servicio-sentido", data: "route",   searchable: true},
                 {title: "Patente (capacidad)", data: "busDetail", searchable: true},
                 {title: "Período inicio expedición", data: "authTimePeriod", searchable: true},
                 {title: "Hora de inicio", data: "timeTripInit", searchable: true},
@@ -285,7 +284,9 @@ $(document).ready(function () {
             ],
             order: [[4, "asc"]],
             createdRow: function (row, data, index) {
-                $(row).addClass("success");
+                if (data.visible) {
+                    $(row).addClass("success");
+                }
             },
             initComplete: function (settings) {
                 // Handle click on "Select all" control
@@ -463,7 +464,7 @@ $(document).ready(function () {
                     barColor: "#169f85",
                     negBarColor: "red",
                     chartRangeMax: maxHeight,
-                    numberFormatter: function(value) {
+                    numberFormatter: function (value) {
                         return Number(value.toFixed(2)).toLocaleString();
                     }
                 });
@@ -587,7 +588,7 @@ $(document).ready(function () {
                                 return true;
                             }
                             div = parseInt(xData.length / div);
-                            return index % div ? false : true;
+                            return !(index % div);
                         },
                         textStyle: {
                             fontSize: 12
@@ -791,32 +792,31 @@ $(document).ready(function () {
             var dayType = trip.info.dayType;
 
             var yAxisData = {
-                "expandedGetOut": [],
-                "expandedGetIn": [],
-                "loadProfile": [],
-                "saturationRate": []
+                expandedGetOut: [],
+                expandedGetIn: [],
+                loadProfile: [],
+                saturationRate: [],
+                valueIsNull: []
             };
 
-            var xAxisData = stops.map(function (stop) {
+            stops.forEach(function (stop) {
                 var item = trip.stops[stop.authStopCode];
+                var itemIsNull = item === undefined
 
-                var expandedGetOut = item.expandedGetOut === undefined ? 0 : item.expandedGetOut;
-                var expandedGetIn = item.expandedGetIn === undefined ? 0 : item.expandedGetIn;
-                var loadProfile = item.loadProfile === undefined ? 0 : item.loadProfile;
+                var expandedGetOut = itemIsNull ? null : item.expandedGetOut;
+                var expandedGetIn = itemIsNull ? null : item.expandedGetIn;
+                var loadProfile = itemIsNull ? null : item.loadProfile;
+                var saturationRate = itemIsNull ? null : loadProfile / capacity * 100;
 
                 yAxisData.expandedGetOut.push(expandedGetOut);
                 yAxisData.expandedGetIn.push(expandedGetIn);
                 yAxisData.loadProfile.push(loadProfile);
-                yAxisData.saturationRate.push(loadProfile / capacity * 100);
-
-                return {
-                    authStopCode: stop.authStopCode,
-                    userStopCode: stop.userStopCode
-                };
+                yAxisData.saturationRate.push(saturationRate);
+                yAxisData.valueIsNull.push(itemIsNull)
             });
 
             trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit,
-                timeTripEnd, authTimePeriod, dayType, xAxisData, yAxisData);
+                timeTripEnd, authTimePeriod, dayType, yAxisData);
             dataManager.addTrip(trip);
         }
 
