@@ -6,6 +6,7 @@
 {% block css %}
     {{ block.super }}
     <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+    <link href="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -33,6 +34,8 @@
         {% columns 12 12 12 panel5 %}
     </div>
 
+    {% include "datamanager/modal.html" with modal_id="profileMap" modal_title="Ruta de servicio" modal_body='<div id="mapid" style="height: 500px;min-height: 500px"></div>' %}
+
     {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
     {% include "datamanager/modal.html" with modal_id="chartHelp" modal_title="Perfil de carga" modal_body="esto es una explicación del gráfico" %}
     {% include "datamanager/modal.html" with modal_id="tableHelp" modal_title="Expediciones" modal_body="esto es una explicación de la tabla" %}
@@ -46,6 +49,7 @@
     {% endwith %}
     <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
     <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
+    <script src="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.js" %}"></script>
     <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "profile/js/byExpedition.js" %}"></script>
 {% endblock %}
