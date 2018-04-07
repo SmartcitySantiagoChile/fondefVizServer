@@ -365,8 +365,11 @@ $(document).ready(function () {
             var hours = timeTripInit.map(function (el) {
                 return el.name;
             });
+            var max = Math.max(...timeTripInit.map(function (el) {
+                return el.value;
+            }));
             var values = timeTripInit.map(function (el, index) {
-                return [index, el.value];
+                return [index, el.value, el.value / max * 20];
             });
             var option = {
                 tooltip: {
@@ -385,10 +388,10 @@ $(document).ready(function () {
                 series: [{
                     singleAxisIndex: 0,
                     coordinateSystem: "singleAxis",
-                    type: "bar",
+                    type: "scatter",
                     data: values,
                     symbolSize: function (dataItem) {
-                        return [10, dataItem[1] * 3];
+                        return [10, dataItem[2]];
                     },
                     tooltip: {
                         formatter: function (params) {
