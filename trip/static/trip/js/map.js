@@ -474,9 +474,13 @@ function MapApp(opts) {
             }));
         }
 
+        _self.fitBound();
+    };
+
+    this.fitBound = function() {
         var bound = null;
         map.eachLayer(function (mapLayer) {
-            if (!(mapLayer instanceof L.LayerGroup || mapLayer instanceof L.FeatureGroup)) {
+            if (!(mapLayer instanceof L.FeatureGroup)) {
                 return;
             }
             if (bound === null) {

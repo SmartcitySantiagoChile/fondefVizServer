@@ -1,7 +1,12 @@
 {% extends 'profile/base.html' %}
-{% load static header panel inline_select table columns update_button label data_filter %}
+{% load static header panel inline_select table columns update_button label data_filter tabs %}
 
 {% block title %}Perfil de carga por expedición{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
@@ -14,18 +19,19 @@
     <div class="row">
         {% panel "fa-clock-o" "Número de expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
         {% columns 12 12 12 panel1 %}
+    </div>
 
-        {% panel "fa-bar-chart" "Perfil de carga <small>con <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:600px;"></div>' info_target_id="chartHelp" as panel4 %}
+    <div class="row">
+        {% tabs tabs.header tabs.content as profile_tabs %}
+        {% panel "fa-bar-chart" "Perfil de carga <small>con <strong id='expeditionNumber'>N</strong> expediciones</small>" profile_tabs info_target_id="chartHelp" as panel4 %}
         {% columns 12 12 12 panel4 %}
     </div>
 
     <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            {% table "expeditionDetail" 7 as expeditionTable %}
-            {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">N</strong>)' expeditionTable info_target_id="tableHelp" %}
-        </div>
+        {% table "expeditionDetail" 7 as expeditionTable %}
+        {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">N</strong>)' expeditionTable info_target_id="tableHelp" as panel5 %}
+        {% columns 12 12 12 panel5 %}
     </div>
-
 
     {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
     {% include "datamanager/modal.html" with modal_id="chartHelp" modal_title="Perfil de carga" modal_body="esto es una explicación del gráfico" %}
@@ -38,5 +44,8 @@
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
     {% endwith %}
+    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+    <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
+    <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "profile/js/byExpedition.js" %}"></script>
 {% endblock %}

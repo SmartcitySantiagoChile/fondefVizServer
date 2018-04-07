@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.helper.shape import ESShapeHelper
 from esapi.errors import ESQueryResultEmpty, FondefVizError
 from esapi.utils import check_operation_program
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -207,6 +208,7 @@ class LoadProfileByExpeditionData(View):
         try:
             check_operation_program(start_date, end_date)
             es_stop_helper = ESStopByRouteHelper()
+            es_shape_helper = ESShapeHelper()
             es_profile_helper = ESProfileHelper()
 
             if export_data:
@@ -232,6 +234,7 @@ class LoadProfileByExpeditionData(View):
                                                                                 valid_operator_list)
                     response['groupedTrips'] = es_query.execute().to_dict()
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)['stops']
+                response['shape'] = es_shape_helper.get_route_shape(auth_route_code, start_date, end_date)['points']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

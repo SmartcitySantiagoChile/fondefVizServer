@@ -33,6 +33,7 @@ $(document).ready(function () {
         };
         // trips to show in profile view
         var _visibleTrips = 0;
+        var _shape = [];
 
         this.getDataName = function () {
             if (_trips.length > 0) {
@@ -71,6 +72,12 @@ $(document).ready(function () {
                 return _yAxisData;
             }
             _yAxisData = data;
+        };
+        this.shape = function (shape) {
+            if (shape === undefined) {
+                return _shape;
+            }
+            _shape = shape;
         };
         this.tripsUsed = function () {
             return _visibleTrips;
@@ -241,6 +248,35 @@ $(document).ready(function () {
 
     function ExpeditionApp() {
         var _self = this;
+
+        var mapOpts = {
+            mapId: "mapid"
+        };
+        var _mappApp = new MapApp(mapOpts);
+        var _routeLayer = L.featureGroup([]);
+        var _circleLayer = L.featureGroup([]);
+        var _mapInstance = _mappApp.getMapInstance();
+        _routeLayer.addTo(_mapInstance);
+        _circleLayer.addTo(_mapInstance);
+
+        var fitBoundFirstTime = true;
+        $("#tab-1").click(function () {
+            setTimeout(function () {
+                _mapInstance.invalidateSize(false);
+                if (fitBoundFirstTime) {
+                    setTimeout(function () {
+                        _mappApp.fitBound();
+                        fitBoundFirstTime = false;
+                    }, 400);
+                }
+            }, 400);
+        });
+        $("#tab-0").click(function () {
+            setTimeout(function () {
+                _self.resizeCharts();
+            }, 400);
+        });
+
         var _dataManager = new DataManager();
         var _barChart = echarts.init(document.getElementById("barChart"), theme);
         var _timePeriodChart = echarts.init(document.getElementById("timePeriodChart"), theme);
@@ -347,6 +383,27 @@ $(document).ready(function () {
             _barChart.resize();
             _timePeriodChart.resize();
         };
+
+        var _updateMap = function () {
+            _routeLayer.clearLayers();
+            _circleLayer.clearLayers();
+            var shape = _dataManager.shape();
+            var stops = _dataManager.xAxisData();
+            var yAxisData = _dataManager.yAxisData().loadProfile;
+
+            stops.forEach(function (stop, i) {
+                var loadProfile = Number(yAxisData[i].toFixed(2)).toLocaleString();
+                var circle = L.circle([stop.latitude, stop.longitude], {
+                    radius: yAxisData[i] * 30
+                });
+                var popup = "Nombre: " + stop.stopName + "<br /><small>Código usuario: " + stop.userStopCode + "</small><br /><small>Código transantiago: " + stop.authStopCode + "</small><br />Perfil de carga: " + loadProfile;
+                circle.bindPopup(popup);
+                _circleLayer.addLayer(circle);
+            });
+
+            _mappApp.addPolyline(_routeLayer, shape, {});
+        };
+
         var _updateTimePeriodChart = function () {
             var timeTripInit = _dataManager.getAttrGroup("timeTripInit", function (attrValue) {
                 return attrValue.substring(11, 13);
@@ -676,6 +733,7 @@ $(document).ready(function () {
             _updateBarChart();
             _updateTimePeriodChart();
             _updateGlobalStats();
+            _updateMap();
         };
         this.updateDatatable = function () {
             _updateDatatable();
@@ -701,6 +759,7 @@ $(document).ready(function () {
         var trips = dataSource.trips;
         var stops = dataSource.stops;
         var busStations = dataSource.busStations;
+        var shape = dataSource.shape;
 
         var dataManager = new DataManager();
         var tripGroupXAxisData = stops.map(function (stop) {
@@ -750,6 +809,7 @@ $(document).ready(function () {
         }
 
         dataManager.xAxisData(tripGroupXAxisData);
+        dataManager.shape(shape);
         app.dataManager(dataManager);
         //drawDistribution(app.dataManager().trips());
     }
