@@ -12,16 +12,10 @@
     {% data_filter data_filter True False True False False True False True True True True info_target_id="filterHelp" %}
 
     <div class="row">
-        {% panel "fa-clock-o" "Expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
-        {% columns 4 4 4 panel1 %}
+        {% panel "fa-clock-o" "Número de expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
+        {% columns 12 12 12 panel1 %}
 
-        {% panel "fa-truck" 'Expediciones por patente <strong id="licensePlateNumber">(0)</strong>' '<div id="wordcloudChart1" style="height:50px;"></div>' as panel2 %}
-        {% columns 4 4 4 panel2 %}
-
-        {% panel "fa-calendar" "Expediciones por tipo de día" '<div id="wordcloudChart2" style="height:50px;"></div>' as panel3 %}
-        {% columns 4 4 4 panel3 %}
-
-        {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:600px;"></div>' info_target_id="chartHelp" as panel4 %}
+        {% panel "fa-bar-chart" "Perfil de carga <small>con <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:600px;"></div>' info_target_id="chartHelp" as panel4 %}
         {% columns 12 12 12 panel4 %}
     </div>
 

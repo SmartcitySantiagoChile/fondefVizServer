@@ -243,9 +243,6 @@ $(document).ready(function () {
         var _self = this;
         var _dataManager = new DataManager();
         var _barChart = echarts.init(document.getElementById("barChart"), theme);
-        var _wordcloudCharts = [
-            echarts.init(document.getElementById("wordcloudChart1"), theme),
-            echarts.init(document.getElementById("wordcloudChart2"), theme)];
         var _timePeriodChart = echarts.init(document.getElementById("timePeriodChart"), theme);
         var _datatable = $("#expeditionDetail").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
@@ -349,9 +346,6 @@ $(document).ready(function () {
         this.resizeCharts = function () {
             _barChart.resize();
             _timePeriodChart.resize();
-            _wordcloudCharts.forEach(function (chart) {
-                chart.resize();
-            });
         };
         var _updateTimePeriodChart = function () {
             var timeTripInit = _dataManager.getAttrGroup("timeTripInit", function (attrValue) {
@@ -369,7 +363,7 @@ $(document).ready(function () {
                 return el.value;
             }));
             var values = timeTripInit.map(function (el, index) {
-                return [index, el.value, el.value / max * 20];
+                return [index, el.value, el.value / max * 30];
             });
             var option = {
                 tooltip: {
@@ -391,7 +385,7 @@ $(document).ready(function () {
                     type: "scatter",
                     data: values,
                     symbolSize: function (dataItem) {
-                        return [10, dataItem[2]];
+                        return [dataItem[2], dataItem[2]];
                     },
                     tooltip: {
                         formatter: function (params) {
@@ -405,54 +399,6 @@ $(document).ready(function () {
             };
             _timePeriodChart.clear();
             _timePeriodChart.setOption(option, {notMerge: true});
-        };
-
-        var _updateWordcloudCharts = function () {
-            var lpValues = _dataManager.getAttrGroup("licensePlate");
-            var dayTypeValues = _dataManager.getAttrGroup("dayType");
-
-            $("#licensePlateNumber").html("(" + lpValues.length + ")");
-
-            var values = [lpValues, dayTypeValues];
-            for (var i = 0; i < values.length; i++) {
-                var chart = _wordcloudCharts[i];
-
-                chart.on("click", function (params) {
-                    console.log(params);
-                });
-
-                var options = {
-                    tooltip: {},
-                    series: [{
-                        type: "wordCloud",
-                        shape: "pentagon",
-                        width: "100%",
-                        height: "100%",
-                        sizeRange: [6, 14],
-                        rotationRange: [0, 0],
-                        rotationStep: 0,
-                        gridSize: 8,
-                        textStyle: {
-                            normal: {
-                                color: function () {
-                                    return "rgb(" + [
-                                        Math.round(Math.random() * 160),
-                                        Math.round(Math.random() * 160),
-                                        Math.round(Math.random() * 160)
-                                    ].join(",") + ")";
-                                }
-                            },
-                            emphasis: {
-                                shadowBlur: 10,
-                                shadowColor: "#169F85"
-                            }
-                        },
-                        data: values[i]
-                    }]
-                };
-                chart.clear();
-                chart.setOption(options, {notMerge: true});
-            }
         };
 
         var _updateDatatable = function () {
@@ -540,19 +486,6 @@ $(document).ready(function () {
                     type: yChartType[index],
                     data: yAxisData[dataName[index]],
                     showSymbol: false,
-                    /*markPoint: {
-                        data: [{
-                            type: "max",
-                            name: "Máximo"
-                        }],
-                        label: {
-                            normal: {
-                                formatter: function (param) {
-                                    return param.value.toFixed(2);
-                                }
-                            }
-                        }
-                    },*/
                     yAxisIndex: yAxisIndex[index],
                     smooth: true
                 };
@@ -741,7 +674,6 @@ $(document).ready(function () {
 
         this.updateCharts = function () {
             _updateBarChart();
-            _updateWordcloudCharts();
             _updateTimePeriodChart();
             _updateGlobalStats();
         };
@@ -752,16 +684,10 @@ $(document).ready(function () {
             var loadingText = "Cargando...";
             _barChart.showLoading(null, {text: loadingText});
             _timePeriodChart.showLoading(null, {text: loadingText});
-            for (var i = 0; i < _wordcloudCharts.length; i++) {
-                _wordcloudCharts[i].showLoading(null, {text: loadingText});
-            }
         };
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
             _timePeriodChart.hideLoading();
-            for (var i = 0; i < _wordcloudCharts.length; i++) {
-                _wordcloudCharts[i].hideLoading();
-            }
         };
     }
 
@@ -804,7 +730,7 @@ $(document).ready(function () {
 
             stops.forEach(function (stop) {
                 var item = trip.stops[stop.authStopCode];
-                var itemIsNull = item === undefined
+                var itemIsNull = item === undefined;
 
                 var expandedGetOut = itemIsNull ? null : item.expandedGetOut;
                 var expandedGetIn = itemIsNull ? null : item.expandedGetIn;
