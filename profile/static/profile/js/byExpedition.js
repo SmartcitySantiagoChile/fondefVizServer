@@ -148,31 +148,6 @@ $(document).ready(function () {
                 _yAxisData.loadProfile[stopIndex] = _yAxisData.loadProfile[stopIndex] / counterByStop[stopIndex];
             }
         };
-        this.getAttrGroup = function (attrName, formatFunc) {
-            var dict = {};
-            _trips.forEach(function (trip) {
-                if (!trip.visible) {
-                    return;
-                }
-                var attrValue = trip[attrName];
-                attrValue = formatFunc === undefined ? attrValue : formatFunc(attrValue);
-                if (dict[attrValue]) {
-                    dict[attrValue]++;
-                } else {
-                    dict[attrValue] = 1;
-                }
-            });
-
-            var values = [];
-            for (var name in dict) {
-                values.push({
-                    name: name,
-                    value: dict[name]
-                });
-            }
-            return values;
-        };
-
         this.getDatatableData = function () {
             var values = [];
             var max = 0;
@@ -271,7 +246,6 @@ $(document).ready(function () {
 
         var _dataManager = new DataManager();
         var _barChart = echarts.init(document.getElementById("barChart"), theme);
-        var _timePeriodChart = echarts.init(document.getElementById("timePeriodChart"), theme);
         var _datatable = $("#expeditionDetail").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             language: {
@@ -372,7 +346,6 @@ $(document).ready(function () {
 
         this.resizeCharts = function () {
             _barChart.resize();
-            _timePeriodChart.resize();
         };
 
         var _updateMap = function () {
@@ -394,60 +367,6 @@ $(document).ready(function () {
             });
 
             _mappApp.addPolyline(_routeLayer, shape, {});
-        };
-
-        var _updateTimePeriodChart = function () {
-            var timeTripInit = _dataManager.getAttrGroup("timeTripInit", function (attrValue) {
-                return attrValue.substring(11, 13);
-            });
-            timeTripInit = timeTripInit.sort(function (a, b) {
-                a = parseInt(a.name);
-                b = parseInt(b.name);
-                return a - b;
-            });
-            var hours = timeTripInit.map(function (el) {
-                return el.name;
-            });
-            var max = Math.max(...timeTripInit.map(function (el) {
-                return el.value;
-            }));
-            var values = timeTripInit.map(function (el, index) {
-                return [index, el.value, el.value / max * 30];
-            });
-            var option = {
-                tooltip: {
-                    position: "top"
-                },
-                singleAxis: [{
-                    type: "category",
-                    boundaryGap: false,
-                    data: hours,
-                    top: "10%",
-                    height: "40%",
-                    axisLabel: {
-                        interval: 2
-                    }
-                }],
-                series: [{
-                    singleAxisIndex: 0,
-                    coordinateSystem: "singleAxis",
-                    type: "scatter",
-                    data: values,
-                    symbolSize: function (dataItem) {
-                        return [dataItem[2], dataItem[2]];
-                    },
-                    tooltip: {
-                        formatter: function (params) {
-                            var value = params.value[1];
-                            var name = params.name;
-                            var timePeriod = "[" + name + ":00, " + name + ":59]";
-                            return value + " expediciones iniciadas entre " + timePeriod;
-                        }
-                    }
-                }]
-            };
-            _timePeriodChart.clear();
-            _timePeriodChart.setOption(option, {notMerge: true});
         };
 
         var _updateDatatable = function (opts) {
@@ -723,7 +642,6 @@ $(document).ready(function () {
 
         this.updateCharts = function (expeditionNumber) {
             _updateBarChart();
-            _updateTimePeriodChart();
             _updateGlobalStats(expeditionNumber);
             _updateMap();
         };
@@ -733,11 +651,9 @@ $(document).ready(function () {
         this.showLoadingAnimationCharts = function () {
             var loadingText = "Cargando...";
             _barChart.showLoading(null, {text: loadingText});
-            _timePeriodChart.showLoading(null, {text: loadingText});
         };
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
-            _timePeriodChart.hideLoading();
         };
     }
 
