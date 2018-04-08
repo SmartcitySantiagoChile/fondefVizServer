@@ -11,7 +11,7 @@ from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.errors import ESQueryResultEmpty, FondefVizError
 from esapi.utils import check_operation_program
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBeenGroupedMessage
 from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
 from datamanager.helper import ExporterManager
 
@@ -221,18 +221,20 @@ class LoadProfileByExpeditionData(View):
                 start_date_datetime = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date_datetime = datetime.strptime(end_date, '%Y-%m-%d')
                 diff_days = (end_date_datetime - start_date_datetime).days
+                day_limit = 0000
 
-                if diff_days < 4000:
+                if diff_days < day_limit:
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list)
-                    response['trips'], response['busStations']  = self.transform_answer(es_query)
+                    response['trips'], response['busStations'] = self.transform_answer(es_query)
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type,
                                                                                 auth_route_code, period, half_hour,
                                                                                 valid_operator_list)
                     response['groupedTrips'] = es_query.execute().to_dict()
+                    response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)['stops']
                 response['shape'] = es_shape_helper.get_route_shape(auth_route_code, start_date, end_date)['points']
         except FondefVizError as e:

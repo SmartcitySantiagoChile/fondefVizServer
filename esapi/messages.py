@@ -52,3 +52,13 @@ class ExporterDataHasBeenEnqueuedMessage(GenericUserMessage):
         title = 'Requerimiento encolado'
         message_type = 'success'
         super(ExporterDataHasBeenEnqueuedMessage, self).__init__(251, message, title, message_type)
+
+
+class ExpeditionsHaveBeenGroupedMessage(GenericUserMessage):
+    """ message to show that task of exporter data job was enqueued """
+
+    def __init__(self, day_limit):
+        message = 'El período seleccionado es superior a {0} días por lo que se ha omitido la tabla de expediciones'.format(day_limit)
+        title = 'Expediciones omitidas'
+        message_type = 'info'
+        super(ExpeditionsHaveBeenGroupedMessage, self).__init__(252, message, title, message_type)

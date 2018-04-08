@@ -142,6 +142,11 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('sumLoadProfile', 'sum', field='loadProfile'). \
             metric('sumBusCapacity', 'sum', field='busCapacity'). \
             metric('busSaturation', 'bucket_script', script='params.d / params.t',
-                   buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'})
+                   buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
+            metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart'])
+
+        # bus station list
+        es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
+            bucket('station', A('terms', field='authStopCode.raw', size=500))
 
         return es_query
