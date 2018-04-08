@@ -1,15 +1,7 @@
 "use strict";
 $(document).ready(function () {
-
     // define logic to manipulate data
-    function Trip(expeditionId,
-                  route,
-                  licensePlate,
-                  busCapacity,
-                  timeTripInit,
-                  timeTripEnd,
-                  authTimePeriod,
-                  dayType,
+    function Trip(expeditionId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, authTimePeriod, dayType,
                   data) {
         this.expeditionId = expeditionId;
         this.route = route;
@@ -37,10 +29,7 @@ $(document).ready(function () {
         // file name of chart image
         this.getDataName = function () {
             var FILE_NAME = "Trayectorias con perfil de carga ";
-            if (_trips.length > 0) {
-                return FILE_NAME + _trips[0].route;
-            }
-            return "";
+            return FILE_NAME + $("#authRouteFilter").val();
         };
 
         this.trips = function (trips) {
@@ -574,6 +563,13 @@ $(document).ready(function () {
         }
 
         var trips = dataSource.trips;
+        var busStations = dataSource.busStations;
+        var stops = dataSource.stops.map(function (stop) {
+            stop.busStation = busStations.indexOf(stop.authStopCode) >= 0;
+            return stop;
+        });
+        var shape = dataSource.shape;
+
         var dataManager = new DataManager();
         var globalYAxis = [];
         var updateGlobalYAxis = false;
@@ -582,17 +578,15 @@ $(document).ready(function () {
             var trip = trips[expeditionId];
 
             // trip info
-            var capacity = trip["info"]["capacity"];
-            var licensePlate = trip["info"]["licensePlate"];
-            var route = trip["info"]["route"];
-            var timeTripInit = trip["info"]["timeTripInit"];
-            var timeTripEnd = trip["info"]["timeTripEnd"];
-            var authTimePeriod = trip["info"]["authTimePeriod"];
-            var dayType = trip["info"]["dayType"];
+            var capacity = trip.info.capacity;
+            var licensePlate = trip.info.licensePlate;
+            var route = trip.info.route;
+            var timeTripInit = trip.info.timeTripInit;
+            var timeTripEnd = trip.info.timeTripEnd;
+            var authTimePeriod = trip.info.authTimePeriod;
+            var dayType = trip.info.dayType;
 
-            var stopQuantity = trip["stops"].length;
-
-            if (stopQuantity > globalYAxis.length) {
+            if (stops.length > globalYAxis.length) {
                 globalYAxis = [];
                 updateGlobalYAxis = true;
             } else {
@@ -600,38 +594,42 @@ $(document).ready(function () {
             }
 
             var data = [];
-            for (var stopIndex = 0; stopIndex < stopQuantity; stopIndex++) {
-                var stopInfo = trip["stops"][stopIndex];
-                var authStopCode = stopInfo["authStopCode"];
-                var userStopCode = stopInfo["userStopCode"];
-                var busStation = stopInfo["busStation"];
-                //var order = stopInfo["order"];
-                var name = stopInfo["name"];
-                var distOnPath = stopInfo["distOnPath"];
+            stops.forEach(function (stop) {
+                var stopInfo = trip.stops[stop.authStopCode];
+                if (stopInfo === undefined) {
+                    return;
+                }
+
+                var authStopCode = stop.authStopCode;
+                var userStopCode = stop.userStopCode;
+                var busStation = stop.busStation;
+                //var order = stopInfo.order;
+                var name = stop.stopName;
+                var distOnPath = stopInfo.distOnPath;
 
                 if (updateGlobalYAxis) {
                     var yPoint = {
-                        "value": distOnPath,
-                        "name": name,
-                        "authStopCode": authStopCode,
-                        "userStopCode": userStopCode,
-                        "busStation": busStation
+                        value: distOnPath,
+                        name: name,
+                        authStopCode: authStopCode,
+                        userStopCode: userStopCode,
+                        busStation: busStation
                     };
                     globalYAxis.push(yPoint);
                 }
                 var row = [];
-                var stopTime = stopInfo["stopTime"];
+                var stopTime = stopInfo.stopTime;
                 row.push(stopTime);
-                row.push(stopInfo["distOnPath"]);
-                row.push(stopInfo["loadProfile"]);
-                row.push(stopInfo["loadProfile"] / capacity * 100);
-                row.push(stopInfo["expandedGetOut"]);
-                row.push(stopInfo["expandedGetIn"]);
+                row.push(stopInfo.distOnPath);
+                row.push(stopInfo.loadProfile);
+                row.push(stopInfo.loadProfile / capacity * 100);
+                row.push(stopInfo.expandedGetOut);
+                row.push(stopInfo.expandedGetIn);
                 data.push(row);
-            }
+            });
 
-            trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit,
-                timeTripEnd, authTimePeriod, dayType, data);
+            trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, authTimePeriod,
+                dayType, data);
             dataManager.addTrip(trip);
         }
         dataManager.yAxisData(globalYAxis);
