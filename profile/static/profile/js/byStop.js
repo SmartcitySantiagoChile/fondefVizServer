@@ -1,18 +1,8 @@
 "use strict";
 $(document).ready(function () {
-
     // define logic to manipulate data
-    function Trip(expeditionId,
-                  route,
-                  licensePlate,
-                  busCapacity,
-                  stopTime,
-                  stopTimePeriod,
-                  dayType,
-                  loadProfile,
-                  expandedGetIn,
-                  expandedLanding) {
-
+    function Trip(expeditionId, route, licensePlate, busCapacity, stopTime, stopTimePeriod, dayType, loadProfile,
+                  expandedGetIn, expandedLanding) {
         this.expeditionId = expeditionId;
         this.route = route;
         this.licensePlate = licensePlate;
@@ -62,7 +52,7 @@ $(document).ready(function () {
             }
             _tripsUsed = 0;
             for (var i = 0; i < tripIdArray.length; i++) {
-                if (trips[i]["visible"]) {
+                if (trips[i].visible) {
                     _tripsUsed++;
                 }
             }
@@ -70,10 +60,10 @@ $(document).ready(function () {
         };
         this.addTrip = function (trip) {
             // create trip identifier
-            if (trip["visible"]) {
+            if (trip.visible) {
                 _tripsUsed++;
             }
-            trip["id"] = _trips.length;
+            trip.id = _trips.length;
             _trips.push(trip);
         };
         this.xAxisData = function (data) {
@@ -101,21 +91,21 @@ $(document).ready(function () {
         this.setVisibilty = function (tripIdArray, value) {
             for (var i = 0; i < tripIdArray.length; i++) {
                 var tripId = tripIdArray[i];
-                if (_trips[tripId]["visible"] !== value) {
+                if (_trips[tripId].visible !== value) {
                     if (value === false) {
                         _tripsUsed--;
                     } else {
                         _tripsUsed++;
                     }
                 }
-                _trips[tripId]["visible"] = value;
+                _trips[tripId].visible = value;
             }
         };
         this.checkAllAreAggregate = function (tripIdArray) {
             var result = tripIdArray.length;
             for (var i = 0; i < tripIdArray.length; i++) {
                 var tripId = tripIdArray[i];
-                if (!_trips[tripId]["visible"]) {
+                if (!_trips[tripId].visible) {
                     result--;
                 }
             }
@@ -129,27 +119,27 @@ $(document).ready(function () {
             var tripQuantity = _trips.length;
 
             _yAxisData = {
-                "expandedLanding": [],
-                "expandedGetIn": [],
-                "saturationRateBefore": [],
-                "saturationRateAfter": [],
-                "saturationDiff": [],
-                "positiveSaturationRateAfter": [],
-                "negativeSaturationRateAfter": [],
-                "averageSaturationRateBefore": [],
-                "averageSaturationRateAfter": []
+                expandedLanding: [],
+                expandedGetIn: [],
+                saturationRateBefore: [],
+                saturationRateAfter: [],
+                saturationDiff: [],
+                positiveSaturationRateAfter: [],
+                negativeSaturationRateAfter: [],
+                averageSaturationRateBefore: [],
+                averageSaturationRateAfter: []
             };
 
             for (var i = 0; i < xAxisLength; i++) {
-                _yAxisData["expandedGetIn"].push(0);
-                _yAxisData["expandedLanding"].push(0);
-                _yAxisData["saturationRateBefore"].push(0);
-                _yAxisData["saturationRateAfter"].push(0);
-                _yAxisData["saturationDiff"].push(0);
-                _yAxisData["positiveSaturationRateAfter"].push(0);
-                _yAxisData["negativeSaturationRateAfter"].push(0);
-                _yAxisData["averageSaturationRateBefore"].push(0);
-                _yAxisData["averageSaturationRateAfter"].push(0);
+                _yAxisData.expandedGetIn.push(0);
+                _yAxisData.expandedLanding.push(0);
+                _yAxisData.saturationRateBefore.push(0);
+                _yAxisData.saturationRateAfter.push(0);
+                _yAxisData.saturationDiff.push(0);
+                _yAxisData.positiveSaturationRateAfter.push(0);
+                _yAxisData.negativeSaturationRateAfter.push(0);
+                _yAxisData.averageSaturationRateBefore.push(0);
+                _yAxisData.averageSaturationRateAfter.push(0);
 
                 counterByRoute.push(0);
                 capacityByRoute.push(0);
@@ -164,10 +154,10 @@ $(document).ready(function () {
 
                 var key = _xAxisData.indexOf(trip.route);
 
-                _yAxisData["expandedLanding"][key] += trip.expandedLanding;
-                _yAxisData["expandedGetIn"][key] += trip.expandedGetIn;
-                _yAxisData["saturationRateBefore"][key] += trip.loadProfile;
-                _yAxisData["saturationDiff"][key] += trip.expandedGetIn - trip.expandedLanding;
+                _yAxisData.expandedLanding[key] += trip.expandedLanding;
+                _yAxisData.expandedGetIn[key] += trip.expandedGetIn;
+                _yAxisData.saturationRateBefore[key] += trip.loadProfile;
+                _yAxisData.saturationDiff[key] += trip.expandedGetIn - trip.expandedLanding;
 
                 counterByRoute[key] += 1;
                 capacityByRoute[key] += trip.busCapacity;
@@ -178,23 +168,23 @@ $(document).ready(function () {
                 var percentageAfter = 0;
 
                 if (counterByRoute[routeIndex] !== 0) {
-                    _yAxisData["expandedLanding"][routeIndex] = _yAxisData["expandedLanding"][routeIndex] / counterByRoute[routeIndex];
-                    _yAxisData["expandedGetIn"][routeIndex] = _yAxisData["expandedGetIn"][routeIndex] / counterByRoute[routeIndex];
+                    _yAxisData.expandedLanding[routeIndex] = _yAxisData.expandedLanding[routeIndex] / counterByRoute[routeIndex];
+                    _yAxisData.expandedGetIn[routeIndex] = _yAxisData.expandedGetIn[routeIndex] / counterByRoute[routeIndex];
 
-                    _yAxisData["averageSaturationRateBefore"][routeIndex] = _yAxisData["saturationRateBefore"][routeIndex] / counterByRoute[routeIndex];
-                    _yAxisData["averageSaturationRateAfter"][routeIndex] = (_yAxisData["saturationRateBefore"][routeIndex] + _yAxisData["saturationDiff"][routeIndex]) / counterByRoute[routeIndex];
+                    _yAxisData.averageSaturationRateBefore[routeIndex] = _yAxisData.saturationRateBefore[routeIndex] / counterByRoute[routeIndex];
+                    _yAxisData.averageSaturationRateAfter[routeIndex] = (_yAxisData.saturationRateBefore[routeIndex] + _yAxisData.saturationDiff[routeIndex]) / counterByRoute[routeIndex];
                 } else {
-                    _yAxisData["expandedLanding"][routeIndex] = 0;
-                    _yAxisData["expandedGetIn"][routeIndex] = 0;
-                    _yAxisData["averageSaturationRateBefore"][routeIndex] = 0;
-                    _yAxisData["averageSaturationRateAfter"][routeIndex] = 0;
+                    _yAxisData.expandedLanding[routeIndex] = 0;
+                    _yAxisData.expandedGetIn[routeIndex] = 0;
+                    _yAxisData.averageSaturationRateBefore[routeIndex] = 0;
+                    _yAxisData.averageSaturationRateAfter[routeIndex] = 0;
                 }
 
                 if (capacityByRoute[routeIndex] !== 0) {
-                    _yAxisData["saturationRateBefore"][routeIndex] = _yAxisData["saturationRateBefore"][routeIndex] / capacityByRoute[routeIndex] * 100;
-                    percentageAfter = _yAxisData["saturationDiff"][routeIndex] / capacityByRoute[routeIndex] * 100;
+                    _yAxisData.saturationRateBefore[routeIndex] = _yAxisData.saturationRateBefore[routeIndex] / capacityByRoute[routeIndex] * 100;
+                    percentageAfter = _yAxisData.saturationDiff[routeIndex] / capacityByRoute[routeIndex] * 100;
                 } else {
-                    _yAxisData["saturationRateBefore"][routeIndex] = 0;
+                    _yAxisData.saturationRateBefore[routeIndex] = 0;
                 }
 
                 var incValue = 0;
@@ -204,9 +194,9 @@ $(document).ready(function () {
                 } else if (percentageAfter < 0) {
                     decValue = percentageAfter * -1;
                 }
-                _yAxisData["saturationRateAfter"][routeIndex] = _yAxisData["saturationRateBefore"][routeIndex] + percentageAfter;
-                _yAxisData["positiveSaturationRateAfter"][routeIndex] = incValue;
-                _yAxisData["negativeSaturationRateAfter"][routeIndex] = decValue;
+                _yAxisData.saturationRateAfter[routeIndex] = _yAxisData.saturationRateBefore[routeIndex] + percentageAfter;
+                _yAxisData.positiveSaturationRateAfter[routeIndex] = incValue;
+                _yAxisData.negativeSaturationRateAfter[routeIndex] = decValue;
             }
         };
         this.getAttrGroup = function (attrName, formatFunc) {
@@ -226,22 +216,26 @@ $(document).ready(function () {
                 }
             }
             for (var name in dict) {
-                values.push({"name": name, "value": dict[name]});
+                values.push({
+                    name: name,
+                    value: dict[name]
+                });
             }
             return values;
         };
         this.getDatatableData = function () {
             var values = [];
-            var max = 0;
             for (var i in _trips) {
                 var trip = $.extend({}, _trips[i]);
                 /*if(!trip.visible){
                   continue;
                 }*/
-                trip["busDetail"] = trip["licensePlate"] + " (" + trip["busCapacity"] + ")";
+                trip.busDetail = trip.licensePlate + " (" + trip.busCapacity + ")";
                 values.push(trip);
             }
-            return {"rows": values};
+            return {
+                rows: values
+            };
         };
 
         this.getDistributionData = function () {
@@ -255,25 +249,25 @@ $(document).ready(function () {
                 if (!trip.visible) {
                     continue;
                 }
-                tripData["name"] = trip["stopTime"];
+                tripData.name = trip.stopTime;
 
                 var loadProfile = [];
-                for (var i = 0; i < _xAxisData.length; i++) {
-                    var authStopCode = _xAxisData[i]["authCode"];
-                    var value = trip.yAxisData["loadProfile"][authStopCode];
+                for (var j = 0; j < _xAxisData.length; j++) {
+                    var authStopCode = _xAxisData[j].authCode;
+                    var value = trip.yAxisData.loadProfile[authStopCode];
 
                     if (globalMax < value) {
                         globalMax = value;
                     }
                     loadProfile.push(value);
                 }
-                tripData["loadProfile"] = loadProfile;
+                tripData.loadProfile = loadProfile;
                 trips.push(tripData);
             }
 
             var result = {};
-            result["globalMax"] = globalMax;
-            result["trips"] = trips;
+            result.globalMax = globalMax;
+            result.trips = trips;
 
             return result;
         }
@@ -355,7 +349,6 @@ $(document).ready(function () {
             }
         });
         _datatable.on("search.dt", function (event) {
-
             var el = $("#checkbox-select-all");
             var tripIds = _datatable.rows({"search": "applied"}).data().map(function (el) {
                 return el.id
@@ -491,7 +484,7 @@ $(document).ready(function () {
 
         var _updateDatatable = function () {
             var dataset = _dataManager.getDatatableData();
-            var rows = dataset["rows"];
+            var rows = dataset.rows;
 
             _datatable.off("draw");
             _datatable.on("draw", function (oSettings) {
@@ -796,21 +789,21 @@ $(document).ready(function () {
             var trip = trips[expeditionId];
 
             // trip info
-            var capacity = trip["capacity"];
-            var licensePlate = trip["licensePlate"];
-            var route = trip["route"];
-            var stopTime = trip["stopTime"];
-            var stopTimePeriod = trip["stopTimePeriod"];
-            var dayType = trip["dayType"];
-            //var distOnPath = trip["distOnPath"];
+            var capacity = trip.capacity;
+            var licensePlate = trip.licensePlate;
+            var route = trip.route;
+            var stopTime = trip.stopTime;
+            var stopTimePeriod = trip.stopTimePeriod;
+            var dayType = trip.dayType;
+            //var distOnPath = trip.distOnPath;
 
-            var loadProfile = trip["loadProfile"];
-            var expandedGetIn = trip["expandedGetIn"];
-            var expandedLanding = trip["expandedLanding"];
-            //var saturationRate = trip["loadProfile"]/capacity*100;
+            var loadProfile = trip.loadProfile;
+            var expandedGetIn = trip.expandedGetIn;
+            var expandedLanding = trip.expandedLanding;
+            //var saturationRate = trip.loadProfile/capacity*100;
 
-            trip = new Trip(expeditionId, route, licensePlate, capacity, stopTime,
-                stopTimePeriod, dayType, loadProfile, expandedGetIn, expandedLanding);
+            trip = new Trip(expeditionId, route, licensePlate, capacity, stopTime, stopTimePeriod, dayType,
+                loadProfile, expandedGetIn, expandedLanding);
             dataManager.addTrip(trip);
         }
 
