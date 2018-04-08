@@ -297,6 +297,9 @@ $(document).ready(function () {
                 });
                 mainCheckbox.on("ifToggled", function (event) {
                     // Get all rows with search applied
+                    if (_dataManager.trips().length === 0) {
+                        return;
+                    }
                     var rows = _datatable.rows({"search": "applied"}).nodes();
                     var addToAggr = false;
                     var inputs = $("input.flat", rows);
