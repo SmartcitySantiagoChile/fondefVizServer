@@ -11,3 +11,7 @@
 #dayFilter {
     height: 32px;
 }
+
+.select2-container {
+    line-height: 1.461;
+}
