@@ -358,11 +358,13 @@ $(document).ready(function () {
             var stops = _dataManager.xAxisData();
             var yAxisData = _dataManager.yAxisData().loadProfile;
 
+            var maxLoadProfile = Math.max(...yAxisData);
+
             stops.forEach(function (stop, i) {
                 var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
                 var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
                 var circle = L.circle([stop.latitude, stop.longitude], {
-                    radius: loadProfile * 25
+                    radius: loadProfile/maxLoadProfile * 30
                 });
                 var popup = "Perfil de carga: " + formattedLoadProfile;
                 circle.bindPopup(popup);
