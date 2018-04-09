@@ -362,14 +362,21 @@ $(document).ready(function () {
                 var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
                 var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
                 var circle = L.circle([stop.latitude, stop.longitude], {
-                    radius: loadProfile * 30
+                    radius: loadProfile * 25
                 });
-                var popup = "Nombre: " + stop.stopName + "<br /><small>Código usuario: " + stop.userStopCode + "</small><br /><small>Código transantiago: " + stop.authStopCode + "</small><br />Perfil de carga: " + formattedLoadProfile;
+                var popup = "Perfil de carga: " + formattedLoadProfile;
                 circle.bindPopup(popup);
                 _circleLayer.addLayer(circle);
             });
 
-            _mappApp.addPolyline(_routeLayer, shape, {});
+            _mappApp.addPolyline(_routeLayer, shape, {
+                route: $("#authRouteFilter").val(),
+                stops: stops,
+                additonalStopInfo: function(stopPosition) {
+                    var loadProfile = yAxisData[stopPosition];
+                    return "<br />Perfil de carga: <b>" + Number(loadProfile.toFixed(2)).toLocaleString() + "</b>";
+                }
+            });
         };
 
         var _updateDatatable = function (opts) {

@@ -221,7 +221,7 @@ class LoadProfileByExpeditionData(View):
                 start_date_datetime = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date_datetime = datetime.strptime(end_date, '%Y-%m-%d')
                 diff_days = (end_date_datetime - start_date_datetime).days
-                day_limit = 1000
+                day_limit = 40
 
                 if diff_days < day_limit:
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date,
