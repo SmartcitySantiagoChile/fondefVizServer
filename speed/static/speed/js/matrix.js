@@ -142,7 +142,7 @@ $(document).ready(function () {
         // vel_range = ["Sin Datos", " < 15 k/h", "15-19 k/h", "19-21 k/h", "21-25 k/h", "25-30 k/h", " > 30 k/h"];
         var velRange = ["Sin Datos", " < 5 k/h", "5-10 k/h", "10-15 k/h", "15-20 k/h", "20-25 k/h", "25-30 k/h", " > 30 k/h"];
         // colors = ["#dfdfdf", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#007f00", "#0000ff"];
-        var colors = ["#dfdfdf", "#ff0000", "#ff4500", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
+        var colors = ["#dfdfdf", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
         var mapApp = new DrawSegmentsApp(colors);
 
