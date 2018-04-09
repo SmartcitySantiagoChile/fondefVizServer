@@ -51,9 +51,14 @@ $(document).ready(function () {
                 gpsNumber: ["GPSNumberWithRoute", "GPSNumberWithoutRoute"]
             }
         };
-        var groupId = null;
+
         $(".btn-filter-group").click(function () {
-            groupId = $(this).attr("id");
+            var $METRIC_FILTER = $("#metricFilter");
+            var groupId = $(this).attr("id");
+            if (groupId === "clean") {
+                $METRIC_FILTER.val(filters[groupId]).trigger("change");
+                return;
+            }
             var container = $("#subgroup");
             container.empty();
             Object.keys(filters[groupId]).forEach(function(subgroup){
@@ -62,7 +67,6 @@ $(document).ready(function () {
                     id: subgroup,
                     class: "btn btn-default btn-round btn-filter-subgroup",
                     click: function () {
-                        var $METRIC_FILTER = $("#metricFilter");
                         $METRIC_FILTER.val(filters[groupId][subgroup]).trigger("change");
                     }
                 });

@@ -15,7 +15,7 @@
         {% button "stage" "Etapas por modo de viaje" "default" "filter-group" as btn4 %}
         {% button "expedition" "Expediciones" "default" "filter-group" as btn5 %}
 
-        {% columns 12 12 12 "Conjuntos de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4|add:btn5|add:subgroup as col4 %}
+        {% columns 12 12 12 "Área de métricas: <br />"|add:btn1|add:btn2|add:btn3|add:btn4|add:btn5|add:"<br />Conjuntos de métricas:"|add:subgroup as col4 %}
 
         {% data_filter data_filter show_day_filter=True show_metric_filter=True extra_html=col4 show_export_button=False %}
     {% endwith %}
