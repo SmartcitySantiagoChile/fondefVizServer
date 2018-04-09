@@ -3,30 +3,72 @@ $(document).ready(function () {
     function ResumeApp() {
         var chart = echarts.init(document.getElementById("barChart"), theme);
 
-        var filters = {
-            "clean": [],
-            "transaction": ["transactionWithoutRoute", "transactionWithRoute", "transactionNumber",
-                "transactionOnTrainNumber", "transactionOnMetroNumber", "transactionOnBusNumber",
-                "transactionOnBusStation"],
-            "tripByNumberOfStage": ["tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages",
-                "tripsWithFourStages", "tripsWithFiveOrMoreStages"],
-            "dayTrip": ["validTripNumber", "tripNumber", "averageTimeOfTrips", "averageVelocityOfTrips",
-                "averageTimeBetweenGPSPoints", "averageDistanceOfTrips", "tripsWithOnlyMetro",
-                "tripsThatUseMetro", "completeTripNumber", "stagesWithBusStationAlighting",
-                "tripsWithoutLastAlighting", "smartcardNumber"],
-            "afternoonTrip": ["averageVelocityInAfternoonRushTrips", "averageTimeInAfternoonRushTrips",
-                "averageDistanceInAfternoonRushTrips", "tripNumberInAfternoonRushHour"],
-            "morningTrip": ["averageVelocityInMorningRushTrips", "averageTimeInMorningRushTrips",
-                "averageDistanceInMorningRushTrips", "tripNumberInMorningRushHour"],
-            "stage": ["stagesWithBusAlighting", "stagesWithTrainAlighting", "stagesWithMetroAlighting"],
-            "expedition": ["expeditionNumber", "maxExpeditionTime", "minExpeditionTime", "averageExpeditionTime"],
-            "gps": ["licensePlateNumber", "GPSPointsNumber", "GPSNumberWithRoute", "GPSNumberWithoutRoute"]
+        var subgroupTranslation = {
+            base: "Tarjetas y transacciones",
+            transportMode: "Bus, metro, metrotren y zona paga",
+            model: "Modelo",
+            stage: "Etapa",
+            expedition: "Expedición",
+            morningTrip: "Punta mañana",
+            afternoonTrip: "Punta tarde",
+            speed: "Velocidad",
+            distance: "Distancia",
+            time: "Tiempo",
+            tripWithsubway: "Viajes en metro",
+            gps: "Tiempo entre gps"
         };
+
+        var filters = {
+            clean: [],
+            transaction: {
+                base: ["transactionNumber", "smartcardNumber"],
+                model: ["transactionWithoutRoute", "transactionWithRoute"],
+                transportMode: ["transactionOnBusNumber", "transactionOnMetroNumber", "transactionOnBusStation", "transactionOnTrainNumber"],
+            },
+            trip: {
+                stage: ["tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages", "tripsWithFourStages",
+                    "tripsWithFiveOrMoreStages"],
+                expedition: ["GPSPointsNumber", "licensePlateNumber"],
+                afternoonTrip: ["averageTimeInAfternoonRushTrips", "tripNumberInAfternoonRushHour"],
+                morningTrip: ["averageTimeInMorningRushTrips", "tripNumberInMorningRushHour"],
+                speed: ["averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips",
+                    "averageVelocityOfTrips"],
+                distance: ["averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips",
+                    "averageDistanceOfTrips"],
+                model: ["completeTripNumber", "validTripNumber", "tripNumber", "tripsWithoutLastAlighting"],
+                gps: ["averageTimeBetweenGPSPoints"],
+                tripWithsubway: ["tripsThatUseMetro", "tripsWithOnlyMetro"],
+                time: ["averageTimeOfTrips"]
+            },
+            stage: {
+                bus: ["stagesWithBusAlighting"],
+                train: ["stagesWithTrainAlighting"],
+                subway: ["stagesWithMetroAlighting"],
+                busStation: ["stagesWithBusStationAlighting"]
+            },
+            expedition: {
+                expedition: ["expeditionNumber"],
+                model: ["maxExpeditionTime", "minExpeditionTime", "averageExpeditionTime"],
+                gps: ["GPSNumberWithRoute", "GPSNumberWithoutRoute"]
+            }
+        };
+        var groupId = null;
         $(".btn-filter-group").click(function () {
-            var id = $(this).attr("id");
-            var metrics = filters[id];
-            var $METRIC_FILTER = $("#metricFilter");
-            $METRIC_FILTER.val(metrics).trigger("change");
+            groupId = $(this).attr("id");
+            var container = $("#subgroup");
+            container.empty();
+            Object.keys(filters[groupId]).forEach(function(subgroup){
+                var button = $("<button></button>",{
+                    text: subgroupTranslation[subgroup],
+                    id: subgroup,
+                    class: "btn btn-default btn-round btn-filter-subgroup",
+                    click: function () {
+                        var $METRIC_FILTER = $("#metricFilter");
+                        $METRIC_FILTER.val(filters[groupId][subgroup]).trigger("change");
+                    }
+                });
+                container.append(button);
+            });
         });
 
         this.updateMetrics = function (data) {
