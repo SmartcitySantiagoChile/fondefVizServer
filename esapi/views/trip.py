@@ -307,7 +307,7 @@ class TransfersData(View):
                      result.third_transfer_to_subway]:
             for from_bucket in step.route_from.buckets:
                 for to_bucket in from_bucket.route_to.buckets:
-                    answer[to_bucket.key][from_bucket.key] += to_bucket.expansion_factor.value
+                    answer[to_bucket.key][from_bucket.key] += to_bucket.doc_count
 
         for step in [result.first_transfer_is_end, result.second_transfer_is_end, result.third_transfer_is_end]:
             for from_bucket in step.route_from.buckets:
@@ -315,10 +315,10 @@ class TransfersData(View):
                     end = to_bucket.key
                     if end == '-':
                         end = 'end'
-                    answer[end][from_bucket.key] += to_bucket.expansion_factor.value
+                    answer[end][from_bucket.key] += to_bucket.doc_count
 
         for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
-            answer['end'][from_bucket.key] += from_bucket.expansion_factor.value
+            answer['end'][from_bucket.key] += from_bucket.doc_count
 
         if not answer:
             raise ESQueryResultEmpty()
