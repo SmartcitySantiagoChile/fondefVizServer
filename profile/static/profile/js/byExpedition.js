@@ -714,7 +714,7 @@ $(document).ready(function () {
                 var expandedGetOut = itemIsNull ? null : item.expandedGetOut;
                 var expandedGetIn = itemIsNull ? null : item.expandedGetIn;
                 var loadProfile = itemIsNull ? null : item.loadProfile;
-                var saturationRate = itemIsNull ? null : item.busSaturation;
+                var saturationRate = itemIsNull ? null : item.busSaturation * 100;
                 var maxLoadProfile = itemIsNull ? null : item.maxLoadProfile;
 
                 yAxisDataResult.expandedGetOut.push(expandedGetOut);
