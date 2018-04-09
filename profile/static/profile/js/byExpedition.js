@@ -379,7 +379,7 @@ $(document).ready(function () {
             });
         };
 
-        var _updateDatatable = function (opts) {
+        var _updateDatatable = function () {
             var dataset = _dataManager.getDatatableData();
             var rows = dataset.rows;
             var maxHeight = dataset.maxHeight;
@@ -655,8 +655,8 @@ $(document).ready(function () {
             _updateGlobalStats(expeditionNumber);
             _updateMap();
         };
-        this.updateDatatable = function (opts) {
-            _updateDatatable(opts);
+        this.updateDatatable = function () {
+            _updateDatatable();
         };
         this.showLoadingAnimationCharts = function () {
             var loadingText = "Cargando...";
@@ -735,9 +735,7 @@ $(document).ready(function () {
             dataManager.xAxisData(tripGroupXAxisData);
             app.dataManager(dataManager);
             app.updateCharts(expeditionNumber);
-            app.updateDatatable({
-                a: 1
-            });
+            app.updateDatatable();
         } else {
             for (var expeditionId in trips) {
                 var trip = trips[expeditionId];
