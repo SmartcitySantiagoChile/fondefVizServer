@@ -1,4 +1,22 @@
 ########################################################################################################################
+#  ¿Cómo abrir el CSV con microsoft Excel?
+########################################################################################################################
+
+Al abrir el archivo csv directamente con microsoft excel puede notar que algunos caracteres tienen una forma extraña.
+Para solucionar este problema realice los siguientes pasos:
+
+    1 - Abrir microsft Excel
+    2 - Ir a la pestaña "datos"
+    3 - En la sección "obtener y transformar datos" seleccionar la opción "desde CSV"
+    4 - Se abrirá una ventana donde debe selecionar el archivo CSV a importar
+    5 - Una de las opciones disponible en la parte superior es "origen de archivo", en aquella casilla seleccione la
+        opción "65001 Unicode (UTF-8)"
+    6 - Presionar el botón "Cargar"
+
+Con esto microsoft Excel comprende la codificación utilizada en el archivo y por lo tanto es capaz de mostrarlo
+correctamente.
+
+########################################################################################################################
 #  <put_title_here>
 ########################################################################################################################
 
