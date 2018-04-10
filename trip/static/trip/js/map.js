@@ -110,10 +110,10 @@ function MapApp(opts) {
         },
         destinationZone: function (feature) {
             return {
-                fillColor: "green",
+                fillColor: "black",
                 weight: 3,
                 opacity: 1,
-                color: "green",
+                color: "black",
                 dashArray: "0",
                 fillOpacity: 0.5
             };
