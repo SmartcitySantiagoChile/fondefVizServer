@@ -1,7 +1,7 @@
 {% extends 'trip/base.html' %}
 {% load static header data_filter panel %}
 
-{% block title %}Indicadores: Viajes por Etapas{% endblock %}
+{% block title %}Viajes: Viajes por Etapas{% endblock %}
 
 {% block css %}
     {{ block.super }}
@@ -19,7 +19,7 @@
 
 {% block content %}
     <div class="">
-        {% header "Viajes por etapas" "Indicadores" %}
+        {% header "Viajes por etapas" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
         {% data_filter data_filter True False True True info_target_id="filterHelp" extra_html=stage_selectors %}
 
