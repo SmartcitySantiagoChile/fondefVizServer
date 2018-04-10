@@ -16,9 +16,10 @@ $(document).ready(function () {
         // data given by server
         var data = null;
 
+        var destinationLegend = "<br /><i style='background:black'></i> Zona de destino";
         var mapOpts = {
             tviaje: {
-                name: "Tiempo de viaje",
+                name: "Tiempo de viaje" + destinationLegend,
                 grades: [0, 30, 45, 60, 75],
                 grades_str: ["0", "30", "45", "60", "75"],
                 legend_post_str: "min",
@@ -27,7 +28,7 @@ $(document).ready(function () {
                 }
             },
             distancia_ruta: {
-                name: "Distancia en ruta",
+                name: "Distancia en ruta" + destinationLegend,
                 grades: [0, 1000, 5000, 10000, 20000],
                 grades_str: ["0", "1", "5", "10", "20"],
                 legend_post_str: "km",
@@ -36,7 +37,7 @@ $(document).ready(function () {
                 }
             },
             distancia_eucl: {
-                name: "Distancia euclideana",
+                name: "Distancia euclideana" + destinationLegend,
                 grades: [0, 1000, 5000, 10000, 20000],
                 grades_str: ["0", "1", "5", "10", "20"],
                 legend_post_str: "km",
@@ -45,7 +46,7 @@ $(document).ready(function () {
                 }
             },
             n_etapas: {
-                name: "Número de etapas",
+                name: "Número de etapas" + destinationLegend,
                 grades: [1.0, 1.5, 2.0, 2.5, 3.0],
                 grades_str: ["1.0", "1.5", "2.0", "2.5", "3.0"],
                 legend_post_str: "",
@@ -54,7 +55,7 @@ $(document).ready(function () {
                 }
             },
             count: {
-                name: "Cantidad de viajes",
+                name: "Número de viajes" + destinationLegend,
                 grades: [1, 5, 25, 50, 75],
                 grades_str: ["1", "5", "25", "50", "75"],
                 legend_post_str: "",
@@ -142,11 +143,7 @@ $(document).ready(function () {
 
             var destinationZoneIds = sectors[selectedDestinationZone];
 
-            var legendOpts = {
-                grades: mapOpts[selectedKPI].grades,
-                grades_str: mapOpts[selectedKPI].grades_str,
-                legend_post_str: mapOpts[selectedKPI].legend_post_str
-            };
+            var legendOpts = mapOpts[selectedKPI];
             mapApp.refreshMap(destinationZoneIds, scale, selectedKPI, legendOpts);
         };
 
