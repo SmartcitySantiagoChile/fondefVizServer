@@ -14,6 +14,7 @@ function MapApp(opts) {
     var showMacroZones = opts.showMacroZones===undefined?true:opts.showMacroZones;
     var tileLayer = opts.tileLayer || "light";
     var mapStartLocation = opts.startLocation || L.latLng(-33.459229, -70.645348);
+    var clickZoneEvent = opts.clickZoneEvent || function(){};
 
     var tileLayerURL = {
         "light": "https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}",
@@ -312,7 +313,10 @@ function MapApp(opts) {
                                 currentLayer.setStyle(_self.styles.zoneWithoutData(currentLayer.feature));
                                 mapInfoBar.update(currentLayer.feature.properties);
                             },
-                            click: zoomToZoneEvent
+                            click: function(e){
+                                zoomToZoneEvent(e);
+                                clickZoneEvent(e);
+                            }
                         });
                     }
                 }));

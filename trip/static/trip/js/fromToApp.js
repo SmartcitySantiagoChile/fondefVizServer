@@ -8,8 +8,8 @@ $(document).ready(function () {
         [$STAGES_SELECTOR, $TRANSPORT_MODES_SELECTOR].forEach(function (el) {
             el.each(function (index, html) {
                 new Switchery(html, {
-                    size: 'small',
-                    color: 'rgb(38, 185, 154)'
+                    size: "small",
+                    color: "rgb(38, 185, 154)"
                 });
             });
         });
@@ -18,7 +18,7 @@ $(document).ready(function () {
         var data = null;
         var mapOpts = {
             count: {
-                name: 'Cantidad de viajes',
+                name: "Cantidad de viajes",
                 grades: [1, 10, 20, 30, 40],
                 grades_str: ["1", "10", "20", "30", "40"],
                 legend_post_str: "",
@@ -32,7 +32,7 @@ $(document).ready(function () {
             return $STAGES_SELECTOR.filter(function (index, el) {
                 return el.checked;
             }).map(function (index, el) {
-                return el.getAttribute('data-ne-str')
+                return el.getAttribute("data-ne-str");
             }).get();
         };
 
@@ -45,7 +45,7 @@ $(document).ready(function () {
         };
 
         var printAmountOfData = function () {
-            var tripQuantity = data.aggregations.sum_expansion_factor.value;
+            var tripQuantity = data.origin_zone.aggregations.expansion_factor.value;
             var dataQuantity = data.origin_zone.hits.total;
             document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
             document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
@@ -59,35 +59,6 @@ $(document).ready(function () {
             printAmountOfData();
         };
 
-        this.calculateBounds = function () {
-            if (origin.length === 0 && destination.length === 0) {
-                var dcounts = data.origin_zones.by_zone.buckets.map(function (v) {
-                    return v.doc_count;
-                });
-                dcounts = dcounts.concat(data.destination_zones.by_zone.buckets.map(function (v) {
-                    return v.doc_count;
-                }));
-                var minValue = Math.min(...dcounts);
-                var maxValue = Math.max(...dcounts);
-            } else if (destination.length === 0) { // origin selected
-                var dcounts = ws_data.data.destination_zones.by_zone.buckets.map(function (v, i) {
-                    return v.doc_count;
-                });
-                var minValue = Math.min(...dcounts);
-                var maxValue = Math.max(...dcounts);
-            } else if (origin.length === 0) { // destination selected
-                var dcounts = ws_data.data.origin_zones.by_zone.buckets.map(function (v, i) {
-                    return v.doc_count;
-                });
-                var minValue = Math.min(...dcounts);
-                var maxValue = Math.max(...dcounts);
-            }
-
-            return {
-                minValue: minValue,
-                maxValue: maxValue
-            }
-        };
         this.updateMap = function (opts) {
             console.log("updateMap method called!");
 
@@ -127,7 +98,10 @@ $(document).ready(function () {
                 return colors[grades.length - 1];
             },
             showMetroStations: false,
-            showMacroZones: false
+            showMacroZones: false,
+            clickZoneEvent: function(e) {
+                console.log("HOLA WENA WENA");
+            }
         };
         var destinationMapOpts = {
             getDataZoneById: function (zoneId) {

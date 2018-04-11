@@ -244,6 +244,7 @@ class ESTripHelper(ElasticSearchHelper):
         destination_es_query = copy.copy(es_query)
         _query_by_zone(es_query, 'zona_subida')
         _query_by_zone(destination_es_query, 'zona_bajada')
+        es_query.aggs.metric('expansion_factor', 'sum', field='factor_expansion')
 
         # origin zone, destination zone
         return es_query, destination_es_query
