@@ -32,8 +32,8 @@ function loadAvailableDays(data_url) {
                 nameMap: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
             },
             top: 20,
-            left: 50,
-            right: 30
+            left: "10%",
+            right: "0"
         },
         series: [{
             type: "heatmap",
