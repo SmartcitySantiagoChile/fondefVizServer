@@ -66,8 +66,8 @@ $(document).ready(function () {
             var max = 0;
             var min = 0;
             var setMaxMin = function (v) {
-                max = Math.max(max, v.doc_count);
-                min = Math.min(min, v.doc_count);
+                max = Math.max(max, v.expansion_factor.value);
+                min = Math.min(min, v.expansion_factor.value);
             };
             if (originSelected.size === 0 && destinationSelected.size === 0) {
                 originZones.forEach(setMaxMin);
@@ -92,16 +92,24 @@ $(document).ready(function () {
             var minSize = 3;
             var maxSize = 23;
 
-            var zoneInfo = {};
+            var originZoneInfo = {};
             originMapApp.getZoneLayer().eachLayer(function (layer) {
-                zoneInfo[layer.feature.properties.id] = {
+                originZoneInfo[layer.feature.properties.id] = {
+                    center: layer.getBounds().getCenter()
+                    // properties: layer.feature.properties
+                };
+            });
+            var destinationZoneInfo = {};
+            destinationMapApp.getZoneLayer().eachLayer(function (layer) {
+                destinationZoneInfo[layer.feature.properties.id] = {
                     center: layer.getBounds().getCenter()
                     // properties: layer.feature.properties
                 };
             });
             var createCircleMarker = function (position, indicator, color, zoneId) {
+                var radius  = minSize + (Math.round(indicator) - bounds.min) * (maxSize - minSize) / (bounds.max - bounds.min);
                 return L.circleMarker(position, {
-                    radius: minSize + (indicator - bounds.min) * (maxSize - minSize) / (bounds.max - bounds.min),
+                    radius: radius,
                     fillColor: color,
                     weight: 0,
                     opacity: 1,
@@ -112,7 +120,7 @@ $(document).ready(function () {
             };
 
             originZones.forEach(function (item) {
-                var cm = createCircleMarker(zoneInfo[item.key].center, item.doc_count, "#FFFF00", item.key).addTo(originGroupLayer);
+                var cm = createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00", item.key).addTo(originGroupLayer);
                 /*
                 cm.on("mouseover", function(e) {
                     originMapApp.refreshZoneInfoControl(zoneInfo[e.target.options.zoneId].properties, item);
@@ -122,7 +130,7 @@ $(document).ready(function () {
                 });*/
             });
             destinationZones.forEach(function (item) {
-                var cm = createCircleMarker(zoneInfo[item.key].center, item.doc_count, "#A900FF", item.key).addTo(destinationGroupLayer);
+                var cm = createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF", item.key).addTo(destinationGroupLayer);
                 /*
                 cm.on("mouseover", function(e) {
                     destinationMapApp.refreshZoneInfoControl(zoneInfo[e.target.options.zoneId].properties, item);
