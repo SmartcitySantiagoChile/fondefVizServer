@@ -3,85 +3,6 @@
 function MapApp(opts) {
     var _self = this;
 
-    var getDataZoneById = opts.getDataZoneById || null;
-    var getZoneValue = opts.getZoneValue || null;
-    var getZoneColor = opts.getZoneColor || null;
-    var mapId = opts.mapId || "mapChart";
-    var maxZoom = opts.maxZoom || 15;
-    var minZoom = opts.minZoom || 8;
-    var maxBounds = opts.maxBounds || L.latLngBounds(L.latLng(-33.697721, -70.942223), L.latLng(-33.178138, -70.357465));
-    var showMetroStations= opts.showMetroStations===undefined?true:opts.showMetroStations;
-    var showMacroZones = opts.showMacroZones===undefined?true:opts.showMacroZones;
-    var tileLayer = opts.tileLayer || "light";
-    var mapStartLocation = opts.startLocation || L.latLng(-33.459229, -70.645348);
-    var onClickZone = opts.onClickZone || function (e) { _self.zoomToZoneEvent(e); };
-    var onMouseoutZone = opts.onMouseoutZone || function (e) { _self.defaultOnMouseoutZone(e); };
-    var onMouseinZone = opts.onMouseinZone || function (e) { _self.defaultOnMouseinZone(e); };
-
-    var tileLayerURL = {
-        "light": "https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}",
-        "dark": "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}"
-    };
-    tileLayer = tileLayerURL[tileLayer];
-
-    /* map options */
-    var accessToken = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
-    //var accessToken = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
-
-    var map = L.map(mapId).setView(mapStartLocation, minZoom);
-    L.tileLayer(tileLayer, {
-        attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
-        minZoom: minZoom,
-        maxZoom: maxZoom,
-        accessToken: accessToken
-    }).addTo(map);
-    map.setMaxBounds(maxBounds);
-
-    var visibleLimits = [0, 0];
-    var defaultZoom = 11;
-    var sectorZoom = 12;
-    var featureZoom = 12;
-
-    var scales = {
-        // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
-        sequential: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
-        // http://colorbrewer2.org/#type=diverging&scheme=Spectral&n=5
-        divergent: ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"]
-    };
-
-    var zoneGeoJSON = null;
-    var subwayLayer = L.geoJSON();
-    var zoneLayer = L.geoJSON();
-    var districtLayer = L.geoJSON();
-    var destinationZoneLayer = L.geoJSON();
-
-    function rearrangeLayers() {
-        var layers = [zoneLayer, destinationZoneLayer, districtLayer, subwayLayer];
-        layers.forEach(function (layer) {
-            if (layer.isActive) {
-                layer.bringToFront();
-            }
-        });
-    }
-
-    map.on("overlayremove", function (event) {
-        event.layer.isActive = false;
-    });
-    map.on("overlayadd", function (event) {
-        event.layer.isActive = true;
-        //rearrangeLayers();
-    });
-
-    var mapInfoBar = L.control({position: "topright"});
-    var mapLegend = L.control({position: "bottomright"});
-
-    this.getMapInstance = function () {
-        return map;
-    };
-
-    this.getZoneLayer = function () {
-        return zoneLayer;
-    };
     // ============================================================================
     // MAP FEATURE STYLING
     // ============================================================================
@@ -152,19 +73,102 @@ function MapApp(opts) {
         }
     };
 
+    var getDataZoneById = opts.getDataZoneById || null;
+    var getZoneValue = opts.getZoneValue || null;
+    var getZoneColor = opts.getZoneColor || null;
+    var mapId = opts.mapId || "mapChart";
+    var maxZoom = opts.maxZoom || 15;
+    var minZoom = opts.minZoom || 8;
+    var maxBounds = opts.maxBounds || L.latLngBounds(L.latLng(-33.697721, -70.942223), L.latLng(-33.178138, -70.357465));
+    var showMetroStations= opts.showMetroStations===undefined?true:opts.showMetroStations;
+    var showMacroZones = opts.showMacroZones===undefined?true:opts.showMacroZones;
+    var tileLayer = opts.tileLayer || "light";
+    var mapStartLocation = opts.startLocation || L.latLng(-33.459229, -70.645348);
+    var onClickZone = opts.onClickZone || function (e) { _self.zoomToZoneEvent(e); };
+    var onMouseoutZone = opts.onMouseoutZone || function (e) { _self.defaultOnMouseoutZone(e); };
+    var onMouseinZone = opts.onMouseinZone || function (e) { _self.defaultOnMouseinZone(e); };
+    var hideMapLegend = opts.hideMapLegend || false;
+    var defaultZoneStyle = opts.defaultZoneStyle || _self.styles.zoneWithoutData;
+    var defaultOverZoneStyle = opts.defaultOverZoneStyle || _self.styles.zoneOnHover;
+
+    var tileLayerURL = {
+        "light": "https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}",
+        "dark": "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}"
+    };
+    tileLayer = tileLayerURL[tileLayer];
+
+    /* map options */
+    var accessToken = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
+    //var accessToken = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
+
+    var map = L.map(mapId).setView(mapStartLocation, minZoom);
+    L.tileLayer(tileLayer, {
+        attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
+        minZoom: minZoom,
+        maxZoom: maxZoom,
+        accessToken: accessToken
+    }).addTo(map);
+    map.setMaxBounds(maxBounds);
+
+    var visibleLimits = [0, 0];
+    var defaultZoom = 11;
+    var sectorZoom = 12;
+    var featureZoom = 12;
+
+    var scales = {
+        // http://colorbrewer2.org/#type=sequential&scheme=GnBu&n=5
+        sequential: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
+        // http://colorbrewer2.org/#type=diverging&scheme=Spectral&n=5
+        divergent: ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"]
+    };
+
+    var zoneGeoJSON = null;
+    var subwayLayer = L.geoJSON();
+    var zoneLayer = L.geoJSON();
+    var districtLayer = L.geoJSON();
+    var destinationZoneLayer = L.geoJSON();
+
+    function rearrangeLayers() {
+        var layers = [zoneLayer, destinationZoneLayer, districtLayer, subwayLayer];
+        layers.forEach(function (layer) {
+            if (layer.isActive) {
+                layer.bringToFront();
+            }
+        });
+    }
+
+    map.on("overlayremove", function (event) {
+        event.layer.isActive = false;
+    });
+    map.on("overlayadd", function (event) {
+        event.layer.isActive = true;
+        //rearrangeLayers();
+    });
+
+    var mapInfoBar = L.control({position: "topright"});
+    var mapLegend = L.control({position: "bottomright"});
+
+    this.getMapInstance = function () {
+        return map;
+    };
+
+    this.getZoneLayer = function () {
+        return zoneLayer;
+    };
+
     this.refreshZoneInfoControl = function (properties, zoneData) {
         mapInfoBar.update(properties, zoneData);
     };
 
     this.defaultOnMouseoutZone = function (e) {
         var currentLayer = e.target;
-        currentLayer.setStyle(_self.styles.zoneWithoutData(currentLayer.feature));
+        currentLayer.setStyle(defaultZoneStyle(currentLayer.feature));
         _self.refreshZoneInfoControl(currentLayer.feature.properties);
     };
 
     this.defaultOnMouseinZone = function (e) {
         var currentLayer = e.target;
-        currentLayer.setStyle(_self.styles.zoneOnHover(currentLayer.feature));
+        currentLayer.setStyle(defaultOverZoneStyle(currentLayer.feature));
         _self.refreshZoneInfoControl(currentLayer.feature.properties);
     };
 
@@ -215,7 +219,7 @@ function MapApp(opts) {
             });
         });
 
-        _self.refreshZoneLayer();
+        _self.refreshZoneLayer(kpi, scale);
 
         // add to map
         destinationZoneLayer.addTo(map);
@@ -225,7 +229,7 @@ function MapApp(opts) {
         rearrangeLayers();
     };
 
-    this.refreshZoneLayer = function () {
+    this.refreshZoneLayer = function (kpi, scale) {
         zoneLayer.eachLayer(function (layer) {
             var feature = layer.feature;
             var zoneId = feature.properties.id;
@@ -252,7 +256,6 @@ function MapApp(opts) {
                     selectedLayer.setStyle(style);
                     _self.refreshZoneInfoControl();
                 }
-                //click: zoomToZoneEvent
             });
         });
     };
@@ -266,8 +269,6 @@ function MapApp(opts) {
 
         // method that we will use to update the control based on feature properties passed
         mapInfoBar.update = function (zoneProps, zoneData) {
-            // console.log(zoneProps);
-            // console.log(zoneData);
             this._div.innerHTML = "<h4>Zonificación 777</h4>";
             if (zoneProps) {
                 this._div.innerHTML += "<b>Información de la zona " + zoneProps.id + "</b>";
@@ -326,7 +327,6 @@ function MapApp(opts) {
                 zoneGeoJSON = data;
                 zoneLayer.clearLayers();
                 var geojsonLayer = L.geoJson(data, {
-                    style: _self.styles.zoneWithoutData(),
                     onEachFeature: function (feature, layer) {
                         layer.on({
                             mouseover: function (e) {
@@ -339,6 +339,7 @@ function MapApp(opts) {
                                 onClickZone.call(_self, e);
                             }
                         });
+                        layer.setStyle(defaultZoneStyle(feature));
                     }
                 });
                 geojsonLayer.getLayers().forEach(function (layer) {
@@ -402,7 +403,9 @@ function MapApp(opts) {
         $.when(...shapesToLoad)
             .done(function () {
                 setupMapInfoBar();
-                setupMapLegend();
+                if (!hideMapLegend) {
+                    setupMapLegend();
+                }
 
                 var controlMapping = {
                     "Zonas 777": zoneLayer

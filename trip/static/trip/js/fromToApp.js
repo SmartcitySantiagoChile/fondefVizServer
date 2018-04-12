@@ -34,8 +34,16 @@ $(document).ready(function () {
             return $TRANSPORT_MODES_SELECTOR.filter(function (index, el) {
                 return el.checked;
             }).map(function (index, el) {
-                return el.getAttribute('data-ne-str')
+                return el.getAttribute("data-ne-str");
             }).get();
+        };
+
+        this.getOriginZones = function () {
+            return Array.from(originSelected);
+        };
+
+        this.getDestinationZones = function () {
+            return Array.from(destinationSelected);
         };
 
         var printAmountOfData = function (data) {
@@ -61,18 +69,18 @@ $(document).ready(function () {
                 max = Math.max(max, v.doc_count);
                 min = Math.min(min, v.doc_count);
             };
-            if (originSelected.size===0 && destinationSelected.size===0){
+            if (originSelected.size === 0 && destinationSelected.size === 0) {
                 originZones.forEach(setMaxMin);
                 destinationZones.forEach(setMaxMin);
-            } else if (originSelected.size===0){
+            } else if (originSelected.size === 0) {
                 originZones.forEach(setMaxMin);
-            } else if (destinationSelected.size===0) {
+            } else if (destinationSelected.size === 0) {
                 destinationZones.forEach(setMaxMin);
             }
             return {
                 max: max,
                 min: min
-            }
+            };
         };
 
         this.updateMap = function (opts) {
@@ -87,37 +95,50 @@ $(document).ready(function () {
             var location = {};
             originMapApp.getZoneLayer().eachLayer(function (layer) {
                 location[layer.feature.properties.id] = layer.getBounds().getCenter();
-                layer.setStyle({
-                    weight: 1,
-                    color: (originSelected.has(layer.feature.properties.id) >= 0) ? '#FFFF00' : '#0000FF',
-                    opacity: 0.5,
-                    dashArray: '1',
-                    fillOpacity: (originSelected.has(layer.feature.properties.id, origin) >= 0) ? 0.5 : 0.3,
-                    fillColor: (originSelected.has(layer.feature.properties.id, origin) >= 0) ? '#FFFF00' : '#0000FF'
-                });
             });
-            if (originSelected.size===0){
-                originZones.forEach(function (item) {
-                    var cm = L.circleMarker(location[item.key], {
-                        radius: minSize + (item.doc_count - bounds.min) * (maxSize - minSize) / (bounds.max - bounds.min),
-                        fillColor: '#FFFF00',
-                        weight: 0,
-                        opacity: 1,
-                        fillOpacity: 0.5,
-                        zone_id: item.key
-                    }).addTo(originGroupLayer);
-                    // cm.on('mouseover', onEachBallFeatureMap1);
-                    // cm.on('mouseout', resetStats1);
+            var createCircleMarker = function (position, indicator, color, zoneId) {
+                return L.circleMarker(position, {
+                    radius: minSize + (indicator - bounds.min) * (maxSize - minSize) / (bounds.max - bounds.min),
+                    fillColor: color,
+                    weight: 0,
+                    opacity: 1,
+                    fillOpacity: 0.5,
+                    zone_id: zoneId
                 });
-            }
+            };
+
+            originZones.forEach(function (item) {
+                var cm = createCircleMarker(location[item.key], item.doc_count, "#FFFF00", item.key).addTo(originGroupLayer);
+                // cm.on('mouseover', onEachBallFeatureMap1);
+                // cm.on('mouseout', resetStats1);
+            });
+            destinationZones.forEach(function (item) {
+                var cm = createCircleMarker(location[item.key], item.doc_count, "#A900FF", item.key).addTo(destinationGroupLayer);
+                // cm.on('mouseover', onEachBallFeatureMap2);
+                // cm.on('mouseout', resetStats2);
+            });
         };
 
-        var mapOptionBuilder = function(opts) {
+        var mapOptionBuilder = function (opts) {
             return {
                 mapId: opts.mapId,
+                hideMapLegend: true,
                 showMetroStations: false,
                 showMacroZones: false,
-                onClickZone: function(e) {
+                defaultZoneStyle: function (feature) {
+                    var zoneId = feature.properties.id;
+                    var color = originSelected.has(zoneId) ? opts.selectedColor : opts.baseColor;
+                    var fillOpacity = originSelected.has(zoneId) ? 0.5 : 0.3;
+                    return {
+                        weight: 1,
+                        color: color,
+                        opacity: 0.5,
+                        dashArray: "1",
+                        fillOpacity: fillOpacity,
+                        fillColor: color
+                    };
+                },
+                onClickZone: function (e) {
                     var layer = e.target;
                     var zoneId = layer.feature.properties.id;
                     if (opts.selectedZoneSet.has(zoneId)) {
@@ -126,7 +147,7 @@ $(document).ready(function () {
                         this.defaultOnMouseinZone(e);
                     } else {
                         opts.selectedZoneSet.add(zoneId);
-                        layer.setStyle(this.styles.zoneWithColor(layer.feature, "#7dc142"));
+                        layer.setStyle(this.styles.zoneWithColor(layer.feature, opts.selectedColor));
                     }
                 },
                 onMouseinZone: function (e) {
@@ -135,7 +156,7 @@ $(document).ready(function () {
                     if (!opts.selectedZoneSet.has(zoneId)) {
                         this.defaultOnMouseinZone(e);
                     }
-                    var zoneData = opts.getDataSource().find(function(el){
+                    var zoneData = opts.getDataSource().find(function (el) {
                         return el.key === zoneId;
                     });
                     this.refreshZoneInfoControl(layer.feature.properties, zoneData);
@@ -154,12 +175,20 @@ $(document).ready(function () {
         var originMapOpts = mapOptionBuilder({
             mapId: "mapChart",
             selectedZoneSet: originSelected,
-            getDataSource: function () { return originZones; }
+            getDataSource: function () {
+                return originZones;
+            },
+            baseColor: "#0000FF",
+            selectedColor: "#FFFF00"
         });
         var destinationMapOpts = mapOptionBuilder({
             mapId: "mapChart2",
             selectedZoneSet: destinationSelected,
-            getDataSource: function () { return destinationZones;}
+            getDataSource: function () {
+                return destinationZones;
+            },
+            baseColor: "#0000FF",
+            selectedColor: "#A900FF"
         });
         var originMapApp = new MapApp(originMapOpts);
         var destinationMapApp = new MapApp(destinationMapOpts);
@@ -202,7 +231,9 @@ $(document).ready(function () {
             dataUrlParams: function () {
                 return {
                     stages: app.getStages(),
-                    transportModes: app.getTransportModes()
+                    transportModes: app.getTransportModes(),
+                    originZones: app.getOriginZones(),
+                    destinationZones: app.getDestinationZones()
                 }
             }
         };
