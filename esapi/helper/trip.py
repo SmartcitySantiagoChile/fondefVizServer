@@ -198,7 +198,8 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_base_from_to_map_data_query(self, start_date, end_date, day_types, periods, minutes, stages, modes):
+    def get_base_from_to_map_data_query(self, start_date, end_date, day_types, periods, minutes, stages, modes,
+                                        origin_zones, destination_zones):
         es_query = self.get_base_query()
 
         if not start_date or not end_date:
@@ -221,12 +222,17 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', n_etapas=stages)
         if modes:
             es_query = es_query.filter('terms', modos=modes)
+        if origin_zones:
+            es_query = es_query.filter('terms', zona_subida=origin_zones)
+        if destination_zones:
+            es_query = es_query.filter('terms', zona_bajada=destination_zones)
 
         return es_query
 
-    def get_from_to_map_data(self, start_date, end_date, day_types, periods, minutes, stages, modes):
+    def get_from_to_map_data(self, start_date, end_date, day_types, periods, minutes, stages, modes, origin_zones,
+                             destination_zones):
         es_query = self.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes, stages,
-                                                        modes)[:0]
+                                                        modes, origin_zones, destination_zones)[:0]
 
         def _query_by_zone(query, field):
             by_zone_agg = A('terms', field=field, size=1000)
@@ -392,8 +398,11 @@ class ESTripHelper(ElasticSearchHelper):
         add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4')
         add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None)
 
-        add_aggregation('first_transfer_to_subway', 'parada_bajada_1', first_condition + first_not_condition, 'srv_1', 'parada_subida_2')
-        add_aggregation('second_transfer_to_subway', 'parada_bajada_2', second_condition + second_not_condition, 'srv_2', 'parada_subida_3')
-        add_aggregation('third_transfer_to_subway', 'parada_bajada_3', third_condition + third_not_condition, 'srv_3', 'parada_subida_4')
+        add_aggregation('first_transfer_to_subway', 'parada_bajada_1', first_condition + first_not_condition, 'srv_1',
+                        'parada_subida_2')
+        add_aggregation('second_transfer_to_subway', 'parada_bajada_2', second_condition + second_not_condition,
+                        'srv_2', 'parada_subida_3')
+        add_aggregation('third_transfer_to_subway', 'parada_bajada_3', third_condition + third_not_condition, 'srv_3',
+                        'parada_subida_4')
 
         return es_query

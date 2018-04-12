@@ -193,20 +193,23 @@ class FromToMapData(PermissionRequiredMixin, View):
         minutes = params.getlist('halfHour[]', [])
         stages = params.getlist('stages[]', [])
         transport_modes = params.getlist('transportModes[]', [])
+        origin_zones = params.getlist('originZones[]', [])
+        destination_zones = params.getlist('destinationZones[]', [])
 
         response = {}
 
         es_helper = ESTripHelper()
-
+        print(origin_zones, destination_zones)
         try:
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes,
-                                                                     stages, transport_modes)
+                                                                     stages, transport_modes, origin_zones,
+                                                                     destination_zones)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 queries = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes, stages,
-                                                         transport_modes)
+                                                         transport_modes, origin_zones, destination_zones)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
 
                 if origin_zone.hits.total == 0 or destination_zone.hits.total == 0:
@@ -343,12 +346,12 @@ class TransfersData(View):
         try:
             if export_data:
                 es_query = es_trip_helper.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types,
-                                                                   periods, half_hours)
+                                                                        periods, half_hours)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query = es_trip_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
-                                                        half_hours)[:0]
+                                                             half_hours)[:0]
                 response.update(self.process_data(es_query))
                 response['stopInfo'] = es_stop_helper.get_stop_info(start_date, auth_stop_code)
         except FondefVizError as e:
