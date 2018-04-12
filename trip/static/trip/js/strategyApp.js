@@ -2,113 +2,153 @@
 $(document).ready(function () {
     function FromToApp() {
         var _self = this;
+        var originSelected = new Set([]);
+        var destinationSelected = new Set([]);
+
+        var mapZoneInfoLegend = L.control({position: "topright"});
+        var mapLegend = L.control({position: "bottomright"});
 
         // data given by server
         var data = null;
 
-        var printAmountOfData = function () {
-            var quantity = data.origin_zone.hits.total;
-            document.getElementById("visualization_doc_count_txt").innerHTML = quantity === 1 ? "viaje" : "viajes";
-            document.getElementById("visualization_doc_count").innerHTML = quantity.toLocaleString();
+        this.getOriginZones = function () {
+            return Array.from(originSelected);
+        };
+
+        this.getDestinationZones = function () {
+            return Array.from(destinationSelected);
+        };
+
+        var printAmountOfData = function (data) {
+            var tripQuantity = data.origin_zone.aggregations.expansion_factor.value;
+            var dataQuantity = data.origin_zone.hits.total;
+            document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
+            document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
+
+            document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
+            document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
         };
 
         this.setData = function (newData) {
             data = newData;
-            printAmountOfData();
+            printAmountOfData(newData);
         };
 
         this.updateMap = function (opts) {
             console.log("updateMap method called!");
-
-            originMapApp.refreshMap2([], _sef.getSca, "count");
-            destinationMapApp.refreshMap2([], undefined, "count")
         };
 
-        var originMapOpts = {
-            getDataZoneById: function (zoneId) {
-                if (data === null) {
-                    return null;
-                }
-                var zoneData = data.origin_zone.aggregations.by_zone.buckets;
-                var answer = zoneData.filter(function (el) {
-                    return el.key === zoneId;
-                });
-                if (answer.length) {
-                    return answer[0];
-                }
-                return null;
-            },
-            getZoneValue: function (zone, kpi) {
-                return mapOpts[kpi].map_fn(zone);
-            },
-            getZoneColor: function (value, kpi, colors) {
-                // use mapping
-                var grades = mapOpts[kpi].grades;
-                if (value < grades[0]) {
-                    return null;
-                }
-
-                for (var i = 1; i < grades.length; i++) {
-                    if (value <= grades[i]) {
-                        return colors[i - 1];
-                    }
-                }
-                return colors[grades.length - 1];
-            },
-            showMetroStations: false,
-            showMacroZones: false
+        var colors = {
+            none: "#CCCCCC",
+            origin: "#fc8d59",
+            destination: "#ffffbf",
+            both: "#91bfdb"
         };
-        var destinationMapOpts = {
-            getDataZoneById: function (zoneId) {
-                if (data === null) {
-                    return null;
-                }
-                var zoneData = data.destination_zone.aggregations.by_zone.buckets;
-                var answer = zoneData.filter(function (el) {
-                    return el.key === zoneId;
-                });
-                if (answer.length) {
-                    return answer[0];
-                }
-                return null;
-            },
-            getZoneValue: function (zone, kpi) {
-                return mapOpts[kpi].map_fn(zone);
-            },
-            getZoneColor: function (value, kpi, colors) {
-                // use mapping
-                var grades = mapOpts[kpi].grades;
-                if (value < grades[0]) {
-                    return null;
-                }
 
-                for (var i = 1; i < grades.length; i++) {
-                    if (value <= grades[i]) {
-                        return colors[i - 1];
-                    }
-                }
-                return colors[grades.length - 1];
-            },
+        var setZoneStyle = function (layer) {
+            var zoneId = layer.feature.properties.id;
+            if (originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
+                layer.setStyle(mapApp.styles.zoneWithColor(layer.feature, colors.both));
+            } else if (originSelected.has(zoneId) && !destinationSelected.has(zoneId)) {
+                layer.setStyle(mapApp.styles.zoneWithColor(layer.feature, colors.origin));
+            } else if (!originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
+                layer.setStyle(mapApp.styles.zoneWithColor(layer.feature, colors.destination));
+            } else {
+                layer.setStyle(mapApp.styles.zoneWithoutData(layer.feature));
+            }
+        };
+
+        var mapOpts = {
+            hideMapLegend: true,
+            hideZoneLegend: true,
             showMetroStations: false,
             showMacroZones: false,
-            mapId: "mapChart2"
+            onClickZone: function (e) {
+                var layer = e.target;
+                var zoneId = layer.feature.properties.id;
+                if (originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
+                    originSelected.delete(zoneId);
+                    destinationSelected.delete(zoneId);
+                } else if (originSelected.has(zoneId) && !destinationSelected.has(zoneId)) {
+                    originSelected.delete(zoneId);
+                    destinationSelected.add(zoneId);
+                } else if (!originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
+                    originSelected.add(zoneId);
+                } else {
+                    originSelected.add(zoneId);
+                }
+                setZoneStyle(layer);
+                layer.setStyle(this.styles.zoneOnHover());
+            },
+            onMouseinZone: function (e) {
+                var zoneId = e.target.feature.properties.id;
+                mapZoneInfoLegend.update(zoneId);
+                this.defaultOnMouseinZone(e);
+            },
+            onMouseoutZone: function (e) {
+                var layer = e.target;
+                mapZoneInfoLegend.update();
+                setZoneStyle(layer);
+            }
         };
-        var originMapApp = new MapApp(originMapOpts);
-        var destinationMapApp = new MapApp(destinationMapOpts);
 
-        var originLayer = L.layerGroup([]);
-        var destinationLayer = L.layerGroup([]);
+        var mapApp = new MapApp(mapOpts);
 
-        // syncronize maps
-        var originMap = originMapApp.getMapInstance();
-        var destinationMap = destinationMapApp.getMapInstance();
-        originMap.sync(destinationMap);
-        destinationMap.sync(originMap);
+        var constructZoneInfoLegend = function () {
+            mapZoneInfoLegend.onAdd = function (map) {
+                var div = L.DomUtil.create("div", "info legend");
+                div.id = "mapZoneInfoLegend";
+                return div;
+            };
+
+            mapZoneInfoLegend.update = function (zoneId) {
+                zoneId = zoneId || "";
+                var div = document.getElementById("mapZoneInfoLegend");
+                div.innerHTML = "<h4>Zonificación 777: </h4>";
+                div.innerHTML += "<b>Zona " + zoneId + "</b>";
+            };
+            mapZoneInfoLegend.addTo(mapApp.getMapInstance());
+            mapZoneInfoLegend.update();
+        };
+
+        var constructColorLenged = function () {
+            mapLegend.onAdd = function (map) {
+                var div = L.DomUtil.create("div", "info legend");
+                div.id = "mapLegend";
+                return div;
+            };
+
+            mapLegend.update = function () {
+                var div = document.getElementById("mapLegend");
+                div.innerHTML = "<h4>Leyenda: </h4>";
+                var rows = [{
+                    label: "Zonas no seleccionadas",
+                    color: colors.none
+                }, {
+                    label: "Zonas de origen",
+                    color: colors.origin
+                }, {
+                    label: "Zonas de destino",
+                    color: colors.destination
+                }, {
+
+                    label: "Zonas de origen y destino",
+                    color: colors.both
+                }];
+                rows.forEach(function (el) {
+                    div.innerHTML += "<i style='background:" + el.color + "'></i><b> " + el.label + "</b>";
+                    div.innerHTML += "<br />";
+                });
+            };
+            mapLegend.addTo(mapApp.getMapInstance());
+            mapLegend.update();
+        };
 
         this.loadLayers = function (readyFunction) {
-            originMapApp.loadLayers();
-            destinationMapApp.loadLayers(readyFunction);
-        }
+            constructColorLenged();
+            constructZoneInfoLegend();
+            mapApp.loadLayers(readyFunction);
+        };
     }
 
     function processData(data, app) {
@@ -129,12 +169,12 @@ $(document).ready(function () {
             processData(data, app);
         };
         var opts = {
-            urlFilterData: Urls["esapi:tripStrategiesData"](),
+            urlFilterData: Urls["esapi:fromToMapData"](),
             afterCallData: afterCall,
             dataUrlParams: function () {
                 return {
-                    origins: app.getStages(),
-                    destinations: app.getTransportModes()
+                    originZones: app.getOriginZones(),
+                    destinationZones: app.getDestinationZones()
                 }
             }
         };

@@ -88,8 +88,10 @@ function MapApp(opts) {
     var onMouseoutZone = opts.onMouseoutZone || function (e) { _self.defaultOnMouseoutZone(e); };
     var onMouseinZone = opts.onMouseinZone || function (e) { _self.defaultOnMouseinZone(e); };
     var hideMapLegend = opts.hideMapLegend || false;
+    var hideZoneLegend = opts.hideZoneLegend || false;
     var defaultZoneStyle = opts.defaultZoneStyle || _self.styles.zoneWithoutData;
     var defaultOverZoneStyle = opts.defaultOverZoneStyle || _self.styles.zoneOnHover;
+    var doubleClickZoom = opts.doubleClickZoom || false;
 
     var tileLayerURL = {
         "light": "https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}",
@@ -101,7 +103,9 @@ function MapApp(opts) {
     var accessToken = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
     //var accessToken = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
 
-    var map = L.map(mapId).setView(mapStartLocation, minZoom);
+    var map = L.map(mapId, {
+        doubleClickZoom: doubleClickZoom
+    }).setView(mapStartLocation, minZoom);
     L.tileLayer(tileLayer, {
         attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
         minZoom: minZoom,
@@ -157,7 +161,9 @@ function MapApp(opts) {
     };
 
     this.refreshZoneInfoControl = function (properties, zoneData) {
-        mapInfoBar.update(properties, zoneData);
+        if (!hideZoneLegend) {
+            mapInfoBar.update(properties, zoneData);
+        }
     };
 
     this.defaultOnMouseoutZone = function (e) {
@@ -402,7 +408,9 @@ function MapApp(opts) {
 
         $.when(...shapesToLoad)
             .done(function () {
-                setupMapInfoBar();
+                if (!hideZoneLegend) {
+                    setupMapInfoBar();
+                }
                 if (!hideMapLegend) {
                     setupMapLegend();
                 }
