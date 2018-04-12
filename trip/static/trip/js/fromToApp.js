@@ -92,9 +92,12 @@ $(document).ready(function () {
             var minSize = 3;
             var maxSize = 23;
 
-            var location = {};
+            var zoneInfo = {};
             originMapApp.getZoneLayer().eachLayer(function (layer) {
-                location[layer.feature.properties.id] = layer.getBounds().getCenter();
+                zoneInfo[layer.feature.properties.id] = {
+                    center: layer.getBounds().getCenter()
+                    // properties: layer.feature.properties
+                };
             });
             var createCircleMarker = function (position, indicator, color, zoneId) {
                 return L.circleMarker(position, {
@@ -103,19 +106,30 @@ $(document).ready(function () {
                     weight: 0,
                     opacity: 1,
                     fillOpacity: 0.5,
-                    zone_id: zoneId
+                    // zoneId: zoneId,
+                    interactive: false
                 });
             };
 
             originZones.forEach(function (item) {
-                var cm = createCircleMarker(location[item.key], item.doc_count, "#FFFF00", item.key).addTo(originGroupLayer);
-                // cm.on('mouseover', onEachBallFeatureMap1);
-                // cm.on('mouseout', resetStats1);
+                var cm = createCircleMarker(zoneInfo[item.key].center, item.doc_count, "#FFFF00", item.key).addTo(originGroupLayer);
+                /*
+                cm.on("mouseover", function(e) {
+                    originMapApp.refreshZoneInfoControl(zoneInfo[e.target.options.zoneId].properties, item);
+                });
+                cm.on("mouseout", function() {
+                    originMapApp.refreshZoneInfoControl();
+                });*/
             });
             destinationZones.forEach(function (item) {
-                var cm = createCircleMarker(location[item.key], item.doc_count, "#A900FF", item.key).addTo(destinationGroupLayer);
-                // cm.on('mouseover', onEachBallFeatureMap2);
-                // cm.on('mouseout', resetStats2);
+                var cm = createCircleMarker(zoneInfo[item.key].center, item.doc_count, "#A900FF", item.key).addTo(destinationGroupLayer);
+                /*
+                cm.on("mouseover", function(e) {
+                    destinationMapApp.refreshZoneInfoControl(zoneInfo[e.target.options.zoneId].properties, item);
+                });
+                cm.on("mouseout", function() {
+                    destinationMapApp.refreshZoneInfoControl();
+                });*/
             });
         };
 
