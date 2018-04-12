@@ -14,7 +14,9 @@ function MapApp(opts) {
     var showMacroZones = opts.showMacroZones===undefined?true:opts.showMacroZones;
     var tileLayer = opts.tileLayer || "light";
     var mapStartLocation = opts.startLocation || L.latLng(-33.459229, -70.645348);
-    var clickZoneEvent = opts.clickZoneEvent || function(){};
+    var onClickZone = opts.onClickZone || function (e) { _self.zoomToZoneEvent(e); };
+    var onMouseoutZone = opts.onMouseoutZone || function (e) { _self.defaultOnMouseoutZone(e); };
+    var onMouseinZone = opts.onMouseinZone || function (e) { _self.defaultOnMouseinZone(e); };
 
     var tileLayerURL = {
         "light": "https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}",
@@ -75,6 +77,10 @@ function MapApp(opts) {
 
     this.getMapInstance = function () {
         return map;
+    };
+
+    this.getZoneLayer = function () {
+        return zoneLayer;
     };
     // ============================================================================
     // MAP FEATURE STYLING
@@ -146,25 +152,41 @@ function MapApp(opts) {
         }
     };
 
-    function zoomToZoneEvent(e) {
+    this.refreshZoneInfoControl = function (properties, zoneData) {
+        mapInfoBar.update(properties, zoneData);
+    };
+
+    this.defaultOnMouseoutZone = function (e) {
+        var currentLayer = e.target;
+        currentLayer.setStyle(_self.styles.zoneWithoutData(currentLayer.feature));
+        _self.refreshZoneInfoControl(currentLayer.feature.properties);
+    };
+
+    this.defaultOnMouseinZone = function (e) {
+        var currentLayer = e.target;
+        currentLayer.setStyle(_self.styles.zoneOnHover(currentLayer.feature));
+        _self.refreshZoneInfoControl(currentLayer.feature.properties);
+    };
+
+    this.zoomToZoneEvent = function (e) {
         map.flyToBounds(e.target.getBounds(), {
             maxZoom: featureZoom
         });
-    }
+    };
 
     function onSectorMouseOver(e) {
         destinationZoneLayer.setStyle({
             fillOpacity: 0.0
         });
         var layer = e.target;
-        mapInfoBar.update(layer.feature.properties);
+        _self.refreshZoneInfoControl(layer.feature.properties);
     }
 
     function onSectorMouseOut(e) {
         destinationZoneLayer.setStyle({
             fillOpacity: 0.5
         });
-        mapInfoBar.update();
+        _self.refreshZoneInfoControl();
     }
 
     this.refreshMap = function (destinationZoneIds, scale, kpi, legendOpts) {
@@ -193,6 +215,17 @@ function MapApp(opts) {
             });
         });
 
+        _self.refreshZoneLayer();
+
+        // add to map
+        destinationZoneLayer.addTo(map);
+        zoneLayer.addTo(map);
+        legendOpts.scale = scales[scale];
+        mapLegend.update(legendOpts);
+        rearrangeLayers();
+    };
+
+    this.refreshZoneLayer = function () {
         zoneLayer.eachLayer(function (layer) {
             var feature = layer.feature;
             var zoneId = feature.properties.id;
@@ -211,24 +244,17 @@ function MapApp(opts) {
                     // highlight style
                     var selectedLayer = e.target;
                     selectedLayer.setStyle(_self.styles.zoneOnHover(selectedLayer.feature));
-                    mapInfoBar.update(selectedLayer.feature.properties, zoneData);
+                    _self.refreshZoneInfoControl(selectedLayer.feature.properties, zoneData);
                 },
                 mouseout: function (e) {
                     // restore style
                     var selectedLayer = e.target;
                     selectedLayer.setStyle(style);
-                    mapInfoBar.update();
+                    _self.refreshZoneInfoControl();
                 }
                 //click: zoomToZoneEvent
             });
         });
-
-        // add to map
-        destinationZoneLayer.addTo(map);
-        zoneLayer.addTo(map);
-        legendOpts.scale = scales[scale];
-        mapLegend.update(legendOpts);
-        rearrangeLayers();
     };
 
     var setupMapInfoBar = function () {
@@ -299,27 +325,25 @@ function MapApp(opts) {
             return $.getJSON(url, function (data) {
                 zoneGeoJSON = data;
                 zoneLayer.clearLayers();
-                zoneLayer.addLayer(L.geoJson(data, {
+                var geojsonLayer = L.geoJson(data, {
                     style: _self.styles.zoneWithoutData(),
                     onEachFeature: function (feature, layer) {
                         layer.on({
                             mouseover: function (e) {
-                                var currentLayer = e.target;
-                                currentLayer.setStyle(_self.styles.zoneOnHover(currentLayer.feature));
-                                mapInfoBar.update(currentLayer.feature.properties);
+                                onMouseinZone.call(_self, e);
                             },
                             mouseout: function (e) {
-                                var currentLayer = e.target;
-                                currentLayer.setStyle(_self.styles.zoneWithoutData(currentLayer.feature));
-                                mapInfoBar.update(currentLayer.feature.properties);
+                                onMouseoutZone.call(_self, e);
                             },
                             click: function(e){
-                                zoomToZoneEvent(e);
-                                clickZoneEvent(e);
+                                onClickZone.call(_self, e);
                             }
                         });
                     }
-                }));
+                });
+                geojsonLayer.getLayers().forEach(function (layer) {
+                    zoneLayer.addLayer(layer);
+                });
             });
         }
 
