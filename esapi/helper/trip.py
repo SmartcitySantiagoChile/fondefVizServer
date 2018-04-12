@@ -7,7 +7,7 @@ from elasticsearch_dsl.query import Q
 from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty, \
     ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist, \
-    ESQueryStopParameterDoesNotExist
+    ESQueryStopParameterDoesNotExist, ESQueryTooManyOriginZonesError, ESQueryTooManyDestinationZonesError
 
 import copy
 
@@ -258,16 +258,24 @@ class ESTripHelper(ElasticSearchHelper):
     def get_base_strategies_data_query(self, start_date, end_date, day_types, periods, minutes, origin_zones,
                                        destination_zones):
         es_query = self.get_base_query()
+        origin_zone_limit = 50
+        destination_zone_limit = 50
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
-        """
+        print(origin_zones, destination_zones)
         if not origin_zones:
             raise ESQueryOriginZoneParameterDoesNotExist()
 
+        if len(origin_zones) > origin_zone_limit:
+            raise ESQueryTooManyOriginZonesError(origin_zone_limit)
+
         if not destination_zones:
             raise ESQueryDestinationZoneParameterDoesNotExist()
-        """
+
+        if len(destination_zones) > destination_zone_limit:
+            raise ESQueryTooManyDestinationZonesError(destination_zone_limit)
+
         es_query = es_query.filter('range', tiempo_subida={
             'gte': start_date + '||/d',
             'lte': end_date + '||/d',
@@ -275,9 +283,6 @@ class ESTripHelper(ElasticSearchHelper):
             'time_zone': '+00:00'
         })
 
-        # TODO: removed this
-        origin_zones = range(0, 50)
-        destination_zones = range(0, 100)
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
         if periods:

@@ -266,8 +266,8 @@ class StrategiesData(PermissionRequiredMixin, View):
         day_types = params.getlist('daytypes[]', [])
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
-        origin_zone = params.getlist('origins[]', [])
-        destination_zone = params.getlist('destinations[]', [])
+        origin_zones = params.getlist('originZones[]', [])
+        destination_zones = params.getlist('destinationZones[]', [])
 
         response = {}
 
@@ -276,12 +276,12 @@ class StrategiesData(PermissionRequiredMixin, View):
         try:
             if export_data:
                 es_query = es_helper.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes,
-                                                                    origin_zone, destination_zone)
+                                                                    origin_zones, destination_zones)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
-                                                         origin_zone, destination_zone)
+                                                         origin_zones, destination_zones)
                 response['strategies'] = self.process_data(es_query)
         except FondefVizError as e:
             response['status'] = e.get_status_response()

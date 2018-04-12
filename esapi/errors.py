@@ -189,3 +189,19 @@ class ESQueryStopInfoDoesNotExist(FondefVizError):
     def __init__(self):
         message = 'No existe información de la parada en el período consultado'
         super(ESQueryStopInfoDoesNotExist, self).__init__(417, message)
+
+
+class ESQueryTooManyOriginZonesError(FondefVizError):
+    """ It raises when user send more than origin zone limit """
+
+    def __init__(self, limit_number):
+        message = 'No puede seleccionar más de {0} zonas de origen'.format(limit_number)
+        super(ESQueryTooManyOriginZonesError, self).__init__(418, message)
+
+
+class ESQueryTooManyDestinationZonesError(FondefVizError):
+    """ It raises when user send more than destination zone limit """
+
+    def __init__(self, limit_number):
+        message = 'No puede seleccionar más de {0} zonas de destino'.format(limit_number)
+        super(ESQueryTooManyDestinationZonesError, self).__init__(419, message)
