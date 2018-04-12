@@ -263,7 +263,7 @@ class ESTripHelper(ElasticSearchHelper):
 
         if not start_date or not end_date:
             raise ESQueryDateRangeParametersDoesNotExist()
-        print(origin_zones, destination_zones)
+
         if not origin_zones:
             raise ESQueryOriginZoneParameterDoesNotExist()
 
@@ -317,6 +317,7 @@ class ESTripHelper(ElasticSearchHelper):
         es_query.aggs['strategies']['second']['third']['fourth']. \
             metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_4']). \
             metric('expansion_factor', 'sum', field='factor_expansion')
+        es_query.aggs.metric('expansion_factor', 'sum', field='factor_expansion')
 
         return es_query
 

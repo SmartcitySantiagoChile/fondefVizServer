@@ -8,6 +8,21 @@ $(document).ready(function () {
         var mapZoneInfoLegend = L.control({position: "topright"});
         var mapLegend = L.control({position: "bottomright"});
 
+        var tableOpts = {
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
+            },
+            columns: [
+                {title: "Etapa 1", data: "stage1"},
+                {title: "Etapa 2", data: "stage2"},
+                {title: "Etapa 3", data: "stage3"},
+                {title: "Etapa 4", data: "stage4"},
+                {title: "N° viajes", data: "expansionFactor", render: $.fn.dataTable.render.number(".", ",", 2)}
+            ],
+            order: [[4, "desc"]]
+        };
+        var _datatable = $("#tupleDetail").DataTable(tableOpts);
+
         // data given by server
         var data = null;
 
@@ -20,8 +35,8 @@ $(document).ready(function () {
         };
 
         var printAmountOfData = function (data) {
-            var tripQuantity = data.origin_zone.aggregations.expansion_factor.value;
-            var dataQuantity = data.origin_zone.hits.total;
+            var tripQuantity = data.expansionFactor;
+            var dataQuantity = data.docCount;
             document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
             document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
 
@@ -34,8 +49,11 @@ $(document).ready(function () {
             printAmountOfData(newData);
         };
 
-        this.updateMap = function (opts) {
-            console.log("updateMap method called!");
+        this.updateTable = function () {
+            console.log("updateTable method called!");
+            _datatable.clear();
+            _datatable.rows.add(data.strategies);
+            _datatable.columns.adjust().draw();
         };
 
         var colors = {
@@ -155,8 +173,28 @@ $(document).ready(function () {
         if (data.status) {
             return;
         }
+
+        var rows = [];
+        for (var firstStage in data.strategies) {
+            for (var secondStage in data.strategies[firstStage]) {
+                for (var thirdStage in data.strategies[firstStage][secondStage]) {
+                    for (var fourthStage in data.strategies[firstStage][secondStage][thirdStage]) {
+                        var expansionFactor = data.strategies[firstStage][secondStage][thirdStage][fourthStage];
+                        rows.push({
+                            stage1: firstStage,
+                            stage2: secondStage,
+                            stage3: thirdStage,
+                            stage4: fourthStage,
+                            expansionFactor: expansionFactor
+                        });
+                    }
+                }
+            }
+        }
+
+        data.strategies = rows;
         app.setData(data);
-        app.updateMap();
+        app.updateTable();
     }
 
     // load filters
@@ -169,7 +207,7 @@ $(document).ready(function () {
             processData(data, app);
         };
         var opts = {
-            urlFilterData: Urls["esapi:fromToMapData"](),
+            urlFilterData: Urls["esapi:tripStrategiesData"](),
             afterCallData: afterCall,
             dataUrlParams: function () {
                 return {

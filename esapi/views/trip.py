@@ -241,7 +241,8 @@ class StrategiesData(PermissionRequiredMixin, View):
         train = 'METROTREN'
 
         trips = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))))
-        for first in es_query.execute().aggregations.strategies.buckets:
+        result = es_query.execute()
+        for first in result.aggregations.strategies.buckets:
             first_type = first.additionalInfo.hits.hits[0]['_source']['tipo_transporte_1']
             first_mode = subway if first_type == 2 else train if first_type == 4 else first.key
             for second in first.second.buckets:
@@ -257,7 +258,9 @@ class StrategiesData(PermissionRequiredMixin, View):
                         trips[first_mode][second_mode][third_mode][fourth_mode] += fourth.expansion_factor.value
 
         return {
-            'trips': trips
+            'strategies': trips,
+            'expansionFactor': result.aggregations.expansion_factor.value,
+            'docCount': result.hits.total
         }
 
     def process_request(self, request, params, export_data=False):
@@ -282,7 +285,7 @@ class StrategiesData(PermissionRequiredMixin, View):
             else:
                 es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
                                                          origin_zones, destination_zones)
-                response['strategies'] = self.process_data(es_query)
+                response.update(self.process_data(es_query))
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
