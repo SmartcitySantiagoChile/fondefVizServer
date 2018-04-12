@@ -199,7 +199,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         response = {}
 
         es_helper = ESTripHelper()
-        print(origin_zones, destination_zones)
+
         try:
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes,
