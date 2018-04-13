@@ -237,27 +237,17 @@ class StrategiesData(PermissionRequiredMixin, View):
         return super(StrategiesData, self).dispatch(request, *args, **kwargs)
 
     def process_data(self, es_query):
-        subway = 'METRO'
-        train = 'METROTREN'
-
+        # this trips ignore metro and metrotren
         trips = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))))
         result = es_query.execute()
-        for first in result.aggregations.strategies.buckets:
-            first_type = first.additionalInfo.hits.hits[0]['_source']['tipo_transporte_1']
-            first_mode = subway if first_type == 2 else train if first_type == 4 else first.key
+        for first in result.aggregations.strategies.first.buckets:
             for second in first.second.buckets:
-                second_type = second.additionalInfo.hits.hits[0]['_source']['tipo_transporte_2']
-                second_mode = subway if second_type == 2 else train if second_type == 4 else second.key
                 for third in second.third.buckets:
-                    third_type = third.additionalInfo.hits.hits[0]['_source']['tipo_transporte_3']
-                    third_mode = subway if third_type == 2 else train if third_type == 4 else third.key
                     for fourth in third.fourth.buckets:
-                        fourth_type = fourth.additionalInfo.hits.hits[0]['_source']['tipo_transporte_4']
-                        fourth_mode = subway if fourth_type == 2 else train if fourth_type == 4 else fourth.key
-
-                        trips[first_mode][second_mode][third_mode][fourth_mode] += fourth.expansion_factor.value
+                        trips[first.key][second.key][third.key][fourth.key] += fourth.expansion_factor.value
 
         return {
+            'debug': result.to_dict(),
             'strategies': trips,
             'expansionFactor': result.aggregations.expansion_factor.value,
             'docCount': result.hits.total

@@ -10,6 +10,7 @@ from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEm
     ESQueryStopParameterDoesNotExist, ESQueryTooManyOriginZonesError, ESQueryTooManyDestinationZonesError
 
 import copy
+import itertools
 
 
 class ESTripHelper(ElasticSearchHelper):
@@ -300,24 +301,91 @@ class ESTripHelper(ElasticSearchHelper):
                             destination_zones):
         es_query = self.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes, origin_zones,
                                                        destination_zones)[:0]
-
+        query_filter = Q({'bool': {'must_not': {'bool': {
+            'should': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}},
+                       {'terms': {'tipo_transporte_3': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}}}})
         first_transport_mode = A('terms', field='srv_1', size=2000)
         second_transport_mode = A('terms', field='srv_2', size=2000)
         third_transport_mode = A('terms', field='srv_3', size=2000)
         fourth_transport_mode = A('terms', field='srv_4', size=2000)
 
-        es_query.aggs.bucket('strategies', first_transport_mode).bucket('second', second_transport_mode). \
-            bucket('third', third_transport_mode).bucket('fourth', fourth_transport_mode)
-        es_query.aggs['strategies']. \
-            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_1'])
-        es_query.aggs['strategies']['second']. \
-            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_2'])
-        es_query.aggs['strategies']['second']['third']. \
-            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_3'])
-        es_query.aggs['strategies']['second']['third']['fourth']. \
-            metric('additionalInfo', 'top_hits', size=1, _source=['tipo_transporte_4']). \
+        es_query.aggs.bucket('strategies', A('filter', query_filter)).bucket('first', first_transport_mode). \
+            bucket('second', second_transport_mode).bucket('third', third_transport_mode). \
+            bucket('fourth', fourth_transport_mode). \
             metric('expansion_factor', 'sum', field='factor_expansion')
         es_query.aggs.metric('expansion_factor', 'sum', field='factor_expansion')
+
+        FIRST_MODE = 'first_mode'
+        FIRST_START_STATION = 'first_start_station'
+        FIRST_END_STATION = 'first_end_station'
+        SECOND_MODE = 'second_mode'
+        SECOND_START_STATION = 'second_start_station'
+        SECOND_END_STATION = 'second_end_station'
+        THIRD_MODE = 'third_mode'
+        THIRD_START_STATION = 'third_start_station'
+        THIRD_END_STATION = 'third_end_station'
+        FOURTH_MODE = 'fourth_mode'
+        FOURTH_START_STATION = 'fourth_start_station'
+        FOURTH_END_STATION = 'fourth_end_station'
+        structure = {
+            FIRST_MODE: ['first', first_transport_mode],
+            FIRST_START_STATION: ['start_station', A('terms', field='parada_subida_1')],
+            FIRST_END_STATION: ['end_station', A('terms', field='parada_subida_1')],
+            SECOND_MODE: ['second', second_transport_mode],
+            SECOND_START_STATION: ['start_station', A('terms', field='parada_subida_2')],
+            SECOND_END_STATION: ['end_station', A('terms', field='parada_subida_2')],
+            THIRD_MODE: ['third', third_transport_mode],
+            THIRD_START_STATION: ['start_station', A('terms', field='parada_subida_3')],
+            THIRD_END_STATION: ['end_station', A('terms', field='parada_subida_3')],
+            FOURTH_MODE: ['fourth', fourth_transport_mode],
+            FOURTH_START_STATION: ['start_station', A('terms', field='parada_subida_4')],
+            FOURTH_END_STATION: ['end_station', A('terms', field='parada_subida_4')],
+        }
+
+        def build_aggregation(bucket_name, data_filter, nested_order):
+            strategies_with_metro_or_metrotren = A('filter', Q(data_filter))
+            bucket = es_query.aggs.bucket(bucket_name, strategies_with_metro_or_metrotren)
+
+            for group in nested_order:
+                bucket = bucket.bucket(*structure[group])
+            bucket.metric('expansion_factor', 'sum', field='factor_expansion')
+
+        elements = [
+            {'terms': {'tipo_transporte_1': [2, 4]}},
+            {'terms': {'tipo_transporte_2': [2, 4]}},
+            {'terms': {'tipo_transporte_3': [2, 4]}},
+            {'terms': {'tipo_transporte_4': [2, 4]}},
+        ]
+
+        filters = list(itertools.combinations(elements, 1)) + list(itertools.combinations(elements, 2)) + list(
+            itertools.combinations(elements, 3)) + list(itertools.combinations(elements, 4))
+
+        for a in filters:
+            print(a)
+        names = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o']
+        queries = [
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_MODE, THIRD_MODE, FOURTH_MODE],
+            [FIRST_MODE, SECOND_START_STATION, SECOND_END_STATION, THIRD_MODE, FOURTH_MODE],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ]
+        for name, data_filter, query in zip(names, filters, queries):
+            data_filter = [a for a in data_filter]
+            print(data_filter)
+            build_aggregation(name, {'bool': {'filter': data_filter}}, query)
+
+        print(es_query.to_dict())
 
         return es_query
 
@@ -368,11 +436,11 @@ class ESTripHelper(ElasticSearchHelper):
         es_query = self.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types, periods,
                                                       half_hours)
 
-        def add_aggregation(bucket_name, stop_name, additonal_conditions, stage_route_init, stage_route_end,
+        def add_aggregation(bucket_name, stop_name, additional_conditions, stage_route_init, stage_route_end,
                             not_conditions=None):
             conditions = [{'term': {}}]
             conditions[0]['term'][stop_name] = auth_stop_code
-            conditions += additonal_conditions
+            conditions += additional_conditions
             not_conditions = [] if not_conditions is None else not_conditions
             aggregation = A('filter', Q({'bool': {'must': conditions, 'must_not': not_conditions}}))
 
@@ -391,9 +459,9 @@ class ESTripHelper(ElasticSearchHelper):
         second_condition = [{'range': {'n_etapas': {'gt': 2}}}]
         third_condition = [{'range': {'n_etapas': {'gt': 3}}}]
 
-        first_not_condition = [{'term': {'tipo_transporte_2': 2}}]
-        second_not_condition = [{'term': {'tipo_transporte_3': 2}}]
-        third_not_condition = [{'term': {'tipo_transporte_4': 2}}]
+        first_not_condition = [{'term': {'tipo_transporte_2': 2}}, {'term': {'tipo_transporte_2': 4}}]
+        second_not_condition = [{'term': {'tipo_transporte_3': 2}}, {'term': {'tipo_transporte_3': 4}}]
+        third_not_condition = [{'term': {'tipo_transporte_4': 2}}, {'term': {'tipo_transporte_4': 4}}]
 
         add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2', first_not_condition)
         add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3', second_not_condition)
