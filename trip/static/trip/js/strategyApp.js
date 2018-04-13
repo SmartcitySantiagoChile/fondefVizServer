@@ -38,7 +38,7 @@ $(document).ready(function () {
             var tripQuantity = data.expansionFactor;
             var dataQuantity = data.docCount;
             document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
-            document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
+            document.getElementById("tripTotalNumberValue").innerHTML = Number(tripQuantity.toFixed(2)).toLocaleString();
 
             document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
             document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
