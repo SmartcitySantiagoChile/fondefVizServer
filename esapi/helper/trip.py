@@ -246,7 +246,6 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('distancia_ruta', 'avg', field='distancia_ruta') \
                 .metric('distancia_eucl', 'avg', field='distancia_eucl') \
                 .metric('expansion_factor', 'sum', field='factor_expansion')
-            # TODO: en el javascript contar el expansion_factor, no el doc_count
 
         destination_es_query = copy.copy(es_query)
         _query_by_zone(es_query, 'zona_subida')
@@ -309,7 +308,8 @@ class ESTripHelper(ElasticSearchHelper):
         third_transport_mode = A('terms', field='srv_3', size=2000)
         fourth_transport_mode = A('terms', field='srv_4', size=2000)
 
-        es_query.aggs.bucket('strategies', A('filter', query_filter)).bucket('first', first_transport_mode). \
+        es_query.aggs.bucket('strategies_without_metro_or_metrotren', A('filter', query_filter)).\
+            bucket('first', first_transport_mode). \
             bucket('second', second_transport_mode).bucket('third', third_transport_mode). \
             bucket('fourth', fourth_transport_mode). \
             metric('expansion_factor', 'sum', field='factor_expansion')
@@ -328,26 +328,29 @@ class ESTripHelper(ElasticSearchHelper):
         FOURTH_START_STATION = 'fourth_start_station'
         FOURTH_END_STATION = 'fourth_end_station'
         structure = {
-            FIRST_MODE: ['first', first_transport_mode],
-            FIRST_START_STATION: ['start_station', A('terms', field='parada_subida_1')],
-            FIRST_END_STATION: ['end_station', A('terms', field='parada_subida_1')],
-            SECOND_MODE: ['second', second_transport_mode],
-            SECOND_START_STATION: ['start_station', A('terms', field='parada_subida_2')],
-            SECOND_END_STATION: ['end_station', A('terms', field='parada_subida_2')],
-            THIRD_MODE: ['third', third_transport_mode],
-            THIRD_START_STATION: ['start_station', A('terms', field='parada_subida_3')],
-            THIRD_END_STATION: ['end_station', A('terms', field='parada_subida_3')],
-            FOURTH_MODE: ['fourth', fourth_transport_mode],
-            FOURTH_START_STATION: ['start_station', A('terms', field='parada_subida_4')],
-            FOURTH_END_STATION: ['end_station', A('terms', field='parada_subida_4')],
+            FIRST_MODE: ['first', A('terms', field='srv_1', size=2000)],
+            FIRST_START_STATION: ['start_station_1', A('terms', field='parada_subida_1', size=5000)],
+            FIRST_END_STATION: ['end_station_1', A('terms', field='parada_bajada_1', size=5000)],
+            SECOND_MODE: ['second', A('terms', field='srv_2', size=2000)],
+            SECOND_START_STATION: ['start_station_2', A('terms', field='parada_subida_2', size=5000)],
+            SECOND_END_STATION: ['end_station_2', A('terms', field='parada_bajada_2', size=5000)],
+            THIRD_MODE: ['third', A('terms', field='srv_3', size=2000)],
+            THIRD_START_STATION: ['start_station_3', A('terms', field='parada_subida_3', size=5000)],
+            THIRD_END_STATION: ['end_station_3', A('terms', field='parada_bajada_3', size=5000)],
+            FOURTH_MODE: ['fourth', A('terms', field='srv_4', size=2000)],
+            FOURTH_START_STATION: ['start_station_4', A('terms', field='parada_subida_4', size=5000)],
+            FOURTH_END_STATION: ['end_station_4', A('terms', field='parada_bajada_4', size=5000)],
         }
 
-        def build_aggregation(bucket_name, data_filter, nested_order):
-            strategies_with_metro_or_metrotren = A('filter', Q(data_filter))
+        def build_aggregation(bucket_name, filter_criteria, nested_order):
+            strategies_with_metro_or_metrotren = A('filter', Q(filter_criteria))
             bucket = es_query.aggs.bucket(bucket_name, strategies_with_metro_or_metrotren)
+            bucket.metric('zexpansion_factor', 'sum', field='factor_expansion')
 
             for group in nested_order:
-                bucket = bucket.bucket(*structure[group])
+                bucket_name = structure[group][0]
+                aggregation = copy.deepcopy(structure[group][1])
+                bucket = bucket.bucket(bucket_name, aggregation)
             bucket.metric('expansion_factor', 'sum', field='factor_expansion')
 
         elements = [
@@ -360,32 +363,33 @@ class ESTripHelper(ElasticSearchHelper):
         filters = list(itertools.combinations(elements, 1)) + list(itertools.combinations(elements, 2)) + list(
             itertools.combinations(elements, 3)) + list(itertools.combinations(elements, 4))
 
-        for a in filters:
-            print(a)
         names = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o']
         queries = [
             [FIRST_START_STATION, FIRST_END_STATION, SECOND_MODE, THIRD_MODE, FOURTH_MODE],
             [FIRST_MODE, SECOND_START_STATION, SECOND_END_STATION, THIRD_MODE, FOURTH_MODE],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            []
+            [FIRST_MODE, SECOND_MODE, THIRD_START_STATION, THIRD_END_STATION, FOURTH_MODE],
+            [FIRST_MODE, SECOND_MODE, THIRD_MODE, FOURTH_START_STATION, FOURTH_END_STATION],
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_START_STATION, SECOND_END_STATION, THIRD_MODE, FOURTH_MODE],
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_MODE, THIRD_START_STATION, THIRD_END_STATION, FOURTH_MODE],
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_MODE, THIRD_MODE, FOURTH_START_STATION, FOURTH_END_STATION],
+            [FIRST_MODE, SECOND_START_STATION, SECOND_END_STATION, THIRD_START_STATION, THIRD_END_STATION, FOURTH_MODE],
+            [FIRST_MODE, SECOND_START_STATION, SECOND_END_STATION, THIRD_MODE, FOURTH_START_STATION,
+             FOURTH_END_STATION],
+            [FIRST_MODE, SECOND_MODE, THIRD_START_STATION, THIRD_END_STATION, FOURTH_START_STATION, FOURTH_END_STATION],
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_START_STATION, SECOND_END_STATION, THIRD_START_STATION,
+             THIRD_END_STATION, FOURTH_MODE],
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_START_STATION, SECOND_END_STATION, THIRD_MODE,
+             FOURTH_START_STATION, FOURTH_END_STATION],
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_MODE, THIRD_START_STATION, THIRD_END_STATION,
+             FOURTH_START_STATION, FOURTH_END_STATION],
+            [FIRST_MODE, SECOND_START_STATION, SECOND_END_STATION, THIRD_START_STATION, THIRD_END_STATION,
+             FOURTH_START_STATION, FOURTH_END_STATION],
+            [FIRST_START_STATION, FIRST_END_STATION, SECOND_START_STATION, SECOND_END_STATION, THIRD_START_STATION,
+             THIRD_END_STATION, FOURTH_START_STATION, FOURTH_END_STATION]
         ]
         for name, data_filter, query in zip(names, filters, queries):
             data_filter = [a for a in data_filter]
-            print(data_filter)
             build_aggregation(name, {'bool': {'filter': data_filter}}, query)
-
-        print(es_query.to_dict())
 
         return es_query
 

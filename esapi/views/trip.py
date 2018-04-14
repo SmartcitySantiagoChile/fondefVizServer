@@ -240,11 +240,46 @@ class StrategiesData(PermissionRequiredMixin, View):
         # this trips ignore metro and metrotren
         trips = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))))
         result = es_query.execute()
-        for first in result.aggregations.strategies.first.buckets:
+        for first in result.aggregations.strategies_without_metro_or_metrotren.first.buckets:
             for second in first.second.buckets:
                 for third in second.third.buckets:
                     for fourth in third.fourth.buckets:
                         trips[first.key][second.key][third.key][fourth.key] += fourth.expansion_factor.value
+
+        agg_names = dir(result.aggregations)
+        del agg_names[agg_names.index('expansion_factor')]
+        del agg_names[agg_names.index('strategies_without_metro_or_metrotren')]
+
+        def group_strategy(item, previous_part, current_agg_name):
+            if hasattr(item, 'buckets'):
+                nested_strategies = []
+                for bucket in item.buckets:
+                    cloned_list = list(previous_part)
+                    if current_agg_name.startswith('end'):
+                        cloned_list[-1] = '{0} - {1}'.format(cloned_list[-1], bucket.key)
+                    else:
+                        cloned_list.append(bucket.key)
+                    if hasattr(bucket, 'expansion_factor'):
+                        cloned_list.append(bucket.expansion_factor.value)
+                        nested_strategies.append(cloned_list)
+                    else:
+                        del bucket.doc_count
+                        del bucket.key
+                        next_agg_name = dir(bucket)[0]
+                        nested_strategies += group_strategy(bucket[next_agg_name], cloned_list, next_agg_name)
+                return nested_strategies
+            else:
+                if hasattr(item, 'doc_count'):
+                    del item.doc_count
+                next_agg_name = dir(item)[0]
+                return group_strategy(item[next_agg_name], previous_part, next_agg_name)
+
+        for agg_name in agg_names:
+            strategies = group_strategy(result.aggregations[agg_name], [], agg_name)
+            for strategy in strategies:
+                trips[strategy[0]][strategy[1]][strategy[2]][strategy[3]] += strategy[4]
+                print(strategy)
+            break
 
         return {
             'debug': result.to_dict(),
