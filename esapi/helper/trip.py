@@ -309,10 +309,11 @@ class ESTripHelper(ElasticSearchHelper):
         fourth_transport_mode = A('terms', field='srv_4', size=2000)
 
         es_query.aggs.bucket('strategies_without_metro_or_metrotren', A('filter', query_filter)).\
-            bucket('first', first_transport_mode). \
-            bucket('second', second_transport_mode).bucket('third', third_transport_mode). \
-            bucket('fourth', fourth_transport_mode). \
+            bucket('first', first_transport_mode).bucket('second', second_transport_mode).\
+            bucket('third', third_transport_mode).bucket('fourth', fourth_transport_mode). \
             metric('expansion_factor', 'sum', field='factor_expansion')
+
+        # total
         es_query.aggs.metric('expansion_factor', 'sum', field='factor_expansion')
 
         FIRST_MODE = 'first_mode'
@@ -345,7 +346,6 @@ class ESTripHelper(ElasticSearchHelper):
         def build_aggregation(bucket_name, filter_criteria, nested_order):
             strategies_with_metro_or_metrotren = A('filter', Q(filter_criteria))
             bucket = es_query.aggs.bucket(bucket_name, strategies_with_metro_or_metrotren)
-            bucket.metric('zexpansion_factor', 'sum', field='factor_expansion')
 
             for group in nested_order:
                 bucket_name = structure[group][0]
@@ -388,7 +388,7 @@ class ESTripHelper(ElasticSearchHelper):
              THIRD_END_STATION, FOURTH_START_STATION, FOURTH_END_STATION]
         ]
         for name, data_filter, query in zip(names, filters, queries):
-            data_filter = [a for a in data_filter]
+            data_filter = [x for x in data_filter]
             build_aggregation(name, {'bool': {'filter': data_filter}}, query)
 
         return es_query

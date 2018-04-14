@@ -278,11 +278,8 @@ class StrategiesData(PermissionRequiredMixin, View):
             strategies = group_strategy(result.aggregations[agg_name], [], agg_name)
             for strategy in strategies:
                 trips[strategy[0]][strategy[1]][strategy[2]][strategy[3]] += strategy[4]
-                print(strategy)
-            break
 
         return {
-            'debug': result.to_dict(),
             'strategies': trips,
             'expansionFactor': result.aggregations.expansion_factor.value,
             'docCount': result.hits.total
