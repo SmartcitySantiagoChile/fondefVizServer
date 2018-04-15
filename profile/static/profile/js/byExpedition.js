@@ -2,7 +2,7 @@
 $(document).ready(function () {
     // define logic to manipulate data
     function Trip(expeditionDayId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, authTimePeriod, dayType,
-                  yAxisData, visible) {
+                  yAxisData, valid) {
         this.expeditionId = expeditionDayId;
         this.route = route;
         this.licensePlate = licensePlate;
@@ -12,7 +12,8 @@ $(document).ready(function () {
         this.authTimePeriod = authTimePeriod;
         this.dayType = dayType;
         this.yAxisData = yAxisData;
-        this.visible = visible || true;
+        this.valid = valid;
+        this.visible = valid || true;
     }
 
     /*
@@ -153,22 +154,14 @@ $(document).ready(function () {
             var max = 0;
             for (var i in _trips) {
                 var trip = $.extend({}, _trips[i]);
-                /*if(!trip.visible){
-                  continue;
-                }*/
                 trip.busDetail = trip.licensePlate + " (" + trip.busCapacity + ")";
                 var loadProfile = [];
-                var hasNegativeValue = false;
                 for (var k = 0; k < _xAxisData.length; k++) {
                     var value = trip.yAxisData.loadProfile[k];
-                    if (value !== undefined && value < 0) {
-                        hasNegativeValue = true;
-                    }
                     max = Math.max(max, value);
                     loadProfile.push(value);
                 }
                 trip.sparkLoadProfile = loadProfile;
-                trip.hasNegativeValue = hasNegativeValue;
                 values.push(trip);
             }
             return {
@@ -279,7 +272,11 @@ $(document).ready(function () {
                 {title: "Hora de inicio", data: "timeTripInit", searchable: true},
                 {title: "Hora de fin", data: "timeTripEnd", searchable: true},
                 {title: "Tipo de día", data: "dayType", searchable: true},
-                {title: "Negativo", data: "hasNegativeValue", searchable: true}
+                {title: "Válida", data: "valid", searchable: true,
+                    render: function (data) {
+                        return data?"Válida":"No válida";
+                    }
+                }
             ],
             order: [[4, "asc"]],
             createdRow: function (row, data, index) {
@@ -672,7 +669,7 @@ $(document).ready(function () {
     function processData(dataSource, app) {
         console.log(dataSource);
 
-        if (dataSource.status && dataSource.status.code !== 252) {
+        if (dataSource.status && (dataSource.status.code !== 252 && dataSource.status.code !== 253)) {
             return;
         }
 
@@ -750,6 +747,7 @@ $(document).ready(function () {
                 var timeTripEnd = trip.info.timeTripEnd;
                 var authTimePeriod = trip.info.authTimePeriod;
                 var dayType = trip.info.dayType;
+                var valid = trip.info.valid;
 
                 var yAxisData = {
                     expandedGetOut: [],
@@ -776,7 +774,7 @@ $(document).ready(function () {
                 });
 
                 trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit,
-                    timeTripEnd, authTimePeriod, dayType, yAxisData);
+                    timeTripEnd, authTimePeriod, dayType, yAxisData, valid);
                 dataManager.addTrip(trip);
             }
             var tripXAxisData = stops.map(function (stop) {
