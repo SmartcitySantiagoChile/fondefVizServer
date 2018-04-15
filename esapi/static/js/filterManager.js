@@ -191,7 +191,13 @@ function FilterManager(opts) {
             var params = getParameters();
             $.getJSON(urlFilterData, params, function (data) {
                 if (data.status) {
-                    showMessage(data.status);
+                    if (Array.isArray(data.status)) {
+                        data.status.forEach(function(message){
+                            showMessage(message);
+                        })
+                    } else {
+                        showMessage(data.status);
+                    }
                 }
                 if (afterCall) {
                     afterCall(data);
