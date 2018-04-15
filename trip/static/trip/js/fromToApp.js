@@ -56,7 +56,7 @@ $(document).ready(function () {
             var tripQuantity = data.origin_zone.aggregations.expansion_factor.value;
             var dataQuantity = data.origin_zone.hits.total;
             document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
-            document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
+            document.getElementById("tripTotalNumberValue").innerHTML = Number(tripQuantity.toFixed(2)).toLocaleString();
 
             document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
             document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
