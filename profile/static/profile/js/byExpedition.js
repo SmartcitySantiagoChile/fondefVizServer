@@ -13,7 +13,7 @@ $(document).ready(function () {
         this.dayType = dayType;
         this.yAxisData = yAxisData;
         this.valid = valid;
-        this.visible = valid || true;
+        this.visible = valid===undefined?true:valid;
     }
 
     /*
@@ -258,7 +258,7 @@ $(document).ready(function () {
                             .attr("type", "checkbox")
                             .attr("name", "trip" + full.id)
                             .addClass("flat")
-                            .attr("checked", true)[0].outerHTML;
+                            .attr("checked", full.valid)[0].outerHTML;
                     }
                 },
                 {
@@ -785,7 +785,7 @@ $(document).ready(function () {
             dataManager.calculateAverage();
             app.dataManager(dataManager);
             app.updateCharts();
-            app.updateDatatable({});
+            app.updateDatatable();
         }
     }
 
