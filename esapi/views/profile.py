@@ -11,7 +11,8 @@ from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.errors import ESQueryResultEmpty, FondefVizError
 from esapi.utils import check_operation_program
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBeenGroupedMessage
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBeenGroupedMessage, \
+    ThereAreNotValidExpeditionsMessage
 from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
 from datamanager.helper import ExporterManager
 
@@ -157,24 +158,31 @@ class LoadProfileByExpeditionData(View):
         """ transform ES answer to something util to web client """
         trips = defaultdict(lambda: {'info': {}, 'stops': {}})
         bus_stations = []
+        expedition_not_valid_number = 0
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-
+        # TODO: replace random value with value given by data
+        import random
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
 
-            trips[expedition_id]['info'] = {
-                'capacity': hit.busCapacity,
-                'licensePlate': hit.licensePlate,
-                'route': hit.route,
-                'authTimePeriod': time_period_dict[hit.timePeriodInStartTime],
-                'timeTripInit': hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
-                'timeTripEnd': hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
-                'dayType': day_type_dict[hit.dayType]
-            }
+            if 'capacity' not in trips[expedition_id]['info']:
+                is_valid = int(round(random.uniform(0, 1)))
+                trips[expedition_id]['info'] = {
+                    'capacity': hit.busCapacity,
+                    'licensePlate': hit.licensePlate,
+                    'route': hit.route,
+                    'authTimePeriod': time_period_dict[hit.timePeriodInStartTime],
+                    'timeTripInit': hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
+                    'timeTripEnd': hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
+                    'dayType': day_type_dict[hit.dayType],
+                    'valid': bool(is_valid)
+                }
+                if not is_valid:
+                    expedition_not_valid_number += 1
 
-            if hit.busStation == 1 and not hit.authStopCode in bus_stations:
+            if hit.busStation == 1 and hit.authStopCode not in bus_stations:
                 bus_stations.append(hit.authStopCode)
 
             stop = {
@@ -191,7 +199,7 @@ class LoadProfileByExpeditionData(View):
         if len(trips.keys()) == 0:
             raise ESQueryResultEmpty()
 
-        return trips, bus_stations
+        return trips, bus_stations, expedition_not_valid_number
 
     def process_request(self, request, params, export_data=False):
         start_date = params.get('startDate', '')[:10]
@@ -228,7 +236,10 @@ class LoadProfileByExpeditionData(View):
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list)
-                    response['trips'], response['busStations'] = self.transform_answer(es_query)
+                    response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
+                    if exp_not_valid_number:
+                        response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number). \
+                            get_status_response()
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type,
                                                                                 auth_route_code, period, half_hour,

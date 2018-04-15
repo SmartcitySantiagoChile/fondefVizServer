@@ -62,3 +62,13 @@ class ExpeditionsHaveBeenGroupedMessage(GenericUserMessage):
         title = 'Expediciones omitidas'
         message_type = 'info'
         super(ExpeditionsHaveBeenGroupedMessage, self).__init__(252, message, title, message_type)
+
+
+class ThereAreNotValidExpeditionsMessage(GenericUserMessage):
+    """ message to say that there are not valid expeditions in results """
+
+    def __init__(self, not_valid_expedition_number):
+        message = 'Hay {0} expediciones no válidas. Para que la expedición no se válida debe cumplir alguno de las siguientes condiciones:<br /><ul><li>Criterio 1</li><li>Criterio 2</li></ul>'.format(not_valid_expedition_number)
+        title = 'Hay expediciones no válidas'
+        message_type = 'warning'
+        super(ThereAreNotValidExpeditionsMessage, self).__init__(253, message, title, message_type)
