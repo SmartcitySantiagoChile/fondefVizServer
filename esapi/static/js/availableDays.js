@@ -1,15 +1,40 @@
 "use strict";
+
 /**
  * Calendar to show available days (dates with data)
  * */
 function loadAvailableDays(data_url) {
-    var availableDaysChart = echarts.init(document.getElementById("availableDays"), theme);
+    var divId = "availableDays";
+    var availableDaysChart = echarts.init(document.getElementById(divId), theme);
+
+    var calendarYearTemplate = {
+        orient: "horizontal",
+        range: null,
+        dayLabel: {
+            firstDay: 1,
+            nameMap: ["D", "L", "M", "M", "J", "V", "S"]
+        },
+        monthLabel: {
+            nameMap: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+        },
+        top: 20,
+        left: "50",
+        right: "0",
+        cellSize: ["auto", 9]
+    };
+
+    var serieTemplate = {
+        type: "heatmap",
+        coordinateSystem: "calendar",
+        calendarIndex: 0,
+        data: []
+    };
+
     var opts = {
         tooltip: {
             position: "top",
             formatter: function (p) {
-                var formattedDate = echarts.format.formatTime("dd/MM/yyyy", p.data[0]);
-                return formattedDate;
+                return echarts.format.formatTime("dd/MM/yyyy", p.data[0]);
             }
         },
         visualMap: {
@@ -21,26 +46,10 @@ function loadAvailableDays(data_url) {
             top: "center",
             show: false
         },
-        calendar: {
-            orient: "horizontal",
-            range: null,
-            dayLabel: {
-                firstDay: 1,
-                nameMap: ["D", "L", "M", "M", "J", "V", "S"]
-            },
-            monthLabel: {
-                nameMap: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-            },
-            top: 20,
-            left: "10%",
-            right: "0"
-        },
-        series: [{
-            type: "heatmap",
-            coordinateSystem: "calendar",
-            data: []
-        }]
+        calendar: [],
+        series: []
     };
+
     $(window).resize(function () {
         availableDaysChart.resize();
     });
@@ -51,29 +60,37 @@ function loadAvailableDays(data_url) {
     // show loading
     var loadingText = "Cargando ...";
     availableDaysChart.showLoading(null, {text: loadingText});
-    // ask per data
+
     $.get(data_url, function (data) {
         availableDaysChart.hideLoading();
+        var years = data.availableDays.map(function (el) {
+            return el.split("-")[0];
+        }).filter(function (el, index, self) {
+            return self.indexOf(el) === index;
+        });
         data = data.availableDays.map(function (el) {
             return [el, 1];
         });
         if (data.length > 0) {
-            var firstDate = data[0][0];
-            var lastDate = data[data.length - 1][0];
+            var newOpts = $.extend({}, opts);
+            var top = 20;
+            years.forEach(function (year, index) {
+                var calendarYear = $.extend({}, calendarYearTemplate);
+                var serie = $.extend({}, serieTemplate);
 
-            var dayInMiliSeconds = 24 * 3600 * 1000;
-            var lowerBound = firstDate.substring(0, firstDate.length - 3);
+                calendarYear.range = year;
+                calendarYear.top = top;
+                top += 100;
+                serie.calendarIndex = index;
+                serie.data = data;
 
-            var lastDateUTC = Date.UTC(...lastDate.split("-"));
-            lastDateUTC += dayInMiliSeconds * 30;
+                newOpts.calendar.push(calendarYear);
+                newOpts.series.push(serie);
+            });
 
-            var upperBound = new Date(lastDateUTC);
-            upperBound = [upperBound.getUTCFullYear(), upperBound.getUTCMonth()].join("-");
-
-            var range = [lowerBound, upperBound];
-            opts.series[0].data = data;
-            opts.calendar.range = range;
-            availableDaysChart.setOption(opts, {notMerge: true});
+            $("#" + divId).height(top-20);
+            availableDaysChart.setOption(newOpts, {notMerge: true});
+            availableDaysChart.resize();
         }
     });
 }
