@@ -16,8 +16,8 @@ $(document).ready(function () {
         var minCircleSize = 3;
         var maxCircleSize = 23;
 
-        var originMapLegend = L.control({position: 'bottomright'});
-        var destinationMapLegend = L.control({position: 'bottomright'});
+        var originMapLegend = L.control({position: "bottomright"});
+        var destinationMapLegend = L.control({position: "bottomright"});
 
         [$STAGES_SELECTOR, $TRANSPORT_MODES_SELECTOR].forEach(function (el) {
             el.each(function (index, html) {
@@ -84,10 +84,10 @@ $(document).ready(function () {
                     return destinationSelected.has(el.key);
                 }).forEach(setMaxMin);
             } else if (destinationSelected.size === 0) {
+                destinationZones.forEach(setMaxMin);
                 originZones.filter(function (el) {
                     return originSelected.has(el.key);
                 }).forEach(setMaxMin);
-                destinationZones.forEach(setMaxMin);
             } else {
                 originZones.filter(function (el) {
                     return originSelected.has(el.key);
@@ -104,7 +104,7 @@ $(document).ready(function () {
 
         var setMapLegend = function (mapInstance, control, divId) {
             control.onAdd = function (map) {
-                var div = L.DomUtil.create('canvas', 'info legend');
+                var div = L.DomUtil.create("canvas", "info legend");
                 div.id = divId;
                 return div;
             };
@@ -112,7 +112,7 @@ $(document).ready(function () {
             control.update = function () {
                 // loop through our density intervals and generate a label with a colored square for each interval
                 var div = document.getElementById(divId);
-                div.style.display = 'none';
+                div.style.display = "none";
 
                 var bounds = getCircleBounds();
 
@@ -137,12 +137,17 @@ $(document).ready(function () {
                     label: Number(bounds.min.toFixed(0)).toLocaleString() + " viajes"
                 }];
 
+                // this ocurrs when select same zone as origin and destination
+                if (bounds.min === bounds.max) {
+                    circles =[circles[1]];
+                }
+
                 var drawCircle = function (circle) {
                     ctx.beginPath();
                     ctx.arc(circle.x, circle.y, circle.r, 0, 2 * Math.PI);
                     ctx.moveTo(circle.x, circle.y - circle.r);
                     ctx.lineTo(2 * border + 2 * maxCircleSize, circle.y - circle.r);
-                    ctx.font = 'small-caps 10px Arial';
+                    ctx.font = "small-caps 10px Arial";
                     ctx.fillText(circle.label, 2 * border + 2 * maxCircleSize, circle.y - circle.r + 4);
                     ctx.stroke();
 
@@ -164,15 +169,14 @@ $(document).ready(function () {
                 var width = 40 + 2 * maxCircleSize + maxTextLength;
                 var height = 20 + 2 * maxCircleSize;
 
+                console.log(width);
+                console.log(height);
                 div.width = width;
                 div.height = height;
                 ctx.clearRect(0, 0, width, height);
                 circles.forEach(drawCircle);
 
-                // ctx.fillText(secondText, 20 + 2 * maxCircleSize, 15 + 2 * maxCircleSize - 2 * half);
-                // ctx.fillText(thirdText, 20 + 2 * maxCircleSize, 15 + 2 * maxCircleSize - 2 * minCircleSize);
-
-                div.style.display = 'inline';
+                div.style.display = "inline";
             };
             control.addTo(mapInstance);
 
@@ -201,7 +205,8 @@ $(document).ready(function () {
                 };
             });
             var createCircleMarker = function (position, indicator, color, zoneId) {
-                var radius = minCircleSize + (Math.round(indicator) - bounds.min) * (maxCircleSize - minCircleSize) / (bounds.max - bounds.min);
+                var boundRange = bounds.max - bounds.min === 0 ? 1 : bounds.max - bounds.min;
+                var radius = minCircleSize + (Math.round(indicator) - bounds.min) * (maxCircleSize - minCircleSize) / boundRange;
                 return L.circleMarker(position, {
                     radius: radius,
                     fillColor: color,
@@ -316,8 +321,8 @@ $(document).ready(function () {
         var originMap = originMapApp.getMapInstance();
         var destinationMap = destinationMapApp.getMapInstance();
 
-        setMapLegend(originMap, originMapLegend, 'circleMapLegend1');
-        setMapLegend(destinationMap, destinationMapLegend, 'circleMapLegend2');
+        setMapLegend(originMap, originMapLegend, "circleMapLegend1").update();
+        setMapLegend(destinationMap, destinationMapLegend, "circleMapLegend2").update();
 
         originMap.sync(destinationMap);
         destinationMap.sync(originMap);
@@ -328,7 +333,7 @@ $(document).ready(function () {
         this.loadLayers = function (readyFunction) {
             originMapApp.loadLayers();
             destinationMapApp.loadLayers(readyFunction);
-        }
+        };
     }
 
     function processData(data, app) {
