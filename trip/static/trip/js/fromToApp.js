@@ -139,7 +139,7 @@ $(document).ready(function () {
 
                 // this ocurrs when select same zone as origin and destination
                 if (bounds.min === bounds.max) {
-                    circles =[circles[1]];
+                    circles =[circles[2]];
                 }
 
                 var drawCircle = function (circle) {
@@ -169,8 +169,6 @@ $(document).ready(function () {
                 var width = 40 + 2 * maxCircleSize + maxTextLength;
                 var height = 20 + 2 * maxCircleSize;
 
-                console.log(width);
-                console.log(height);
                 div.width = width;
                 div.height = height;
                 ctx.clearRect(0, 0, width, height);
@@ -183,7 +181,7 @@ $(document).ready(function () {
             return control;
         };
 
-        this.updateMap = function (opts) {
+        this.updateMap = function () {
             console.log("updateMap method called!");
             originGroupLayer.clearLayers();
             destinationGroupLayer.clearLayers();
@@ -194,49 +192,32 @@ $(document).ready(function () {
             originMapApp.getZoneLayer().eachLayer(function (layer) {
                 originZoneInfo[layer.feature.properties.id] = {
                     center: layer.getBounds().getCenter()
-                    // properties: layer.feature.properties
                 };
             });
             var destinationZoneInfo = {};
             destinationMapApp.getZoneLayer().eachLayer(function (layer) {
                 destinationZoneInfo[layer.feature.properties.id] = {
                     center: layer.getBounds().getCenter()
-                    // properties: layer.feature.properties
                 };
             });
-            var createCircleMarker = function (position, indicator, color, zoneId) {
+            var createCircleMarker = function (position, indicator, color) {
                 var boundRange = bounds.max - bounds.min === 0 ? 1 : bounds.max - bounds.min;
-                var radius = minCircleSize + (Math.round(indicator) - bounds.min) * (maxCircleSize - minCircleSize) / boundRange;
+                var radius = minCircleSize + (indicator - bounds.min) * (maxCircleSize - minCircleSize) / boundRange;
                 return L.circleMarker(position, {
                     radius: radius,
                     fillColor: color,
                     weight: 0,
                     opacity: 1,
                     fillOpacity: 0.5,
-                    // zoneId: zoneId,
                     interactive: false
                 });
             };
 
             originZones.forEach(function (item) {
-                var cm = createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00", item.key).addTo(originGroupLayer);
-                /*
-                cm.on("mouseover", function(e) {
-                    originMapApp.refreshZoneInfoControl(zoneInfo[e.target.options.zoneId].properties, item);
-                });
-                cm.on("mouseout", function() {
-                    originMapApp.refreshZoneInfoControl();
-                });*/
+                createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00").addTo(originGroupLayer);
             });
             destinationZones.forEach(function (item) {
-                var cm = createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF", item.key).addTo(destinationGroupLayer);
-                /*
-                cm.on("mouseover", function(e) {
-                    destinationMapApp.refreshZoneInfoControl(zoneInfo[e.target.options.zoneId].properties, item);
-                });
-                cm.on("mouseout", function() {
-                    destinationMapApp.refreshZoneInfoControl();
-                });*/
+                createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF").addTo(destinationGroupLayer);
             });
 
             originMapLegend.update();
@@ -317,7 +298,7 @@ $(document).ready(function () {
         var originMapApp = new MapApp(originMapOpts);
         var destinationMapApp = new MapApp(destinationMapOpts);
 
-        // syncronize maps
+        // synchronize maps
         var originMap = originMapApp.getMapInstance();
         var destinationMap = destinationMapApp.getMapInstance();
 
