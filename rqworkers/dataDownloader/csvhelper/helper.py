@@ -482,8 +482,6 @@ class TripCSVHelper(CSVHelper):
 
     def get_column_dict(self):
         return [
-            {'es_name': 'id', 'csv_name': 'identificador_bip_viaje',
-             'definition': 'identificador de tarjeta bip asociada al viaje'},
             {'es_name': 'tipodia', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
             {'es_name': 'factor_expansion', 'csv_name': 'Factor_expansion',
              'definition': 'Factor de expansión asociado al viaje'},
@@ -589,8 +587,10 @@ class TripCSVHelper(CSVHelper):
                     value = self.timeperiod_dict[value]
                 elif column_name in ['tipo_transporte_1', 'tipo_transporte_2', 'tipo_transporte_3',
                                      'tipo_transporte_4']:
-                    # TODO: apply dictionary
-                    value = value
+                    if value == 3:
+                        value = "Zona paga"
+                    else:
+                        value = self.transport_mode_dict[value]
                 elif column_name in ['modos']:
                     value = self.transport_mode_dict[value]
                 elif column_name in ['comuna_subida', 'comuna_bajada']:
