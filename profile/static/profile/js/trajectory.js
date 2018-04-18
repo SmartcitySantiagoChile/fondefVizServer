@@ -568,7 +568,6 @@ $(document).ready(function () {
             stop.busStation = busStations.indexOf(stop.authStopCode) >= 0;
             return stop;
         });
-        var shape = dataSource.shape;
 
         var dataManager = new DataManager();
         var globalYAxis = [];
@@ -605,7 +604,7 @@ $(document).ready(function () {
                 var busStation = stop.busStation;
                 //var order = stopInfo.order;
                 var name = stop.stopName;
-                var distOnPath = stopInfo.distOnPath;
+                var distOnPath = stopInfo[0];
 
                 if (updateGlobalYAxis) {
                     var yPoint = {
@@ -618,13 +617,12 @@ $(document).ready(function () {
                     globalYAxis.push(yPoint);
                 }
                 var row = [];
-                var stopTime = stopInfo.stopTime;
-                row.push(stopTime);
-                row.push(stopInfo.distOnPath);
-                row.push(stopInfo.loadProfile);
-                row.push(stopInfo.loadProfile / capacity * 100);
-                row.push(stopInfo.expandedGetOut);
-                row.push(stopInfo.expandedGetIn);
+                row.push(stopInfo[4]);
+                row.push(distOnPath);
+                row.push(stopInfo[1]);
+                row.push(stopInfo[1] / capacity * 100);
+                row.push(stopInfo[2]);
+                row.push(stopInfo[3]);
                 data.push(row);
             });
 
@@ -649,7 +647,7 @@ $(document).ready(function () {
             app.hideLoadingAnimationCharts();
         };
         var opts = {
-            urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),
+            urlFilterData: Urls["esapi:loadProfileByTrajectoryData"](),
             urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall,

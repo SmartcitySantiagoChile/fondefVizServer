@@ -122,11 +122,11 @@ class ESProfileHelper(ElasticSearchHelper):
             "time_zone": "+00:00"
         })
 
-        es_query = es_query.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'loadProfile',
-                                    'expeditionDayId', 'expandedAlighting', 'expandedBoarding',
-                                    'stopDistanceFromPathStart', 'expeditionStartTime', 'expeditionEndTime',
-                                    'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
-                                    'fulfillment', 'busStation', 'path'])
+        es_query = es_query.source(
+            ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
+             'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
+             'dayType', 'timePeriodInStopTime', 'busStation', 'path'])
+
         return es_query
 
     def get_profile_by_expedition_data(self, start_date, end_date, day_type, auth_route, period, half_hour,
@@ -148,5 +148,45 @@ class ESProfileHelper(ElasticSearchHelper):
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
             bucket('station', A('terms', field='authStopCode.raw', size=500))
+
+        return es_query
+
+    def get_base_profile_by_trajectory_data_query(self, start_date, end_date, day_type, auth_route, period, half_hour,
+                                                  valid_operator_list):
+        es_query = self.get_base_query()
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist()
+
+        if auth_route:
+            es_query = es_query.filter('term', route=auth_route)
+        else:
+            raise ESQueryRouteParameterDoesNotExist()
+
+        if day_type:
+            es_query = es_query.filter('terms', dayType=day_type)
+        if period:
+            es_query = es_query.filter('terms', timePeriodInStartTime=period)
+        if half_hour:
+            half_hour = map(lambda x: int(x), half_hour)
+            es_query = es_query.filter('terms', halfHourInStartTime=half_hour)
+
+        if not start_date or not end_date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        es_query = es_query.filter("range", expeditionStartTime={
+            "gte": start_date + "||/d",
+            "lte": end_date + "||/d",
+            "format": "yyyy-MM-dd",
+            "time_zone": "+00:00"
+        })
+
+        es_query = es_query.source(
+            ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
+             'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
+             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'stopDistanceFromPathStart',
+             'expeditionStopTime'])
 
         return es_query

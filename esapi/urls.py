@@ -5,7 +5,7 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
 from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
-    LoadProfileByExpeditionData
+    LoadProfileByExpeditionData, LoadProfileByTrajectoryData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
@@ -21,6 +21,8 @@ urlpatterns = [
         name='loadProfileByStopData'),
     url(r'^profile/loadProfileByExpeditionData/$', login_required(LoadProfileByExpeditionData.as_view()),
         name='loadProfileByExpeditionData'),
+    url(r'^profile/loadProfileByTrajectoryData/$', login_required(LoadProfileByTrajectoryData.as_view()),
+        name='loadProfileByTrajectoryData'),
     url(r'^profile/availableDays/$', login_required(AvailableDays.as_view()), name='availableProfileDays'),
     url(r'^profile/availableRoutes/$', login_required(AvailableRoutes.as_view()), name='availableProfileRoutes'),
 
