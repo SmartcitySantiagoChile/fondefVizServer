@@ -161,6 +161,7 @@ $(document).ready(function () {
             mapInstance.addLayer(layers[newId]);
 
             $ROW_CONTAINER.find(".form-control").last().change();
+            $(".form-control").select2();
         };
 
         this.loadBaseData = function () {
