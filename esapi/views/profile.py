@@ -223,12 +223,11 @@ class LoadProfileByExpeditionData(View):
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                start_date_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-                end_date_datetime = datetime.strptime(end_date, '%Y-%m-%d')
-                diff_days = (end_date_datetime - start_date_datetime).days
-                day_limit = 40
+                diff_days = es_profile_helper.get_available_days_between_dates(start_date, end_date,
+                                                                               valid_operator_list)
+                day_limit = 7
 
-                if diff_days < day_limit:
+                if len(diff_days) <= day_limit:
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
