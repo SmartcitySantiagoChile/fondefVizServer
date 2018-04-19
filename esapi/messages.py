@@ -67,8 +67,8 @@ class ExpeditionsHaveBeenGroupedMessage(GenericUserMessage):
 class ThereAreNotValidExpeditionsMessage(GenericUserMessage):
     """ message to say that there are not valid expeditions in results """
 
-    def __init__(self, not_valid_expedition_number):
-        message = 'Hay {0} expediciones no válidas. Para que la expedición no se válida debe cumplir alguna de las siguientes condiciones:<br /><ul><li>Porcentaje de paraderos con carga menor a -1 es superior al 1 %</li><li>Porcentaje de paraderos con carga mayor al 1 % sobre la capacidad del bus es superior al 1%</li></ul>'.format(not_valid_expedition_number)
+    def __init__(self, not_valid_expedition_number, total_trips):
+        message = 'Hay {0} expediciones no válidas de {1}. Para que la expedición no se válida debe cumplir alguna de las siguientes condiciones:<br /><ul><li>Porcentaje de paraderos con carga menor a -1 es superior al 1 %</li><li>Porcentaje de paraderos con carga mayor al 1 % sobre la capacidad del bus es superior al 1%</li></ul>'.format(not_valid_expedition_number, total_trips)
         title = 'Hay expediciones no válidas'
         message_type = 'warning'
         super(ThereAreNotValidExpeditionsMessage, self).__init__(253, message, title, message_type)

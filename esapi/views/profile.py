@@ -232,10 +232,11 @@ class LoadProfileByExpeditionData(View):
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
-                                                                                           valid_operator_list)
+                                                                                           valid_operator_list, False)
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
                     if exp_not_valid_number:
-                        response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number). \
+                        response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
+                                                                                len(response['trips'].keys())). \
                             get_status_response()
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type,

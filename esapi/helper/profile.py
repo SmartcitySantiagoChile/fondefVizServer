@@ -91,7 +91,7 @@ class ESProfileHelper(ElasticSearchHelper):
         return result, operator_list
 
     def get_base_profile_by_expedition_data_query(self, start_date, end_date, day_type, auth_route, period, half_hour,
-                                                  valid_operator_list):
+                                                  valid_operator_list, show_only_valid_expeditions=True):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -121,6 +121,10 @@ class ESProfileHelper(ElasticSearchHelper):
             "format": "yyyy-MM-dd",
             "time_zone": "+00:00"
         })
+
+        # TODO: uncomment this when data has valid field
+        # if show_only_valid_expeditions:
+        #     es_query = es_query.filter('term', valid=1)
 
         es_query = es_query.source(
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
