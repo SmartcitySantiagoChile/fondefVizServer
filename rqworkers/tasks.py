@@ -106,7 +106,7 @@ def export_data_job(es_query_dict, downloader):
         
         Saludos
         """
-        sender = 'noreply@proyectoFondef123456.cl'
+        sender = 'noreply@FondefD10E1002.cl'
         send_mail(subject, body, sender, [job_execution_obj.user.email])
 
         job_execution_obj.status = ExporterJobExecution.FINISHED
