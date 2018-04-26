@@ -45,7 +45,7 @@ class ESTripHelper(ElasticSearchHelper):
         return base_es_query
 
     def _build_indicators_query(self, base_es_query):
-        base_es_query.aggs.metric('documentos', 'value_count', field='id')
+        base_es_query.aggs.metric('documentos', 'value_count', field='n_etapas')
         base_es_query.aggs.metric('viajes', 'sum', field='factor_expansion')
         base_es_query.aggs.metric('tviaje', 'stats', field='tviaje')
         base_es_query.aggs.metric('n_etapas', 'stats', field='n_etapas')
