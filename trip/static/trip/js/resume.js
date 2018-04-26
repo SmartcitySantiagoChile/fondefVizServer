@@ -232,7 +232,7 @@ $(document).ready(function () {
             var dist_ruta_max = data.distancia_ruta.max / 1000.0 || 0;
 
             // display
-            $("#indicator-viajes").text(parseFloat(viajes.toFixed(0)).toLocaleString());
+            $("#indicator-viajes").text(parseFloat(viajes.toFixed(2)).toLocaleString());
             $("#indicator-documentos").text(parseFloat(documents.toFixed(0)).toLocaleString());
             $("#indicator-tviaje-avg").text(parseFloat(tviaje_avg.toFixed(0)).toLocaleString() + " min");
             $("#indicator-tviaje-max").text(parseFloat(tviaje_max.toFixed(0)).toLocaleString() + " min");
