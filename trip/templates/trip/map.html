@@ -1,7 +1,7 @@
 {% extends 'trip/base.html' %}
 {% load static header data_filter panel %}
 
-{% block title %}Viajes: Mapa de viajes{% endblock %}
+{% block title %}Viajes: Geolocalización de viajes{% endblock %}
 
 {% block css %}
     {{ block.super }}
@@ -16,7 +16,7 @@
 
 {% block content %}
     <div class="">
-        {% header "Mapa de viajes" %}
+        {% header "Geolocalización de viajes" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
         {% data_filter data_filter True False True False False False False False False False False False True info_target_id="filterHelp" %}
 
