@@ -175,7 +175,7 @@ class LoadProfileByExpeditionData(View):
                     hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
                     hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
                     day_type_dict[hit.dayType],
-                    bool(hit.notValid)
+                    not bool(hit.notValid)
                 ]
                 if bool(hit.notValid):
                     expedition_not_valid_number += 1
