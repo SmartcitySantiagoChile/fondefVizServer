@@ -28,9 +28,9 @@
         </div>
     </div>
 
-    {% include "help/modal/explanation/trip/filter_resume.html" with modal_id="filterHelp" %}
-    {% include "help/modal/explanation/trip/indicators_resume.html" with modal_id="indicatorsHelp" %}
-    {% include "help/modal/explanation/trip/histogram_resume.html" with modal_id="histogramHelp" %}
+    {% include "help/modal/explanation/trip/resume/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/trip/resume/indicators.html" with modal_id="indicatorsHelp" %}
+    {% include "help/modal/explanation/trip/resume/histogram.html" with modal_id="histogramHelp" %}
     {{ block.super }}
 {% endblock %}
 

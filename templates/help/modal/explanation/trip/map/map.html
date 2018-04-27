@@ -1,0 +1,25 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Mapa{% endblock title %}
+
+{% block body %}
+    <p>Los sectores de destino fueron definidos por personal del DTPM y comprenden un conjunto de zonas según la
+        zonificación de Sectra. No corresponden a los límites comunales de los mismos nombres. Las zonas incluidas en
+        cada sector son:</p>
+    <ul>
+        <li>Lo Barnechea: zona 202, zona 642</li>
+        <li>Centro: zona 276, zona 267, zona 286, zona 286</li>
+        <li>Providencia: zona 175, zona 176, zona 179</li>
+        <li>Quilicura: zona 831, zona 557</li>
+        <li>Vitacura: zona 191, zona 192, zona 193, zona 196, zona 195</li>
+        <li>Las Condes: zona 207, zona 216, zona 215</li>
+    </ul>
+
+    <p>La escala “Divergente” divide los subgrupos en distintos colores (entre azules y rojos). La escala “Secuencial”
+        divide los subgrupos en intensidades de rojo/amarillo. La escala de colores que el usuario selecciona solo
+        influye en el efecto visual del mapa.</p>
+
+    <p>Cada zona es coloreada según la intensidad de la métrica elegida. El usuario puede posicionar el ratón sobre una
+        zona para ver más información sobre ella.</p>
+
+{% endblock body %}
