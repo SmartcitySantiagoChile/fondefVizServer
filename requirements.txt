@@ -10,7 +10,6 @@ python-dateutil==2.6.1
 pytz==2017.2
 six>=1.10.0
 urllib3==1.22
-celery==4.1.0
 django-js-reverse==0.7.3
 mock==2.0.0
 django-rq==1.0.1
