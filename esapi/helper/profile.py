@@ -122,14 +122,13 @@ class ESProfileHelper(ElasticSearchHelper):
             "time_zone": "+00:00"
         })
 
-        # TODO: uncomment this when data has valid field
-        # if show_only_valid_expeditions:
-        #     es_query = es_query.filter('term', valid=1)
+        if show_only_valid_expeditions:
+            es_query = es_query.filter('term', notValid=0)
 
         es_query = es_query.source(
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
-             'dayType', 'timePeriodInStopTime', 'busStation', 'path'])
+             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid'])
 
         return es_query
 

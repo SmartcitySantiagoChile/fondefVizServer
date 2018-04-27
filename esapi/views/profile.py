@@ -162,13 +162,11 @@ class LoadProfileByExpeditionData(View):
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-        # TODO: replace random value with value given by data
-        import random
+
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
 
             if len(trips[expedition_id]['info']) == 0:
-                is_valid = int(round(random.uniform(0, 1)))
                 trips[expedition_id]['info'] = [
                     hit.busCapacity,
                     hit.licensePlate,
@@ -177,9 +175,9 @@ class LoadProfileByExpeditionData(View):
                     hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
                     hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
                     day_type_dict[hit.dayType],
-                    bool(is_valid)
+                    bool(hit.notValid)
                 ]
-                if not is_valid:
+                if not bool(hit.notValid):
                     expedition_not_valid_number += 1
 
             if hit.busStation == 1 and hit.authStopCode not in bus_stations:
