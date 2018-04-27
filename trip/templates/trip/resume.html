@@ -17,7 +17,7 @@
 
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
-                {% panel "fa-circle" "Indicadores" indicators %}
+                {% panel "fa-circle" "Indicadores" indicators info_target_id="indicatorsHelp" %}
             </div>
         </div>
 
@@ -28,8 +28,9 @@
         </div>
     </div>
 
-    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "datamanager/modal.html" with modal_id="histogramHelp" modal_title="Matriz de velocidades" modal_body="esto es una explicación del gráfico" %}
+    {% include "help/modal/explanation/trip/filter_resume.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/trip/indicators_resume.html" with modal_id="indicatorsHelp" %}
+    {% include "help/modal/explanation/trip/histogram_resume.html" with modal_id="histogramHelp" %}
     {{ block.super }}
 {% endblock %}
 

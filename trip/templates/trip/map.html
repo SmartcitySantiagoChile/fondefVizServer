@@ -30,8 +30,8 @@
         </div>
     </div>
 
-    {% include "datamanager/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "datamanager/modal.html" with modal_id="mapHelp" modal_title="Mapa" modal_body="esto es una explicación del mapa" %}
+    {% include "help/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "help/modal.html" with modal_id="mapHelp" modal_title="Mapa" modal_body="esto es una explicación del mapa" %}
     {{ block.super }}
 {% endblock %}
 

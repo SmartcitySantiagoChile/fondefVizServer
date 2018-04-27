@@ -1,0 +1,33 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Indicadores{% endblock title %}
+
+{% block body %}
+    <dl class="dl-horizontal">
+        <dt>Cantidad de viajes:</dt>
+        <dd>en grande aparece cantidad total de viajes con proceso de expansión y en pequeño cantidad de viajes sin
+            expandir)
+        </dd>
+    </dl>
+    <dl class="dl-horizontal">
+        <dt>Tiempo de viaje:</dt>
+        <dd>en grande aparece tiempo de viaje promedio y en pequeño mayor tiempo de viaje observado.</dd>
+    </dl>
+    <dl class="dl-horizontal">
+        <dt>Cantidad de etapas:</dt>
+        <dd>en grande aparece cantidad promedio de etapas por viaje y en pequeño mayor cantidad de etapas en viaje
+            estimado.
+        </dd>
+    </dl>
+    <dl class="dl-horizontal">
+        <dt>Distancia euclidiana:</dt>
+        <dd>en grande aparece distancia euclidiana promedio de viaje y en pequeño mayor distancia euclidiana de viaje.
+        </dd>
+    </dl>
+    <dl class="dl-horizontal">
+        <dt>Distancia en ruta:</dt>
+        <dd>en grande aparece distancia en ruta promedio de viaje y en pequeño parece la mayor distancia en ruta
+            observada.
+        </dd>
+    </dl>
+{% endblock body %}

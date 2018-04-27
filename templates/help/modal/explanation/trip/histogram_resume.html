@@ -1,0 +1,12 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Histograma{% endblock title %}
+
+{% block body %}
+    <p>Cuando el usuario selecciona una opción del selector "¿Qué desea visualizar?" el histograma se actualizará con el
+        nombre de la métrica y la cantidad de datos que fue usada para generar el gráfico.</p>
+    <p>El gráfico es una combinación de histograma y línea. El eje horizontal muestra los rangos de clasificación para
+        el histograma (los cuales dependen de la métrica seleccionada). El eje vertical izquierdo muestra el número de
+        viajes que caen en cada clasificación del histograma. El eje vertical derecho muestra el porcentaje
+        acumulado.</p>
+{% endblock body %}
