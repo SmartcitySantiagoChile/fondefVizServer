@@ -423,6 +423,7 @@ $(document).ready(function () {
                     // updateChart
                     var tripId = parseInt($(this).attr("name").replace("trip", ""));
                     _dataManager.setVisibilty([tripId], addToAggr);
+                    _dataManager.calculateAverage();
                     _self.updateCharts();
                 });
             });
