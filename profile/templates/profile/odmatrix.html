@@ -26,9 +26,9 @@
         {% endwith %}
     </div>
 
-    {% include "help/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "help/modal.html" with modal_id="chartHelp" modal_title="Matriz de etapas" modal_body="esto es una explicación del gráfico" %}
-    {% include "help/modal.html" with modal_id="chart2Help" modal_title="Etapas de una parada" modal_body="esto es una explicación de la tabla" %}
+    {% include "help/modal/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "help/modal/modal.html" with modal_id="chartHelp" modal_title="Matriz de etapas" modal_body="esto es una explicación del gráfico" %}
+    {% include "help/modal/modal.html" with modal_id="chart2Help" modal_title="Etapas de una parada" modal_body="esto es una explicación de la tabla" %}
     {{ block.super }}
 {% endblock %}
 

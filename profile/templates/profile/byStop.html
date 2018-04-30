@@ -32,9 +32,9 @@
         </div>
     </div>
 
-    {% include "help/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "help/modal.html" with modal_id="chartHelp" modal_title="Perfil de carga" modal_body="esto es una explicación del gráfico" %}
-    {% include "help/modal.html" with modal_id="tableHelp" modal_title="Expediciones" modal_body="esto es una explicación de la tabla" %}
+    {% include "help/modal/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
+    {% include "help/modal/modal.html" with modal_id="chartHelp" modal_title="Perfil de carga" modal_body="esto es una explicación del gráfico" %}
+    {% include "help/modal/modal.html" with modal_id="tableHelp" modal_title="Expediciones" modal_body="esto es una explicación de la tabla" %}
     {{ block.super }}
 {% endblock %}
 

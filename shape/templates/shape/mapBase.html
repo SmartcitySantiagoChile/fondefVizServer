@@ -69,8 +69,8 @@
 {% endblock %}
 
 {% block content %}
-    {% include "help/modal.html" with show_ok_button=True modal_id="modal" modal_title="Eliminar ruta" modal_body="¿Está seguro que quiere eliminar la ruta?" %}
-    {% include "help/modal.html" with modal_id="helpModal" modal_title="Ruta de servicios" modal_body="<p>Esta vista permite visualizar espacialmente la ruta de uno o más servicios</p><h4>Modo de uso:</h4><p>Presionar el botón 'Agregar ruta'. Una vez hecho aparecerá una fila en la sección 'Rutas en mapa' representando la nueva ruta, en ella aparecen los siguientes componentes:</p><ul><li>Botón para eliminar la ruta del mapa</li><li>Fecha del programa de operación asociado a la ruta que desea ver</li><li>Servicio de interés</li><li>Botón para cambiar el color de la ruta</li><li>Botón para ocultar la ruta en el mapa</li></ul>" %}
+    {% include "help/modal/modal.html" with show_ok_button=True modal_id="modal" modal_title="Eliminar ruta" modal_body="¿Está seguro que quiere eliminar la ruta?" %}
+    {% include "help/modal/modal.html" with modal_id="helpModal" modal_title="Ruta de servicios" modal_body="<p>Esta vista permite visualizar espacialmente la ruta de uno o más servicios</p><h4>Modo de uso:</h4><p>Presionar el botón 'Agregar ruta'. Una vez hecho aparecerá una fila en la sección 'Rutas en mapa' representando la nueva ruta, en ella aparecen los siguientes componentes:</p><ul><li>Botón para eliminar la ruta del mapa</li><li>Fecha del programa de operación asociado a la ruta que desea ver</li><li>Servicio de interés</li><li>Botón para cambiar el color de la ruta</li><li>Botón para ocultar la ruta en el mapa</li></ul>" %}
 {% endblock %}
 
 {% block js %}
