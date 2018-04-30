@@ -361,7 +361,7 @@ $(document).ready(function () {
                 var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
                 var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
                 var radius = loadProfile/maxLoadProfile * 300;
-                if (radius <= 0) {
+                if (radius <= 0 || isNaN(radius)) {
                     radius = 1;
                 }
                 var circle = L.circle([stop.latitude, stop.longitude], {
