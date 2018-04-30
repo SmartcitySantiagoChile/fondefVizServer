@@ -360,8 +360,12 @@ $(document).ready(function () {
             stops.forEach(function (stop, i) {
                 var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
                 var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
+                var radius = loadProfile/maxLoadProfile * 300;
+                if (radius <= 0) {
+                    radius = 1;
+                }
                 var circle = L.circle([stop.latitude, stop.longitude], {
-                    radius: loadProfile/maxLoadProfile * 300
+                    radius: radius
                 });
                 var popup = "Perfil de carga: " + formattedLoadProfile;
                 circle.bindPopup(popup);
