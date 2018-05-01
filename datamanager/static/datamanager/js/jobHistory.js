@@ -14,7 +14,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         var date = new Date(data);
                         if (type === "sort") {
-                            return date;
+                            return date.getTime();
                         }
                         return date.toLocaleString();
                     }
@@ -23,7 +23,7 @@ $(document).ready(function () {
                         if (data !== "None") {
                             var date = new Date(data);
                             if (type === "sort") {
-                                return date;
+                                return date.getTime();
                             }
                             return date.toLocaleString();
                         } else {
@@ -35,7 +35,7 @@ $(document).ready(function () {
                         if (data !== "None") {
                             var date = new Date(data);
                             if (type === "sort") {
-                                return date;
+                                return date.getTime();
                             }
                             return date.toLocaleString();
                         } else {
