@@ -1,0 +1,11 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Filtro{% endblock title %}
+
+{% block body %}
+    {% include 'help/modal/filters/period.html' %}
+    {% include 'help/modal/filters/day_type.html' %}
+    {% include 'help/modal/filters/boarding_period.html' %}
+    {% include 'help/modal/filters/halfhour_period.html' %}
+    {% include 'help/modal/filters/map_origin_destination.html' %}
+{% endblock body %}

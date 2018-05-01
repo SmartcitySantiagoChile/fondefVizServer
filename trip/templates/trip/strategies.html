@@ -38,8 +38,8 @@
         </div>
     </div>
 
-    {% include "help/modal/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "help/modal/modal.html" with modal_id="mapHelp" modal_title="Estrategias de viaje" modal_body="esto es una explicación del gráfico" %}
+    {% include "help/modal/explanation/trip/strategies/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/trip/strategies/table.html" with modal_id="mapHelp" %}
     {{ block.super }}
 {% endblock %}
 

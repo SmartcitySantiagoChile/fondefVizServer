@@ -1,0 +1,17 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Mapa{% endblock title %}
+
+{% block body %}
+    <p>Este panel muestra la cantidad de datos que cumplen con los filtros indicados en el panel superior y una tabla
+        con el detalle de las estrategias utilizadas para desplazarse entre las zonas de origen y destino.</p>
+
+    <p>Los viajes mostrados en esta vista son aquellos que tienen hasta cuatro etapas. Por lo anterior es que la tabla
+        de estrategías contiene cinco columnas, cuatro para el modo de viaje de cada etapa (1 a la 4) y la quinta
+        muestra el número de viajes expandidos que realizaron esa estrategia.</p>
+
+    <p>Es importante mencionar que se pueden encontrar con situaciones en donde el modo de viaje de alguna de las etapas
+        no fue posible de estimar, en estos casos se muestra un guión ("-"). Además, aquellas etapas que usan metro o
+        metrotren son descritas por su estación de subida y estación de bajada separadas por un guión ("-").</p>
+
+{% endblock body %}
