@@ -1,34 +1,31 @@
 {% extends 'help/modal/modal_base.html' %}
 
-{% block title %}Mapa{% endblock title %}
+{% block title %}Tabla de expediciones{% endblock title %}
 
 {% block body %}
-    <p>Este panel muestra dos mapas con la cantidad de viajes realizados entre una zona de origen y destino. Junto al
-        titulo se indica la cantidad de observaciones que contribuyen a la visualización. El mapa izquierdo muestra
-        Orígenes y el mapa derecho muestra Destinos. </p>
-
-    <p>Una vez carga la información cada zona muestra círculo (círculo de color amarillo claro en el mapa de orígenes, y
-        morado en el mapa de destinos). El tamaño del círculo está relacionado con la cantidad de datos presentes en esa
-        zona; el tamaño relativo es lo mismo entre los dos mapas para permitir comparaciones entre ellos. Una leyenda
-        de tamaño aparece en cada mapa.</p>
-
-    <p>Además el usuario puede posicionar el ratón sobre un círculo o zona para ver más información en el cuadro
-        superior derecho. La información adicional es la siguiente: número de zona seleccionada, número de datos para
-        esa zona, número promedio de etapas (nota que si el usuario ha seleccionado solo una opción de etapas como
-        criterio, el número promedio será 1, 2, 3, o 4), la duración promedio del viaje en minutos y la distancia (en
-        ruta y euclidiana) promedio de los viajes en metros.</p>
-
-    <br/>
-    <h4>Filtro adicional</h4>
-
-    <p>Adicional a los filtros presentes es posible hacer click sobre alguna zona del mapa de origen o mapa de destino
-        con el objetivo de consultar viajes de zonas de origen o destino específicas. Una vez seleccionada las zonas
-        debe actualizar el filtro presionando el botón "Actualizar datos". Para deseleccionar una zona debe volver a
-        hacer click sobre esta.</p>
-
-    <p>El seleccionar una o más zonas de origen permite observar en el mapa de destinos todas las zonas de destino de
-        los viajes originados en las zonas de origen. Se puede lograr el efecto opuesto seleccionando solo una o más
-        zonas de destino en el mapa de destino, lo que desplegará en el mapa de origen todas las zonas desde las cuales
-        se iniciaron viajes que terminan en las zonas señaladas.</p>
+    <p>La tabla de expediciones muestra una expedición por fila. Además cada expedición puede ser considerada o no para
+        calcular el perfil del servicio según si está seleccionada. Las columnas que contiene la tabla son:</p>
+    <ul>
+        <li>Selector de expedición: si está seleccionada, esta fila es incluida en los datos del gráfico del panel
+            superior (perfil del servicio). Si no está seleccionada no es considerada. Por defecto solo las filas que
+            corresponden a expediciones válidas están seleccionadas.
+        </li>
+        <li>Perfil de carga: gráfico de barras que muestran el perfil de carga a lo largo de la ruta de la expedición.
+        </li>
+        <li>Patente(capacidad): la patente del bus que operó la expedición, y la capacidad máxima de ese bus.</li>
+        <li>Período inicio de expedición: el período transantiago de servicio durante el cual el bus fue despachado.
+        </li>
+        <li>Hora de inicio: la hora en que el bus fue despachado. Incluye el día y la hora.</li>
+        <li>Hora de fin: la hora en que el bus terminó su expedición. Incluye el día y la hora.</li>
+        <li>Tipo de día: el tipo de día en que inició la expedición (laboral, sábado, domingo).</li>
+        <li>Válido: para que la expedición no sea válida debe cumplir alguna de las siguientes condiciones:
+            <ul>
+                <li>Porcentaje de paraderos con carga menor a -1 es superior al 1%</li>
+                <li>Porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%</li>
+            </ul>
+        </li>
+    </ul>
+    <p>Es importante destacar que esta tabla solo está activa cuando el período consultado contiene contiene siete o
+        menos días con datos.</p>
 
 {% endblock body %}
