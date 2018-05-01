@@ -11,21 +11,33 @@ $(document).ready(function () {
             order: [[1, "desc"]],
             columns: [
                 null, {
-                    render: function (data) {
-                        return (new Date(data)).toLocaleString();
+                    render: function (data, type) {
+                        var date = new Date(data);
+                        if (type === "sort") {
+                            return date;
+                        }
+                        return date.toLocaleString();
                     }
                 }, {
-                    render: function (data) {
+                    render: function (data, type) {
                         if (data !== "None") {
-                            return (new Date(data)).toLocaleString();
+                            var date = new Date(data);
+                            if (type === "sort") {
+                                return date;
+                            }
+                            return date.toLocaleString();
                         } else {
                             return "";
                         }
                     }
                 }, {
-                    render: function (data) {
+                    render: function (data, type) {
                         if (data !== "None") {
-                            return (new Date(data)).toLocaleString();
+                            var date = new Date(data);
+                            if (type === "sort") {
+                                return date;
+                            }
+                            return date.toLocaleString();
                         } else {
                             return "";
                         }
