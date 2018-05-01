@@ -162,7 +162,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Elastic-Search settings
-ES_CLIENT = Elasticsearch("{0}:{1}".format(config('ELASTICSEARCH_HOST'), config('ELASTICSEARCH_PORT')), timeout=30)
+ES_CLIENT = Elasticsearch("{0}:{1}".format(config('ELASTICSEARCH_HOST'), config('ELASTICSEARCH_PORT')), timeout=60)
 
 # Django js reverse settings
 JS_REVERSE_EXCLUDE_NAMESPACES = []
