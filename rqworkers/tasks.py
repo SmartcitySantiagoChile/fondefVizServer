@@ -95,12 +95,12 @@ def export_data_job(es_query_dict, downloader):
         body = """
         Hola
         
-        Los datos que ha solicitado ya están disponibles en la platafora. Para acceder a ellos siga los siguientes pasos: 
+        Los datos que ha solicitado ya están disponibles en la plataforma. Para acceder a ellos siga los siguientes pasos: 
         
         - Ingrese a la plataforma
-        - En la sección superior derecha seleccione su nombre de ususario, se desplegará un menú
-        - En el menú presionar "Solicitudes de descarga"
-        - En este punto encontrará una lista con todas las solicitudes de datos ordenadas por antiguedad
+        - En la sección superior derecha seleccione su nombre de ususario (se desplegará un menú)
+        - En el menú presione la opción "Solicitudes de descarga"
+        - En este punto encontrará una lista con todas las solicitudes de datos ordenadas por fecha de petición
         
         Recuerde que el archivo estará disponible por 30 días, luego de eso tendrá que volver a generar la consulta.
         
