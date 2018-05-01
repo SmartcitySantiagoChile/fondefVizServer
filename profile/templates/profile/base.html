@@ -25,8 +25,8 @@
 {% endblock %}
 
 {% block content %}
-    {% include "help/modal/modal.html" with modal_id="dayHelp" modal_title="Días disponibles" modal_body="esto es una explicación del filtro de día" %}
-    {% include "help/modal/modal.html" with show_ok_button=True modal_id="exportDataModal" modal_title="Exportar datos" modal_body="<p>El resultado de este requerimiento puede tomar tiempo por lo que cuando el archivo se encuentre disponible se le enviará un email al correo electrónico asociado a su cuenta de usuario con las instrucciones para descargarlo.</p>" %}
+    {% include "help/modal/explanation/calendar.html" with modal_id="dayHelp" %}
+    {% include "help/modal/export_data.html" with show_ok_button=True modal_id="exportDataModal" %}
 {% endblock %}
 
 {% block js %}

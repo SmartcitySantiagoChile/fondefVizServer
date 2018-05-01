@@ -29,11 +29,9 @@
         {% columns 12 12 12 panel5 %}
     </div>
 
-    {% include "help/modal/modal.html" with modal_id="profileMap" modal_title="Ruta de servicio" modal_body='<div id="mapid" style="height: 500px;min-height: 500px"></div>' %}
-
-    {% include "help/modal/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "help/modal/modal.html" with modal_id="chartHelp" modal_title="Perfil de carga" modal_body="esto es una explicación del gráfico" %}
-    {% include "help/modal/modal.html" with modal_id="tableHelp" modal_title="Expediciones" modal_body="esto es una explicación de la tabla" %}
+    {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/profile/by_route/chart.html" with modal_id="chartHelp" %}
+    {% include "help/modal/explanation/profile/by_route/table.html" with modal_id="tableHelp" %}
     {{ block.super }}
 {% endblock %}
 

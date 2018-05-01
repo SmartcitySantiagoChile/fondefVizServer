@@ -1,0 +1,25 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Mapa{% endblock title %}
+
+{% block body %}
+    <p>Este panel muestra un gráfico con varios puntos de información. El título del gráfico es “Perfil de carga para n
+        expediciones” donde n corresponde al número de expediciones que cumplen con los filtros seleccionados por el
+        usuario. El eje horizontal muestra los paraderos en orden de aparición en la ruta del servicio. El eje vertical
+        izquierdo muestra el número de pasajeros y el eje vertical derecho muestra el porcentaje de ocupación de 0% a
+        100%.
+    </p>
+    <p> El gráfico muestra subidas por paradero como una barra roja. Las bajadas aparecen por paradero como una barra
+        azul. La carga promedio aparece como una línea celeste. La carga máxima aparece como una línea verde. El
+        porcentaje de ocupación aparece como una línea discontinua de color anaranjado.
+    </p>
+    <p> El usuario puede ver los datos por paradero posicionando el ratón en el gráfico sobre cualquier punto. Aparecerá
+        un cuadro gris con la orden numérica del paradero, su código de paradero de usuario y de Transantiago, y las
+        esquinas del paradero. Además, mostrará las subidas y bajadas (expandidas), las cargas promedio y máxima, y el
+        porcentaje de ocupación.
+    </p>
+    <p> Debajo del gráfico aparecen tres botones para guardar la imagen, ver los datos como texto, y cambiar el
+        porcentaje máximo del eje vertical derecho.
+    </p>
+
+{% endblock body %}
