@@ -1,0 +1,34 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Mapa{% endblock title %}
+
+{% block body %}
+    <p>Este panel muestra dos mapas con la cantidad de viajes realizados entre una zona de origen y destino. Junto al
+        titulo se indica la cantidad de observaciones que contribuyen a la visualización. El mapa izquierdo muestra
+        Orígenes y el mapa derecho muestra Destinos. </p>
+
+    <p>Una vez carga la información cada zona muestra círculo (círculo de color amarillo claro en el mapa de orígenes, y
+        morado en el mapa de destinos). El tamaño del círculo está relacionado con la cantidad de datos presentes en esa
+        zona; el tamaño relativo es lo mismo entre los dos mapas para permitir comparaciones entre ellos. Una leyenda
+        de tamaño aparece en cada mapa.</p>
+
+    <p>Además el usuario puede posicionar el ratón sobre un círculo o zona para ver más información en el cuadro
+        superior derecho. La información adicional es la siguiente: número de zona seleccionada, número de datos para
+        esa zona, número promedio de etapas (nota que si el usuario ha seleccionado solo una opción de etapas como
+        criterio, el número promedio será 1, 2, 3, o 4), la duración promedio del viaje en minutos y la distancia (en
+        ruta y euclidiana) promedio de los viajes en metros.</p>
+
+    <br/>
+    <h4>Filtro adicional</h4>
+
+    <p>Adicional a los filtros presentes es posible hacer click sobre alguna zona del mapa de origen o mapa de destino
+        con el objetivo de consultar viajes de zonas de origen o destino específicas. Una vez seleccionada las zonas
+        debe actualizar el filtro presionando el botón "Actualizar datos". Para deseleccionar una zona debe volver a
+        hacer click sobre esta.</p>
+
+    <p>El seleccionar una o más zonas de origen permite observar en el mapa de destinos todas las zonas de destino de
+        los viajes originados en las zonas de origen. Se puede lograr el efecto opuesto seleccionando solo una o más
+        zonas de destino en el mapa de destino, lo que desplegará en el mapa de origen todas las zonas desde las cuales
+        se iniciaron viajes que terminan en las zonas señaladas.</p>
+
+{% endblock body %}

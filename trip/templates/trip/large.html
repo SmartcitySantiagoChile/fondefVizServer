@@ -21,7 +21,7 @@
     <div class="">
         {% header "Viajes por etapas" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
-        {% data_filter data_filter True False True True info_target_id="filterHelp" extra_html=stage_selectors %}
+        {% data_filter data_filter True False True show_start_trip_period_filter=True info_target_id="filterHelp" extra_html=stage_selectors %}
 
         <div class="row cols-same-height">
             {# Map and selector bar #}
@@ -34,7 +34,7 @@
     </div>
 
     {% include "help/modal/explanation/trip/large/filter.html" with modal_id="filterHelp" %}
-    {% include "help/modal/modal.html" with modal_id="mapHelp" modal_title="Matriz de velocidades" modal_body="esto es una explicación del gráfico" %}
+    {% include "help/modal/explanation/trip/large/map.html" with modal_id="mapHelp" %}
     {{ block.super }}
 {% endblock %}
 

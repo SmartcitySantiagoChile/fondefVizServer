@@ -18,7 +18,7 @@
     <div class="">
         {% header "Geolocalización de viajes" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
-        {% data_filter data_filter True False True False False False False False False False False False True info_target_id="filterHelp" %}
+        {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True info_target_id="filterHelp" %}
 
         <div class="row cols-same-height">
             {# Map with selector bar #}

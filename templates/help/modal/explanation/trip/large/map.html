@@ -1,0 +1,20 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Mapa{% endblock title %}
+
+{% block body %}
+    <h4>Escala de colores</h4>
+    <p>La escala “Divergente” divide los subgrupos en distintos colores (entre azules y rojos). La escala “Secuencial”
+        divide los subgrupos en intensidades de rojo/amarillo. La escala de colores que el usuario selecciona solo
+        influye en el efecto visual del mapa.</p>
+
+    <br />
+    <h4>Regulador de escala de colores</h4>
+    <p>Es importante tener en cuenta que este mapa muestra subidas o bajadas, y que también incluye subidas en Metro.
+        Por lo tanto, el mapa podría verse distorsionado (con la mayoría de las zonas apareciendo en el mismo color)
+        porque relativamente pocas estaciones de Metro reciben flujos de entrada que son mucho más grandes que los
+        flujos en zonas sin Metro. Para mitigar este problema, sobre el mapa aparece un filtro de rango con deslizador.
+        Desliza la cota superior de viajes hacia abajo para quitar la influencia de las estaciones de Metro y así ver
+        las variaciones en las periferias y en los sectores de más baja concurrencia.</p>
+
+{% endblock body %}
