@@ -299,7 +299,9 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'halfHourInStartTime', 'csv_name': 'Media_hora_de_inicio_expedición',
              'definition': 'Indica el período de media hora que la expedición inicio el recorrido (ejemplo: 16:00:00)'},
             {'es_name': 'halfHourInStopTime', 'csv_name': 'Media_hora_en_parada',
-             'definition': 'Indica el período de media hora que la expedición pasó por la parada (ejemplo: 16:00:00)'}
+             'definition': 'Indica el período de media hora que la expedición pasó por la parada (ejemplo: 16:00:00)'},
+            {'es_name': 'notValid', 'csv_name': 'Expedición_inválida',
+             'definition': 'indica si la expedición contiene alguno de los siguientes problemas -> porcentaje de paraderos con carga menor a -1 es superior al 1% o porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%'}
         ]
 
     def get_data_file_name(self):
