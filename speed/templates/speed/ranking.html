@@ -65,9 +65,9 @@
         </div>
     </div>
 
-    {% include "help/modal/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "help/modal/modal.html" with modal_id="tableHelp" modal_title="Ranking de velocidades" modal_body="esto es una explicación del gráfico" %}
-    {% include "help/modal/modal.html" with modal_id="mapHelp" modal_title="Posición en el mapa" modal_body="esto es una explicación de la tabla" %}
+    {% include "help/modal/explanation/speed/ranking/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/speed/ranking/table.html" with modal_id="tableHelp" %}
+    {% include "help/modal/explanation/speed/ranking/map.html" with modal_id="mapHelp" %}
     {{ block.super }}
 {% endblock %}
 

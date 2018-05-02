@@ -1,0 +1,11 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Filtro{% endblock title %}
+
+{% block body %}
+    {% include 'help/modal/filters/period.html' %}
+    {% include 'help/modal/filters/day_type.html' %}
+    {% include 'help/modal/filters/operator_selector.html' %}
+    {% include 'help/modal/filters/user_route_selector.html' %}
+    {% include 'help/modal/filters/auth_route_selector.html' %}
+{% endblock body %}

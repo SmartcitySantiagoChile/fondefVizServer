@@ -30,8 +30,8 @@
         </div>
     </div>
 
-    {% include "help/modal/modal.html" with modal_id="filterHelp" modal_title="Filtro" modal_body="esto es una explicación de los filtros posibles" %}
-    {% include "help/modal/modal.html" with modal_id="chartHelp" modal_title="Variación de velocidades" modal_body="esto es una explicación del gráfico" %}
+    {% include "help/modal/explanation/speed/variation/filter.html" with modal_id="filterHelp"  %}
+    {% include "help/modal/explanation/speed/variation/chart.html" with modal_id="chartHelp" %}
     {{ block.super }}
 {% endblock %}
 
