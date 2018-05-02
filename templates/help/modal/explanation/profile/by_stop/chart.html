@@ -1,0 +1,17 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Perfil de carga{% endblock title %}
+
+{% block body %}
+    <p>El eje horizontal muestra los códigos de servicio-sentido que pasan por el paradero seleccionado. Existen dos
+        ejes verticales, uno encima del otro. El de arriba expresa porcentajes de ocupación promedio y variación
+        promedio de esta después que el bus pasa por el paradero en cuestión. El de abajo muestra el número de
+        pasajeros promedio, con una escala definida por la intensidad promedio de actividad en el paradero.
+    </p>
+    <p>
+        En el gráfico superior, el cambio en el perfil de carga aparece como una barra verde o roja para cambios
+        positivos (aumenta la carga del bus) y negativos (disminuye la carga del bus) en promedio por servicio,
+        respectivamente.
+    </p>
+
+{% endblock body %}

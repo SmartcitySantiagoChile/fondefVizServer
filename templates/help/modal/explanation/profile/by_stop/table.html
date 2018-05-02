@@ -1,0 +1,37 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Tabla de expediciones{% endblock title %}
+
+{% block body %}
+    <p>Este panel muestra una tabla con el cruce entre cada expedición con la parada seleccionada previamente. En cada
+        fila se puede quitar la selección de una expedición determinada. Las columnas que contiene la tabla son:
+    </p>
+    <ul>
+        <li>Selector de expedición: si está seleccionada, esta fila es incluida en los datos del gráfico del panel
+            superior (perfil de parada). Si no está seleccionada no es considerada.
+        </li>
+        <li>Servicio-sentido: El código del servicio-sentido de Transantiago.</li>
+        <li>Patente(capacidad): la patente del bus que operó la expedición, y la capacidad máxima de ese bus entre
+            paréntesis.
+        </li>
+        <li>Período de pasada: El período de operación de Transantiago en el cual el bus pasó por el paradero
+            seleccionado.
+        </li>
+        <li>Hora de pasada: El momento en que el bus pasó por el paradero seleccionado, incluyendo el día y la hora.
+        </li>
+        <li>Tipo de día: el tipo de día de servicio (laboral, sábado, domingo).</li>
+        <li>Carga al llegar: El número de pasajeros a bordo del bus cuando el bus llegó al paradero seleccionado,
+            expresado como pasajeros expandidos.
+        </li>
+        <li>Subidas: El número de pasajeros que subió al bus en el paradero seleccionado, expresado como pasajeros
+            expandidos.
+        </li>
+        <li>Bajadas: El número de pasajeros que bajó del bus en el paradero seleccionado, expresado como pasajeros
+            expandidos.
+        </li>
+        <li>Carga al salir: El número de pasajeros a bordo del bus cuando el bus salió del paradero seleccionado,
+            expresado como pasajeros expandidos.
+        </li>
+    </ul>
+
+{% endblock body %}
