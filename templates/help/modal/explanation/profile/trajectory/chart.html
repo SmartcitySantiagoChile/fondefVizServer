@@ -1,0 +1,42 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Perfil de carga{% endblock title %}
+
+{% block body %}
+    <p>Este cuadro muestra un gráfico con varios puntos de información. El título del gráfico es “Perfil de carga con
+        trayectoria para n expediciones” donde n corresponde al número de expediciones que cumplen con los filtros
+        seleccionados por el usuario. El eje horizontal representa el tiempo, con las cotas definidas según el horario
+        de operación de la ruta seleccionada; el usuario también puede realizar zoom al eje horizontal utilizando el
+        seleccionador verde debajo de este. El eje vertical representa la distancia, y reporta todos los paraderos de la
+        ruta seleccionada con su distancia en la ruta; el usuario también puede achicar o agrandar el enfoque del eje
+        utilizando el seleccionador verde a la derecha del gráfico.
+    </p>
+    <p>
+        Cada línea representa una expedición despachada, y debe avanzar hacia la derecha y hacia arriba. Si una línea
+        avanza hacia la izquierda o hacia abajo (es decir, la expedición viajó atrás en el tiempo o contra el sentido de
+        la ruta), quiere decir que los datos de posicionamiento o del modelo arrojaron un error. Los tramos de cada
+        línea pueden tomar el color azul, amarillo, anaranjado, o rojo. Estos colores corresponden a una carga de
+        pasajeros entre: 0-25% (azul), 25-50% (amarillo), 50-75% (anaranjado), y 75-100% (rojo). Así el usuario puede
+        ver gráficamente cómo va cambiando la carga a lo largo de la ruta.
+    </p>
+    <p>
+        Encima del gráfico hay un botón para mostrar subidas o bajadas. No se puede mostrar subidas y bajadas a la misma
+        vez. Las subidas (o bajadas) aparecen en forma de círculo sobre cada línea para cada paradero donde hubo un
+        cambio en la ocupación del bus. El círculo varía en tamaño y color según la intensidad de la actividad (subida o
+        bajada). El tamaño en sí se agranda si hay más subidas (o bajadas). El color varía igual: con 1-5 subidas
+        (bajadas) el círculo estará azul; con 5-13 estará amarillo, con 13-15 estará anaranjado, y con 15 o más estará
+        rojo.
+    </p>
+    <p>
+        El usuario puede ver los datos por expedición posicionando el ratón en el gráfico sobre cualquier punto
+        correspondiente a un paradero. Para que sea más fácil corresponder estos datos con un paradero específico, los
+        paraderos indicados en el eje vertical tienen una línea gris horizontal que se extiende a lo largo del gráfico.
+        Aparecerá un cuadro gris con una representación del círculo de actividad (color), la hora estimada que la
+        expedición se detuvo en el paradero, la carga, y las bajadas y subidas en ese paradero.
+    </p>
+    <p>
+        Debajo del gráfico aparecen cuatro botones para guardar la imagen, ver los datos como texto, seleccionar un área
+        del gráfico, y restablecer la vista original.
+    </p>
+
+{% endblock body %}

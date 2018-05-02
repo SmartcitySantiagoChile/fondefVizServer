@@ -1,0 +1,23 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Tabla de expediciones{% endblock title %}
+
+{% block body %}
+    <p>La tabla de expediciones muestra una expedición por fila. Además cada expedición puede ser seleccionada para
+        mostrar su trayectoria. Las columnas que contiene la tabla son:</p>
+    <ul>
+        <li>Selector de expedición: si está seleccionada, esta fila es incluida en los datos del gráfico del panel
+            superior (perfil del servicio). Si no está seleccionada no es considerada. Por defecto solo las filas que
+            corresponden a expediciones válidas están seleccionadas.
+        </li>
+        <li>Perfil de carga: gráfico de barras que muestran el perfil de carga a lo largo de la ruta de la expedición.
+        </li>
+        <li>Patente(capacidad): la patente del bus que operó la expedición, y la capacidad máxima de ese bus.</li>
+        <li>Período inicio de expedición: el período transantiago de servicio durante el cual el bus fue despachado.
+        </li>
+        <li>Hora de inicio: la hora en que el bus fue despachado. Incluye el día y la hora.</li>
+        <li>Hora de fin: la hora en que el bus terminó su expedición. Incluye el día y la hora.</li>
+        <li>Tipo de día: el tipo de día en que inició la expedición (laboral, sábado, domingo).</li>
+    </ul>
+
+{% endblock body %}
