@@ -126,6 +126,20 @@ LOGGING = {
             "format": "%(asctime)s %(message)s",
             "datefmt": "%H:%M:%S",
         },
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(asctime)s %(message)s'
+        }
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
     },
     "handlers": {
         "rq_console": {
@@ -134,8 +148,29 @@ LOGGING = {
             "formatter": "rq_console",
             "exclude": ["%(asctime)s"],
         },
+        'file': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_false'],
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'midnight',
+            'interval': 1,
+            'filename': os.path.dirname(__file__) + "/logs/file.log",
+            'backupCount': 30,
+            'formatter': 'simple',
+        },
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
     },
     'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         "rq.worker": {
             "handlers": ["rq_console"],
             "level": "DEBUG"
