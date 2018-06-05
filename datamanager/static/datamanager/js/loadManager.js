@@ -1,5 +1,5 @@
-"use strict";
 $(document).ready(function () {
+    "use strict";
     function DataManagerApp() {
         var _self = this;
         var _datatableOpts = {
@@ -175,10 +175,12 @@ $(document).ready(function () {
                 var dictFiles = data.routeDictFiles;
 
                 for (var key in dictFiles) {
-                    var files = dictFiles[key];
-                    var opts = $.extend({data: files}, _datatableOpts);
-                    var id = key + "Table";
-                    $("#" + id).DataTable(opts);
+                    if (dictFiles.hasOwnProperty(key)) {
+                        var files = dictFiles[key];
+                        var opts = $.extend({data: files}, _datatableOpts);
+                        var id = key + "Table";
+                        $("#" + id).DataTable(opts);
+                    }
                 }
                 _self.activeButtonEvents();
             });
@@ -241,7 +243,7 @@ $(document).ready(function () {
                     ];
 
                     if (exec.error !== "") {
-                        rows.push(htmlRow("15", "Error:", exec.error))
+                        rows.push(htmlRow("15", "Error:", exec.error));
                     }
 
                     return rows.join("");
@@ -275,7 +277,7 @@ $(document).ready(function () {
             }
 
             buttons.forEach(function (buttonInfo) {
-                activateEventButton(buttonInfo)
+                activateEventButton(buttonInfo);
             });
         };
 
@@ -299,5 +301,5 @@ $(document).ready(function () {
         setInterval(function () {
             app.updateToLatestChanges();
         }, 1000 * 60);
-    })()
+    })();
 });
