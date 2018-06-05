@@ -228,7 +228,7 @@ $(document).ready(function () {
                     var enqueuedTimestamp = (new Date(exec.enqueueTimestamp)).toLocaleString();
                     var executionStart = exec.executionStart !== null ? (new Date(exec.executionStart)).toLocaleString() : "";
                     var executionEnd = exec.executionEnd !== null ? (new Date(exec.executionEnd)).toLocaleString() : "";
-                    var deletedAt = exec.deletedAt || "";
+                    var deletedAt = exec.deletedAt !== null ? (new Date(exec.deletedAt)).toLocaleString() : "";
 
                     function htmlRow(id, label, value) {
                         return "<form class='form-horizontal'><div class='form-group'>" +
