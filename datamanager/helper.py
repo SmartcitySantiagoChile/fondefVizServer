@@ -130,8 +130,19 @@ class UploaderManager(object):
 
     def delete_data(self):
         result = None
+        error_instance = None
         for helper in get_util_helpers(self.file_name):
-            result = helper.delete_data_by_file(self.file_name)
+            try:
+                result = helper.delete_data_by_file(self.file_name)
+            except Exception as e:
+                error_instance = e
+
+        finished_or_canceled = Q(status=UploaderJobExecution.FINISHED) | Q(status=UploaderJobExecution.CANCELED)
+        UploaderJobExecution.objects.filter(finished_or_canceled, file__fileName=self.file_name,
+                                            wasDeletedAt__isnull=True).update(wasDeletedAt=timezone.now())
+
+        if error_instance is not None:
+            raise error_instance
 
         if result is not None:
             result = result.total

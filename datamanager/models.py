@@ -117,6 +117,8 @@ class JobExecution(models.Model):
 class UploaderJobExecution(JobExecution):
     """ record about async execution for upload data to elasticsearch """
     file = models.ForeignKey(LoadFile)
+    # time when uploaded data was deleted
+    wasDeletedAt = models.DateTimeField('Eliminado', null=True)
 
     class Meta:
         verbose_name = 'Trabajo de carga de datos'

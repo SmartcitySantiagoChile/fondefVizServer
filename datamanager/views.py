@@ -149,15 +149,16 @@ class CancelData(View):
 
 
 class LatestJobChanges(View):
-    """ return list of files which change last x minutes """
+    """ return list of files which changed last x minutes """
 
     def get(self, request):
-        minutes = 2
+        minutes = 10
         lower_time_bound = timezone.now() - timezone.timedelta(minutes=minutes)
 
         files = LoadFile.objects.filter(Q(uploaderjobexecution__executionStart__gte=lower_time_bound) | Q(
             uploaderjobexecution__executionEnd__gte=lower_time_bound) | Q(
-            uploaderjobexecution__status=UploaderJobExecution.RUNNING))
+            uploaderjobexecution__status=UploaderJobExecution.RUNNING) | Q(
+            uploaderjobexecution__wasDeletedAt__gte=lower_time_bound))
 
         filter_list = map(lambda x: x.fileName, files)
         doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(filter_list)
