@@ -120,6 +120,11 @@ class UploaderJobExecution(JobExecution):
     # time when uploaded data was deleted
     wasDeletedAt = models.DateTimeField('Eliminado', null=True)
 
+    def get_dictionary(self):
+        answer = super(UploaderJobExecution, self).get_dictionary()
+        answer['deletedAt'] = self.wasDeletedAt
+        return answer
+
     class Meta:
         verbose_name = 'Trabajo de carga de datos'
         verbose_name_plural = 'Trabajos de carga de datos'
