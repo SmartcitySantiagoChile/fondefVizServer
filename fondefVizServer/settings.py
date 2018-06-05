@@ -151,11 +151,10 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'filters': ['require_debug_false'],
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'when': 'midnight',
-            'interval': 1,
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.dirname(__file__) + "/logs/file.log",
-            'backupCount': 30,
+            'maxBytes': 1024*1024*100,
+            'backupCount': 10,
             'formatter': 'simple',
         },
         'console': {
