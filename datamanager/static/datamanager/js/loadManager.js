@@ -228,6 +228,7 @@ $(document).ready(function () {
                     var enqueuedTimestamp = (new Date(exec.enqueueTimestamp)).toLocaleString();
                     var executionStart = exec.executionStart !== null ? (new Date(exec.executionStart)).toLocaleString() : "";
                     var executionEnd = exec.executionEnd !== null ? (new Date(exec.executionEnd)).toLocaleString() : "";
+                    var deletedAt = exec.deletedAt || "";
 
                     function htmlRow(id, label, value) {
                         return "<form class='form-horizontal'><div class='form-group'>" +
@@ -239,11 +240,12 @@ $(document).ready(function () {
                         htmlRow("11", "Estado:", exec.statusName),
                         htmlRow("12", "Envío de tarea:", enqueuedTimestamp),
                         htmlRow("13", "Inicio de tarea:", executionStart),
-                        htmlRow("14", "Fin de tarea:", executionEnd)
+                        htmlRow("14", "Fin de tarea:", executionEnd),
+                        htmlRow("15", "Eliminado:", deletedAt)
                     ];
 
                     if (exec.error !== "") {
-                        rows.push(htmlRow("15", "Error:", exec.error));
+                        rows.push(htmlRow("16", "Error:", exec.error));
                     }
 
                     return rows.join("");
