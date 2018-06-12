@@ -170,6 +170,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'django.template': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         "rq.worker": {
             "handlers": ["rq_console"],
             "level": "DEBUG"
