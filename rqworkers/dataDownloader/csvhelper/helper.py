@@ -39,7 +39,7 @@ class ZipManager:
 
     def __init__(self, file_path):
         self.file_path = file_path
-        self.zip_file_obj = zipfile.ZipFile(self.file_path, 'w')
+        self.zip_file_obj = zipfile.ZipFile(self.file_path, mode='w', compression=zipfile.ZIP_DEFLATED)
 
     def build_readme(self, file_title, files_description, data_filter, field_explanation):
         file_path = os.path.join(os.path.dirname(__file__), '..', 'helptemplate', 'template.readme')
