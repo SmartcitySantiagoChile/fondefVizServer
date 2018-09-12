@@ -88,7 +88,7 @@ def export_data_job(es_query_dict, downloader):
     download_file(settings.ES_CLIENT, es_query_dict, downloader, zip_file_path)
 
     # update file path
-    job_execution_obj.file.save(file_name, File(open(zip_file_path)))
+    job_execution_obj.file.name = file_name
 
     try:
         subject = 'Los datos solicitados ya se encuentran disponibles'
