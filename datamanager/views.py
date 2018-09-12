@@ -211,7 +211,7 @@ class ExportJobHistoryHTML(View):
 
         context = {
             'data': data,
-            'columns': ['Estado', 'Fecha encolación', 'Fecha inicio', 'Fecha Fin', 'Archivo', 'Fuente de datos',
+            'columns': ['Estado', 'Fecha solicitud', 'Fecha inicio', 'Fecha Fin', 'Archivo', 'Fuente de datos',
                         'Filtros aplicados']
         }
 
