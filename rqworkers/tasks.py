@@ -84,11 +84,11 @@ def export_data_job(es_query_dict, downloader):
     job_execution_obj.save()
 
     file_name = "{0}.zip".format(uuid.uuid4())
-    zip_file = os.path.join(settings.DOWNLOAD_PATH, file_name)
-    download_file(settings.ES_CLIENT, es_query_dict, downloader, zip_file)
+    zip_file_path = os.path.join(settings.DOWNLOAD_PATH, file_name)
+    download_file(settings.ES_CLIENT, es_query_dict, downloader, zip_file_path)
 
     # update file path
-    job_execution_obj.file.save(file_name, File(open(zip_file)))
+    job_execution_obj.file.save(file_name, File(open(zip_file_path)))
 
     try:
         subject = 'Los datos solicitados ya se encuentran disponibles'
