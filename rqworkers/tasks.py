@@ -27,6 +27,7 @@ import os
 import zipfile
 import io
 import traceback
+import gzip
 
 
 @job('data_uploader')
@@ -138,6 +139,14 @@ def export_exception_handler(job_instance, exc_type, exc_value, exc_tb):
 
 @job('count_lines')
 def count_line_of_file_job(file_obj, data_source_code, file_path):
+    def is_gzipfile(_file_path):
+        with gzip.open(_file_path) as _file_obj:
+            try:
+                _file_obj.read(1)
+                return True
+            except IOError:
+                return False
+
     def get_file_object(_file_path):
         """
         :param _file_path: file path will upload
@@ -148,6 +157,8 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
             # it assumes that zip file has only one file
             file_name = zip_file_obj.namelist()[0]
             _file_obj = zip_file_obj.open(file_name, 'rU')
+        elif is_gzipfile(_file_path):
+            _file_obj = gzip.open(_file_path, 'rb')
         else:
             _file_obj = io.open(_file_path, str('rb'))
 

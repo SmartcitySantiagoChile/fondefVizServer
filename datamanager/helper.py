@@ -193,7 +193,8 @@ class FileManager(object):
 
             path_name = os.path.join(path, data_source_obj.filePattern)
             zipped_path_name = os.path.join(path, '{0}.zip'.format(data_source_obj.filePattern))
-            file_name_list = glob.glob(path_name) + glob.glob(zipped_path_name)
+            gzipped_path_name = os.path.join(path, '{0}.gz'.format(data_source_obj.filePattern))
+            file_name_list = glob.glob(path_name) + glob.glob(zipped_path_name) + glob.glob(gzipped_path_name)
 
             for file_path in file_name_list:
                 file_name = os.path.basename(file_path)
