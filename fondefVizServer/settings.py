@@ -256,6 +256,17 @@ CRONJOBS = [
     ('0 0 * * *', 'datamanager.cron.delete_old_file_job')  # at 00:00 every day
 ]
 
+# secure proxy SSL header and secure cookies
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+# session expire at browser close
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# wsgi scheme
+os.environ['wsgi.url_scheme'] = 'https'
+
 DATADOG_TRACE = {
     'DEFAULT_SERVICE': config('DATADOG_SERVICE_NAME'),
     'TAGS': {'env': config('DATADOG_ENV')}
