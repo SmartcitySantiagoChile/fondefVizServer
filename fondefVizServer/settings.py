@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_js_reverse',
     'django_rq',
+    'ddtrace.contrib.django',
     'bowerapp',
     'esapi',
     'datamanager',
@@ -254,3 +255,8 @@ SERVER_EMAIL = config('SERVER_EMAIL')
 CRONJOBS = [
     ('0 0 * * *', 'datamanager.cron.delete_old_file_job')  # at 00:00 every day
 ]
+
+DATADOG_TRACE = {
+    'DEFAULT_SERVICE': config('DATADOG_SERVICE_NAME'),
+    'TAGS': {'env': config('DATADOG_ENV')}
+}
