@@ -269,5 +269,6 @@ os.environ['wsgi.url_scheme'] = 'https'
 
 DATADOG_TRACE = {
     'DEFAULT_SERVICE': config('DATADOG_SERVICE_NAME'),
+    'DEFAULT_DATABASE_PREFIX': config('DATADOG_DB_PREFIX'),
     'TAGS': {'env': config('DATADOG_ENV')}
 }
