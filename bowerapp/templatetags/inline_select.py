@@ -22,7 +22,7 @@ def inline_select(label, input_id, optionList, multiple=False):
     content = u"""
         <div class="form-group">
             <label for="{1}">{0}</label>
-            <select class="select2_multiple form-control" id="{1}" {2}">
+            <select class="select2_multiple form-control" id="{1}" {2}>
                 """ + u"".join(options) + u"""
             </select>
         </div>
