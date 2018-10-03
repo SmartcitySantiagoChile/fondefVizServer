@@ -126,40 +126,38 @@
               </ul>
             </li>
           <li role="presentation" class="dropdown">
-                  <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-envelope-o"></i>
-                      {% if jobs %}
-                    <span class="badge bg-green">{{  jobs|length }}</span>
-                      {% endif %}
+              <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-envelope-o"></i>
+                  {% if jobs %}
+                <span class="badge bg-green">{{  jobs|length }}</span>
+                  {% endif %}
+              </a>
+              <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
+                {% for job in jobs %}
+                <li class="alert alert-{% if job.status == 'finished' %}success{% elif job.status == 'failed' %}error{% elif job.status == 'canceled' %}warning{% elif job.status == 'running' %}warning{% else %}info{% endif %}">
+                  <a href="{% url 'datamanager:jobHistoryByUser' %}">
+                    <span class="image"><i class="fa {% if job.status == 'running' %}fa-refresh fa-spin{% else %}fa-cloud-download{% endif %} pull-right"></i></span>
+                    <span>
+                      <span>Solicitud de descarga</span>
+                      <span class="time">hace {{ job.enqueueTimestamp|timesince }} atrás</span>
+                    </span>
+                    <span class="message">
+                      Estado: {{ job.get_status_display }}<br />
+                      {{ job.errorMessage|truncatechars:40 }}
+                    </span>
                   </a>
-                  <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
-                    {% for job in jobs %}
-                    <li class="alert alert-{% if job.status == 'finished' %}success{% elif job.status == 'failed' %}error{% elif job.status == 'canceled' %}warning{% elif job.status == 'running' %}warning{% else %}info{% endif %}">
-                      <a href="{% url 'datamanager:jobHistoryByUser' %}">
-                        <span class="image"><i class="fa {% if job.status == 'running' %}fa-refresh fa-spin{% else %}fa-cloud-download{% endif %} pull-right"></i></span>
-                        <span>
-                          <span>Solicitud de descarga</span>
-                          <span class="time">hace {{ job.enqueueTimestamp|timesince }} atrás</span>
-                        </span>
-                        <span class="message">
-                          Estado: {{ job.get_status_display }}<br />
-                          {{ job.errorMessage|truncatechars:40 }}
-                        </span>
-                      </a>
-                    </li>
-                    {% endfor %}
-                    <li>
-                      <div class="text-center">
-                        <a href="{% url 'datamanager:jobHistoryByUser' %}">
-                          <strong>Ver todas las solicitudes de descarga</strong>
-                          <i class="fa fa-angle-right"></i>
-                        </a>
-                      </div>
-                    </li>
-                  </ul>
+                </li>
+                {% endfor %}
+                <li>
+                  <div class="text-center">
+                    <a href="{% url 'datamanager:jobHistoryByUser' %}">
+                      <strong>Ver todas las solicitudes de descarga</strong>
+                      <i class="fa fa-angle-right"></i>
+                    </a>
+                  </div>
                 </li>
               </ul>
-          </ul>
+          </li>
         </nav>
       </div>
     </div>
