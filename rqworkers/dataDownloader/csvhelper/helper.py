@@ -176,6 +176,15 @@ class CSVHelper:
                     'value': self._process_filters(nested_filters)
                 }
                 formatted_filters.append(attr_filter)
+            elif 'must' in query_filter:
+                nested_filters = query_filter['must'][0]['term']
+                raw_field = nested_filters.keys()[0]
+                field = nested_filters.keys()[0].split('.')[0]
+                attr_filter = {
+                    'field': self.translator[field],
+                    'value': nested_filters[raw_field]
+                }
+                formatted_filters.append(attr_filter)
 
         return formatted_filters
 
