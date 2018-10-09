@@ -221,15 +221,17 @@ class CSVHelper:
         if 'bool' not in self.es_query['query']:
             return ''
 
-        filters = self.es_query['query']['bool']['filter']
-
-        if not isinstance(filters, list):
-            raise FilterHasToBeListError()
+        filter_list = []
+        for bool_filter in self.es_query['query']['bool']:
+            bool_filter_list = self.es_query['query']['bool'][bool_filter]
+            if not isinstance(bool_filter_list, list):
+                raise FilterHasToBeListError()
+            filter_list += self._process_filters(bool_filter_list)
 
         if formatter == self.FORMATTER_FOR_FILE:
-            return self._formatter_for_file(self._process_filters(filters))
+            return self._formatter_for_file(filter_list)
         elif formatter == self.FORMATTER_FOR_WEB:
-            return self._formatter_for_web(self._process_filters(filters))
+            return self._formatter_for_web(filter_list)
         else:
             raise WrongFormatterError()
 
