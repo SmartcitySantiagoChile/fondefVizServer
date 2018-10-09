@@ -15,16 +15,19 @@ class IndexNameTest(TestCase):
     @mock.patch('esapi.helper.basehelper.settings')
     def test_wrong_index_name(self, settings):
         settings.ES_CLIENT.return_value = None
+
         fail_name = None
-        self.assertRaises(ValueError, ElasticSearchHelper, fail_name)
+        file_extensions = ['a', 'b']
+        self.assertRaises(ValueError, ElasticSearchHelper, fail_name, file_extensions)
         other_fail_name = ''
-        self.assertRaises(ValueError, ElasticSearchHelper, other_fail_name)
+        self.assertRaises(ValueError, ElasticSearchHelper, other_fail_name, file_extensions)
 
     @mock.patch('esapi.helper.basehelper.settings')
     def test_good_index_name(self, settings):
         settings.ES_CLIENT.return_value = None
         name = 'goodIndexName'
-        self.assertIsInstance(ElasticSearchHelper(name), ElasticSearchHelper)
+        file_extensions = []
+        self.assertIsInstance(ElasticSearchHelper(name, file_extensions), ElasticSearchHelper)
 
 
 @override_settings(ES_CLIENT=mock.MagicMock())
@@ -32,7 +35,8 @@ class BaseIndexTest(TestCase):
 
     def setUp(self):
         self.name = 'goodIndexName'
-        self.instance = ElasticSearchHelper(self.name)
+        file_extensions = ['a', 'b']
+        self.instance = ElasticSearchHelper(self.name, file_extensions)
 
     def test_get_base_query(self):
         query = self.instance.get_base_query()
