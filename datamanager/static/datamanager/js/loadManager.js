@@ -1,5 +1,6 @@
 $(document).ready(function () {
     "use strict";
+
     function DataManagerApp() {
         var _self = this;
         var _datatableOpts = {
@@ -286,10 +287,13 @@ $(document).ready(function () {
         this.updateToLatestChanges = function () {
             $.get(Urls["datamanager:latestJobChanges"](), function (data) {
                 data.changes.forEach(function (rowData) {
-                    var row = $("td:contains('" + rowData.name + "')").parents("tr");
-                    var table = row.closest("table").DataTable();
-                    table.row(row).data(rowData).invalidate("data");
-                    addColorToRow(rowData, row);
+                    var tableId = rowData.name.split(".")[1] + "Table";
+                    var table = $("#" + tableId).DataTable();
+                    var index = table.rows().eq(0).filter(function (rowIdx) {
+                        return table.cell(rowIdx, 0).data() === rowData.name;
+                    })[0];
+                    table.row(index).data(rowData).invalidate("data");
+                    addColorToRow(rowData, table.row(index));
                 });
             });
         };
