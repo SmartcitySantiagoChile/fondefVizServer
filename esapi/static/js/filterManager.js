@@ -58,9 +58,19 @@ function FilterManager(opts) {
     var PLACEHOLDER_USER_ROUTE = "Servicio usuario";
     var PLACEHOLDER_AUTH_ROUTE = "Servicio transantiago";
 
+    /* RETRIEVE DEFAULT VALUES */
+    optionDateRangePicker.singleDatePicker = singleDatePicker;
+    var localStartDate = window.localStorage.getItem("startDate");
+    var localEndDate = window.localStorage.getItem("endDate");
+    if (localStartDate !== null) {
+        optionDateRangePicker.startDate = moment(localStartDate);
+    }
+    if (localEndDate !== null) {
+        optionDateRangePicker.endDate = moment(localEndDate);
+    }
+
     /* ENABLE select2 library */
 
-    optionDateRangePicker.singleDatePicker = singleDatePicker;
     $DAY_FILTER.daterangepicker(optionDateRangePicker);
     $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
@@ -70,6 +80,81 @@ function FilterManager(opts) {
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE, allowClear: Boolean($AUTH_ROUTE_FILTER.length)});
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
+
+    /* SET DEFAULT VALUES FOR SELECT INPUTS */
+    var localDayTypeFilter = window.localStorage.getItem("dayTypeFilter");
+    if (localDayTypeFilter !== null) {
+        localDayTypeFilter = JSON.parse(localDayTypeFilter);
+        $DAY_TYPE_FILTER.val(localDayTypeFilter);
+        $DAY_TYPE_FILTER.trigger("change");
+    }
+    var localPeriodFilter = window.localStorage.getItem("periodFilter");
+    if (localPeriodFilter !== null) {
+        localPeriodFilter = JSON.parse(localPeriodFilter);
+        $PERIOD_FILTER.val(localPeriodFilter);
+        $PERIOD_FILTER.trigger("change");
+    }
+    var localMinutePeriodFilter = window.localStorage.getItem("minutePeriodFilter");
+    if (localMinutePeriodFilter !== null) {
+        localMinutePeriodFilter = JSON.parse(localMinutePeriodFilter);
+        $MINUTE_PERIOD_FILTER.val(localMinutePeriodFilter);
+        $MINUTE_PERIOD_FILTER.trigger("change");
+    }
+    var localOperatorFilter = window.localStorage.getItem("operatorFilter");
+    if (localOperatorFilter !== null) {
+        $OPERATOR_FILTER.val(localOperatorFilter);
+        $OPERATOR_FILTER.trigger("change");
+    }
+    var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
+    if (localAuthRouteFilter !== null) {
+        $AUTH_ROUTE_FILTER.val(localAuthRouteFilter);
+        $AUTH_ROUTE_FILTER.trigger("change");
+    }
+    var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
+    if (localUserRouteFilter !== null) {
+        $USER_ROUTE_FILTER.val(localUserRouteFilter);
+        $USER_ROUTE_FILTER.trigger("change");
+    }
+    var localBoardingPeriodFilter = window.localStorage.getItem("boardingPeriodFilter");
+    if (localBoardingPeriodFilter !== null) {
+        $BOARDING_PERIOD_FILTER.val(localBoardingPeriodFilter);
+        $BOARDING_PERIOD_FILTER.trigger("change");
+    }
+    var localMetricFilter = window.localStorage.getItem("metricFilter");
+    if (localMetricFilter !== null) {
+        $METRIC_FILTER.val(localMetricFilter);
+        $METRIC_FILTER.trigger("change");
+    }
+
+    /* ACTIVATE UPDATE OF DEFAULT VALUES */
+    $DAY_FILTER.change(function (e) {
+        window.localStorage.setItem("startDate", $DAY_FILTER.data("daterangepicker").startDate.format());
+        window.localStorage.setItem("endDate", $DAY_FILTER.data("daterangepicker").endDate.format());
+    });
+    $DAY_TYPE_FILTER.change(function () {
+        window.localStorage.setItem("dayTypeFilter", JSON.stringify($DAY_TYPE_FILTER.val()));
+    });
+    $PERIOD_FILTER.change(function () {
+        window.localStorage.setItem("periodFilter", JSON.stringify($PERIOD_FILTER.val()));
+    });
+    $MINUTE_PERIOD_FILTER.change(function () {
+        window.localStorage.setItem("minutePeriodFilter", JSON.stringify($MINUTE_PERIOD_FILTER.val()));
+    });
+    $OPERATOR_FILTER.change(function () {
+        window.localStorage.setItem("operatorFilter", $OPERATOR_FILTER.val());
+    });
+    $AUTH_ROUTE_FILTER.change(function () {
+        window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
+    });
+    $USER_ROUTE_FILTER.change(function () {
+        window.localStorage.setItem("userRouteFilter", $USER_ROUTE_FILTER.val());
+    });
+    $BOARDING_PERIOD_FILTER.change(function () {
+        window.localStorage.setItem("BoardingPeriodFilter", $BOARDING_PERIOD_FILTER.val());
+    });
+    $METRIC_FILTER.change(function () {
+        window.localStorage.setItem("metricFilter", $METRIC_FILTER.val());
+    });
 
     /* It saves last parameters sent to server */
     var paramsBackup = {};
@@ -98,6 +183,12 @@ function FilterManager(opts) {
                     return "Ingresar 3 o más caracteres";
                 }
             }
+        });
+        var localStopFilter = window.localStorage.getItem("stopFilter");
+        $STOP_FILTER.val(localStopFilter);
+        $STOP_FILTER.trigger("change");
+        $STOP_FILTER.change(function () {
+            window.localStorage.setItem("stopFilter", $STOP_FILTER.val());
         });
     }
 
@@ -192,7 +283,7 @@ function FilterManager(opts) {
             $.getJSON(urlFilterData, params, function (data) {
                 if (data.status) {
                     if (Array.isArray(data.status)) {
-                        data.status.forEach(function(message){
+                        data.status.forEach(function (message) {
                             showMessage(message);
                         })
                     } else {
