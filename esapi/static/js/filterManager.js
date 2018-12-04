@@ -353,7 +353,7 @@ function FilterManager(opts) {
                     $USER_ROUTE_FILTER.select2({data: userRouteList, allowClear: true, placeholder: PLACEHOLDER_ALL});
                 }
                 // call event to update auth route filter
-                var selectedItem = isFirstTime ? localUserRouteFilter : $USER_ROUTE_FILTER.select2("data")[0];
+                var selectedItem = isFirstTime && localUserRouteFilter !== null ? localUserRouteFilter : $USER_ROUTE_FILTER.select2("data")[0];
                 $USER_ROUTE_FILTER.trigger({
                     type: "select2:select",
                     params: {data: selectedItem, isFirstTime: isFirstTime}
@@ -363,7 +363,7 @@ function FilterManager(opts) {
                 var selectedItem = e.params.data;
                 var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(data.availableRoutes)[0];
                 if ($AUTH_ROUTE_FILTER.length) {
-                    updateAuthRouteList(operatorId, selectedItem);
+                    updateAuthRouteList(operatorId, selectedItem.id);
                 }
 
                 if (!e.params.isFirstTime) {
