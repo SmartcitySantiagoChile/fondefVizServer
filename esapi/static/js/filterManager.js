@@ -308,9 +308,9 @@ function FilterManager(opts) {
 
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
     if ($OPERATOR_FILTER.length) {
-        var localOperatorFilter = parseInt(window.localStorage.getItem("operatorFilter")) || 0;
-        var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
-        var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
+        var localOperatorFilter = JSON.parse(window.localStorage.getItem("operatorFilter"));
+        var localUserRouteFilter = JSON.parse(window.localStorage.getItem("userRouteFilter"));
+        var localAuthRouteFilter = JSON.parse(window.localStorage.getItem("authRouteFilter"));
 
         var processRouteData = function (data) {
             data.operatorDict = data.operatorDict.map(function (el) {
@@ -328,7 +328,7 @@ function FilterManager(opts) {
                 $AUTH_ROUTE_FILTER.empty();
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
             };
-            var updateUserRouteList = function (operatorId) {
+            var updateUserRouteList = function (operatorId, isFirstTime) {
                 var userRouteList = [];
                 if (data.availableRoutes[operatorId] !== undefined) {
                     userRouteList = Object.keys(data.availableRoutes[operatorId]);
@@ -340,49 +340,58 @@ function FilterManager(opts) {
                 $USER_ROUTE_FILTER.empty();
                 if ($AUTH_ROUTE_FILTER.length) {
                     $USER_ROUTE_FILTER.select2({data: userRouteList});
-                    // call event to update auth route filter
-                    var selectedItem = $USER_ROUTE_FILTER.select2("data")[0];
-                    $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
                 } else {
                     $USER_ROUTE_FILTER.select2({data: userRouteList, allowClear: true, placeholder: PLACEHOLDER_ALL});
                 }
+                // call event to update auth route filter
+                var selectedItem = isFirstTime ? localUserRouteFilter : $USER_ROUTE_FILTER.select2("data")[0];
+                $USER_ROUTE_FILTER.trigger({
+                    type: "select2:select",
+                    params: {data: selectedItem, isFirstTime: isFirstTime}
+                });
             };
             $USER_ROUTE_FILTER.on("select2:select", function (e) {
                 var selectedItem = e.params.data;
                 var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(data.availableRoutes)[0];
                 if ($AUTH_ROUTE_FILTER.length) {
-                    updateAuthRouteList(operatorId, selectedItem.id);
+                    updateAuthRouteList(operatorId, selectedItem);
                 }
-                window.localStorage.setItem("userRouteFilter", $USER_ROUTE_FILTER.val());
-                window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
+
+                if (!e.params.isFirstTime) {
+                    window.localStorage.setItem("userRouteFilter", JSON.stringify($USER_ROUTE_FILTER.select2("data")[0]));
+                    window.localStorage.setItem("authRouteFilter", JSON.stringify($AUTH_ROUTE_FILTER.select2("data")[0]));
+                }
             });
             // if operator filter is visible
             if ($OPERATOR_FILTER.length) {
                 $OPERATOR_FILTER.select2({data: data.operatorDict});
                 $OPERATOR_FILTER.on("select2:select", function (e) {
                     var selectedItem = e.params.data;
-                    updateUserRouteList(selectedItem.id);
+                    updateUserRouteList(selectedItem.id, e.params.isFirstTime);
 
-                    window.localStorage.setItem("operatorFilter", $OPERATOR_FILTER.val());
-                    window.localStorage.setItem("userRouteFilter", $USER_ROUTE_FILTER.val());
-                    window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
+                    if (!e.params.isFirstTime) {
+                        window.localStorage.setItem("operatorFilter", JSON.stringify($OPERATOR_FILTER.select2("data")[0]));
+                        window.localStorage.setItem("userRouteFilter", JSON.stringify($USER_ROUTE_FILTER.select2("data")[0]));
+                        window.localStorage.setItem("authRouteFilter", JSON.stringify($AUTH_ROUTE_FILTER.select2("data")[0]));
+                    }
                 });
                 // call event to update user route filter
                 var selectedItem = $OPERATOR_FILTER.select2("data")[0];
-                $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
+                $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: selectedItem, isFirstTime: true}});
             } else {
                 var operatorId = Object.keys(data.availableRoutes)[0];
-                updateUserRouteList(operatorId);
+                updateUserRouteList(operatorId, true);
             }
 
-            $AUTH_ROUTE_FILTER.change(function () {
-                window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
+            $AUTH_ROUTE_FILTER.on("select2:select", function (e) {
+                var selectedItem = e.params.data;
+                window.localStorage.setItem("authRouteFilter", JSON.stringify(selectedItem));
             });
 
             // updated fields
-            $OPERATOR_FILTER.val(localOperatorFilter).trigger("change.select2");
-            $USER_ROUTE_FILTER.val(localUserRouteFilter).trigger("change.select2");
-            $AUTH_ROUTE_FILTER.val(localAuthRouteFilter).trigger("change.select2");
+            $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
+            $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
+            $AUTH_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localAuthRouteFilter}}});
         };
         $.getJSON(urlRouteData, function (data) {
             if (data.status) {
