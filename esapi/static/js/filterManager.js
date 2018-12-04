@@ -371,6 +371,7 @@ function FilterManager(opts) {
                 }
 
                 if (!e.params.isFirstTime) {
+                    window.localStorage.setItem("operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
                     window.localStorage.setItem("userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
                     window.localStorage.setItem("authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
                 }
@@ -390,7 +391,7 @@ function FilterManager(opts) {
                 });
                 // call event to update user route filter
                 var selectedItem = localOperatorFilter !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
-                $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: selectedItem, isFirstTime: true}});
+                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({type: "select2:select", params: {data: selectedItem, isFirstTime: true}});
             } else {
                 var operatorId = Object.keys(data.availableRoutes)[0];
                 updateUserRouteList(operatorId, true);
@@ -398,14 +399,16 @@ function FilterManager(opts) {
 
             $AUTH_ROUTE_FILTER.on("select2:select", function (e) {
                 var selectedItem = e.params.data;
+                window.localStorage.setItem("operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
+                window.localStorage.setItem("userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
                 window.localStorage.setItem("authRouteFilter", JSON.stringify({id: selectedItem.id}));
             });
 
             // ignore if local settings are nulls
             if (localOperatorFilter) {
-                //$OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
-                //$USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
-                $AUTH_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localAuthRouteFilter}}});
+                $OPERATOR_FILTER.val(localOperatorFilter.id).trigger("change");
+                $USER_ROUTE_FILTER.val(localUserRouteFilter.id).trigger("change");
+                $AUTH_ROUTE_FILTER.val(localAuthRouteFilter.id).trigger("change");
             }
         };
         $.getJSON(urlRouteData, function (data) {
