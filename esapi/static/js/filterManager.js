@@ -379,9 +379,9 @@ function FilterManager(opts) {
                     updateUserRouteList(selectedItem.id, e.params.isFirstTime);
 
                     if (!e.params.isFirstTime) {
-                        window.localStorage.setItem("operatorFilter", JSON.stringify($OPERATOR_FILTER.select2("data")[0]));
-                        window.localStorage.setItem("userRouteFilter", JSON.stringify($USER_ROUTE_FILTER.select2("data")[0]));
-                        window.localStorage.setItem("authRouteFilter", JSON.stringify($AUTH_ROUTE_FILTER.select2("data")[0]));
+                        window.localStorage.setItem("operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
+                        window.localStorage.setItem("userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
+                        window.localStorage.setItem("authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
                     }
                 });
                 // call event to update user route filter
