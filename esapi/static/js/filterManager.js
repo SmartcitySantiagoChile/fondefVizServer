@@ -361,7 +361,7 @@ function FilterManager(opts) {
             };
             $USER_ROUTE_FILTER.on("select2:select", function (e) {
                 var selectedItem = e.params.data;
-                var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0] : Object.keys(data.availableRoutes)[0];
+                var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(data.availableRoutes)[0];
                 if ($AUTH_ROUTE_FILTER.length) {
                     updateAuthRouteList(operatorId, selectedItem.id);
                 }
@@ -397,10 +397,12 @@ function FilterManager(opts) {
                 window.localStorage.setItem("authRouteFilter", JSON.stringify(selectedItem));
             });
 
-            // updated fields
-            $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
-            $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
-            $AUTH_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localAuthRouteFilter}}});
+            // ignore if local settings are nulls
+            if (localOperatorFilter) {
+                $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
+                $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
+                $AUTH_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localAuthRouteFilter}}});
+            }
         };
         $.getJSON(urlRouteData, function (data) {
             if (data.status) {
