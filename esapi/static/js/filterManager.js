@@ -378,12 +378,15 @@ function FilterManager(opts) {
                 processRouteData(data);
                 $OPERATOR_FILTER.change(function () {
                     window.localStorage.setItem("operatorFilter", $OPERATOR_FILTER.val());
-                });
-                $AUTH_ROUTE_FILTER.change(function () {
+                    window.localStorage.setItem("userRouteFilter", $USER_ROUTE_FILTER.val());
                     window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
                 });
                 $USER_ROUTE_FILTER.change(function () {
                     window.localStorage.setItem("userRouteFilter", $USER_ROUTE_FILTER.val());
+                    window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
+                });
+                $AUTH_ROUTE_FILTER.change(function () {
+                    window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
                 });
             }
         });
