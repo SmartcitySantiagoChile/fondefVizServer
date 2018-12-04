@@ -385,7 +385,7 @@ function FilterManager(opts) {
                     }
                 });
                 // call event to update user route filter
-                var selectedItem = $OPERATOR_FILTER.select2("data")[0];
+                var selectedItem = localOperatorFilter !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
                 $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: selectedItem, isFirstTime: true}});
             } else {
                 var operatorId = Object.keys(data.availableRoutes)[0];
@@ -399,8 +399,8 @@ function FilterManager(opts) {
 
             // ignore if local settings are nulls
             if (localOperatorFilter) {
-                $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
-                $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
+                //$OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
+                //$USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
                 $AUTH_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localAuthRouteFilter}}});
             }
         };
