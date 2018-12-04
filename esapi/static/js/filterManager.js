@@ -361,7 +361,7 @@ function FilterManager(opts) {
             };
             $USER_ROUTE_FILTER.on("select2:select", function (e) {
                 var selectedItem = e.params.data;
-                var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(data.availableRoutes)[0];
+                var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0] : Object.keys(data.availableRoutes)[0];
                 if ($AUTH_ROUTE_FILTER.length) {
                     updateAuthRouteList(operatorId, selectedItem.id);
                 }
