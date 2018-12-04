@@ -367,8 +367,8 @@ function FilterManager(opts) {
                 }
 
                 if (!e.params.isFirstTime) {
-                    window.localStorage.setItem("userRouteFilter", JSON.stringify($USER_ROUTE_FILTER.select2("data")[0]));
-                    window.localStorage.setItem("authRouteFilter", JSON.stringify($AUTH_ROUTE_FILTER.select2("data")[0]));
+                    window.localStorage.setItem("userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
+                    window.localStorage.setItem("authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
                 }
             });
             // if operator filter is visible
@@ -394,7 +394,7 @@ function FilterManager(opts) {
 
             $AUTH_ROUTE_FILTER.on("select2:select", function (e) {
                 var selectedItem = e.params.data;
-                window.localStorage.setItem("authRouteFilter", JSON.stringify(selectedItem));
+                window.localStorage.setItem("authRouteFilter", JSON.stringify({id: selectedItem.id}));
             });
 
             // ignore if local settings are nulls
