@@ -397,10 +397,12 @@ function FilterManager(opts) {
                 window.localStorage.setItem("authRouteFilter", JSON.stringify(selectedItem));
             });
 
-            // updated fields
-            $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
-            $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
-            $AUTH_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localAuthRouteFilter}}});
+            // ignore if local settings are nulls
+            if (localOperatorFilter) {
+                $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: {id: localOperatorFilter}}});
+                $USER_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localUserRouteFilter}}});
+                $AUTH_ROUTE_FILTER.trigger({type: "select2:select", params: {data: {id: localAuthRouteFilter}}});
+            }
         };
         $.getJSON(urlRouteData, function (data) {
             if (data.status) {
