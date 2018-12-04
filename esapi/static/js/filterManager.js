@@ -100,21 +100,6 @@ function FilterManager(opts) {
         $MINUTE_PERIOD_FILTER.val(localMinutePeriodFilter);
         $MINUTE_PERIOD_FILTER.trigger("change");
     }
-    var localOperatorFilter = window.localStorage.getItem("operatorFilter");
-    if (localOperatorFilter !== null) {
-        $OPERATOR_FILTER.val(localOperatorFilter);
-        $OPERATOR_FILTER.trigger("change");
-    }
-    var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
-    if (localAuthRouteFilter !== null) {
-        $AUTH_ROUTE_FILTER.val(localAuthRouteFilter);
-        $AUTH_ROUTE_FILTER.trigger("change");
-    }
-    var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
-    if (localUserRouteFilter !== null) {
-        $USER_ROUTE_FILTER.val(localUserRouteFilter);
-        $USER_ROUTE_FILTER.trigger("change");
-    }
     var localBoardingPeriodFilter = window.localStorage.getItem("boardingPeriodFilter");
     if (localBoardingPeriodFilter !== null) {
         $BOARDING_PERIOD_FILTER.val(localBoardingPeriodFilter);
@@ -139,15 +124,6 @@ function FilterManager(opts) {
     });
     $MINUTE_PERIOD_FILTER.change(function () {
         window.localStorage.setItem("minutePeriodFilter", JSON.stringify($MINUTE_PERIOD_FILTER.val()));
-    });
-    $OPERATOR_FILTER.change(function () {
-        window.localStorage.setItem("operatorFilter", $OPERATOR_FILTER.val());
-    });
-    $AUTH_ROUTE_FILTER.change(function () {
-        window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
-    });
-    $USER_ROUTE_FILTER.change(function () {
-        window.localStorage.setItem("userRouteFilter", $USER_ROUTE_FILTER.val());
     });
     $BOARDING_PERIOD_FILTER.change(function () {
         window.localStorage.setItem("BoardingPeriodFilter", $BOARDING_PERIOD_FILTER.val());
@@ -339,7 +315,6 @@ function FilterManager(opts) {
                     text: el.item
                 }
             });
-            // console.log(data);
             var updateAuthRouteList = function (operatorId, userRouteId) {
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
                 authRouteList.sort();
@@ -380,7 +355,6 @@ function FilterManager(opts) {
                 $OPERATOR_FILTER.select2({data: data.operatorDict});
                 $OPERATOR_FILTER.on("select2:select", function (e) {
                     var selectedItem = e.params.data;
-                    // update user route filter and auth route filter
                     updateUserRouteList(selectedItem.id);
                 });
                 // call event to update user route filter
@@ -388,14 +362,29 @@ function FilterManager(opts) {
                 $OPERATOR_FILTER.trigger({type: "select2:select", params: {data: selectedItem}});
             } else {
                 var operatorId = Object.keys(data.availableRoutes)[0];
-                updateUserRouteList(operatorId)
+                updateUserRouteList(operatorId);
             }
+            var localOperatorFilter = parseInt(window.localStorage.getItem("operatorFilter"));
+            var localUserRouteFilter = parseInt(window.localStorage.getItem("userRouteFilter"));
+            var localAuthRouteFilter = parseInt(window.localStorage.getItem("authRouteFilter"));
+            $OPERATOR_FILTER.val(localOperatorFilter).trigger("change.select2");
+            $USER_ROUTE_FILTER.val(localUserRouteFilter).trigger("change.select2");
+            $AUTH_ROUTE_FILTER.val(localAuthRouteFilter).trigger("change.select2");
         };
         $.getJSON(urlRouteData, function (data) {
             if (data.status) {
                 showMessage(data.status);
             } else {
                 processRouteData(data);
+                $OPERATOR_FILTER.change(function () {
+                    window.localStorage.setItem("operatorFilter", $OPERATOR_FILTER.val());
+                });
+                $AUTH_ROUTE_FILTER.change(function () {
+                    window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
+                });
+                $USER_ROUTE_FILTER.change(function () {
+                    window.localStorage.setItem("userRouteFilter", $USER_ROUTE_FILTER.val());
+                });
             }
         });
     }
