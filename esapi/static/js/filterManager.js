@@ -308,9 +308,18 @@ function FilterManager(opts) {
 
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
     if ($OPERATOR_FILTER.length) {
-        var localOperatorFilter = JSON.parse(window.localStorage.getItem("operatorFilter"));
-        var localUserRouteFilter = JSON.parse(window.localStorage.getItem("userRouteFilter"));
-        var localAuthRouteFilter = JSON.parse(window.localStorage.getItem("authRouteFilter"));
+        var localOperatorFilter = window.localStorage.getItem("operatorFilter");
+        if (localOperatorFilter) {
+            localOperatorFilter = JSON.parse(localOperatorFilter);
+        }
+        var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
+        if (localUserRouteFilter) {
+            localUserRouteFilter = JSON.parse(localUserRouteFilter);
+        }
+        var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
+        if (localAuthRouteFilter) {
+            localAuthRouteFilter = JSON.parse(localAuthRouteFilter);
+        }
 
         var processRouteData = function (data) {
             data.operatorDict = data.operatorDict.map(function (el) {
