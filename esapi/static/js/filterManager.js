@@ -376,8 +376,8 @@ function FilterManager(opts) {
             });
 
             var localOperatorFilter = parseInt(window.localStorage.getItem("operatorFilter")) || 0;
-            var localUserRouteFilter = parseInt(window.localStorage.getItem("userRouteFilter")) || 0;
-            var localAuthRouteFilter = parseInt(window.localStorage.getItem("authRouteFilter")) || 0;
+            var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
+            var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
             $OPERATOR_FILTER.val(localOperatorFilter).trigger("change.select2");
             $USER_ROUTE_FILTER.val(localUserRouteFilter).trigger("change.select2");
             $AUTH_ROUTE_FILTER.val(localAuthRouteFilter).trigger("change.select2");
