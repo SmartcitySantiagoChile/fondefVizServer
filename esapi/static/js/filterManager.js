@@ -308,6 +308,10 @@ function FilterManager(opts) {
 
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
     if ($OPERATOR_FILTER.length) {
+        var localOperatorFilter = parseInt(window.localStorage.getItem("operatorFilter")) || 0;
+        var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
+        var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
+
         var processRouteData = function (data) {
             data.operatorDict = data.operatorDict.map(function (el) {
                 return {
@@ -375,9 +379,7 @@ function FilterManager(opts) {
                 window.localStorage.setItem("authRouteFilter", $AUTH_ROUTE_FILTER.val());
             });
 
-            var localOperatorFilter = parseInt(window.localStorage.getItem("operatorFilter")) || 0;
-            var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
-            var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
+            // updated fields
             $OPERATOR_FILTER.val(localOperatorFilter).trigger("change.select2");
             $USER_ROUTE_FILTER.val(localUserRouteFilter).trigger("change.select2");
             $AUTH_ROUTE_FILTER.val(localAuthRouteFilter).trigger("change.select2");
