@@ -9,11 +9,13 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
+import os
+
+from ddtrace import patch
+from decouple import config, Csv
 from elasticsearch import Elasticsearch
 
-from decouple import config, Csv
-
-import os
+patch(elasticsearch=True)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -154,7 +156,7 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), 'logs', 'file.log'),
-            'maxBytes': 1024*1024*100,
+            'maxBytes': 1024 * 1024 * 100,
             'backupCount': 10,
             'formatter': 'simple',
         },
@@ -270,5 +272,6 @@ os.environ['wsgi.url_scheme'] = 'https'
 DATADOG_TRACE = {
     'DEFAULT_SERVICE': config('DATADOG_SERVICE_NAME'),
     'DEFAULT_DATABASE_PREFIX': config('DATADOG_DB_PREFIX'),
+    'DEFAULT_CACHE_SERVICE ': config('DATADOG_CACHE_SERVICE_NAME'),
     'TAGS': {'env': config('DATADOG_ENV')}
 }
