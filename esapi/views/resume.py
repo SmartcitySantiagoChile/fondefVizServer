@@ -37,18 +37,17 @@ DICTIONARY = {
     'GPSNumberWithoutRoute': {'name': 'Número de pulsos GPS sin servicio asignado', 'chartName': '', 'order': 20},
     'averageTimeBetweenGPSPoints': {'name': 'Tiempo prom. entre pulsos GPS', 'chartName': '', 'order': 40},
 
-    'validTripNumber': {'name': 'Número de viajes expandido', 'chartName': '', 'order': 21},
-    'tripsWithOneStage': {'name': 'Número de viajes con una etapa', 'chartName': '1 etapa', 'order': 22},
-    'tripsWithTwoStages': {'name': 'Número de viajes con dos etapas', 'chartName': '2 etapas', 'order': 23},
-    'tripsWithThreeStages': {'name': 'Número de viajes con tres etapas', 'chartName': '3 etapas', 'order': 24},
-    'tripsWithFourStages': {'name': 'Número de viajes con cuatro etapas', 'chartName': '4 etapas', 'order': 25},
-    'tripsWithFiveOrMoreStages': {'name': 'Número de viajes con cinco o más etapas', 'chartName': '5 o más etapas', 'order': 26},
-    'tripsWithOnlyMetro': {'name': 'Número de Viajes solo en metro', 'chartName': '', 'order': 27},
+    'tripsWithOneStage': {'name': 'Porcentaje de viajes con una etapa', 'chartName': '1 etapa', 'order': 22},
+    'tripsWithTwoStages': {'name': 'Porcentaje de viajes con dos etapas', 'chartName': '2 etapas', 'order': 23},
+    'tripsWithThreeStages': {'name': 'Porcentaje de viajes con tres etapas', 'chartName': '3 etapas', 'order': 24},
+    'tripsWithFourStages': {'name': 'Porcentaje de viajes con cuatro etapas', 'chartName': '4 etapas', 'order': 25},
+    'tripsWithFiveOrMoreStages': {'name': 'Porcentaje de viajes con cinco o más etapas', 'chartName': '5 o más etapas', 'order': 26},
+    'tripsWithOnlyMetro': {'name': 'Porcentaje de viajes solo en metro', 'chartName': '', 'order': 27},
 
-    'stagesWithBusAlighting': {'name': 'Número de etapas en bus', 'chartName': 'Bus', 'order': 28},
-    'stagesWithTrainAlighting': {'name': 'Número de etapas en metrotren', 'chartName': 'Metrotren', 'order': 29},
-    'stagesWithMetroAlighting': {'name': 'Número de etapas en metro', 'chartName': 'Metro', 'order': 30},
-    'stagesWithBusStationAlighting': {'name': 'Número de etapas con bajada en zona paga', 'chartName': 'Zona paga', 'order': 45},
+    'stagesWithBusAlighting': {'name': 'Porcentaje de etapas con bajada estimada en bus', 'chartName': 'Bus', 'order': 28},
+    'stagesWithTrainAlighting': {'name': 'Porcentaje de etapas con bajada estimada en metrotren', 'chartName': 'Metrotren', 'order': 29},
+    'stagesWithMetroAlighting': {'name': 'Porcentaje de etapas con bajada estimada en metro', 'chartName': 'Metro', 'order': 30},
+    'stagesWithBusStationAlighting': {'name': 'Porcentaje de etapas con bajada estimada en zona paga', 'chartName': 'Zona paga', 'order': 45},
 
     'expeditionNumber': {'name': 'Número de expediciones', 'chartName': '', 'order': 31},
     'maxExpeditionTime': {'name': 'Tiempo de expedición máximo', 'chartName': '', 'order': 32},
@@ -63,8 +62,7 @@ DICTIONARY = {
     'averageVelocityOfTrips': {'name': 'Velocidad prom. de viajes (Km/H)', 'chartName': '', 'order': 39},
     'averageDistanceOfTrips': {'name': 'Distancia promedio de viajes (mts)', 'chartName': '', 'order': 41},
 
-    'tripsThatUseMetro': {'name': 'Número de viajes que usan metro', 'chartName': '', 'order': 42},
-    'completeTripNumber': {'name': 'Número de viajes completo', 'chartName': '', 'order': 43},
+    'tripsThatUseMetro': {'name': 'Porcentaje de viajes que usan metro', 'chartName': '', 'order': 42},
     'tripsWithoutLastAlighting': {'name': 'Número de viajes sin última bajada', 'chartName': '', 'order': 44},
 
     'transactionInMorningRushHour': {'name': 'Número de validaciones bip! en punta mañana', 'chartName': '', 'order': 45},

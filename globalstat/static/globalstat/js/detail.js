@@ -135,12 +135,15 @@ $(document).ready(function () {
             });
 
             var labelAttributes = ["Velocidad promedio de viajes (km/h)", "Distancia promedio de viajes (metros)",
-                "Tiempo promedio de viajes (minutos)", "Viajes por período"];
+                "Tiempo promedio de viajes (minutos)", "N° de Viajes", "N° de transacciones",
+                "N° de bajadas (suma sobre expansión zona-período)"];
             var tableAttriubutes = [
                 ["averageVelocityOfTrips", "averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips"],
                 ["averageDistanceOfTrips", "averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips"],
                 ["averageTimeOfTrips", "averageTimeInMorningRushTrips", "averageTimeInAfternoonRushTrips"],
-                ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"]
+                ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"],
+                ["transactionNumber", "transactionNumberInMorningRushHour", "transactionNumberInAfternoonRushHour"],
+                ["alightingNumber", "alightingNumberInMorningRushHour", "alightingNumberInAfternoonRushHour"]
             ];
 
             var dataTable = $("#dataTable");

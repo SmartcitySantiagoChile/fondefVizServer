@@ -52,21 +52,25 @@ class DetailHTML(PermissionRequiredMixin, View):
         context['metrics'] = attributes
 
         context['tiles_1'] = [
+            {'title': DICTIONARY['version']['name'], 'title_icon': 'fa-barcode', 'value': '',
+             'value_id': 'version', 'sub_value_id': '', 'sub_title': ''},
             {'title': DICTIONARY['dayType']['name'], 'title_icon': 'fa-calendar', 'value': '',
-             'value_id': 'dayType', 'sub_value_id': 'date', 'sub_title': ''},
+             'value_id': 'dayType', 'sub_value_id': '', 'sub_title': ''},
             {'title': DICTIONARY['smartcardNumber']['name'], 'title_icon': 'fa-credit-card', 'value': '',
              'value_id': 'smartcardNumber', 'sub_value_id': '', 'sub_title': ''},
             {'title': DICTIONARY['transactionNumber']['name'], 'title_icon': 'fa-group', 'value': '',
              'value_id': 'transactionNumber', 'sub_value_id': '', 'sub_title': ''},
+            {'title': DICTIONARY['expeditionNumber']['name'], 'title_icon': 'fa-group', 'value': '',
+             'value_id': 'expeditionNumber', 'sub_value_id': '', 'sub_title': ''},
+            {'title': DICTIONARY['GPSPointsNumber']['name'], 'title_icon': 'fa-truck', 'value': '',
+             'value_id': 'GPSPointsNumber', 'sub_value_id': '', 'sub_title': ''},
+            {'title': DICTIONARY['licensePlateNumber']['name'], 'title_icon': 'fa-truck', 'value': '',
+             'value_id': 'licensePlateNumber', 'sub_value_id': '', 'sub_title': ''},
         ]
 
         context['tiles_2'] = [
             {'title': DICTIONARY['tripNumber']['name'], 'title_icon': 'fa-rocket', 'value': '',
              'value_id': 'tripNumber', 'sub_value_id': '', 'sub_title': ''},
-            {'title': DICTIONARY['validTripNumber']['name'], 'title_icon': 'fa-rocket', 'value': '',
-             'value_id': 'validTripNumber', 'sub_value_id': '', 'sub_title': ''},
-            # {'title': DICTIONARY['completeTripNumber']['name'], 'title_icon': 'fa-group', 'value': '',
-            # 'value_id': 'completeTripNumber', 'sub_value_id': '', 'sub_title': ''},
         ]
 
         context['tiles_22'] = [
