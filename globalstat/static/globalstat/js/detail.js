@@ -134,25 +134,75 @@ $(document).ready(function () {
                 charts.push(chart);
             });
 
-            var labelAttributes = ["Velocidad promedio de viajes (km/h)", "Distancia promedio de viajes (metros)",
-                "Tiempo promedio de viajes (minutos)", "Viajes por período"];
-            var tableAttriubutes = [
-                ["averageVelocityOfTrips", "averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips"],
-                ["averageDistanceOfTrips", "averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips"],
-                ["averageTimeOfTrips", "averageTimeInMorningRushTrips", "averageTimeInAfternoonRushTrips"],
-                ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"]
-            ];
+            var tables = {
+                dataTable: {
+                    labelAttributes: ["Velocidad promedio de viajes (km/h)", "Distancia promedio de viajes (metros)",
+                        "Tiempo promedio de viajes (minutos)", "N° de Viajes", "N° de transacciones",
+                        "N° de bajadas (suma sobre expansión zona-período)"
+                    ],
+                    tableAttributes: [
+                        ["averageVelocityOfTrips", "averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips"],
+                        ["averageDistanceOfTrips", "averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips"],
+                        ["averageTimeOfTrips", "averageTimeInMorningRushTrips", "averageTimeInAfternoonRushTrips"],
+                        ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"],
+                        ["transactionNumber", "transactionNumberInMorningRushHour", "transactionNumberInAfternoonRushHour"],
+                        ["alightingNumber", "alightingNumberInMorningRushHour", "alightingNumberInAfternoonRushHour"]
+                    ]
+                },
+                dataTable2: {
+                    tableAttributes: [
+                        ["firstStopWithMoreValidations", "transactionNumberInFirstStopWithMoreValidations"],
+                        ["secondStopWithMoreValidations", "transactionNumberInSecondStopWithMoreValidations"],
+                        ["thirdStopWithMoreValidations", "transactionNumberInThirdStopWithMoreValidations"],
+                        ["fourthStopWithMoreValidations", "transactionNumberInFourthStopWithMoreValidations"],
+                        ["fifthStopWithMoreValidations", "transactionNumberInFifthStopWithMoreValidations"],
+                        ["sixthStopWithMoreValidations", "transactionNumberInSixthStopWithMoreValidations"],
+                        ["seventhStopWithMoreValidations", "transactionNumberInSeventhStopWithMoreValidations"],
+                        ["eighthStopWithMoreValidations", "transactionNumberInEighthStopWithMoreValidations"],
+                        ["ninethStopWithMoreValidations", "transactionNumberInNinethStopWithMoreValidations"],
+                        ["tenthStopWithMoreValidations", "transactionNumberInTenthStopWithMoreValidations"]
+                    ]
+                },
+                dataTable3: {
+                    tableAttributes: [
+                        ["firstBusStopWithMoreValidations", "transactionNumberInFirstBusStopWithMoreValidations"],
+                        ["secondBusStopWithMoreValidations", "transactionNumberInSecondBusStopWithMoreValidations"],
+                        ["thirdBusStopWithMoreValidations", "transactionNumberInThirdBusStopWithMoreValidations"],
+                        ["fourthBusStopWithMoreValidations", "transactionNumberInFourthBusStopWithMoreValidations"],
+                        ["fifthBusStopWithMoreValidations", "transactionNumberInFifthBusStopWithMoreValidations"],
+                        ["sixthBusStopWithMoreValidations", "transactionNumberInSixthBusStopWithMoreValidations"],
+                        ["seventhBusStopWithMoreValidations", "transactionNumberInSeventhBusStopWithMoreValidations"],
+                        ["eighthBusStopWithMoreValidations", "transactionNumberInEighthBusStopWithMoreValidations"],
+                        ["ninethBusStopWithMoreValidations", "transactionNumberInNinethBusStopWithMoreValidations"],
+                        ["tenthBusStopWithMoreValidations", "transactionNumberInTenthBusStopWithMoreValidations"]
+                    ]
+                }
+            };
 
-            var dataTable = $("#dataTable");
-            dataTable.empty();
-            var tableRow = "<tr><th scope='row'>{0}</th><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>";
-            tableAttriubutes.forEach(function (attrs, index) {
-                var label = labelAttributes[index];
-                var value0 = Number(Number(row[ids.indexOf(attrs[0])]).toFixed(2)).toLocaleString();
-                var value1 = Number(Number(row[ids.indexOf(attrs[1])]).toFixed(2)).toLocaleString();
-                var value2 = Number(Number(row[ids.indexOf(attrs[2])]).toFixed(2)).toLocaleString();
-                dataTable.append(tableRow.replace("{0}", index + 1).replace("{1}", label).replace("{2}", value0).replace("{3}", value1).replace("{4}", value2));
-            });
+            for (var tableId in tables) {
+                var dataTable = $("#" + tableId);
+                dataTable.empty();
+
+                var labelAttributes = tables[tableId].labelAttributes;
+                var tableAttributes = tables[tableId].tableAttributes;
+
+                var tableRow = "<tr><th scope='row'>{0}</th>{1}</tr>";
+                tableAttributes.forEach(function (attrs, index) {
+                    var values = [];
+                    if (labelAttributes !== null) {
+                        var label = labelAttributes[index];
+                        values.push(label);
+                    }
+                    attrs.forEach(function (keyValue) {
+                        var value = row[ids.indexOf(keyValue)];
+                        if (!isNaN(value)) {
+                            value = Number(Number(value).toFixed(2)).toLocaleString();
+                        }
+                        values.push("<td>" + value + "</td>");
+                    });
+                    dataTable.append(tableRow.replace("{0}", index + 1).replace("{1}", values.join("")));
+                });
+            }
         };
 
         this.resizeCharts = function () {
