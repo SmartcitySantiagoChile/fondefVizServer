@@ -123,6 +123,8 @@ DICTIONARY = {
     'transactionNumberInEighthBusStopWithMoreValidations': {'name': 'N° de validaciones en octavo paradero de bus con más validaciones', 'chartName': '', 'order': 95},
     'transactionNumberInNinethBusStopWithMoreValidations': {'name': 'N° de validaciones en noveno paradero de bus con más validaciones', 'chartName': '', 'order': 96},
     'transactionNumberInTenthBusStopWithMoreValidations': {'name': 'N° de validaciones en décimo paradero de bus con más validaciones', 'chartName': '', 'order': 97},
+
+    'version': {'name': 'versión de ADATRAP con la que se procesó el día', 'chartName': '', 'order': 98},
 }
 
 
