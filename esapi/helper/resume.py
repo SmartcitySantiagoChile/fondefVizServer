@@ -12,7 +12,6 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
         return self._get_available_days('date')
 
     def get_data(self, start_date, end_date, metrics):
-
         if len(metrics) == 0:
             metrics = ['transactionWithoutRoute', 'transactionWithRoute', 'transactionNumber',
                        'transactionOnTrainNumber', 'transactionOnMetroNumber', 'transactionOnBusNumber',
@@ -27,7 +26,41 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
                        'tripsThatUseMetro', 'completeTripNumber', 'stagesWithBusStationAlighting',
                        'tripsWithoutLastAlighting', 'validTripNumber', 'tripsWithOneStage', 'tripsWithTwoStages',
                        'tripsWithThreeStages', 'tripsWithFourStages', 'tripsWithFiveOrMoreStages', 'tripsWithOnlyMetro',
-                       'stagesWithBusAlighting', 'stagesWithTrainAlighting', 'stagesWithMetroAlighting', 'dayType'
+                       'stagesWithBusAlighting', 'stagesWithTrainAlighting', 'stagesWithMetroAlighting', 'dayType',
+                       'version', 'transactionInMorningRushHour', 'transactionInAfternoonRushHour', 'alightingNumber',
+                       'alightingNumberInMorningRushHour', 'alightingNumberInAfternoonRushHour', 'stopsNumberWithTypeE',
+                       'stopsNumberWithTypeT', 'stopsNumberWithTypeL', 'stopsNumberWithTypeI',
+                       'transactionNumberInStopsWithTypeE', 'transactionNumberInStopsWithTypeT',
+                       'transactionNumberInStopsWithTypeL', 'transactionNumberInStopsWithTypeI',
+                       'firstStopWithMoreValidations', 'secondStopWithMoreValidations', 'thirdStopWithMoreValidations',
+                       'fourthStopWithMoreValidations', 'fifthStopWithMoreValidations', 'sixthStopWithMoreValidations',
+                       'seventhStopWithMoreValidations', 'eighthStopWithMoreValidations',
+                       'ninethStopWithMoreValidations', 'tenthStopWithMoreValidations',
+                       'transactionNumberInFirstStopWithMoreValidations',
+                       'transactionNumberInSecondStopWithMoreValidations',
+                       'transactionNumberInThirdStopWithMoreValidations',
+                       'transactionNumberInFourthStopWithMoreValidations',
+                       'transactionNumberInFifthStopWithMoreValidations',
+                       'transactionNumberInSixthStopWithMoreValidations',
+                       'transactionNumberInSeventhStopWithMoreValidations',
+                       'transactionNumberInEighthStopWithMoreValidations',
+                       'transactionNumberInNinethStopWithMoreValidations',
+                       'transactionNumberInTenthStopWithMoreValidations',
+                       'firstBusStopWithMoreValidations', 'secondBusStopWithMoreValidations',
+                       'thirdBusStopWithMoreValidations', 'fourthBusStopWithMoreValidations',
+                       'fifthBusStopWithMoreValidations', 'sixthBusStopWithMoreValidations',
+                       'seventhBusStopWithMoreValidations', 'eighthBusStopWithMoreValidations',
+                       'ninethBusStopWithMoreValidations', 'tenthBusStopWithMoreValidations',
+                       'transactionNumberInFirstBusStopWithMoreValidations',
+                       'transactionNumberInSecondBusStopWithMoreValidations',
+                       'transactionNumberInThirdBusStopWithMoreValidations',
+                       'transactionNumberInFourthBusStopWithMoreValidations',
+                       'transactionNumberInFifthBusStopWithMoreValidations',
+                       'transactionNumberInSixthBusStopWithMoreValidations',
+                       'transactionNumberInSeventhBusStopWithMoreValidations',
+                       'transactionNumberInEighthBusStopWithMoreValidations',
+                       'transactionNumberInNinethBusStopWithMoreValidations',
+                       'transactionNumberInTenthBusStopWithMoreValidations',
                        ]
 
         es_query = self.get_base_query()
