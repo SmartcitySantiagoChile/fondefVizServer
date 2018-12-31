@@ -19,6 +19,9 @@ $(document).ready(function () {
                     value = days[(new Date(value)).getUTCDay()];
                 }
                 try {
+                    if (["tripsThatUseMetro", "tripsWithOnlyMetro", "tripsWithoutLastAlighting"].indexOf(id) >= 0) {
+                        value = Number(value.toFixed(2)).toLocaleString() + " %";
+                    }
                     $("#" + id).html(value);
                 } catch (e) {
                     console.log("error: " + e);
@@ -26,8 +29,7 @@ $(document).ready(function () {
             });
 
             var pieChartFormatter = function (params) {
-                var number = Number(params.value).toLocaleString();
-                return params.data.name + "\n" + params.percent.toLocaleString() + "% (" + number + ")";
+                return params.data.name + "\n" + params.percent.toLocaleString() + " %";
             };
 
             var pieChartOpt = {
@@ -69,7 +71,7 @@ $(document).ready(function () {
                     splitLine: {
                         show: false
                     },
-                    data: ["Día", "P. mañana", "P. tarde"]
+                    data: []
                 },
                 yAxis: {},
                 series: [{
@@ -102,22 +104,6 @@ $(document).ready(function () {
                         splitLine: {show: false},
                         data: ["Bus", "Metro", "Metrotren", "Zona paga"]
                     }
-                }, barChartOpt),
-                $.extend(true, {
-                    title: {text: "Velocidad promedio de viajes (km/h)"},
-                    itemStyle: {normal: {color: "#7AC099"}}
-                }, barChartOpt),
-                $.extend(true, {
-                    title: {text: "Distancia promedio de viajes (metros)"},
-                    itemStyle: {normal: {color: "#34495D"}}
-                }, barChartOpt),
-                $.extend(true, {
-                    title: {text: "Tiempo promedio de viajes (minutos)"},
-                    itemStyle: {normal: {color: "#3CA9ED"}}
-                }, barChartOpt),
-                $.extend(true, {
-                    title: {text: "Viajes por período"},
-                    itemStyle: {normal: {color: "#EEE1F4"}}
                 }, barChartOpt)
             ];
             var chartIds = ["chart1", "chart2", "chart3", "chart4"];
