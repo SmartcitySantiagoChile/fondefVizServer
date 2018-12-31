@@ -64,7 +64,7 @@ $(document).ready(function () {
                         if (params.value !== undefined) {
                             number = Number(params.value.toFixed(2)).toLocaleString();
                         }
-                        return params.marker + params.axisValueLabel + ": " + number;
+                        return params.marker + params.axisValueLabel + ": " + number + " %";
                     }
                 },
                 xAxis: {
@@ -74,7 +74,10 @@ $(document).ready(function () {
                     },
                     data: []
                 },
-                yAxis: {},
+                yAxis: {
+                    axisLabel: {
+                        formatter: "{value} %"
+                },
                 series: [{
                     type: "bar",
                     data: [],
