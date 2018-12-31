@@ -189,7 +189,7 @@ $(document).ready(function () {
                 var tableRow = "<tr><th scope='row'>{0}</th>{1}</tr>";
                 tableAttributes.forEach(function (attrs, index) {
                     var values = [];
-                    if (labelAttributes !== null) {
+                    if (labelAttributes !== undefined) {
                         var label = labelAttributes[index];
                         values.push(label);
                     }
