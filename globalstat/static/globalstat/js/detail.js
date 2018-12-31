@@ -95,7 +95,7 @@ $(document).ready(function () {
                 $.extend(true, {title: {text: "Transacciones por lugar de validación"}}, pieChartOpt),
                 $.extend(true, {title: {text: "Transacciones por modo de transporte"}}, pieChartOpt),
                 $.extend(true, {title: {text: "Viajes según N° de etapas"}}, pieChartOpt),
-                $.extend(true, {title: {text: "Etapas con bajada estimada según lugar de validación"}}, pieChartOpt),
+                $.extend(true, {title: {text: "Porcentaje de etapas con bajada estimada según lugar de validación"}}, barChartOpt),
                 $.extend(true, {
                     title: {text: "Velocidad promedio de viajes (km/h)"},
                     itemStyle: {normal: {color: "#7AC099"}}
