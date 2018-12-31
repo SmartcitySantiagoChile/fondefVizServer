@@ -145,7 +145,7 @@ $(document).ready(function () {
                         ["averageDistanceOfTrips", "averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips"],
                         ["averageTimeOfTrips", "averageTimeInMorningRushTrips", "averageTimeInAfternoonRushTrips"],
                         ["tripNumber", "tripNumberInMorningRushHour", "tripNumberInAfternoonRushHour"],
-                        ["transactionNumber", "transactionNumberInMorningRushHour", "transactionNumberInAfternoonRushHour"],
+                        ["transactionNumber", "transactionInMorningRushHour", "transactionInAfternoonRushHour"],
                         ["alightingNumber", "alightingNumberInMorningRushHour", "alightingNumberInAfternoonRushHour"]
                     ]
                 },
@@ -191,7 +191,7 @@ $(document).ready(function () {
                     var values = [];
                     if (labelAttributes !== undefined) {
                         var label = labelAttributes[index];
-                        values.push(label);
+                        values.push("<td>" + label + "</td>>");
                     }
                     attrs.forEach(function (keyValue) {
                         var value = row[ids.indexOf(keyValue)];
