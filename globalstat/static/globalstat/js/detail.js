@@ -95,7 +95,14 @@ $(document).ready(function () {
                 $.extend(true, {title: {text: "Transacciones por lugar de validación"}}, pieChartOpt),
                 $.extend(true, {title: {text: "Transacciones por modo de transporte"}}, pieChartOpt),
                 $.extend(true, {title: {text: "Viajes según N° de etapas"}}, pieChartOpt),
-                $.extend(true, {title: {text: "Porcentaje de etapas con bajada estimada según lugar de validación"}}, barChartOpt),
+                $.extend(true, {
+                    title: {text: "Porcentaje de etapas con bajada estimada según lugar de validación"},
+                    xAxis: {
+                        type: "category",
+                        splitLine: {show: false},
+                        data: ["Bus", "Metro", "Metrotren", "Zona paga"]
+                    }
+                }, barChartOpt),
                 $.extend(true, {
                     title: {text: "Velocidad promedio de viajes (km/h)"},
                     itemStyle: {normal: {color: "#7AC099"}}
@@ -195,6 +202,9 @@ $(document).ready(function () {
                     }
                     attrs.forEach(function (keyValue) {
                         var value = row[ids.indexOf(keyValue)];
+                        if (["transactionInMorningRushHour", "transactionInAfternoonRushHour"].indexOf(keyValue) >= 0) {
+                            value = value / 100 * row[ids.indexOf("transactionNumber")];
+                        }
                         if (!isNaN(value)) {
                             value = Number(Number(value).toFixed(2)).toLocaleString();
                         }
