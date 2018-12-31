@@ -36,6 +36,16 @@
 
             {% columns 12 12 12 panel5 %}
         {% endwith %}
+
+        {% with '<table class="table table-hover"><thead><tr><th>#</th><th>Paradero</th><th>N° transacciones</th></tr></thead><tbody id="dataTable2"></tbody></table>' as data_table2 %}
+            {% panel "fa-table" "Paradas con más validaciones" data_table2 as panel6 %}
+            {% columns 6 6 12 panel6 %}
+        {% endwith %}
+
+        {% with '<table class="table table-hover"><thead><tr><th>#</th><th>Paradero de bus</th><th>N° transacciones</th></tr></thead><tbody id="dataTable3"></tbody></table>' as data_table3 %}
+            {% panel "fa-table" "Paradas de bus con más validaciones" data_table3 as panel7 %}
+            {% columns 6 6 12 panel7 %}
+        {% endwith %}
     </div>
 
     {% comment %}
