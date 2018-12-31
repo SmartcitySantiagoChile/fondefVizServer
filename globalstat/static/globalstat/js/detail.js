@@ -77,6 +77,7 @@ $(document).ready(function () {
                 yAxis: {
                     axisLabel: {
                         formatter: "{value} %"
+                    }
                 },
                 series: [{
                     type: "bar",
