@@ -13,15 +13,16 @@ $(document).ready(function () {
             ids.forEach(function (id, index) {
                 var value = row[index];
                 if ($.isNumeric(value)) {
-                    value = Number(value).toLocaleString();
+                    if (["tripsThatUseMetro", "tripsWithOnlyMetro", "tripsWithoutLastAlighting"].indexOf(id) >= 0) {
+                        value = Number(value.toFixed(2)).toLocaleString() + " %";
+                    } else {
+                        value = Number(value).toLocaleString();
+                    }
                 }
                 if (id === "date") {
                     value = days[(new Date(value)).getUTCDay()];
                 }
                 try {
-                    if (["tripsThatUseMetro", "tripsWithOnlyMetro", "tripsWithoutLastAlighting"].indexOf(id) >= 0) {
-                        value = Number(value.toFixed(2)).toLocaleString() + " %";
-                    }
                     $("#" + id).html(value);
                 } catch (e) {
                     console.log("error: " + e);
