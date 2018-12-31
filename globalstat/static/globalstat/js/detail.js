@@ -99,9 +99,9 @@ $(document).ready(function () {
                 }
             };
             var chartOpts = [
-                $.extend(true, {title: {text: "Transacciones por lugar de validación"}}, pieChartOpt),
-                $.extend(true, {title: {text: "Transacciones por modo de transporte"}}, pieChartOpt),
-                $.extend(true, {title: {text: "Viajes según N° de etapas"}}, pieChartOpt),
+                $.extend(true, {title: {text: "Transacciones de bus según asignación de servicio"}}, pieChartOpt),
+                $.extend(true, {title: {text: "Distribución de transacciones por modo de transporte"}}, pieChartOpt),
+                $.extend(true, {title: {text: "Porcentaje de viajes según N° de etapas"}}, pieChartOpt),
                 $.extend(true, {
                     title: {text: "Porcentaje de etapas con bajada estimada según lugar de validación"},
                     xAxis: {
