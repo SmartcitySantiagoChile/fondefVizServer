@@ -50,8 +50,9 @@ INSTALLED_APPS = [
     'trip',
     'speed',
     'globalstat',
+    'webuser',
     'debug_toolbar',
-    'debug_panel',
+    'debug_panel'
 ]
 
 MIDDLEWARE = [
@@ -209,7 +210,7 @@ JS_REVERSE_SCRIPT_PREFIX = config('URL_PREFIX')
 JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, os.path.join('bowerapp', os.path.join('static', 'js')))
 
 # User url
-LOGIN_URL = '{0}/login/'.format(JS_REVERSE_SCRIPT_PREFIX)
+LOGIN_URL = '{0}/user/login/'.format(JS_REVERSE_SCRIPT_PREFIX)
 LOGIN_REDIRECT_URL = '{0}/'.format(JS_REVERSE_SCRIPT_PREFIX)
 
 # user name to see all operator data

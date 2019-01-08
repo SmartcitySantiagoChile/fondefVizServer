@@ -21,8 +21,6 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    url(r'^login/$', auth_views.login, name='login'),
-    url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
     url(r'^admin/datamanager/', include('datamanager.urls')),
     url(r'^admin/django-rq/', include('django_rq.urls')),
@@ -32,7 +30,10 @@ urlpatterns = [
     url(r'^speed/', include('speed.urls')),
     url(r'^trip/', include('trip.urls')),
     url(r'^globalstat/', include('globalstat.urls')),
-    url(r'^esapi/', include('esapi.urls'))
+    url(r'^esapi/', include('esapi.urls')),
+    url(r'^user/login/$', auth_views.login, name='login'),
+    url(r'^user/logout/$', auth_views.logout, name='logout'),
+    url(r'^user/', include('webuser.urls')),
 ]
 
 if settings.DEBUG:
