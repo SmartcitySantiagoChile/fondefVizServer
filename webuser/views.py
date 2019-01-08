@@ -13,24 +13,22 @@ class PasswordChangeView(View):
 
     def get(self, request):
         template = "webuser/password_change.html"
-        title = "Cambiar contraseña"
-        context = dict(form = PasswordChangeForm(request.user), title=title)
+        context = dict(form = PasswordChangeForm(request.user))
 
         return render(request, template, context)
 
     def post(self, request):
         template = "webuser/password_change.html"
         form = PasswordChangeForm(request.user, request.POST)
-        title = "Cambiar contraseña"
 
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # Important!
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect(reverse('webuser:change_password'))
+            messages.success(request, 'Tu contraseña ha sido actualizada correctamente!')
+            return redirect(reverse('webuser:password_change'))
         else:
-            messages.error(request, 'Please correct the error below.')
+            messages.error(request, 'Por favor corrige los errores mostrados abajo!')
 
-        context = dict(form=form, title=title)
+        context = dict(form=form)
 
         return render(request, template, context)
