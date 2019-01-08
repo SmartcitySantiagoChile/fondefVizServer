@@ -31,9 +31,9 @@ urlpatterns = [
     url(r'^trip/', include('trip.urls')),
     url(r'^globalstat/', include('globalstat.urls')),
     url(r'^esapi/', include('esapi.urls')),
+    url(r'^user/', include('webuser.urls')),
     url(r'^user/login/$', auth_views.login, name='login'),
     url(r'^user/logout/$', auth_views.logout, name='logout'),
-    url(r'^user/', include('webuser.urls')),
 ]
 
 if settings.DEBUG:

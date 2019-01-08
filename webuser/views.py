@@ -1,34 +1,35 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.views.generic import View
-from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from django.shortcuts import render, redirect
-from django.shortcuts import reverse
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.generic import View
+
+from webuser.messages import PasswordUpdatedSuccessfully, FormError
 
 
 class PasswordChangeView(View):
 
     def get(self, request):
         template = "webuser/password_change.html"
-        context = dict(form = PasswordChangeForm(request.user))
+        context = dict(form=PasswordChangeForm(request.user))
 
         return render(request, template, context)
 
     def post(self, request):
-        template = "webuser/password_change.html"
         form = PasswordChangeForm(request.user, request.POST)
+
+        response = dict()
 
         if form.is_valid():
             user = form.save()
-            update_session_auth_hash(request, user)  # Important!
-            messages.success(request, 'Tu contraseña ha sido actualizada correctamente!')
-            return redirect(reverse('webuser:password_change'))
+            update_session_auth_hash(request, user)
+            messenger = PasswordUpdatedSuccessfully()
         else:
-            messages.error(request, 'Por favor corrige los errores mostrados abajo!')
+            messenger = FormError(form.error_messages)
 
-        context = dict(form=form)
+        response['status'] = messenger.get_status_response()
 
-        return render(request, template, context)
+        return JsonResponse(response)
