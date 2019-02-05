@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'globalstat',
     'webuser',
     'debug_toolbar',
-    'debug_panel'
+    'debug_panel',
+    'logapp'
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'logapp.middleware.UserLogMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_panel.middleware.DebugPanelMiddleware'
@@ -154,7 +156,7 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), 'logs', 'file.log'),
-            'maxBytes': 1024*1024*100,
+            'maxBytes': 1024 * 1024 * 100,
             'backupCount': 10,
             'formatter': 'simple',
         },

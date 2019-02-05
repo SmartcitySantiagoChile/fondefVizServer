@@ -1,9 +1,12 @@
 from django.utils import timezone
 
 from logapp.models import UserActions
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-class SimpleMiddleware:
+class UserLogMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         # One-time configuration and initialization.
@@ -20,7 +23,11 @@ class SimpleMiddleware:
 
         end_time = timezone.now()
 
-        UserActions.objects.create(user=request.user, url=request.get_full_path_info(), method=request.method,
-                                   duration=end_time - start_time)
+        if request.user.is_authenticated():
+            try:
+                UserActions.objects.create(user=request.user, url=request.get_full_path(), method=request.method,
+                                           duration=(end_time - start_time))
+            except Exception as e:
+                logging.error(e)
 
         return response
