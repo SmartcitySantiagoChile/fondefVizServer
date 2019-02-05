@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'globalstat',
     'webuser',
     'debug_toolbar',
-    'debug_panel'
+    'debug_panel',
+    'logapp'
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'logapp.middleware.UserLogMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_panel.middleware.DebugPanelMiddleware'
