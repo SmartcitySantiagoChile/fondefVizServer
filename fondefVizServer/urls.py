@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^admin/django-rq/', include('django_rq.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^profile/', include('profile.urls')),
+    url(r'^backup/', include('awsbackup.urls')),
     url(r'^shape/', include('shape.urls')),
     url(r'^speed/', include('speed.urls')),
     url(r'^trip/', include('trip.urls')),

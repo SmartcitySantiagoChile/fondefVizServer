@@ -50,6 +50,13 @@
                 </ul>
               </li>
               {% endif %}
+              <li><a><i class="fa fa-cloud-download"></i> Almacenamiento <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                  <li><a href="{% url 'awsbackup:gps' %}"> GPS</a></li>
+                  <li><a href="{% url 'awsbackup:trips' %}"> Viajes</a></li>
+                  <li><a href="{% url 'awsbackup:opprogram' %}"> Prog. operación</a></li>
+                </ul>
+              </li>
               <li><a><i class="fa fa-bus"></i> Perfil de carga <span class="fa fa-chevron-down"></span></a>
                 <ul class="nav child_menu">
                   <li><a href=" {% url "profile:expedition" %} "> Por servicio</a></li>

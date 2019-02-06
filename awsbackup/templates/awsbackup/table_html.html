@@ -1,0 +1,22 @@
+{% extends 'awsbackup/base.html' %}
+{% load static header panel inline_select table columns update_button label data_filter tabs %}
+
+{% block content %}
+    {% header "Almacenamiento" "GPS" %}
+
+    {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+
+    <div class="row">
+        {% table "dataTableId" table_header with_checker=False data=table_data as dataTable %}
+        {% panel "fa-archive" 'Detalle' dataTable info_target_id="tableHelp" as panel5 %}
+        {% columns 12 12 12 panel5 %}
+    </div>
+    {% include "help/modal/explanation/profile/by_route/table.html" with modal_id="tableHelp" %}
+    {{ block.super }}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static "awsbackup/js/storage.js" %}"></script>
+{% endblock %}
+

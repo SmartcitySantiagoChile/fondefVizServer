@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'webuser',
     'debug_toolbar',
     'debug_panel',
-    'logapp'
+    'logapp',
+    'awsbackup'
 ]
 
 MIDDLEWARE = [
