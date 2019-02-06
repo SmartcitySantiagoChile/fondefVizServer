@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from awsbackup.views import TableHTML, AvailableDays, AWSSession
+from awsbackup.views import TableHTML, AvailableDays
+from awsbackup.aws import AWSSession
 
 app_name = 'awsbackup'
 urlpatterns = [
