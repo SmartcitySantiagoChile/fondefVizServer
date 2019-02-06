@@ -13,7 +13,11 @@ $(document).ready(function () {
             ids.forEach(function (id, index) {
                 var value = row[index];
                 if ($.isNumeric(value)) {
-                    value = Number(value).toLocaleString();
+                    if (["tripsThatUseMetro", "tripsWithOnlyMetro", "tripsWithoutLastAlighting"].indexOf(id) >= 0) {
+                        value = Number(value.toFixed(2)).toLocaleString() + " %";
+                    } else {
+                        value = Number(value).toLocaleString();
+                    }
                 }
                 if (id === "date") {
                     value = days[(new Date(value)).getUTCDay()];
@@ -26,8 +30,7 @@ $(document).ready(function () {
             });
 
             var pieChartFormatter = function (params) {
-                var number = Number(params.value).toLocaleString();
-                return params.data.name + "\n" + params.percent.toLocaleString() + "% (" + number + ")";
+                return params.data.name + "\n" + params.percent.toLocaleString() + " %";
             };
 
             var pieChartOpt = {
@@ -61,7 +64,7 @@ $(document).ready(function () {
                         if (params.value !== undefined) {
                             number = Number(params.value.toFixed(2)).toLocaleString();
                         }
-                        return params.marker + params.axisValueLabel + ": " + number;
+                        return params.marker + params.axisValueLabel + ": " + number + " %";
                     }
                 },
                 xAxis: {
@@ -69,9 +72,13 @@ $(document).ready(function () {
                     splitLine: {
                         show: false
                     },
-                    data: ["Día", "P. mañana", "P. tarde"]
+                    data: []
                 },
-                yAxis: {},
+                yAxis: {
+                    axisLabel: {
+                        formatter: "{value} %"
+                    }
+                },
                 series: [{
                     type: "bar",
                     data: [],
@@ -92,25 +99,16 @@ $(document).ready(function () {
                 }
             };
             var chartOpts = [
-                $.extend(true, {title: {text: "Transacciones por lugar de validación"}}, pieChartOpt),
-                $.extend(true, {title: {text: "Transacciones por modo de transporte"}}, pieChartOpt),
-                $.extend(true, {title: {text: "Viajes según N° de etapas"}}, pieChartOpt),
-                $.extend(true, {title: {text: "Etapas con bajada estimada según lugar de validación"}}, pieChartOpt),
+                $.extend(true, {title: {text: "Transacciones de bus según asignación de servicio"}}, pieChartOpt),
+                $.extend(true, {title: {text: "Distribución de transacciones por modo de transporte"}}, pieChartOpt),
+                $.extend(true, {title: {text: "Porcentaje de viajes según N° de etapas"}}, pieChartOpt),
                 $.extend(true, {
-                    title: {text: "Velocidad promedio de viajes (km/h)"},
-                    itemStyle: {normal: {color: "#7AC099"}}
-                }, barChartOpt),
-                $.extend(true, {
-                    title: {text: "Distancia promedio de viajes (metros)"},
-                    itemStyle: {normal: {color: "#34495D"}}
-                }, barChartOpt),
-                $.extend(true, {
-                    title: {text: "Tiempo promedio de viajes (minutos)"},
-                    itemStyle: {normal: {color: "#3CA9ED"}}
-                }, barChartOpt),
-                $.extend(true, {
-                    title: {text: "Viajes por período"},
-                    itemStyle: {normal: {color: "#EEE1F4"}}
+                    title: {text: "Porcentaje de etapas con bajada estimada según lugar de validación"},
+                    xAxis: {
+                        type: "category",
+                        splitLine: {show: false},
+                        data: ["Bus", "Metro", "Metrotren", "Zona paga"]
+                    }
                 }, barChartOpt)
             ];
             var chartIds = ["chart1", "chart2", "chart3", "chart4"];
@@ -195,6 +193,9 @@ $(document).ready(function () {
                     }
                     attrs.forEach(function (keyValue) {
                         var value = row[ids.indexOf(keyValue)];
+                        if (["transactionInMorningRushHour", "transactionInAfternoonRushHour"].indexOf(keyValue) >= 0) {
+                            value = value / 100 * row[ids.indexOf("transactionNumber")];
+                        }
                         if (!isNaN(value)) {
                             value = Number(Number(value).toFixed(2)).toLocaleString();
                         }

@@ -50,6 +50,13 @@
                 </ul>
               </li>
               {% endif %}
+              <li><a><i class="fa fa-cloud-download"></i> Almacenamiento <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                  <li><a href="{% url 'awsbackup:gps' %}"> GPS</a></li>
+                  <li><a href="{% url 'awsbackup:trips' %}"> Viajes</a></li>
+                  <li><a href="{% url 'awsbackup:opprogram' %}"> Prog. operación</a></li>
+                </ul>
+              </li>
               <li><a><i class="fa fa-bus"></i> Perfil de carga <span class="fa fa-chevron-down"></span></a>
                 <ul class="nav child_menu">
                   <li><a href=" {% url "profile:expedition" %} "> Por servicio</a></li>
@@ -120,7 +127,7 @@
               <ul class="dropdown-menu dropdown-usermenu pull-right">
                 {% if user.has_usable_password %}
                 <li><a href="{% url 'datamanager:jobHistoryByUser' %}"><i class="fa fa-cloud-download pull-right"></i> Solicitudes de descarga</a></li>
-                <li><a href="{% url 'admin:password_change' %}"><i class="fa fa-edit pull-right"></i> Cambiar contraseña</a></li>
+                <li><a href="{% url 'webuser:password_change' %}"><i class="fa fa-edit pull-right"></i> Cambiar contraseña</a></li>
                 {% endif %}
                 <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out pull-right"></i> Cerrar sesión</a></li>
               </ul>
@@ -179,14 +186,6 @@
       </div>
       <div class="clearfix"></div>
       {% endif %}
-
-      {% block messages %}
-        {% if messages %}
-        <ul class="messagelist">{% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
-        {% endfor %}</ul>
-        {% endif %}
-      {% endblock messages %}
 
       {% block content %}
         {% block object-tools %}{% endblock %}

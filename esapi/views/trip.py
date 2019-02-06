@@ -226,7 +226,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         return self.process_request(request, request.GET)
 
     def post(self, request):
-        return self.process_request(request, request.POST)
+        return self.process_request(request, request.POST, export_data=True)
 
 
 class StrategiesData(PermissionRequiredMixin, View):

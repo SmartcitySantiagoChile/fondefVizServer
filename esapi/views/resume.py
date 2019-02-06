@@ -63,7 +63,7 @@ DICTIONARY = {
     'averageDistanceOfTrips': {'name': 'Distancia promedio de viajes (mts)', 'chartName': '', 'order': 41},
 
     'tripsThatUseMetro': {'name': 'Porcentaje de viajes que usan metro', 'chartName': '', 'order': 42},
-    'tripsWithoutLastAlighting': {'name': 'Número de viajes sin última bajada', 'chartName': '', 'order': 44},
+    'tripsWithoutLastAlighting': {'name': 'Porcentaje de viajes sin última bajada', 'chartName': '', 'order': 44},
 
     'transactionInMorningRushHour': {'name': 'Número de validaciones bip! en punta mañana', 'chartName': '', 'order': 45},
     'transactionInAfternoonRushHour': {'name': 'Número de validaciones bip! en punta tarde', 'chartName': '', 'order': 46},
