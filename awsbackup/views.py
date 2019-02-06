@@ -14,6 +14,9 @@ class AWSSession:
     """
     Class to interact wit Amazon Web Service (AWS) API through boto3 library
     """
+    GPS_BUCKET_NAME = 'adatrap-gps'
+    OP_PROGRAM_BUCKET_NAME = 'adatrap-opprogram'
+    TRIP_BUCKET_NAME = 'adatrap-trip'
 
     def __init__(self):
         # llaves de lectura
@@ -85,15 +88,16 @@ class AWSSession:
 
 class TableHTML(View):
     """ html table to see data """
+    bucket_name = None
+    subtitle = None
 
     def get(self, request):
         template = 'awsbackup/table_html.html'
 
         header = ['Nombre', 'Última modificación', 'Tamaño', 'Descargar']
 
-        bucket_name = 'adatrap-gps'
         aws_session = AWSSession()
-        table_data = aws_session.retrieve_obj_list(bucket_name)
+        table_data = aws_session.retrieve_obj_list(self.bucket_name)
 
         # TODO: remove this and move to dict
         new_table_data = []
@@ -102,7 +106,9 @@ class TableHTML(View):
 
         context = {
             'table_header': header,
-            'table_data': new_table_data
+            'table_data': new_table_data,
+            'subtitle': self.subtitle,
+            'bucket_name': self.bucket_name
         }
 
         return render(request, template, context)
@@ -111,8 +117,8 @@ class TableHTML(View):
 class AvailableDays(View):
     """ html table to see data """
 
-    def get(self, request):
-        available_days = AWSSession().get_available_days('adatrap-gps')
+    def get(self, request, bucket_name):
+        available_days = AWSSession().get_available_days(bucket_name)
 
         response = {
             'availableDays': available_days

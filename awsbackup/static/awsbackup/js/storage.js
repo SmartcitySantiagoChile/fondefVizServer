@@ -1,8 +1,8 @@
 "use strict";
 $(document).ready(function () {
-
-    function StorageApp() {
-        var _self = this;
+    // load filters
+    (function () {
+        loadAvailableDays(Urls["awsbackup:availableDays"](bucketName));
 
         var _datatable = $("#dataTableId").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
@@ -33,11 +33,5 @@ $(document).ready(function () {
             ],
             order: [[0, "desc"]]
         });
-    }
-
-    // load filters
-    (function () {
-        loadAvailableDays(Urls["awsbackup:availableDays"]());
-        new StorageApp();
     })()
 });

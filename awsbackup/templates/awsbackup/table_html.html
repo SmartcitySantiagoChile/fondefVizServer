@@ -2,7 +2,7 @@
 {% load static header panel inline_select table columns update_button label data_filter tabs %}
 
 {% block content %}
-    {% header "Almacenamiento" "GPS" %}
+    {% header "Almacenamiento" subtitle %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
@@ -17,6 +17,9 @@
 
 {% block js %}
     {{ block.super }}
+    <script type="text/javascript">
+        var bucketName = "{{bucket_name}}";
+    </script>
     <script src="{% static "awsbackup/js/storage.js" %}"></script>
 {% endblock %}
 
