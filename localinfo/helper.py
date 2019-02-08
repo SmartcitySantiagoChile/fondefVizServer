@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import Group
 from django.conf import settings
+from django.contrib.auth.models import Group
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission
 
@@ -88,12 +88,17 @@ class PermissionBuilder(object):
             global_group.permissions.add(permission)
 
         # create permission to see trip section and historical section
-        trip_permission, _ = GlobalPermission.objects.get_or_create(codename='travel',
-                                                                    defaults={'name': 'viajes'})
-        general_permission, _ = GlobalPermission.objects.get_or_create(codename='globalstat',
-                                                                       defaults={'name': 'estadísticas generales'})
+        trip_permission, _ = GlobalPermission.objects.get_or_create(codename='travel', defaults={'name': 'viajes'})
+        general_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='globalstat', defaults={'name': 'estadísticas generales'})
         advance_group, _ = Group.objects.get_or_create(name='Sección viajes y estadísticas generales')
         advance_group.permissions.add(trip_permission, general_permission)
+
+        # create permissino to see storage section
+        storage_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='storage', defaults={'name': 'almacenamiento'})
+        storage_group, _ = Group.objects.get_or_create(name='Sección de almacenamiento')
+        storage_group.permissions.add(storage_permission)
 
     def update_permission(self, new_operator_obj):
         """

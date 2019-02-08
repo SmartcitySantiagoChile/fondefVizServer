@@ -12,9 +12,15 @@ class AWSSession:
     """
     Class to interact wit Amazon Web Service (AWS) API through boto3 library
     """
-    GPS_BUCKET_NAME = 'adatrap-gps'
-    OP_PROGRAM_BUCKET_NAME = 'adatrap-opprogram'
-    TRIP_BUCKET_NAME = 'adatrap-trip'
+    GPS_BUCKET_NAME = config('GPS_BUCKET_NAME')
+    OP_PROGRAM_BUCKET_NAME = config('OP_PROGRAM_BUCKET_NAME')
+    TRIP_BUCKET_NAME = config('TRIP_BUCKET_NAME')
+    REPRESENTATIVE_WEEk_BUCKET_NAME = config('REPRESENTATIVE_WEEk_BUCKET_NAME')
+    FILE_196_BUCKET_NAME = config('FILE_196_BUCKET_NAME')
+    PROFILE_BUCKET_NAME = config('PROFILE_BUCKET_NAME')
+    STAGE_BUCKET_NAME = config('STAGE_BUCKET_NAME')
+    SPEED_BUCKET_NAME = config('SPEED_BUCKET_NAME')
+    TRANSACTION_BUCKET_NAME = config('TRANSACTION_BUCKET_NAME')
 
     def __init__(self):
 
