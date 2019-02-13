@@ -4,12 +4,14 @@ from __future__ import unicode_literals
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import View
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from awsbackup.aws import AWSSession
 
 
-class TableHTML(View):
+class TableHTML(PermissionRequiredMixin, View):
     """ html table to see data """
+    permission_required = 'localinfo.storage'
     bucket_name = None
     subtitle = None
 
@@ -36,8 +38,9 @@ class TableHTML(View):
         return render(request, template, context)
 
 
-class AvailableDays(View):
+class AvailableDays(PermissionRequiredMixin, View):
     """ html table to see data """
+    permission_required = 'localinfo.storage'
 
     def get(self, request, bucket_name):
         available_days = AWSSession().get_available_days(bucket_name)

@@ -12,9 +12,15 @@ class AWSSession:
     """
     Class to interact wit Amazon Web Service (AWS) API through boto3 library
     """
-    GPS_BUCKET_NAME = 'adatrap-gps'
-    OP_PROGRAM_BUCKET_NAME = 'adatrap-opprogram'
-    TRIP_BUCKET_NAME = 'adatrap-trip'
+    GPS_BUCKET_NAME = config('GPS_BUCKET_NAME')
+    OP_PROGRAM_BUCKET_NAME = config('OP_PROGRAM_BUCKET_NAME')
+    TRIP_BUCKET_NAME = config('TRIP_BUCKET_NAME')
+    REPRESENTATIVE_WEEk_BUCKET_NAME = config('REPRESENTATIVE_WEEk_BUCKET_NAME')
+    FILE_196_BUCKET_NAME = config('FILE_196_BUCKET_NAME')
+    PROFILE_BUCKET_NAME = config('PROFILE_BUCKET_NAME')
+    STAGE_BUCKET_NAME = config('STAGE_BUCKET_NAME')
+    SPEED_BUCKET_NAME = config('SPEED_BUCKET_NAME')
+    TRANSACTION_BUCKET_NAME = config('TRANSACTION_BUCKET_NAME')
 
     def __init__(self):
 
@@ -44,6 +50,20 @@ class AWSSession:
             days.append(date)
 
         return days
+
+    def check_bucket_exists(self, bucket_name):
+        s3 = self.session.resource('s3')
+        try:
+            s3.meta.client.head_bucket(Bucket=bucket_name)
+            return True
+        except botocore.exceptions.ClientError as e:
+            # If a client error is thrown, then check that it was a 404 error.
+            # If it was a 404 error, then the bucket does not exist.
+            error_code = int(e.response['Error']['Code'])
+            if error_code == 403:
+                raise ValueError("Private Bucket. Forbidden Access!")
+            elif error_code == 404:
+                return False
 
     def check_file_exists(self, bucket_name, key):
         s3 = self.session.resource('s3')
@@ -77,3 +97,9 @@ class AWSSession:
         s3.Object(bucket_name, obj_key).Acl().put(ACL='public-read')
 
         return self._build_url(obj_key, bucket_name)
+
+    def delete_object_in_bucket(self, obj_key, bucket_name):
+        s3 = self.session.resource('s3')
+        obj = s3.Object(bucket_name, obj_key)
+
+        return obj.delete()
