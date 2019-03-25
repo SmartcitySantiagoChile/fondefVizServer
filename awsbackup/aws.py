@@ -83,6 +83,16 @@ class AWSSession:
     def _build_url(self, key, bucket_name):
         return ''.join(['https://s3.amazonaws.com/', bucket_name, '/', urllib.quote(key)])
 
+    def create_download_link(self, key, bucket_name, expire_time):
+        s3 = self.session.client('s3')
+
+        if self.check_bucket_exists(bucket_name) and self.check_file_exists(bucket_name, key):
+            url = s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': bucket_name, 'Key': key},
+                                            ExpiresIn=expire_time, )
+            return url
+        else:
+            raise ValueError('it was a problem to create url')
+
     def send_file_to_bucket(self, file_path, file_key, bucket_name):
         s3 = self.session.resource('s3')
         bucket = s3.Bucket(bucket_name)
