@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^opprogram/$', login_required(TableWithoutCalendarHTML.as_view(**params[2])), name='opprogram'),
     url(r'^representativeweek/$', login_required(TableWithoutCalendarHTML.as_view(**params[3])),
         name='representativeweek'),
-    url(r'^196/$', login_required(TableWithoutCalendarHTML.as_view(**params[4])), name='196'),
+    url(r'^196/$', login_required(TableHTML.as_view(**params[4])), name='196'),
     url(r'^profile/$', login_required(TableHTML.as_view(**params[5])), name='profile'),
     url(r'^stage/$', login_required(TableHTML.as_view(**params[6])), name='stage'),
     url(r'^speed/$', login_required(TableHTML.as_view(**params[7])), name='speed'),
