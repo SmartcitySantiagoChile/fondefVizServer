@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from awsbackup.views import TableHTML, AvailableDays
+from awsbackup.views import TableHTML, AvailableDays, CreateDownloadLink, ListDownloadLink
 from awsbackup.aws import AWSSession
 
 app_name = 'awsbackup'
@@ -32,4 +32,6 @@ urlpatterns = [
     url(r'^transaction/$', login_required(TableHTML.as_view(**params[8])), name='transaction'),
 
     url(r'^availableDays/(?P<bucket_name>[\w-]+)/$', login_required(AvailableDays.as_view()), name='availableDays'),
+    url(r'^createDownloadLink/$', login_required(CreateDownloadLink.as_view()), name='createDownloadLink'),
+    url(r'^activeDownloadLink/$', login_required(ListDownloadLink.as_view()), name='activeDownloadLink'),
 ]
