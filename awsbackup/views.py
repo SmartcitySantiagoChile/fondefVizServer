@@ -20,10 +20,35 @@ class TableHTML(PermissionRequiredMixin, View):
     subtitle = None
 
     def get(self, request):
-        template = 'awsbackup/table_html.html'
-
+        template = 'awsbackup/table.html'
         header = ['Nombre', 'Última modificación', 'Tamaño', 'Descargar']
+        aws_session = AWSSession()
+        table_data = aws_session.retrieve_obj_list(self.bucket_name)
 
+        # TODO: remove this and move to dict
+        new_table_data = []
+        for row in table_data:
+            new_table_data.append([row['name'], row['last_modified'], row['size'], row['url']])
+
+        context = {
+            'table_header': header,
+            'table_data': new_table_data,
+            'subtitle': self.subtitle,
+            'bucket_name': self.bucket_name
+        }
+
+        return render(request, template, context)
+
+
+class TableWithoutCalendarHTML(PermissionRequiredMixin, View):
+    """ html table to see data """
+    permission_required = 'localinfo.storage'
+    bucket_name = None
+    subtitle = None
+
+    def get(self, request):
+        template = 'awsbackup/table_without_calendar.html'
+        header = ['Nombre', 'Última modificación', 'Tamaño', 'Descargar']
         aws_session = AWSSession()
         table_data = aws_session.retrieve_obj_list(self.bucket_name)
 

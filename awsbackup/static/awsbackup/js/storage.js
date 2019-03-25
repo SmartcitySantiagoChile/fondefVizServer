@@ -2,7 +2,9 @@
 $(document).ready(function () {
     // load filters
     (function () {
-        loadAvailableDays(Urls["awsbackup:availableDays"](bucketName));
+        if ($("#availableDays").length) {
+            loadAvailableDays(Urls["awsbackup:availableDays"](bucketName));
+        }
 
         $.getJSON(Urls["awsbackup:activeDownloadLink"](), function (activeDownloadLinkData) {
             var tableId = "#dataTableId";
@@ -30,7 +32,6 @@ $(document).ready(function () {
                     {
                         render: function (data, type, row) {
                             if (activeDownloadLinkData.hasOwnProperty(row[0])) {
-                                console.log(activeDownloadLinkData);
                                 return "<a href='" + activeDownloadLinkData[row[0]].url + "' class='btn btn-success btn-xs'><i class='fa fa-file'></i> Descargar (válido hasta " + (new Date(activeDownloadLinkData[row[0]].expire_at)).toLocaleString() + ")</a>";
                             }
                             return "<button type='button' class='btn btn-warning btn-xs'><i class='fa fa-file'></i> Crear link de descarga</button>";
