@@ -48,6 +48,12 @@
                   <li><a href="{% url 'admin:datamanager_exporterjobexecution_changelist' %}"> Historial de exp. archivos</a></li>
                   <li><a href="{% url 'rq_home' %}"> Cola de carga</a></li>
                   <li><a href="{% url 'admin:awsbackup_downloadlink_changelist' %}"> Links a S3 generados</a></li>
+                  <li><a>Actividad de usuarios<span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu" style="">
+                      <li class="sub_menu"><a href="{% url 'admin:logapp_usersession_changelist' %}">Sesiones</a></li>
+                      <li><a href="{% url 'admin:logapp_usersessionstats_changelist' %}">Estadísticas</a></li>
+                    </ul>
+                  </li>
                 </ul>
               </li>
               {% endif %}
