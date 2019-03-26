@@ -45,12 +45,18 @@ $(document).ready(function () {
                         var row = $(this).closest("tr");
                         var data = datatable.row(row).data();
                         var filename = data[0];
+
+                        var currentText = $(this).html();
+                        var spinner = "<i class='fa fa-refresh fa-pulse'></i>";
+                        $(this).html(spinner + " " + currentText);
                         $.post(Urls["awsbackup:createDownloadLink"](), {
                             bucket_name: bucketName,
                             filename: filename
                         }, function (result) {
                             activeDownloadLinkData[filename] = result;
                             datatable.row(row).data(data).invalidate("data");
+                        }).always(function () {
+                            $(this).html(currentText);
                         });
                     });
                 }
