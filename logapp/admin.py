@@ -12,6 +12,10 @@ class UserSessionAdmin(admin.ModelAdmin):
     list_display = ('user', 'start_time', 'end_time', 'duration')
     actions = None
 
+    def get_queryset(self, request):
+        qs = super(UserSessionAdmin, self).get_queryset(request).order_by('-start_time')
+        return qs
+
     def has_add_permission(self, request):
         return False
 
@@ -28,6 +32,10 @@ class UserSessionStatsAdmin(admin.ModelAdmin):
     list_display = ('user', 'session_number', 'last_session_timestamp', 'max_session_duration', 'min_session_duration',
                     'avg_session_duration')
     actions = None
+
+    def get_queryset(self, request):
+        qs = super(UserSessionStatsAdmin, self).get_queryset(request).order_by('-last_session_timestamp')
+        return qs
 
     def has_add_permission(self, request):
         return False
