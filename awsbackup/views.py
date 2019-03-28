@@ -117,7 +117,7 @@ class ListDownloadLink(PermissionRequiredMixin, View):
 
     def get(self, request):
         response = {}
-        for download_link_obj in DownloadLink.objects.all():
+        for download_link_obj in DownloadLink.objects.filter(expire_at__gt=timezone.now()).all():
             response[download_link_obj.filename] = {
                 'url': download_link_obj.url,
                 'expire_at': download_link_obj.expire_at
