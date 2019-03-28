@@ -103,7 +103,7 @@ class Command(BaseCommand):
             # if url.startswith('/admin'):
             #    continue
             # actividades no relevantes
-            if url in ['/favicon.ico', '/']:
+            if url in ['/favicon.ico', '/', '/admin/datamanager/latestJobChanges/']:
                 continue
 
             if username not in users:
