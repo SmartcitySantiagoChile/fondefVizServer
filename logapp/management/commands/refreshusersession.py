@@ -46,6 +46,7 @@ class User():
                 if duration < self.min_session_duration:
                     self.min_session_duration = duration
                 sessions.append(duration)
+                self.last_session = previous_timestamp
                 self.session_number += 1
                 start_session = timestamp
 
