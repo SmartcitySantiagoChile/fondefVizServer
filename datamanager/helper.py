@@ -31,6 +31,7 @@ from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.resume import ESResumeStatisticHelper
+from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
 
 import glob
 import os
@@ -223,7 +224,8 @@ class FileManager(object):
             ESTripHelper(),
             ESShapeHelper(),
             ESODByRouteHelper(),
-            ESResumeStatisticHelper()
+            ESResumeStatisticHelper(),
+            ESBusStationDistributionHelper()
         ]
 
         file_name_list = None
