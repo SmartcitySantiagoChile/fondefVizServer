@@ -466,7 +466,7 @@ function MapApp(opts) {
         popUpDescription += " Nombre: <b>" + stopInfo.stopName + "</b><br />";
         popUpDescription += " Código transantiago: <b>" + stopInfo.authStopCode + "</b><br />";
         popUpDescription += " Código usuario: <b>" + stopInfo.userStopCode + "</b><br />";
-        popUpDescription += " Posición en la ruta: <b>" + stopInfo.order + "</b><br />";
+        popUpDescription += " Posición en la ruta: <b>" + (stopInfo.order + 1) + "</b><br />";
         popUpDescription += additonalStopInfo;
         marker.bindPopup(popUpDescription + "</p>");
         layer.addLayer(marker);
