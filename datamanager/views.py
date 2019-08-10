@@ -46,6 +46,11 @@ class LoadManagerHTML(View):
                 'id': 'generalTable', 'title_icon': 'fa-clone', 'title': 'Datos generales'
             },
             {
+                'bubble_title': '', 'bubble_content': 'Datos de la distribución de validaciones en zonas pago',
+                'id': 'busstationdistributionTable', 'title_icon': 'fa-money',
+                'title': 'Distribución de validaciones en zona de pago'
+            },
+            {
                 'bubble_title': '', 'bubble_content': 'Archivos de viajes',
                 'id': 'tripTable', 'title_icon': 'fa-line-chart', 'title': 'Viajes'
             }
