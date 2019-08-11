@@ -25,24 +25,23 @@ $(document).ready(function () {
                 {title: "Restan", data: "subtraction"},
                 {title: "Neutras", data: "neutral"},
                 {
-                    title: "Resultado 1",
-                    data: null,
-                    render: function (data) {
-                        return 1;
+                    title: "Resultado 1", data: null,
+                    render: function (data, type, row) {
+                        return Number(((row.sum - row.subtraction) / row.total).toFixed(3)).toLocaleString();
                     }
                 },
                 {
-                    title: "Resultado 2",
-                    data: null,
-                    render: function (data) {
-                        return 2;
+                    title: "Resultado 2", data: null,
+                    render: function (data, type, row) {
+                        var result = (row.sum - row.subtraction) / row.total;
+                        return Number((row.assignation === "ASIGNADA" ? 1 + result : result).toFixed(3)).toLocaleString();
                     }
                 }
             ],
             order: [[0, "asc"]]
         });
 
-        this.updateDatatable = function (rows) {
+        _self.updateDatatable = function (rows) {
             _datatable.clear();
             _datatable.rows.add(rows);
             _datatable.columns.adjust().draw();

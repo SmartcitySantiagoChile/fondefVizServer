@@ -12,6 +12,8 @@ from esapi.errors import FondefVizError, ESQueryResultEmpty
 from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
+from localinfo.helper import get_operator_list_for_select_input
+
 
 class BusStationDistributionData(View):
     """ It gives bus station distribution data """
@@ -23,6 +25,7 @@ class BusStationDistributionData(View):
     def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
         rows = []
+        operator_dict = get_operator_list_for_select_input(to_dict=True)
 
         for a in es_query.execute().aggregations.by_bus_station_id.buckets:
             for b in a.by_bus_station_name.buckets:
@@ -33,9 +36,9 @@ class BusStationDistributionData(View):
                         subtraction_value = d.subtraction.value
                         neutral_value = d.neutral.value
                         # bus_station_id, bus_station_name, assignation, operator
-                        row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key, operator=d.key,
-                                   total=total_value, sum=sum_value, subtraction=subtraction_value,
-                                   neutral=neutral_value)
+                        row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key,
+                                   operator=operator_dict[d.key], total=total_value, sum=sum_value,
+                                   subtraction=subtraction_value, neutral=neutral_value)
                         rows.append(row)
 
         if len(rows) == 0:
