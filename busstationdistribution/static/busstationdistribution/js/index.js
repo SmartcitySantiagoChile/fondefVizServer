@@ -34,7 +34,8 @@ $(document).ready(function () {
                     title: "Resultado 2", data: null,
                     render: function (data, type, row) {
                         var result = (row.sum - row.subtraction) / row.total;
-                        return Number((row.assignation === "ASIGNADA" ? 1 + result : result).toFixed(3)).toLocaleString();
+                        result = row.assignation === "ASIGNADA" ? 1 + result : result;
+                        return Number((result * 100).toFixed(2)).toLocaleString() + " %";
                     }
                 }
             ],
