@@ -190,20 +190,14 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadAvailableDays(Urls["esapi:availableBusstationdistDays"]());
 
-        var app = new ExpeditionApp();
-        var previousCall = function () {
-            app.showLoadingAnimationCharts();
-        };
+        var app = new IndexApp();
         var afterCall = function (data) {
             processData(data, app);
-            app.hideLoadingAnimationCharts();
         };
         var opts = {
             urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),
-            urlRouteData: Urls["esapi:availableProfileRoutes"](),
-            previousCallData: previousCall,
             afterCallData: afterCall
         };
 

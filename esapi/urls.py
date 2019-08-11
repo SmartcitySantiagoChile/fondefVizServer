@@ -4,15 +4,16 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
+from esapi.views.busstationdistribution import AvailableDays as BAD, BusStationDistributionData
+from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
     LoadProfileByExpeditionData, LoadProfileByTrajectoryData
-from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
+from esapi.views.stop import MatchedStopData
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
     TransfersData
-from esapi.views.stop import MatchedStopData
 
 app_name = 'esapi'
 urlpatterns = [
@@ -57,4 +58,10 @@ urlpatterns = [
 
     # shape index
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
+
+    # busstationdistribution index
+    url(r'^busstationdist/availableDays/$', login_required(BAD.as_view()),
+        name='availableBusstationdistDays'),
+    url(r'^busstationdist/data/$', login_required(BusStationDistributionData.as_view()),
+        name='busstationdistData'),
 ]
