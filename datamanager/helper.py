@@ -1,41 +1,38 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db.models import Q
-from django.db import transaction
-from django.conf import settings
-from django.utils import timezone
-
-from rq import Connection
-from redis import Redis
-
+import glob
+import os
 from collections import defaultdict
 
+from django.conf import settings
+from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
+from redis import Redis
+from rq import Connection
+
+import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
     ThereIsNotActiveJobError, ThereIsPreviousJobExporterDataError
 from datamanager.models import UploaderJobExecution, LoadFile, DataSourcePath, ExporterJobExecution
-
-from rqworkers.tasks import upload_file_job, export_data_job, count_line_of_file_job
-from rqworkers.killClass import KillJob
-from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
+from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
+from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.profile import ESProfileHelper
+from esapi.helper.resume import ESResumeStatisticHelper
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.helper.trip import ESTripHelper
+from rqworkers.dataDownloader.csvhelper.busstationdistribution import BusStationDistributionData
 from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
+from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
 from rqworkers.dataDownloader.csvhelper.speed import SpeedData
 from rqworkers.dataDownloader.csvhelper.trip import TripData
 from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
-
-from esapi.helper.profile import ESProfileHelper
-from esapi.helper.speed import ESSpeedHelper
-from esapi.helper.odbyroute import ESODByRouteHelper
-from esapi.helper.trip import ESTripHelper
-from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.helper.stop import ESStopHelper
-from esapi.helper.shape import ESShapeHelper
-from esapi.helper.resume import ESResumeStatisticHelper
-from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
-
-import glob
-import os
-import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+from rqworkers.killClass import KillJob
+from rqworkers.tasks import upload_file_job, export_data_job, count_line_of_file_job
 
 
 def get_util_helpers(file_path):
@@ -50,7 +47,8 @@ def get_util_helpers(file_path):
         ESTripHelper(),
         ESShapeHelper(),
         ESODByRouteHelper(),
-        ESResumeStatisticHelper()
+        ESResumeStatisticHelper(),
+        ESBusStationDistributionHelper()
     ]
 
     result_helpers = []
@@ -91,6 +89,9 @@ class ExporterManager(object):
                 file_type = ExporterJobExecution.SPEED
             elif downloader == csv_helper.TRIP_DATA:
                 downloader_instance = TripData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.TRIP
+            elif downloader == csv_helper.BUS_STATION_DISTRIBUTION_DATA:
+                downloader_instance = BusStationDistributionData(self.es_query.to_dict())
                 file_type = ExporterJobExecution.TRIP
             else:
                 raise UnrecognizedDownloaderNameError()

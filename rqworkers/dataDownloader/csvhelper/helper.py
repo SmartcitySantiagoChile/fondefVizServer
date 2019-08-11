@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+import uuid
+import zipfile
+
 from elasticsearch_dsl import Search
 
-from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
-from rqworkers.dataDownloader.errors import FilterHasToBeListError
-
+from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
+from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.profile import ESProfileHelper
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.helper.trip import ESTripHelper
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input, \
     get_transport_mode_list_for_select_input
-
-from esapi.helper.profile import ESProfileHelper
-from esapi.helper.shape import ESShapeHelper
-from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.helper.speed import ESSpeedHelper
-from esapi.helper.trip import ESTripHelper
-from esapi.helper.odbyroute import ESODByRouteHelper
-
-import os
-import zipfile
-import uuid
+from rqworkers.dataDownloader.errors import FilterHasToBeListError
+from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
 
 README_FILE_NAME = 'Léeme.txt'
 
+BUS_STATION_DISTRIBUTION_DATA = 'bus_station_distribution_data'
 PROFILE_BY_EXPEDITION_DATA = 'profile_by_expedition'
 PROFILE_BY_STOP_DATA = 'profile_by_stop'
 OD_BY_ROUTE_DATA = 'od_by_route_data'
@@ -755,3 +755,56 @@ class StopByRouteCSVHelper(CSVHelper):
             rows.append(stop_row)
 
         return rows
+
+
+class BusStationDistributionCSVHelper(CSVHelper):
+    """ Class that represents a bus station distribution data downloader. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESBusStationDistributionHelper().index_name)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'date', 'csv_name': 'Fecha', 'definition': 'Día en que se realizaron las validaciones'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'Tipo de día'},
+            {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa asociada a la zona paga'},
+            {'es_name': 'assignation', 'csv_name': 'Asignación',
+             'definition': 'Indica si el operador está asignado a la zona paga'},
+            {'es_name': 'busStationId', 'csv_name': 'Identificador_zona_paga',
+             'definition': 'Código que identifica la zona paga'},
+            {'es_name': 'busStationName', 'csv_name': 'Nombre_zona_paga',
+             'definition': 'Nombre de la parada donde se encuentra la zona paga'},
+            {'es_name': 'total', 'csv_name': 'Total', 'definition': ''},
+            {'es_name': 'sum', 'csv_name': 'Suman', 'definition': ''},
+            {'es_name': 'subtraction', 'csv_name': 'Restan', 'definition': ''},
+            {'es_name': 'neutral', 'csv_name': 'Neutras', 'definition': ''},
+        ]
+
+    def get_data_file_name(self):
+        return 'Distribución_de_validaciones.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa las validaciones asociadas a un operador en una zona paga'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'dayType':
+                    value = self.day_type_dict[value]
+                elif column_name == 'operator':
+                    value = self.operator_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row

@@ -62,7 +62,7 @@ class BusStationDistributionData(View):
 
             es_query = es_helper.get_data(start_date, end_date, day_type)
             if export_data:
-                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_STOP_DATA, request.user)
+                ExporterManager(es_query).export_data(csv_helper.BUS_STATION_DISTRIBUTION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response = self.transform_es_answer(es_query)
