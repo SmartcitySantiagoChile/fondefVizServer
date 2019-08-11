@@ -94,7 +94,7 @@ class PermissionBuilder(object):
         advance_group, _ = Group.objects.get_or_create(name='Sección viajes y estadísticas generales')
         advance_group.permissions.add(trip_permission, general_permission)
 
-        # create permissino to see storage section
+        # create permission to see storage section
         storage_permission, _ = GlobalPermission.objects.get_or_create(
             codename='storage', defaults={'name': 'almacenamiento'})
         storage_group, _ = Group.objects.get_or_create(name='Sección de almacenamiento')
