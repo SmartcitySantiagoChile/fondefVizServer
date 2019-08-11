@@ -94,10 +94,16 @@ class PermissionBuilder(object):
         advance_group, _ = Group.objects.get_or_create(name='Sección viajes y estadísticas generales')
         advance_group.permissions.add(trip_permission, general_permission)
 
-        # create permissino to see storage section
+        # create permission to see storage section
         storage_permission, _ = GlobalPermission.objects.get_or_create(
             codename='storage', defaults={'name': 'almacenamiento'})
         storage_group, _ = Group.objects.get_or_create(name='Sección de almacenamiento')
+        storage_group.permissions.add(storage_permission)
+
+        # create permission to see bus station distribution section
+        storage_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='validation', defaults={'name': 'validaciones'})
+        storage_group, _ = Group.objects.get_or_create(name='Sección de validaciones')
         storage_group.permissions.add(storage_permission)
 
     def update_permission(self, new_operator_obj):

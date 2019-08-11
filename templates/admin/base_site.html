@@ -72,6 +72,13 @@
                 </ul>
               </li>
               {% endif %}
+              {% if perms.localinfo.validation %}
+              <li><a><i class="fa fa-dollar"></i> Validaciones <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                  <li><a href="{% url 'busstationdistribution:index' %}"> Dist. en zona paga</a></li>
+                </ul>
+              </li>
+              {% endif %}
               <li><a><i class="fa fa-bus"></i> Perfil de carga <span class="fa fa-chevron-down"></span></a>
                 <ul class="nav child_menu">
                   <li><a href=" {% url "profile:expedition" %} "> Por servicio</a></li>

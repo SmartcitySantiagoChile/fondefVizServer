@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'debug_panel',
     'logapp',
-    'awsbackup'
+    'awsbackup',
+    'busstationdistribution',
 ]
 
 MIDDLEWARE = [
