@@ -29,7 +29,18 @@ class ESBusStationDistributionHelper(ElasticSearchHelper):
             "time_zone": "+00:00"
         })
 
-        es_query = es_query.source([''])
+        # omit hits
+        es_query = es_query[:0]
+
+        es_query.aggs \
+            .bucket('by_bus_station_id', 'terms', field='busStationId') \
+            .bucket('by_bus_station_name', 'terms', field='busStationName') \
+            .bucket('by_assignation', 'terms', field='assignation') \
+            .bucket('by_operator', 'terms', field='operator') \
+            .metric('total', 'sum', field='total') \
+            .metric('sum', 'sum', field='sum') \
+            .metric('subtraction', 'sum', field='subtraction') \
+            .metric('neutral', 'sum', field='neutral')
 
         return es_query
 

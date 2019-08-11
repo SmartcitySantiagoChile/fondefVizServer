@@ -17,8 +17,8 @@
     {% data_filter data_filter True False True False False False False False False False False info_target_id="filterHelp" %}
 
     <div class="row">
-        {% table "validationDetail" 7 as expeditionTable %}
-        {% panel "fa-money" 'Validaciones' expeditionTable info_target_id="tableHelp" as panel5 %}
+        {% table "validationDetail" 9 with_checker=False as validationTable %}
+        {% panel "fa-money" 'Validaciones' validationTable info_target_id="tableHelp" as panel5 %}
         {% columns 12 12 12 panel5 %}
     </div>
 

@@ -8,11 +8,9 @@ from django.views.generic import View
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import ESQueryResultEmpty, FondefVizError
+from esapi.errors import FondefVizError, ESQueryResultEmpty
 from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-from esapi.utils import check_operation_program
-from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
 
 
 class BusStationDistributionData(View):
@@ -24,42 +22,27 @@ class BusStationDistributionData(View):
 
     def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
-        info = {}
-        trips = {}
+        rows = []
 
-        day_type_dict = get_day_type_list_for_select_input(to_dict=True)
-        time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
+        for a in es_query.execute().aggregations.by_bus_station_id.buckets:
+            for b in a.by_bus_station_name.buckets:
+                for c in b.by_assignation.buckets:
+                    for d in c.by_operator.buckets:
+                        total_value = d.total.value
+                        sum_value = d.sum.value
+                        subtraction_value = d.subtraction.value
+                        neutral_value = d.neutral.value
+                        # bus_station_id, bus_station_name, assignation, operator
+                        row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key, operator=d.key,
+                                   total=total_value, sum=sum_value, subtraction=subtraction_value,
+                                   neutral=neutral_value)
+                        rows.append(row)
 
-        for hit in es_query.scan():
-
-            if len(info.keys()) == 0:
-                info['authorityStopCode'] = hit.authStopCode
-                info['userStopCode'] = hit.userStopCode
-                info['name'] = hit.userStopName
-                info['busStation'] = hit.busStation == 1
-
-            expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
-
-            trips[expedition_id] = {
-                'capacity': hit.busCapacity,
-                'licensePlate': hit.licensePlate,
-                'route': hit.route,
-                'stopTime': "" if hit.expeditionStopTime == "0" else hit.expeditionStopTime,
-                'stopTimePeriod': time_period_dict[hit.timePeriodInStopTime] if hit.timePeriodInStopTime > -1 else None,
-                'dayType': day_type_dict[hit.dayType],
-                'distOnPath': hit.stopDistanceFromPathStart,
-                # to avoid movement of distribution chart
-                'loadProfile': self.clean_data(hit.loadProfile),
-                'expandedGetIn': self.clean_data(hit.expandedBoarding),
-                'expandedLanding': self.clean_data(hit.expandedAlighting)
-            }
-
-        if len(info.keys()) == 0:
+        if len(rows) == 0:
             raise ESQueryResultEmpty()
 
         result = {
-            'info': info,
-            'trips': trips
+            'rows': rows,
         }
 
         return result
@@ -72,7 +55,6 @@ class BusStationDistributionData(View):
         day_type = params.getlist('dayType[]', [])
 
         try:
-            check_operation_program(start_date, end_date)
             es_helper = ESBusStationDistributionHelper()
 
             es_query = es_helper.get_data(start_date, end_date, day_type)
