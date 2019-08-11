@@ -11,12 +11,12 @@ from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryResultEmpty
 from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-
 from localinfo.helper import get_operator_list_for_select_input
 
 
 class BusStationDistributionData(View):
     """ It gives bus station distribution data """
+    permission_required = 'localinfo.validation'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -79,6 +79,7 @@ class BusStationDistributionData(View):
 
 
 class AvailableDays(View):
+    permission_required = 'localinfo.validation'
 
     def get(self, request):
         es_helper = ESBusStationDistributionHelper()

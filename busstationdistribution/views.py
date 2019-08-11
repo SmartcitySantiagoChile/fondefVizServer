@@ -8,6 +8,7 @@ from localinfo.helper import get_day_type_list_for_select_input
 
 
 class IndexHTML(View):
+    permission_required = 'localinfo.validation'
 
     def get(self, request):
         template = "busstationdistribution/index.html"

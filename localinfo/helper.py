@@ -100,6 +100,12 @@ class PermissionBuilder(object):
         storage_group, _ = Group.objects.get_or_create(name='Sección de almacenamiento')
         storage_group.permissions.add(storage_permission)
 
+        # create permission to see bus station distribution section
+        storage_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='validation', defaults={'name': 'validaciones'})
+        storage_group, _ = Group.objects.get_or_create(name='Sección de validaciones')
+        storage_group.permissions.add(storage_permission)
+
     def update_permission(self, new_operator_obj):
         """
         Modify permission if user change name or esId
