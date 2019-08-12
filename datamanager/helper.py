@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import glob
 import os
 from collections import defaultdict
 
@@ -15,7 +14,7 @@ from rq import Connection
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
     ThereIsNotActiveJobError, ThereIsPreviousJobExporterDataError
-from datamanager.models import UploaderJobExecution, LoadFile, DataSourcePath, ExporterJobExecution
+from datamanager.models import UploaderJobExecution, LoadFile, ExporterJobExecution
 from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.profile import ESProfileHelper
@@ -32,7 +31,7 @@ from rqworkers.dataDownloader.csvhelper.speed import SpeedData
 from rqworkers.dataDownloader.csvhelper.trip import TripData
 from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
 from rqworkers.killClass import KillJob
-from rqworkers.tasks import upload_file_job, export_data_job, count_line_of_file_job
+from rqworkers.tasks import upload_file_job, export_data_job
 
 
 def get_util_helpers(file_path):
@@ -180,39 +179,14 @@ class UploaderManager(object):
 
 class FileManager(object):
 
-    def __init__(self):
-        pass
-
     def _get_file_list(self):
         """ list all files in directory with a given code """
         file_dict = defaultdict(list)
 
-        for data_source_obj in DataSourcePath.objects.all():
-            path = data_source_obj.path
-            # TODO: if is running on windows, remove this
-            if os.name == 'nt':
-                path = os.path.join(settings.BASE_DIR, 'media')
-
-            path_name = os.path.join(path, data_source_obj.filePattern)
-            zipped_path_name = os.path.join(path, '{0}.zip'.format(data_source_obj.filePattern))
-            gzipped_path_name = os.path.join(path, '{0}.gz'.format(data_source_obj.filePattern))
-            file_name_list = glob.glob(path_name) + glob.glob(zipped_path_name) + glob.glob(gzipped_path_name)
-
-            for file_path in file_name_list:
-                file_name = os.path.basename(file_path)
-                last_modified = timezone.make_aware(timezone.datetime.fromtimestamp(os.path.getmtime(file_path)))
-                file_obj, created = LoadFile.objects.get_or_create(fileName=file_name, defaults={
-                    'dataSourcePath': path,
-                    'discoveredAt': timezone.now(),
-                    'lastModified': last_modified
-                })
-                if created or last_modified != file_obj.lastModified:
-                    count_line_of_file_job.delay(file_obj, data_source_obj.indexName, file_path)
-                    file_obj.lastModified = last_modified
-                file_obj.dataSourcePath = path
-                file_obj.save()
-                serialized_file = file_obj.get_dictionary()
-                file_dict[data_source_obj.indexName].append(serialized_file)
+        for file_obj in LoadFile.objects.all():
+            serialized_file = file_obj.get_dictionary()
+            index_name = file_obj.fileName.split('.')[1]
+            file_dict[index_name].append(serialized_file)
 
         return file_dict
 
