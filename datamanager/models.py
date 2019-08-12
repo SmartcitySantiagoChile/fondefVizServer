@@ -158,7 +158,7 @@ class ExporterJobExecution(JobExecution):
         (PROFILE, 'Perfil de carga'),
         (BUS_STATION_DISTRIBUTION, 'Validaciones en zona paga'),
     )
-    fileType = models.CharField('Fuente de datos', max_length=10, null=False, choices=FILE_TYPE_CHOICES)
+    fileType = models.CharField('Fuente de datos', max_length=30, null=False, choices=FILE_TYPE_CHOICES)
     # to save data downloader (name, filters, etc)
     filters = models.TextField('Filtros aplicados', null=True)
 
