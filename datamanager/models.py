@@ -150,11 +150,13 @@ class ExporterJobExecution(JobExecution):
     SPEED = 'speed'
     TRIP = 'trip'
     PROFILE = 'profile'
+    BUS_STATION_DISTRIBUTION = 'busstationdistribution'
     FILE_TYPE_CHOICES = (
         (OD_BY_ROUTE, 'Matriz de etapa por servicio'),
         (SPEED, 'Velocidades'),
         (TRIP, 'Viajes'),
-        (PROFILE, 'Perfil de carga')
+        (PROFILE, 'Perfil de carga'),
+        (BUS_STATION_DISTRIBUTION, 'Validaciones en zona paga'),
     )
     fileType = models.CharField('Fuente de datos', max_length=10, null=False, choices=FILE_TYPE_CHOICES)
     # to save data downloader (name, filters, etc)
