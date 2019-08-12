@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import sys
-import os
-import django
 import argparse
 import json
+import os
+import sys
+
+import django
 
 # add path so we can use function through command line
 new_path = os.path.join(os.path.dirname(__file__), '..', '..')
