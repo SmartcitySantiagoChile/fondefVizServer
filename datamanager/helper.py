@@ -92,7 +92,7 @@ class ExporterManager(object):
                 file_type = ExporterJobExecution.TRIP
             elif downloader == csv_helper.BUS_STATION_DISTRIBUTION_DATA:
                 downloader_instance = BusStationDistributionData(self.es_query.to_dict())
-                file_type = ExporterJobExecution.TRIP
+                file_type = ExporterJobExecution.BUS_STATION_DISTRIBUTION
             else:
                 raise UnrecognizedDownloaderNameError()
 
