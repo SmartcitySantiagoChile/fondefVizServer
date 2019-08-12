@@ -6,7 +6,7 @@ from django.utils import timezone
 from logapp.models import UserActions, UserSession, UserSessionStats
 
 
-class User():
+class User(object):
 
     def __init__(self, user_obj, command_instance):
         self.command_instance = command_instance
@@ -94,8 +94,8 @@ class Command(BaseCommand):
 
         users = dict()
         url_set = set()
-        for user_action_obj in UserActions.objects.select_related('user').filter(
-                timestamp__range=(start_date, end_date)):
+        for user_action_obj in UserActions.objects.select_related('user'). \
+                filter(timestamp__range=(start_date, end_date)).order_by('timestamp'):
             # it is not relevant admin data
             url = user_action_obj.url.split('?')[0]
             timestamp = user_action_obj.timestamp
