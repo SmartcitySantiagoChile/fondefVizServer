@@ -11,7 +11,7 @@ from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryResultEmpty
 from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-from localinfo.helper import get_operator_list_for_select_input
+from localinfo.helper import get_operator_list_for_select_input, get_day_type_list_for_select_input
 
 
 class BusStationDistributionData(View):
@@ -26,20 +26,22 @@ class BusStationDistributionData(View):
         """ transform ES answer to something util to web client """
         rows = []
         operator_dict = get_operator_list_for_select_input(to_dict=True)
+        day_type_dict = get_day_type_list_for_select_input(to_dict=True)
 
         for a in es_query.execute().aggregations.by_bus_station_id.buckets:
             for b in a.by_bus_station_name.buckets:
                 for c in b.by_assignation.buckets:
                     for d in c.by_operator.buckets:
-                        total_value = d.total.value
-                        sum_value = d.sum.value
-                        subtraction_value = d.subtraction.value
-                        neutral_value = d.neutral.value
-                        # bus_station_id, bus_station_name, assignation, operator
-                        row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key,
-                                   operator=operator_dict[d.key], total=total_value, sum=sum_value,
-                                   subtraction=subtraction_value, neutral=neutral_value)
-                        rows.append(row)
+                        for e in d.by_day_type.buckets:
+                            total_value = e.total.value
+                            sum_value = e.sum.value
+                            subtraction_value = e.subtraction.value
+                            neutral_value = e.neutral.value
+                            # bus_station_id, bus_station_name, assignation, operator, day_type
+                            row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key,
+                                       operator=operator_dict[d.key], day_type=day_type_dict[e.key], total=total_value,
+                                       sum=sum_value, subtraction=subtraction_value, neutral=neutral_value)
+                            rows.append(row)
 
         if len(rows) == 0:
             raise ESQueryResultEmpty()

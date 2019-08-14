@@ -37,6 +37,7 @@ class ESBusStationDistributionHelper(ElasticSearchHelper):
             .bucket('by_bus_station_name', 'terms', field='busStationName') \
             .bucket('by_assignation', 'terms', field='assignation') \
             .bucket('by_operator', 'terms', field='operator') \
+            .bucket('by_day_type', 'terms', field='dayType') \
             .metric('total', 'sum', field='total') \
             .metric('sum', 'sum', field='sum') \
             .metric('subtraction', 'sum', field='subtraction') \

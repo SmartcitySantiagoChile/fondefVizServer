@@ -16,10 +16,17 @@ $(document).ready(function () {
                 thousands: "."
             },
             columns: [
+                {
+                    title: "gráfico", data: null,
+                    render: function (data, type, row) {
+                        return "chart";
+                    }
+                },
                 {title: "Id zona paga", data: "bus_station_id"},
                 {title: "Nombre zona paga", data: "bus_station_name"},
                 {title: "Asignación", data: "assignation"},
                 {title: "Operador", data: "operator"},
+                {title: "Tipo de día", data: "day_type"},
                 {title: "Total", data: "total"},
                 {title: "Suman", data: "sum"},
                 {title: "Restan", data: "subtraction"},
