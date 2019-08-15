@@ -17,9 +17,10 @@ $(document).ready(function () {
             },
             columns: [
                 {
-                    title: "gráfico", data: null,
+                    title: "Factor por día", data: null,
                     render: function (data, type, row) {
-                        return "chart";
+                        data = [1.6,2.7,3,4,5,6,7,8];
+                        return $("<i>").addClass("spark").append(data.join(","))[0].outerHTML;
                     }
                 },
                 {title: "Id zona paga", data: "bus_station_id"},
@@ -32,13 +33,7 @@ $(document).ready(function () {
                 {title: "Restan", data: "subtraction"},
                 {title: "Neutras", data: "neutral"},
                 {
-                    title: "Resultado 1", data: null,
-                    render: function (data, type, row) {
-                        return Number(((row.sum - row.subtraction) / row.total).toFixed(3)).toLocaleString();
-                    }
-                },
-                {
-                    title: "Resultado 2", data: null,
+                    title: "Factor", data: null,
                     render: function (data, type, row) {
                         var result = (row.sum - row.subtraction) / row.total;
                         result = row.assignation === "ASIGNADA" ? 1 + result : result;
@@ -50,6 +45,22 @@ $(document).ready(function () {
         });
 
         _self.updateDatatable = function (rows) {
+            var maxHeight = 10;
+            _datatable.off("draw");
+            _datatable.on("draw", function (oSettings) {
+                $(".spark:not(:has(canvas))").sparkline("html", {
+                    type: "line",
+                    width: "100%",
+                    Height: "100%",
+                    lineColor: "#169f85",
+                    negBarColor: "red",
+                    chartRangeMax: maxHeight,
+                    numberFormatter: function (value) {
+                        return Number(value.toFixed(2)).toLocaleString();
+                    }
+                });
+            });
+
             _datatable.clear();
             _datatable.rows.add(rows);
             _datatable.columns.adjust().draw();

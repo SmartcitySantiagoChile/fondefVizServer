@@ -17,7 +17,7 @@
     {% data_filter data_filter True False True False False False False False False False False info_target_id="filterHelp" %}
 
     <div class="row">
-        {% table "validationDetail" 12 with_checker=False as validationTable %}
+        {% table "validationDetail" 11 with_checker=False as validationTable %}
         {% panel "fa-money" 'Validaciones' validationTable info_target_id="tableHelp" as panel5 %}
         {% columns 12 12 12 panel5 %}
     </div>
@@ -30,5 +30,8 @@
 
 {% block js %}
     {{ block.super }}
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
+    {% endwith %}
     <script src="{% static "busstationdistribution/js/index.js" %}"></script>
 {% endblock %}
