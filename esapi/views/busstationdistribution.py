@@ -25,6 +25,7 @@ class BusStationDistributionData(View):
     def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
         rows = []
+
         operator_dict = get_operator_list_for_select_input(to_dict=True)
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
 
@@ -37,10 +38,19 @@ class BusStationDistributionData(View):
                             sum_value = e.sum.value
                             subtraction_value = e.subtraction.value
                             neutral_value = e.neutral.value
+
+                            factor_by_date = []
+                            factor_average = 0
+                            for date in e.by_date:
+                                factor_by_date.append((date.key, date.factor.value * 100))
+                                factor_average += date.factor.value
+                            factor_average = factor_average * 100 / len(factor_by_date)
+
                             # bus_station_id, bus_station_name, assignation, operator, day_type
                             row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key,
                                        operator=operator_dict[d.key], day_type=day_type_dict[e.key], total=total_value,
-                                       sum=sum_value, subtraction=subtraction_value, neutral=neutral_value)
+                                       sum=sum_value, subtraction=subtraction_value, neutral=neutral_value,
+                                       factor_by_date=factor_by_date, factor_average=factor_average)
                             rows.append(row)
 
         if len(rows) == 0:

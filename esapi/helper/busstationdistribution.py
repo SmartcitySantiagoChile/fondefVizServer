@@ -41,7 +41,9 @@ class ESBusStationDistributionHelper(ElasticSearchHelper):
             .metric('total', 'sum', field='total') \
             .metric('sum', 'sum', field='sum') \
             .metric('subtraction', 'sum', field='subtraction') \
-            .metric('neutral', 'sum', field='neutral')
+            .metric('neutral', 'sum', field='neutral') \
+            .bucket('by_date', 'terms', field='date') \
+            .metric('factor', 'sum', field='factor') \
 
         return es_query
 
