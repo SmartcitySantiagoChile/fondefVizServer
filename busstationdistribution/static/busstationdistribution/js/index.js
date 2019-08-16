@@ -10,6 +10,7 @@ $(document).ready(function () {
 
         var _datatable = $("#validationDetail").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+            iDisplayLength: -1,
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
                 decimal: ",",
@@ -17,10 +18,9 @@ $(document).ready(function () {
             },
             columns: [
                 {
-                    title: "Factor por día", data: null,
+                    title: "Factor por día", data: "factor_by_date",
                     render: function (data, type, row) {
-                        data = [1.6,2.7,3,4,5,6,7,8];
-                        return $("<i>").addClass("spark").append(data.join(","))[0].outerHTML;
+                        return $("<i>").addClass("spark")[0].outerHTML;
                     }
                 },
                 {title: "Id zona paga", data: "bus_station_id"},
@@ -41,26 +41,25 @@ $(document).ready(function () {
                     }
                 }
             ],
-            order: [[0, "asc"]]
+            order: [[1, "asc"]],
+            createdRow: function (row, data, index) {
+                var values = data.factor_by_date.map(function (el) {
+                    return el[1];
+                });
+                setTimeout(function () {
+                    $(row).find(".spark:not(:has(canvas))").sparkline(values, {
+                        type: "bar", lineColor: "#169f85", chartRangeMax: 100, chartRangeMin: 0,
+                        tooltipFormatter: function (sparkline, options, fields) {
+                            var date = data.factor_by_date[fields[0].offset][0];
+                            date = new Date(date).toISOString().substring(0, 10);
+                            return date + ": " + Number(fields[0].value.toFixed(2)).toLocaleString() + " %";
+                        }
+                    });
+                }, 50);
+            }
         });
 
         _self.updateDatatable = function (rows) {
-            var maxHeight = 10;
-            _datatable.off("draw");
-            _datatable.on("draw", function (oSettings) {
-                $(".spark:not(:has(canvas))").sparkline("html", {
-                    type: "line",
-                    width: "100%",
-                    Height: "100%",
-                    lineColor: "#169f85",
-                    negBarColor: "red",
-                    chartRangeMax: maxHeight,
-                    numberFormatter: function (value) {
-                        return Number(value.toFixed(2)).toLocaleString();
-                    }
-                });
-            });
-
             _datatable.clear();
             _datatable.rows.add(rows);
             _datatable.columns.adjust().draw();

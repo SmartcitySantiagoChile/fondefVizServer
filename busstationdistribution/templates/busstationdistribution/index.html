@@ -7,6 +7,11 @@
     {{ block.super }}
     <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
     <link href="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.css" %}" rel="stylesheet">
+    <style>
+        .jqstooltip {
+            width: auto!important;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
