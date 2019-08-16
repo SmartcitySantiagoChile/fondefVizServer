@@ -2,6 +2,16 @@
 $(document).ready(function () {
     function IndexApp() {
         var _self = this;
+        this._stopColor = {};
+
+        this.getRandomColor = function () {
+            var letters = "0123456789ABCDEF";
+            var color = "#";
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        };
 
         this.getDataName = function () {
             var FILE_NAME = "Validaciones en zona paga ";
@@ -41,14 +51,18 @@ $(document).ready(function () {
                     }
                 }
             ],
-            order: [[1, "asc"]],
             createdRow: function (row, data, index) {
+                console.log(data);
                 var values = data.factor_by_date.map(function (el) {
                     return el[1];
                 });
+                if (!_self._stopColor.hasOwnProperty(data.bus_station_id)) {
+                    _self._stopColor[data.bus_station_id] = _self.getRandomColor();
+                }
                 setTimeout(function () {
                     $(row).find(".spark:not(:has(canvas))").sparkline(values, {
-                        type: "bar", lineColor: "#169f85", chartRangeMax: 100, chartRangeMin: 0,
+                        type: "bar", barColor: _self._stopColor[data.bus_station_id], chartRangeMax: 100,
+                        chartRangeMin: 0,
                         tooltipFormatter: function (sparkline, options, fields) {
                             var date = data.factor_by_date[fields[0].offset][0];
                             date = new Date(date).toISOString().substring(0, 10);
@@ -56,7 +70,16 @@ $(document).ready(function () {
                         }
                     });
                 }, 50);
-            }
+            },
+            order: [[1, "asc"]],
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: "excelHtml5",
+                    text: "Exportar a excel",
+                    attr: {class: "buttons-excel buttons-html5 btn btn-success"}
+                }
+            ]
         });
 
         _self.updateDatatable = function (rows) {
