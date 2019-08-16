@@ -56,7 +56,6 @@ $(document).ready(function () {
                 }
             ],
             createdRow: function (row, data, index) {
-                console.log(data);
                 var values = data.factor_by_date.map(function (el) {
                     return el[1];
                 });
@@ -81,7 +80,10 @@ $(document).ready(function () {
                 {
                     extend: "excelHtml5",
                     text: "Exportar a excel",
-                    attr: {class: "buttons-excel buttons-html5 btn btn-success"}
+                    className: "buttons-excel buttons-html5 btn btn-success",
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    }
                 }
             ]
         });
