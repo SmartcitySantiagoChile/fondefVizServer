@@ -33,8 +33,12 @@ $(document).ready(function () {
                         return $("<i>").addClass("spark")[0].outerHTML;
                     }
                 },
-                {title: "Id zona paga", data: "bus_station_id"},
-                {title: "Nombre zona paga", data: "bus_station_name"},
+                {
+                    title: "Nombre zona paga [id]", data: "bus_station_name",
+                    render: function (data, type, row) {
+                        return data + " [" + row.bus_station_id + "]";
+                    }
+                },
                 {title: "Asignación", data: "assignation"},
                 {title: "Operador", data: "operator"},
                 {title: "Tipo de día", data: "day_type"},

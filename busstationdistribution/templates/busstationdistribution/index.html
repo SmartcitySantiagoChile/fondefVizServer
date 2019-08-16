@@ -22,7 +22,7 @@
     {% data_filter data_filter True False True False False False False False False False False info_target_id="filterHelp" %}
 
     <div class="row">
-        {% table "validationDetail" 11 with_checker=False as validationTable %}
+        {% table "validationDetail" 10 with_checker=False as validationTable %}
         {% panel "fa-money" 'Validaciones' validationTable info_target_id="tableHelp" as panel5 %}
         {% columns 12 12 12 panel5 %}
     </div>
@@ -40,7 +40,7 @@
 
         <script src="{% static gentelella_static|add:"datatables.net-buttons/js/dataTables.buttons.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-buttons/js/buttons.html5.js" %}"></script>
-        <script src="{% static gentelella_static|add:"jszip/dist/jszip.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jszip/dist/jszip.min.js" %}"></script>
     {% endwith %}
     <script src="{% static "busstationdistribution/js/index.js" %}"></script>
 {% endblock %}
