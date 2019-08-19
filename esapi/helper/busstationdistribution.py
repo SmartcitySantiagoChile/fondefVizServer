@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from elasticsearch_dsl import A
+
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
@@ -33,7 +35,7 @@ class ESBusStationDistributionHelper(ElasticSearchHelper):
         es_query = es_query[:0]
 
         es_query.aggs \
-            .bucket('by_bus_station_id', 'terms', field='busStationId') \
+            .bucket('by_bus_station_id', A('terms', field='busStationId', size=10000)) \
             .bucket('by_bus_station_name', 'terms', field='busStationName') \
             .bucket('by_assignation', 'terms', field='assignation') \
             .bucket('by_operator', 'terms', field='operator') \
@@ -42,8 +44,8 @@ class ESBusStationDistributionHelper(ElasticSearchHelper):
             .metric('sum', 'sum', field='sum') \
             .metric('subtraction', 'sum', field='subtraction') \
             .metric('neutral', 'sum', field='neutral') \
-            .bucket('by_date', 'terms', field='date') \
-            .metric('factor', 'sum', field='factor') \
+            .bucket('by_date', A('terms', field='date', size=10000)) \
+            .metric('factor', 'sum', field='factor')
 
         return es_query
 
