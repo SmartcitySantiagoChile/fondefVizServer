@@ -33,13 +33,10 @@ $(document).ready(function () {
                         return $("<i>").addClass("spark")[0].outerHTML;
                     }
                 },
-                {
-                    title: "Nombre zona paga [id]", data: "bus_station_name",
-                    render: function (data, type, row) {
-                        return data + " [" + row.bus_station_id + "]";
-                    }
-                },
+                {title: "Id zona paga", data: "bus_station_id"},
+                {title: "Nombre zona paga", data: "bus_station_name"},
                 {title: "Asignación", data: "assignation"},
+                {title: "Id operador", data: "operator_id"},
                 {title: "Operador", data: "operator"},
                 {title: "Tipo de día", data: "day_type"},
                 {title: "Total", data: "total"},
@@ -59,12 +56,13 @@ $(document).ready(function () {
                 var values = data.factor_by_date.map(function (el) {
                     return el[1];
                 });
-                if (!_self._stopColor.hasOwnProperty(data.bus_station_id)) {
-                    _self._stopColor[data.bus_station_id] = _self.getRandomColor();
+                var field = data.bus_station_id + "-" + data.day_type;
+                if (!_self._stopColor.hasOwnProperty(field)) {
+                    _self._stopColor[field] = _self.getRandomColor();
                 }
                 setTimeout(function () {
                     $(row).find(".spark:not(:has(canvas))").sparkline(values, {
-                        type: "bar", barColor: _self._stopColor[data.bus_station_id], chartRangeMax: 100,
+                        type: "bar", barColor: _self._stopColor[field], chartRangeMax: 100,
                         chartRangeMin: 0,
                         tooltipFormatter: function (sparkline, options, fields) {
                             var date = data.factor_by_date[fields[0].offset][0];
@@ -74,7 +72,7 @@ $(document).ready(function () {
                     });
                 }, 50);
             },
-            order: [[1, "asc"]],
+            order: [[1, "asc"], [6, "asc"]],
             dom: 'Bfrtip',
             buttons: [
                 {
