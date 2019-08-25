@@ -48,9 +48,10 @@ class BusStationDistributionData(View):
 
                             # bus_station_id, bus_station_name, assignation, operator, day_type
                             row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key,
-                                       operator=operator_dict[d.key], day_type=day_type_dict[e.key], total=total_value,
-                                       sum=sum_value, subtraction=subtraction_value, neutral=neutral_value,
-                                       factor_by_date=factor_by_date, factor_average=factor_average)
+                                       operator=operator_dict[d.key], operator_id=d.key, day_type=day_type_dict[e.key],
+                                       total=total_value, sum=sum_value, subtraction=subtraction_value,
+                                       neutral=neutral_value, factor_by_date=factor_by_date,
+                                       factor_average=factor_average)
                             rows.append(row)
 
         if len(rows) == 0:

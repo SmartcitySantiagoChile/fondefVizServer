@@ -21,6 +21,7 @@ $(document).ready(function () {
         var _datatable = $("#validationDetail").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             iDisplayLength: -1,
+            scrollX: true,
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
                 decimal: ",",
@@ -80,7 +81,7 @@ $(document).ready(function () {
                     text: "Exportar a excel",
                     className: "buttons-excel buttons-html5 btn btn-success",
                     exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                     }
                 }
             ]
