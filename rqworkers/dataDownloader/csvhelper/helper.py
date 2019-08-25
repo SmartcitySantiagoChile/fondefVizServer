@@ -790,12 +790,16 @@ class BusStationDistributionCSVHelper(CSVHelper):
     def row_parser(self, row):
 
         formatted_row = []
+        is_second_operator_value = False
         for column_name in self.get_fields():
             value = row[column_name]
             try:
                 if column_name == 'dayType':
                     value = self.day_type_dict[value]
-                elif column_name == 'operator':
+                elif column_name == 'operator' and not is_second_operator_value:
+                    # we do this to add operator raw data and data given by operator dict the second time
+                    is_second_operator_value = True
+                elif column_name == 'operator' and is_second_operator_value:
                     value = self.operator_dict[value]
             except KeyError:
                 value = ""
