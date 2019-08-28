@@ -169,12 +169,20 @@ class CSVHelper:
                 }
                 formatted_filters.append(attr_filter)
             elif 'bool' in query_filter:
-                nested_filters = query_filter['bool']['should']
-                attr_filter = {
-                    'group': True,
-                    'field': '',
-                    'value': self._process_filters(nested_filters)
-                }
+                if 'should' in query_filter['bool']:
+                    nested_filters = query_filter['bool']['should']
+                    attr_filter = {
+                        'group': 'should',
+                        'field': '',
+                        'value': self._process_filters(nested_filters)
+                    }
+                else:
+                    nested_filters = query_filter['bool']['must_not']
+                    attr_filter = {
+                        'group': 'must_not',
+                        'field': '',
+                        'value': self._process_filters(nested_filters)
+                    }
                 formatted_filters.append(attr_filter)
             elif 'must' in query_filter:
                 nested_filters = query_filter['must'][0]['term']
@@ -193,7 +201,8 @@ class CSVHelper:
         description = ''
         for element in elements:
             if 'group' in element:
-                description += '{0}({1})'.format(sep, self._formatter_for_web(element['value'], ' o '))
+                format_str = '{0}({1})' if element['group'] == 'should' else '{0} no {1}'
+                description += format_str.format(sep, self._formatter_for_web(element['value'], ' o '))
             else:
                 value = element['value']
                 if isinstance(value, list):
@@ -206,8 +215,9 @@ class CSVHelper:
         description = ''
         for element in elements:
             if 'group' in element:
-                description += '{0}({1}){2}'.format(sep, self._formatter_for_file(element['value'], ' o ', '', True),
-                                                    break_line)
+                format_str = '{0}({1}){2}' if element['group'] == 'should' else '{0} no {1}{2}'
+                description += format_str.format(sep, self._formatter_for_file(element['value'], ' o ', '', True),
+                                                 break_line)
             else:
                 value = element['value']
                 if isinstance(value, list):
