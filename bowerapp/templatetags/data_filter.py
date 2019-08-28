@@ -33,6 +33,7 @@ def data_filter(data_filter,
                 show_start_trip_period_filter=False,
                 show_start_trip_minute_filter=False,
                 show_export_button=True,
+                show_exlude_date_filter=False,
                 extra_html='',
                 info_target_id=''):
     data_filter = [] if data_filter == '' else data_filter
@@ -40,6 +41,9 @@ def data_filter(data_filter,
     filters = [
         {'show': show_day_filter, 'data_key': '', 'input_type': 'text',
          'label': 'Día:', 'js_id': 'dayFilter',
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
+        {'show': show_exlude_date_filter, 'data_key': '', 'input_type': 'text',
+         'label': 'Días a excluir:', 'js_id': 'removeDayFilter',
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_stop_filter, 'data_key': 'stops', 'input_type': 'select',
          'label': 'Parada:', 'js_id': 'stopFilter', 'multi_select': False,

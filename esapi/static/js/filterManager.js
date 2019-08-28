@@ -48,6 +48,7 @@ function FilterManager(opts) {
     var $HOUR_RANGE_FILTER = $("#hourRangeFilter");
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
     var $METRIC_FILTER = $("#metricFilter");
+    var $EXCLUDE_DATE_FILTER = $("#removeDayFilter");
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
@@ -168,6 +169,10 @@ function FilterManager(opts) {
         });
     }
 
+    if ($EXCLUDE_DATE_FILTER.length) {
+        $EXCLUDE_DATE_FILTER.datepicker({multidate: true, format: "dd-mm-yyyy", language: "es"});
+    }
+
     /* BUTTON ACTION */
     var getParameters = function () {
         var dayType = $DAY_TYPE_FILTER.val();
@@ -181,6 +186,9 @@ function FilterManager(opts) {
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
+        var excludeDates = $EXCLUDE_DATE_FILTER.val()===""?[]:$EXCLUDE_DATE_FILTER.val().split(",").map(function (el) {
+            return moment(el, "DD-MM-YYYY").format();
+        });
 
         var params = dataUrlParams();
         params.startDate = $DAY_FILTER.data("daterangepicker").startDate.format();
@@ -237,6 +245,9 @@ function FilterManager(opts) {
         }
         if (metrics) {
             params.metrics = metrics;
+        }
+        if (excludeDates.length) {
+            params.excludeDates = excludeDates
         }
 
         return params;
