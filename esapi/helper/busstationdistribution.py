@@ -14,7 +14,7 @@ class ESBusStationDistributionHelper(ElasticSearchHelper):
         file_extensions = ['busstationdistribution']
         super(ESBusStationDistributionHelper, self).__init__(index_name, file_extensions)
 
-    def get_data(self, start_date, end_date, day_type):
+    def get_data(self, start_date, end_date, day_type, exclude_dates):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
 
@@ -23,6 +23,10 @@ class ESBusStationDistributionHelper(ElasticSearchHelper):
 
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
+
+        if exclude_dates:
+            print(exclude_dates)
+            es_query = es_query.exclude('terms', date=exclude_dates)
 
         es_query = es_query.filter("range", date={
             "gte": start_date + "||/d",
