@@ -186,7 +186,7 @@ function FilterManager(opts) {
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
-        var excludeDates = $EXCLUDE_DATE_FILTER.val()===""?[]:$EXCLUDE_DATE_FILTER.val().split(",").map(function (el) {
+        var excludeDates = $EXCLUDE_DATE_FILTER.val()===""||$EXCLUDE_DATE_FILTER.val()===undefined?[]:$EXCLUDE_DATE_FILTER.val().split(",").map(function (el) {
             return moment(el, "DD-MM-YYYY").format();
         });
 
