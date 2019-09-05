@@ -3,9 +3,10 @@ from __future__ import unicode_literals
 
 import glob
 import os
+import re
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from datamanager.models import DataSourcePath, LoadFile
@@ -16,9 +17,15 @@ class Command(BaseCommand):
     help = 'Search new files and added to file table'
 
     def add_arguments(self, parser):
-        pass
+        parser.add_argument('--pattern', default=None, help='it process all files that match with pattern')
 
     def handle(self, *args, **options):
+        pattern = options['pattern']
+
+        if pattern is None:
+            raise CommandError('You have to provide a pattern')
+        compiled_pattern = re.compile(pattern)
+
         for data_source_obj in DataSourcePath.objects.all():
             path = data_source_obj.path
             # TODO: if is running on windows, remove this
@@ -38,7 +45,8 @@ class Command(BaseCommand):
                     'discoveredAt': timezone.now(),
                     'lastModified': last_modified
                 })
-                if created or last_modified != file_obj.lastModified:
+                if created or last_modified != file_obj.lastModified or (
+                        pattern is not None and compiled_pattern.search(file_name)):
                     count_line_of_file_job.delay(file_obj, data_source_obj.indexName, file_path)
                     file_obj.lastModified = last_modified
                     if created:
