@@ -6,7 +6,7 @@ import os
 import re
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from datamanager.models import DataSourcePath, LoadFile
@@ -22,9 +22,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         pattern = options['pattern']
 
-        if pattern is None:
-            raise CommandError('You have to provide a pattern')
-        compiled_pattern = re.compile(pattern)
+        compiled_pattern = None
+        if pattern is not None:
+            compiled_pattern = re.compile(pattern)
 
         for data_source_obj in DataSourcePath.objects.all():
             path = data_source_obj.path
