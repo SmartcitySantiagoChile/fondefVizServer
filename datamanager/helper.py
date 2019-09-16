@@ -15,7 +15,7 @@ import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
     ThereIsNotActiveJobError, ThereIsPreviousJobExporterDataError
 from datamanager.models import UploaderJobExecution, LoadFile, ExporterJobExecution
-from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
@@ -24,7 +24,7 @@ from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.trip import ESTripHelper
-from rqworkers.dataDownloader.csvhelper.busstationdistribution import BusStationDistributionData
+from rqworkers.dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
 from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
 from rqworkers.dataDownloader.csvhelper.speed import SpeedData
@@ -47,7 +47,7 @@ def get_util_helpers(file_path):
         ESShapeHelper(),
         ESODByRouteHelper(),
         ESResumeStatisticHelper(),
-        ESBusStationDistributionHelper()
+        ESPaymentFactorHelper()
     ]
 
     result_helpers = []
@@ -90,8 +90,8 @@ class ExporterManager(object):
                 downloader_instance = TripData(self.es_query.to_dict())
                 file_type = ExporterJobExecution.TRIP
             elif downloader == csv_helper.BUS_STATION_DISTRIBUTION_DATA:
-                downloader_instance = BusStationDistributionData(self.es_query.to_dict())
-                file_type = ExporterJobExecution.BUS_STATION_DISTRIBUTION
+                downloader_instance = PaymentFactorData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.PAYMENT_FACTOR
             else:
                 raise UnrecognizedDownloaderNameError()
 
@@ -200,7 +200,7 @@ class FileManager(object):
             ESShapeHelper(),
             ESODByRouteHelper(),
             ESResumeStatisticHelper(),
-            ESBusStationDistributionHelper()
+            ESPaymentFactorHelper()
         ]
 
         file_name_list = None

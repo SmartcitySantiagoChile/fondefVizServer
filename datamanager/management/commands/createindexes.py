@@ -6,7 +6,7 @@ import os
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             ESShapeHelper(),
             ESODByRouteHelper(),
             ESResumeStatisticHelper(),
-            ESBusStationDistributionHelper()
+            ESPaymentFactorHelper()
         ]
 
         def get_mapping_file(helper):

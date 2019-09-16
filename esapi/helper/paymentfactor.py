@@ -7,12 +7,12 @@ from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
-class ESBusStationDistributionHelper(ElasticSearchHelper):
+class ESPaymentFactorHelper(ElasticSearchHelper):
 
     def __init__(self):
-        index_name = "busstationdistribution"
-        file_extensions = ['busstationdistribution']
-        super(ESBusStationDistributionHelper, self).__init__(index_name, file_extensions)
+        index_name = "paymentfactor"
+        file_extensions = ['paymentfactor']
+        super(ESPaymentFactorHelper, self).__init__(index_name, file_extensions)
 
     def get_data(self, start_date, end_date, day_type, exclude_dates):
         """ return iterator to process load profile by stop """

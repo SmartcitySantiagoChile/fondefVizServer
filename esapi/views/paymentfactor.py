@@ -9,18 +9,18 @@ from django.views.generic import View
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryResultEmpty
-from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from localinfo.helper import get_operator_list_for_select_input, get_day_type_list_for_select_input
 
 
-class BusStationDistributionData(View):
+class PaymentFactorData(View):
     """ It gives bus station distribution data """
     permission_required = 'localinfo.validation'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(BusStationDistributionData, self).dispatch(request, *args, **kwargs)
+        return super(PaymentFactorData, self).dispatch(request, *args, **kwargs)
 
     def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
@@ -72,7 +72,7 @@ class BusStationDistributionData(View):
         exclude_dates = list(map(lambda x: x[:10], params.getlist('excludeDates[]', [])))
 
         try:
-            es_helper = ESBusStationDistributionHelper()
+            es_helper = ESPaymentFactorHelper()
 
             es_query = es_helper.get_data(start_date, end_date, day_type, exclude_dates)
             if export_data:
@@ -96,7 +96,7 @@ class AvailableDays(View):
     permission_required = 'localinfo.validation'
 
     def get(self, request):
-        es_helper = ESBusStationDistributionHelper()
+        es_helper = ESPaymentFactorHelper()
         available_days = es_helper.get_available_days()
 
         response = {

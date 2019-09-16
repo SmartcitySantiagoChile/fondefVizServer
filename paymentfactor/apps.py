@@ -4,5 +4,5 @@ from __future__ import unicode_literals
 from django.apps import AppConfig
 
 
-class BusstationdistributionConfig(AppConfig):
-    name = 'busstationdistribution'
+class PaymentfactorConfig(AppConfig):
+    name = 'paymentfactor'

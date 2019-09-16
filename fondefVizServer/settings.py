@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'debug_panel',
     'logapp',
     'awsbackup',
-    'busstationdistribution',
+    'paymentfactor',
 ]
 
 MIDDLEWARE = [
