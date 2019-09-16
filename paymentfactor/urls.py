@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from busstationdistribution.views import IndexHTML
+from paymentfactor.views import IndexHTML
 
-app_name = 'busstationdistribution'
+app_name = 'paymentfactor'
 urlpatterns = [
     # html
     url(r'^$', login_required(IndexHTML.as_view()), name='index'),

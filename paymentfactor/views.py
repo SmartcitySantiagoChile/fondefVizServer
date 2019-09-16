@@ -11,7 +11,7 @@ class IndexHTML(View):
     permission_required = 'localinfo.validation'
 
     def get(self, request):
-        template = "busstationdistribution/index.html"
+        template = "paymentfactor/index.html"
 
         context = {
             'data_filter': {

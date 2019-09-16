@@ -47,7 +47,7 @@ class LoadManagerHTML(View):
             },
             {
                 'bubble_title': '', 'bubble_content': 'Datos de la distribución de validaciones en zonas pago',
-                'id': 'busstationdistributionTable', 'title_icon': 'fa-money',
+                'id': 'paymentfactorTable', 'title_icon': 'fa-money',
                 'title': 'Distribución de validaciones en zona de pago'
             },
             {

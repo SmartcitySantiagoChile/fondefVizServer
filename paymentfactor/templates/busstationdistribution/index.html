@@ -1,4 +1,4 @@
-{% extends 'busstationdistribution/base.html' %}
+{% extends 'paymentfactor/base.html' %}
 {% load static header panel inline_select table columns update_button label data_filter tabs %}
 
 {% block title %}Distribución de validaciones en zona paga{% endblock %}
@@ -42,5 +42,5 @@
         <script src="{% static gentelella_static|add:"jszip/dist/jszip.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-buttons/js/buttons.html5.min.js" %}"></script>
     {% endwith %}
-    <script src="{% static "busstationdistribution/js/index.js" %}"></script>
+    <script src="{% static "paymentfactor/js/index.js" %}"></script>
 {% endblock %}

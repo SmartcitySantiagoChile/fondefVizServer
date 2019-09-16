@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from esapi.views.busstationdistribution import AvailableDays as BAD, BusStationDistributionData
+from esapi.views.paymentfactor import AvailableDays as PFAD, PaymentFactorData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
     LoadProfileByExpeditionData, LoadProfileByTrajectoryData
@@ -59,9 +59,7 @@ urlpatterns = [
     # shape index
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
 
-    # busstationdistribution index
-    url(r'^busstationdist/availableDays/$', login_required(BAD.as_view()),
-        name='availableBusstationdistDays'),
-    url(r'^busstationdist/data/$', login_required(BusStationDistributionData.as_view()),
-        name='busstationdistData'),
+    # paymentfactor index
+    url(r'^paymentfactor/availableDays/$', login_required(PFAD.as_view()), name='availablePaymentfactorDays'),
+    url(r'^paymentfactor/data/$', login_required(PaymentFactorData.as_view()), name='paymentfactorData'),
 ]
