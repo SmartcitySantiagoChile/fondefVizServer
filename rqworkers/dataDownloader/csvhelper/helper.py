@@ -7,7 +7,7 @@ import zipfile
 
 from elasticsearch_dsl import Search
 
-from esapi.helper.busstationdistribution import ESBusStationDistributionHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
@@ -767,11 +767,11 @@ class StopByRouteCSVHelper(CSVHelper):
         return rows
 
 
-class BusStationDistributionCSVHelper(CSVHelper):
+class PaymentFactorCSVHelper(CSVHelper):
     """ Class that represents a bus station distribution data downloader. """
 
     def __init__(self, es_client, es_query):
-        CSVHelper.__init__(self, es_client, es_query, ESBusStationDistributionHelper().index_name)
+        CSVHelper.__init__(self, es_client, es_query, ESPaymentFactorHelper().index_name)
 
     def get_column_dict(self):
         return [
