@@ -106,14 +106,14 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["esapi:availableBusstationdistDays"]());
+        loadAvailableDays(Urls["esapi:availablePaymentfactorDays"]());
 
         var app = new IndexApp();
         var afterCall = function (data) {
             processData(data, app);
         };
         var opts = {
-            urlFilterData: Urls["esapi:busstationdistData"](),
+            urlFilterData: Urls["esapi:paymentfactorData"](),
             afterCallData: afterCall
         };
 
