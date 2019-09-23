@@ -89,7 +89,7 @@ class ExporterManager(object):
             elif downloader == csv_helper.TRIP_DATA:
                 downloader_instance = TripData(self.es_query.to_dict())
                 file_type = ExporterJobExecution.TRIP
-            elif downloader == csv_helper.BUS_STATION_DISTRIBUTION_DATA:
+            elif downloader == csv_helper.PAYMENT_FACTOR_DATA:
                 downloader_instance = PaymentFactorData(self.es_query.to_dict())
                 file_type = ExporterJobExecution.PAYMENT_FACTOR
             else:

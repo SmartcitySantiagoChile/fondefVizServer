@@ -22,7 +22,6 @@ from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
 
 README_FILE_NAME = 'Léeme.txt'
 
-BUS_STATION_DISTRIBUTION_DATA = 'bus_station_distribution_data'
 PROFILE_BY_EXPEDITION_DATA = 'profile_by_expedition'
 PROFILE_BY_STOP_DATA = 'profile_by_stop'
 OD_BY_ROUTE_DATA = 'od_by_route_data'
