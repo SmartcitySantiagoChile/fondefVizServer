@@ -788,7 +788,7 @@ class PaymentFactorCSVHelper(CSVHelper):
             {'es_name': 'neutral', 'csv_name': 'Neutras', 'definition': ''},
             {'es_name': 'factor', 'csv_name': 'Factor', 'definition': 'Factor de pago'},
             {'es_name': 'routes', 'csv_name': 'Servicios', 'definition': 'Servicios que se detienen en esta parada, separados por el signo "-"'},
-            {'es_name': 'transactions', 'csv_name': '', 'definition': 'N° de validaciones por servicio, están separados por el signo "-" y su servicio asociado es el ubicado en la misma posición de la columna "Servicios"'},
+            {'es_name': 'transactions', 'csv_name': 'Validaciones', 'definition': 'N° de validaciones por servicio, están separados por el signo "-" y su servicio asociado es el ubicado en la misma posición de la columna "Servicios"'},
             {'es_name': 'validatorId', 'csv_name': 'Id de validador', 'definition': 'Identificador del validador asociado a la zona paga'},
         ]
 
