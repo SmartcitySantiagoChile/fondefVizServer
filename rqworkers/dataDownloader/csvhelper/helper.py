@@ -7,8 +7,8 @@ import zipfile
 
 from elasticsearch_dsl import Search
 
-from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.speed import ESSpeedHelper
@@ -28,6 +28,7 @@ PROFILE_BY_STOP_DATA = 'profile_by_stop'
 OD_BY_ROUTE_DATA = 'od_by_route_data'
 SPEED_MATRIX_DATA = 'speed_matrix_data'
 TRIP_DATA = 'trip_data'
+PAYMENT_FACTOR_DATA = 'payment_factor_data'
 
 
 class WrongFormatterError(Exception):
