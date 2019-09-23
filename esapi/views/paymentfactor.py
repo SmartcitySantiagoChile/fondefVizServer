@@ -76,7 +76,7 @@ class PaymentFactorData(View):
 
             es_query = es_helper.get_data(start_date, end_date, day_type, exclude_dates)
             if export_data:
-                ExporterManager(es_query).export_data(csv_helper.BUS_STATION_DISTRIBUTION_DATA, request.user)
+                ExporterManager(es_query).export_data(csv_helper.PAYMENT_FACTOR_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response = self.transform_es_answer(es_query)
