@@ -1,7 +1,7 @@
 {% extends 'paymentfactor/base.html' %}
 {% load static header panel inline_select table columns update_button label data_filter tabs %}
 
-{% block title %}Distribución de validaciones en zona paga{% endblock %}
+{% block title %}Distribución de validaciones en zona paga mixta{% endblock %}
 
 {% block css %}
     {{ block.super }}
@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block content %}
-    {% header "Distribución de validaciones" "en zona paga" %}
+    {% header "Distribución de validaciones" "en zona paga mixta" %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
