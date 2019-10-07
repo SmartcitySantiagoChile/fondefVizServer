@@ -17,5 +17,5 @@ django-debug-panel==0.8.3
 python-decouple==3.1
 django-crontab==0.7.1
 boto3==1.9.244
-ddtrace==0.14.1
-datadog==0.22.0
+ddtrace==0.29.0
+datadog==0.30.0
