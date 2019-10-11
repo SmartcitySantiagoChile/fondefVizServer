@@ -92,7 +92,8 @@ class CSVHelper:
         try:
             with open(tmp_file_name, 'wb') as output:
                 writter = UnicodeWriter(output, delimiter=str(','))
-                writter.writerow(self.get_header())
+                # added BOM to file to recognize accent
+                writter.writerow('\ufeff{0}'.format(self.get_header()))
 
                 for doc in self.get_iterator(kwargs):
                     row = self.row_parser(doc)
@@ -777,19 +778,26 @@ class PaymentFactorCSVHelper(CSVHelper):
         return [
             {'es_name': 'date', 'csv_name': 'Fecha', 'definition': 'Día en que se realizaron las validaciones'},
             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'Tipo de día'},
-            {'es_name': 'operator', 'csv_name': 'Id Operador', 'definition': 'Identificador de empresa asociada a la zona paga'},
+            {'es_name': 'operator', 'csv_name': 'Id Operador',
+             'definition': 'Identificador de empresa asociada a la zona paga'},
             {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa asociada a la zona paga'},
-            {'es_name': 'assignation', 'csv_name': 'Asignación', 'definition': 'Indica si el operador está asignado a la zona paga'},
-            {'es_name': 'busStationId', 'csv_name': 'Identificador_zona_paga', 'definition': 'Código que identifica la zona paga'},
-            {'es_name': 'busStationName', 'csv_name': 'Nombre_zona_paga', 'definition': 'Nombre de la parada donde se encuentra la zona paga'},
+            {'es_name': 'assignation', 'csv_name': 'Asignación',
+             'definition': 'Indica si el operador está asignado a la zona paga'},
+            {'es_name': 'busStationId', 'csv_name': 'Identificador_zona_paga',
+             'definition': 'Código que identifica la zona paga'},
+            {'es_name': 'busStationName', 'csv_name': 'Nombre_zona_paga',
+             'definition': 'Nombre de la parada donde se encuentra la zona paga'},
             {'es_name': 'total', 'csv_name': 'Total', 'definition': ''},
             {'es_name': 'sum', 'csv_name': 'Suman', 'definition': ''},
             {'es_name': 'subtraction', 'csv_name': 'Restan', 'definition': ''},
             {'es_name': 'neutral', 'csv_name': 'Neutras', 'definition': ''},
             {'es_name': 'factor', 'csv_name': 'Factor', 'definition': 'Factor de pago'},
-            {'es_name': 'routes', 'csv_name': 'Servicios', 'definition': 'Servicios que se detienen en esta parada, separados por el signo "-"'},
-            {'es_name': 'transactions', 'csv_name': 'Validaciones', 'definition': 'N° de validaciones por servicio, están separados por el signo "-" y su servicio asociado es el ubicado en la misma posición de la columna "Servicios"'},
-            {'es_name': 'validatorId', 'csv_name': 'Id de validador', 'definition': 'Identificador del validador asociado a la zona paga'},
+            {'es_name': 'routes', 'csv_name': 'Servicios',
+             'definition': 'Servicios que se detienen en esta parada, separados por el signo "-"'},
+            {'es_name': 'transactions', 'csv_name': 'Validaciones',
+             'definition': 'N° de validaciones por servicio, están separados por el signo "-" y su servicio asociado es el ubicado en la misma posición de la columna "Servicios"'},
+            {'es_name': 'validatorId', 'csv_name': 'Id de validador',
+             'definition': 'Identificador del validador asociado a la zona paga'},
         ]
 
     def get_data_file_name(self):
