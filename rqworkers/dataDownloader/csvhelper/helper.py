@@ -91,17 +91,18 @@ class CSVHelper:
         tmp_file_name = str(uuid.uuid4())
         try:
             with open(tmp_file_name, 'wb') as output:
-                writter = UnicodeWriter(output, delimiter=str(','))
-                # added BOM to file to recognize accent
-                writter.writerow('\ufeff{0}'.format(self.get_header()))
+                # added BOM to file to recognize accent in excel files
+                output.write('\ufeff')
+                writer = UnicodeWriter(output, delimiter=str(','))
+                writer.writerow(self.get_header())
 
                 for doc in self.get_iterator(kwargs):
                     row = self.row_parser(doc)
                     if isinstance(row[0], list):
                         # there are more than one row in variable
-                        writter.writerows(row)
+                        writer.writerows(row)
                     else:
-                        writter.writerow(row)
+                        writer.writerow(row)
 
             zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
         finally:
