@@ -377,7 +377,10 @@ $(document).ready(function () {
                 stops: stops,
                 additonalStopInfo: function(stopPosition) {
                     var loadProfile = yAxisData[stopPosition];
-                    return "<br />Perfil de carga: <b>" + Number(loadProfile.toFixed(2)).toLocaleString() + "</b>";
+                    if (loadProfile !== null) {
+                        loadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
+                    }
+                    return "<br />Perfil de carga: <b>" + loadProfile + "</b>";
                 }
             });
         };
