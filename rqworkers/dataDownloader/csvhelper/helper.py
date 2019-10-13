@@ -92,7 +92,7 @@ class CSVHelper:
         try:
             with open(tmp_file_name, 'wb') as output:
                 # added BOM to file to recognize accent in excel files
-                output.write('\ufeff')
+                output.write('\ufeff'.encode('utf-8-sig'))
                 writer = UnicodeWriter(output, delimiter=str(','))
                 writer.writerow(self.get_header())
 
