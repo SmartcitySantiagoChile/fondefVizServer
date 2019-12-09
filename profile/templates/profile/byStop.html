@@ -5,7 +5,7 @@
 
 {% block content %}
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
-    {% header "Perfil de carga" "por parada"|add:label %}
+    {% header "Perfil promedio de carga" "por parada-servicio"|add:label %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
