@@ -101,8 +101,8 @@ class MatrixData(View):
                     route_segment_by_hour = []
                     for section in response['segments']:
                         speed, n_obs = d_data.get((section, hour), (-1, 0))
-                        interval = 7
-                        for i, bound in enumerate([0, 5, 10, 15, 20, 25, 30]):
+                        interval = 8
+                        for i, bound in enumerate([0, 5, 7.5, 10, 15, 20, 25, 30]):
                             if speed < bound:
                                 interval = i
                                 break
