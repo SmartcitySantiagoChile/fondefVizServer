@@ -139,9 +139,9 @@ $(document).ready(function () {
         var route = null;
 
         // vel_range = ["Sin Datos", " < 15 k/h", "15-19 k/h", "19-21 k/h", "21-25 k/h", "25-30 k/h", " > 30 k/h"];
-        var velRange = ["Sin Datos", " < 5 k/h", "5-10 k/h", "10-15 k/h", "15-20 k/h", "20-25 k/h", "25-30 k/h", " > 30 k/h"];
+        var velRange = ["Sin Datos", " < 5 k/h", "5 - 7.5 k/h", "7.5 - 10 k/h", "10 - 15 k/h", "15 - 20 k/h", "20 - 25 k/h", "25 - 30 k/h", " > 30 k/h"];
         // colors = ["#dfdfdf", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#007f00", "#0000ff"];
-        var colors = ["#dfdfdf", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
+        var colors = ["#dfdfdf", "#a100f2", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
         var mapApp = new DrawSegmentsApp(colors);
 
@@ -196,6 +196,7 @@ $(document).ready(function () {
                 right: "5%",
                 top: "top",
                 pieces: [
+                    {min: 7.5, max: 8.5, label: velRange[8]},
                     {min: 6.5, max: 7.5, label: velRange[7]},
                     {min: 5.5, max: 6.5, label: velRange[6]},
                     {min: 4.5, max: 5.5, label: velRange[5]},
