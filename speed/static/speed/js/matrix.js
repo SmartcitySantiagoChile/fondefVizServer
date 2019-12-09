@@ -122,6 +122,12 @@ $(document).ready(function () {
                         }
                     ]
                 });
+                var speed = valuesRoute[i][1];
+                var obsNumber = valuesRoute[i][2];
+                var popup = "Velocidad: " + speed.toFixed(2) + " k/m<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
+                segpol.bindPopup(popup);
+                deco.bindPopup(popup);
+
                 segmentPolylineList.push(segpol);
                 decoratorPolylineList.push(deco);
                 segpol.addTo(map);
