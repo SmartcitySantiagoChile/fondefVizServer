@@ -88,7 +88,7 @@ $(document).ready(function () {
             _yAxisData = null;
             _tripsUsed = 0;
         };
-        this.setVisibilty = function (tripIdArray, value) {
+        this.setVisibility = function (tripIdArray, value) {
             for (var i = 0; i < tripIdArray.length; i++) {
                 var tripId = tripIdArray[i];
                 if (_trips[tripId].visible !== value) {
@@ -199,6 +199,7 @@ $(document).ready(function () {
                 _yAxisData.negativeSaturationRateAfter[routeIndex] = decValue;
             }
         };
+
         this.getAttrGroup = function (attrName, formatFunc) {
             var values = [];
             var dict = {};
@@ -223,6 +224,7 @@ $(document).ready(function () {
             }
             return values;
         };
+
         this.getDatatableData = function () {
             var values = [];
             for (var i in _trips) {
@@ -237,40 +239,6 @@ $(document).ready(function () {
                 rows: values
             };
         };
-
-        this.getDistributionData = function () {
-
-            var globalMax = 0;
-            var trips = [];
-
-            for (var i in _trips) {
-                var trip = _trips[i];
-                var tripData = {};
-                if (!trip.visible) {
-                    continue;
-                }
-                tripData.name = trip.stopTime;
-
-                var loadProfile = [];
-                for (var j = 0; j < _xAxisData.length; j++) {
-                    var authStopCode = _xAxisData[j].authCode;
-                    var value = trip.yAxisData.loadProfile[authStopCode];
-
-                    if (globalMax < value) {
-                        globalMax = value;
-                    }
-                    loadProfile.push(value);
-                }
-                tripData.loadProfile = loadProfile;
-                trips.push(tripData);
-            }
-
-            var result = {};
-            result.globalMax = globalMax;
-            result.trips = trips;
-
-            return result;
-        }
     }
 
     function ExpeditionApp() {
@@ -340,7 +308,7 @@ $(document).ready(function () {
                     var tripIds = _datatable.rows({"search": "applied"}).data().map(function (el) {
                         return el.id
                     });
-                    _dataManager.setVisibilty(tripIds, addToAggr);
+                    _dataManager.setVisibility(tripIds, addToAggr);
                     _self.updateCharts();
                 });
             }
@@ -457,7 +425,7 @@ $(document).ready(function () {
 
                     // updateChart
                     var tripId = parseInt($(this).attr("name").replace("trip", ""));
-                    _dataManager.setVisibilty([tripId], addToAggr);
+                    _dataManager.setVisibility([tripId], addToAggr);
                     _self.updateCharts();
                 });
             });
