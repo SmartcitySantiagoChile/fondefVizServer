@@ -65,10 +65,15 @@ $(document).ready(function () {
                     $(row).find(".spark:not(:has(canvas))").sparkline(values, {
                         type: "bar", barColor: _self._stopColor[field], chartRangeMax: 100,
                         chartRangeMin: 0,
+                        width: "113px",
                         tooltipFormatter: function (sparkline, options, fields) {
                             var date = data.factor_by_date[fields[0].offset][0];
                             date = new Date(date).toISOString().substring(0, 10);
-                            return date + ": " + Number(fields[0].value.toFixed(2)).toLocaleString() + " %";
+                            var value = "sin datos";
+                            if (fields[0].value !== null) {
+                                value = Number(fields[0].value.toFixed(2)).toLocaleString() + " %";
+                            }
+                            return date + ": " + value;
                         }
                     });
                 }, 50);
@@ -91,6 +96,9 @@ $(document).ready(function () {
             _datatable.clear();
             _datatable.rows.add(rows);
             _datatable.columns.adjust().draw();
+            setTimeout(function () {
+                _datatable.columns.adjust();
+            }, 60);
         };
     }
 
