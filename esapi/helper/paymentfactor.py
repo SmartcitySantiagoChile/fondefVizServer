@@ -25,7 +25,6 @@ class ESPaymentFactorHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', dayType=day_type)
 
         if exclude_dates:
-            print(exclude_dates)
             es_query = es_query.exclude('terms', date=exclude_dates)
 
         es_query = es_query.filter("range", date={

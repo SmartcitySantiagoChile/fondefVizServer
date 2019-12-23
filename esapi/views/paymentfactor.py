@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.http import JsonResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
@@ -22,12 +23,17 @@ class PaymentFactorData(View):
     def dispatch(self, request, *args, **kwargs):
         return super(PaymentFactorData, self).dispatch(request, *args, **kwargs)
 
-    def transform_es_answer(self, es_query):
-        """ transform ES answer to something util to web client """
+    def transform_es_answer(self, es_query, start_date, end_date):
+        """ transform ES answer to something useful to web client """
         rows = []
 
         operator_dict = get_operator_list_for_select_input(to_dict=True)
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
+
+        start_date = int((timezone.datetime.strptime(start_date, '%Y-%m-%d') -
+                          timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
+        end_date = int((timezone.datetime.strptime(end_date, '%Y-%m-%d') -
+                        timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
 
         for a in es_query.execute().aggregations.by_bus_station_id.buckets:
             for b in a.by_bus_station_name.buckets:
@@ -42,17 +48,23 @@ class PaymentFactorData(View):
                             factor_by_date = []
                             factor_average = 0
                             date_list = sorted(e.by_date, key=lambda x: x['key'])
+
+                            day_in_millis = 86400000
+                            aux_date = start_date
                             for date in date_list:
-                                if factor_by_date:
-                                    aux_date = factor_by_date[-1][0]
-                                    day_in_millis = 86400000
-                                    while date.key - aux_date > day_in_millis:
-                                        aux_date = aux_date + day_in_millis
-                                        factor_by_date.append((aux_date, None))
+                                while date.key > aux_date:
+                                    factor_by_date.append((aux_date, None))
+                                    aux_date = aux_date + day_in_millis
 
                                 factor_by_date.append((date.key, date.factor.value * 100))
                                 factor_average += date.factor.value
-                            factor_average = factor_average * 100 / len(factor_by_date)
+                                aux_date = aux_date + day_in_millis
+                            factor_average = factor_average * 100 / len(date_list)
+
+                            # complete days with empty date until end_date
+                            while aux_date <= end_date:
+                                factor_by_date.append((aux_date, None))
+                                aux_date = aux_date + day_in_millis
 
                             # bus_station_id, bus_station_name, assignation, operator, day_type
                             row = dict(bus_station_id=a.key, bus_station_name=b.key, assignation=c.key,
@@ -87,7 +99,7 @@ class PaymentFactorData(View):
                 ExporterManager(es_query).export_data(csv_helper.PAYMENT_FACTOR_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                response = self.transform_es_answer(es_query)
+                response = self.transform_es_answer(es_query, start_date, end_date)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
