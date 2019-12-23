@@ -41,7 +41,15 @@ class PaymentFactorData(View):
 
                             factor_by_date = []
                             factor_average = 0
-                            for date in e.by_date:
+                            date_list = sorted(e.by_date, key=lambda x: x['key'])
+                            for date in date_list:
+                                if factor_by_date:
+                                    aux_date = factor_by_date[-1][0]
+                                    day_in_millis = 86400000
+                                    while date.key - aux_date > day_in_millis:
+                                        aux_date = aux_date + day_in_millis
+                                        factor_by_date.append((aux_date, None))
+
                                 factor_by_date.append((date.key, date.factor.value * 100))
                                 factor_average += date.factor.value
                             factor_average = factor_average * 100 / len(factor_by_date)

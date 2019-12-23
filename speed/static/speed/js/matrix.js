@@ -9,7 +9,7 @@ $(document).ready(function () {
         "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
     ];
 
-    function DrawSegmentsApp(colorScale) {
+    function DrawSegmentsApp(colorScale, labels) {
         var _self = this;
 
         /* map setting */
@@ -52,6 +52,23 @@ $(document).ready(function () {
                 map.removeLayer(elem);
             });
         };
+
+        this._buildLegend = function () {
+            var mapLegend = L.control({position: "bottomright"});
+            mapLegend.onAdd = function (map) {
+                var div = L.DomUtil.create("div", "info legend");
+                div.id = "map_legend";
+                div.innerHTML = "Velocidad<br />";
+                // loop through our density intervals and generate a label with a colored square for each interval
+                for (var i = 0; i < colors.length; i++) {
+                    div.innerHTML += "<i style='background:" + colors[i] + "'></i> " + labels[i];
+                    div.innerHTML += "<br />";
+                }
+                return div;
+            };
+            mapLegend.addTo(map);
+        };
+        this._buildLegend();
 
         this.highlightSegment = function (segmentId) {
 
@@ -122,6 +139,12 @@ $(document).ready(function () {
                         }
                     ]
                 });
+                var speed = valuesRoute[i][1];
+                var obsNumber = valuesRoute[i][2];
+                var popup = "Velocidad: " + speed.toFixed(2) + " k/m<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
+                segpol.bindPopup(popup);
+                deco.bindPopup(popup);
+
                 segmentPolylineList.push(segpol);
                 decoratorPolylineList.push(deco);
                 segpol.addTo(map);
@@ -138,12 +161,10 @@ $(document).ready(function () {
         var matrix = null;
         var route = null;
 
-        // vel_range = ["Sin Datos", " < 15 k/h", "15-19 k/h", "19-21 k/h", "21-25 k/h", "25-30 k/h", " > 30 k/h"];
-        var velRange = ["Sin Datos", " < 5 k/h", "5-10 k/h", "10-15 k/h", "15-20 k/h", "20-25 k/h", "25-30 k/h", " > 30 k/h"];
-        // colors = ["#dfdfdf", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#007f00", "#0000ff"];
-        var colors = ["#dfdfdf", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
+        var velRange = ["Sin Datos", " < 5 k/h", "5 - 7.5 k/h", "7.5 - 10 k/h", "10 - 15 k/h", "15 - 20 k/h", "20 - 25 k/h", "25 - 30 k/h", " > 30 k/h"];
+        var colors = ["#dfdfdf", "#a100f2", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
-        var mapApp = new DrawSegmentsApp(colors);
+        var mapApp = new DrawSegmentsApp(colors, velRange);
 
         var opts = {
             tooltip: {
@@ -196,6 +217,7 @@ $(document).ready(function () {
                 right: "5%",
                 top: "top",
                 pieces: [
+                    {min: 7.5, max: 8.5, label: velRange[8]},
                     {min: 6.5, max: 7.5, label: velRange[7]},
                     {min: 5.5, max: 6.5, label: velRange[6]},
                     {min: 4.5, max: 5.5, label: velRange[5]},

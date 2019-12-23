@@ -11,6 +11,7 @@ $(document).ready(function () {
         layers: [black]
     });
     var colors = ["#dfdfdf", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#007f00", "#0000ff"];
+    var labels = ["Sin Datos", " 0 - 15 k/h", "15 - 19 k/h", "19 - 21 k/h", "21 - 23 k/h", "23 - 30 k/h", " > 30 k/h"];
     var StartMarker = null;
     var EndMarker = null;
     var MultiSegment = [];
@@ -20,6 +21,20 @@ $(document).ready(function () {
         "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
         "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30", "00:00"
     ];
+
+    var mapLegend = L.control({position: "bottomright"});
+    mapLegend.onAdd = function (map) {
+        var div = L.DomUtil.create("div", "info legend");
+        div.id = "map_legend";
+        div.innerHTML = "Velocidad<br />";
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < colors.length; i++) {
+            div.innerHTML += "<i style='background:" + colors[i] + "'></i> " + labels[i];
+            div.innerHTML += "<br />";
+        }
+        return div;
+    };
+    mapLegend.addTo(map);
 
     function clearMap() {
         if (StartMarker) {

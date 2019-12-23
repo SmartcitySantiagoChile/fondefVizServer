@@ -482,7 +482,9 @@ $(document).ready(function () {
                     formatter: function (params) {
                         var row = [];
                         if (params.componentType === "series") {
-                            row.push(params.marker);
+                            var stopInfo = _dataManager.yAxisData()[params.data[6]];
+                            stopInfo = " " + stopInfo.authStopCode + " | " + stopInfo.userStopCode + " | " + stopInfo.name;
+                            row.push(params.marker + stopInfo);
                             var time = params.data[0];
                             var loadProfile = params.data[2];
                             var getOut = params.data[4];
@@ -593,7 +595,7 @@ $(document).ready(function () {
             }
 
             var data = [];
-            stops.forEach(function (stop) {
+            stops.forEach(function (stop, stopIndex) {
                 var stopInfo = trip.stops[stop.authStopCode];
                 if (stopInfo === undefined) {
                     return;
@@ -623,6 +625,7 @@ $(document).ready(function () {
                 row.push(stopInfo[1] / capacity * 100);
                 row.push(stopInfo[2]);
                 row.push(stopInfo[3]);
+                row.push(stopIndex);
                 data.push(row);
             });
 
