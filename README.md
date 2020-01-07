@@ -259,7 +259,7 @@ Finalmente se debe ejecutar la aplicación Django:
     $ python manage.py runserver
    
 
-![AAdatrap](readme_img/adatrap.png)
+![AAdatrap](readme_data/adatrap.png)
 
 
 ### Carga de Datos
@@ -271,18 +271,18 @@ Para realizar la carga de datos se requiere la ejecución de al menos un rqworke
 Ingresando a la aplicación, se debe ir a la sección de Administración, Fuentes de datos. 
 En esta sección deben modificar los directorios de los archivos a cargar:
 
-![Fuentes de Carga](readme_img/fuente_datos.png)
+![Fuentes de Carga](readme_data/fuente_datos.png)
 
 Posterior al ingreso de los directorios, se debe ir a la sección Administración, Carga de datos.
 En esta sección debe seleccionar la opción "cargar datos" para cada uno de los archivos a cargar.
 
 
-![Carga de Datos](readme_img/carga_datos.png)
+![Carga de Datos](readme_data/carga_datos.png)
 
 Si la carga de datos se realizó de forma satisfactoria, serán visibles las distintas consultas
 de la aplicación:
 
-![Perfil_de_Carga](readme_img/perfil_carga.png)
+![Perfil_de_Carga](readme_data/perfil_carga.png)
 
 
 
