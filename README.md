@@ -6,8 +6,7 @@ Plataforma de visualización para grandes volúmenes de datos sobre el Transanti
 
 ### Instalación del proyecto
 
-Este proyecto se encuentra desarrollado en Python 2.7, utilizando el framework Django, base de datos Postgresql y  las tecnologías Elasticsearch
- y Redis.
+Este proyecto se encuentra desarrollado en Python 2.7, utilizando el framework Django, base de datos Postgresql y  las tecnologías Elasticsearch y Redis.
  
 En primer lugar se debe descargar el proyecto:
 
@@ -16,10 +15,20 @@ En primer lugar se debe descargar el proyecto:
 #### Requerimientos
 
 
-#####Dependencias
+#####Dependencias Python
 Se deben instalar las dependencias de python especificadas en el archivo `requirements.txt` 
 ubicado en la raíz del proyecto. 
 
+Se recomienda la utilización de un entorno virtual, se puede crear utilizando el comando:
+
+    virtualenv venv
+
+Luego se debe activar el entorno virtual e instalar las dependencias.
+
+    # activar
+    source venv/bin/activate
+ 
+    # instalar dependencias
     pip install -r requirements.txt
 
 #####Postgresql
@@ -47,7 +56,7 @@ Opcionalmente conviene instalar redis-tools para tener un mayor control y monito
 
 #####Npm
 
-Para poder utilizar bower, se requiere tener instalado el gestor de paquetes npm:
+Para poder utilizar bower se requiere tener instalado el gestor de paquetes npm:
 
 >https://www.npmjs.com/get-npm
 
@@ -82,7 +91,8 @@ El archivo .env contiene las siguientes definiciones:
     DEBUG=TRUE
     ALLOWED_HOSTS=localhost, 127.0.0.1                                   
     INTERNAL_IPS=localhost, 127.0.0.1
-    
+    URL_PREFIX=''
+    DOWNLOAD_PATH=
     
     #Configuraciones de Postgres
     
@@ -97,14 +107,12 @@ El archivo .env contiene las siguientes definiciones:
     
     ELASTICSEARCH_HOST=localhost
     ELASTICSEARCH_PORT=9200
-    URL_PREFIX=''
+   
     
     #Configuraciones de Redis
     REDIS_HOST=localhost
     REDIS_PORT=6379
     REDIS_DB=0
-    DOWNLOAD_PATH=
-    
     
     
     #Configuraciones de email
@@ -115,7 +123,6 @@ El archivo .env contiene las siguientes definiciones:
     EMAIL_HOST_USER=
     EMAIL_HOST_PASSWORD=
     SERVER_EMAIL=
-    
     
     
     #Configuraciones de GPS
@@ -197,28 +204,29 @@ Estos datos se dividen en las siguientes secciones:
 
 #### Modelos y Usuarios de Django
 
+Para propagar los modelos en la base de datos se deben hacer las migraciones de Django ejecutando el siguiente
+comandos:
+
+    $ python manage.py migrate
+
+
 Se deben cargar los datos base para formularios a utilizar en la aplicación, para esto ejecutaremos el siguiente comando:
 
     $ python manage.py loaddata datasource communes daytypes halfhours operators timeperiods transportmodes
 
-Para propagar los cambios de los modelos en la base de datos se deben hacer las migraciones de Django ejecutando los siguientes
-comandos:
-
-    $ python manage.py makemigrations
-    $ python manage.py migrate
 
 
-Se debe crear un super usuario para poder acceder a la aplicación, esto se hace por medio del siguiente comando:
+
+Se debe crear un super usuario para poder acceder a la aplicación desde la interfaz web, esto se hace por medio del siguiente comando:
     
     $ python manage.py createsuperuser
 
 
-Se debe ejecutar django_js_reverse para el manejo de las urls :
+Se debe ejecutar django_js_reverse para el manejo de las urls en los archivos js:
 
     $ python manage.py collectstatic_js_reverse
 
-Se debe actualizar el submódulo de
-los rqworkers, los cuales son los que ejecutaran los procesos segundo plano:
+Se debe actualizar el submódulo de los rqworkers que ejecutarán los procesos segundo plano:
 
 
     git submodule init
