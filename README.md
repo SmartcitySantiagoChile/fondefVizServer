@@ -294,8 +294,14 @@ En esta sección deben modificar los directorios de los archivos a cargar:
 
 ![Fuentes de Carga](readme_data/fuente_datos.png)
 
-Posterior al ingreso de los directorios, se debe ir a la sección Administración, Carga de datos.
-En esta sección debe seleccionar la opción "cargar datos" para cada uno de los archivos a cargar.
+Posteriormente se debe ejecutar el comando `searchfiles.py`, el cual se encargará de buscar 
+los archivos en los directorios modificados anteriormente e ingresarlos a la tabla para su posterior carga.
+Por lo que ejecutamos:
+
+    $ python manage.py searchfiles
+ 
+Esto permitirá la visualización de los datos en la sección Administración, Carga de datos.
+En esta sección debe seleccionar la opción "cargar datos" para cada uno de los archivos.
 
 
 ![Carga de Datos](readme_data/carga_datos.png)
