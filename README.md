@@ -131,7 +131,7 @@ El archivo .env contiene las siguientes definiciones:
     SERVER_EMAIL=
     
     
-    #Configuraciones de GPS
+    #Configuraciones de buckets para almacenamiento de datos en S3
     
     GPS_BUCKET_NAME=
     OP_PROGRAM_BUCKET_NAME=
@@ -158,6 +158,8 @@ Estos datos se dividen en las siguientes secciones:
 * DEBUG: ejecutar la aplicación en modo debug (TRUE/FALSE).
 * ALLOWED_HOSTS: conexiones permitidas para el ingreso a la aplicación.                                   
 * INTERNAL_IPS: conexiones que mostraran la debug toolbar y debug panel
+* URL_PREFIX:
+* DOWNLOAD_PATH: path de descarga para archivos manipulados por redis
 
 #####Configuraciones de Postgres
 
@@ -171,7 +173,6 @@ Estos datos se dividen en las siguientes secciones:
 
 * ELASTICSEARCH_HOST: host de elasticsearch
 * ELASTICSEARCH_PORT: puerto de elasticsearch
-* URL_PREFIX:
 
 
 #####Configuraciones de Redis
@@ -179,7 +180,6 @@ Estos datos se dividen en las siguientes secciones:
 * REDIS_HOST: host de redis
 * REDIS_PORT: puerto de redis
 * REDIS_DB: nombre de la base de datos de redis
-* DOWNLOAD_PATH: path de descarga para archivos manipulados por redis
 
 
 #####Configuraciones de email
@@ -191,7 +191,7 @@ Estos datos se dividen en las siguientes secciones:
 * SERVER_EMAIL:
 
 
-#####Configuraciones de GPS
+#####Configuraciones de buckets para almacenamiento de datos en S3
 * GPS_BUCKET_NAME:
 * OP_PROGRAM_BUCKET_NAME:
 * FILE_196_BUCKET_NAME:
@@ -211,7 +211,7 @@ Estos datos se dividen en las siguientes secciones:
 #### Modelos y Usuarios de Django
 
 Para propagar los modelos en la base de datos se deben hacer las migraciones de Django ejecutando el siguiente
-comandos:
+comando:
 
     $ python manage.py migrate
 
