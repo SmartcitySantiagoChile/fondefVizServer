@@ -38,9 +38,15 @@ Para la base de datos relacional se utilizará Postgresql, el cuál se puede des
 
 #####Elasticsearch 6.2.3
 
-Para realizar el servicio de búsquedas se utilizará el servicio Elasticsearch 6.2.3, el cuál se puede descargar en el siguiente enlace:
+Para realizar el servicio de búsquedas se utilizará el servicio Elasticsearch 6.2.3, el cual requiere para su funcionamiento JDK.
 
+Para la instalación de JDK se sugiere Open JDK 8, el cual se puede descargar en el siguiente enlace:
+
+>https://openjdk.java.net/install/
+
+Habiendo instalado JDK se procede instalar elasticsearch, el cuál se puede descargar en el siguiente enlace:
 >https://www.elastic.co/es/downloads/past-releases/elasticsearch-6-2-3
+
 
 
 #####Redis
