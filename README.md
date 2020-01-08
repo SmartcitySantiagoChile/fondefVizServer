@@ -84,7 +84,7 @@ Se requiere crear la base de datos relacional del proyecto, por lo que crearemos
     
 En postgres, creamos la base de datos:
 
-    CREATE DATABASE 'databasename'
+    CREATE DATABASE databasename;
 
 #### .env
     
@@ -124,7 +124,7 @@ El archivo .env contiene las siguientes definiciones:
     #Configuraciones de email
     
     EMAIL_HOST=
-    EMAIL_PORT=
+    EMAIL_PORT=0
     EMAIL_USE_TLS=
     EMAIL_HOST_USER=
     EMAIL_HOST_PASSWORD=
@@ -207,6 +207,11 @@ Estos datos se dividen en las siguientes secciones:
 * AWS_ACCESS_KEY_ID:
 * AWS_SECRET_ACCESS_KEY:
 
+#### Logs
+
+En el directorio `/fondefVizServer/logs` hay que crear un archivo `file.log` con fin de mantener registros de la 
+aplicación. 
+
 
 #### Modelos y Usuarios de Django
 
@@ -239,7 +244,9 @@ Se debe actualizar el submódulo de los rqworkers que ejecutarán los procesos s
 
     git submodule update
 
+Finalmente hay que instalar las dependencias js y css con bower.
 
+    bower install
 
     
 ### Ejecución de la aplicación 
