@@ -89,11 +89,25 @@ function loadRangeCalendar(data_url) {
 
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
+
             });
 
             $("#" + divId).height(top - 20);
             dateRangeChart.setOption(newOpts, {notMerge: true});
             dateRangeChart.resize();
         }
+
+    });
+    var dateSelected = [];
+    //filter selection
+    dateRangeChart.on('click', function (params) {
+        var value = params.data[0];
+        var index = dateSelected.indexOf(value);
+        if (index == -1){
+            dateSelected.push(value);
+        } else {
+            dateSelected.splice(index, 1);
+        }
+        console.log(dateSelected);
     });
 }
