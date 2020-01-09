@@ -103,10 +103,22 @@ function loadRangeCalendar(data_url) {
     dateRangeChart.on('click', function (params) {
         var value = params.data[0];
         var index = dateSelected.indexOf(value);
-        if (index == -1){
+        if (index === -1){
             dateSelected.push(value);
+            dateRangeChart.dispatchAction({
+                type: 'highlight',
+                seriesIndex: params.seriesIndex,
+                seriesName: params.seriesName,
+                dataIndex: params.dataIndex,
+            })
         } else {
             dateSelected.splice(index, 1);
+            dateRangeChart.dispatchAction({
+                type: 'downplay',
+                seriesIndex: params.seriesIndex,
+                seriesName: params.seriesName,
+                dataIndex: params.dataIndex,
+            })
         }
         console.log(dateSelected);
     });
