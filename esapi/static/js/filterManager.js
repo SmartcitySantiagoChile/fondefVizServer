@@ -38,6 +38,7 @@ function FilterManager(opts) {
     /* VARIABLE DEFINITIONS */
 
     var $DAY_FILTER = $("#dayFilter");
+    var $DATE_RANGE_MODAL = $("#dateRangeModal");
     var $STOP_FILTER = $("#stopFilter");
     var $DAY_TYPE_FILTER = $("#dayTypeFilter");
     var $PERIOD_FILTER = $("#periodFilter");
@@ -59,7 +60,7 @@ function FilterManager(opts) {
     var PLACEHOLDER_USER_ROUTE = "Servicio usuario";
     var PLACEHOLDER_AUTH_ROUTE = "Servicio transantiago";
 
-    /* RETRIEVE DEFAULT VALUES */
+    /* RETRIEVE DEFAULT VALUES
     optionDateRangePicker.singleDatePicker = singleDatePicker;
     var localStartDate = window.localStorage.getItem("startDate");
     var localEndDate = window.localStorage.getItem("endDate");
@@ -68,11 +69,11 @@ function FilterManager(opts) {
     }
     if (localEndDate !== null) {
         optionDateRangePicker.endDate = moment(localEndDate);
-    }
+    }*/
 
     /* ENABLE select2 library */
 
-    $DAY_FILTER.daterangepicker(optionDateRangePicker);
+    // $DAY_FILTER.daterangepicker(optionDateRangePicker);
     $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MINUTE_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
@@ -114,9 +115,16 @@ function FilterManager(opts) {
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
-        window.localStorage.setItem("startDate", $DAY_FILTER.data("daterangepicker").startDate.format());
-        window.localStorage.setItem("endDate", $DAY_FILTER.data("daterangepicker").endDate.format());
+       // window.localStorage.setItem("startDate", $DAY_FILTER.data("daterangepicker").startDate.format());
+        //window.localStorage.setItem("endDate", $DAY_FILTER.data("daterangepicker").endDate.format());
     });
+
+    $DAY_FILTER.click(function(e){
+        loadRangeCalendar(Urls["esapi:availableProfileDays"]());
+        $DATE_RANGE_MODAL.modal('show');
+
+    });
+
     $DAY_TYPE_FILTER.change(function () {
         window.localStorage.setItem("dayTypeFilter", JSON.stringify($DAY_TYPE_FILTER.val()));
     });

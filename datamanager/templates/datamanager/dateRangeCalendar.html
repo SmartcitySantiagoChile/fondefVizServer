@@ -1,0 +1,8 @@
+{% load columns panel %}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        {% columns 12 12 12 "<div id='dateRangeCalendar'></div>" as col %}
+        {% panel "fa-calendar" "Días disponibles" col show_collapse=True info_target_id=info_target_id %}
+    </div>
+</div>

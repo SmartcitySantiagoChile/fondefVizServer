@@ -1,0 +1,7 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Filtrar por día{% endblock title %}
+
+{% block body %}
+    {% include "datamanager/dateRangeCalendar.html" with info_target_id="dayHelp" %}
+{% endblock body %}
