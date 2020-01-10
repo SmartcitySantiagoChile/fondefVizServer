@@ -120,8 +120,9 @@ function FilterManager(opts) {
     });
 
     $DAY_FILTER.click(function(e){
-        loadRangeCalendar(Urls["esapi:availableProfileDays"]());
         $DATE_RANGE_MODAL.modal('show');
+        loadRangeCalendar(Urls["esapi:availableStatisticDays"]()); // todo: hacerlo variable segun vista
+
 
     });
 

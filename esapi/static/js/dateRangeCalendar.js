@@ -44,7 +44,7 @@ function loadRangeCalendar(data_url) {
             orient: "vertical",
             left: "0",
             top: "center",
-            show: false
+            show: false,
         },
         calendar: [],
         series: []
@@ -86,6 +86,11 @@ function loadRangeCalendar(data_url) {
                 top += 100;
                 serie.calendarIndex = index;
                 serie.data = data;
+                serie.emphasis = {
+                    itemStyle: {
+                        color: 'green'
+                    }
+                };
 
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
@@ -98,13 +103,20 @@ function loadRangeCalendar(data_url) {
         }
 
     });
-    var dateSelected = [];
-    //filter selection
-    dateRangeChart.on('click', function (params) {
+
+
+    // return selected day
+    function singleSelectionDate(selected_date, params){
         var value = params.data[0];
-        var index = dateSelected.indexOf(value);
-        if (index === -1){
-            dateSelected.push(value);
+        var indexf = [];
+        for (var i = 0; i < selected_date.length; i++){
+            var index = selected_date[i].indexOf(value);
+            if (index != -1){
+                indexf = [i, index];
+            }
+        }
+        if (indexf.length == 0) {
+            selected_date.push([value]);
             dateRangeChart.dispatchAction({
                 type: 'highlight',
                 seriesIndex: params.seriesIndex,
@@ -112,7 +124,11 @@ function loadRangeCalendar(data_url) {
                 dataIndex: params.dataIndex,
             })
         } else {
-            dateSelected.splice(index, 1);
+            if (selected_date[indexf[0]].length == 1){
+                selected_date.splice(indexf[0], 1);
+            } else {
+                selected_date[indexf[0]].splice(indexf[1], 1);
+            }
             dateRangeChart.dispatchAction({
                 type: 'downplay',
                 seriesIndex: params.seriesIndex,
@@ -120,6 +136,67 @@ function loadRangeCalendar(data_url) {
                 dataIndex: params.dataIndex,
             })
         }
-        console.log(dateSelected);
+        return selected_date
+    }
+
+    // return selected days in a range todo: iluminar/cambiar color
+    function rangeSelectionDate(range_selection){
+        var selected_date = [];
+        range_selection.forEach(element => selected_date.push(element));
+        var allData = dateRangeChart.getOption().series[0].data;
+        var selected_days = [];
+        allData.forEach(function(e){
+            if (e > range_selection[0] && e < range_selection[1]){
+                selected_days.push(e[0]);
+            }
+        });
+        selected_days.push(range_selection[1]);
+        return selected_days;
+    }
+
+    // Decide to add or delete selected days
+    function manageRangeDate(range_selection, selected_days){
+        if (range_selection.length == 1){
+            var index = selected_days.indexOf(range_selection[0]);
+            console.log(index)
+        }
+
+
+    }
+
+    //filter selection
+    // check selection type
+    var selectedDate = [];
+    var rangeSelectionCheck = false;
+    var rangeSelection = [];
+    $("#dateRangeOn").click(function() {
+        rangeSelectionCheck = this.checked;
+    });
+
+    //click event
+    dateRangeChart.on('click', function (params) {
+        if (!rangeSelectionCheck){
+            selectedDate = singleSelectionDate(selectedDate, params);
+
+        } else {
+            if (rangeSelection.length < 2) {
+                rangeSelection.push(params.data[0]);
+            } else {
+                rangeSelection = [];
+                rangeSelection.push(params.data[0]);
+            }
+            if (rangeSelection.length == 2) {
+                selectedDate.push(rangeSelectionDate(rangeSelection.sort()));
+                rangeSelection = []
+            }
+        }
+
+        //update the selection date list
+        var $ul = $('<ul>', {class: "mylist"}).append(
+            selectedDate.map(fecha =>
+                $("<li>").append($("<a>").text(fecha))
+            )
+        );
+        $('#daysSelectedList').empty().append($ul);
     });
 }

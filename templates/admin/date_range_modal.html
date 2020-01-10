@@ -4,4 +4,22 @@
 
 {% block body %}
     {% include "datamanager/dateRangeCalendar.html" with info_target_id="dayHelp" %}
+
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-primary active">
+            <input type="radio" name="options" id="option1" autocomplete="off" checked> Seleccionar por dia
+        </label>
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="option2" autocomplete="off"> Eliminar por dia
+        </label>
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="option3" autocomplete="off"> Seleccionar por rango
+        </label>
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="option3" autocomplete="off"> Eliminar por rango
+        </label>
+    </div>
+    <dt>Días seleccionados: </dt>
+    <dl id="daysSelectedList" class="dl-horizontal">
+    </dl>
 {% endblock body %}
