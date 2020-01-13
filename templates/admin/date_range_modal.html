@@ -1,4 +1,4 @@
-{% extends 'help/modal/modal_base.html' %}
+{% extends 'help/modal/modal_base_xl.html' %}
 
 {% block title %}Filtrar por día{% endblock title %}
 
@@ -6,20 +6,20 @@
     {% include "datamanager/dateRangeCalendar.html" with info_target_id="dayHelp" %}
     <div class="container col-md-12">
         <div class="row">
-            <div class="col-md-1 col-sm-1 col-xs-1"></div>
-            <div class="col-md-10 col-sm-10 col-xs-10">
+            <div class="col-md-3 col-sm-3 col-xs-3"></div>
+            <div class="col-md-9 col-sm-9 col-xs-9">
                 <div class="btn-group btn-group-toggle" role="group" data-toggle="buttons">
-                    <label class="btn btn-primary active">
-                        <input type="radio" name="options" id="option1" autocomplete="off" checked> Añadir Día
-                    </label>
-                    <label class="btn btn-primary">
-                        <input type="radio" name="options" id="option2" autocomplete="off"> Eliminar día
-                    </label>
-                    <label class="btn btn-primary">
-                        <input type="radio" name="options" id="option3" autocomplete="off"> Añadir rango
+                     <label class="btn btn-primary active">
+                        <input type="radio" name="options" id="option3" autocomplete="off" checked> Añadir rango
                     </label>
                     <label class="btn btn-primary">
                         <input type="radio" name="options" id="option4" autocomplete="off"> Eliminar rango
+                    </label>
+                    <label class="btn btn-primary ">
+                        <input type="radio" name="options" id="option1" autocomplete="off" > Añadir Día
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="option2" autocomplete="off"> Eliminar día
                     </label>
                 </div>
             </div>
@@ -34,5 +34,7 @@
                 </dl>
             </div>
         </div>
+    </div>
+    <div id="popover-content" style="display: none">
     </div>
 {% endblock body %}
