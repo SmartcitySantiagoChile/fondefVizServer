@@ -10,7 +10,7 @@ $('#dayFilter').attr("data-trigger", "hover");
 $('#dayFilter').attr("data-toggle", "popover");
 $('#dayFilter').attr("data-content", "");
 $('#dayFilter').attr("data-placement", "top");
-$('#dayFilter').attr("data-original-title", "Dias seleccionados");
+$('#dayFilter').attr("data-original-title", "Días seleccionados");
 $('#dayFilter').popover({
     html: true,
     content: function() {
@@ -238,6 +238,7 @@ function loadRangeCalendar(data_url) {
 
     //filter selection
     var selectedRangeDate = [];
+    var deletedRangeDate = [];
 
     //over event
     dateRangeChart.on("mouseover", function(params){
@@ -277,21 +278,25 @@ function loadRangeCalendar(data_url) {
     dateRangeChart.on('click', function (params) {
         if ($("#option1").is(":checked")){
             selectedRangeDate = [];
+            deletedRangeDate = [];
             singleSelectionDate(selectedDate, params.data[0], params.dataIndex);
         } else if ($("#option2").is(":checked")){
             selectedRangeDate = [];
+            deletedRangeDate = [];
             singleDeleteDate(selectedDate, params.data[0], params.dataIndex);
         } else if ($("#option3").is(":checked")){
+            deletedRangeDate = [];
             selectedRangeDate.push(params);
             if (selectedRangeDate.length  === 2) {
                 rangeSelectionDate(selectedDate, selectedRangeDate);
                 selectedRangeDate = [];
             }
         } else if ($("#option4").is(":checked")){
-            selectedRangeDate.push(params);
-            if (selectedRangeDate.length  === 2) {
-                rangeDeleteDate(selectedDate, selectedRangeDate);
-                selectedRangeDate = [];
+            selectedRangeDate = [];
+            deletedRangeDate.push(params);
+            if (deletedRangeDate.length  === 2) {
+                rangeDeleteDate(selectedDate, deletedRangeDate);
+                deletedRangeDate = [];
             }
         }
         //update the selection date list

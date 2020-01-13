@@ -40,7 +40,7 @@ def data_filter(data_filter,
 
     filters = [
         {'show': show_day_filter, 'data_key': '', 'input_type': 'text',
-         'label': 'Día:', 'js_id': 'dayFilter',
+         'label': 'Días:', 'js_id': 'dayFilter',
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_exlude_date_filter, 'data_key': '', 'input_type': 'text',
          'label': 'Días a excluir:', 'js_id': 'removeDayFilter',

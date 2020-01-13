@@ -223,6 +223,7 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableStatisticDays"]());
+        loadRangeCalendar(Urls["esapi:availableStatisticDays"]());
 
         var app = new ResumeApp();
         var afterCall = function (answer) {
@@ -236,6 +237,7 @@ $(document).ready(function () {
             afterCallData: afterCall,
             minimumDateLimit: 2
         };
+
 
         new FilterManager(opts);
 

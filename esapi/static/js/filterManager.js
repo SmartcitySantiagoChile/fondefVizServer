@@ -121,9 +121,6 @@ function FilterManager(opts) {
 
     $DAY_FILTER.click(function(e){
         $DATE_RANGE_MODAL.modal('show');
-        loadRangeCalendar(Urls["esapi:availableStatisticDays"]()); // todo: hacerlo variable segun vista
-
-
     });
 
     $DAY_TYPE_FILTER.change(function () {
