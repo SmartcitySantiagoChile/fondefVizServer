@@ -106,97 +106,131 @@ function loadRangeCalendar(data_url) {
 
 
     // return selected day
-    function singleSelectionDate(selected_date, params){
-        var value = params.data[0];
-        var indexf = [];
-        for (var i = 0; i < selected_date.length; i++){
-            var index = selected_date[i].indexOf(value);
-            if (index != -1){
-                indexf = [i, index];
-            }
+    function singleSelectionDate(selected_date, value, series_index, series_name, data_index){
+        dateRangeChart.dispatchAction({
+            type: 'highlight',
+            seriesIndex: series_index,
+            seriesName: series_name,
+            dataIndex: data_index,
+        });
+        var exist = false;
+        selected_date.forEach(function(e){
+          if (e[0] === value) {
+            exist = true;
+          }
+        });
+
+        if (!exist){
+            selected_date.add([value, data_index]);
         }
-        if (indexf.length == 0) {
-            selected_date.push([value]);
-            dateRangeChart.dispatchAction({
-                type: 'highlight',
-                seriesIndex: params.seriesIndex,
-                seriesName: params.seriesName,
-                dataIndex: params.dataIndex,
-            })
-        } else {
-            if (selected_date[indexf[0]].length == 1){
-                selected_date.splice(indexf[0], 1);
-            } else {
-                selected_date[indexf[0]].splice(indexf[1], 1);
-            }
-            dateRangeChart.dispatchAction({
-                type: 'downplay',
-                seriesIndex: params.seriesIndex,
-                seriesName: params.seriesName,
-                dataIndex: params.dataIndex,
-            })
-        }
-        return selected_date
     }
 
-    // return selected days in a range todo: iluminar/cambiar color
-    function rangeSelectionDate(range_selection){
-        var selected_date = [];
-        range_selection.forEach(element => selected_date.push(element));
+    function singleDeleteDate(selected_date, value, series_index, series_name, data_index){
+        dateRangeChart.dispatchAction({
+            type: 'downplay',
+            seriesIndex: series_index,
+            seriesName: series_name,
+            dataIndex: data_index,
+        });
+
+        selected_date.forEach(function(e){
+          if (e[0] === value) {
+            selected_date.delete(e);
+          }
+        });
+    }
+
+    //
+    function rangeSelectionDate(selected_date, range_selection){
+        range_selection.forEach(e => singleSelectionDate(selected_date, e.data[0], e.seriesIndex,
+            e.seriesName, e.dataIndex ));
+        var rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
+        rs_sort.sort();
         var allData = dateRangeChart.getOption().series[0].data;
-        var selected_days = [];
-        allData.forEach(function(e){
-            if (e > range_selection[0] && e < range_selection[1]){
-                selected_days.push(e[0]);
+        for (var i = 0; i < allData.length; i++){
+            if (allData[i][0] > rs_sort[0] && allData[i][0] < rs_sort[1]){
+                singleSelectionDate(selected_date, allData[i][0], range_selection[0].seriesIndex,
+                    range_selection[0].seriesName, i);
+            }
+        }
+    }
+
+    function rangeDeleteDate(selected_date, range_selection){
+        range_selection.forEach(e => singleDeleteDate(selected_date, e.data[0], e.seriesIndex,
+            e.seriesName, e.dataIndex ));
+        var rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
+        rs_sort.sort();
+        var allData = dateRangeChart.getOption().series[0].data;
+        for (var i = 0; i < allData.length; i++){
+            if (allData[i][0] > rs_sort[0] && allData[i][0] < rs_sort[1]){
+                singleDeleteDate(selected_date, allData[i][0], range_selection[0].seriesIndex,
+                    range_selection[0].seriesName, i);
+            }
+        }
+    }
+
+    function createSelectionUl(selection_date){
+        const selectedDateArray = selection_date;
+        let sortedArray = Array.from(selectedDateArray).sort();
+        let dateArray = [];
+        sortedArray.map(e => dateArray.push(new Date(e[0])));
+        let selection_by_range = [];
+        let aux_selector = [];
+        for (let i = 0; i < dateArray.length; i++){
+            aux_selector.push(sortedArray[i]);
+            let next_day =  new Date (dateArray[i]);
+            next_day.setDate(dateArray[i].getDate() + 1);
+            var index = dateArray.findIndex(function(x) {
+                return x.valueOf() === next_day.valueOf();
+            });
+            if (index === -1){
+               selection_by_range.push(aux_selector);
+               aux_selector = [];
+            }
+        }
+        console.log(selection_by_range);
+
+        var ul = $('<ul>', {class: "mylist"});
+
+        selection_by_range.forEach(function (e) {
+            if (e.length === 1){
+                ul.append($("<li>").append($("<a>").text(e[0][0])));
+            } else {
+                ul.append($("<li>").append($("<a>").text("Desde " + e[0][0] + " hasta " + e[e.length - 1][0])));
             }
         });
-        selected_days.push(range_selection[1]);
-        return selected_days;
+        return ul;
     }
 
-    // Decide to add or delete selected days
-    function manageRangeDate(range_selection, selected_days){
-        if (range_selection.length == 1){
-            var index = selected_days.indexOf(range_selection[0]);
-            console.log(index)
-        }
 
 
-    }
 
     //filter selection
-    // check selection type
-    var selectedDate = [];
-    var rangeSelectionCheck = false;
-    var rangeSelection = [];
-    $("#dateRangeOn").click(function() {
-        rangeSelectionCheck = this.checked;
-    });
-
+    var selectedDate = new Set([]);
+    var selectedRangeDate = [];
     //click event
     dateRangeChart.on('click', function (params) {
-        if (!rangeSelectionCheck){
-            selectedDate = singleSelectionDate(selectedDate, params);
-
-        } else {
-            if (rangeSelection.length < 2) {
-                rangeSelection.push(params.data[0]);
-            } else {
-                rangeSelection = [];
-                rangeSelection.push(params.data[0]);
+        if ($("#option1").is(":checked")){
+            singleSelectionDate(selectedDate, params.data[0], params.seriesIndex, params.seriesName, params.dataIndex);
+        } else if ($("#option2").is(":checked")){
+            singleDeleteDate(selectedDate, params.data[0], params.seriesIndex, params.seriesName, params.dataIndex);
+        } else if ($("#option3").is(":checked")){
+            selectedRangeDate.push(params);
+            if (selectedRangeDate.length  === 2) {
+                rangeSelectionDate(selectedDate, selectedRangeDate);
+                selectedRangeDate = [];
             }
-            if (rangeSelection.length == 2) {
-                selectedDate.push(rangeSelectionDate(rangeSelection.sort()));
-                rangeSelection = []
+
+        } else if ($("#option4").is(":checked")){
+            selectedRangeDate.push(params);
+            if (selectedRangeDate.length  === 2) {
+                rangeDeleteDate(selectedDate, selectedRangeDate);
+                selectedRangeDate = [];
             }
         }
-
+        console.log(selectedDate);
         //update the selection date list
-        var $ul = $('<ul>', {class: "mylist"}).append(
-            selectedDate.map(fecha =>
-                $("<li>").append($("<a>").text(fecha))
-            )
-        );
+        var $ul = createSelectionUl(selectedDate);
         $('#daysSelectedList').empty().append($ul);
     });
 }
