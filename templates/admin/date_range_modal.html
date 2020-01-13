@@ -4,22 +4,35 @@
 
 {% block body %}
     {% include "datamanager/dateRangeCalendar.html" with info_target_id="dayHelp" %}
-
-    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-primary active">
-            <input type="radio" name="options" id="option1" autocomplete="off" checked> Seleccionar por dia
-        </label>
-        <label class="btn btn-primary">
-            <input type="radio" name="options" id="option2" autocomplete="off"> Eliminar por dia
-        </label>
-        <label class="btn btn-primary">
-            <input type="radio" name="options" id="option3" autocomplete="off"> Seleccionar por rango
-        </label>
-        <label class="btn btn-primary">
-            <input type="radio" name="options" id="option4" autocomplete="off"> Eliminar por rango
-        </label>
+    <div class="container col-md-12">
+        <div class="row">
+            <div class="col-md-1 col-sm-1 col-xs-1"></div>
+            <div class="col-md-10 col-sm-10 col-xs-10">
+                <div class="btn-group btn-group-toggle" role="group" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="options" id="option1" autocomplete="off" checked> Añadir Día
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="option2" autocomplete="off"> Eliminar día
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="option3" autocomplete="off"> Añadir rango
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="option4" autocomplete="off"> Eliminar rango
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <br>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <dt>Días seleccionados: </dt>
+                <dl id="daysSelectedList" class="dl-horizontal">
+                </dl>
+            </div>
+        </div>
     </div>
-    <dt>Días seleccionados: </dt>
-    <dl id="daysSelectedList" class="dl-horizontal">
-    </dl>
 {% endblock body %}

@@ -3,6 +3,8 @@
 /**
  * Calendar to show available days (dates with data)
  * */
+var selectedDate = new Set();
+
 function loadRangeCalendar(data_url) {
     var divId = "dateRangeCalendar";
     var dateRangeChart = echarts.init(document.getElementById(divId), theme);
@@ -52,12 +54,19 @@ function loadRangeCalendar(data_url) {
 
     $(window).resize(function () {
         dateRangeChart.resize();
+        mark_date_selected();
     });
     $("#menu_toggle").click(function () {
         dateRangeChart.resize();
+        mark_date_selected();
     });
     $("#dateRangeModal").on('shown.bs.modal', function () {
         dateRangeChart.resize();
+        console.log(selectedDate);
+        mark_date_selected();
+        var $ul = createSelectionUl(selectedDate);
+        $('#daysSelectedList').empty().append($ul);
+
     });
 
     // show loading
@@ -104,8 +113,15 @@ function loadRangeCalendar(data_url) {
 
     });
 
+    function mark_date_selected(){
+        selectedDate.forEach(function (e) {
+            dateRangeChart.dispatchAction({
+                type: 'highlight',
+                dataIndex: e[1],
+            });
+        })
+    }
 
-    // return selected day
     function singleSelectionDate(selected_date, value, series_index, series_name, data_index){
         dateRangeChart.dispatchAction({
             type: 'highlight',
@@ -140,7 +156,6 @@ function loadRangeCalendar(data_url) {
         });
     }
 
-    //
     function rangeSelectionDate(selected_date, range_selection){
         range_selection.forEach(e => singleSelectionDate(selected_date, e.data[0], e.seriesIndex,
             e.seriesName, e.dataIndex ));
@@ -170,49 +185,83 @@ function loadRangeCalendar(data_url) {
     }
 
     function createSelectionUl(selection_date){
-        const selectedDateArray = selection_date;
-        let sortedArray = Array.from(selectedDateArray).sort();
+        let sortedArray = Array.from(selection_date).sort();
         let dateArray = [];
         sortedArray.map(e => dateArray.push(new Date(e[0])));
         let selection_by_range = [];
         let aux_selector = [];
-        for (let i = 0; i < dateArray.length; i++){
+        for (let i = 0; i < dateArray.length; i++) {
             aux_selector.push(sortedArray[i]);
-            let next_day =  new Date (dateArray[i]);
+            let next_day = new Date(dateArray[i]);
             next_day.setDate(dateArray[i].getDate() + 1);
-            var index = dateArray.findIndex(function(x) {
+            var index = dateArray.findIndex(function (x) {
                 return x.valueOf() === next_day.valueOf();
             });
-            if (index === -1){
-               selection_by_range.push(aux_selector);
-               aux_selector = [];
+            if (index === -1) {
+                selection_by_range.push(aux_selector);
+                aux_selector = [];
             }
         }
-        console.log(selection_by_range);
-
         var ul = $('<ul>', {class: "mylist"});
-
         selection_by_range.forEach(function (e) {
             if (e.length === 1){
-                ul.append($("<li>").append($("<a>").text(e[0][0])));
+                ul.append($("<li>").append($("<a>").text(reverse_date(e[0][0]))));
             } else {
-                ul.append($("<li>").append($("<a>").text("Desde " + e[0][0] + " hasta " + e[e.length - 1][0])));
+                ul.append($("<li>").append($("<a>").text("Desde " + reverse_date(e[0][0]) + " hasta "
+                    + reverse_date(e[e.length - 1][0]))));
             }
         });
         return ul;
     }
 
-
-
+    function reverse_date(date){
+        return date.toString().split("-").reverse().join("-")
+    }
 
     //filter selection
-    var selectedDate = new Set([]);
     var selectedRangeDate = [];
+
+    //over event
+    dateRangeChart.on("mouseover", function(params){
+        dateRangeChart.dispatchAction({
+            type: 'highlight',
+            seriesIndex: params.seriesIndex,
+            seriesName: params.seriesName,
+            dataIndex: params.dataIndex,
+        });
+    });
+
+    //out event
+    dateRangeChart.on("mouseout", function(params){
+        var is_date = false;
+        selectedDate.forEach(function(e){
+          if (e[0] === params.data[0]) {
+            is_date = true;
+          }
+        });
+        selectedRangeDate.forEach(function(e){
+          if (e.data[0] === params.data[0]) {
+            is_date = true;
+          }
+        });
+        if (!is_date) {
+            dateRangeChart.dispatchAction({
+                type: 'downplay',
+                seriesIndex: params.seriesIndex,
+                seriesName: params.seriesName,
+                dataIndex: params.dataIndex,
+            });
+        }
+    });
+
+
     //click event
     dateRangeChart.on('click', function (params) {
         if ($("#option1").is(":checked")){
+            selectedRangeDate = [];
             singleSelectionDate(selectedDate, params.data[0], params.seriesIndex, params.seriesName, params.dataIndex);
         } else if ($("#option2").is(":checked")){
+            selectedRangeDate = [];
             singleDeleteDate(selectedDate, params.data[0], params.seriesIndex, params.seriesName, params.dataIndex);
         } else if ($("#option3").is(":checked")){
             selectedRangeDate.push(params);
@@ -220,7 +269,6 @@ function loadRangeCalendar(data_url) {
                 rangeSelectionDate(selectedDate, selectedRangeDate);
                 selectedRangeDate = [];
             }
-
         } else if ($("#option4").is(":checked")){
             selectedRangeDate.push(params);
             if (selectedRangeDate.length  === 2) {
@@ -228,9 +276,16 @@ function loadRangeCalendar(data_url) {
                 selectedRangeDate = [];
             }
         }
-        console.log(selectedDate);
         //update the selection date list
         var $ul = createSelectionUl(selectedDate);
         $('#daysSelectedList').empty().append($ul);
+
+
     });
+
+    //update storage
+    /*$('#saveButton').click(function () {
+        console.log(selectedDate);
+        window.localStorage.setItem("selected_date", JSON.stringify(Array.from(selectedDate)));
+    }) */
 }
