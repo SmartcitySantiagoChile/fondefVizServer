@@ -202,7 +202,6 @@ function FilterManager(opts) {
         var excludeDates = $EXCLUDE_DATE_FILTER.val()===""||$EXCLUDE_DATE_FILTER.val()===undefined?[]:$EXCLUDE_DATE_FILTER.val().split(",").map(function (el) {
             return moment(el, "DD-MM-YYYY").format();
         });
-
         var params = dataUrlParams();
         if(dates){
             params.dates = JSON.stringify(dates);
@@ -233,13 +232,23 @@ function FilterManager(opts) {
             };
 
             if (datesSize()< minimumDateLimit) {
-                var status = {
+                let status = {
                     message: "La período consultado debe ser mayor a 2 días",
                     title: "Advertencia",
                     type: "warning"
                 };
                 showMessage(status);
-                return;
+                return null;
+            }
+
+            if (!metrics){
+                let status = {
+                    message: "Debe seleccionar alguna métrica",
+                    title: "Advertencia",
+                    type: "warning"
+                };
+                showMessage(status);
+                return null;
             }
         }
 
