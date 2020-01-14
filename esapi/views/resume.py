@@ -153,7 +153,6 @@ class GlobalData(PermissionRequiredMixin, View):
                 answer.append(row)
             # sort
             answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
-            print answer
         if len(answer) == 0:
             raise ESQueryResultEmpty()
         return {

@@ -124,6 +124,10 @@ function FilterManager(opts) {
         localDayFilter = Array.from(dates_array);
     });
 
+    if(singleDatePicker){
+        $DAY_FILTER.parent().text("Día:").append($DAY_FILTER);
+    }
+
     $DAY_FILTER.click(function(e){
         $DATE_RANGE_MODAL.modal('show');
     });

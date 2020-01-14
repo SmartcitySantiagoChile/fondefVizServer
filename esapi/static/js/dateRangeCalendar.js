@@ -6,8 +6,6 @@
  * */
 
 
-var auxSelectedDates = new Set();
-var selectedDates = new Set(JSON.parse(window.localStorage.getItem('dayFilter')));
 
 function groupByDates(dates){
         let sortedArray = Array.from(dates).sort();
@@ -31,26 +29,15 @@ function groupByDates(dates){
     }
 
 // todo: pasar a filterManager.js
-$('#dayFilter').attr("data-trigger", "hover");
-$('#dayFilter').attr("data-toggle", "popover");
-$('#dayFilter').attr("data-content", "");
-$('#dayFilter').attr("data-placement", "top");
-$('#dayFilter').attr("data-original-title", "Días seleccionados:");
-if (selectedDates.size !== 0) {
-    $('#dayFilter').popover({
-        html: true,
-        content: function () {
-            return $('#popover-content').html();
-        }
-    });
-}
 
 
-function loadRangeCalendar(data_url) {
-    $('#dayFilter').val(selectedDates.size + " dias seleccionados");
-    $('#dayFilter').attr("data-content", "");
-    $('#popover-content').empty().append(createSelectionUl(selectedDates));
 
+function loadRangeCalendar(data_url, calendar_opts) {
+
+
+    var auxSelectedDates = new Set();
+    var selectedDates = new Set(JSON.parse(window.localStorage.getItem('dayFilter')));
+    let $dayFilter = $('#dayFilter');
     var divId = "dateRangeCalendar";
     var dateRangeChart = echarts.init(document.getElementById(divId), theme);
 
@@ -105,6 +92,31 @@ function loadRangeCalendar(data_url) {
         dateRangeChart.resize();
         reprintSelection();
     });
+
+    // optional configuration
+    var singleDatePicker = calendar_opts.singleDatePicker || false;
+    if (singleDatePicker){
+        let arrayToSave = Array.from(selectedDates);
+        selectedDates = new Set([arrayToSave[0]]);
+        if (arrayToSave.length > 0){
+            $dayFilter.val(reverse_date(arrayToSave[0][0]));
+        } else {
+            selectedDates = new Set([]);
+            $dayFilter.val("Seleccione un día");
+        }
+        window.localStorage.setItem("dayFilter", JSON.stringify(Array.from(selectedDates)));
+        $('#group-button').hide();
+        $('#option3').attr("checked", false);
+        $('#option1').attr("checked", true);
+        $('#selectedDaysTitle').text("Día seleccionado:");
+        $('#deleteSelection').hide();
+    } else {
+        $dayFilter.val(selectedDates.size + " dias seleccionados");
+
+    }
+
+
+    // modal activation
     $("#dateRangeModal").on('shown.bs.modal', function () {
         dateRangeChart.resize();
         reprintSelection();
@@ -116,6 +128,26 @@ function loadRangeCalendar(data_url) {
             auxSelectedDates = new Set(selectedDates);
         }
     });
+
+    // popup activatipon
+    $dayFilter.attr("data-trigger", "hover");
+    $dayFilter.attr("data-toggle", "popover");
+    $dayFilter.attr("data-content", "");
+    $dayFilter.attr("data-placement", "top");
+    $dayFilter.attr("data-original-title", "Días seleccionados:");
+    if (selectedDates.size !== 0 && !singleDatePicker) {
+        $dayFilter.popover({
+            html: true,
+            content: function () {
+                return $('#popover-content').html();
+            }
+        });
+    }
+
+
+
+    $dayFilter.attr("data-content", "");
+    $('#popover-content').empty().append(createSelectionUl(selectedDates));
 
     // show loading
     var loadingText = "Cargando ...";
@@ -184,8 +216,11 @@ function loadRangeCalendar(data_url) {
                 type: 'downplay',
                 dataIndex: e[1]
             });
-
        });
+       auxSelectedDates = new Set([]);
+       //update the selection date list
+       var $ul = createSelectionUl(auxSelectedDates);
+       $("#daysSelectedList").empty().append($ul);
     }
 
     function singleSelectionDate(selected_date, value, data_index){
@@ -301,6 +336,9 @@ function loadRangeCalendar(data_url) {
 
     //click event
     dateRangeChart.on('click', function (params) {
+        if (singleDatePicker){
+            deleteSelection();
+        }
         if ($("#option1").is(":checked")){
             selectedRangeDate = [];
             deletedRangeDate = [];
@@ -333,7 +371,7 @@ function loadRangeCalendar(data_url) {
     $('#saveButton').click(function () {
         selectedDates = auxSelectedDates;
         var datesSize = selectedDates.size;
-        if (datesSize !== 0) {
+        if (datesSize !== 0 && !singleDatePicker) {
             $('#dayFilter').popover({
                 html: true,
                 content: function () {
@@ -344,18 +382,20 @@ function loadRangeCalendar(data_url) {
         } else {
             $('#dayFilter').popover('disable');
         }
-        $('#dayFilter').val(datesSize + " dias seleccionados");
-        $('#dayFilter').attr("data-content", "");
-        $('#popover-content').empty().append(createSelectionUl(auxSelectedDates));
+
+        if(!singleDatePicker){
+            $dayFilter.val(datesSize + " dias seleccionados");
+            $dayFilter.attr("data-content", "");
+            $('#popover-content').empty().append(createSelectionUl(auxSelectedDates));
+        } else {
+            $dayFilter.val(reverse_date(Array.from(auxSelectedDates)[0][0]));
+        }
         window.localStorage.setItem("dayFilter", JSON.stringify(Array.from(auxSelectedDates)));
     });
 
     //delete all selection
     $('#deleteSelection').click(function () {
         deleteSelection();
-        auxSelectedDates = new Set([]);
-        //update the selection date list
-        var $ul = createSelectionUl(auxSelectedDates);
-        $("#daysSelectedList").empty().append($ul);
+
     })
 }
