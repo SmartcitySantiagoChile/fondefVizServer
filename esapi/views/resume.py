@@ -130,7 +130,7 @@ DICTIONARY = {
 class GlobalData(PermissionRequiredMixin, View):
     permission_required = 'localinfo.globalstat'
 
-    def transform_data(self, es_query):
+    def transform_data(self, es_query_list):
         """ transform ES answer to something util to web client """
         keys = {
             'date': 0
@@ -139,24 +139,23 @@ class GlobalData(PermissionRequiredMixin, View):
         identifiers = ['date']
         chart_names = ['Día']
         answer = []
-
-        for hit in es_query.scan():
-            hit_row = hit.to_dict()
-            row = list(range(len(hit_row.keys())))
-            for key, value in hit_row.iteritems():
-                if key not in keys.keys():
-                    keys[key] = len(header)
-                    header.append(DICTIONARY[key]['name'])
-                    chart_names.append(DICTIONARY[key]['chartName'])
-                    identifiers.append(key)
-                row[keys[key]] = value
-            answer.append(row)
-        # sort
-        answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
-
+        for es_query in es_query_list:
+            for hit in es_query.scan():
+                hit_row = hit.to_dict()
+                row = list(range(len(hit_row.keys())))
+                for key, value in hit_row.iteritems():
+                    if key not in keys.keys():
+                        keys[key] = len(header)
+                        header.append(DICTIONARY[key]['name'])
+                        chart_names.append(DICTIONARY[key]['chartName'])
+                        identifiers.append(key)
+                    row[keys[key]] = value
+                answer.append(row)
+            # sort
+            answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
+            print answer
         if len(answer) == 0:
             raise ESQueryResultEmpty()
-
         return {
             'chartNames': chart_names,
             'header': header,
@@ -178,8 +177,6 @@ class GlobalData(PermissionRequiredMixin, View):
                 dates_aux.append(str(j[0]))
             dates.append(dates_aux)
             dates_aux = []
-        print dates
-
 
         # start_date = request.GET.get('startDate')[:10]
         # end_date = request.GET.get('endDate', '')[:10]
@@ -188,14 +185,13 @@ class GlobalData(PermissionRequiredMixin, View):
         #     end_date = start_date
         #
         response = {}
-        # try:
-        #     es_helper = ESResumeStatisticHelper()
-        #     es_query = es_helper.get_data(start_date, end_date, metrics)
-        #
-        #     response['data'] = self.transform_data(es_query)
-        # except ESQueryResultEmpty as e:
-        #     response['status'] = e.get_status_response()
-        response['status'] = 'error'
+        try:
+            es_helper = ESResumeStatisticHelper()
+            es_query = es_helper.get_data(dates, metrics)
+            response['data'] = self.transform_data(es_query)
+        except ESQueryResultEmpty as e:
+            response['status'] = e.get_status_response()
+
         return JsonResponse(response, safe=False)
 
 

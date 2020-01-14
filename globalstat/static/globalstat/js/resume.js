@@ -198,7 +198,12 @@ $(document).ready(function () {
                         restore: {show: false, title: "restaurar"},
                         saveAsImage: {show: true, title: "Guardar imagen", name: "estadísticas globales"},
                         magicType: {
-                            type: ["line", "bar"]
+                            show: true,
+                            type: ["line", "bar"],
+                            title: {
+                            line: 'Lineas',
+                            bar: 'Barras'
+                            }
                         },
                         dataView: {
                             show: true,

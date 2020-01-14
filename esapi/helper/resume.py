@@ -11,7 +11,7 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
     def get_available_days(self):
         return self._get_available_days('date')
 
-    def get_data(self, start_date, end_date, metrics):
+    def get_data(self, dates, metrics):
         if len(metrics) == 0:
             metrics = ['transactionWithoutRoute', 'transactionWithRoute', 'transactionNumber',
                        'transactionOnTrainNumber', 'transactionOnMetroNumber', 'transactionOnBusNumber',
@@ -62,14 +62,18 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
                        'transactionNumberInNinethBusStopWithMoreValidations',
                        'transactionNumberInTenthBusStopWithMoreValidations',
                        ]
-
-        es_query = self.get_base_query()
-        es_query = es_query.source(['date'] + metrics)
-        es_query = es_query.filter('range', date={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
-
-        return es_query
+        es_query_list = []
+        # todo: hacerlo individual
+        for date_range in dates:
+            es_query = self.get_base_query()
+            es_query = es_query.source(['date'] + metrics)
+            start_date = date_range[0]
+            end_date = date_range[len(date_range) - 1]
+            es_query = es_query.filter('range', date={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            es_query_list.append(es_query)
+        return es_query_list
