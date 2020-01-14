@@ -2,25 +2,55 @@
 
 /**
  * Calendar to show available days (dates with data)
+ * Filter to select multiple range of dates.
  * */
-var selectedDate = new Set();
-var selectedDateAux = new Set();
 
+
+var auxSelectedDates = new Set();
+var selectedDates = new Set(JSON.parse(window.localStorage.getItem('dayFilter')));
+
+function groupByDates(dates){
+        let sortedArray = Array.from(dates).sort();
+        let dateArray = [];
+        sortedArray.map(e => dateArray.push(new Date(e[0])));
+        let selection_by_range = [];
+        let aux_selector = [];
+        for (let i = 0; i < dateArray.length; i++) {
+            aux_selector.push(sortedArray[i]);
+            let next_day = new Date(dateArray[i]);
+            next_day.setDate(dateArray[i].getDate() + 1);
+            const index = dateArray.findIndex(function (x) {
+                return x.valueOf() === next_day.valueOf();
+            });
+            if (index === -1) {
+                selection_by_range.push(aux_selector);
+                aux_selector = [];
+            }
+        }
+        return selection_by_range
+    }
+
+// todo: pasar a filterManager.js
 $('#dayFilter').attr("data-trigger", "hover");
 $('#dayFilter').attr("data-toggle", "popover");
 $('#dayFilter').attr("data-content", "");
 $('#dayFilter').attr("data-placement", "top");
-$('#dayFilter').attr("data-original-title", "Días seleccionados");
-$('#dayFilter').popover({
-    html: true,
-    content: function() {
-        return $('#popover-content').html();
-    }
-});
-
+$('#dayFilter').attr("data-original-title", "Días seleccionados:");
+if (selectedDates.size !== 0) {
+    $('#dayFilter').popover({
+        html: true,
+        content: function () {
+            return $('#popover-content').html();
+        }
+    });
+}
 
 
 function loadRangeCalendar(data_url) {
+    $('#dayFilter').val(selectedDates.size + " dias seleccionados");
+    $('#dayFilter').attr("data-content", "");
+    $('#popover-content').empty().append(createSelectionUl(selectedDates));
+
     var divId = "dateRangeCalendar";
     var dateRangeChart = echarts.init(document.getElementById(divId), theme);
 
@@ -69,21 +99,21 @@ function loadRangeCalendar(data_url) {
 
     $(window).resize(function () {
         dateRangeChart.resize();
-        mark_date_selected();
+        show_selected_days();
     });
     $("#menu_toggle").click(function () {
         dateRangeChart.resize();
-        mark_date_selected();
+        show_selected_days();
     });
     $("#dateRangeModal").on('shown.bs.modal', function () {
         dateRangeChart.resize();
-        mark_date_selected();
-        var $ul = createSelectionUl(selectedDateAux);
+        show_selected_days();
+        var $ul = createSelectionUl(selectedDates);
         $('#daysSelectedList').empty().append($ul);
-        if (selectedDateAux.size === 0){
-            selectedDate = new Set([]);
+        if (selectedDates.size === 0){
+            auxSelectedDates = new Set([]);
         } else {
-            selectedDate = new Set(selectedDateAux);
+            auxSelectedDates = new Set(selectedDates);
         }
     });
 
@@ -131,16 +161,16 @@ function loadRangeCalendar(data_url) {
 
     });
 
-    function mark_date_selected(){
-        var allData = dateRangeChart.getOption().series[0].data;
-        for (var i = 0; i < allData.length; i++){
+    function show_selected_days(){
+        var allDates = dateRangeChart.getOption().series[0].data;
+        for (var i = 0; i < allDates.length; i++){
             dateRangeChart.dispatchAction({
                 type: 'downplay',
-                dataIndex: allData[i][1],
+                dataIndex: allDates[i][1],
             });
         }
 
-        selectedDateAux.forEach(function (e) {
+        selectedDates.forEach(function (e) {
             dateRangeChart.dispatchAction({
                 type: 'highlight',
                 dataIndex: e[1],
@@ -153,14 +183,14 @@ function loadRangeCalendar(data_url) {
             type: 'highlight',
             dataIndex: data_index,
         });
-        var exist = false;
+        let this_day_exist = false;
         selected_date.forEach(function(e){
           if (e[0] === value) {
-            exist = true;
+            this_day_exist = true;
           }
         });
 
-        if (!exist){
+        if (!this_day_exist){
             selected_date.add([value, data_index]);
         }
     }
@@ -202,25 +232,10 @@ function loadRangeCalendar(data_url) {
         }
     }
 
+
     function createSelectionUl(selection_date){
-        let sortedArray = Array.from(selection_date).sort();
-        let dateArray = [];
-        sortedArray.map(e => dateArray.push(new Date(e[0])));
-        let selection_by_range = [];
-        let aux_selector = [];
-        for (let i = 0; i < dateArray.length; i++) {
-            aux_selector.push(sortedArray[i]);
-            let next_day = new Date(dateArray[i]);
-            next_day.setDate(dateArray[i].getDate() + 1);
-            var index = dateArray.findIndex(function (x) {
-                return x.valueOf() === next_day.valueOf();
-            });
-            if (index === -1) {
-                selection_by_range.push(aux_selector);
-                aux_selector = [];
-            }
-        }
-        var ul = $('<ul>', {class: "mylist"});
+        let selection_by_range = groupByDates(selection_date);
+        const ul = $('<ul>', {class: "mylist"});
         selection_by_range.forEach(function (e) {
             if (e.length === 1){
                 ul.append($("<li>").append($("<a>").text(reverse_date(e[0][0]))));
@@ -253,7 +268,7 @@ function loadRangeCalendar(data_url) {
     //out event
     dateRangeChart.on("mouseout", function(params){
         var is_date = false;
-        selectedDate.forEach(function(e){
+        auxSelectedDates.forEach(function(e){
           if (e[0] === params.data[0]) {
             is_date = true;
           }
@@ -279,40 +294,50 @@ function loadRangeCalendar(data_url) {
         if ($("#option1").is(":checked")){
             selectedRangeDate = [];
             deletedRangeDate = [];
-            singleSelectionDate(selectedDate, params.data[0], params.dataIndex);
+            singleSelectionDate(auxSelectedDates, params.data[0], params.dataIndex);
         } else if ($("#option2").is(":checked")){
             selectedRangeDate = [];
             deletedRangeDate = [];
-            singleDeleteDate(selectedDate, params.data[0], params.dataIndex);
+            singleDeleteDate(auxSelectedDates, params.data[0], params.dataIndex);
         } else if ($("#option3").is(":checked")){
             deletedRangeDate = [];
             selectedRangeDate.push(params);
             if (selectedRangeDate.length  === 2) {
-                rangeSelectionDate(selectedDate, selectedRangeDate);
+                rangeSelectionDate(auxSelectedDates, selectedRangeDate);
                 selectedRangeDate = [];
             }
         } else if ($("#option4").is(":checked")){
             selectedRangeDate = [];
             deletedRangeDate.push(params);
             if (deletedRangeDate.length  === 2) {
-                rangeDeleteDate(selectedDate, deletedRangeDate);
+                rangeDeleteDate(auxSelectedDates, deletedRangeDate);
                 deletedRangeDate = [];
             }
         }
         //update the selection date list
-        var $ul = createSelectionUl(selectedDate);
-        $('#daysSelectedList').empty().append($ul);
+        var $ul = createSelectionUl(auxSelectedDates);
+        $("#daysSelectedList").empty().append($ul);
     });
 
-    //update storage
+    //update storage and popover
     $('#saveButton').click(function () {
-        selectedDateAux = selectedDate;
-        $('#dayFilter').val(selectedDateAux.size + " dias seleccionados");
+        selectedDates = auxSelectedDates;
+        var datesSize = selectedDates.size;
+        if (datesSize !== 0) {
+            $('#dayFilter').popover({
+                html: true,
+                content: function () {
+                    return $('#popover-content').html();
+                }
+            });
+            $('#dayFilter').popover('enable');
+        } else {
+            $('#dayFilter').popover('disable');
+        }
+        $('#dayFilter').val(datesSize + " dias seleccionados");
         $('#dayFilter').attr("data-content", "");
-        $('#popover-content').empty().append(createSelectionUl(selectedDate));
+        $('#popover-content').empty().append(createSelectionUl(auxSelectedDates));
+        window.localStorage.setItem("dayFilter", JSON.stringify(Array.from(auxSelectedDates)));
 
     })
-
-
-
 }

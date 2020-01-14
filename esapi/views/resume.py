@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.views.generic import View
-from django.http import JsonResponse
-from django.contrib.auth.mixins import PermissionRequiredMixin
-
-from esapi.helper.resume import ESResumeStatisticHelper
-from esapi.errors import ESQueryResultEmpty
-
+import json
 from datetime import datetime
+
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import JsonResponse
+from django.views.generic import View
+
+from esapi.errors import ESQueryResultEmpty
+from esapi.helper.resume import ESResumeStatisticHelper
 
 # to translate variable to user name
 DICTIONARY = {
@@ -166,21 +167,35 @@ class GlobalData(PermissionRequiredMixin, View):
     def get(self, request):
 
         metrics = request.GET.getlist('metrics[]', [])
-        start_date = request.GET.get('startDate')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
+        dates_raw = list(request.GET.items())
+        dates_raw = dates_raw[0]  # dates de la request
+        dates_raw = dates_raw[1]  # se quita el valor dates
+        dates_raw = json.loads(dates_raw)  # transformacion a array
+        dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
+        print dates
 
-        if start_date and not end_date:
-            end_date = start_date
 
+        # start_date = request.GET.get('startDate')[:10]
+        # end_date = request.GET.get('endDate', '')[:10]
+        #
+        # if start_date and not end_date:
+        #     end_date = start_date
+        #
         response = {}
-        try:
-            es_helper = ESResumeStatisticHelper()
-            es_query = es_helper.get_data(start_date, end_date, metrics)
-
-            response['data'] = self.transform_data(es_query)
-        except ESQueryResultEmpty as e:
-            response['status'] = e.get_status_response()
-
+        # try:
+        #     es_helper = ESResumeStatisticHelper()
+        #     es_query = es_helper.get_data(start_date, end_date, metrics)
+        #
+        #     response['data'] = self.transform_data(es_query)
+        # except ESQueryResultEmpty as e:
+        #     response['status'] = e.get_status_response()
+        response['status'] = 'error'
         return JsonResponse(response, safe=False)
 
 

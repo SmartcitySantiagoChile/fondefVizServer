@@ -84,6 +84,10 @@ function FilterManager(opts) {
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
 
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
+    var localDayFilter = window.localStorage.getItem("dayFilter");
+    if (localDayFilter !== null){
+        localDayFilter = JSON.parse(localDayFilter);
+    }
     var localDayTypeFilter = window.localStorage.getItem("dayTypeFilter");
     if (localDayTypeFilter !== null) {
         localDayTypeFilter = JSON.parse(localDayTypeFilter);
@@ -115,8 +119,9 @@ function FilterManager(opts) {
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
-       // window.localStorage.setItem("startDate", $DAY_FILTER.data("daterangepicker").startDate.format());
-        //window.localStorage.setItem("endDate", $DAY_FILTER.data("daterangepicker").endDate.format());
+        var dates_array = Array.from(auxSelectedDates);
+        window.localStorage.setItem("dayFilter", JSON.stringify(dates_array));
+        localDayFilter = Array.from(dates_array);
     });
 
     $DAY_FILTER.click(function(e){
@@ -181,6 +186,8 @@ function FilterManager(opts) {
 
     /* BUTTON ACTION */
     var getParameters = function () {
+        var dates = JSON.parse(window.localStorage.getItem("dayFilter")).sort();
+        dates = groupByDates(dates);
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
         var minutes = $MINUTE_PERIOD_FILTER.val();
@@ -197,20 +204,35 @@ function FilterManager(opts) {
         });
 
         var params = dataUrlParams();
+        if(dates){
+            params.dates = JSON.stringify(dates);
+        }
+
+        /*
         params.startDate = $DAY_FILTER.data("daterangepicker").startDate.format();
         params.endDate = $DAY_FILTER.data("daterangepicker").endDate.format();
-
+        */
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
-            var diffDays = function (startDate, endDate) {
+            /*var diffDays = function (startDate, endDate) {
                 startDate = new Date(startDate);
                 endDate = new Date(endDate);
                 var diff = new Date(endDate - startDate);
                 var daysWindow = diff / 1000 / 60 / 60 / 24;
                 return parseInt(daysWindow);
+            };*/
+
+            let datesSize = function(){
+                let count = 0;
+                for (let i in dates){
+                    for (let j in dates[i]){
+                        count ++;
+                    }
+                }
+                return count;
             };
 
-            if (diffDays(params.startDate, params.endDate) < minimumDateLimit) {
+            if (datesSize()< minimumDateLimit) {
                 var status = {
                     message: "La período consultado debe ser mayor a 2 días",
                     title: "Advertencia",
