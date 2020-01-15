@@ -14,6 +14,8 @@
     {% header "Perfil de carga" "por servicio"|add:label %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+    {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
 
 
     {% data_filter data_filter True False True False False True False True True True True info_target_id="filterHelp" %}
@@ -33,7 +35,6 @@
     {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
     {% include "help/modal/explanation/profile/by_route/chart.html" with modal_id="chartHelp" %}
     {% include "help/modal/explanation/profile/by_route/table.html" with modal_id="tableHelp" %}
-    {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" %}
 
     {{ block.super }}
 {% endblock %}
@@ -48,6 +49,5 @@
     <script src="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.js" %}"></script>
     <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "profile/js/byExpedition.js" %}"></script>
-    <script src="{% static "js/dateRangeCalendar.js" %}"></script>
 
 {% endblock %}

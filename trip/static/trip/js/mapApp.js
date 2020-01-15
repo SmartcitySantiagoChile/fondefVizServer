@@ -195,6 +195,8 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableTripDays"]());
+        loadRangeCalendar(Urls["esapi:availableTripDays"](),{});
+
 
         var app = new MapManagerApp();
 

@@ -8,6 +8,8 @@
     {% header "Matriz de etapas" "por servicio"|add:label %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+    {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
 
     {% data_filter data_filter True False True True False False False False True True True info_target_id="filterHelp" %}
 

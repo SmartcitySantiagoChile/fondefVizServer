@@ -4,9 +4,6 @@
  * Calendar to show available days (dates with data)
  * Filter to select multiple range of dates.
  * */
-
-
-
 function groupByDates(dates){
         let sortedArray = Array.from(dates).sort();
         let dateArray = [];
@@ -28,13 +25,9 @@ function groupByDates(dates){
         return selection_by_range
     }
 
-// todo: pasar a filterManager.js
-
-
-
 function loadRangeCalendar(data_url, calendar_opts) {
 
-
+    // set variables
     var auxSelectedDates = new Set();
     var selectedDates = new Set(JSON.parse(window.localStorage.getItem('dayFilter')));
     let $dayFilter = $('#dayFilter');
@@ -111,10 +104,19 @@ function loadRangeCalendar(data_url, calendar_opts) {
         $('#selectedDaysTitle').text("Día seleccionado:");
         $('#deleteSelection').hide();
     } else {
-        $dayFilter.val(selectedDates.size + " dias seleccionados");
+        $dayFilter.val(dayMessageHandler(selectedDates.size));
 
     }
 
+    function dayMessageHandler(days){
+        if (days === 0){
+            return "Ningún día seleccionado";
+        } else if (days === 1){
+            return "1 día seleccionado";
+        } else {
+            return  days +" dias seleccionados";
+        }
+    }
 
     // modal activation
     $("#dateRangeModal").on('shown.bs.modal', function () {
@@ -193,6 +195,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     });
 
+    //reprint only dates selected
     function reprintSelection(){
         var allDates = dateRangeChart.getOption().series[0].data;
         for (var i = 0; i < allDates.length; i++){
@@ -210,6 +213,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         })
     }
 
+    //downplay all dates selected
     function deleteSelection() {
        auxSelectedDates.forEach(function (e) {
             dateRangeChart.dispatchAction({
@@ -223,6 +227,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
        $("#daysSelectedList").empty().append($ul);
     }
 
+    //add single date
     function singleSelectionDate(selected_date, value, data_index){
         dateRangeChart.dispatchAction({
             type: 'highlight',
@@ -240,6 +245,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         }
     }
 
+    //delete single date
     function singleDeleteDate(selected_date, value, data_index){
         dateRangeChart.dispatchAction({
             type: 'downplay',
@@ -253,6 +259,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         });
     }
 
+    //add dates range
     function rangeSelectionDate(selected_date, range_selection){
         range_selection.forEach(e => singleSelectionDate(selected_date, e.data[0], e.dataIndex ));
         var rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
@@ -265,6 +272,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         }
     }
 
+    //delete dates range
     function rangeDeleteDate(selected_date, range_selection){
         range_selection.forEach(e => singleDeleteDate(selected_date, e.data[0], e.dataIndex ));
         var rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
@@ -277,7 +285,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         }
     }
 
-
+    //create dates list
     function createSelectionUl(selection_date){
         let selection_by_range = groupByDates(selection_date);
         const ul = $('<ul>', {class: "mylist"});
@@ -367,6 +375,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         $("#daysSelectedList").empty().append($ul);
     });
 
+
     //update storage and popover
     $('#saveButton').click(function () {
         selectedDates = auxSelectedDates;
@@ -384,7 +393,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         }
 
         if(!singleDatePicker){
-            $dayFilter.val(datesSize + " dias seleccionados");
+            $dayFilter.val(dayMessageHandler(datesSize));
             $dayFilter.attr("data-content", "");
             $('#popover-content').empty().append(createSelectionUl(auxSelectedDates));
         } else {

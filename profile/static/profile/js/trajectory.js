@@ -640,6 +640,8 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadRangeCalendar(Urls["esapi:availableProfileDays"](), {singleDatePicker: true});
+
 
         var app = new ExpeditionApp();
         var previousCall = function () {
