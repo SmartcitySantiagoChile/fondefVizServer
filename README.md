@@ -1,98 +1,111 @@
 ### ADATRAP
 
-Plataforma de visualización para grandes volúmenes de datos sobre el Transantiago.
+Plataforma de visualización para grandes volúmenes de datos de Transantiago.
 
+ADATRAP nació el año 2007 a través de un trabajo colaborativo entre la Universidad de Chile (departamento de transporte de la facultad de ingeniería) y el Directorio de Transporte Público Metropolitano (DTPM) con el objetivo de generar métricas que permitan entender y mejorar el sistema de transporte público a través del uso de los pulsos GPS de buses y transacciones Bip!
 
+ADATRAP está compuesto de dos proyectos: procesamiento de datos y visualización de datos. Este repositorio está dedicado al segundo.
+
+Hoy en día ADATRAP genera varios tipos de datos y los usados en esta plataforma de visualización corresponden a:
+
+1. Perfiles de carga por servicio
+2. Velocidades por servicio
+3. Viajes
+4. Factores de pago para zonas pagas
+5. Matrices origen-destino por servicio
+6. Estadísticas globales relacionados al cálculo de los datos
+
+A continuación se describe el proceso de instalación para un entorno de desarrollo. Es importan indicar que los pasos pueden cambiar dependiendo del sistema operativo e [IDE](https://es.wikipedia.org/wiki/Entorno_de_desarrollo_integrado) que se use.
 
 ### Instalación del proyecto
 
-Este proyecto se encuentra desarrollado en Python 2.7, utilizando el framework Django, base de datos Postgresql y  las tecnologías Elasticsearch y Redis.
- 
-En primer lugar se debe descargar el proyecto:
+Este proyecto se encuentra desarrollado en Python 2.7, utilizando el framework web Django, base de datos relacional Postgresql, el motor de análisis de datos Elasticsearch y Redis como base de datos en memoria.
+
+En primer lugar se debe descargar el proyecto desde Github: 
 
 `git clone https://github.com/SmartcitySantiagoChile/fondefVizServer `
 
 #### Requerimientos
 
+##### Creación de entorno virtual
 
-#####Dependencias Python
-Se deben instalar las dependencias de python especificadas en el archivo `requirements.txt` 
-ubicado en la raíz del proyecto. 
+Para no tener conflictos de dependencias se recomienda hacer uso de un [entorno virtual](https://docs.python.org/3/tutorial/venv.html), este puede ser creado usando la librería [virtualenv](https://virtualenv.pypa.io/en/latest/).
+```
+    # instalar librería virtualenv
+    pip install virtualenv
 
-Se recomienda la utilización de un entorno virtual, se puede crear utilizando el comando:
-
+    # crear entorno virtual
     virtualenv venv
 
-Luego se debe activar el entorno virtual e instalar las dependencias.
-
-    # activar
+    # activar entorno virtual
     source venv/bin/activate
- 
-    # instalar dependencias
-    pip install -r requirements.txt
+```
 
-#####Postgresql
-Para la base de datos relacional se utilizará Postgresql, el cuál se puede descargar en el siguiente enlace:
+##### Instalación de dependencias Python
+
+Las librerías necesarias para ejecutar el proyecto están definidas en el archivo `requirements.txt` 
+ubicado en la raíz del proyecto y se pueden instalar rápidamente con el comando `pip install -r requirements.txt`.
+
+##### Postgresql
+
+La base de datos relacional es utilizada para el almacenamiento de datos asociados a la plataforma web, como lo son los usuarios que pueden acceder, estadísticas de uso del sitio web, parámetros de configuración, entre otros.
+
+La descarga e instalación se puede realizar siguiendo los pasos del siguiente enlace:
 
 >https://www.postgresql.org/download/
 
-#####Elasticsearch 6.2.3
+#####Elasticsearch (versión: 6.2.3)
 
-Para realizar el servicio de búsquedas se utilizará el servicio Elasticsearch 6.2.3, el cual requiere para su funcionamiento JDK.
+Los datos generados por ADATRAP son almacenados en una (o más) instancia(s) de elasticsearch. Es importante tener en cuenta que es necesario contar con una versión de Java para su ejecución. Se recomienda instalar una versión de [openJDK 8](https://openjdk.java.net/install/) para su ejecución (solo disponible para ambientes Linux), para entornos con sistema operativo (S.O) Windows se recomienda descargar desde la [página oficial](https://www.oracle.com/technetwork/java/javase/downloads/index.html) de Oracle.
 
-Para la instalación de JDK se sugiere Open JDK 8, el cual se puede descargar en el siguiente enlace:
-
->https://openjdk.java.net/install/
-
-Habiendo instalado JDK se procede instalar elasticsearch, el cuál se puede descargar en el siguiente enlace:
+Habiendo instalado JDK se procede instalar Elasticsearch, se puede descargar desde el siguiente enlace:
 >https://www.elastic.co/es/downloads/past-releases/elasticsearch-6-2-3
 
+##### Redis
 
+La base de datos en memoria principal (RAM) es utilizada en algunos procesos que requieren la ejecución de tareas asíncronas, como lo puede ser el proceso para exportar datos, envío de correos eléctronicos o la carga de datos.
 
-#####Redis
-
-Como servicio de base de datos en memoria principal, para el uso de procesos en segundo plano
- y almacenamiento temporal de archivos se utilizará Redis, el cuál se puede descargar en el siguiente enlace:
+Redis puede ser descargado desde el siguiente enlace:
 >https://redis.io/download
 
-Opcionalmente conviene instalar redis-tools para tener un mayor control y monitoreo de los servicios de Redis. Esta
- herramienta se puede instalar ejecutando el siguiente comando: 
+Opcionalmente (pero muy recomendable) conviene instalar `redis-tools` para tener un mayor control y monitoreo de Redis ya que permite inspeccionar los datos almacenados o su [comportamiento en tiempo real](https://redis.io/commands/MONITOR). Esta herramienta se puede instalar en Ubuntu ejecutando el siguiente comando: 
 
     sudo apt install redis-tools
 
-#####Npm
+##### Npm y Bower
 
-Para poder utilizar bower se requiere tener instalado el gestor de paquetes npm:
+La administración de las librerías `Javascript` (usadas por la página web) son administradas por Bower, herramienta que requiere tener instalado el gestor de paquetes npm:
 
 >https://www.npmjs.com/get-npm
 
-#####Bower
+Luego de la instalación de npm se procede a instalar Bower.
 
-Como gestor de dependencias para el frontend del proyecto se utilizará Bower:
-
-    sudo snap install bower 
-
+```
+    npm install -g bower 
+```
 
 ### Configuración del Proyecto
 
 ####Postgres
 
 
-Se requiere crear la base de datos relacional del proyecto, por lo que crearemos una nueva en PostgresQL. Accedemos a postgres:
+Se requiere crear la base de datos relacional del proyecto, por lo que crearemos una nueva en PostgreSQL:
 
+```
+    # acceso a psql con usuario postgres (Ubuntu)
     sudo -u postgres psql
     
-En postgres, creamos la base de datos:
-
-    CREATE DATABASE databasename;
+    # una vez dentro, se crea la base de datos:
+    CREATE DATABASE aqui_el_nombre_de_tu_base_de_datos;
+```
 
 #### .env
     
-Se debe crear un archivo .env en la raíz del proyecto con fin de mantener encapsuladas las variables utilizadas por `settings.py` de Django.
+Se debe crear un archivo .env en la raíz del proyecto con fin de mantener encapsuladas las variables utilizadas por `settings.py` de Django, esto se realiza porque estos valores cambian dependiendo del entorno en que se esté ejecutando la plataforma (desarrollo o producción).
+
 El archivo .env contiene las siguientes definiciones:
 
-    #Configuraciones generales de Django
-    
+    # Configuraciones generales de Django
     SECRET_KEY=                   
     DEBUG=TRUE
     ALLOWED_HOSTS=localhost, 127.0.0.1                                   
@@ -100,29 +113,23 @@ El archivo .env contiene las siguientes definiciones:
     URL_PREFIX=''
     DOWNLOAD_PATH=
     
-    #Configuraciones de Postgres
-    
+    # Configuraciones de Postgres
     DB_NAME=
     DB_USER=
     DB_PASS=
     DB_HOST=localhost
     DB_PORT=5431
     
-    
-    #Configuraciones de Elasticsearch
-    
+    # Configuraciones de Elasticsearch
     ELASTICSEARCH_HOST=localhost
     ELASTICSEARCH_PORT=9200
-   
     
-    #Configuraciones de Redis
+    # Configuraciones de Redis
     REDIS_HOST=localhost
     REDIS_PORT=6379
     REDIS_DB=0
     
-    
-    #Configuraciones de email
-    
+    # Configuraciones de email
     EMAIL_HOST=
     EMAIL_PORT=0
     EMAIL_USE_TLS=
@@ -130,9 +137,7 @@ El archivo .env contiene las siguientes definiciones:
     EMAIL_HOST_PASSWORD=
     SERVER_EMAIL=
     
-    
-    #Configuraciones de buckets para almacenamiento de datos en S3
-    
+    # Configuraciones de buckets para almacenamiento de datos en S3
     GPS_BUCKET_NAME=
     OP_PROGRAM_BUCKET_NAME=
     FILE_196_BUCKET_NAME=
@@ -143,9 +148,7 @@ El archivo .env contiene las siguientes definiciones:
     TRIP_BUCKET_NAME=
     REPRESENTATIVE_WEEk_BUCKET_NAME=
     
-    
-    #Configuraciones de Amazon Web Service
-    
+    # Configuraciones de Amazon Web Service
     AWS_ACCESS_KEY_ID=
     AWS_SECRET_ACCESS_KEY=
    
@@ -215,20 +218,16 @@ aplicación.
 
 #### Modelos y Usuarios de Django
 
-Para propagar los modelos en la base de datos se deben hacer las migraciones de Django ejecutando el siguiente
+Para crear las tablas en la base de datos se deben ejecutar las migraciones de Django ejecutando el siguiente
 comando:
 
     $ python manage.py migrate
 
-
-Se deben cargar los datos base para formularios a utilizar en la aplicación, para esto ejecutaremos el siguiente comando:
+Luego se deben cargar los datos base requeridos por la aplicación web, para esto se debe ejecutar la siguiente instrucción:
 
     $ python manage.py loaddata datasource communes daytypes halfhours operators timeperiods transportmodes
 
-
-
-
-Se debe crear un super usuario para poder acceder a la aplicación desde la interfaz web, esto se hace por medio del siguiente comando:
+La interfaz web requiere de un usuario para acceder por loq que se debe crear un super usuario, esto se hace por medio del comando:
     
     $ python manage.py createsuperuser
 
@@ -238,7 +237,6 @@ Se debe ejecutar django_js_reverse para el manejo de las urls en los archivos js
     $ python manage.py collectstatic_js_reverse
 
 Se debe actualizar el submódulo de los rqworkers que ejecutarán los procesos segundo plano:
-
 
     git submodule init
 
