@@ -166,9 +166,11 @@ class GlobalData(PermissionRequiredMixin, View):
 
         metrics = request.GET.getlist('metrics[]', [])
         dates_raw = list(request.GET.items())
-        dates_raw = dates_raw[0]  # dates de la request
-        dates_raw = dates_raw[1]  # se quita el valor dates
-        dates_raw = json.loads(dates_raw)  # transformacion a array
+        index = 0
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
         dates_aux = []
         dates = []
         for i in dates_raw:

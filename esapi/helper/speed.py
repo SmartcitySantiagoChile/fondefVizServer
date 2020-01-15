@@ -210,6 +210,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         return es_query
 
     def get_base_variation_speed_query(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
+
         es_query = self.get_base_query()
         es_query = es_query.filter('range', date={
             "gte": start_date + "||/d",

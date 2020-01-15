@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.views import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -327,7 +329,21 @@ class SpeedVariation(View):
         return data, l_routes
 
     def process_request(self, request, params, export_data=False):
-        end_date = params.get('startDate', '')[:10]
+        dates_raw = list(request.GET.items())
+        index = 0
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
+        dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
+
+        end_date = dates[0][0]
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date
         operator = int(params.get('operator', 0))

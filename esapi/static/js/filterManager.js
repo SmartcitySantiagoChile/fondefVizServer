@@ -49,7 +49,6 @@ function FilterManager(opts) {
     var $HOUR_RANGE_FILTER = $("#hourRangeFilter");
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
     var $METRIC_FILTER = $("#metricFilter");
-    var $EXCLUDE_DATE_FILTER = $("#removeDayFilter");
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
@@ -83,8 +82,9 @@ function FilterManager(opts) {
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
 
+    let url_key = window.location.pathname;
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
-    var localDayFilter = window.localStorage.getItem("dayFilter");
+    var localDayFilter = window.localStorage.getItem(url_key + "dayFilter");
     if (localDayFilter !== null){
         localDayFilter = JSON.parse(localDayFilter);
     }
@@ -120,7 +120,7 @@ function FilterManager(opts) {
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
         var dates_array = Array.from(auxSelectedDates);
-        window.localStorage.setItem("dayFilter", JSON.stringify(dates_array));
+        window.localStorage.setItem(url_key + "dayFilter", JSON.stringify(dates_array));
         localDayFilter = Array.from(dates_array);
     });
 
@@ -184,13 +184,9 @@ function FilterManager(opts) {
         });
     }
 
-    if ($EXCLUDE_DATE_FILTER.length) {
-        $EXCLUDE_DATE_FILTER.datepicker({multidate: true, format: "dd-mm-yyyy", language: "es"});
-    }
-
     /* BUTTON ACTION */
     var getParameters = function () {
-        var dates = JSON.parse(window.localStorage.getItem("dayFilter")).sort();
+        var dates = JSON.parse(window.localStorage.getItem(url_key + "dayFilter")).sort();
         dates = groupByDates(dates);
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
@@ -203,9 +199,6 @@ function FilterManager(opts) {
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
-        var excludeDates = $EXCLUDE_DATE_FILTER.val()===""||$EXCLUDE_DATE_FILTER.val()===undefined?[]:$EXCLUDE_DATE_FILTER.val().split(",").map(function (el) {
-            return moment(el, "DD-MM-YYYY").format();
-        });
         var params = dataUrlParams();
         if(dates){
             params.dates = JSON.stringify(dates);
@@ -286,9 +279,6 @@ function FilterManager(opts) {
         }
         if (metrics) {
             params.metrics = metrics;
-        }
-        if (excludeDates.length) {
-            params.excludeDates = excludeDates
         }
 
         return params;

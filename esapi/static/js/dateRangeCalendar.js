@@ -26,10 +26,10 @@ function groupByDates(dates){
     }
 
 function loadRangeCalendar(data_url, calendar_opts) {
-
     // set variables
+    var urlKey = window.location.pathname;
     var auxSelectedDates = new Set();
-    var selectedDates = new Set(JSON.parse(window.localStorage.getItem('dayFilter')));
+    var selectedDates = new Set(JSON.parse(window.localStorage.getItem(urlKey + 'dayFilter')));
     let $dayFilter = $('#dayFilter');
     var divId = "dateRangeCalendar";
     var dateRangeChart = echarts.init(document.getElementById(divId), theme);
@@ -97,7 +97,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
             selectedDates = new Set([]);
             $dayFilter.val("Seleccione un día");
         }
-        window.localStorage.setItem("dayFilter", JSON.stringify(Array.from(selectedDates)));
+        window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(Array.from(selectedDates)));
         $('#group-button').hide();
         $('#option3').attr("checked", false);
         $('#option1').attr("checked", true);
@@ -121,6 +121,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
     // modal activation
     $("#dateRangeModal").on('shown.bs.modal', function () {
         dateRangeChart.resize();
+        deleteSelection();
         reprintSelection();
         var $ul = createSelectionUl(selectedDates);
         $('#daysSelectedList').empty().append($ul);
@@ -399,7 +400,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         } else {
             $dayFilter.val(reverse_date(Array.from(auxSelectedDates)[0][0]));
         }
-        window.localStorage.setItem("dayFilter", JSON.stringify(Array.from(auxSelectedDates)));
+        window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(Array.from(auxSelectedDates)));
     });
 
     //delete all selection

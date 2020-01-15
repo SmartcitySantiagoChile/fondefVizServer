@@ -21,7 +21,7 @@
     {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
 
 
-    {% data_filter data_filter True False True False False False False False False False False show_exlude_date_filter=True info_target_id="filterHelp" %}
+    {% data_filter data_filter True False True False False False False False False False False info_target_id="filterHelp" %}
 
     <div class="row">
         {% table "validationDetail" 12 with_checker=False as validationTable %}
