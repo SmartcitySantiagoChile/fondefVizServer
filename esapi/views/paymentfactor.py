@@ -31,14 +31,12 @@ class PaymentFactorData(View):
         count = 0
         for es_query in es_query_list:
             rows = []
-            print dates[0]
-            print dates[len(dates) - 1]
             operator_dict = get_operator_list_for_select_input(to_dict=True)
             day_type_dict = get_day_type_list_for_select_input(to_dict=True)
 
             start_date = int((timezone.datetime.strptime(dates[count][0], '%Y-%m-%d') -
                               timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
-            end_date = int((timezone.datetime.strptime(dates[count][len(dates) - 1], '%Y-%m-%d') -
+            end_date = int((timezone.datetime.strptime(dates[count][len(dates[count]) - 1], '%Y-%m-%d') -
                             timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
 
             for a in es_query.execute().aggregations.by_bus_station_id.buckets:
@@ -111,12 +109,14 @@ class PaymentFactorData(View):
         try:
             es_helper = ESPaymentFactorHelper()
 
-            es_query = es_helper.get_data(dates, day_type)
+            es_query_list = es_helper.get_data(dates, day_type)
             if export_data:
-                ExporterManager(es_query[0]).export_data(csv_helper.PAYMENT_FACTOR_DATA, request.user)
+                print 'export'
+                ExporterManager(es_query_list[0]).export_data(csv_helper.PAYMENT_FACTOR_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                response = self.transform_es_answer(es_query, dates)
+                print'no export'
+                response = self.transform_es_answer(es_query_list, dates)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

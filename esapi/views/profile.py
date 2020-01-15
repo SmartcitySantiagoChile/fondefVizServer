@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.views.generic import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -154,7 +156,7 @@ class LoadProfileByExpeditionData(View):
         value = float(data)
         return 0 if (-1 < value < 0) else value
 
-    def transform_answer(self, es_query):
+    def transform_answer(self, es_query_list):
         """ transform ES answer to something util to web client """
         trips = defaultdict(lambda: {'info': [], 'stops': {}})
         bus_stations = []
@@ -163,42 +165,54 @@ class LoadProfileByExpeditionData(View):
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
 
-        for hit in es_query.scan():
-            expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
+        for es_query in es_query_list:
+            for hit in es_query.scan():
+                expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
 
-            if len(trips[expedition_id]['info']) == 0:
-                trips[expedition_id]['info'] = [
-                    hit.busCapacity,
-                    hit.licensePlate,
-                    hit.route,
-                    time_period_dict[hit.timePeriodInStartTime],
-                    hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
-                    hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
-                    day_type_dict[hit.dayType],
-                    not bool(hit.notValid)
+                if len(trips[expedition_id]['info']) == 0:
+                    trips[expedition_id]['info'] = [
+                        hit.busCapacity,
+                        hit.licensePlate,
+                        hit.route,
+                        time_period_dict[hit.timePeriodInStartTime],
+                        hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
+                        hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
+                        day_type_dict[hit.dayType],
+                        not bool(hit.notValid)
+                    ]
+                    if bool(hit.notValid):
+                        expedition_not_valid_number += 1
+
+                if hit.busStation == 1 and hit.authStopCode not in bus_stations:
+                    bus_stations.append(hit.authStopCode)
+
+                # loadProfile, expandedGetIn, expandedGetOut
+                stop = [
+                    self.clean_data(hit.loadProfile),
+                    self.clean_data(hit.expandedBoarding),
+                    self.clean_data(hit.expandedAlighting),
                 ]
-                if bool(hit.notValid):
-                    expedition_not_valid_number += 1
+                trips[expedition_id]['stops'][hit.authStopCode] = stop
 
-            if hit.busStation == 1 and hit.authStopCode not in bus_stations:
-                bus_stations.append(hit.authStopCode)
-
-            # loadProfile, expandedGetIn, expandedGetOut
-            stop = [
-                self.clean_data(hit.loadProfile),
-                self.clean_data(hit.expandedBoarding),
-                self.clean_data(hit.expandedAlighting),
-            ]
-            trips[expedition_id]['stops'][hit.authStopCode] = stop
-
-        if len(trips.keys()) == 0:
-            raise ESQueryResultEmpty()
+            if len(trips.keys()) == 0:
+                raise ESQueryResultEmpty()
 
         return trips, bus_stations, expedition_not_valid_number
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates_raw = list(request.GET.items())
+        index = 0
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
+        dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
         auth_route_code = params.get('authRoute')
         day_type = params.getlist('dayType[]')
         period = params.getlist('period[]')
@@ -209,24 +223,31 @@ class LoadProfileByExpeditionData(View):
         response = {}
 
         try:
-            check_operation_program(start_date, end_date)
+            for date_range in dates:
+                start_date = date_range[0]
+                end_date = date_range[len(date_range) - 1]
+                check_operation_program(start_date, end_date)
             es_stop_helper = ESStopByRouteHelper()
             es_shape_helper = ESShapeHelper()
             es_profile_helper = ESProfileHelper()
 
             if export_data:
-                es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date, day_type,
+                es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates, day_type,
                                                                                        auth_route_code, period,
                                                                                        half_hour, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                diff_days = es_profile_helper.get_available_days_between_dates(start_date, end_date,
+                diff_days_length = 0
+                for date_range in dates:
+                    diff_days = es_profile_helper.get_available_days_between_dates(date_range[0], date_range[len(date_range) - 1],
                                                                                valid_operator_list)
+                    if len(diff_days) > diff_days_length:
+                        diff_days_length = len(diff_days)
                 day_limit = 7
 
-                if len(diff_days) <= day_limit:
-                    es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date,
+                if diff_days_length <= day_limit:
+                    es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False)
@@ -236,13 +257,17 @@ class LoadProfileByExpeditionData(View):
                                                                                 len(response['trips'].keys())). \
                             get_status_response()
                 else:
-                    es_query = es_profile_helper.get_profile_by_expedition_data(start_date, end_date, day_type,
+                    es_query = es_profile_helper.get_profile_by_expedition_data(dates, day_type,
                                                                                 auth_route_code, period, half_hour,
                                                                                 valid_operator_list)
                     response['groupedTrips'] = es_query.execute().to_dict()
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
-                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)['stops']
-                response['shape'] = es_shape_helper.get_route_shape(auth_route_code, start_date, end_date)['points']
+                response['stops'] = []
+                response['shape'] = []
+                for date_range in dates:
+                    response['stops'].append(es_stop_helper.get_stop_list(auth_route_code, date_range[0], date_range[len(date_range) - 1])['stops'])
+                    response['shape'] = es_shape_helper.get_route_shape(auth_route_code, date_range[0], date_range[len(date_range) - 1])['points']
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -312,8 +337,21 @@ class LoadProfileByTrajectoryData(View):
         return trips, bus_stations, expedition_not_valid_number
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+
+        dates_raw = list(request.GET.items())
+        index = 0
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
+        dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
+
         auth_route_code = params.get('authRoute')
         day_type = params.getlist('dayType[]')
         period = params.getlist('period[]')
@@ -324,11 +362,14 @@ class LoadProfileByTrajectoryData(View):
         response = {}
 
         try:
-            check_operation_program(start_date, end_date)
+            for date_range in dates:
+                start_date = date_range[0]
+                end_date = date_range[len(date_range) - 1]
+                check_operation_program(start_date, end_date)
             es_stop_helper = ESStopByRouteHelper()
             es_profile_helper = ESProfileHelper()
 
-            es_query = es_profile_helper.get_base_profile_by_trajectory_data_query(start_date, end_date, day_type,
+            es_query = es_profile_helper.get_base_profile_by_trajectory_data_query(dates, day_type,
                                                                                    auth_route_code, period, half_hour,
                                                                                    valid_operator_list)
             if export_data:

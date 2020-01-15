@@ -140,40 +140,42 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type, valid_operator_list):
+    def get_ranking_data(self, dates, hour_period_from, hour_period_to, day_type, valid_operator_list):
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[len(date_range) - 1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
+            data = []
+            es_query = self.get_base_ranking_data_query(start_date, end_date, hour_period_from, hour_period_to,
+                                                        day_type, valid_operator_list)[:0]
+            aggs0 = A('terms', field='merged', size=5000, order={'avg_speed': 'asc'})
+            aggs0.metric('n_obs', 'sum', field='nObs')
+            aggs0.metric('avg_speed', 'avg', field='speed')
+            aggs0.metric('distance', 'sum', field='totalDistance')
+            aggs0.metric('time', 'sum', field='totalTime')
+            aggs0.metric('speed', 'bucket_script', script='params.d / params.t * 3.6',
+                         buckets_path={'d': 'distance', 't': 'time'})
+            es_query.aggs.bucket('tuples', aggs0)
 
-        data = []
-        es_query = self.get_base_ranking_data_query(start_date, end_date, hour_period_from, hour_period_to,
-                                                    day_type, valid_operator_list)[:0]
-        aggs0 = A('terms', field='merged', size=5000, order={'avg_speed': 'asc'})
-        aggs0.metric('n_obs', 'sum', field='nObs')
-        aggs0.metric('avg_speed', 'avg', field='speed')
-        aggs0.metric('distance', 'sum', field='totalDistance')
-        aggs0.metric('time', 'sum', field='totalTime')
-        aggs0.metric('speed', 'bucket_script', script='params.d / params.t * 3.6',
-                     buckets_path={'d': 'distance', 't': 'time'})
-        es_query.aggs.bucket('tuples', aggs0)
+            for tup in es_query.execute().aggregations.tuples.buckets:
+                if tup.n_obs.value < 5:
+                    continue
+                sep_key = tup.key.split('-')
+                data.append({
+                    'route': sep_key[0],
+                    'section': int(sep_key[1]),
+                    'period': int(sep_key[2]),
+                    'n_obs': tup.n_obs.value,
+                    'distance': tup.distance.value,
+                    'time': tup.time.value,
+                    'speed': tup.speed.value
+                })
+            data.sort(key=lambda x: float(x['speed']))
 
-        for tup in es_query.execute().aggregations.tuples.buckets:
-            if tup.n_obs.value < 5:
-                continue
-            sep_key = tup.key.split('-')
-            data.append({
-                'route': sep_key[0],
-                'section': int(sep_key[1]),
-                'period': int(sep_key[2]),
-                'n_obs': tup.n_obs.value,
-                'distance': tup.distance.value,
-                'time': tup.time.value,
-                'speed': tup.speed.value
-            })
-        data.sort(key=lambda x: float(x['speed']))
-
-        if len(data) == 0:
-            raise ESQueryResultEmpty()
+            if len(data) == 0:
+                raise ESQueryResultEmpty()
 
         return data
 

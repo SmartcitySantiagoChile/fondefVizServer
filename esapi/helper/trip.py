@@ -20,72 +20,77 @@ class ESTripHelper(ElasticSearchHelper):
         file_extensions = ['trip']
         super(ESTripHelper, self).__init__(index_name, file_extensions)
 
-    def _build_histogram_query(self, base_es_query):
+    def _build_histogram_query(self, base_es_query_list):
         """
         Builds a elastic search query for the travels histogram
         It is based on the requested filtering options
         """
 
-        def add_histogram(field, interval, b_min, b_max):
+        def add_histogram(field, interval, b_min, b_max, base_es_query):
             base_es_query.aggs.bucket(field, 'histogram', field=field, interval=interval,
                                       min_doc_count=0, extended_bounds={'min': b_min, 'max': b_max}) \
                 .metric('bin', 'sum', field='factor_expansion') \
                 .pipeline('total', 'cumulative_sum', buckets_path='bin')
+        for base_es_query in base_es_query_list:
 
-        # up to 120 min
-        add_histogram('tviaje', '15', 0, 120)
+            # up to 120 min
+            add_histogram('tviaje', '15', 0, 120, base_es_query)
 
-        # at least from 1 to 5 stages
-        add_histogram('n_etapas', '1', 1, 5)
+            # at least from 1 to 5 stages
+            add_histogram('n_etapas', '1', 1, 5, base_es_query)
 
-        # distances are this values right?
-        add_histogram('distancia_ruta', '5000', 0, 30000)
-        add_histogram('distancia_eucl', '5000', 0, 30000)
+            # distances are this values right?
+            add_histogram('distancia_ruta', '5000', 0, 30000, base_es_query)
+            add_histogram('distancia_eucl', '5000', 0, 30000, base_es_query)
 
-        return base_es_query
+        return base_es_query_list
 
-    def _build_indicators_query(self, base_es_query):
-        base_es_query.aggs.metric('documentos', 'value_count', field='n_etapas')
-        base_es_query.aggs.metric('viajes', 'sum', field='factor_expansion')
-        base_es_query.aggs.metric('tviaje', 'stats', field='tviaje')
-        base_es_query.aggs.metric('n_etapas', 'stats', field='n_etapas')
-        base_es_query.aggs.metric('distancia_ruta', 'stats', field='distancia_ruta')
-        base_es_query.aggs.metric('distancia_eucl', 'stats', field='distancia_eucl')
+    def _build_indicators_query(self, base_es_query_list):
+        for base_es_query in base_es_query_list:
+            base_es_query.aggs.metric('documentos', 'value_count', field='n_etapas')
+            base_es_query.aggs.metric('viajes', 'sum', field='factor_expansion')
+            base_es_query.aggs.metric('tviaje', 'stats', field='tviaje')
+            base_es_query.aggs.metric('n_etapas', 'stats', field='n_etapas')
+            base_es_query.aggs.metric('distancia_ruta', 'stats', field='distancia_ruta')
+            base_es_query.aggs.metric('distancia_eucl', 'stats', field='distancia_eucl')
 
-        return base_es_query
+        return base_es_query_list
 
-    def get_base_resume_data_query(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
-        es_query = self.get_base_query()
+    def get_base_resume_data_query(self, dates, day_types, periods, origin_zones, destination_zones):
+        es_query_list = []
+        for date_range in dates:
+            es_query = self.get_base_query()
+            start_date = date_range[0]
+            end_date = date_range[len(date_range) - 1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
+            es_query = es_query.filter('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
 
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
+            if day_types:
+                es_query = es_query.filter('terms', tipodia=day_types)
 
-        if day_types:
-            es_query = es_query.filter('terms', tipodia=day_types)
+            if periods:
+                es_query = es_query.filter('terms', periodo_subida=periods)
 
-        if periods:
-            es_query = es_query.filter('terms', periodo_subida=periods)
+            if origin_zones:
+                es_query = es_query.filter('terms', zona_subida=origin_zones)
 
-        if origin_zones:
-            es_query = es_query.filter('terms', zona_subida=origin_zones)
+            if destination_zones:
+                es_query = es_query.filter('terms', zona_bajada=destination_zones)
 
-        if destination_zones:
-            es_query = es_query.filter('terms', zona_bajada=destination_zones)
+        return es_query_list
 
-        return es_query
-
-    def get_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
-        es_query = self.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
+    def get_resume_data(self, dates, day_types, periods, origin_zones, destination_zones):
+        es_query_list = self.get_base_resume_data_query(dates, day_types, periods, origin_zones,
                                                    destination_zones)[:0]
-        histogram_es_query = copy.copy(es_query)
-        return self._build_histogram_query(histogram_es_query), self._build_indicators_query(es_query)
+        histogram_es_query = copy.copy(es_query_list)
+        return self._build_histogram_query(histogram_es_query), self._build_indicators_query(es_query_list)
 
     def get_available_days(self):
         return self._get_available_days('tiempo_subida')

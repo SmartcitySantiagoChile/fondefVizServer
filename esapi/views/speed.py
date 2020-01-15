@@ -135,8 +135,20 @@ class RankingData(View):
         return super(RankingData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates_raw = list(request.GET.items())
+        index = 0
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
+        dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
+
         hour_period_from = params.get('hourPeriodFrom', None)
         hour_period_to = params.get('hourPeriodTo', None)
         day_type = params.getlist('dayType[]', None)
@@ -149,16 +161,18 @@ class RankingData(View):
         }
 
         try:
-            check_operation_program(start_date, end_date)
+            for date_range in dates:
+                check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
+                print "export"
                 es_query = es_speed_helper.get_base_ranking_data_query(start_date, end_date, hour_period_from,
                                                                        hour_period_to, day_type, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                response['data'] = es_speed_helper.get_ranking_data(start_date, end_date, hour_period_from,
+                response['data'] = es_speed_helper.get_ranking_data(dates, hour_period_from,
                                                                     hour_period_to,
                                                                     day_type, valid_operator_list)
 

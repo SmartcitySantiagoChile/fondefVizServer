@@ -64,6 +64,7 @@ class ESStopByRouteHelper(ElasticSearchHelper):
     def get_stop_list(self, auth_route_code, start_date, end_date):
         """ ask to elasticsearch for a match values """
 
+
         if not auth_route_code:
             raise ESQueryRouteParameterDoesNotExist()
         if not start_date or not end_date:

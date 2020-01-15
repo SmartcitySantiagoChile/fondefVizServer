@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -27,8 +29,20 @@ class ResumeData(PermissionRequiredMixin, View):
         return super(ResumeData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates_raw = list(request.GET.items())
+        index = 0
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
+        dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
+
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         origin_zones = map(lambda x: int(x), params.getlist('origin[]', []))
@@ -40,18 +54,19 @@ class ResumeData(PermissionRequiredMixin, View):
 
         try:
             if export_data:
-                es_query = es_helper.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
+                es_query = es_helper.get_base_resume_data_query(dates, day_types, periods, origin_zones,
                                                                 destination_zones)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                histogram, indicators = es_helper.get_resume_data(start_date, end_date, day_types, periods,
+                histogram, indicators = es_helper.get_resume_data(dates, day_types, periods,
                                                                   origin_zones, destination_zones)
-                histogram, indicators = es_helper.make_multisearch_query_for_aggs(histogram, indicators)
+                # histogram, indicators = es_helper.make_multisearch_query_for_aggs(histogram, indicators)
 
                 if histogram.hits.total == 0:
                     raise ESQueryResultEmpty
-
+                for h in histogram:
+                    print h
                 response['histogram'] = histogram.to_dict()
                 response['indicators'] = indicators.to_dict()
         except FondefVizError as e:
