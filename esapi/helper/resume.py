@@ -62,8 +62,8 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
                        'transactionNumberInNinethBusStopWithMoreValidations',
                        'transactionNumberInTenthBusStopWithMoreValidations',
                        ]
-        es_query_list = []
         # todo: hacerlo individual
+        es_query_list = []
         for date_range in dates:
             es_query = self.get_base_query()
             es_query = es_query.source(['date'] + metrics)
