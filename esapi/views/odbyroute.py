@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.errors import FondefVizError
-from esapi.utils import check_operation_program
+from esapi.utils import check_operation_program, get_dates_from_request
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
 from localinfo.helper import PermissionBuilder
@@ -56,8 +56,8 @@ class ODMatrixData(View):
 
     def process_request(self, request, params, export_data=False):
 
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, 'GET')
+
         day_type = params.getlist('dayType[]')
         period = params.getlist('period[]')
         auth_route_code = params.get('authRoute')
@@ -69,19 +69,20 @@ class ODMatrixData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            check_operation_program(start_date, end_date)
+            for date_range in dates:
+                check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_od_helper = ESODByRouteHelper()
             es_stop_helper = ESStopByRouteHelper()
 
             if export_data:
-                es_query = es_od_helper.get_base_query_for_od(auth_route_code, period, day_type, start_date, end_date,
+                es_query = es_od_helper.get_base_query_for_od(auth_route_code, period, day_type, dates,
                                                               valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.OD_BY_ROUTE_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                matrix, max_value = es_od_helper.get_od_data(auth_route_code, period, day_type, start_date, end_date,
+                matrix, max_value = es_od_helper.get_od_data(auth_route_code, period, day_type, dates,
                                                              valid_operator_list)
-                stop_list = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)['stops']
+                stop_list = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
 
                 response["data"] = {
                     "matrix": matrix,
