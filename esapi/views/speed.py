@@ -130,24 +130,10 @@ class RankingData(View):
         return super(RankingData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        dates_raw = list(request.GET.items())
-        index = 0
-        for indexes in range(len(dates_raw)):
-            if dates_raw[indexes][0] == "dates":
-                index = indexes
-        dates_raw = json.loads(dates_raw[index][1])
-        dates_aux = []
-        dates = []
-        for i in dates_raw:
-            for j in i:
-                dates_aux.append(str(j[0]))
-            dates.append(dates_aux)
-            dates_aux = []
-
+        dates = get_dates_from_request(request, 'GET')
         hour_period_from = params.get('hourPeriodFrom', None)
         hour_period_to = params.get('hourPeriodTo', None)
         day_type = params.getlist('dayType[]', None)
-
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         response = {
@@ -338,20 +324,7 @@ class SpeedVariation(View):
         return data, l_routes
 
     def process_request(self, request, params, export_data=False):
-        dates_raw = list(request.GET.items())
-        index = 0
-        for indexes in range(len(dates_raw)):
-            if dates_raw[indexes][0] == "dates":
-                index = indexes
-        dates_raw = json.loads(dates_raw[index][1])
-        dates_aux = []
-        dates = []
-        for i in dates_raw:
-            for j in i:
-                dates_aux.append(str(j[0]))
-            dates.append(dates_aux)
-            dates_aux = []
-
+        dates = get_dates_from_request(request, 'GET')
         end_date = dates[0][0]
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date
@@ -370,7 +343,6 @@ class SpeedVariation(View):
 
             most_recent_op_program_date = ESShapeHelper().get_most_recent_operation_program_date(end_date)
             most_recent_op_program_date_obj = datetime.datetime.strptime(most_recent_op_program_date, date_format)
-
             end_date_obj = datetime.datetime.strptime(end_date, date_format)
             days = 31
             if (end_date_obj - most_recent_op_program_date_obj).days < days:
