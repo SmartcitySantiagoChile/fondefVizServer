@@ -17,6 +17,7 @@ from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBe
     ThereAreNotValidExpeditionsMessage
 from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
 from datamanager.helper import ExporterManager
+from esapi.utils import get_dates_from_request
 
 from collections import defaultdict
 from datetime import datetime
@@ -156,7 +157,7 @@ class LoadProfileByExpeditionData(View):
         value = float(data)
         return 0 if (-1 < value < 0) else value
 
-    def transform_answer(self, es_query_list):
+    def transform_answer(self, es_query):
         """ transform ES answer to something util to web client """
         trips = defaultdict(lambda: {'info': [], 'stops': {}})
         bus_stations = []
@@ -165,54 +166,41 @@ class LoadProfileByExpeditionData(View):
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
 
-        for es_query in es_query_list:
-            for hit in es_query.scan():
-                expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
+        for hit in es_query.scan():
+            expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
 
-                if len(trips[expedition_id]['info']) == 0:
-                    trips[expedition_id]['info'] = [
-                        hit.busCapacity,
-                        hit.licensePlate,
-                        hit.route,
-                        time_period_dict[hit.timePeriodInStartTime],
-                        hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
-                        hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
-                        day_type_dict[hit.dayType],
-                        not bool(hit.notValid)
-                    ]
-                    if bool(hit.notValid):
-                        expedition_not_valid_number += 1
-
-                if hit.busStation == 1 and hit.authStopCode not in bus_stations:
-                    bus_stations.append(hit.authStopCode)
-
-                # loadProfile, expandedGetIn, expandedGetOut
-                stop = [
-                    self.clean_data(hit.loadProfile),
-                    self.clean_data(hit.expandedBoarding),
-                    self.clean_data(hit.expandedAlighting),
+            if len(trips[expedition_id]['info']) == 0:
+                trips[expedition_id]['info'] = [
+                    hit.busCapacity,
+                    hit.licensePlate,
+                    hit.route,
+                    time_period_dict[hit.timePeriodInStartTime],
+                    hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
+                    hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
+                    day_type_dict[hit.dayType],
+                    not bool(hit.notValid)
                 ]
-                trips[expedition_id]['stops'][hit.authStopCode] = stop
+                if bool(hit.notValid):
+                    expedition_not_valid_number += 1
 
-            if len(trips.keys()) == 0:
-                raise ESQueryResultEmpty()
+            if hit.busStation == 1 and hit.authStopCode not in bus_stations:
+                bus_stations.append(hit.authStopCode)
+
+            # loadProfile, expandedGetIn, expandedGetOut
+            stop = [
+                self.clean_data(hit.loadProfile),
+                self.clean_data(hit.expandedBoarding),
+                self.clean_data(hit.expandedAlighting),
+            ]
+            trips[expedition_id]['stops'][hit.authStopCode] = stop
+
+        if len(trips.keys()) == 0:
+            raise ESQueryResultEmpty()
 
         return trips, bus_stations, expedition_not_valid_number
 
     def process_request(self, request, params, export_data=False):
-        dates_raw = list(request.GET.items())
-        index = 0
-        for indexes in range(len(dates_raw)):
-            if dates_raw[indexes][0] == "dates":
-                index = indexes
-        dates_raw = json.loads(dates_raw[index][1])
-        dates_aux = []
-        dates = []
-        for i in dates_raw:
-            for j in i:
-                dates_aux.append(str(j[0]))
-            dates.append(dates_aux)
-            dates_aux = []
+        dates = get_dates_from_request(request, 'GET')
         auth_route_code = params.get('authRoute')
         day_type = params.getlist('dayType[]')
         period = params.getlist('period[]')
@@ -251,7 +239,9 @@ class LoadProfileByExpeditionData(View):
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False)
+                    print("pasa query")
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
+                    print("pasa trips y bus station")
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
                                                                                 len(response['trips'].keys())). \
@@ -264,13 +254,12 @@ class LoadProfileByExpeditionData(View):
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
                 response['stops'] = []
                 response['shape'] = []
-                for date_range in dates:
-                    response['stops'].append(es_stop_helper.get_stop_list(auth_route_code, date_range[0], date_range[len(date_range) - 1])['stops'])
-                    response['shape'] = es_shape_helper.get_route_shape(auth_route_code, date_range[0], date_range[len(date_range) - 1])['points']
+                response['stops'].append(es_stop_helper.get_stop_list(auth_route_code, dates)['stops'])
+                response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
-
+        print("termino")
         return JsonResponse(response, safe=False)
 
     def get(self, request):

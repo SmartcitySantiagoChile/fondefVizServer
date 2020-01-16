@@ -67,7 +67,6 @@ class ElasticSearchHelper(object):
             multi_search = multi_search.add(es_query)
 
         result = multi_search.execute()
-
         flat = kwargs.get('flat', False)
         if len(result) == 1 and flat:
             return result[0]

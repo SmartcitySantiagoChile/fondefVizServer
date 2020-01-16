@@ -148,7 +148,7 @@ class RankingData(View):
 
             if export_data:
                 print "export"
-                es_query = es_speed_helper.get_base_ranking_data_query(start_date, end_date, hour_period_from,
+                es_query = es_speed_helper.get_base_ranking_data_query(dates, hour_period_from,
                                                                        hour_period_to, day_type, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
@@ -197,8 +197,7 @@ class SpeedByRoute(View):
 
     def process_request(self, request, params, export_data=False):
         route = params.get('authRoute', '')
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, 'GET')
         hour_period = params.get('period', [])
         day_type = params.getlist('dayType[]', [])
 
@@ -214,17 +213,18 @@ class SpeedByRoute(View):
         }
 
         try:
-            check_operation_program(start_date, end_date)
+            for date_range in dates:
+                check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
-                es_query = es_speed_helper.get_base_detail_ranking_data_query(route, start_date, end_date, hour_period,
+                es_query = es_speed_helper.get_base_detail_ranking_data_query(route, dates, hour_period,
                                                                               day_type, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                shape = es_shape_helper.get_route_shape(route, start_date, end_date)['points']
+                shape = es_shape_helper.get_route_shape(route, dates)['points']
                 route_points = [[s['latitude'], s['longitude']] for s in shape]
                 limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
                 start_end = list(zip(limits[:-1], limits[1:]))
@@ -232,7 +232,7 @@ class SpeedByRoute(View):
                 response['route']['start_end'] = start_end
                 response['route']['points'] = route_points
 
-                es_query = es_speed_helper.get_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
+                es_query = es_speed_helper.get_detail_ranking_data(route, dates, hour_period, day_type,
                                                                    valid_operator_list)
                 response['speed'] = self.process_data(es_query, limits)
 

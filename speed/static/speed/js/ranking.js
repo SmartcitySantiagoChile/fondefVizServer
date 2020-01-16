@@ -163,15 +163,15 @@ $(document).ready(function () {
         };
 
         this.drawSegment = function (route, period, section) {
+            var url_key = window.location.pathname;
             var dateFilter = $("#dayFilter");
-            var startDate = dateFilter.data("daterangepicker").startDate.format();
-            var endDate = dateFilter.data("daterangepicker").endDate.format();
+            var dates = JSON.parse(window.localStorage.getItem(url_key + "dayFilter")).sort();
+            dates = groupByDates(dates);
             var dayType = $("#dayTypeFilter").val();
 
             var params = {
                 authRoute: route,
-                startDate: startDate,
-                endDate: endDate,
+                dates: JSON.stringify(dates),
                 period: period
             };
             if (dayType) {

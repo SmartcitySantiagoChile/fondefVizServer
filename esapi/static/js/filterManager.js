@@ -204,10 +204,6 @@ function FilterManager(opts) {
             params.dates = JSON.stringify(dates);
         }
 
-        /*
-        params.startDate = $DAY_FILTER.data("daterangepicker").startDate.format();
-        params.endDate = $DAY_FILTER.data("daterangepicker").endDate.format();
-        */
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
             /*var diffDays = function (startDate, endDate) {

@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import copy
+import itertools
+from functools import reduce
+
 from elasticsearch_dsl import A
 from elasticsearch_dsl.query import Q
 
-from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty, \
     ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist, \
     ESQueryStopParameterDoesNotExist, ESQueryTooManyOriginZonesError, ESQueryTooManyDestinationZonesError
-
-import copy
-import itertools
+from esapi.helper.basehelper import ElasticSearchHelper
 
 
 class ESTripHelper(ElasticSearchHelper):
@@ -20,77 +21,77 @@ class ESTripHelper(ElasticSearchHelper):
         file_extensions = ['trip']
         super(ESTripHelper, self).__init__(index_name, file_extensions)
 
-    def _build_histogram_query(self, base_es_query_list):
+    def _build_histogram_query(self, base_es_query):
         """
         Builds a elastic search query for the travels histogram
         It is based on the requested filtering options
         """
-
         def add_histogram(field, interval, b_min, b_max, base_es_query):
             base_es_query.aggs.bucket(field, 'histogram', field=field, interval=interval,
                                       min_doc_count=0, extended_bounds={'min': b_min, 'max': b_max}) \
                 .metric('bin', 'sum', field='factor_expansion') \
                 .pipeline('total', 'cumulative_sum', buckets_path='bin')
-        for base_es_query in base_es_query_list:
+        # up to 120 min
+        add_histogram('tviaje', '15', 0, 120, base_es_query)
 
-            # up to 120 min
-            add_histogram('tviaje', '15', 0, 120, base_es_query)
+        # at least from 1 to 5 stages
+        add_histogram('n_etapas', '1', 1, 5, base_es_query)
 
-            # at least from 1 to 5 stages
-            add_histogram('n_etapas', '1', 1, 5, base_es_query)
+        # distances are this values right?
+        add_histogram('distancia_ruta', '5000', 0, 30000, base_es_query)
+        add_histogram('distancia_eucl', '5000', 0, 30000, base_es_query)
 
-            # distances are this values right?
-            add_histogram('distancia_ruta', '5000', 0, 30000, base_es_query)
-            add_histogram('distancia_eucl', '5000', 0, 30000, base_es_query)
+        return base_es_query
 
-        return base_es_query_list
-
-    def _build_indicators_query(self, base_es_query_list):
-        for base_es_query in base_es_query_list:
-            base_es_query.aggs.metric('documentos', 'value_count', field='n_etapas')
-            base_es_query.aggs.metric('viajes', 'sum', field='factor_expansion')
-            base_es_query.aggs.metric('tviaje', 'stats', field='tviaje')
-            base_es_query.aggs.metric('n_etapas', 'stats', field='n_etapas')
-            base_es_query.aggs.metric('distancia_ruta', 'stats', field='distancia_ruta')
-            base_es_query.aggs.metric('distancia_eucl', 'stats', field='distancia_eucl')
-
-        return base_es_query_list
+    def _build_indicators_query(self, base_es_query):
+        base_es_query.aggs.metric('documentos', 'value_count', field='n_etapas')
+        base_es_query.aggs.metric('viajes', 'sum', field='factor_expansion')
+        base_es_query.aggs.metric('tviaje', 'stats', field='tviaje')
+        base_es_query.aggs.metric('n_etapas', 'stats', field='n_etapas')
+        base_es_query.aggs.metric('distancia_ruta', 'stats', field='distancia_ruta')
+        base_es_query.aggs.metric('distancia_eucl', 'stats', field='distancia_eucl')
+        return base_es_query
 
     def get_base_resume_data_query(self, dates, day_types, periods, origin_zones, destination_zones):
-        es_query_list = []
+        es_query = self.get_base_query()
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+
+        if periods:
+            es_query = es_query.filter('terms', periodo_subida=periods)
+
+        if origin_zones:
+            es_query = es_query.filter('terms', zona_subida=origin_zones)
+
+        if destination_zones:
+            es_query = es_query.filter('terms', zona_bajada=destination_zones)
+
+        combined_filter = []
         for date_range in dates:
-            es_query = self.get_base_query()
             start_date = date_range[0]
             end_date = date_range[len(date_range) - 1]
             if not start_date or not end_date:
                 raise ESQueryDateRangeParametersDoesNotExist()
 
-            es_query = es_query.filter('range', tiempo_subida={
+            filter_q = Q('range', date={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',
                 'format': 'yyyy-MM-dd',
                 'time_zone': '+00:00'
             })
+            combined_filter.append(filter_q)
 
-            if day_types:
-                es_query = es_query.filter('terms', tipodia=day_types)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
-            if periods:
-                es_query = es_query.filter('terms', periodo_subida=periods)
-
-            if origin_zones:
-                es_query = es_query.filter('terms', zona_subida=origin_zones)
-
-            if destination_zones:
-                es_query = es_query.filter('terms', zona_bajada=destination_zones)
-
-        return es_query_list
+        return es_query
 
     def get_resume_data(self, dates, day_types, periods, origin_zones, destination_zones):
-        es_query_list = self.get_base_resume_data_query(dates, day_types, periods, origin_zones,
+        es_query = self.get_base_resume_data_query(dates, day_types, periods, origin_zones,
                                                    destination_zones)[:0]
-        histogram_es_query = copy.copy(es_query_list)
-        return self._build_histogram_query(histogram_es_query), self._build_indicators_query(es_query_list)
+        histogram_es_query = copy.copy(es_query)
+        return self._build_histogram_query(histogram_es_query), self._build_indicators_query(es_query)
 
     def get_available_days(self):
         return self._get_available_days('tiempo_subida')
@@ -399,54 +400,53 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query
 
     def get_base_transfers_data_query(self, dates, auth_stop_code, day_types, periods, half_hours):
-        es_query_list = []
+        es_query = self.get_base_query()
+        if not auth_stop_code:
+            raise ESQueryStopParameterDoesNotExist()
+        combined_filter = []
         for date_range in dates:
-            es_query = self.get_base_query()
             start_date = date_range[0]
             end_date = date_range[len(date_range) - 1]
             if not start_date or not end_date:
                 raise ESQueryDateRangeParametersDoesNotExist()
-
-            if not auth_stop_code:
-                raise ESQueryStopParameterDoesNotExist()
-
-            es_query = es_query.filter('range', tiempo_subida={
+            filter_q = Q('range', tiempo_subida={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',
                 'format': 'yyyy-MM-dd',
                 'time_zone': '+00:00'
             })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+        landing_stop_in_first_stage = Q('term', paradfa_bajada_1=auth_stop_code)
+        landing_stop_in_second_stage = Q('term', parada_bajada_2=auth_stop_code)
+        landing_stop_in_third_stage = Q('term', parada_bajada_3=auth_stop_code)
+        landing_stop_in_fourth_stage = Q('term', parada_bajada_4=auth_stop_code)
+        es_query = es_query.filter(
+            landing_stop_in_first_stage | landing_stop_in_second_stage | landing_stop_in_third_stage | landing_stop_in_fourth_stage)
 
-            landing_stop_in_first_stage = Q('term', parada_bajada_1=auth_stop_code)
-            landing_stop_in_second_stage = Q('term', parada_bajada_2=auth_stop_code)
-            landing_stop_in_third_stage = Q('term', parada_bajada_3=auth_stop_code)
-            landing_stop_in_fourth_stage = Q('term', parada_bajada_4=auth_stop_code)
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+        if periods:
+            period_in_first_stage = Q('terms', periodo_bajada_1=periods)
+            period_in_second_stage = Q('terms', periodo_bajada_2=periods)
+            period_in_third_stage = Q('terms', periodo_bajada_3=periods)
+            period_in_fourth_stage = Q('terms', periodo_bajada_4=periods)
             es_query = es_query.filter(
-                landing_stop_in_first_stage | landing_stop_in_second_stage | landing_stop_in_third_stage | landing_stop_in_fourth_stage)
-
-            if day_types:
-                es_query = es_query.filter('terms', tipodia=day_types)
-            if periods:
-                period_in_first_stage = Q('terms', periodo_bajada_1=periods)
-                period_in_second_stage = Q('terms', periodo_bajada_2=periods)
-                period_in_third_stage = Q('terms', periodo_bajada_3=periods)
-                period_in_fourth_stage = Q('terms', periodo_bajada_4=periods)
-                es_query = es_query.filter(
-                    period_in_first_stage | period_in_second_stage | period_in_third_stage | period_in_fourth_stage)
-            if half_hours:
-                half_hour_in_first_stage = Q('terms', mediahora_bajada_1=half_hours)
-                half_hour_in_second_stage = Q('terms', mediahora_bajada_2=half_hours)
-                half_hour_in_third_stage = Q('terms', mediahora_bajada_3=half_hours)
-                half_hour_in_fourth_stage = Q('terms', mediahora_bajada_4=half_hours)
-                es_query = es_query.filter(
-                    half_hour_in_first_stage | half_hour_in_second_stage | half_hour_in_third_stage | half_hour_in_fourth_stage)
-            es_query_list.append(es_query)
-        return es_query_list
+                period_in_first_stage | period_in_second_stage | period_in_third_stage | period_in_fourth_stage)
+        if half_hours:
+            half_hour_in_first_stage = Q('terms', mediahora_bajada_1=half_hours)
+            half_hour_in_second_stage = Q('terms', mediahora_bajada_2=half_hours)
+            half_hour_in_third_stage = Q('terms', mediahora_bajada_3=half_hours)
+            half_hour_in_fourth_stage = Q('terms', mediahora_bajada_4=half_hours)
+            es_query = es_query.filter(
+                half_hour_in_first_stage | half_hour_in_second_stage | half_hour_in_third_stage | half_hour_in_fourth_stage)
+        return es_query
 
     def get_transfers_data(self, dates, auth_stop_code, day_types, periods, half_hours):
 
-        es_query_list = self.get_base_transfers_data_query(dates, auth_stop_code, day_types, periods,
-                                                      half_hours)
+        es_query = self.get_base_transfers_data_query(dates, auth_stop_code, day_types, periods,
+                                                           half_hours)
 
         def add_aggregation(bucket_name, stop_name, additional_conditions, stage_route_init, stage_route_end,
                             es_query, not_conditions=None):
@@ -466,36 +466,35 @@ class ESTripHelper(ElasticSearchHelper):
                                                                       field='factor_expansion')
 
             return transfer_bucket
-        for es_query in es_query_list:
-            first_condition = [{'range': {'n_etapas': {'gt': 1}}}]
-            second_condition = [{'range': {'n_etapas': {'gt': 2}}}]
-            third_condition = [{'range': {'n_etapas': {'gt': 3}}}]
+        first_condition = [{'range': {'n_etapas': {'gt': 1}}}]
+        second_condition = [{'range': {'n_etapas': {'gt': 2}}}]
+        third_condition = [{'range': {'n_etapas': {'gt': 3}}}]
 
-            first_not_condition = [{'term': {'tipo_transporte_2': 2}}, {'term': {'tipo_transporte_2': 4}}]
-            second_not_condition = [{'term': {'tipo_transporte_3': 2}}, {'term': {'tipo_transporte_3': 4}}]
-            third_not_condition = [{'term': {'tipo_transporte_4': 2}}, {'term': {'tipo_transporte_4': 4}}]
+        first_not_condition = [{'term': {'tipo_transporte_2': 2}}, {'term': {'tipo_transporte_2': 4}}]
+        second_not_condition = [{'term': {'tipo_transporte_3': 2}}, {'term': {'tipo_transporte_3': 4}}]
+        third_not_condition = [{'term': {'tipo_transporte_4': 2}}, {'term': {'tipo_transporte_4': 4}}]
 
-            add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2',
-                            es_query, first_not_condition)
-            add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3',
-                            es_query, second_not_condition)
-            add_aggregation('third_transfer', 'parada_bajada_3', third_condition, 'srv_3', 'srv_4',
-                            es_query, third_not_condition)
+        add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2',
+                        es_query, first_not_condition)
+        add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3',
+                        es_query, second_not_condition)
+        add_aggregation('third_transfer', 'parada_bajada_3', third_condition, 'srv_3', 'srv_4',
+                        es_query, third_not_condition)
 
-            add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2',
-                            es_query)
-            add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3',
-                            es_query)
-            add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4',
-                            es_query)
-            add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None,
-                            es_query)
+        add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2',
+                        es_query)
+        add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3',
+                        es_query)
+        add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4',
+                        es_query)
+        add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None,
+                        es_query)
 
-            add_aggregation('first_transfer_to_subway', 'parada_bajada_1', first_condition + first_not_condition, 'srv_1',
-                            'parada_subida_2', es_query)
-            add_aggregation('second_transfer_to_subway', 'parada_bajada_2', second_condition + second_not_condition,
-                            'srv_2', 'parada_subida_3', es_query)
-            add_aggregation('third_transfer_to_subway', 'parada_bajada_3', third_condition + third_not_condition, 'srv_3',
-                            'parada_subida_4', es_query)
+        add_aggregation('first_transfer_to_subway', 'parada_bajada_1', first_condition + first_not_condition, 'srv_1',
+                        'parada_subida_2', es_query)
+        add_aggregation('second_transfer_to_subway', 'parada_bajada_2', second_condition + second_not_condition,
+                        'srv_2', 'parada_subida_3', es_query)
+        add_aggregation('third_transfer_to_subway', 'parada_bajada_3', third_condition + third_not_condition, 'srv_3',
+                        'parada_subida_4', es_query)
 
-        return es_query_list
+        return es_query
