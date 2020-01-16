@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import datetime
 import json
 
-from django.views import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from esapi.helper.speed import ESSpeedHelper
-from esapi.helper.shape import ESShapeHelper
-from esapi.errors import FondefVizError, ESQueryResultEmpty
-from esapi.messages import SpeedVariationWithLessDaysMessage
-from esapi.utils import check_operation_program
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-
-from localinfo.helper import PermissionBuilder
-
-from datamanager.helper import ExporterManager
-
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
-import datetime
+from datamanager.helper import ExporterManager
+from esapi.errors import FondefVizError, ESQueryResultEmpty
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.speed import ESSpeedHelper
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
+from esapi.messages import SpeedVariationWithLessDaysMessage
+from esapi.utils import check_operation_program, get_dates_from_request
+from localinfo.helper import PermissionBuilder
 
 hours = ["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00",
          "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -67,8 +64,8 @@ class MatrixData(View):
         return super(MatrixData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+
+        dates = get_dates_from_request(request, 'GET')
         auth_route = params.get('authRoute', '')
         day_type = params.getlist('dayType[]', [])
 
@@ -80,7 +77,8 @@ class MatrixData(View):
         }
 
         try:
-            check_operation_program(start_date, end_date)
+            for date_range in dates:
+                check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
 
@@ -90,15 +88,12 @@ class MatrixData(View):
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)['points']
+                shape = es_shape_helper.get_route_shape(auth_route, dates)['points']
                 route_points = [[s['latitude'], s['longitude']] for s in shape]
                 limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
-
                 max_section = len(limits) - 1
                 response['segments'] = list(range(max_section + 1))
-
-                d_data = es_speed_helper.get_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
-
+                d_data = es_speed_helper.get_speed_data(auth_route, day_type, dates, valid_operator_list)
                 for hour in range(len(hours)):
                     route_segment_by_hour = []
                     for section in response['segments']:

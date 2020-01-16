@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.errors import FondefVizError, ESQueryOperationProgramError, ESQueryDateRangeParametersDoesNotExist
@@ -38,3 +40,29 @@ def check_operation_program(start_date, end_date):
         raise ESQueryOperationProgramError()
     elif operation_program_error_for_shape == True or operation_program_error_for_stop == True:
         raise error_raised
+
+
+def get_dates_from_request(request, type_request):
+    """
+    Convert the GET[dates] or POST[dates] items to list
+    :param request: http request
+    :param type_request: GET or Post
+    :return: dates[] list
+    """
+    if type_request == 'GET':
+        dates_raw = list(request.GET.items())
+    else:
+        dates_raw = list(request.POST.items())
+    index = 0
+    for indexes in range(len(dates_raw)):
+        if dates_raw[indexes][0] == "dates":
+            index = indexes
+    dates_raw = json.loads(dates_raw[index][1])
+    dates_aux = []
+    dates = []
+    for i in dates_raw:
+        for j in i:
+            dates_aux.append(str(j[0]))
+        dates.append(dates_aux)
+        dates_aux = []
+    return dates

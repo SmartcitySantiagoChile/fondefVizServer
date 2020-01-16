@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from elasticsearch_dsl import A
+from elasticsearch_dsl import A, Q
 
 from localinfo.helper import get_operator_list_for_select_input
 
@@ -55,7 +55,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def get_base_speed_data_query(self, auth_route, day_type, start_date, end_date, valid_operator_list):
+    def get_base_speed_data_query(self, auth_route, day_type, dates, valid_operator_list):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -68,22 +68,29 @@ class ESSpeedHelper(ElasticSearchHelper):
         else:
             raise ESQueryRouteParameterDoesNotExist()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
 
-        es_query = es_query.filter("range", date={
-            'gte': start_date,
-            'lte': end_date,
-            'format': 'yyyy-MM-dd'
-        })
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[len(date_range) - 1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', date={
+                'gte': start_date,
+                'lte': end_date,
+                'format': 'yyyy-MM-dd'
+            })
+            combined_filter.append(filter_q)
+
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         return es_query
 
-    def get_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
-        es_query = self.get_base_speed_data_query(auth_route, day_type, start_date, end_date, valid_operator_list)[:0]
+    def get_speed_data(self, auth_route, day_type, dates, valid_operator_list):
+        es_query = self.get_base_speed_data_query(auth_route, day_type, dates, valid_operator_list)[:0]
 
         aggs2 = A('terms', field='section', size=1000)
         aggs1 = A('terms', field='periodId', size=1000)

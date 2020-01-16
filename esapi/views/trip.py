@@ -341,38 +341,51 @@ class TransfersData(View):
     def dispatch(self, request, *args, **kwargs):
         return super(TransfersData, self).dispatch(request, *args, **kwargs)
 
-    def process_data(self, es_query):
-        result = es_query.execute().aggregations
+    def process_data(self, es_query_list):
         answer = defaultdict(lambda: defaultdict(lambda: 0))
+        for es_query in es_query_list:
+            result = es_query.execute().aggregations
 
-        for step in [result.first_transfer, result.second_transfer, result.third_transfer,
-                     result.first_transfer_to_subway, result.second_transfer_to_subway,
-                     result.third_transfer_to_subway]:
-            for from_bucket in step.route_from.buckets:
-                for to_bucket in from_bucket.route_to.buckets:
-                    answer[to_bucket.key][from_bucket.key] += to_bucket.doc_count
+            for step in [result.first_transfer, result.second_transfer, result.third_transfer,
+                         result.first_transfer_to_subway, result.second_transfer_to_subway,
+                         result.third_transfer_to_subway]:
+                for from_bucket in step.route_from.buckets:
+                    for to_bucket in from_bucket.route_to.buckets:
+                        answer[to_bucket.key][from_bucket.key] += to_bucket.doc_count
 
-        for step in [result.first_transfer_is_end, result.second_transfer_is_end, result.third_transfer_is_end]:
-            for from_bucket in step.route_from.buckets:
-                for to_bucket in from_bucket.route_to.buckets:
-                    end = to_bucket.key
-                    if end == '-':
-                        end = 'end'
-                    answer[end][from_bucket.key] += to_bucket.doc_count
+            for step in [result.first_transfer_is_end, result.second_transfer_is_end, result.third_transfer_is_end]:
+                for from_bucket in step.route_from.buckets:
+                    for to_bucket in from_bucket.route_to.buckets:
+                        end = to_bucket.key
+                        if end == '-':
+                            end = 'end'
+                        answer[end][from_bucket.key] += to_bucket.doc_count
 
-        for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
-            answer['end'][from_bucket.key] += from_bucket.doc_count
+            for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
+                answer['end'][from_bucket.key] += from_bucket.doc_count
 
-        if not answer:
-            raise ESQueryResultEmpty()
+            if not answer:
+                raise ESQueryResultEmpty()
 
         return {
             'data': answer
         }
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+
+        dates_raw = list(request.GET.items())
+        index = 0
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
+        dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
         auth_stop_code = params.get('stopCode', '')
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
@@ -390,10 +403,10 @@ class TransfersData(View):
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query = es_trip_helper.get_transfers_data(start_date, end_date, auth_stop_code, day_types, periods,
+                es_query_list = es_trip_helper.get_transfers_data(dates, auth_stop_code, day_types, periods,
                                                              half_hours)[:0]
-                response.update(self.process_data(es_query))
-                response['stopInfo'] = es_stop_helper.get_stop_info(start_date, auth_stop_code)
+                response.update(self.process_data(es_query_list))
+                response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
