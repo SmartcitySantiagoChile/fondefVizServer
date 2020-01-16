@@ -95,14 +95,14 @@ function loadRangeCalendar(data_url, calendar_opts) {
             $dayFilter.val(reverse_date(arrayToSave[0][0]));
         } else {
             selectedDates = new Set([]);
-            $dayFilter.val("Seleccione un día");
+            $dayFilter.val("Ningún día seleccionado");
         }
         window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(Array.from(selectedDates)));
         $('#group-button').hide();
         $('#option3').attr("checked", false);
         $('#option1').attr("checked", true);
         $('#selectedDaysTitle').text("Día seleccionado:");
-        $('#deleteSelection').hide();
+        //$('#deleteSelection').hide();
     } else {
         $dayFilter.val(dayMessageHandler(selectedDates.size));
 
@@ -114,7 +114,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         } else if (days === 1){
             return "1 día seleccionado";
         } else {
-            return  days +" dias seleccionados";
+            return  days +" días seleccionados";
         }
     }
 
@@ -236,11 +236,10 @@ function loadRangeCalendar(data_url, calendar_opts) {
         });
         let this_day_exist = false;
         selected_date.forEach(function(e){
-          if (e[0] === value) {
+            if (e[0] === value) {
             this_day_exist = true;
-          }
+        }
         });
-
         if (!this_day_exist){
             selected_date.add([value, data_index]);
         }
@@ -398,7 +397,11 @@ function loadRangeCalendar(data_url, calendar_opts) {
             $dayFilter.attr("data-content", "");
             $('#popover-content').empty().append(createSelectionUl(auxSelectedDates));
         } else {
-            $dayFilter.val(reverse_date(Array.from(auxSelectedDates)[0][0]));
+            if (datesSize !== 0){
+                $dayFilter.val(reverse_date(Array.from(auxSelectedDates)[0][0]));
+            } else {
+                $dayFilter.val("Ningún día seleccionado");
+            }
         }
         window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(Array.from(auxSelectedDates)));
     });

@@ -204,6 +204,16 @@ function FilterManager(opts) {
             params.dates = JSON.stringify(dates);
         }
 
+        let datesSize = function(){
+                let count = 0;
+                for (let i in dates){
+                    for (let j in dates[i]){
+                        count ++;
+                    }
+                }
+                return count;
+            };
+
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
             /*var diffDays = function (startDate, endDate) {
@@ -214,25 +224,18 @@ function FilterManager(opts) {
                 return parseInt(daysWindow);
             };*/
 
-            let datesSize = function(){
-                let count = 0;
-                for (let i in dates){
-                    for (let j in dates[i]){
-                        count ++;
-                    }
-                }
-                return count;
-            };
+
 
             if (datesSize()< minimumDateLimit) {
                 let status = {
-                    message: "La período consultado debe ser mayor a 2 días",
+                    message: "El período consultado debe ser mayor a 2 días",
                     title: "Advertencia",
                     type: "warning"
                 };
                 showMessage(status);
                 return null;
             }
+
 
             if (!metrics){
                 let status = {
@@ -244,6 +247,17 @@ function FilterManager(opts) {
                 return null;
             }
         }
+
+        //Check empty data
+        if (datesSize() === 0) {
+                let status = {
+                    message: "Debe seleccionar un periodo de tiempo",
+                    title: "Advertencia",
+                    type: "warning"
+                };
+                showMessage(status);
+                return null;
+            }
 
         if ($AUTH_ROUTE_FILTER.length && authRoute) {
             params.authRoute = authRoute;
@@ -294,6 +308,10 @@ function FilterManager(opts) {
             }
 
             var params = getParameters();
+            if (params == null){
+                $(this).empty().append(previousMessage);
+                return;
+            }
             $.getJSON(urlFilterData, params, function (data) {
                 if (data.status) {
                     if (Array.isArray(data.status)) {

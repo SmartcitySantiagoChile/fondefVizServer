@@ -20,7 +20,7 @@ class ESProfileHelper(ElasticSearchHelper):
         file_extensions = ['profile']
         super(ESProfileHelper, self).__init__(index_name, file_extensions)
 
-    def get_profile_by_stop_data(self, start_date, end_date, day_type, stop_code, period, half_hour,
+    def get_profile_by_stop_data(self, dates, day_type, stop_code, period, half_hour,
                                  valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
@@ -35,9 +35,6 @@ class ESProfileHelper(ElasticSearchHelper):
         else:
             raise ESQueryStopParameterDoesNotExist()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
         if period:
@@ -45,12 +42,21 @@ class ESProfileHelper(ElasticSearchHelper):
         if half_hour:
             es_query = es_query.filter('terms', halfHourInStopTime=half_hour)
 
-        es_query = es_query.filter("range", expeditionStartTime={
-            "gte": start_date + "||/d",
-            "lte": end_date + "||/d",
-            "format": "yyyy-MM-dd",
-            "time_zone": "+00:00"
-        })
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[len(date_range) - 1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q("range", expeditionStartTime={
+                "gte": start_date + "||/d",
+                "lte": end_date + "||/d",
+                "format": "yyyy-MM-dd",
+                "time_zone": "+00:00"
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         es_query = es_query.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
                                     'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',

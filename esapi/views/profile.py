@@ -82,8 +82,7 @@ class LoadProfileByStopData(View):
     def process_request(self, request, params, export_data=False):
         response = {}
 
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, 'GET')
         day_type = params.getlist('dayType[]', [])
         stop_code = params.get('stopCode', '')
         period = params.getlist('period[]', [])
@@ -92,10 +91,11 @@ class LoadProfileByStopData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            check_operation_program(start_date, end_date)
+            for data_range in dates:
+                check_operation_program(data_range[0], data_range[len(data_range) - 1])
             es_helper = ESProfileHelper()
 
-            es_query = es_helper.get_profile_by_stop_data(start_date, end_date, day_type, stop_code, period, half_hour,
+            es_query = es_helper.get_profile_by_stop_data(dates, day_type, stop_code, period, half_hour,
                                                           valid_operator_list)
             if export_data:
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_STOP_DATA, request.user)
