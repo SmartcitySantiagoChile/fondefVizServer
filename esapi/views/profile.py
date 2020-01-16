@@ -327,20 +327,7 @@ class LoadProfileByTrajectoryData(View):
 
     def process_request(self, request, params, export_data=False):
 
-        dates_raw = list(request.GET.items())
-        index = 0
-        for indexes in range(len(dates_raw)):
-            if dates_raw[indexes][0] == "dates":
-                index = indexes
-        dates_raw = json.loads(dates_raw[index][1])
-        dates_aux = []
-        dates = []
-        for i in dates_raw:
-            for j in i:
-                dates_aux.append(str(j[0]))
-            dates.append(dates_aux)
-            dates_aux = []
-
+        dates = get_dates_from_request(request, 'GET')
         auth_route_code = params.get('authRoute')
         day_type = params.getlist('dayType[]')
         period = params.getlist('period[]')
@@ -366,7 +353,7 @@ class LoadProfileByTrajectoryData(View):
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
-                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, start_date, end_date)['stops']
+                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
