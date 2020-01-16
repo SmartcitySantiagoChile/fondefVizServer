@@ -86,8 +86,7 @@ Luego de la instalación de npm se procede a instalar Bower.
 
 ### Configuración del Proyecto
 
-####Postgres
-
+#### Postgres
 
 Se requiere crear la base de datos relacional del proyecto, por lo que crearemos una nueva en PostgreSQL:
 
@@ -156,7 +155,7 @@ El archivo .env contiene las siguientes definiciones:
 Estos datos se dividen en las siguientes secciones:
 
 
-#####Configuraciones generales de Django
+##### Configuraciones generales de Django
 * SECRET_KEY: string que representa una semilla en python para seguridad.                     
 * DEBUG: ejecutar la aplicación en modo debug (TRUE/FALSE).
 * ALLOWED_HOSTS: conexiones permitidas para el ingreso a la aplicación.                                   
@@ -164,7 +163,7 @@ Estos datos se dividen en las siguientes secciones:
 * URL_PREFIX:
 * DOWNLOAD_PATH: path de descarga para archivos manipulados por redis
 
-#####Configuraciones de Postgres
+##### Configuraciones de Postgres
 
 * DB_NAME: nombre de la base de datos
 * DB_USER: usuario de la base de datos
@@ -172,20 +171,20 @@ Estos datos se dividen en las siguientes secciones:
 * DB_HOST: host de la base de datos
 * DB_PORT: puerto de la base de datos
 
-#####Configuraciones de Elasticsearch
+##### Configuraciones de Elasticsearch
 
 * ELASTICSEARCH_HOST: host de elasticsearch
 * ELASTICSEARCH_PORT: puerto de elasticsearch
 
 
-#####Configuraciones de Redis
+##### Configuraciones de Redis
 
 * REDIS_HOST: host de redis
 * REDIS_PORT: puerto de redis
 * REDIS_DB: nombre de la base de datos de redis
 
 
-#####Configuraciones de email
+##### Configuraciones de email
 * EMAIL_HOST:
 * EMAIL_PORT:
 * EMAIL_USE_TLS:
@@ -194,7 +193,7 @@ Estos datos se dividen en las siguientes secciones:
 * SERVER_EMAIL:
 
 
-#####Configuraciones de buckets para almacenamiento de datos en S3
+##### Configuraciones de buckets para almacenamiento de datos en S3
 * GPS_BUCKET_NAME:
 * OP_PROGRAM_BUCKET_NAME:
 * FILE_196_BUCKET_NAME:
@@ -206,7 +205,7 @@ Estos datos se dividen en las siguientes secciones:
 * REPRESENTATIVE_WEEk_BUCKET_NAME: 
 
 
-#####Configuraciones de Amazon Web Service
+##### Configuraciones de Amazon Web Service
 * AWS_ACCESS_KEY_ID:
 * AWS_SECRET_ACCESS_KEY:
 
@@ -329,8 +328,3 @@ Posteriormente se debe ejecutar cerebro:
 `./cerebro-0.8.5/bin/cerebro`
 
 En la aplicación cerebro se debe ingresar url y puerto por la que se ejecuta elasticsearch.
-
-
-
-
-
