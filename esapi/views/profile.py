@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.shape import ESShapeHelper
-from esapi.errors import ESQueryResultEmpty, FondefVizError
+from esapi.errors import ESQueryResultEmpty, FondefVizError, ESQueryDateRangeParametersDoesNotExist
 from esapi.utils import check_operation_program
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBeenGroupedMessage, \
     ThereAreNotValidExpeditionsMessage
@@ -91,6 +91,9 @@ class LoadProfileByStopData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
+            print(len(dates))
+            if len(dates) == 0:
+                raise ESQueryDateRangeParametersDoesNotExist()
             for data_range in dates:
                 check_operation_program(data_range[0], data_range[len(data_range) - 1])
             es_helper = ESProfileHelper()

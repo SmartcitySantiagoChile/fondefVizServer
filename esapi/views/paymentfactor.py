@@ -9,7 +9,7 @@ from django.views.generic import View
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryResultEmpty
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
@@ -35,7 +35,6 @@ class PaymentFactorData(View):
                           timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
         end_date = int((timezone.datetime.strptime(dates[len(dates) - 1][len(dates[len(dates) - 1]) - 1], '%Y-%m-%d') -
                         timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
-        print (es_query.to_dict())
         for a in es_query.execute().aggregations.by_bus_station_id.buckets:
             for b in a.by_bus_station_name.buckets:
                 for c in b.by_assignation.buckets:
@@ -74,7 +73,6 @@ class PaymentFactorData(View):
                                        neutral=neutral_value, factor_by_date=factor_by_date,
                                        factor_average=factor_average)
                             rows.append(row)
-        print("Se crearon datos")
         if len(rows) == 0:
                 raise ESQueryResultEmpty()
         result = {
@@ -85,11 +83,14 @@ class PaymentFactorData(View):
 
     def process_request(self, request, params, export_data=False):
         response = {}
-
         dates = get_dates_from_request(request, 'GET')
         day_type = params.getlist('dayType[]', [])
 
         try:
+            print(len(dates))
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
+
             es_helper = ESPaymentFactorHelper()
 
             es_query = es_helper.get_data(dates, day_type)

@@ -54,15 +54,19 @@ def get_dates_from_request(request, type_request):
     else:
         dates_raw = list(request.POST.items())
     index = 0
-    for indexes in range(len(dates_raw)):
-        if dates_raw[indexes][0] == "dates":
-            index = indexes
-    dates_raw = json.loads(dates_raw[index][1])
-    dates_aux = []
-    dates = []
-    for i in dates_raw:
-        for j in i:
-            dates_aux.append(str(j[0]))
-        dates.append(dates_aux)
+    print(dates_raw)
+    if dates_raw != []:
+        for indexes in range(len(dates_raw)):
+            if dates_raw[indexes][0] == "dates":
+                index = indexes
+        dates_raw = json.loads(dates_raw[index][1])
         dates_aux = []
+        dates = []
+        for i in dates_raw:
+            for j in i:
+                dates_aux.append(str(j[0]))
+            dates.append(dates_aux)
+            dates_aux = []
+    else:
+        dates = []
     return dates

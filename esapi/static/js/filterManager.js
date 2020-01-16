@@ -248,17 +248,6 @@ function FilterManager(opts) {
             }
         }
 
-        //Check empty data
-        if (datesSize() === 0) {
-                let status = {
-                    message: "Debe seleccionar un periodo de tiempo",
-                    title: "Advertencia",
-                    type: "warning"
-                };
-                showMessage(status);
-                return null;
-            }
-
         if ($AUTH_ROUTE_FILTER.length && authRoute) {
             params.authRoute = authRoute;
         }
@@ -308,25 +297,21 @@ function FilterManager(opts) {
             }
 
             var params = getParameters();
-            if (params == null){
-                $(this).empty().append(previousMessage);
-                return;
-            }
             $.getJSON(urlFilterData, params, function (data) {
-                if (data.status) {
-                    if (Array.isArray(data.status)) {
-                        data.status.forEach(function (message) {
-                            showMessage(message);
-                        })
-                    } else {
-                        showMessage(data.status);
-                    }
+            if (data.status) {
+                if (Array.isArray(data.status)) {
+                    data.status.forEach(function (message) {
+                        showMessage(message);
+                    })
+                } else {
+                    showMessage(data.status);
                 }
-                if (afterCall) {
-                    afterCall(data);
-                }
-                // update backup to the last request params sent to server
-                paramsBackup = params;
+            }
+            if (afterCall ) {
+                afterCall(data);
+            }
+            // update backup to the last request params sent to server
+            paramsBackup = params;
             }).always(function () {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);
