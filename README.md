@@ -54,7 +54,7 @@ La descarga e instalación se puede realizar siguiendo los pasos del siguiente e
 
 >https://www.postgresql.org/download/
 
-#####Elasticsearch (versión: 6.2.3)
+##### Elasticsearch (versión: 6.2.3)
 
 Los datos generados por ADATRAP son almacenados en una (o más) instancia(s) de elasticsearch. Es importante tener en cuenta que es necesario contar con una versión de Java para su ejecución. Se recomienda instalar una versión de [openJDK 8](https://openjdk.java.net/install/) para su ejecución (solo disponible para ambientes Linux), para entornos con sistema operativo (S.O) Windows se recomienda descargar desde la [página oficial](https://www.oracle.com/technetwork/java/javase/downloads/index.html) de Oracle.
 
