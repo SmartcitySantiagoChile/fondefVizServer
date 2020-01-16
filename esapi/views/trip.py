@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryResultEmpty
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -38,6 +38,8 @@ class ResumeData(PermissionRequiredMixin, View):
         response = {}
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_resume_data_query(dates, day_types, periods, origin_zones,
                                                                 destination_zones)
@@ -73,8 +75,7 @@ class MapData(PermissionRequiredMixin, View):
         return super(MapData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, 'GET')
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('boardingPeriod[]', [])
 
@@ -104,12 +105,14 @@ class MapData(PermissionRequiredMixin, View):
         }
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             if export_data:
-                es_query = es_helper.get_base_map_data_query(start_date, end_date, day_types, periods, sectors)
+                es_query = es_helper.get_base_map_data_query(dates, day_types, periods, sectors)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query = es_helper.get_map_data(start_date, end_date, day_types, periods, sectors)
+                es_query = es_helper.get_map_data(dates, day_types, periods, sectors)
                 response['map'] = es_helper.make_multisearch_query_for_aggs(es_query, flat=True).to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
@@ -157,6 +160,8 @@ class LargeTravelData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_large_travel_data_query(start_date, end_date, day_types, periods, stages)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
@@ -200,6 +205,8 @@ class FromToMapData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes,
                                                                      stages, transport_modes, origin_zones,
@@ -298,6 +305,8 @@ class StrategiesData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes,
                                                                     origin_zones, destination_zones)
@@ -367,6 +376,8 @@ class TransfersData(View):
         es_stop_helper = ESStopHelper()
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_trip_helper.get_base_transfers_data_query(dates, auth_stop_code, day_types,
                                                                         periods, half_hours)

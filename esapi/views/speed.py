@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryResultEmpty
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.speed import ESSpeedHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -339,6 +339,8 @@ class SpeedVariation(View):
             'routes': []
         }
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             date_format = "%Y-%m-%d"
 
             most_recent_op_program_date = ESShapeHelper().get_most_recent_operation_program_date(end_date)

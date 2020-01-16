@@ -87,7 +87,6 @@ class PaymentFactorData(View):
         day_type = params.getlist('dayType[]', [])
 
         try:
-            print(len(dates))
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
 

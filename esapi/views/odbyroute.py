@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.errors import FondefVizError
+from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
 from esapi.utils import check_operation_program, get_dates_from_request
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
@@ -69,6 +69,8 @@ class ODMatrixData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             for date_range in dates:
                 check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_od_helper = ESODByRouteHelper()

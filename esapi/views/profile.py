@@ -1,28 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
+from collections import defaultdict
 
-from django.views.generic import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
-from esapi.helper.profile import ESProfileHelper
-from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.helper.shape import ESShapeHelper
-from esapi.errors import ESQueryResultEmpty, FondefVizError, ESQueryDateRangeParametersDoesNotExist
-from esapi.utils import check_operation_program
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBeenGroupedMessage, \
-    ThereAreNotValidExpeditionsMessage
-from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
-from datamanager.helper import ExporterManager
-from esapi.utils import get_dates_from_request
-
-from collections import defaultdict
-from datetime import datetime
+from django.views.generic import View
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+from datamanager.helper import ExporterManager
+from esapi.errors import ESQueryResultEmpty, FondefVizError, ESQueryDateParametersDoesNotExist
+from esapi.helper.profile import ESProfileHelper
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBeenGroupedMessage, \
+    ThereAreNotValidExpeditionsMessage
+from esapi.utils import check_operation_program
+from esapi.utils import get_dates_from_request
+from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
 
 
 class LoadProfileByStopData(View):
@@ -91,9 +87,8 @@ class LoadProfileByStopData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            print(len(dates))
             if len(dates) == 0:
-                raise ESQueryDateRangeParametersDoesNotExist()
+                raise ESQueryDateParametersDoesNotExist
             for data_range in dates:
                 check_operation_program(data_range[0], data_range[len(data_range) - 1])
             es_helper = ESProfileHelper()
@@ -214,6 +209,8 @@ class LoadProfileByExpeditionData(View):
         response = {}
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             for date_range in dates:
                 start_date = date_range[0]
                 end_date = date_range[len(date_range) - 1]
@@ -341,6 +338,8 @@ class LoadProfileByTrajectoryData(View):
         response = {}
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             for date_range in dates:
                 start_date = date_range[0]
                 end_date = date_range[len(date_range) - 1]

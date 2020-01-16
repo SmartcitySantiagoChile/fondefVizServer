@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import JsonResponse
 from django.views.generic import View
 
-from esapi.errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.resume import ESResumeStatisticHelper
 
 # to translate variable to user name
@@ -187,6 +187,8 @@ class GlobalData(PermissionRequiredMixin, View):
         #
         response = {}
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             es_helper = ESResumeStatisticHelper()
             es_query = es_helper.get_data(dates, metrics)
             response['data'] = self.transform_data(es_query)

@@ -96,24 +96,31 @@ class ESTripHelper(ElasticSearchHelper):
     def get_available_days(self):
         return self._get_available_days('tiempo_subida')
 
-    def get_base_map_data_query(self, start_date, end_date, day_types, periods, sectors):
+    def get_base_map_data_query(self, dates, day_types, periods, sectors):
         es_query = self.get_base_query()
-
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
 
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
 
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[len(date_range) - 1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+            'gte': start_date + '||/d',
+            'lte': end_date + '||/d',
+            'format': 'yyyy-MM-dd',
+            'time_zone': '+00:00'
+        })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+
 
         # TODO: esta restricción no existe sobre la consulta inicialmente, verificar que no cambia el resultado.
         """
@@ -126,11 +133,11 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_map_data(self, start_date, end_date, day_types, periods, sectors):
+    def get_map_data(self, dates, day_types, periods, sectors):
         """
         Builds a elastic search query for the travels map
         """
-        es_query = self.get_base_map_data_query(start_date, end_date, day_types, periods, sectors)[:0]
+        es_query = self.get_base_map_data_query(dates, day_types, periods, sectors)[:0]
 
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_subida', size=1000)
