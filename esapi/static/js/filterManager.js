@@ -306,7 +306,6 @@ function FilterManager(opts) {
             if (params !== null){
                  $.getJSON(urlFilterData, params, function (data) {
                     if (data.status) {
-                        console.log(data.status.code);
                         if (Array.isArray(data.status)) {
                             data.status.forEach(function (message) {
                                 showMessage(message);

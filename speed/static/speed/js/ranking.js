@@ -56,7 +56,7 @@ $(document).ready(function () {
         var RoutePoints = dataSource.route.points;
         var valuesRoute = dataSource.speed;
         var selected = null;
-        $.each(dataSource.route.start_end, function (i, elem) {
+        $.each(dataSource.route.startend, function (i, elem) {
             var start = elem[0];
             var end = elem[1];
             var seg = RoutePoints.slice(start, end + 1);
@@ -167,6 +167,13 @@ $(document).ready(function () {
             var dateFilter = $("#dayFilter");
             var dates = JSON.parse(window.localStorage.getItem(url_key + "dayFilter")).sort();
             dates = groupByDates(dates);
+            dates = dates.map(function(date_range){
+                if (date_range.length === 1){
+                    return [date_range[0][0]]
+                } else {
+                    return [date_range[0][0], date_range[date_range.length - 1][0]];
+                }
+            });
             var dayType = $("#dayTypeFilter").val();
 
             var params = {
@@ -179,6 +186,7 @@ $(document).ready(function () {
             }
 
             $.getJSON(Urls["esapi:speedByRoute"](), params, function (response) {
+                console.log(response);
                 return showSegment(section, response);
             });
         }

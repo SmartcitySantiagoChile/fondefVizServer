@@ -164,7 +164,6 @@ class LoadProfileByExpeditionData(View):
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-        print(es_query.to_dict())
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
 
@@ -254,7 +253,6 @@ class LoadProfileByExpeditionData(View):
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
-        print("termino")
         return JsonResponse(response, safe=False)
 
     def get(self, request):

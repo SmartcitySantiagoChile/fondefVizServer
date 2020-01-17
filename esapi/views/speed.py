@@ -77,13 +77,16 @@ class MatrixData(View):
         }
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
+
             for date_range in dates:
                 check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
-                es_query = es_speed_helper.get_base_speed_data_query(auth_route, day_type, start_date, end_date,
+                es_query = es_speed_helper.get_base_speed_data_query(auth_route, day_type, dates,
                                                                      valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
@@ -142,6 +145,8 @@ class RankingData(View):
         }
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             for date_range in dates:
                 check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_speed_helper = ESSpeedHelper()
@@ -213,11 +218,13 @@ class SpeedByRoute(View):
         }
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             for date_range in dates:
                 check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
-
+            print(dates)
             if export_data:
                 es_query = es_speed_helper.get_base_detail_ranking_data_query(route, dates, hour_period,
                                                                               day_type, valid_operator_list)
@@ -324,9 +331,7 @@ class SpeedVariation(View):
         return data, l_routes
 
     def process_request(self, request, params, export_data=False):
-        dates = request.GET.getlist('dayFilter[]', '')
-        print(dates)
-        end_date = dates[0][0]
+        dates = get_dates_from_request(request,'GET')
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date
         operator = int(params.get('operator', 0))
@@ -342,6 +347,8 @@ class SpeedVariation(View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
+            end_date = dates[0][0]
+
             date_format = "%Y-%m-%d"
 
             most_recent_op_program_date = ESShapeHelper().get_most_recent_operation_program_date(end_date)

@@ -33,7 +33,7 @@ class PaymentFactorData(View):
 
         start_date = int((timezone.datetime.strptime(dates[0][0], '%Y-%m-%d') -
                           timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
-        end_date = int((timezone.datetime.strptime(dates[len(dates) - 1][1], '%Y-%m-%d') -
+        end_date = int((timezone.datetime.strptime(dates[len(dates) - 1][len(dates[len(dates) - 1]) - 1], '%Y-%m-%d') -
                         timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
         for a in es_query.execute().aggregations.by_bus_station_id.buckets:
             for b in a.by_bus_station_name.buckets:

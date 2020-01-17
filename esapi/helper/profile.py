@@ -226,5 +226,4 @@ class ESProfileHelper(ElasticSearchHelper):
             day_obj = datetime.strptime(day, date_format)
             if start_date <= day_obj <= end_date:
                 days_in_between.append(day)
-        print(days_in_between)
         return days_in_between
