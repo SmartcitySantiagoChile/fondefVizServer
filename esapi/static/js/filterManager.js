@@ -309,9 +309,10 @@ function FilterManager(opts) {
                 } else {
                     showMessage(data.status);
                 }
-            }
-            if (afterCall ) {
-                afterCall(data);
+            } else {
+                if (afterCall ){
+                   afterCall(data);
+                }
             }
             // update backup to the last request params sent to server
             paramsBackup = params;

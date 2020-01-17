@@ -120,14 +120,16 @@ $(document).ready(function () {
         };
 
         var printAmountOfData = function () {
-            var tripQuantity = data.aggregations.sum_expansion_factor.value;
-            var dataQuantity = data.hits.total;
-            document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
-            document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
+            if (data){
+                var tripQuantity = data.aggregations.sum_expansion_factor.value;
+                var dataQuantity = data.hits.total;
+                document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
+                document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
 
-            document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
-            document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
-        };
+                document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
+                document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
+                }
+            };
 
         this.setData = function (newData) {
             data = newData;
@@ -202,7 +204,7 @@ $(document).ready(function () {
 
         var afterCall = function (data) {
             processData(data, app);
-        };
+            };
         var opts = {
             urlFilterData: Urls["esapi:tripMapData"](),
             afterCallData: afterCall

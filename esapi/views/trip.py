@@ -100,9 +100,6 @@ class MapData(PermissionRequiredMixin, View):
         ]
 
         response = {
-            # 777 zones for each sector
-            'sectors': sectors,
-            'KPIs': KPIs
         }
 
         try:
@@ -115,6 +112,9 @@ class MapData(PermissionRequiredMixin, View):
             else:
                 es_query = es_helper.get_map_data(dates, day_types, periods, sectors)
                 response['map'] = es_helper.make_multisearch_query_for_aggs(es_query, flat=True).to_dict()
+                response['sectors'] = sectors
+                response['KPIs'] = KPIs
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
