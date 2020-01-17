@@ -214,11 +214,19 @@ $(document).ready(function () {
             };
 
             originZones.forEach(function (item) {
-                createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00").addTo(originGroupLayer);
-            });
+                try {
+                    createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00").addTo(originGroupLayer);
+                } catch (error) {
+                    console.log(error);
+                }
+                });
             destinationZones.forEach(function (item) {
-                createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF").addTo(destinationGroupLayer);
-            });
+                try {
+                    createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF").addTo(destinationGroupLayer);
+                } catch (error) {
+                    console.log(error);
+                }
+                });
 
             originMapLegend.update();
             destinationMapLegend.update();
@@ -334,6 +342,7 @@ $(document).ready(function () {
         var app = new FromToApp();
 
         var afterCall = function (data) {
+            console.log(data);
             processData(data, app);
         };
         var opts = {
