@@ -205,3 +205,13 @@ class ESQueryTooManyDestinationZonesError(FondefVizError):
     def __init__(self, limit_number):
         message = 'No puede seleccionar más de {0} zonas de destino'.format(limit_number)
         super(ESQueryTooManyDestinationZonesError, self).__init__(419, message)
+
+
+class ESQueryTransportModeEmpty(FondefVizError):
+    """ It raises when user does not provide transport mode to filter elastic search query """
+
+    def __init__(self):
+        message = 'Debe seleccionar el modo de viaje que desea visualizar'
+        title = 'Información'
+        message_type = 'info'
+        super(ESQueryTransportModeEmpty, self).__init__(429, message, title, message_type)

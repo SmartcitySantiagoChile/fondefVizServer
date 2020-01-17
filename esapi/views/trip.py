@@ -12,7 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, ESQueryStagesEmpty, \
+    ESQueryTransportModeEmpty
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -206,6 +207,11 @@ class FromToMapData(PermissionRequiredMixin, View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
+            if len(stages) == 0:
+                raise ESQueryStagesEmpty
+            if len(transport_modes) == 0:
+                raise ESQueryTransportModeEmpty
+
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(dates, day_types, periods, minutes,
                                                                      stages, transport_modes, origin_zones,

@@ -310,7 +310,8 @@ function FilterManager(opts) {
                     showMessage(data.status);
                 }
             } else {
-                if (afterCall ){
+                console.log(data);
+                if (afterCall){
                    afterCall(data);
                 }
             }
