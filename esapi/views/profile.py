@@ -238,9 +238,7 @@ class LoadProfileByExpeditionData(View):
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False)
-                    print("pasa query")
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
-                    print("pasa trips y bus station")
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
                                                                                 len(response['trips'].keys())). \
@@ -251,9 +249,7 @@ class LoadProfileByExpeditionData(View):
                                                                                 valid_operator_list)
                     response['groupedTrips'] = es_query.execute().to_dict()
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
-                response['stops'] = []
-                response['shape'] = []
-                response['stops'].append(es_stop_helper.get_stop_list(auth_route_code, dates)['stops'])
+                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
                 response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
 
         except FondefVizError as e:

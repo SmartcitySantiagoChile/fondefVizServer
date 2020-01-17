@@ -231,7 +231,6 @@ function FilterManager(opts) {
                 return parseInt(daysWindow);
             };*/
 
-            console.log(dates);
             if (datesSize()< minimumDateLimit) {
                 let status = {
                     message: "El período consultado debe ser mayor a 2 días",
@@ -307,6 +306,7 @@ function FilterManager(opts) {
             if (params !== null){
                  $.getJSON(urlFilterData, params, function (data) {
                     if (data.status) {
+                        console.log(data.status.code);
                         if (Array.isArray(data.status)) {
                             data.status.forEach(function (message) {
                                 showMessage(message);
@@ -314,7 +314,8 @@ function FilterManager(opts) {
                         } else {
                             showMessage(data.status);
                         }
-                    } else {
+                    }
+                    if (!data.status || data.status.code === 252) {
                         if (afterCall){
                            afterCall(data);
                         }
