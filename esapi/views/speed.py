@@ -152,7 +152,6 @@ class RankingData(View):
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
-                print "export"
                 es_query = es_speed_helper.get_base_ranking_data_query(dates, hour_period_from,
                                                                        hour_period_to, day_type, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
@@ -224,7 +223,6 @@ class SpeedByRoute(View):
                 check_operation_program(date_range[0], date_range[len(date_range) - 1])
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
-            print(dates)
             if export_data:
                 es_query = es_speed_helper.get_base_detail_ranking_data_query(route, dates, hour_period,
                                                                               day_type, valid_operator_list)
