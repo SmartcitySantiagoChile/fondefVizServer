@@ -164,7 +164,7 @@ class GlobalData(PermissionRequiredMixin, View):
     def get(self, request):
 
         metrics = request.GET.getlist('metrics[]', [])
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, False)
         response = {}
         try:
             if len(dates) == 0:

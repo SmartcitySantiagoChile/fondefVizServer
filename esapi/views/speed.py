@@ -65,7 +65,7 @@ class MatrixData(View):
 
     def process_request(self, request, params, export_data=False):
 
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         auth_route = params.get('authRoute', '')
         day_type = params.getlist('dayType[]', [])
 
@@ -133,7 +133,7 @@ class RankingData(View):
         return super(RankingData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         hour_period_from = params.get('hourPeriodFrom', None)
         hour_period_to = params.get('hourPeriodTo', None)
         day_type = params.getlist('dayType[]', None)
@@ -202,7 +202,7 @@ class SpeedByRoute(View):
 
     def process_request(self, request, params, export_data=False):
         route = params.get('authRoute', '')
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         hour_period = params.get('period', [])
         day_type = params.getlist('dayType[]', [])
 
@@ -331,7 +331,7 @@ class SpeedVariation(View):
         return data, l_routes
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request,'GET')
+        dates = get_dates_from_request(request, export_data)
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date
         operator = int(params.get('operator', 0))

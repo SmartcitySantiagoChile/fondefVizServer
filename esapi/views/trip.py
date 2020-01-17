@@ -28,7 +28,7 @@ class ResumeData(PermissionRequiredMixin, View):
         return super(ResumeData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         origin_zones = map(lambda x: int(x), params.getlist('origin[]', []))
@@ -77,7 +77,7 @@ class MapData(PermissionRequiredMixin, View):
         return super(MapData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('boardingPeriod[]', [])
 
@@ -150,7 +150,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
         return super(LargeTravelData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         stages = params.getlist('stages[]', [])
@@ -191,7 +191,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         return super(FromToMapData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
@@ -293,7 +293,7 @@ class StrategiesData(PermissionRequiredMixin, View):
         }
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('daytypes[]', [])
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
@@ -364,7 +364,7 @@ class TransfersData(View):
         }
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         auth_stop_code = params.get('stopCode', '')
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])

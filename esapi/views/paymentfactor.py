@@ -83,7 +83,7 @@ class PaymentFactorData(View):
 
     def process_request(self, request, params, export_data=False):
         response = {}
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         day_type = params.getlist('dayType[]', [])
 
         try:

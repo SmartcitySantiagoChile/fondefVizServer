@@ -79,7 +79,7 @@ class LoadProfileByStopData(View):
     def process_request(self, request, params, export_data=False):
         response = {}
 
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         day_type = params.getlist('dayType[]', [])
         stop_code = params.get('stopCode', '')
         period = params.getlist('period[]', [])
@@ -198,7 +198,7 @@ class LoadProfileByExpeditionData(View):
         return trips, bus_stations, expedition_not_valid_number
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         auth_route_code = params.get('authRoute')
         day_type = params.getlist('dayType[]')
         period = params.getlist('period[]')
@@ -320,7 +320,7 @@ class LoadProfileByTrajectoryData(View):
 
     def process_request(self, request, params, export_data=False):
 
-        dates = get_dates_from_request(request, 'GET')
+        dates = get_dates_from_request(request, export_data)
         auth_route_code = params.get('authRoute')
         day_type = params.getlist('dayType[]')
         period = params.getlist('period[]')

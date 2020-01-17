@@ -42,14 +42,14 @@ def check_operation_program(start_date, end_date):
         raise error_raised
 
 
-def get_dates_from_request(request, type_request):
+def get_dates_from_request(request, export_data):
     """
     Convert the GET[dates] or POST[dates] JSON to list
     :param request: http request
-    :param type_request: GET or Post
+    :param export_data: GET or Post
     :return: dates[] list
     """
-    if type_request == 'GET':
+    if not export_data:
         dates_raw = list(request.GET.items())
     else:
         dates_raw = list(request.POST.items())
