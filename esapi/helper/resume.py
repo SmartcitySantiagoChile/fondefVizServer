@@ -1,3 +1,8 @@
+from functools import reduce
+
+from elasticsearch_dsl import Q
+
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
@@ -62,18 +67,22 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
                        'transactionNumberInNinethBusStopWithMoreValidations',
                        'transactionNumberInTenthBusStopWithMoreValidations',
                        ]
-        # todo: hacerlo individual
-        es_query_list = []
+        es_query = self.get_base_query()
+
+        es_query = es_query.source(['date'] + metrics)
+        combined_filter = []
         for date_range in dates:
-            es_query = self.get_base_query()
-            es_query = es_query.source(['date'] + metrics)
             start_date = date_range[0]
             end_date = date_range[len(date_range) - 1]
-            es_query = es_query.filter('range', date={
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', date={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',
                 'format': 'yyyy-MM-dd',
                 'time_zone': '+00:00'
             })
-            es_query_list.append(es_query)
-        return es_query_list
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+        return es_query

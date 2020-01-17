@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
+from functools import reduce
 
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -226,15 +227,13 @@ class LoadProfileByExpeditionData(View):
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                diff_days_length = 0
+                diff_days = 0
                 for date_range in dates:
-                    diff_days = es_profile_helper.get_available_days_between_dates(date_range[0], date_range[len(date_range) - 1],
-                                                                               valid_operator_list)
-                    if len(diff_days) > diff_days_length:
-                        diff_days_length = len(diff_days)
+                    diff_days += len(es_profile_helper.get_available_days_between_dates(date_range[0], date_range[1],
+                                                                               valid_operator_list))
                 day_limit = 7
 
-                if diff_days_length <= day_limit:
+                if diff_days <= day_limit:
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,

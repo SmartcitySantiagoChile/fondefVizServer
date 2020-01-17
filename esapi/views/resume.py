@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
 from datetime import datetime
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import JsonResponse
 from django.views.generic import View
 
-from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
+from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, ESQueryMetricsModeEmpty, FondefVizError
 from esapi.helper.resume import ESResumeStatisticHelper
-
 # to translate variable to user name
+from esapi.utils import get_dates_from_request
+
 DICTIONARY = {
     'date': {'name': 'Día', 'order': 1},
     'transactionWithoutRoute': {'name': 'transacciones sin servicio asignado', 'chartName': 'Sin servicio asignado', 'order': 2},
@@ -130,7 +130,7 @@ DICTIONARY = {
 class GlobalData(PermissionRequiredMixin, View):
     permission_required = 'localinfo.globalstat'
 
-    def transform_data(self, es_query_list):
+    def transform_data(self, es_query):
         """ transform ES answer to something util to web client """
         keys = {
             'date': 0
@@ -139,20 +139,19 @@ class GlobalData(PermissionRequiredMixin, View):
         identifiers = ['date']
         chart_names = ['Día']
         answer = []
-        for es_query in es_query_list:
-            for hit in es_query.scan():
-                hit_row = hit.to_dict()
-                row = list(range(len(hit_row.keys())))
-                for key, value in hit_row.iteritems():
-                    if key not in keys.keys():
-                        keys[key] = len(header)
-                        header.append(DICTIONARY[key]['name'])
-                        chart_names.append(DICTIONARY[key]['chartName'])
-                        identifiers.append(key)
-                    row[keys[key]] = value
-                answer.append(row)
-            # sort
-            answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
+        for hit in es_query.scan():
+            hit_row = hit.to_dict()
+            row = list(range(len(hit_row.keys())))
+            for key, value in hit_row.iteritems():
+                if key not in keys.keys():
+                    keys[key] = len(header)
+                    header.append(DICTIONARY[key]['name'])
+                    chart_names.append(DICTIONARY[key]['chartName'])
+                    identifiers.append(key)
+                row[keys[key]] = value
+            answer.append(row)
+        # sort
+        answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
         if len(answer) == 0:
             raise ESQueryResultEmpty()
         return {
@@ -165,26 +164,7 @@ class GlobalData(PermissionRequiredMixin, View):
     def get(self, request):
 
         metrics = request.GET.getlist('metrics[]', [])
-        dates_raw = list(request.GET.items())
-        index = 0
-        for indexes in range(len(dates_raw)):
-            if dates_raw[indexes][0] == "dates":
-                index = indexes
-        dates_raw = json.loads(dates_raw[index][1])
-        dates_aux = []
-        dates = []
-        for i in dates_raw:
-            for j in i:
-                dates_aux.append(str(j[0]))
-            dates.append(dates_aux)
-            dates_aux = []
-
-        # start_date = request.GET.get('startDate')[:10]
-        # end_date = request.GET.get('endDate', '')[:10]
-        #
-        # if start_date and not end_date:
-        #     end_date = start_date
-        #
+        dates = get_dates_from_request(request, 'GET')
         response = {}
         try:
             if len(dates) == 0:
@@ -192,7 +172,7 @@ class GlobalData(PermissionRequiredMixin, View):
             es_helper = ESResumeStatisticHelper()
             es_query = es_helper.get_data(dates, metrics)
             response['data'] = self.transform_data(es_query)
-        except ESQueryResultEmpty as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -210,3 +190,4 @@ class AvailableDays(PermissionRequiredMixin, View):
         }
 
         return JsonResponse(response)
+

@@ -214,4 +214,12 @@ class ESQueryTransportModeEmpty(FondefVizError):
         message = 'Debe seleccionar el modo de viaje que desea visualizar'
         title = 'Información'
         message_type = 'info'
-        super(ESQueryTransportModeEmpty, self).__init__(429, message, title, message_type)
+        super(ESQueryTransportModeEmpty, self).__init__(420, message, title, message_type)
+
+
+class ESQueryMetricsModeEmpty(FondefVizError):
+    """ It raises when user does not provide metrics to filter elastic search query """
+
+    def __init__(self):
+        message = 'Debe seleccionar una métrica'
+        super(ESQueryMetricsModeEmpty, self).__init__(421, message)

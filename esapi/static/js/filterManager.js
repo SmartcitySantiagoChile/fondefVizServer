@@ -189,7 +189,11 @@ function FilterManager(opts) {
         var dates = JSON.parse(window.localStorage.getItem(url_key + "dayFilter")).sort();
         dates = groupByDates(dates);
         dates = dates.map(function(date_range){
-           return [date_range[0][0], date_range[date_range.length - 1][0]];
+            if (date_range.length === 1){
+                return [date_range[0][0]]
+            } else {
+                return [date_range[0][0], date_range[date_range.length - 1][0]];
+            }
         });
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
@@ -227,8 +231,7 @@ function FilterManager(opts) {
                 return parseInt(daysWindow);
             };*/
 
-
-
+            console.log(dates);
             if (datesSize()< minimumDateLimit) {
                 let status = {
                     message: "El período consultado debe ser mayor a 2 días",
@@ -300,27 +303,33 @@ function FilterManager(opts) {
             }
 
             var params = getParameters();
-            $.getJSON(urlFilterData, params, function (data) {
-            if (data.status) {
-                if (Array.isArray(data.status)) {
-                    data.status.forEach(function (message) {
-                        showMessage(message);
-                    })
-                } else {
-                    showMessage(data.status);
-                }
+
+            if (params !== null){
+                 $.getJSON(urlFilterData, params, function (data) {
+                    if (data.status) {
+                        if (Array.isArray(data.status)) {
+                            data.status.forEach(function (message) {
+                                showMessage(message);
+                            })
+                        } else {
+                            showMessage(data.status);
+                        }
+                    } else {
+                        if (afterCall){
+                           afterCall(data);
+                        }
+                    }
+                    // update backup to the last request params sent to server
+                    paramsBackup = params;
+                    }).always(function () {
+                        _makeAjaxCallForUpdateButton = true;
+                        button.html(previousMessage);
+                    });
+
             } else {
-                console.log(data);
-                if (afterCall){
-                   afterCall(data);
-                }
-            }
-            // update backup to the last request params sent to server
-            paramsBackup = params;
-            }).always(function () {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);
-            });
+            }
         }
     });
 
