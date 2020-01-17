@@ -229,12 +229,12 @@ class LoadProfileByExpeditionData(View):
             else:
                 diff_days = 0
                 for date_range in dates:
-                    diff_days += len(es_profile_helper.get_available_days_between_dates(date_range[0], date_range[1],
+                    diff_days += len(es_profile_helper.get_available_days_between_dates(date_range[0], date_range[len(date_range) - 1],
                                                                                valid_operator_list))
                 day_limit = 7
 
                 if diff_days <= day_limit:
-                    es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates,
+                    es_query = es_profile_helper.get_base_profile_by_expedition_data_query([dates[0]],
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False)
