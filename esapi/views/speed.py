@@ -324,7 +324,8 @@ class SpeedVariation(View):
         return data, l_routes
 
     def process_request(self, request, params, export_data=False):
-        dates = get_dates_from_request(request, 'GET')
+        dates = request.GET.getlist('dayFilter[]', '')
+        print(dates)
         end_date = dates[0][0]
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date

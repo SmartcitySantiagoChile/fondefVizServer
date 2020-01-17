@@ -49,10 +49,11 @@ class ResumeData(PermissionRequiredMixin, View):
                 histogram, indicators = es_helper.get_resume_data(dates, day_types, periods,
                                                                   origin_zones, destination_zones)
                 histogram, indicators = es_helper.make_multisearch_query_for_aggs(histogram, indicators)
+
                 if histogram.hits.total == 0:
                     raise ESQueryResultEmpty
-                for h in histogram:
-                    print h
+                #for h in histogram:
+                #    print h
                 response['histogram'] = histogram.to_dict()
                 response['indicators'] = indicators.to_dict()
         except FondefVizError as e:
@@ -148,8 +149,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
         return super(LargeTravelData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, 'GET')
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         stages = params.getlist('stages[]', [])
@@ -163,11 +163,11 @@ class LargeTravelData(PermissionRequiredMixin, View):
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
-                es_query = es_helper.get_base_large_travel_data_query(start_date, end_date, day_types, periods, stages)
+                es_query = es_helper.get_base_large_travel_data_query(dates, day_types, periods, stages)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query = es_helper.get_large_travel_data(start_date, end_date, day_types, periods, stages,
+                es_query = es_helper.get_large_travel_data(dates, day_types, periods, stages,
                                                            origin_or_destination)
                 response['large'] = es_helper.make_multisearch_query_for_aggs(es_query, flat=True).to_dict()
         except FondefVizError as e:
@@ -190,8 +190,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         return super(FromToMapData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, 'GET')
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
@@ -208,13 +207,13 @@ class FromToMapData(PermissionRequiredMixin, View):
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
-                es_query = es_helper.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes,
+                es_query = es_helper.get_base_from_to_map_data_query(dates, day_types, periods, minutes,
                                                                      stages, transport_modes, origin_zones,
                                                                      destination_zones)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                queries = es_helper.get_from_to_map_data(start_date, end_date, day_types, periods, minutes, stages,
+                queries = es_helper.get_from_to_map_data(dates, day_types, periods, minutes, stages,
                                                          transport_modes, origin_zones, destination_zones)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
 
@@ -292,8 +291,7 @@ class StrategiesData(PermissionRequiredMixin, View):
         }
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, 'GET')
         day_types = params.getlist('daytypes[]', [])
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
@@ -308,12 +306,12 @@ class StrategiesData(PermissionRequiredMixin, View):
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
-                es_query = es_helper.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes,
+                es_query = es_helper.get_base_strategies_data_query(dates, day_types, periods, minutes,
                                                                     origin_zones, destination_zones)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                es_query = es_helper.get_strategies_data(start_date, end_date, day_types, periods, minutes,
+                es_query = es_helper.get_strategies_data(dates, day_types, periods, minutes,
                                                          origin_zones, destination_zones)
                 response.update(self.process_data(es_query))
         except FondefVizError as e:

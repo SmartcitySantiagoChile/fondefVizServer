@@ -1,8 +1,7 @@
 "use strict";
 
 /**
- * Calendar to show available days (dates with data)
- * Filter to select multiple range of dates.
+ * Group dates array in a range of dates array
  * */
 function groupByDates(dates){
         let sortedArray = Array.from(dates).sort();
@@ -25,11 +24,19 @@ function groupByDates(dates){
         return selection_by_range
     }
 
+
+/**
+ * Calendar to show available days (dates with data)
+ * Filter to select multiple range of dates.
+ * */
 function loadRangeCalendar(data_url, calendar_opts) {
     // set variables
     var urlKey = window.location.pathname;
     var auxSelectedDates = new Set();
-    var selectedDates = new Set(JSON.parse(window.localStorage.getItem(urlKey + 'dayFilter')));
+    var selectedDates = new Set(JSON.parse(window.localStorage.getItem(urlKey + 'dayFilter')) || [] );
+    if (selectedDates.size === 0){
+        window.localStorage.setItem(urlKey + 'dayFilter', JSON.stringify([]));
+    }
     let $dayFilter = $('#dayFilter');
     var divId = "dateRangeCalendar";
     var dateRangeChart = echarts.init(document.getElementById(divId), theme);

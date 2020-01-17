@@ -188,6 +188,9 @@ function FilterManager(opts) {
     var getParameters = function () {
         var dates = JSON.parse(window.localStorage.getItem(url_key + "dayFilter")).sort();
         dates = groupByDates(dates);
+        dates = dates.map(function(date_range){
+           return [date_range[0][0], date_range[date_range.length - 1][0]];
+        });
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
         var minutes = $MINUTE_PERIOD_FILTER.val();

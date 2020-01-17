@@ -44,7 +44,7 @@ def check_operation_program(start_date, end_date):
 
 def get_dates_from_request(request, type_request):
     """
-    Convert the GET[dates] or POST[dates] items to list
+    Convert the GET[dates] or POST[dates] JSON to list
     :param request: http request
     :param type_request: GET or Post
     :return: dates[] list
@@ -54,7 +54,6 @@ def get_dates_from_request(request, type_request):
     else:
         dates_raw = list(request.POST.items())
     index = 0
-    print(dates_raw)
     if dates_raw != []:
         for indexes in range(len(dates_raw)):
             if dates_raw[indexes][0] == "dates":
@@ -64,7 +63,7 @@ def get_dates_from_request(request, type_request):
         dates = []
         for i in dates_raw:
             for j in i:
-                dates_aux.append(str(j[0]))
+                dates_aux.append(str(j))
             dates.append(dates_aux)
             dates_aux = []
     else:
