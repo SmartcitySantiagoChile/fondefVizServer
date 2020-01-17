@@ -93,8 +93,8 @@ function loadRangeCalendar(data_url, calendar_opts) {
         reprintSelection();
     });
 
-    // optional configuration
-    var singleDatePicker = calendar_opts.singleDatePicker || false;
+    // optional configuration when singleDatePicker = True
+    let singleDatePicker = calendar_opts.singleDatePicker || false;
     if (singleDatePicker){
         let arrayToSave = Array.from(selectedDates);
         selectedDates = new Set([arrayToSave[0]]);
@@ -112,7 +112,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
         //$('#deleteSelection').hide();
     } else {
         $dayFilter.val(dayMessageHandler(selectedDates.size));
-
     }
 
     function dayMessageHandler(days){
@@ -139,7 +138,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         }
     });
 
-    // popup activatipon
+    // popove activation
     $dayFilter.attr("data-trigger", "hover");
     $dayFilter.attr("data-toggle", "popover");
     $dayFilter.attr("data-content", "");
@@ -153,11 +152,9 @@ function loadRangeCalendar(data_url, calendar_opts) {
             }
         });
     }
-
-
-
     $dayFilter.attr("data-content", "");
     $('#popover-content').empty().append(createSelectionUl(selectedDates));
+
 
     // show loading
     var loadingText = "Cargando ...";
@@ -311,6 +308,16 @@ function loadRangeCalendar(data_url, calendar_opts) {
         return date.toString().split("-").reverse().join("-")
     }
 
+
+    function downplay_date(params){
+        dateRangeChart.dispatchAction({
+                type: 'downplay',
+                seriesIndex: params.seriesIndex,
+                seriesName: params.seriesName,
+                dataIndex: params.dataIndex,
+            });
+    }
+
     //filter selection
     var selectedRangeDate = [];
     var deletedRangeDate = [];
@@ -416,6 +423,16 @@ function loadRangeCalendar(data_url, calendar_opts) {
     //delete all selection
     $('#deleteSelection').click(function () {
         deleteSelection();
+    });
 
-    })
+    // downplay when global out
+    dateRangeChart.on("globalout", function(params){
+        if(selectedRangeDate.length !== 0){
+            downplay_date(selectedRangeDate[0]);
+            selectedRangeDate = [];
+        } else {
+            deletedRangeDate = [];
+        }
+    });
+
 }
