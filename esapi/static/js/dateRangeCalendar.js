@@ -373,6 +373,18 @@ function loadRangeCalendar(data_url, calendar_opts) {
             let allData = dateRangeChart.getOption().series[0].data;
             let rs_sort = [deletedRangeDate[0].data[0], params.data[0]].sort();
             temporalDeleted = new Set([]);
+            selectedDates.forEach(function (e) {
+            dateRangeChart.dispatchAction({
+                    type: 'highlight',
+                    dataIndex: e[1],
+                });
+            });
+            auxSelectedDates.forEach(function (e) {
+            dateRangeChart.dispatchAction({
+                    type: 'highlight',
+                    dataIndex: e[1],
+                });
+            });
             for (let i = 0; i < allData.length; i++){
                 if (allData[i][0] >= rs_sort[0] && allData[i][0] <= rs_sort[1]){
                     temporalDeleted.add([[allData[i][0]], i]);
@@ -382,7 +394,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     });
                 }
             }
-            reprintSelection();
         }
     });
 
