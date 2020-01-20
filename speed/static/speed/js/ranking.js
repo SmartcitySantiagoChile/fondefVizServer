@@ -187,7 +187,6 @@ $(document).ready(function () {
             }
 
             $.getJSON(Urls["esapi:speedByRoute"](), params, function (response) {
-                console.log(response);
                 return showSegment(section, response);
             });
         }
