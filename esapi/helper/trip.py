@@ -32,7 +32,7 @@ class ESTripHelper(ElasticSearchHelper):
                 .metric('bin', 'sum', field='factor_expansion') \
                 .pipeline('total', 'cumulative_sum', buckets_path='bin')
 
-            # up to 120 min
+        # up to 120 min
 
         add_histogram('tviaje', '15', 0, 120)
 
