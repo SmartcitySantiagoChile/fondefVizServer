@@ -444,7 +444,7 @@ class ESTripHelper(ElasticSearchHelper):
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
-        landing_stop_in_first_stage = Q('term', paradfa_bajada_1=auth_stop_code)
+        landing_stop_in_first_stage = Q('term', parada_bajada_1=auth_stop_code)
         landing_stop_in_second_stage = Q('term', parada_bajada_2=auth_stop_code)
         landing_stop_in_third_stage = Q('term', parada_bajada_3=auth_stop_code)
         landing_stop_in_fourth_stage = Q('term', parada_bajada_4=auth_stop_code)
@@ -475,7 +475,7 @@ class ESTripHelper(ElasticSearchHelper):
                                                            half_hours)
 
         def add_aggregation(bucket_name, stop_name, additional_conditions, stage_route_init, stage_route_end,
-                            es_query, not_conditions=None):
+                            not_conditions=None):
             conditions = [{'term': {}}]
             conditions[0]['term'][stop_name] = auth_stop_code
             conditions += additional_conditions
@@ -501,26 +501,22 @@ class ESTripHelper(ElasticSearchHelper):
         third_not_condition = [{'term': {'tipo_transporte_4': 2}}, {'term': {'tipo_transporte_4': 4}}]
 
         add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2',
-                        es_query, first_not_condition)
+                        first_not_condition)
         add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3',
-                        es_query, second_not_condition)
+                        second_not_condition)
         add_aggregation('third_transfer', 'parada_bajada_3', third_condition, 'srv_3', 'srv_4',
-                        es_query, third_not_condition)
+                        third_not_condition)
 
-        add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2',
-                        es_query)
-        add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3',
-                        es_query)
-        add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4',
-                        es_query)
-        add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None,
-                        es_query)
+        add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2')
+        add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3')
+        add_aggregation('third_transfer_is_end', 'parada_bajada_3', [{'term': {'n_etapas': 3}}], 'srv_3', 'srv_4')
+        add_aggregation('fourth_transfer_is_end', 'parada_bajada_4', [{'term': {'n_etapas': 4}}], 'srv_4', None)
 
         add_aggregation('first_transfer_to_subway', 'parada_bajada_1', first_condition + first_not_condition, 'srv_1',
-                        'parada_subida_2', es_query)
+                        'parada_subida_2')
         add_aggregation('second_transfer_to_subway', 'parada_bajada_2', second_condition + second_not_condition,
-                        'srv_2', 'parada_subida_3', es_query)
+                        'srv_2', 'parada_subida_3')
         add_aggregation('third_transfer_to_subway', 'parada_bajada_3', third_condition + third_not_condition, 'srv_3',
-                        'parada_subida_4', es_query)
+                        'parada_subida_4')
 
         return es_query
