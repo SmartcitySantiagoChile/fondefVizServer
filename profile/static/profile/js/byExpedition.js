@@ -806,7 +806,6 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data) {
-            console.log(data);
             processData(data, app);
             app.hideLoadingAnimationCharts();
         };
