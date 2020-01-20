@@ -207,19 +207,9 @@ class ESQueryTooManyDestinationZonesError(FondefVizError):
         super(ESQueryTooManyDestinationZonesError, self).__init__(419, message)
 
 
-class ESQueryTransportModeEmpty(FondefVizError):
-    """ It raises when user does not provide transport mode to filter elastic search query """
-
-    def __init__(self):
-        message = 'Debe seleccionar el modo de viaje que desea visualizar'
-        title = 'Información'
-        message_type = 'info'
-        super(ESQueryTransportModeEmpty, self).__init__(420, message, title, message_type)
 
 
-class ESQueryMetricsModeEmpty(FondefVizError):
-    """ It raises when user does not provide metrics to filter elastic search query """
 
-    def __init__(self):
-        message = 'Debe seleccionar una métrica'
-        super(ESQueryMetricsModeEmpty, self).__init__(421, message)
+
+
+

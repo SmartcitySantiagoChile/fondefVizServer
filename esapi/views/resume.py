@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import JsonResponse
 from django.views.generic import View
 
-from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, ESQueryMetricsModeEmpty, FondefVizError
+from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, FondefVizError
 from esapi.helper.resume import ESResumeStatisticHelper
 # to translate variable to user name
 from esapi.utils import get_dates_from_request

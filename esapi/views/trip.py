@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
 from collections import defaultdict
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -12,8 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, ESQueryStagesEmpty, \
-    ESQueryTransportModeEmpty
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
