@@ -51,8 +51,7 @@ class ResumeData(PermissionRequiredMixin, View):
 
                 if histogram.hits.total == 0:
                     raise ESQueryResultEmpty
-                #for h in histogram:
-                #    print h
+
                 response['histogram'] = histogram.to_dict()
                 response['indicators'] = indicators.to_dict()
         except FondefVizError as e:
