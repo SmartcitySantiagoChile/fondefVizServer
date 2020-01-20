@@ -220,7 +220,7 @@ $(document).ready(function () {
         };
 
         loadAvailableDays(Urls["esapi:availableStatisticDays"]());
-        loadRangeCalendar(Urls["esapi:availableStatisticDays"](), calendar_opts );
+        loadRangeCalendar(Urls["esapi:availableStatisticDays"](), calendar_opts);
 
 
         var app = new DetailApp();
