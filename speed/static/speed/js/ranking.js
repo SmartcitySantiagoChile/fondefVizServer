@@ -164,9 +164,8 @@ $(document).ready(function () {
         };
 
         this.drawSegment = function (route, period, section) {
-            var url_key = window.location.pathname;
-            var dateFilter = $("#dayFilter");
-            var dates = JSON.parse(window.localStorage.getItem(url_key + "dayFilter")).sort();
+            var urlKey = window.location.pathname;
+            var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
             dates = groupByDates(dates);
             dates = dates.map(function(date_range){
                 if (date_range.length === 1){
