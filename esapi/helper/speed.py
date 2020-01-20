@@ -76,7 +76,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         for date_range in dates:
             start_date = date_range[0]
-            end_date = date_range[len(date_range) - 1]
+            end_date = date_range[-1]
             if not start_date or not end_date:
                 raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', date={
@@ -128,7 +128,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         combined_filter = []
         for date_range in dates:
             start_date = date_range[0]
-            end_date = date_range[len(date_range) - 1]
+            end_date = date_range[-1]
             if not start_date or not end_date:
                 raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', date={
@@ -206,7 +206,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         combined_filter = []
         for date_range in dates:
             start_date = date_range[0]
-            end_date = date_range[len(date_range) - 1]
+            end_date = date_range[-1]
             if not start_date or not end_date:
                 raise ESQueryDateRangeParametersDoesNotExist()
 
