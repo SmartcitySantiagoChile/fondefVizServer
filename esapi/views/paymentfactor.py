@@ -74,7 +74,7 @@ class PaymentFactorData(View):
                                        factor_average=factor_average)
                             rows.append(row)
         if len(rows) == 0:
-                raise ESQueryResultEmpty()
+            raise ESQueryResultEmpty()
         result = {
             'rows': rows,
         }
