@@ -90,8 +90,7 @@ class LoadProfileByStopData(View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
-            for data_range in dates:
-                check_operation_program(data_range[0], data_range[len(data_range) - 1])
+            check_operation_program(dates[0][0], dates[-1][-1])
             es_helper = ESProfileHelper()
 
             es_query = es_helper.get_profile_by_stop_data(dates, day_type, stop_code, period, half_hour,
@@ -211,10 +210,7 @@ class LoadProfileByExpeditionData(View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
-            for date_range in dates:
-                start_date = date_range[0]
-                end_date = date_range[len(date_range) - 1]
-                check_operation_program(start_date, end_date)
+            check_operation_program(dates[0][0], dates[-1][-1])
             es_stop_helper = ESStopByRouteHelper()
             es_shape_helper = ESShapeHelper()
             es_profile_helper = ESProfileHelper()
@@ -333,10 +329,7 @@ class LoadProfileByTrajectoryData(View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
-            for date_range in dates:
-                start_date = date_range[0]
-                end_date = date_range[len(date_range) - 1]
-                check_operation_program(start_date, end_date)
+            check_operation_program(dates[0][0], dates[-1][-1])
             es_stop_helper = ESStopByRouteHelper()
             es_profile_helper = ESProfileHelper()
 

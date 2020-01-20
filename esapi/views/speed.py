@@ -80,8 +80,8 @@ class MatrixData(View):
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
 
-            for date_range in dates:
-                check_operation_program(date_range[0], date_range[len(date_range) - 1])
+            check_operation_program(dates[0][0], dates[-1][-1])
+
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
 
@@ -147,8 +147,8 @@ class RankingData(View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
-            for date_range in dates:
-                check_operation_program(date_range[0], date_range[len(date_range) - 1])
+            check_operation_program(dates[0][0], dates[-1][-1])
+
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
@@ -219,8 +219,8 @@ class SpeedByRoute(View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
-            for date_range in dates:
-                check_operation_program(date_range[0], date_range[len(date_range) - 1])
+            check_operation_program(dates[0][0], dates[-1][-1])
+
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
             if export_data:

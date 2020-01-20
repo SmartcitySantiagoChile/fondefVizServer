@@ -71,8 +71,7 @@ class ODMatrixData(View):
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
-            for date_range in dates:
-                check_operation_program(date_range[0], date_range[len(date_range) - 1])
+            check_operation_program(dates[0][0], dates[-1][-1])
             es_od_helper = ESODByRouteHelper()
             es_stop_helper = ESStopByRouteHelper()
 
