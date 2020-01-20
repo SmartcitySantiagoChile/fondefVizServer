@@ -56,7 +56,6 @@ $(document).ready(function () {
         var RoutePoints = dataSource.route.points;
         var valuesRoute = dataSource.speed;
         var selected = null;
-        console.log(dataSource.route);
         $.each(dataSource.route.start_end, function (i, elem) {
             var start = elem[0];
             var end = elem[1];
