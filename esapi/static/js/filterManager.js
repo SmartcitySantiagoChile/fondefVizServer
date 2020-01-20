@@ -285,8 +285,8 @@ function FilterManager(opts) {
 
             var params = getParameters();
 
-            if (params !== null){
-                 $.getJSON(urlFilterData, params, function (data) {
+            if (params !== null) {
+                $.getJSON(urlFilterData, params, function (data) {
                     if (data.status) {
                         if (Array.isArray(data.status)) {
                             data.status.forEach(function (message) {
@@ -297,17 +297,16 @@ function FilterManager(opts) {
                         }
                     }
                     if (!data.status || data.status.code === 252) {
-                        if (afterCall){
-                           afterCall(data);
+                        if (afterCall) {
+                            afterCall(data);
                         }
                     }
                     // update backup to the last request params sent to server
                     paramsBackup = params;
-                    }).always(function () {
-                        _makeAjaxCallForUpdateButton = true;
-                        button.html(previousMessage);
+                }).always(function () {
+                    _makeAjaxCallForUpdateButton = true;
+                    button.html(previousMessage);
                     });
-
             } else {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);

@@ -19,7 +19,6 @@ class MatchedStopData(View):
             'items': []
         }
         try:
-
             if len(term) < 3:
                 raise ESQueryStopPatternTooShort()
 
