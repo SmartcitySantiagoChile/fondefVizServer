@@ -4,25 +4,25 @@
  * Group dates array in a range of dates array
  * */
 function groupByDates(dates){
-        let sortedArray = Array.from(dates).sort();
-        let dateArray = [];
-        sortedArray.map(e => dateArray.push(new Date(e[0])));
-        let selection_by_range = [];
-        let aux_selector = [];
-        for (let i = 0; i < dateArray.length; i++) {
-            aux_selector.push(sortedArray[i]);
-            let next_day = new Date(dateArray[i]);
-            next_day.setDate(dateArray[i].getDate() + 1);
-            const index = dateArray.findIndex(function (x) {
-                return x.valueOf() === next_day.valueOf();
-            });
-            if (index === -1) {
-                selection_by_range.push(aux_selector);
-                aux_selector = [];
-            }
+    let sortedArray = Array.from(dates).sort();
+    let dateArray = [];
+    sortedArray.map(e => dateArray.push(new Date(e[0])));
+    let selection_by_range = [];
+    let aux_selector = [];
+    for (let i = 0; i < dateArray.length; i++) {
+        aux_selector.push(sortedArray[i]);
+        let next_day = new Date(dateArray[i]);
+        next_day.setDate(dateArray[i].getDate() + 1);
+        const index = dateArray.findIndex(function (x) {
+            return x.valueOf() === next_day.valueOf();
+        });
+        if (index === -1) {
+            selection_by_range.push(aux_selector);
+            aux_selector = [];
         }
-        return selection_by_range
     }
+    return selection_by_range
+}
 
 
 /**
