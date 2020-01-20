@@ -342,7 +342,6 @@ $(document).ready(function () {
         var app = new FromToApp();
 
         var afterCall = function (data) {
-            console.log(data);
             processData(data, app);
         };
         var opts = {
