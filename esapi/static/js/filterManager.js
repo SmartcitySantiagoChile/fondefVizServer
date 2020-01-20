@@ -212,13 +212,6 @@ function FilterManager(opts) {
 
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
-            /*var diffDays = function (startDate, endDate) {
-                startDate = new Date(startDate);
-                endDate = new Date(endDate);
-                var diff = new Date(endDate - startDate);
-                var daysWindow = diff / 1000 / 60 / 60 / 24;
-                return parseInt(daysWindow);
-            };*/
 
             if (datesSize()< minimumDateLimit) {
                 let status = {
