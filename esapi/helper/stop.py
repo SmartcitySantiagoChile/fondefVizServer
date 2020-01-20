@@ -68,8 +68,9 @@ class ESStopHelper(ElasticSearchHelper):
 
         try:
             stop_info.append(es_query.execute().hits.hits[0]['_source'])
-            #del stop_info['path']
-            #del stop_info['timestamp']
+            print (stop_info[0])
+            del stop_info[0]['path']
+            del stop_info[0]['timestamp']
         except IndexError:
             raise ESQueryStopInfoDoesNotExist()
 
