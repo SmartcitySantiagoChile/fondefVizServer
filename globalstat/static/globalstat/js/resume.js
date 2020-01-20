@@ -242,10 +242,7 @@ $(document).ready(function () {
             afterCallData: afterCall,
             minimumDateLimit: 2
         };
-
-
         new FilterManager(opts);
-
         $(window).resize(function () {
             app.resizeCharts();
         });
