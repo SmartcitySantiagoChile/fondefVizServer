@@ -59,20 +59,9 @@ function FilterManager(opts) {
     var PLACEHOLDER_USER_ROUTE = "Servicio usuario";
     var PLACEHOLDER_AUTH_ROUTE = "Servicio transantiago";
 
-    /* RETRIEVE DEFAULT VALUES
-    optionDateRangePicker.singleDatePicker = singleDatePicker;
-    var localStartDate = window.localStorage.getItem("startDate");
-    var localEndDate = window.localStorage.getItem("endDate");
-    if (localStartDate !== null) {
-        optionDateRangePicker.startDate = moment(localStartDate);
-    }
-    if (localEndDate !== null) {
-        optionDateRangePicker.endDate = moment(localEndDate);
-    }*/
 
     /* ENABLE select2 library */
 
-    // $DAY_FILTER.daterangepicker(optionDateRangePicker);
     $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MINUTE_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
@@ -82,9 +71,9 @@ function FilterManager(opts) {
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
 
-    let url_key = window.location.pathname;
+    let urlKey = window.location.pathname;
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
-    var localDayFilter = window.localStorage.getItem(url_key + "dayFilter");
+    var localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
     if (localDayFilter !== null){
         localDayFilter = JSON.parse(localDayFilter);
     }
@@ -120,7 +109,7 @@ function FilterManager(opts) {
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
         var dates_array = Array.from(auxSelectedDates);
-        window.localStorage.setItem(url_key + "dayFilter", JSON.stringify(dates_array));
+        window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(dates_array));
         localDayFilter = Array.from(dates_array);
     });
 
@@ -186,7 +175,7 @@ function FilterManager(opts) {
 
     /* BUTTON ACTION */
     var getParameters = function () {
-        var dates = JSON.parse(window.localStorage.getItem(url_key + "dayFilter")).sort();
+        var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
         dates = groupByDates(dates);
         dates = dates.map(function(date_range){
             if (date_range.length === 1){
