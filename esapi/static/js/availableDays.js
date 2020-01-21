@@ -93,4 +93,7 @@ function loadAvailableDays(data_url) {
             availableDaysChart.resize();
         }
     });
+    $.get(Urls["localinfo:calendarInfo"](), function (data) {
+        console.log(data);
+    });
 }

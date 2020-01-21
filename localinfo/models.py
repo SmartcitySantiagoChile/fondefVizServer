@@ -127,11 +127,11 @@ class DayDescription(models.Model):
     """color and description for days"""
 
     color = ColorField(default='#FF0000')
-    description = models.CharField(max_length=250)
+    description = models.CharField("Descripción", max_length=250)
 
     class Meta:
-        verbose_name = "Descripción de día"
-        verbose_name_plural = "Descripción de días"
+        verbose_name = "descripción de día"
+        verbose_name_plural = "descripciónes de días"
 
     def __str__(self):
         return self.description.encode('utf8')
@@ -140,11 +140,10 @@ class DayDescription(models.Model):
 class CalendarInfo(models.Model):
     """"Association bewtween dates and DayDescription"""
 
-    date = models.DateField(unique=True)
-    day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE)
-
+    date = models.DateField("Fecha", unique=True)
+    day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE, verbose_name="Descripción de día")
     class Meta:
-        verbose_name = "Información de calendario"
-        verbose_name_plural = "Información de calendario"
+        verbose_name = "información de calendario"
+        verbose_name_plural = "información de calendario"
 
 
