@@ -379,7 +379,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 if (allData[i][0] >= rs_sort[0] && allData[i][0] <= rs_sort[1]){
                     temporalDeleted.add([[allData[i][0]], i]);
                     dateRangeChart.dispatchAction({
-                        type: 'downplay',K
+                        type: 'downplay',
                         dataIndex: i,
                     });
                 }
