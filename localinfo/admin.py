@@ -14,7 +14,6 @@ from localinfo.helper import PermissionBuilder
 admin.site.unregister(Group)
 admin.site.unregister(User)
 
-
 class OperatorAdmin(admin.ModelAdmin):
     actions = None
     list_display = ('esId', 'name')

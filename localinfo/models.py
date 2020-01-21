@@ -121,3 +121,29 @@ class GlobalPermission(Permission):
         )
         self.content_type = ct
         super(GlobalPermission, self).save(*args)
+
+
+class DayDescription(models.Model):
+    """color and description for days"""
+
+    esId = models.IntegerField("Identificador", unique=True, null=False)
+    color = models.CharField(max_length=7)
+    description = models.CharField(max_length=250)
+
+    class Meta:
+        verbose_name = "Descripción de día"
+        verbose_name_plural = "Descripción de días"
+
+
+class CalendarInfo(models.Model):
+    """"Association bewtween dates and DayDescription"""
+
+    esId = models.IntegerField("Identificador", unique=True, null=False)
+    date = models.DateField(unique=True)
+    day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Información de calendario"
+        verbose_name_plural = "Información de calendario"
+
+
