@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-
+from colorfield.fields import ColorField
 
 class TimePeriod(models.Model):
     """ Time period with standard names """
@@ -126,19 +126,20 @@ class GlobalPermission(Permission):
 class DayDescription(models.Model):
     """color and description for days"""
 
-    esId = models.IntegerField("Identificador", unique=True, null=False)
-    color = models.CharField(max_length=7)
+    color = ColorField(default='#FF0000')
     description = models.CharField(max_length=250)
 
     class Meta:
         verbose_name = "Descripción de día"
         verbose_name_plural = "Descripción de días"
 
+    def __str__(self):
+        return self.description.encode('utf8')
+
 
 class CalendarInfo(models.Model):
     """"Association bewtween dates and DayDescription"""
 
-    esId = models.IntegerField("Identificador", unique=True, null=False)
     date = models.DateField(unique=True)
     day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE)
 
