@@ -54,6 +54,12 @@
                       <li><a href="{% url 'admin:logapp_usersessionstats_changelist' %}">Estadísticas</a></li>
                     </ul>
                   </li>
+                  <li><a>Descripción de días<span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu" style="">
+                      <li class="sub_menu"><a href="{% url 'admin:localinfo_daydescription_changelist' %}"> Descripciones</a></li>
+                      <li><a href="{% url 'admin:localinfo_calendarinfo_changelist' %}">Asignar días al calendario</a></li>
+                    </ul>
+                  </li>
                 </ul>
               </li>
               {% endif %}
