@@ -306,7 +306,7 @@ function FilterManager(opts) {
                 }).always(function () {
                     _makeAjaxCallForUpdateButton = true;
                     button.html(previousMessage);
-                    });
+                });
             } else {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);
