@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.contrib.auth.models import Group
 
-from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, CalendarInfo
+from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission,\
+    CalendarInfo, DayDescription
 
 
 def _list_parser(list):
@@ -68,9 +69,16 @@ def get_calendar_info():
     :return: all calendar info
     """
     query = CalendarInfo.objects.all()
-    print(query)
-    parser = _dict_parser
-    return parser(CalendarInfo.objects.values_list('date'))
+    result = list()
+    for info in query:
+        day_description = DayDescription.objects.get(id=info.day_description_id)
+        info = {
+            "date": info.date,
+            "color": day_description.color,
+            "description": day_description.description
+        }
+        result.append(info)
+    return result
 
 
 class PermissionBuilder(object):

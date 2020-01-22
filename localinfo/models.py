@@ -138,12 +138,11 @@ class DayDescription(models.Model):
 
 
 class CalendarInfo(models.Model):
-    """"Association bewtween dates and DayDescription"""
+    """"Calendar's daydescription information"""
 
     date = models.DateField("Fecha", unique=True)
     day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE, verbose_name="Descripción de día")
+
     class Meta:
         verbose_name = "información de calendario"
         verbose_name_plural = "información de calendario"
-
-

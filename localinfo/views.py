@@ -14,5 +14,4 @@ class CalendarInfo(View):
         response = {
             'info': data
         }
-
         return JsonResponse(response)
