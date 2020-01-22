@@ -17,4 +17,3 @@ django-debug-panel==0.8.3
 python-decouple==3.3
 django-crontab==0.7.1
 boto3==1.9.244
-django-colorfield==0.1.15

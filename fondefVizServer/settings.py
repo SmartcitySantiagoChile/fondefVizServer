@@ -47,7 +47,6 @@ THIRD_PARTY_APPS = (
     'django_rq',
     'debug_toolbar',
     'debug_panel',
-    'colorfield'
 )
 
 LOCAL_APPS = (

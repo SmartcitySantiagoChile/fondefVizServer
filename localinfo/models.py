@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from colorfield.fields import ColorField
+
 
 class TimePeriod(models.Model):
     """ Time period with standard names """
@@ -126,7 +126,7 @@ class GlobalPermission(Permission):
 class DayDescription(models.Model):
     """color and description for days"""
 
-    color = ColorField(default='#FF0000')
+    color = models.CharField(max_length=7)
     description = models.CharField("Descripción", max_length=250)
 
     class Meta:

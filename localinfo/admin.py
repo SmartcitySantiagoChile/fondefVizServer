@@ -6,8 +6,10 @@ from django.contrib import messages
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
 from django.db import transaction, IntegrityError
+from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
 
+from localinfo.forms import DayDescriptionForm
 from localinfo.helper import PermissionBuilder
 from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo
 
@@ -62,6 +64,7 @@ class CustomUserAdmin(UserAdmin):
 
 class DayDescriptionAdmin(admin.ModelAdmin):
     actions = None
+    form = DayDescriptionForm
     list_display = ('color', 'description')
 
 
