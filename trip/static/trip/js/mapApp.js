@@ -127,7 +127,7 @@ $(document).ready(function () {
 
             document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
             document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
-            }
+        };
 
         this.setData = function (newData) {
             data = newData;
