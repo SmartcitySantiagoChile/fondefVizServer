@@ -219,14 +219,14 @@ $(document).ready(function () {
                 } catch (error) {
                     console.log(error);
                 }
-                });
+            });
             destinationZones.forEach(function (item) {
                 try {
                     createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF").addTo(destinationGroupLayer);
                 } catch (error) {
                     console.log(error);
                 }
-                });
+            });
 
             originMapLegend.update();
             destinationMapLegend.update();
