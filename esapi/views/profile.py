@@ -122,7 +122,7 @@ class AvailableDays(View):
 
         response = {
             'availableDays': available_days,
-            'data': get_calendar_info()
+            'info': get_calendar_info()
         }
 
         return JsonResponse(response)

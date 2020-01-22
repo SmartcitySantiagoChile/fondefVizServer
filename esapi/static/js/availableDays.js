@@ -68,10 +68,25 @@ function loadAvailableDays(data_url) {
         }).filter(function (el, index, self) {
             return self.indexOf(el) === index;
         });
-        console.log(data);
-        data = data.availableDays.map(function (el) {
-            return [el, 1];
+        let descriptionDayList = new Set();
+        data.info.forEach(function (e) {
+            descriptionDayList.add([e.color, e.description]);
         });
+        console.log(data);
+        console.log(descriptionDayList);
+        data = data.availableDays.map(function (el) {
+            let dataWithInfo = [el];
+            data.info.forEach(function(x){
+                console.log(x.date);
+                console.log(el);
+                if (x.date === el){
+                    dataWithInfo.push(x.color, x.description);
+                }
+            });
+            dataWithInfo.push(1);
+            return dataWithInfo;
+        });
+        console.log(data);
         if (data.length > 0) {
             var newOpts = $.extend({}, opts);
             var top = 20;
