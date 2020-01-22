@@ -338,7 +338,6 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableTripDays"]());
         loadRangeCalendar(Urls["esapi:availableTripDays"](),{});
 
-
         var app = new FromToApp();
 
         var afterCall = function (data) {
