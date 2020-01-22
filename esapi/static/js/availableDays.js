@@ -47,7 +47,10 @@ function loadAvailableDays(data_url) {
             show: false
         },
         calendar: [],
-        series: []
+        series: [],
+        legend: [],
+        dataRange: []
+
     };
 
     $(window).resize(function () {
@@ -68,28 +71,35 @@ function loadAvailableDays(data_url) {
         }).filter(function (el, index, self) {
             return self.indexOf(el) === index;
         });
-        let descriptionDayList = new Set();
-        data.info.forEach(function (e) {
-            descriptionDayList.add([e.color, e.description]);
-        });
-        console.log(data);
-        console.log(descriptionDayList);
-        data = data.availableDays.map(function (el) {
-            let dataWithInfo = [el];
-            data.info.forEach(function(x){
-                console.log(x.date);
-                console.log(el);
-                if (x.date === el){
-                    dataWithInfo.push(x.color, x.description);
-                }
+
+
+        const groupBy = keys => array =>
+            array.reduce((objectsByKeyValue, obj) => {
+                const value = keys.map(key => obj[key]).join('-');
+                objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+                return objectsByKeyValue;
+            }, {});
+
+        const groupByColor = groupBy(['color']);
+        let descriptionDayList = groupByColor(data.info);
+        descriptionDayList = Object.values(descriptionDayList);
+        let auxDescriptionDayList = [];
+        descriptionDayList.forEach(function(e){
+            let aux_array = [];
+            e.forEach(function (f) {
+                aux_array.push(Object.values(f));
             });
-            dataWithInfo.push(1);
-            return dataWithInfo;
+           auxDescriptionDayList.push(aux_array);
         });
-        console.log(data);
+        descriptionDayList = auxDescriptionDayList;
+        let days = data.availableDays;
+        data = data.availableDays.map(function (el) {
+            return [el, 1];
+        });
         if (data.length > 0) {
             var newOpts = $.extend({}, opts);
-            var top = 20;
+            var top = 50;
+            let legendData = [];
             years.forEach(function (year, index) {
                 var calendarYear = $.extend({}, calendarYearTemplate);
                 var serie = $.extend({}, serieTemplate);
@@ -99,14 +109,48 @@ function loadAvailableDays(data_url) {
                 top += 100;
                 serie.calendarIndex = index;
                 serie.data = data;
-
+                serie.itemStyle = {
+                    color: "#97b58d"
+                };
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
+
+                descriptionDayList.forEach(function(date){
+                    var serie = $.extend({}, serieTemplate);
+                    serie.name = date[0][2];
+                    let dataAux = [];
+                    //todo: buscar una forma más eficiente de no pintar días sin datos
+                    date.forEach(function(e){
+                        const index = days.findIndex(function(f){
+                            return e[0] === f;
+                        });
+                        if (index !== -1){
+                            dataAux.push(e);
+                        }
+                    });
+                    serie.data = dataAux.map(function (e) {
+                        return [e[0], 1];
+                    });
+                    legendData.push(serie.name);
+                    serie.itemStyle = {
+                        color: date[0][1],
+                    };
+                    serie.zlevel = 1;
+                    newOpts.series.push(serie);
+                    serie.calendarIndex = index;
+                });
             });
 
+
+            newOpts.legend = {
+                top: '0',
+                left: '0',
+                data: legendData,
+            };
             $("#" + divId).height(top-20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
             availableDaysChart.resize();
+            console.log(availableDaysChart.getOption());
         }
     });
 }
