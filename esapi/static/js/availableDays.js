@@ -68,6 +68,7 @@ function loadAvailableDays(data_url) {
         }).filter(function (el, index, self) {
             return self.indexOf(el) === index;
         });
+        console.log(data);
         data = data.availableDays.map(function (el) {
             return [el, 1];
         });
@@ -92,8 +93,5 @@ function loadAvailableDays(data_url) {
             availableDaysChart.setOption(newOpts, {notMerge: true});
             availableDaysChart.resize();
         }
-    });
-    $.get(Urls["localinfo:calendarInfo"](), function (data) {
-        console.log(data);
     });
 }

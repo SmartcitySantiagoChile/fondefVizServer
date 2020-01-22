@@ -19,7 +19,8 @@ from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBe
     ThereAreNotValidExpeditionsMessage
 from esapi.utils import check_operation_program
 from esapi.utils import get_dates_from_request
-from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input
+from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input\
+    , get_calendar_info
 
 
 class LoadProfileByStopData(View):
@@ -120,7 +121,8 @@ class AvailableDays(View):
         available_days = es_helper.get_available_days(valid_operator_list)
 
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'data': get_calendar_info()
         }
 
         return JsonResponse(response)
