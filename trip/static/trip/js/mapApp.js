@@ -197,12 +197,11 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableTripDays"]());
         loadRangeCalendar(Urls["esapi:availableTripDays"](),{});
 
-
         var app = new MapManagerApp();
 
         var afterCall = function (data) {
             processData(data, app);
-            };
+        };
         var opts = {
             urlFilterData: Urls["esapi:tripMapData"](),
             afterCallData: afterCall
