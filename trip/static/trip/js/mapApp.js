@@ -127,7 +127,7 @@ $(document).ready(function () {
 
             document.getElementById("dataTotalNumberLabel").innerHTML = dataQuantity === 1 ? "dato" : "datos";
             document.getElementById("dataTotalNumberValue").innerHTML = dataQuantity.toLocaleString();
-            }
+        };
 
         this.setData = function (newData) {
             data = newData;
@@ -197,12 +197,11 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableTripDays"]());
         loadRangeCalendar(Urls["esapi:availableTripDays"](),{});
 
-
         var app = new MapManagerApp();
 
         var afterCall = function (data) {
             processData(data, app);
-            };
+        };
         var opts = {
             urlFilterData: Urls["esapi:tripMapData"](),
             afterCallData: afterCall
