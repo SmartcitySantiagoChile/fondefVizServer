@@ -11,6 +11,7 @@ from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, 
 from esapi.helper.resume import ESResumeStatisticHelper
 # to translate variable to user name
 from esapi.utils import get_dates_from_request
+from localinfo.helper import get_calendar_info
 
 DICTIONARY = {
     'date': {'name': 'Día', 'order': 1},
@@ -185,8 +186,10 @@ class AvailableDays(PermissionRequiredMixin, View):
         es_helper = ESResumeStatisticHelper()
         available_days = es_helper.get_available_days()
 
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)

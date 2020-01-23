@@ -119,10 +119,10 @@ class AvailableDays(View):
         es_helper = ESProfileHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         available_days = es_helper.get_available_days(valid_operator_list)
-
+        calendar_info = get_calendar_info()
         response = {
             'availableDays': available_days,
-            'info': get_calendar_info(),
+            'info': calendar_info
         }
 
         return JsonResponse(response)
