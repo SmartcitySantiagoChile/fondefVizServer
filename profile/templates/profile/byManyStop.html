@@ -1,0 +1,38 @@
+{% extends 'profile/base.html' %}
+{% load static header panel inline_select columns update_button table label data_filter %}
+
+{% block title %}Perfil de carga por parada{% endblock %}
+
+{% block content %}
+    {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
+    {% header "Perfil promedio de carga" "por parada-servicio"|add:label %}
+
+    {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+
+    {% data_filter data_filter True True True False True False True False False False False info_target_id="filterHelp" %}
+
+    <div class="row">
+        {% panel "fa-clock-o" "Expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
+        {% columns 12 12 12  panel1 %}
+
+        {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:400px;"></div>' info_target_id="chartHelp" as panel4 %}
+        {% columns 12 12 12 panel4 %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            {% table "expeditionDetail" 9 as expeditionTable %}
+            {% panel "fa-truck" "Expediciones (<strong id='expeditionNumber2'>N</strong>)" expeditionTable info_target_id="tableHelp" %}
+        </div>
+    </div>
+
+    {% include "help/modal/explanation/profile/by_stop/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/profile/by_stop/chart.html" with modal_id="chartHelp" %}
+    {% include "help/modal/explanation/profile/by_stop/table.html" with modal_id="tableHelp" %}
+    {{ block.super }}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static "profile/js/byStop.js" %}"></script>
+{% endblock %}
