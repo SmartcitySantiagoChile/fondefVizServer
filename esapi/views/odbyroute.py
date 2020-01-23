@@ -12,7 +12,7 @@ from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
 from esapi.utils import check_operation_program, get_dates_from_request
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 
-from localinfo.helper import PermissionBuilder
+from localinfo.helper import PermissionBuilder, get_calendar_info
 
 from datamanager.helper import ExporterManager
 
@@ -25,9 +25,10 @@ class AvailableDays(View):
         es_helper = ESODByRouteHelper()
         valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         available_days = es_helper.get_available_days(valid_operator_id_list)
-
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)
