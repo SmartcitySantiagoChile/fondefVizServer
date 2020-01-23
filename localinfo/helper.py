@@ -68,7 +68,7 @@ def get_calendar_info():
     """
     :return: all calendar info
     """
-    query = CalendarInfo.objects.all().select_related('day_description')
+    query = CalendarInfo.objects.select_related('day_description')
     result = list()
     for info in query:
         info = {
