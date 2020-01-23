@@ -541,7 +541,7 @@ $(document).ready(function () {
             app.hideLoadingAnimationCharts();
         };
         var opts = {
-            urlFilterData: Urls["esapi:loadProfileByStopData"](),
+            urlFilterData: Urls["esapi:BoardingAndAlightingAverageByStops"](),
             urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall
