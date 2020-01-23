@@ -121,3 +121,28 @@ class GlobalPermission(Permission):
         )
         self.content_type = ct
         super(GlobalPermission, self).save(*args)
+
+
+class DayDescription(models.Model):
+    """color and description for days"""
+
+    color = models.CharField(max_length=7)
+    description = models.CharField("Descripción", max_length=250)
+
+    class Meta:
+        verbose_name = "descripción de día"
+        verbose_name_plural = "descripciónes de días"
+
+    def __str__(self):
+        return self.description.encode('utf8')
+
+
+class CalendarInfo(models.Model):
+    """"Calendar's daydescription information"""
+
+    date = models.DateField("Fecha", unique=True)
+    day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE, verbose_name="Descripción de día")
+
+    class Meta:
+        verbose_name = "información de calendario"
+        verbose_name_plural = "información de calendario"

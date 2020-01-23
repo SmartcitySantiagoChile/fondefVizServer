@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
-from django.contrib.auth.models import Group, User
-from django.contrib.auth.admin import UserAdmin
-from django.db import transaction, IntegrityError
 from django.contrib import messages
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group, User
+from django.db import transaction, IntegrityError
+from django.forms.widgets import TextInput
+from django.utils.translation import gettext_lazy as _
 
-from localinfo.models import Operator, HalfHour
+from localinfo.forms import DayDescriptionForm
 from localinfo.helper import PermissionBuilder
+from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo
 
 admin.site.unregister(Group)
 admin.site.unregister(User)
@@ -60,6 +62,19 @@ class CustomUserAdmin(UserAdmin):
     list_filter = []
 
 
+class DayDescriptionAdmin(admin.ModelAdmin):
+    actions = None
+    form = DayDescriptionForm
+    list_display = ('color', 'description')
+
+
+class CalendarInfoAdmin(admin.ModelAdmin):
+    actions = None
+    list_display = ('date', 'day_description')
+
+
 admin.site.register(Operator, OperatorAdmin)
 admin.site.register(HalfHour, HalfHourAdmin)
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(DayDescription, DayDescriptionAdmin)
+admin.site.register(CalendarInfo, CalendarInfoAdmin)

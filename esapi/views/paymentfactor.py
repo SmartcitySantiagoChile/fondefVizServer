@@ -13,7 +13,7 @@ from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParamete
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
-from localinfo.helper import get_operator_list_for_select_input, get_day_type_list_for_select_input
+from localinfo.helper import get_operator_list_for_select_input, get_day_type_list_for_select_input, get_calendar_info
 
 
 class PaymentFactorData(View):
@@ -116,9 +116,10 @@ class AvailableDays(View):
     def get(self, request):
         es_helper = ESPaymentFactorHelper()
         available_days = es_helper.get_available_days()
-
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)

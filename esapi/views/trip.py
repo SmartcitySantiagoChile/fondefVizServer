@@ -16,6 +16,7 @@ from esapi.helper.stop import ESStopHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
+from localinfo.helper import get_calendar_info
 
 
 class ResumeData(PermissionRequiredMixin, View):
@@ -131,9 +132,10 @@ class AvailableDays(PermissionRequiredMixin, View):
     def get(self, request):
         es_helper = ESTripHelper()
         available_days = es_helper.get_available_days()
-
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)

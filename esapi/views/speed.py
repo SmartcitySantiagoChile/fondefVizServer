@@ -17,7 +17,7 @@ from esapi.helper.speed import ESSpeedHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.messages import SpeedVariationWithLessDaysMessage
 from esapi.utils import check_operation_program, get_dates_from_request
-from localinfo.helper import PermissionBuilder
+from localinfo.helper import PermissionBuilder, get_calendar_info
 
 hours = ["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00",
          "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -32,9 +32,10 @@ class AvailableDays(View):
         es_helper = ESSpeedHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         available_days = es_helper.get_available_days(valid_operator_list)
-
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)
