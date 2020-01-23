@@ -419,6 +419,8 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableODDays"]());
+        loadRangeCalendar(Urls["esapi:availableODDays"](), {});
+
 
         var app = new TransfersApp();
         var previousCall = function () {
