@@ -110,34 +110,51 @@ function loadAvailableDays(data_url) {
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.itemStyle = {
-                    color: "#97b58d"
+                    color: "#97b58d",
                 };
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
 
+                //year-date dictionary
+                let dataObject = {};
+                data.forEach(function (e) {
+                    dataObject[e[0]] = 1;
+                });
                 descriptionDayList.forEach(function(date){
-                    var serie = $.extend({}, serieTemplate);
-                    serie.name = date[0][2];
+                    let descriptionSerie = $.extend({}, serieTemplate);
+                    descriptionSerie.name = date[0][2];
                     let dataAux = [];
-                    //todo: buscar una forma más eficiente de no pintar días sin datos
                     date.forEach(function(e){
-                        const index = days.findIndex(function(f){
-                            return e[0] === f;
-                        });
-                        if (index !== -1){
+                        const index = e[0] in dataObject;
+                        if (index){
                             dataAux.push(e);
                         }
                     });
-                    serie.data = dataAux.map(function (e) {
+                    descriptionSerie.data = dataAux.map(function (e) {
                         return [e[0], 1];
                     });
-                    legendData.push(serie.name);
-                    serie.itemStyle = {
+                    legendData.push(descriptionSerie.name);
+                    descriptionSerie.itemStyle = {
                         color: date[0][1],
+                        shadowBlur: 2,
+                        shadowColor: '#333'
                     };
-                    serie.zlevel = 1;
-                    newOpts.series.push(serie);
-                    serie.calendarIndex = index;
+
+                    descriptionSerie.showEffectOn = 'render';
+                    descriptionSerie.rippleEffect = {
+                            brushType: 'stroke'
+                    };
+                    descriptionSerie.hoverAnimation = true;
+                    descriptionSerie.zlevel = 1;
+                    newOpts.series.push(descriptionSerie);
+                    descriptionSerie.calendarIndex = index;
+                    descriptionSerie.tooltip = {
+                        position: "top",
+                        formatter: function (p) {
+                            let date = echarts.format.formatTime("dd/MM/yyyy", p.data[0])
+                            return date + "<br />" + descriptionSerie.name;
+                        }
+                    }
                 });
             });
 
