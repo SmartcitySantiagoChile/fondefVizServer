@@ -5,5 +5,7 @@
   {"model": "localinfo.operator", "pk":4 , "fields":{ "esId":"4", "name":"Express" }},
   {"model": "localinfo.operator", "pk":5 , "fields":{ "esId":"5", "name":"Buses Metropolitana" }},
   {"model": "localinfo.operator", "pk":6 , "fields":{ "esId":"6", "name":"Red Bus Urbano" }},
-  {"model": "localinfo.operator", "pk":7 , "fields":{ "esId":"7", "name":"STP Santiago" }}
+  {"model": "localinfo.operator", "pk":7 , "fields":{ "esId":"7", "name":"STP Santiago" }},
+  {"model": "localinfo.operator", "pk":8 , "fields":{ "esId":"8", "name":"Metro" }},
+  {"model": "localinfo.operator", "pk":9 , "fields":{ "esId":"9", "name":"Metrotren" }}
 ]
