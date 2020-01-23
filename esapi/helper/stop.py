@@ -46,31 +46,24 @@ class ESStopHelper(ElasticSearchHelper):
 
     def get_stop_info(self, dates, auth_stop_code):
         """ ask to elasticsearch for a match values """
-        es_query = self.get_base_query()
-        es_query = es_query.filter('term', **{'authCode.raw': auth_stop_code})
-        stop_info = []
 
         if not auth_stop_code:
             raise ESQueryStopParameterDoesNotExist()
 
-        combined_filter = []
-        for date_range in dates:
-            start_date = date_range[0]
-            if not start_date:
-                raise ESQueryDateParametersDoesNotExist()
-            filter_q = Q('range', startDate={
-                'lte': start_date,
-                'format': 'yyyy-MM-dd'
-            })
-            combined_filter.append(filter_q)
-        combined_filter = reduce((lambda x, y: x | y), combined_filter)
-        es_query = es_query.query('bool', filter=[combined_filter]).sort('-startDate')[:1]
+        start_date = dates[0][0]
+        if not start_date:
+            raise ESQueryDateParametersDoesNotExist()
+
+        es_query = self.get_base_query().filter('term', **{'authCode.raw': auth_stop_code})
+        es_query = es_query.filter('range', startDate={
+            'lte': start_date,
+            'format': 'yyyy-MM-dd'
+        }).sort('-startDate')[:1]
 
         try:
-            stop_info.append(es_query.execute().hits.hits[0]['_source'])
-            print (stop_info[0])
-            del stop_info[0]['path']
-            del stop_info[0]['timestamp']
+            stop_info = es_query.execute().hits.hits[0]['_source']
+            del stop_info['path']
+            del stop_info['timestamp']
         except IndexError:
             raise ESQueryStopInfoDoesNotExist()
 

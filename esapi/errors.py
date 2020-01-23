@@ -205,11 +205,3 @@ class ESQueryTooManyDestinationZonesError(FondefVizError):
     def __init__(self, limit_number):
         message = 'No puede seleccionar más de {0} zonas de destino'.format(limit_number)
         super(ESQueryTooManyDestinationZonesError, self).__init__(419, message)
-
-
-
-
-
-
-
-

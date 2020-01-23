@@ -4,9 +4,13 @@
  * Group dates array in a range of dates array
  * */
 function groupByDates(dates){
+    let parseDate =  function(input) {
+          var parts = input.match(/(\d+)/g);
+          return new Date(parts[0], parts[1]-1, parts[2], 0); // months are 0-based
+        };
     let sortedArray = Array.from(dates).sort();
     let dateArray = [];
-    sortedArray.map(e => dateArray.push(new Date(e[0])));
+    sortedArray.map(e => dateArray.push(parseDate(e[0])));
     let selection_by_range = [];
     let aux_selector = [];
     for (let i = 0; i < dateArray.length; i++) {
@@ -14,7 +18,7 @@ function groupByDates(dates){
         let next_day = new Date(dateArray[i]);
         next_day.setDate(dateArray[i].getDate() + 1);
         const index = dateArray.findIndex(function (x) {
-            return x.valueOf() === next_day.valueOf();
+            return x.toISOString().slice(0,10) === next_day.toISOString().slice(0,10);
         });
         if (index === -1) {
             selection_by_range.push(aux_selector);
