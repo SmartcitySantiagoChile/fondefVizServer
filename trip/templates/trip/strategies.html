@@ -25,6 +25,8 @@
     <div class="">
         {% header "Estrategias de viaje" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+        {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
         {% with panel_body="<div class='col-md-12 col-sm-12 col-xs-12'><label>Seleccione el origen y destino:</label><div id='mapChart' style='height:500px;'></div></div>" %}
             {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True extra_html=panel_body info_target_id="filterHelp" %}
         {% endwith %}

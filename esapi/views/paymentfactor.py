@@ -9,9 +9,10 @@ from django.views.generic import View
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryResultEmpty
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
+from esapi.utils import get_dates_from_request
 from localinfo.helper import get_operator_list_for_select_input, get_day_type_list_for_select_input
 
 
@@ -23,18 +24,17 @@ class PaymentFactorData(View):
     def dispatch(self, request, *args, **kwargs):
         return super(PaymentFactorData, self).dispatch(request, *args, **kwargs)
 
-    def transform_es_answer(self, es_query, start_date, end_date):
+    def transform_es_answer(self, es_query, dates):
         """ transform ES answer to something useful to web client """
+        result = {}
         rows = []
-
         operator_dict = get_operator_list_for_select_input(to_dict=True)
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
 
-        start_date = int((timezone.datetime.strptime(start_date, '%Y-%m-%d') -
+        start_date = int((timezone.datetime.strptime(dates[0][0], '%Y-%m-%d') -
                           timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
-        end_date = int((timezone.datetime.strptime(end_date, '%Y-%m-%d') -
+        end_date = int((timezone.datetime.strptime(dates[-1][-1], '%Y-%m-%d') -
                         timezone.datetime(1970, 1, 1)).total_seconds() * 1000)
-
         for a in es_query.execute().aggregations.by_bus_station_id.buckets:
             for b in a.by_bus_station_name.buckets:
                 for c in b.by_assignation.buckets:
@@ -73,10 +73,8 @@ class PaymentFactorData(View):
                                        neutral=neutral_value, factor_by_date=factor_by_date,
                                        factor_average=factor_average)
                             rows.append(row)
-
         if len(rows) == 0:
             raise ESQueryResultEmpty()
-
         result = {
             'rows': rows,
         }
@@ -85,21 +83,21 @@ class PaymentFactorData(View):
 
     def process_request(self, request, params, export_data=False):
         response = {}
-
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, export_data)
         day_type = params.getlist('dayType[]', [])
-        exclude_dates = list(map(lambda x: x[:10], params.getlist('excludeDates[]', [])))
 
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
+
             es_helper = ESPaymentFactorHelper()
 
-            es_query = es_helper.get_data(start_date, end_date, day_type, exclude_dates)
+            es_query = es_helper.get_data(dates, day_type)
             if export_data:
                 ExporterManager(es_query).export_data(csv_helper.PAYMENT_FACTOR_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                response = self.transform_es_answer(es_query, start_date, end_date)
+                response = self.transform_es_answer(es_query, dates)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

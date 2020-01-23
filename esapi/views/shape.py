@@ -17,6 +17,7 @@ class GetRouteShape(View):
 
         response = {}
         try:
+
             if not route:
                 raise ESQueryRouteParameterDoesNotExist()
             if not operation_program_date:
@@ -24,7 +25,7 @@ class GetRouteShape(View):
 
             es_shape_helper = ESShapeHelper()
 
-            response["points"] = es_shape_helper.get_route_shape(route, operation_program_date, operation_program_date)[
+            response["points"] = es_shape_helper.get_route_shape(route, [[operation_program_date]])[
                 'points']
         except FondefVizError as e:
             response['status'] = e.get_status_response()

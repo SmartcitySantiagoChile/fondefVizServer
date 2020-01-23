@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from esapi.helper.basehelper import ElasticSearchHelper
+from functools import reduce
+
+from elasticsearch_dsl import Q
+
 from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryRouteParameterDoesNotExist, \
     ESQueryDateRangeParametersDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram, ESQueryShapeDoesNotExist
+from esapi.helper.basehelper import ElasticSearchHelper
 
 
 class ESShapeHelper(ElasticSearchHelper):
@@ -61,19 +65,26 @@ class ESShapeHelper(ElasticSearchHelper):
 
         return dates[0].key_as_string[:10]
 
-    def get_route_shape(self, auth_route_code, start_date, end_date):
+    def get_route_shape(self, auth_route_code, dates):
 
         if not auth_route_code:
             raise ESQueryRouteParameterDoesNotExist()
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
 
         es_query = self.get_base_query()
         es_query = es_query.filter('term', authRouteCode=auth_route_code)
-        es_query = es_query.filter('range', startDate={
-            'lte': start_date,
-            'format': 'yyyy-MM-dd'
-        }).sort('-startDate')[:1]
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', startDate={
+                'lte': start_date,
+                'format': 'yyyy-MM-dd'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter]).sort('-startDate')[:1]
 
         try:
             point_list = es_query.execute().hits.hits[0]['_source']

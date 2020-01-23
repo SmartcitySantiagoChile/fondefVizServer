@@ -7,6 +7,8 @@
     {% header "Estadísticas globales por período" %}
 
     {% include "datamanager/availableDays.html" %}
+    {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
 
     {% with subgroup="<br /><div class='btn-group' id='subgroup'></div>" %}
         {% button "clean" "Quitar métricas" "warning" "filter-group" as btn1 %}

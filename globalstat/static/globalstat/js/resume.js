@@ -198,7 +198,12 @@ $(document).ready(function () {
                         restore: {show: false, title: "restaurar"},
                         saveAsImage: {show: true, title: "Guardar imagen", name: "estadísticas globales"},
                         magicType: {
-                            type: ["line", "bar"]
+                            show: true,
+                            type: ["line", "bar"],
+                            title: {
+                            line: 'Lineas',
+                            bar: 'Barras'
+                            }
                         },
                         dataView: {
                             show: true,
@@ -223,6 +228,7 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableStatisticDays"]());
+        loadRangeCalendar(Urls["esapi:availableStatisticDays"](), {});
 
         var app = new ResumeApp();
         var afterCall = function (answer) {
@@ -236,9 +242,7 @@ $(document).ready(function () {
             afterCallData: afterCall,
             minimumDateLimit: 2
         };
-
         new FilterManager(opts);
-
         $(window).resize(function () {
             app.resizeCharts();
         });

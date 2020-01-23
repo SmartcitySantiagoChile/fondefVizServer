@@ -336,6 +336,8 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableSpeedDays"]());
+        loadRangeCalendar(Urls["esapi:availableSpeedDays"](),{});
+
 
         var app = new MatrixApp();
 

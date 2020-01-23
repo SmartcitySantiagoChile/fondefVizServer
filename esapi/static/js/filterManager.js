@@ -38,6 +38,7 @@ function FilterManager(opts) {
     /* VARIABLE DEFINITIONS */
 
     var $DAY_FILTER = $("#dayFilter");
+    var $DATE_RANGE_MODAL = $("#dateRangeModal");
     var $STOP_FILTER = $("#stopFilter");
     var $DAY_TYPE_FILTER = $("#dayTypeFilter");
     var $PERIOD_FILTER = $("#periodFilter");
@@ -48,7 +49,6 @@ function FilterManager(opts) {
     var $HOUR_RANGE_FILTER = $("#hourRangeFilter");
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
     var $METRIC_FILTER = $("#metricFilter");
-    var $EXCLUDE_DATE_FILTER = $("#removeDayFilter");
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
@@ -59,20 +59,9 @@ function FilterManager(opts) {
     var PLACEHOLDER_USER_ROUTE = "Servicio usuario";
     var PLACEHOLDER_AUTH_ROUTE = "Servicio transantiago";
 
-    /* RETRIEVE DEFAULT VALUES */
-    optionDateRangePicker.singleDatePicker = singleDatePicker;
-    var localStartDate = window.localStorage.getItem("startDate");
-    var localEndDate = window.localStorage.getItem("endDate");
-    if (localStartDate !== null) {
-        optionDateRangePicker.startDate = moment(localStartDate);
-    }
-    if (localEndDate !== null) {
-        optionDateRangePicker.endDate = moment(localEndDate);
-    }
 
     /* ENABLE select2 library */
 
-    $DAY_FILTER.daterangepicker(optionDateRangePicker);
     $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MINUTE_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
@@ -82,7 +71,12 @@ function FilterManager(opts) {
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
 
+    let urlKey = window.location.pathname;
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
+    var localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
+    if (localDayFilter !== null){
+        localDayFilter = JSON.parse(localDayFilter);
+    }
     var localDayTypeFilter = window.localStorage.getItem("dayTypeFilter");
     if (localDayTypeFilter !== null) {
         localDayTypeFilter = JSON.parse(localDayTypeFilter);
@@ -114,9 +108,19 @@ function FilterManager(opts) {
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
-        window.localStorage.setItem("startDate", $DAY_FILTER.data("daterangepicker").startDate.format());
-        window.localStorage.setItem("endDate", $DAY_FILTER.data("daterangepicker").endDate.format());
+        var dates_array = Array.from(auxSelectedDates);
+        window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(dates_array));
+        localDayFilter = Array.from(dates_array);
     });
+
+    if(singleDatePicker){
+        $DAY_FILTER.parent().text("Día:").append($DAY_FILTER);
+    }
+
+    $DAY_FILTER.click(function(e){
+        $DATE_RANGE_MODAL.modal('show');
+    });
+
     $DAY_TYPE_FILTER.change(function () {
         window.localStorage.setItem("dayTypeFilter", JSON.stringify($DAY_TYPE_FILTER.val()));
     });
@@ -169,12 +173,17 @@ function FilterManager(opts) {
         });
     }
 
-    if ($EXCLUDE_DATE_FILTER.length) {
-        $EXCLUDE_DATE_FILTER.datepicker({multidate: true, format: "dd-mm-yyyy", language: "es"});
-    }
-
     /* BUTTON ACTION */
     var getParameters = function () {
+        var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
+        dates = groupByDates(dates);
+        dates = dates.map(function(date_range){
+            if (date_range.length === 1){
+                return [date_range[0][0]]
+            } else {
+                return [date_range[0][0], date_range[date_range.length - 1][0]];
+            }
+        });
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
         var minutes = $MINUTE_PERIOD_FILTER.val();
@@ -186,32 +195,43 @@ function FilterManager(opts) {
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
-        var excludeDates = $EXCLUDE_DATE_FILTER.val()===""||$EXCLUDE_DATE_FILTER.val()===undefined?[]:$EXCLUDE_DATE_FILTER.val().split(",").map(function (el) {
-            return moment(el, "DD-MM-YYYY").format();
-        });
-
         var params = dataUrlParams();
-        params.startDate = $DAY_FILTER.data("daterangepicker").startDate.format();
-        params.endDate = $DAY_FILTER.data("daterangepicker").endDate.format();
+        if(dates){
+            params.dates = JSON.stringify(dates);
+        }
+
+        let datesSize = function(){
+                let count = 0;
+                for (let i in dates){
+                    for (let j in dates[i]){
+                        count ++;
+                    }
+                }
+                return count;
+            };
 
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
-            var diffDays = function (startDate, endDate) {
-                startDate = new Date(startDate);
-                endDate = new Date(endDate);
-                var diff = new Date(endDate - startDate);
-                var daysWindow = diff / 1000 / 60 / 60 / 24;
-                return parseInt(daysWindow);
-            };
 
-            if (diffDays(params.startDate, params.endDate) < minimumDateLimit) {
-                var status = {
-                    message: "La período consultado debe ser mayor a 2 días",
+            if (datesSize()< minimumDateLimit) {
+                let status = {
+                    message: "El período consultado debe ser mayor a 2 días",
                     title: "Advertencia",
                     type: "warning"
                 };
                 showMessage(status);
-                return;
+                return null;
+            }
+
+
+            if (!metrics){
+                let status = {
+                    message: "Debe seleccionar alguna métrica",
+                    title: "Advertencia",
+                    type: "warning"
+                };
+                showMessage(status);
+                return null;
             }
         }
 
@@ -246,9 +266,6 @@ function FilterManager(opts) {
         if (metrics) {
             params.metrics = metrics;
         }
-        if (excludeDates.length) {
-            params.excludeDates = excludeDates
-        }
 
         return params;
     };
@@ -267,25 +284,33 @@ function FilterManager(opts) {
             }
 
             var params = getParameters();
-            $.getJSON(urlFilterData, params, function (data) {
-                if (data.status) {
-                    if (Array.isArray(data.status)) {
-                        data.status.forEach(function (message) {
-                            showMessage(message);
-                        })
-                    } else {
-                        showMessage(data.status);
+
+            if (params !== null) {
+                $.getJSON(urlFilterData, params, function (data) {
+                    if (data.status) {
+                        if (Array.isArray(data.status)) {
+                            data.status.forEach(function (message) {
+                                showMessage(message);
+                            })
+                        } else {
+                            showMessage(data.status);
+                        }
                     }
-                }
-                if (afterCall) {
-                    afterCall(data);
-                }
-                // update backup to the last request params sent to server
-                paramsBackup = params;
-            }).always(function () {
+                    if (!data.status || data.status.code === 252) {
+                        if (afterCall) {
+                            afterCall(data);
+                        }
+                    }
+                    // update backup to the last request params sent to server
+                    paramsBackup = params;
+                }).always(function () {
+                    _makeAjaxCallForUpdateButton = true;
+                    button.html(previousMessage);
+                });
+            } else {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);
-            });
+            }
         }
     });
 

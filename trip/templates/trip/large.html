@@ -21,6 +21,9 @@
     <div class="">
         {% header "Viajes por etapas" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+        {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
+
         {% data_filter data_filter True False True show_start_trip_period_filter=True info_target_id="filterHelp" extra_html=stage_selectors %}
 
         <div class="row cols-same-height">
