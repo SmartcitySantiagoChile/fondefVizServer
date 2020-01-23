@@ -370,7 +370,12 @@ class BoardingAndAlightingAverageByStops(View):
 
     def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
-        info = {}
+        info = {
+            'authorityStopCode': [],
+            'userStopCode': [],
+            'name': [],
+            'busStation': [],
+        }
         trips = {}
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
@@ -378,15 +383,19 @@ class BoardingAndAlightingAverageByStops(View):
 
         for hit in es_query.scan():
 
-            if len(info.keys()) == 0:
-                info['authorityStopCode'] = hit.authStopCode
-                info['userStopCode'] = hit.userStopCode
-                info['name'] = hit.userStopName
-                info['busStation'] = hit.busStation == 1
+            if len(info.keys()) <= 6:
+                info['authorityStopCode'].append(hit.authStopCode)
+                info['userStopCode'].append(hit.userStopCode)
+                info['name'].append(hit.userStopName)
+                info['busStation'].append(hit.busStation)
 
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
 
             trips[expedition_id] = {
+                'authorityStopCode': hit.authStopCode,
+                'userStopCode': hit.userStopCode,
+                'name': hit.userStopName,
+                'busStation': hit.busStation,
                 'capacity': hit.busCapacity,
                 'licensePlate': hit.licensePlate,
                 'route': hit.route,
@@ -415,10 +424,9 @@ class BoardingAndAlightingAverageByStops(View):
 
         dates = get_dates_from_request(request, export_data)
         day_type = params.getlist('dayType[]', [])
-        stop_codes = params.get('stopCodes[]', [])
+        stop_codes = params.getlist('stopCodes[]', [])
         period = params.getlist('period[]', [])
         half_hour = params.getlist('halfHour[]', [])
-        print(request.GET)
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
@@ -431,7 +439,7 @@ class BoardingAndAlightingAverageByStops(View):
             check_operation_program(dates[0][0], dates[-1][-1])
             es_helper = ESProfileHelper()
 
-            es_query = es_helper.get_profile_by_stop_data(dates, day_type, stop_codes[0], period, half_hour,
+            es_query = es_helper.get_profile_by_multiple_stop_data(dates, day_type, stop_codes, period, half_hour,
                                                           valid_operator_list)
             if export_data:
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_STOP_DATA, request.user)
