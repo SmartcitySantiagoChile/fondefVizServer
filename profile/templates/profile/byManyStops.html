@@ -1,11 +1,11 @@
 {% extends 'profile/base.html' %}
 {% load static header panel inline_select columns update_button table label data_filter %}
 
-{% block title %}Perfil de carga por parada{% endblock %}
+{% block title %}Subidas y Bajadas{% endblock %}
 
 {% block content %}
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
-    {% header "Perfil promedio de carga" "por parada-servicio"|add:label %}
+    {% header "Subidas y Bajadas" "por paradas"|add:label %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
 
