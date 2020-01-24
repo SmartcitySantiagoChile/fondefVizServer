@@ -165,7 +165,6 @@ class ESProfileHelper(ElasticSearchHelper):
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
             bucket('station', A('terms', field='authStopCode.raw', size=500))
-
         return es_query
 
     def get_base_profile_by_trajectory_data_query(self, dates, day_type, auth_route, period, half_hour,
@@ -239,26 +238,16 @@ class ESProfileHelper(ElasticSearchHelper):
         else:
             raise ESQueryOperatorParameterDoesNotExist
 
-        print(es_query.to_dict())
-
         if stop_codes:
-            combined_filter = []
-            for stop_code in stop_codes:
-                filter_stop = Q({'term': {"authStopCode.raw": stop_code}})
-                combined_filter.append(filter_stop)
-            combined_filter = reduce((lambda x, y: x | y), combined_filter)
-            es_query = es_query.query('bool', filter=[combined_filter])
             es_query = es_query.query(Q({'terms': {"authStopCode.raw": stop_codes}}))
         else:
             raise ESQueryStopParameterDoesNotExist()
-        print(es_query.to_dict())
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
         if period:
             es_query = es_query.filter('terms', timePeriodInStopTime=period)
         if half_hour:
             es_query = es_query.filter('terms', halfHourInStopTime=half_hour)
-        print(es_query.to_dict())
 
         combined_filter = []
         for date_range in dates:
@@ -275,13 +264,23 @@ class ESProfileHelper(ElasticSearchHelper):
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
-        print(es_query.to_dict())
-
-
         es_query = es_query.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
                                     'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
                                     'stopDistanceFromPathStart', 'expeditionStartTime',
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
                                     'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path'])
-
+        es_query = es_query[:0]
+        # group by userStopName
+        aggs = A('terms', field="authStopCode.raw", size=1000)
+        es_query.aggs.bucket('stops', aggs). \
+            metric('expandedAlighting', 'avg', field='expandedAlighting'). \
+            metric('expandedBoarding', 'avg', field='expandedBoarding'). \
+            metric('loadProfile', 'avg', field='loadProfile'). \
+            metric('maxLoadProfile', 'max', field='loadProfile'). \
+            metric('sumLoadProfile', 'sum', field='loadProfile'). \
+            metric('sumBusCapacity', 'sum', field='busCapacity'). \
+            metric('busSaturation', 'bucket_script', script='params.d / params.t',
+                   buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
+            metric('userStopCode', 'top_hits', size=1, _source=['userStopCode']). \
+            metric('userStopName', 'top_hits', size=1, _source=['userStopName'])
         return es_query

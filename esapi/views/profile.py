@@ -370,54 +370,14 @@ class BoardingAndAlightingAverageByStops(View):
 
     def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
-        info = {
-            'authorityStopCode': [],
-            'userStopCode': [],
-            'name': [],
-            'busStation': [],
-        }
-        trips = {}
-
-        day_type_dict = get_day_type_list_for_select_input(to_dict=True)
-        time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-
-        for hit in es_query.scan():
-
-            if len(info.keys()) <= 6:
-                info['authorityStopCode'].append(hit.authStopCode)
-                info['userStopCode'].append(hit.userStopCode)
-                info['name'].append(hit.userStopName)
-                info['busStation'].append(hit.busStation)
-
-            expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
-
-            trips[expedition_id] = {
-                'authorityStopCode': hit.authStopCode,
-                'userStopCode': hit.userStopCode,
-                'name': hit.userStopName,
-                'busStation': hit.busStation,
-                'capacity': hit.busCapacity,
-                'licensePlate': hit.licensePlate,
-                'route': hit.route,
-                'stopTime': "" if hit.expeditionStopTime == "0" else hit.expeditionStopTime,
-                'stopTimePeriod': time_period_dict[hit.timePeriodInStopTime] if hit.timePeriodInStopTime > -1 else None,
-                'dayType': day_type_dict[hit.dayType],
-                'distOnPath': hit.stopDistanceFromPathStart,
-                # to avoid movement of distribution chart
-                'loadProfile': self.clean_data(hit.loadProfile),
-                'expandedGetIn': self.clean_data(hit.expandedBoarding),
-                'expandedLanding': self.clean_data(hit.expandedAlighting)
-            }
-
-        if len(info.keys()) == 0:
+        stops = []
+        response = es_query.execute()
+        for hit in response.aggregations.stops:
+            stops.append(hit.to_dict())
+        if len(stops) == 0:
             raise ESQueryResultEmpty()
-
-        result = {
-            'info': info,
-            'trips': trips
-        }
-
-        return result
+        print(stops)
+        return stops
 
     def process_request(self, request, params, export_data=False):
         response = {}

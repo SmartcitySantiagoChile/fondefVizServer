@@ -16,10 +16,29 @@ $(document).ready(function () {
         this.visible = true;
     }
 
+    // define logic to manipulate data
+    function Stop(name, userStopCode, authorityStopCode, expandedBoarding, expandedALighting, loadProfile,
+                  sumBusCapacity, sumLoadProfile, busSaturation, maxLoadProfile) {
+        this.name = name;
+        this.userStopCode = userStopCode;
+        this.authorityStopCode = authorityStopCode;
+        this.expandedBoarding = expandedBoarding;
+        this.expandedAlighting = expandedALighting;
+        this.loadProfile = loadProfile;
+        this.sumBusCapacity = sumBusCapacity;
+        this.sumLoadProfile = sumLoadProfile;
+        this.busSaturation = busSaturation;
+        this.maxLoadProfile = maxLoadProfile;
+        this.visible = true;
+
+    }
+
     /*
      * to manage grouped data
      */
     function DataManager() {
+        //stops
+        let _stops = [];
         // trips
         var _trips = [];
         // routes list
@@ -28,44 +47,16 @@ $(document).ready(function () {
         var _yAxisData = null;
         // trips used to calculate average profile
         var _tripsUsed = 0;
-        var _stopInfo = null;
 
-        this.stopInfo = function (info) {
-            if (info === undefined) {
-                return _stopInfo;
-            }
-            _stopInfo = info;
+
+
+
+        this.addStop = function (stop) {
+            // create stop identifier
+            _stops.push(stop);
         };
-        this.getDataName = function () {
-            if (_stopInfo !== null) {
-                var dayType = $("#dayTypeFilter").val();
-                var period = $("#periodFilter").val();
-                dayType = dayType !== null ? "_" + dayType.join("_") : "";
-                period = period !== null ? "_" + period.join("_") : "";
-                return "Perfil de carga " + _stopInfo["userStopCode"] + "_" + _stopInfo["authorityStopCode"] + dayType + period;
-            }
-            return "";
-        };
-        this.trips = function (trips) {
-            if (trips === undefined) {
-                return _trips;
-            }
-            _tripsUsed = 0;
-            for (var i = 0; i < tripIdArray.length; i++) {
-                if (trips[i].visible) {
-                    _tripsUsed++;
-                }
-            }
-            _trips = trips;
-        };
-        this.addTrip = function (trip) {
-            // create trip identifier
-            if (trip.visible) {
-                _tripsUsed++;
-            }
-            trip.id = _trips.length;
-            _trips.push(trip);
-        };
+
+
         this.xAxisData = function (data) {
             if (data === undefined) {
                 return _xAxisData;
@@ -83,7 +74,6 @@ $(document).ready(function () {
         };
         this.cleanData = function () {
             _trips = [];
-            _stopInfo = null;
             _xAxisData = null;
             _yAxisData = null;
             _tripsUsed = 0;
@@ -203,12 +193,12 @@ $(document).ready(function () {
         this.getAttrGroup = function (attrName, formatFunc) {
             var values = [];
             var dict = {};
-            for (var i in _trips) {
-                var trip = _trips[i];
-                if (!trip.visible) {
+            for (var i in _stops) {
+                var stop = _stops[i];
+                if (!stop.visible) {
                     continue;
                 }
-                var attrValue = trip[attrName];
+                var attrValue = stop[attrName];
                 attrValue = (formatFunc === undefined ? attrValue : formatFunc(attrValue));
                 if (dict[attrValue]) {
                     dict[attrValue]++;
@@ -304,16 +294,8 @@ $(document).ready(function () {
                 series.push(serie);
             }
 
-            var title = _dataManager.stopInfo().name;
-            if (_dataManager.stopInfo().busStation) {
-                title = title + " (Zona Paga)";
-            }
-            var subtitle = "Código de usuario: " + _dataManager.stopInfo().userStopCode + "  Código de Transantiago: " + _dataManager.stopInfo().authorityStopCode;
             var options = {
-                title: {
-                    text: title,
-                    subtext: subtitle
-                },
+
                 legend: {
                     data: yAxisDataName,
                     right: 0,
@@ -331,7 +313,7 @@ $(document).ready(function () {
                     feature: {
                         mark: {show: false},
                         restore: {show: false, title: "restaurar"},
-                        saveAsImage: {show: true, title: "Guardar imagen", name: _dataManager.getDataName()},
+                        saveAsImage: {show: true, title: "Guardar imagen", name: "Paraderos"},  //TODO: elegir un nombre para guardar
                         dataView: {
                             show: true,
                             title: "Ver datos",
@@ -341,7 +323,6 @@ $(document).ready(function () {
                             optionToContent: function (opt) {
                                 var axisData = opt.xAxis[0].data;
                                 var series = opt.series;
-                                var stopInfo = _dataManager.stopInfo();
                                 var yData = _dataManager.yAxisData();
 
                                 var textarea = document.createElement('textarea');
@@ -371,7 +352,7 @@ $(document).ready(function () {
                                         serieValues.push(serie.data[index]);
                                     });
                                     serieValues = serieValues.join("\t").replace(/\./g, ",") + "\n";
-                                    body += [stopInfo.userStopCode, stopInfo.authorityStopCode, stopInfo.name, authorityRouteCode, serieValues].join("\t");
+                                    body += ["codigo", "codigo-autoridad", "nombre", "codigo-ruta", serieValues].join("\t"); // TODO:crear segun serie
                                 });
 
                                 textarea.value = meta + header + body;
@@ -491,36 +472,29 @@ $(document).ready(function () {
             return;
         }
 
-        var stopInfo = dataSource.info;
-        var trips = dataSource.trips;
         var dataManager = new DataManager();
-        var tripGroupXAxisData = [];
+        var stopGroupXAxisData = [];
 
-        for (var expeditionId in trips) {
-            var trip = trips[expeditionId];
 
-            // trip info
-            var capacity = trip.capacity;
-            var licensePlate = trip.licensePlate;
-            var route = trip.route;
-            var stopTime = trip.stopTime;
-            var stopTimePeriod = trip.stopTimePeriod;
-            var dayType = trip.dayType;
-            //var distOnPath = trip.distOnPath;
+        for (let stop in dataSource){
+            let name = dataSource[stop].userStopName.hits['hits'][0]['_source']['userStopName'];
+            let userStopCode = dataSource[stop].userStopCode.hits['hits'][0]['_source']['userStopCode'];
+            let authorityStopCode = dataSource[stop].key;
+            let expandedBoarding = dataSource[stop].expandedBoarding.value;
+            let expandedAlighting = dataSource[stop].expandedAlighting.value;
+            let loadProfile = dataSource[stop].loadProfile.value;
+            let sumBusCapacity = dataSource[stop].sumBusCapacity.value;
+            let sumLoadProfile = dataSource[stop].sumLoadProfile.value;
+            let busSaturation = dataSource[stop].busSaturation.value;
+            let maxLoadProfile = dataSource[stop].maxLoadProfile.value;
+            let stop_object = new Stop(name, userStopCode, authorityStopCode, expandedBoarding, expandedAlighting, loadProfile,
+                sumBusCapacity, sumLoadProfile, busSaturation, maxLoadProfile);
 
-            var loadProfile = trip.loadProfile;
-            var expandedGetIn = trip.expandedGetIn;
-            var expandedLanding = trip.expandedLanding;
-            //var saturationRate = trip.loadProfile/capacity*100;
-
-            trip = new Trip(expeditionId, route, licensePlate, capacity, stopTime, stopTimePeriod, dayType,
-                loadProfile, expandedGetIn, expandedLanding);
-            dataManager.addTrip(trip);
+            dataManager.addStop(stop_object);
         }
 
-        dataManager.stopInfo(stopInfo);
-        var xAxisData = dataManager.getAttrGroup("route").map(function (el) {
-            return el.name;
+        var xAxisData = dataManager.getAttrGroup("name").map(function (e) {
+            return e.name;
         });
         dataManager.xAxisData(xAxisData);
         app.dataManager(dataManager);
@@ -537,7 +511,6 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data) {
-            console.log(data);
             processData(data, app);
             app.hideLoadingAnimationCharts();
         };
