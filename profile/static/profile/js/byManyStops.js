@@ -210,7 +210,7 @@ $(document).ready(function () {
         };
 
         var _updateBarChart = function () {
-            _dataManager.calculateAverage(); //todo: aqui estoy
+            _dataManager.calculateAverage();
             var yAxisData = _dataManager.yAxisData();
             var xAxisData = _dataManager.xAxisData();
 
@@ -289,7 +289,7 @@ $(document).ready(function () {
                     feature: {
                         mark: {show: false},
                         restore: {show: false, title: "restaurar"},
-                        saveAsImage: {show: true, title: "Guardar imagen", name: "Paraderos"},  //TODO: elegir un nombre para guardar
+                        saveAsImage: {show: true, title: "Guardar imagen", name: "Paraderos"},
                         dataView: {
                             show: true,
                             title: "Ver datos",
@@ -310,7 +310,7 @@ $(document).ready(function () {
                                 var meta = "tipo(s) de día:\t" + dayTypeFilter + "\n";
                                 meta += "período(s):\t" + periodFilter + "\n\n";
 
-                                var header = "Código usuario\tCódigo transantiago\tNombre parada\tServicio\tCarga promedio a la llegada\tCarga promedio a la salida";
+                                var header = "Código usuario\tCódigo transantiago\tNombre parada\tCarga promedio a la llegada\tCarga promedio a la salida";
                                 series.forEach(function (el, index) {
                                     var name = el.name;
                                     if (index === 3) {
@@ -328,7 +328,7 @@ $(document).ready(function () {
                                         serieValues.push(serie.data[index]);
                                     });
                                     serieValues = serieValues.join("\t").replace(/\./g, ",") + "\n";
-                                    body += ["codigo", "codigo-autoridad", "nombre", "codigo-ruta", serieValues].join("\t"); // TODO:crear segun serie
+                                    body += [_dataManager.getStops()[index].userStopCode, _dataManager.getStops()[index].authorityStopCode, _dataManager.getStops()[index].name, serieValues].join("\t");
                                 });
 
                                 textarea.value = meta + header + body;
