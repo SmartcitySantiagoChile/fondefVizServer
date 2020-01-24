@@ -38,17 +38,12 @@ $(document).ready(function () {
     function DataManager() {
         //stops
         let _stops = [];
-        // trips
-        var _trips = [];
-        // routes list
+        // stop list
         var _xAxisData = null;
         // y average data
         var _yAxisData = null;
         // trips used to calculate average profile
-        var _tripsUsed = 0;
-
-
-
+        var _stopsUsed = 0;
 
         this.addStop = function (stop) {
             // create stop identifier
@@ -71,38 +66,16 @@ $(document).ready(function () {
             }
             _yAxisData = data;
         };
-        this.tripsUsed = function () {
-            return _tripsUsed;
+        this.stopUsed = function () {
+            return _stopsUsed;
         };
         this.cleanData = function () {
-            _trips = [];
+            _stops = [];
             _xAxisData = null;
             _yAxisData = null;
-            _tripsUsed = 0;
+            _stopsUsed = 0;
         };
-        this.setVisibility = function (tripIdArray, value) {
-            for (var i = 0; i < tripIdArray.length; i++) {
-                var tripId = tripIdArray[i];
-                if (_trips[tripId].visible !== value) {
-                    if (value === false) {
-                        _tripsUsed--;
-                    } else {
-                        _tripsUsed++;
-                    }
-                }
-                _trips[tripId].visible = value;
-            }
-        };
-        this.checkAllAreAggregate = function (tripIdArray) {
-            var result = tripIdArray.length;
-            for (var i = 0; i < tripIdArray.length; i++) {
-                var tripId = tripIdArray[i];
-                if (!_trips[tripId].visible) {
-                    result--;
-                }
-            }
-            return result;
-        };
+
         this.calculateAverage = function () {
             // erase previous visible data
             var xAxisLength = _xAxisData.length;
@@ -452,8 +425,8 @@ $(document).ready(function () {
         };
 
         var _updateGlobalStats = function () {
-            $("#expeditionNumber").html(_dataManager.tripsUsed());
-            $("#expeditionNumber2").html(_dataManager.tripsUsed());
+            $("#expeditionNumber").html(_dataManager.stopUsed());
+            $("#expeditionNumber2").html(_dataManager.stopUsed());
         };
 
         this.updateCharts = function () {
