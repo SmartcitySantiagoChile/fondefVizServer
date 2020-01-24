@@ -381,9 +381,9 @@ $(document).ready(function () {
                             var xValue = params[0].dataIndex;
                             var head = xAxisData[xValue];
                             var info = [];
-                            info.push(head);
-                            info.push(_dataManager.getStops()[xValue].authorityStopCode);
-                            info.push(_dataManager.getStops()[xValue].name);
+                            info.push("Código usuario: " + head);
+                            info.push("Código transantiago: " + _dataManager.getStops()[xValue].authorityStopCode);
+                            info.push("Nombre paradero: " + _dataManager.getStops()[xValue].name);
                             var ball = "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:{}'></span>";
                             for (var i = 0; i < params.length - 1; i++) {
                                 var el = params[i];
