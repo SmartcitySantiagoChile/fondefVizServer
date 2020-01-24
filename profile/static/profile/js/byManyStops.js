@@ -18,15 +18,14 @@ $(document).ready(function () {
 
     // define logic to manipulate data
     function Stop(name, userStopCode, authorityStopCode, expandedBoarding, expandedALighting, loadProfile,
-                  sumBusCapacity, sumLoadProfile, busSaturation, maxLoadProfile) {
+                  busCapacity, busSaturation, maxLoadProfile) {
         this.name = name;
         this.userStopCode = userStopCode;
         this.authorityStopCode = authorityStopCode;
         this.expandedBoarding = expandedBoarding;
         this.expandedAlighting = expandedALighting;
         this.loadProfile = loadProfile;
-        this.sumBusCapacity = sumBusCapacity;
-        this.sumLoadProfile = sumLoadProfile;
+        this.busCapacity = busCapacity;
         this.busSaturation = busSaturation;
         this.maxLoadProfile = maxLoadProfile;
         this.visible = true;
@@ -104,9 +103,9 @@ $(document).ready(function () {
         this.calculateAverage = function () {
             // erase previous visible data
             var xAxisLength = _xAxisData.length;
-            var counterByRoute = [];
-            var capacityByRoute = [];
-            var tripQuantity = _trips.length;
+            var counterByStop = [];
+            var capacityByStop = [];
+            var stopQuantity = _stops.length;
 
             _yAxisData = {
                 expandedLanding: [],
@@ -131,50 +130,53 @@ $(document).ready(function () {
                 _yAxisData.averageSaturationRateBefore.push(0);
                 _yAxisData.averageSaturationRateAfter.push(0);
 
-                counterByRoute.push(0);
-                capacityByRoute.push(0);
+                counterByStop.push(0);
+                capacityByStop.push(0);
             }
 
-            for (var tripIndex = 0; tripIndex < tripQuantity; tripIndex++) {
-                var trip = _trips[tripIndex];
+            for (var stopIndex = 0; stopIndex < stopQuantity; stopIndex++) {
+                var stop = _stops[stopIndex];
 
-                if (!trip.visible) {
+                if (!stop.visible) {
                     continue;
                 }
 
-                var key = _xAxisData.indexOf(trip.route);
+                var key = _xAxisData.indexOf(stop.name);
 
-                _yAxisData.expandedLanding[key] += trip.expandedLanding;
-                _yAxisData.expandedGetIn[key] += trip.expandedGetIn;
-                _yAxisData.saturationRateBefore[key] += trip.loadProfile;
-                _yAxisData.saturationDiff[key] += trip.expandedGetIn - trip.expandedLanding;
+                _yAxisData.expandedLanding[key] += stop.expandedAlighting;
+                _yAxisData.expandedGetIn[key] += stop.expandedBoarding;
+                _yAxisData.saturationRateBefore[key] += stop.loadProfile;
+                _yAxisData.saturationDiff[key] += stop.expandedBoarding - stop.expandedAlighting;
+                console.log(stop.loadProfile);
 
-                counterByRoute[key] += 1;
-                capacityByRoute[key] += trip.busCapacity;
+                counterByStop[key] += 1;
+                capacityByStop[key] += stop.busCapacity;
             }
 
+
             // it calculates average
-            for (var routeIndex = 0; routeIndex < xAxisLength; routeIndex++) {
+            for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                 var percentageAfter = 0;
 
-                if (counterByRoute[routeIndex] !== 0) {
-                    _yAxisData.expandedLanding[routeIndex] = _yAxisData.expandedLanding[routeIndex] / counterByRoute[routeIndex];
-                    _yAxisData.expandedGetIn[routeIndex] = _yAxisData.expandedGetIn[routeIndex] / counterByRoute[routeIndex];
+                if (counterByStop[stopIndex] !== 0) {
+                    _yAxisData.expandedLanding[stopIndex] = _yAxisData.expandedLanding[stopIndex] / counterByStop[stopIndex];
+                    _yAxisData.expandedGetIn[stopIndex] = _yAxisData.expandedGetIn[stopIndex] / counterByStop[stopIndex];
 
-                    _yAxisData.averageSaturationRateBefore[routeIndex] = _yAxisData.saturationRateBefore[routeIndex] / counterByRoute[routeIndex];
-                    _yAxisData.averageSaturationRateAfter[routeIndex] = (_yAxisData.saturationRateBefore[routeIndex] + _yAxisData.saturationDiff[routeIndex]) / counterByRoute[routeIndex];
+                    _yAxisData.averageSaturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / counterByStop[stopIndex];
+                    _yAxisData.averageSaturationRateAfter[stopIndex] = (_yAxisData.saturationRateBefore[stopIndex] + _yAxisData.saturationDiff[stopIndex]) / counterByStop[stopIndex];
                 } else {
-                    _yAxisData.expandedLanding[routeIndex] = 0;
-                    _yAxisData.expandedGetIn[routeIndex] = 0;
-                    _yAxisData.averageSaturationRateBefore[routeIndex] = 0;
-                    _yAxisData.averageSaturationRateAfter[routeIndex] = 0;
+                    _yAxisData.expandedLanding[stopIndex] = 0;
+                    _yAxisData.expandedGetIn[stopIndex] = 0;
+                    _yAxisData.averageSaturationRateBefore[stopIndex] = 0;
+                    _yAxisData.averageSaturationRateAfter[stopIndex] = 0;
                 }
 
-                if (capacityByRoute[routeIndex] !== 0) {
-                    _yAxisData.saturationRateBefore[routeIndex] = _yAxisData.saturationRateBefore[routeIndex] / capacityByRoute[routeIndex] * 100;
-                    percentageAfter = _yAxisData.saturationDiff[routeIndex] / capacityByRoute[routeIndex] * 100;
+                if (capacityByStop[stopIndex] !== 0) {
+                    console.log(capacityByStop[stopIndex]);
+                    _yAxisData.saturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / capacityByStop[stopIndex] * 100;
+                    percentageAfter = _yAxisData.saturationDiff[stopIndex] / capacityByStop[stopIndex] * 100;
                 } else {
-                    _yAxisData.saturationRateBefore[routeIndex] = 0;
+                    _yAxisData.saturationRateBefore[stopIndex] = 0;
                 }
 
                 var incValue = 0;
@@ -184,9 +186,9 @@ $(document).ready(function () {
                 } else if (percentageAfter < 0) {
                     decValue = percentageAfter * -1;
                 }
-                _yAxisData.saturationRateAfter[routeIndex] = _yAxisData.saturationRateBefore[routeIndex] + percentageAfter;
-                _yAxisData.positiveSaturationRateAfter[routeIndex] = incValue;
-                _yAxisData.negativeSaturationRateAfter[routeIndex] = decValue;
+                _yAxisData.saturationRateAfter[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] + percentageAfter;
+                _yAxisData.positiveSaturationRateAfter[stopIndex] = incValue;
+                _yAxisData.negativeSaturationRateAfter[stopIndex] = decValue;
             }
         };
 
@@ -234,7 +236,7 @@ $(document).ready(function () {
         };
 
         var _updateBarChart = function () {
-            _dataManager.calculateAverage();
+            _dataManager.calculateAverage(); //todo: aqui estoy
             var yAxisData = _dataManager.yAxisData();
             var xAxisData = _dataManager.xAxisData();
 
@@ -346,7 +348,7 @@ $(document).ready(function () {
                                 });
                                 header += "\n";
                                 var body = "";
-                                axisData.forEach(function (authorityRouteCode, index) {
+                                axisData.forEach(function (authorityStopCode, index) {
                                     var serieValues = [yData.averageSaturationRateBefore[index], yData.averageSaturationRateAfter[index]];
                                     series.forEach(function (serie) {
                                         serieValues.push(serie.data[index]);
@@ -483,12 +485,11 @@ $(document).ready(function () {
             let expandedBoarding = dataSource[stop].expandedBoarding.value;
             let expandedAlighting = dataSource[stop].expandedAlighting.value;
             let loadProfile = dataSource[stop].loadProfile.value;
-            let sumBusCapacity = dataSource[stop].sumBusCapacity.value;
-            let sumLoadProfile = dataSource[stop].sumLoadProfile.value;
+            let busCapacity = dataSource[stop].busCapacity.value;
             let busSaturation = dataSource[stop].busSaturation.value;
             let maxLoadProfile = dataSource[stop].maxLoadProfile.value;
             let stop_object = new Stop(name, userStopCode, authorityStopCode, expandedBoarding, expandedAlighting, loadProfile,
-                sumBusCapacity, sumLoadProfile, busSaturation, maxLoadProfile);
+                busCapacity, busSaturation, maxLoadProfile);
 
             dataManager.addStop(stop_object);
         }

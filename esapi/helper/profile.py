@@ -282,5 +282,6 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('busSaturation', 'bucket_script', script='params.d / params.t',
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
             metric('userStopCode', 'top_hits', size=1, _source=['userStopCode']). \
-            metric('userStopName', 'top_hits', size=1, _source=['userStopName'])
+            metric('userStopName', 'top_hits', size=1, _source=['userStopName']). \
+            metric('busCapacity', 'avg', field='busCapacity')
         return es_query
