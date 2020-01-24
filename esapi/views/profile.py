@@ -376,7 +376,6 @@ class BoardingAndAlightingAverageByStops(View):
             stops.append(hit.to_dict())
         if len(stops) == 0:
             raise ESQueryResultEmpty()
-        print(stops)
         return stops
 
     def process_request(self, request, params, export_data=False):

@@ -55,6 +55,9 @@ $(document).ready(function () {
             _stops.push(stop);
         };
 
+        this.getStops = function(){
+            return _stops;
+        };
 
         this.xAxisData = function (data) {
             if (data === undefined) {
@@ -141,13 +144,12 @@ $(document).ready(function () {
                     continue;
                 }
 
-                var key = _xAxisData.indexOf(stop.name);
+                var key = _xAxisData.indexOf(stop.userStopCode);
 
                 _yAxisData.expandedLanding[key] += stop.expandedAlighting;
                 _yAxisData.expandedGetIn[key] += stop.expandedBoarding;
                 _yAxisData.saturationRateBefore[key] += stop.loadProfile;
                 _yAxisData.saturationDiff[key] += stop.expandedBoarding - stop.expandedAlighting;
-                console.log(stop.loadProfile);
 
                 counterByStop[key] += 1;
                 capacityByStop[key] += stop.busCapacity;
@@ -172,7 +174,6 @@ $(document).ready(function () {
                 }
 
                 if (capacityByStop[stopIndex] !== 0) {
-                    console.log(capacityByStop[stopIndex]);
                     _yAxisData.saturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / capacityByStop[stopIndex] * 100;
                     percentageAfter = _yAxisData.saturationDiff[stopIndex] / capacityByStop[stopIndex] * 100;
                 } else {
@@ -408,6 +409,8 @@ $(document).ready(function () {
                             var head = xAxisData[xValue];
                             var info = [];
                             info.push(head);
+                            info.push(_dataManager.getStops()[xValue].authorityStopCode);
+                            info.push(_dataManager.getStops()[xValue].name);
                             var ball = "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:{}'></span>";
                             for (var i = 0; i < params.length - 1; i++) {
                                 var el = params[i];
@@ -468,7 +471,6 @@ $(document).ready(function () {
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
 
         if (dataSource.status) {
             return;
@@ -494,7 +496,7 @@ $(document).ready(function () {
             dataManager.addStop(stop_object);
         }
 
-        var xAxisData = dataManager.getAttrGroup("name").map(function (e) {
+        var xAxisData = dataManager.getAttrGroup("userStopCode").map(function (e) {
             return e.name;
         });
         dataManager.xAxisData(xAxisData);
