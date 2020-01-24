@@ -36,6 +36,8 @@ urlpatterns = [
     url(r'^user/', include('webuser.urls')),
     url(r'^user/login/$', auth_views.login, name='login'),
     url(r'^user/logout/$', auth_views.logout, name='logout'),
+    url(r'^bip/', include('bip.urls')),
+
 ]
 
 if settings.DEBUG:

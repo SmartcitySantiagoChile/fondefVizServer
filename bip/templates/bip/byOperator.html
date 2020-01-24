@@ -1,0 +1,37 @@
+{% extends 'bip/base.html' %}
+{% load static header panel inline_select table columns update_button label data_filter tabs %}
+
+{% block title %}Transacciones por Operador{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+    <link href="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
+    {% header "Transacciones" "por operador"|add:label %}
+
+    {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+    {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
+    {% data_filter data_filter True False info_target_id="filterHelp" %}
+
+    {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/profile/by_route/chart.html" with modal_id="chartHelp" %}
+    {% include "help/modal/explanation/profile/by_route/table.html" with modal_id="tableHelp" %}
+    {{ block.super }}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
+    {% endwith %}
+    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
+    <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
+    <script src="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.js" %}"></script>
+    <script src="{% static "trip/js/map.js" %}"></script>
+    <script src="{% static "profile/js/byExpedition.js" %}"></script>
+{% endblock %}
