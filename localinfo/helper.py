@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.contrib.auth.models import Group
 
-from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission,\
-    CalendarInfo, DayDescription
+from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
+    CalendarInfo
 
 
 def _list_parser(list):
@@ -64,6 +64,7 @@ def get_transport_mode_list_for_select_input(to_dict=False):
         parser = _dict_parser
     return parser(TransportMode.objects.values_list('esId', 'name'))
 
+
 def get_calendar_info():
     """
     :return: all calendar info
@@ -78,8 +79,6 @@ def get_calendar_info():
         }
         result.append(info)
     return result
-
-
 
 
 class PermissionBuilder(object):
