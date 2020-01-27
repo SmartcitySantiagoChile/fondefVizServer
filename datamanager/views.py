@@ -53,6 +53,10 @@ class LoadManagerHTML(View):
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de viajes',
                 'id': 'tripTable', 'title_icon': 'fa-line-chart', 'title': 'Viajes'
+            },
+            {
+                'bubble_title': '', 'bubble_content': 'Archivos de validaciones bip',
+                'id': 'tripTable', 'title_icon': 'fa-line-chart', 'title': 'Validaciones Bip'
             }
         ]
         operation_program_tables = [

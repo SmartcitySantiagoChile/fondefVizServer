@@ -7,6 +7,7 @@ import zipfile
 
 from elasticsearch_dsl import Search
 
+from esapi.helper.bip import ESBipHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.profile import ESProfileHelper
@@ -28,6 +29,8 @@ OD_BY_ROUTE_DATA = 'od_by_route_data'
 SPEED_MATRIX_DATA = 'speed_matrix_data'
 TRIP_DATA = 'trip_data'
 PAYMENT_FACTOR_DATA = 'payment_factor_data'
+BIP_DATA = 'bip'
+
 
 
 class WrongFormatterError(Exception):
@@ -821,6 +824,52 @@ class PaymentFactorCSVHelper(CSVHelper):
                     # we do this to add operator raw data and data given by operator dict the second time
                     is_second_operator_value = True
                 elif column_name == 'operator' and is_second_operator_value:
+                    value = self.operator_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row
+
+class BipCSVHelper(CSVHelper):
+    """ Class that represents a bip downloader. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESBipHelper().index_name)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa que opera el servicio'},
+            {'es_name': 'route', 'csv_name': 'Servicio_transantiago',
+             'definition': 'Código de transantiago del servicio'},
+            {'es_name': 'userRoute', 'csv_name': 'Servicio_usuario',
+             'definition': 'Código de usuario del servicio (ejemplo: 506)'},
+            {'es_name': 'validationTime', 'csv_name': 'Hora_validacion',
+             'definition': 'Fecha y hora de la validación'},
+            {'es_name': 'bipNumber', 'csv_name': 'Número Bip', 'definition': 'Número de la tarjeta bip'},
+            {'es_name': 'source', 'csv_name': 'Fuente de dato', 'definition': 'Bus, estación de metro, metrobus o totem validador.'}
+        ]
+
+    def get_data_file_name(self):
+        return 'Bip.csv'
+
+    def get_file_description(self):
+        description = 'archivo de validaciones bip, cada fila representa una validación de una tarjeta en una hora específica'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'operator':
                     value = self.operator_dict[value]
             except KeyError:
                 value = ""
