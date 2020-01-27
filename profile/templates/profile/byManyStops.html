@@ -10,14 +10,13 @@
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
     {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
 
-    {% data_filter data_filter True False True False True False True False False False False False False False False False Flase True info_target_id="filterHelp" %}
+    {% data_filter data_filter True False True False True False True False False False False False False False False False True True info_target_id="filterHelp" %}
 
     <div class="row">
 
         {% panel "fa-bar-chart" "Subidas y bajadas" '<div id="barChart" style="height:400px;"></div>' info_target_id="chartHelp" as panel4 %}
         {% columns 12 12 12 panel4 %}
     </div>
-
 
     {% include "help/modal/explanation/profile/by_stop/filter.html" with modal_id="filterHelp" %}
     {% include "help/modal/explanation/profile/by_stop/chart.html" with modal_id="chartHelp" %}

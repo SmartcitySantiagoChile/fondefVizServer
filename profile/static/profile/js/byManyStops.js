@@ -61,7 +61,7 @@ $(document).ready(function () {
             _stopsUsed = 0;
         };
 
-        this.calculateAverage = function () {
+        this.calculateData = function () {
             // erase previous visible data
             var xAxisLength = _xAxisData.length;
             var counterByStop = [];
@@ -104,34 +104,24 @@ $(document).ready(function () {
 
                 var key = _xAxisData.indexOf(stop.userStopCode);
 
-                _yAxisData.expandedLanding[key] += stop.expandedAlighting;
-                _yAxisData.expandedGetIn[key] += stop.expandedBoarding;
-                _yAxisData.saturationRateBefore[key] += stop.loadProfile;
-                _yAxisData.saturationDiff[key] += stop.expandedBoarding - stop.expandedAlighting;
+                _yAxisData.expandedLanding[key] = stop.expandedAlighting;
+                _yAxisData.expandedGetIn[key] = stop.expandedBoarding;
+                _yAxisData.saturationRateBefore[key] = stop.loadProfile;
+                _yAxisData.saturationDiff[key] = stop.expandedBoarding - stop.expandedAlighting;
 
-                counterByStop[key] += 1;
-                capacityByStop[key] += stop.busCapacity;
+                counterByStop[key] = 1;
+                capacityByStop[key] = stop.busCapacity;
             }
             console.log(JSON.parse(JSON.stringify(_yAxisData)));
+            console.log(JSON.parse(JSON.stringify(capacityByStop)));
+
             // it calculates average
             for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                 var percentageAfter = 0;
-
-                if (counterByStop[stopIndex] !== 0) {
-
-                    _yAxisData.averageSaturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / counterByStop[stopIndex];
-                    _yAxisData.averageSaturationRateAfter[stopIndex] = (_yAxisData.saturationRateBefore[stopIndex] + _yAxisData.saturationDiff[stopIndex]) / counterByStop[stopIndex];
-                } else {
-                    _yAxisData.averageSaturationRateBefore[stopIndex] = 0;
-                    _yAxisData.averageSaturationRateAfter[stopIndex] = 0;
-                }
-
-                if (capacityByStop[stopIndex] !== 0) {
-                    _yAxisData.saturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / capacityByStop[stopIndex] * 100;
-                    percentageAfter = _yAxisData.saturationDiff[stopIndex] / capacityByStop[stopIndex] * 100;
-                } else {
-                    _yAxisData.saturationRateBefore[stopIndex] = 0;
-                }
+                _yAxisData.averageSaturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex];
+                _yAxisData.averageSaturationRateAfter[stopIndex] = (_yAxisData.saturationRateBefore[stopIndex] + _yAxisData.saturationDiff[stopIndex])  ;
+                _yAxisData.saturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / capacityByStop[stopIndex] * 100;
+                percentageAfter = _yAxisData.saturationDiff[stopIndex] / capacityByStop[stopIndex] * 100;
 
                 var incValue = 0;
                 var decValue = 0;
@@ -190,7 +180,7 @@ $(document).ready(function () {
         };
 
         var _updateBarChart = function () {
-            _dataManager.calculateAverage();
+            _dataManager.calculateData();
             var yAxisData = _dataManager.yAxisData();
             var xAxisData = _dataManager.xAxisData();
 
@@ -381,7 +371,9 @@ $(document).ready(function () {
                                     value = sign + el.value.toFixed(1) + "%";
                                 }
                                 var colorBall = ball.replace("{}", el.color);
-                                info.push(colorBall + name + ": " + value);
+                                if (serieIndex !== 4){
+                                    info.push(colorBall + name + ": " + value);
+                                }
                             }
                             // add saturation rate after
                             var saturationRateInfo = ball.replace("{}", "#3145f7") + "Tasa ocupación promedio a la salida:" + yAxisData.saturationRateAfter[xValue].toFixed(1) + "% (" + yAxisData.averageSaturationRateAfter[xValue].toFixed(2) + ")";
