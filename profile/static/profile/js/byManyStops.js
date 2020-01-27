@@ -1,20 +1,5 @@
 "use strict";
 $(document).ready(function () {
-    // define logic to manipulate data
-    function Trip(expeditionId, route, licensePlate, busCapacity, stopTime, stopTimePeriod, dayType, loadProfile,
-                  expandedGetIn, expandedLanding) {
-        this.expeditionId = expeditionId;
-        this.route = route;
-        this.licensePlate = licensePlate;
-        this.busCapacity = busCapacity;
-        this.stopTime = stopTime;
-        this.stopTimePeriod = stopTimePeriod;
-        this.dayType = dayType;
-        this.loadProfile = loadProfile;
-        this.expandedGetIn = expandedGetIn;
-        this.expandedLanding = expandedLanding;
-        this.visible = true;
-    }
 
     // define logic to manipulate data
     function Stop(name, userStopCode, authorityStopCode, expandedBoarding, expandedALighting, loadProfile,
@@ -127,21 +112,16 @@ $(document).ready(function () {
                 counterByStop[key] += 1;
                 capacityByStop[key] += stop.busCapacity;
             }
-
-
+            console.log(JSON.parse(JSON.stringify(_yAxisData)));
             // it calculates average
             for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                 var percentageAfter = 0;
 
                 if (counterByStop[stopIndex] !== 0) {
-                    _yAxisData.expandedLanding[stopIndex] = _yAxisData.expandedLanding[stopIndex] / counterByStop[stopIndex];
-                    _yAxisData.expandedGetIn[stopIndex] = _yAxisData.expandedGetIn[stopIndex] / counterByStop[stopIndex];
 
                     _yAxisData.averageSaturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / counterByStop[stopIndex];
                     _yAxisData.averageSaturationRateAfter[stopIndex] = (_yAxisData.saturationRateBefore[stopIndex] + _yAxisData.saturationDiff[stopIndex]) / counterByStop[stopIndex];
                 } else {
-                    _yAxisData.expandedLanding[stopIndex] = 0;
-                    _yAxisData.expandedGetIn[stopIndex] = 0;
                     _yAxisData.averageSaturationRateBefore[stopIndex] = 0;
                     _yAxisData.averageSaturationRateAfter[stopIndex] = 0;
                 }
@@ -271,7 +251,6 @@ $(document).ready(function () {
             }
 
             var options = {
-
                 legend: {
                     data: yAxisDataName,
                     right: 0,
@@ -422,6 +401,7 @@ $(document).ready(function () {
             _barChart.setOption(options, {
                 notMerge: true
             });
+            console.log(_barChart.getOption());
         };
 
         var _updateGlobalStats = function () {
@@ -450,8 +430,6 @@ $(document).ready(function () {
         }
 
         var dataManager = new DataManager();
-        var stopGroupXAxisData = [];
-
 
         for (let stop in dataSource){
             let name = dataSource[stop].userStopName.hits['hits'][0]['_source']['userStopName'];
@@ -487,11 +465,12 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data) {
+            console.log(data);
             processData(data, app);
             app.hideLoadingAnimationCharts();
         };
         var opts = {
-            urlFilterData: Urls["esapi:BoardingAndAlightingAverageByStops"](),
+            urlFilterData: Urls["esapi:boardingAndAlightingAverageByStops"](),
             urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall

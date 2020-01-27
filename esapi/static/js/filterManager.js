@@ -200,7 +200,7 @@ function FilterManager(opts) {
                 }
             }
         });
-        var localMultiStopFilter = window.localStorage.getItem("multiStopFilter");
+        var localMultiStopFilter = window.localStorage.getItem(urlKey + "multiStopFilter");
         $MULTI_STOP_FILTER.val(localMultiStopFilter);
         $MULTI_STOP_FILTER.trigger("change");
         $MULTI_STOP_FILTER.change(function () {

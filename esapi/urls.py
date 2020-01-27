@@ -24,8 +24,8 @@ urlpatterns = [
         name='loadProfileByExpeditionData'),
     url(r'^profile/loadProfileByTrajectoryData/$', login_required(LoadProfileByTrajectoryData.as_view()),
         name='loadProfileByTrajectoryData'),
-    url(r'^profile/BoardingAndAlightingAverageByStops/$', login_required(BoardingAndAlightingAverageByStops.as_view()),
-        name='BoardingAndAlightingAverageByStops'),
+    url(r'^profile/boardingAndAlightingAverageByStops/$', login_required(BoardingAndAlightingAverageByStops.as_view()),
+        name='boardingAndAlightingAverageByStops'),
     url(r'^profile/availableDays/$', login_required(AvailableDays.as_view()), name='availableProfileDays'),
     url(r'^profile/availableRoutes/$', login_required(AvailableRoutes.as_view()), name='availableProfileRoutes'),
 

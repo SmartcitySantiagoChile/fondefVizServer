@@ -264,13 +264,7 @@ class ESProfileHelper(ElasticSearchHelper):
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
-        es_query = es_query.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
-                                    'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
-                                    'stopDistanceFromPathStart', 'expeditionStartTime',
-                                    'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                    'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path'])
         es_query = es_query[:0]
-        # group by userStopName
         aggs = A('terms', field="authStopCode.raw", size=1000)
         es_query.aggs.bucket('stops', aggs). \
             metric('expandedAlighting', 'avg', field='expandedAlighting'). \
