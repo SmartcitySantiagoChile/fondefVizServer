@@ -50,7 +50,6 @@ function loadAvailableDays(data_url) {
         series: [],
         legend: [],
         dataRange: []
-
     };
 
     $(window).resize(function () {
@@ -72,7 +71,6 @@ function loadAvailableDays(data_url) {
             return self.indexOf(el) === index;
         });
 
-
         const groupBy = keys => array =>
             array.reduce((objectsByKeyValue, obj) => {
                 const value = keys.map(key => obj[key]).join('-');
@@ -80,7 +78,7 @@ function loadAvailableDays(data_url) {
                 return objectsByKeyValue;
             }, {});
 
-        const groupByColor = groupBy(['color']);
+        const groupByColor = groupBy(["color"]);
         let descriptionDayList = groupByColor(data.info);
         descriptionDayList = Object.values(descriptionDayList);
         let auxDescriptionDayList = [];
@@ -110,7 +108,7 @@ function loadAvailableDays(data_url) {
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.itemStyle = {
-                    color: "#97b58d",
+                    color: "#97b58d"
                 };
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
@@ -137,12 +135,12 @@ function loadAvailableDays(data_url) {
                     descriptionSerie.itemStyle = {
                         color: date[0][1],
                         shadowBlur: 2,
-                        shadowColor: '#333'
+                        shadowColor: "#333"
                     };
 
-                    descriptionSerie.showEffectOn = 'render';
+                    descriptionSerie.showEffectOn = "render";
                     descriptionSerie.rippleEffect = {
-                            brushType: 'stroke'
+                            brushType: "stroke"
                     };
                     descriptionSerie.hoverAnimation = true;
                     descriptionSerie.zlevel = 1;
@@ -151,18 +149,17 @@ function loadAvailableDays(data_url) {
                     descriptionSerie.tooltip = {
                         position: "top",
                         formatter: function (p) {
-                            let date = echarts.format.formatTime("dd/MM/yyyy", p.data[0])
+                            let date = echarts.format.formatTime("dd/MM/yyyy", p.data[0]);
                             return date + "<br />" + descriptionSerie.name;
                         }
                     }
                 });
             });
 
-
             newOpts.legend = {
-                top: '0',
-                left: '0',
-                data: legendData,
+                top: "0",
+                left: "0",
+                data: legendData
             };
             $("#" + divId).height(top-20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
