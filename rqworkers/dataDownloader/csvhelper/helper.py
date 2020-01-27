@@ -860,7 +860,7 @@ class BipCSVHelper(CSVHelper):
         return 'Bip.csv'
 
     def get_file_description(self):
-        description = 'archivo de validaciones bip, cada fila representa una validación de una tarjeta en una hora específica'
+        description = 'archivo de transacciones bip, cada fila representa una validación bip'
         return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
 
     def row_parser(self, row):
