@@ -112,8 +112,6 @@ $(document).ready(function () {
                 counterByStop[key] = 1;
                 capacityByStop[key] = stop.busCapacity;
             }
-            console.log(JSON.parse(JSON.stringify(_yAxisData)));
-            console.log(JSON.parse(JSON.stringify(capacityByStop)));
 
             // it calculates average
             for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
@@ -393,7 +391,6 @@ $(document).ready(function () {
             _barChart.setOption(options, {
                 notMerge: true
             });
-            console.log(_barChart.getOption());
         };
 
         var _updateGlobalStats = function () {
@@ -457,7 +454,6 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data) {
-            console.log(data);
             processData(data, app);
             app.hideLoadingAnimationCharts();
         };
