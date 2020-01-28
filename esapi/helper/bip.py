@@ -74,8 +74,9 @@ class ESBipHelper(ElasticSearchHelper):
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
 
-        aggs = A('terms', field="operator", size=1000)
-        es_query.aggs.bucket('operators', aggs).\
-            bucket('histogram', 'date_histogram', field='validationTime', interval='day')
+        aggs = A('date_histogram', field='validationTime', interval='hour')
+        es_query.aggs.bucket('histogram', aggs).\
+            bucket('operators', 'terms', field='operator', size=1000)
+
         return es_query
 

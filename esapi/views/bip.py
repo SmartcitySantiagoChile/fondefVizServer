@@ -42,13 +42,13 @@ class BipTransactionByOperatorData(View):
 
     def transform_es_answer(self, es_query):
         """ transform ES answer to something util to web client """
-        operators = []
+        histogram = []
         response = es_query.execute()
-        for hit in response.aggregations.operators:
-            operators.append(hit.to_dict())
-        if len(operators) == 0:
+        for hit in response.aggregations.histogram:
+            histogram.append(hit.to_dict())
+        if len(histogram) == 0:
             raise ESQueryResultEmpty()
-        return operators
+        return histogram
 
     def process_request(self, request, params, export_data=False):
         response = {}
