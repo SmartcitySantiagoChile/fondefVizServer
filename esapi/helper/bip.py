@@ -50,3 +50,4 @@ class ESBipHelper(ElasticSearchHelper):
         return result, operator_list
 
 
+
