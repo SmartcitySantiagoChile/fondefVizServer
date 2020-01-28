@@ -18,8 +18,8 @@ class ESBipHelper(ElasticSearchHelper):
         super(ESBipHelper, self).__init__(index_name, file_extensions)
 
 
-    def get_available_days(self, valid_operator_list):
-        return self._get_available_days('expeditionStartTime', valid_operator_list)
+    def get_available_days(self):
+        return self._get_available_days('validationTime')
 
     def get_available_routes(self, valid_operator_list):
         es_query = self.get_base_query()

@@ -201,13 +201,13 @@ $(document).ready(function () {
         }
     }
 
-    function ExpeditionApp() {
+    function OperatorApp() {
         var _self = this;
 
         var mapOpts = {
             mapId: "mapid"
         };
-        var _mappApp = new MapApp(mapOpts);
+        //var _mappApp = new MapApp(mapOpts);
         var _routeLayer = L.featureGroup([]);
         var _circleLayer = L.featureGroup([]);
         var _mapInstance = _mappApp.getMapInstance();
@@ -798,16 +798,16 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadAvailableDays(Urls["esapi:availableBipDays"]());
         loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
-        var app = new ExpeditionApp();
+        var app = new OperatorApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data) {
-            processData(data, app);
-            app.hideLoadingAnimationCharts();
+         //   processData(data, app);
+          //  app.hideLoadingAnimationCharts();
         };
         var opts = {
             urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),

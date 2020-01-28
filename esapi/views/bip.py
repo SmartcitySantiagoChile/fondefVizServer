@@ -13,8 +13,7 @@ class AvailableDays(View):
 
     def get(self, request):
         es_helper = ESBipHelper()
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_days = es_helper.get_available_days(valid_operator_list)
+        available_days = es_helper.get_available_days()
         calendar_info = get_calendar_info()
         response = {
             'availableDays': available_days,
