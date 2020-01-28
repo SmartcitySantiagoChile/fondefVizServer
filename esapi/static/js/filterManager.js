@@ -49,6 +49,8 @@ function FilterManager(opts) {
     var $HOUR_RANGE_FILTER = $("#hourRangeFilter");
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
     var $METRIC_FILTER = $("#metricFilter");
+    var $MULTI_STOP_FILTER = $("#multiStopFilter");
+
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
@@ -173,6 +175,40 @@ function FilterManager(opts) {
         });
     }
 
+    if ($MULTI_STOP_FILTER.length) {
+        $MULTI_STOP_FILTER.select2({
+            ajax: {
+                delay: 500, // milliseconds
+                url: Urls["esapi:matchedStopData"](),
+                dataType: "json",
+                data: function (params) {
+                    return {
+                        term: params.term
+                    }
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.items
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+            language: {
+                inputTooShort: function () {
+                    return "Ingresar 3 o más caracteres";
+                }
+            }
+        });
+        var localMultiStopFilter = window.localStorage.getItem(urlKey + "multiStopFilter");
+        $MULTI_STOP_FILTER.val(localMultiStopFilter);
+        $MULTI_STOP_FILTER.trigger("change");
+        $MULTI_STOP_FILTER.change(function () {
+            window.localStorage.setItem("multiStopFilter", $MULTI_STOP_FILTER.val());
+        });
+    }
+
+
     /* BUTTON ACTION */
     var getParameters = function () {
         var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
@@ -192,6 +228,7 @@ function FilterManager(opts) {
         var userRoute = $USER_ROUTE_FILTER.val();
         var authRoute = $AUTH_ROUTE_FILTER.val();
         var stopCode = $STOP_FILTER.val();
+        var stopCodes = $MULTI_STOP_FILTER.val();
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
@@ -249,6 +286,9 @@ function FilterManager(opts) {
         }
         if ($STOP_FILTER.length && stopCode) {
             params.stopCode = stopCode;
+        }
+        if ($MULTI_STOP_FILTER.length && stopCodes) {
+            params.stopCodes = stopCodes;
         }
         if ($HOUR_RANGE_FILTER.length) {
             params.hourPeriodFrom = hourPeriodFrom;

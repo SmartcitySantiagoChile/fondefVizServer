@@ -33,6 +33,7 @@ def data_filter(data_filter,
                 show_start_trip_period_filter=False,
                 show_start_trip_minute_filter=False,
                 show_export_button=True,
+                show_multi_stop_filter=False,
                 extra_html='',
                 info_target_id=''):
     data_filter = [] if data_filter == '' else data_filter
@@ -85,7 +86,10 @@ def data_filter(data_filter,
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_start_trip_minute_filter, 'data_key': 'minutes', 'input_type': 'select',
          'label': 'Media hora de inicio de viajes:', 'js_id': 'minutePeriodFilter', 'multi_select': True,
-         'col-xs': 12, 'col-sm': 3, 'col-md': 3}
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
+        {'show': show_multi_stop_filter, 'data_key': 'stops', 'input_type': 'select',
+         'label': 'Paradas:', 'js_id': 'multiStopFilter', 'multi_select': True,
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
     ]
 
     panel_body = ''
