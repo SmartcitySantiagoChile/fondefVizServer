@@ -27,7 +27,6 @@ $(document).ready(function () {
                 }
                 rows.push(row);
             });
-            console.log(rows);
 
             // generate range of dates
             var firstDate = new Date(rows[0][0]);
@@ -126,7 +125,13 @@ $(document).ready(function () {
                             params.forEach(function (el) {
                                 var ball = el.marker;
                                 var name = el.seriesName;
-                                var value = Number(Number(el.value).toFixed(2)).toLocaleString();
+                                let valueAux = el.value || -1;
+                                let value = 0;
+                                if (valueAux === -1){
+                                    value = "Sin datos";
+                                } else {
+                                    value = Number(Number(valueAux).toFixed(2)).toLocaleString();
+                                }
                                 info.push(ball + name + ": " + value);
                             });
                             return head + info.join("<br />");
