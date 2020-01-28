@@ -6,8 +6,11 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
+import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+from datamanager.helper import ExporterManager
 from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError
 from esapi.helper.bip import ESBipHelper
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
 from localinfo.helper import get_calendar_info, PermissionBuilder
 
@@ -50,7 +53,12 @@ class BipTransactionByOperatorData(View):
                 raise ESQueryDateParametersDoesNotExist
             es_helper = ESBipHelper()
             es_query = es_helper.get_bip_by_operator_data(dates, valid_operator_list)
-            print(es_query)
+
+            if export_data:
+                ExporterManager(es_query).export_data(csv_helper.BIP_DATA, request.user)
+                response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+            else:
+                response = self.transform_es_answer(es_query)
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
