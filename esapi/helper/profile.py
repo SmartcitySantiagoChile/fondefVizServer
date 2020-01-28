@@ -227,9 +227,8 @@ class ESProfileHelper(ElasticSearchHelper):
                 days_in_between.append(day)
         return days_in_between
 
-
     def get_profile_by_multiple_stop_data(self, dates, day_type, stop_codes, period, half_hour,
-                                 valid_operator_list):
+                                          valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
 
