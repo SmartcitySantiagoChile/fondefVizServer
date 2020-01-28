@@ -126,9 +126,9 @@ $(document).ready(function () {
                                 var ball = el.marker;
                                 var name = el.seriesName;
                                 let valueAux = el.value || -1;
-                                let value = 0;
+                                let value;
                                 if (valueAux === -1){
-                                    value = "Sin datos";
+                                    value = "sin datos";
                                 } else {
                                     value = Number(Number(valueAux).toFixed(2)).toLocaleString();
                                 }
