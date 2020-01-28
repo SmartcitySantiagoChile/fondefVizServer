@@ -28,7 +28,6 @@ class AvailableDays(View):
 
         return JsonResponse(response)
 
-
 class BipTransactionByOperatorData(View):
 
     @method_decorator(csrf_exempt)
@@ -58,13 +57,17 @@ class BipTransactionByOperatorData(View):
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
             es_helper = ESBipHelper()
-            es_query = es_helper.get_bip_by_operator_data(dates, valid_operator_list)
+            es_query, operator_list = es_helper.get_bip_by_operator_data(dates, valid_operator_list)
 
             if export_data:
                 ExporterManager(es_query).export_data(csv_helper.BIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response = self.transform_es_answer(es_query)
+                response = {
+                    'data': response,
+                    'operators': operator_list
+                }
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()

@@ -57,6 +57,7 @@ class ESBipHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
             raise ESQueryOperatorParameterDoesNotExist
+        operator_list = get_operator_list_for_select_input(filter=valid_operator_list)
 
         combined_filter = []
         for date_range in dates:
@@ -74,9 +75,9 @@ class ESBipHelper(ElasticSearchHelper):
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
 
-        aggs = A('date_histogram', field='validationTime', interval='hour')
+        aggs = A('date_histogram', field='validationTime', interval='day')
         es_query.aggs.bucket('histogram', aggs).\
             bucket('operators', 'terms', field='operator', size=1000)
 
-        return es_query
+        return es_query, operator_list
 

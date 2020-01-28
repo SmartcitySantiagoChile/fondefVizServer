@@ -3,14 +3,30 @@ $(document).ready(function () {
     function OperatorApp() {
         var chart = echarts.init(document.getElementById("barChart"), theme);
 
-        this.updateMetrics = function (data) {
-            let operators = Array.from(Array(10).keys());
-            console.log(operators);
-            var header = operators;
-            var rows = data.rows;
-            if (rows === 0) {
-                return;
+        this.updateMetrics = function (answer) {
+            var data = answer.data;
+            var datesKeys = {};
+            var header = [];
+            header.push("Día");
+            let operators_number = answer.operators.length;
+            for (let i = 0; i < operators_number; i++){
+                header.push(answer.operators[i].item);
             }
+            let rows = [];
+
+            data.forEach(function (e) {
+                let row = [];
+                let dateTime = e.key_as_string;
+                datesKeys[dateTime] = {};
+                row.push(dateTime);
+                e.operators.buckets.forEach(function (f) {
+                    datesKeys[dateTime][f.key] = f.doc_count;
+                });
+                for (let i = 0; i <= operators_number; i++){
+                    row.push(datesKeys[dateTime][i] | 0);
+                }
+                rows.push(row);
+            });
 
             // generate range of dates
             var firstDate = new Date(rows[0][0]);
@@ -21,7 +37,6 @@ $(document).ready(function () {
                 dates.push(currentDate.getTime());
                 currentDate.setUTCDate(currentDate.getUTCDate() + 1);
             }
-
             var rowData = dates.map(function (date) {
                 var row = header.map(function () {
                     return null;
@@ -29,6 +44,7 @@ $(document).ready(function () {
                 row[0] = date;
                 return row;
             });
+
             rows.forEach(function (row) {
                 var day = (new Date(row[0])).getTime();
                 var index = dates.indexOf(day);
@@ -38,7 +54,7 @@ $(document).ready(function () {
                     }
                 });
             });
-
+            console.log(rows);
             var yAxisDataName = [];
             var series = [];
             var dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -64,7 +80,7 @@ $(document).ready(function () {
                     name: name,
                     type: "line",
                     data: attributeData,
-                    showSymbol: false,
+                    showSymbol: true,
                     smooth: true
                 };
                 series.push(serie);
@@ -149,6 +165,8 @@ $(document).ready(function () {
             };
 
             chart.setOption(option, {notMerge: true});
+            console.log(chart.getOption());
+
         };
 
         this.resizeCharts = function () {
@@ -165,7 +183,6 @@ $(document).ready(function () {
         var previousCall = function () {
         };
         var afterCall = function (data) {
-            console.log(data);
             if (data.status) {
                 return;
             }
