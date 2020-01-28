@@ -8,7 +8,7 @@ from django.views.generic import View
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError
+from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError, ESQueryResultEmpty
 from esapi.helper.bip import ESBipHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
@@ -41,8 +41,14 @@ class BipTransactionByOperatorData(View):
         return 0 if (-1 < value < 0) else value
 
     def transform_es_answer(self, es_query):
-        result = {}
-        return result
+        """ transform ES answer to something util to web client """
+        operators = []
+        response = es_query.execute()
+        for hit in response.aggregations.operators:
+            operators.append(hit.to_dict())
+        if len(operators) == 0:
+            raise ESQueryResultEmpty()
+        return operators
 
     def process_request(self, request, params, export_data=False):
         response = {}
