@@ -8,7 +8,7 @@ from esapi.views.bip import AvailableDays as BAD, BipTransactionByOperatorData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.paymentfactor import AvailableDays as PFAD, PaymentFactorData
 from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
-    LoadProfileByExpeditionData, LoadProfileByTrajectoryData
+    LoadProfileByExpeditionData, LoadProfileByTrajectoryData, BoardingAndAlightingAverageByStops
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
@@ -25,6 +25,8 @@ urlpatterns = [
         name='loadProfileByExpeditionData'),
     url(r'^profile/loadProfileByTrajectoryData/$', login_required(LoadProfileByTrajectoryData.as_view()),
         name='loadProfileByTrajectoryData'),
+    url(r'^profile/boardingAndAlightingAverageByStops/$', login_required(BoardingAndAlightingAverageByStops.as_view()),
+        name='boardingAndAlightingAverageByStops'),
     url(r'^profile/availableDays/$', login_required(AvailableDays.as_view()), name='availableProfileDays'),
     url(r'^profile/availableRoutes/$', login_required(AvailableRoutes.as_view()), name='availableProfileRoutes'),
 
