@@ -2,11 +2,12 @@
 from __future__ import unicode_literals
 
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from esapi.errors import FondefVizError
 from esapi.helper.bip import ESBipHelper
-from localinfo.helper import PermissionBuilder, get_calendar_info
+from localinfo.helper import get_calendar_info
 
 
 class AvailableDays(View):
@@ -23,20 +24,27 @@ class AvailableDays(View):
         return JsonResponse(response)
 
 
-class AvailableRoutes(View):
+class BipTransactionByOperatorData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BipTransactionByOperatorData, self).dispatch(request, *args, **kwargs)
+
+    def clean_data(self, data):
+        """ round to zero values between [-1, 0]"""
+        value = float(data)
+        return 0 if (-1 < value < 0) else value
+
+    def transform_es_answer(self, es_query):
+        result = {}
+        return result
+
+    def process_request(self, request, params, export_data=False):
+        response = {}
+        return JsonResponse(response, safe=False)
 
     def get(self, request):
+        return self.process_request(request, request.GET)
 
-        response = {}
-        try:
-            es_helper = ESBipHelper()
-            valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-            available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
-
-            response['availableRoutes'] = available_days
-            response['operatorDict'] = op_dict
-        except FondefVizError as e:
-            response['status'] = e.get_status_response()
-
-        return JsonResponse(response)
-
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)

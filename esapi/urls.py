@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from esapi.views.bip import AvailableDays as BAD
+from esapi.views.bip import AvailableDays as BAD, BipTransactionByOperatorData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
 from esapi.views.paymentfactor import AvailableDays as PFAD, PaymentFactorData
 from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
@@ -64,7 +64,8 @@ urlpatterns = [
     url(r'^paymentfactor/availableDays/$', login_required(PFAD.as_view()), name='availablePaymentfactorDays'),
     url(r'^paymentfactor/data/$', login_required(PaymentFactorData.as_view()), name='paymentfactorData'),
 
-    # bip
+    # bip index
     url(r'^bip/availableDays/$', login_required(BAD.as_view()), name='availableBipDays'),
+    url(r'^bip/BipTransactionByOperatorData/$', login_required(BipTransactionByOperatorData.as_view()), name='operatorData'),
 
 ]
