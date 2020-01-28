@@ -23,10 +23,11 @@ $(document).ready(function () {
                     datesKeys[dateTime][f.key] = f.doc_count;
                 });
                 for (let i = 0; i <= operators_number; i++){
-                    row.push(datesKeys[dateTime][i] | 0);
+                    row.push(datesKeys[dateTime][i]);
                 }
                 rows.push(row);
             });
+            console.log(rows);
 
             // generate range of dates
             var firstDate = new Date(rows[0][0]);
@@ -80,7 +81,7 @@ $(document).ready(function () {
                     name: name,
                     type: "line",
                     data: attributeData,
-                    showSymbol: true,
+                    showSymbol: false,
                     smooth: true
                 };
                 series.push(serie);
