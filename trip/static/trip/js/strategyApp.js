@@ -210,6 +210,7 @@ $(document).ready(function () {
         };
         var opts = {
             urlFilterData: Urls["esapi:tripStrategiesData"](),
+            urlMultiRouteData: Urls["esapi:multiRouteData"](),
             afterCallData: afterCall,
             dataUrlParams: function () {
                 return {
