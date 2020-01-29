@@ -3,10 +3,6 @@
 
 {% block title %}Transacciones por Operador{% endblock %}
 
-{% block css %}
-    {{ block.super }}
-{% endblock %}
-
 {% block content %}
     {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
     {% header "Transacciones" "por operador"|add:label %}
@@ -20,7 +16,7 @@
             {% panel "" "" '<div id="barChart" style="height:400px;"></div>' %}
         </div>
     </div>
-   {% include "help/modal/explanation/bip/by_operator/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/bip/by_operator/filter.html" with modal_id="filterHelp" %}
     {% include "help/modal/explanation/bip/by_operator/chart.html" with modal_id="chartHelp" %}
     {{ block.super }}
 {% endblock %}
