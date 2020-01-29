@@ -437,6 +437,13 @@ class MultiRouteData(View):
     def process_request(self, request, params, export_data=False):
         response = {"data": [{"item": 1, "value": "ts 1234"}, {"item": 2, "value": "value"}]}
         print(response)
+
+        es_helper = ESTripHelper()
+        try:
+            es_query = es_helper.get_all_auth_routes();
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+
         return JsonResponse(response)
 
     def get(self, request):

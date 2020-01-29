@@ -520,3 +520,8 @@ class ESTripHelper(ElasticSearchHelper):
                         'parada_subida_4')
 
         return es_query
+
+    def get_all_auth_routes(self):
+        es_query = self.get_base_query()
+
+        return es_query
