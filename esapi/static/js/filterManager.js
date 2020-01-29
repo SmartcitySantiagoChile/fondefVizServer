@@ -408,7 +408,6 @@ function FilterManager(opts) {
         }
 
         var processRouteData = function (data) {
-            console.log(data);
             data.operatorDict = data.operatorDict.map(function (el) {
                 return {
                     id: el.value,
@@ -521,7 +520,6 @@ function FilterManager(opts) {
         });
 
         var processMultiRouteData = function (data) {
-            console.log(data);
             data.data = data.data.map(function (el) {
                 return {
                     id: el.item,
