@@ -300,7 +300,7 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query, destination_es_query
 
     def get_base_strategies_data_query(self, dates, day_types, periods, minutes, origin_zones,
-                                       destination_zones):
+                                       destination_zones, routes):
         es_query = self.get_base_query()
         origin_zone_limit = 50
         destination_zone_limit = 50
@@ -343,12 +343,18 @@ class ESTripHelper(ElasticSearchHelper):
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
 
+        if routes:
+            routes_filter = [Q('terms', srv_1=routes), Q('terms', srv_2=routes), Q('terms', srv_3=routes),
+                             Q('terms', srv_4=routes)]
+            routes_filter = reduce((lambda x, y: x | y), routes_filter)
+            es_query = es_query.query('bool', filter=[routes_filter])
+
         return es_query
 
     def get_strategies_data(self, dates, day_types, periods, minutes, origin_zones,
-                            destination_zones):
+                            destination_zones, routes):
         es_query = self.get_base_strategies_data_query(dates, day_types, periods, minutes, origin_zones,
-                                                       destination_zones)[:0]
+                                                       destination_zones, routes)[:0]
         query_filter = Q({'bool': {'must_not': {'bool': {
             'should': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}},
                        {'terms': {'tipo_transporte_3': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}}}})

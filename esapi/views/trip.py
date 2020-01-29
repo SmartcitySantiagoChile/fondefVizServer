@@ -299,6 +299,7 @@ class StrategiesData(PermissionRequiredMixin, View):
         minutes = params.getlist('halfHour[]', [])
         origin_zones = params.getlist('originZones[]', [])
         destination_zones = params.getlist('destinationZones[]', [])
+        routes = params.getlist('authRoutes[]', [])
 
         response = {}
 
@@ -309,12 +310,12 @@ class StrategiesData(PermissionRequiredMixin, View):
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_strategies_data_query(dates, day_types, periods, minutes,
-                                                                    origin_zones, destination_zones)
+                                                                    origin_zones, destination_zones, routes)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 es_query = es_helper.get_strategies_data(dates, day_types, periods, minutes,
-                                                         origin_zones, destination_zones)
+                                                         origin_zones, destination_zones, routes)
                 response.update(self.process_data(es_query))
         except FondefVizError as e:
             response['status'] = e.get_status_response()
