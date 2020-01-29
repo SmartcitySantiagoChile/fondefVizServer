@@ -68,6 +68,6 @@ urlpatterns = [
 
     # bip index
     url(r'^bip/availableDays/$', login_required(BAD.as_view()), name='availableBipDays'),
-    url(r'^bip/BipTransactionByOperatorData/$', login_required(BipTransactionByOperatorData.as_view()), name='operatorData'),
+    url(r'^bip/BipTransactionByOperatorData/$', login_required(BipTransactionByOperatorData.as_view()), name='operatorBipData'),
 
 ]
