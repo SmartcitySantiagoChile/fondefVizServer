@@ -5,8 +5,6 @@
     <link href="{% static "css/filterManager.css" %}" rel="stylesheet">
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
-        <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
-        <link href="{% static gentelella_static|add:'bootstrap-daterangepicker/daterangepicker.css' %}" rel="stylesheet">
 
         <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}" rel="stylesheet">
@@ -22,22 +20,17 @@
 
 {% block js %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
-        <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"jquery.tagsinput/src/jquery.tagsinput.js" %}"></script>
         <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
 
         <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
 
         <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
     {% endwith %}
 
     <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
-    <script src="{% static "components/echarts-wordcloud/dist/echarts-wordcloud.min.js" %}"></script>
     <script src="{% static "js/echartsTheme.js" %}"></script>
     <script src="{% static "js/filterManager.js" %}"></script>
     <script src="{% static "js/availableDays.js" %}"></script>
