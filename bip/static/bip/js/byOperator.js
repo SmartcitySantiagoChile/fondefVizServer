@@ -127,10 +127,10 @@ $(document).ready(function () {
                                 var name = el.seriesName;
                                 let valueAux = el.value || -1;
                                 let value;
-                                if (valueAux === -1){
+                                if (value === undefined){
                                     value = "sin datos";
                                 } else {
-                                    value = Number(Number(valueAux).toFixed(2)).toLocaleString();
+                                    value = Number(Number(value).toFixed(2)).toLocaleString();
                                 }
                                 info.push(ball + name + ": " + value);
                             });
