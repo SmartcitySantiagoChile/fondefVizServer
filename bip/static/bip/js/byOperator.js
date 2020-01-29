@@ -125,12 +125,9 @@ $(document).ready(function () {
                             params.forEach(function (el) {
                                 var ball = el.marker;
                                 var name = el.seriesName;
-                                let valueAux = el.value || -1;
-                                let value;
-                                if (value === undefined){
-                                    value = "sin datos";
-                                } else {
-                                    value = Number(Number(value).toFixed(2)).toLocaleString();
+                                let value = "sin datos";
+                                if (el.value !== undefined) {
+                                    value = Number(Number(el.value).toFixed(2)).toLocaleString();
                                 }
                                 info.push(ball + name + ": " + value);
                             });
