@@ -221,7 +221,7 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query
 
     def get_base_from_to_map_data_query(self, dates, day_types, periods, minutes, stages, modes,
-                                        origin_zones, destination_zones):
+                                        origin_zones, destination_zones, routes):
         es_query = self.get_base_query()
 
         combined_filter = []
@@ -254,13 +254,30 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', zona_subida=origin_zones)
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
+        if routes:
+            routes_filter = []
+            if not stages:
+                stages = ['1', '2', '3', '4']
+            for stage in stages:
+                if stage == '1':
+                    filter_q = Q('terms', srv_1=routes)
+                elif stage == '2':
+                    filter_q = Q('terms', srv_2=routes)
+                elif stage == '3':
+                    filter_q = Q('terms', srv_3=routes)
+                elif stage == '4':
+                    filter_q = Q('terms', srv_4=routes)
+                routes_filter.append(filter_q)
+            routes_filter = reduce((lambda x, y: x | y), routes_filter)
+            es_query = es_query.query('bool', filter=[routes_filter])
+
 
         return es_query
 
     def get_from_to_map_data(self, dates, day_types, periods, minutes, stages, modes, origin_zones,
-                             destination_zones):
+                             destination_zones, routes):
         es_query = self.get_base_from_to_map_data_query(dates, day_types, periods, minutes, stages,
-                                                        modes, origin_zones, destination_zones)[:0]
+                                                        modes, origin_zones, destination_zones, routes)[:0]
 
         def _query_by_zone(query, field):
             by_zone_agg = A('terms', field=field, size=1000)

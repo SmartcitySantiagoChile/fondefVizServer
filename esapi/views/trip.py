@@ -199,7 +199,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         transport_modes = params.getlist('transportModes[]', [])
         origin_zones = params.getlist('originZones[]', [])
         destination_zones = params.getlist('destinationZones[]', [])
-
+        routes = params.getlist('authRoutes[]', [])
         response = {}
 
         es_helper = ESTripHelper()
@@ -211,12 +211,12 @@ class FromToMapData(PermissionRequiredMixin, View):
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(dates, day_types, periods, minutes,
                                                                      stages, transport_modes, origin_zones,
-                                                                     destination_zones)
+                                                                     destination_zones, routes)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 queries = es_helper.get_from_to_map_data(dates, day_types, periods, minutes, stages,
-                                                         transport_modes, origin_zones, destination_zones)
+                                                         transport_modes, origin_zones, destination_zones, routes)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
 
                 if origin_zone.hits.total == 0 or destination_zone.hits.total == 0:
