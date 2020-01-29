@@ -195,7 +195,7 @@ $(document).ready(function () {
             app.updateMetrics(data);
         };
         var opts = {
-            urlFilterData: Urls["esapi:operatorData"](),
+            urlFilterData: Urls["esapi:operatorBipData"](),
             previousCallData: previousCall,
             afterCallData: afterCall
         };
