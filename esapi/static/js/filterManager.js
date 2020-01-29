@@ -76,6 +76,8 @@ function FilterManager(opts) {
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE, allowClear: Boolean($AUTH_ROUTE_FILTER.length)});
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
+    $MULTI_AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
+
 
     let urlKey = window.location.pathname;
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
@@ -506,11 +508,16 @@ function FilterManager(opts) {
     }
 
     if ($MULTI_AUTH_ROUTE_FILTER.length) {
-        var localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
+        var localMultiAuthRouteFilter = JSON.parse(window.localStorage.getItem(urlKey + "multiAuthRouteFilter"))
+        if (localMultiAuthRouteFilter !== null){
+            localMultiAuthRouteFilter = localMultiAuthRouteFilter.id;
+        } else {
+            localMultiAuthRouteFilter = [];
+        }
         $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter);
         $MULTI_AUTH_ROUTE_FILTER.trigger("change");
         $MULTI_AUTH_ROUTE_FILTER.change(function () {
-            window.localStorage.setItem(urlKey + "multiAuthRouteFilter", $MULTI_AUTH_ROUTE_FILTER.val());
+            window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
         });
 
         var processMultiRouteData = function (data) {
@@ -530,8 +537,7 @@ function FilterManager(opts) {
                 });
                 // call event to update user route filter
                 var selectedItem = localMultiAuthRouteFilter !== null ? localMultiAuthRouteFilter : $MULTI_AUTH_ROUTE_FILTER.select2("data")[0];
-                console.log(selectedItem);
-                $MULTI_AUTH_ROUTE_FILTER.val(selectedItem.id).trigger("change").trigger({
+                $MULTI_AUTH_ROUTE_FILTER.val(selectedItem).trigger("change").trigger({
                     type: "select2:select",
                     params: {data: selectedItem, isFirstTime: true}
                 });
