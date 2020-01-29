@@ -93,7 +93,7 @@ def data_filter(data_filter,
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_multi_auth_route_filter, 'data_key': 'multi_auth_routes', 'input_type': 'select',
          'label': 'Servicios TS:', 'js_id': 'multiAuthRouteFilter', 'multi_select': True,
-         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3}
     ]
 
     panel_body = ''

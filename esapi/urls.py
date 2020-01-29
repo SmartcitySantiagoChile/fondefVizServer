@@ -13,7 +13,7 @@ from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, Matr
     SpeedVariation
 from esapi.views.stop import MatchedStopData
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
-    TransfersData
+    TransfersData, MultiRouteData
 
 app_name = 'esapi'
 urlpatterns = [
@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^trip/mapData/$', login_required(MapData.as_view()), name='tripMapData'),
     url(r'^trip/availableDays/$', login_required(TAD.as_view()), name='availableTripDays'),
     url(r'^trip/transfersData/$', login_required(TransfersData.as_view()), name='transfersData'),
+    url(r'^trip/multiRouteData/$', login_required(MultiRouteData.as_view()), name='multiRouteData'),
 
     # stop indes
     url(r'^stop/matchedStopData/$', login_required(MatchedStopData.as_view()), name='matchedStopData'),

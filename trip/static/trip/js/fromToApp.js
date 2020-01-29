@@ -345,6 +345,7 @@ $(document).ready(function () {
         };
         var opts = {
             urlFilterData: Urls["esapi:fromToMapData"](),
+            urlMultiRouteData: Urls["esapi:multiRouteData"](),
             afterCallData: afterCall,
             dataUrlParams: function () {
                 return {

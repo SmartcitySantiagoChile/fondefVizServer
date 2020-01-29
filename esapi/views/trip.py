@@ -397,3 +397,51 @@ class TransfersData(View):
 
     def post(self, request):
         return self.process_request(request, request.POST, export_data=True)
+
+
+class MultiRouteData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(MultiRouteData, self).dispatch(request, *args, **kwargs)
+
+    def process_data(self, es_query):
+        answer = defaultdict(lambda: defaultdict(lambda: 0))
+        result = es_query.execute().aggregations
+
+        for step in [result.first_transfer, result.second_transfer, result.third_transfer,
+                     result.first_transfer_to_subway, result.second_transfer_to_subway,
+                     result.third_transfer_to_subway]:
+            for from_bucket in step.route_from.buckets:
+                for to_bucket in from_bucket.route_to.buckets:
+                    answer[to_bucket.key][from_bucket.key] += to_bucket.doc_count
+
+        for step in [result.first_transfer_is_end, result.second_transfer_is_end, result.third_transfer_is_end]:
+            for from_bucket in step.route_from.buckets:
+                for to_bucket in from_bucket.route_to.buckets:
+                    end = to_bucket.key
+                    if end == '-':
+                        end = 'end'
+                    answer[end][from_bucket.key] += to_bucket.doc_count
+
+        for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
+            answer['end'][from_bucket.key] += from_bucket.doc_count
+
+        if not answer:
+            raise ESQueryResultEmpty()
+
+        return {
+            'data': answer
+        }
+
+    def process_request(self, request, params, export_data=False):
+        response = {"data": [{"item": 1, "value": "ts 1234"}, {"item": 2, "value": "value"}]}
+        print(response)
+        return JsonResponse(response)
+
+    def get(self, request):
+        return self.process_request(request, request.GET)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
+
