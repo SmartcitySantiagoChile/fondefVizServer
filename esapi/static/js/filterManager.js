@@ -50,6 +50,8 @@ function FilterManager(opts) {
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
     var $METRIC_FILTER = $("#metricFilter");
     var $MULTI_STOP_FILTER = $("#multiStopFilter");
+    var $MULTI_AUTH_ROUTE_FILTER = $("#multiAuthRouteFilter");
+
 
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
@@ -208,6 +210,39 @@ function FilterManager(opts) {
         });
     }
 
+    if ($MULTI_AUTH_ROUTE_FILTER.length) {
+        $MULTI_AUTH_ROUTE_FILTER.select2({
+            ajax: {
+                delay: 500, // milliseconds
+                url: Urls["esapi:matchedStopData"](),
+                dataType: "json",
+                data: function (params) {
+                    return {
+                        term: params.term
+                    }
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.items
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+            language: {
+                inputTooShort: function () {
+                    return "Ingresar 3 o más caracteres";
+                }
+            }
+        });
+        var localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
+        $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter);
+        $MULTI_AUTH_ROUTE_FILTER.trigger("change");
+        $MULTI_AUTH_ROUTE_FILTER.change(function () {
+            window.localStorage.setItem(urlKey + "multiAuthRouteFilter", $MULTI_AUTH_ROUTE_FILTER.val());
+        });
+    }
+
 
     /* BUTTON ACTION */
     var getParameters = function () {
@@ -227,6 +262,7 @@ function FilterManager(opts) {
         var hourPeriodTo = $HOUR_RANGE_FILTER.data("to");
         var userRoute = $USER_ROUTE_FILTER.val();
         var authRoute = $AUTH_ROUTE_FILTER.val();
+        var authRoutes = $MULTI_AUTH_ROUTE_FILTER.val();
         var stopCode = $STOP_FILTER.val();
         var stopCodes = $MULTI_STOP_FILTER.val();
         var operator = $OPERATOR_FILTER.val();
@@ -305,6 +341,10 @@ function FilterManager(opts) {
         }
         if (metrics) {
             params.metrics = metrics;
+        }
+
+        if ($MULTI_AUTH_ROUTE_FILTER.length && authRoutes) {
+            params.authRoutes = authRoutes;
         }
 
         return params;

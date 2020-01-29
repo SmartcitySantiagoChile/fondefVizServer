@@ -34,6 +34,7 @@ def data_filter(data_filter,
                 show_start_trip_minute_filter=False,
                 show_export_button=True,
                 show_multi_stop_filter=False,
+                show_multi_auth_route_filter=False,
                 extra_html='',
                 info_target_id=''):
     data_filter = [] if data_filter == '' else data_filter
@@ -89,6 +90,9 @@ def data_filter(data_filter,
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_multi_stop_filter, 'data_key': 'stops', 'input_type': 'select',
          'label': 'Paradas:', 'js_id': 'multiStopFilter', 'multi_select': True,
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
+        {'show': show_multi_auth_route_filter, 'data_key': 'multi_auth_routes', 'input_type': 'select',
+         'label': 'Servicios TS:', 'js_id': 'multiAuthRouteFilter', 'multi_select': True,
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
     ]
 
