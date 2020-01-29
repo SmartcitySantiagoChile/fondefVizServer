@@ -5,8 +5,6 @@
 
 {% block css %}
     {{ block.super }}
-    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
-    <link href="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -22,19 +20,12 @@
             {% panel "" "" '<div id="barChart" style="height:400px;"></div>' %}
         </div>
     </div>
-    {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
-    {% include "help/modal/explanation/profile/by_route/chart.html" with modal_id="chartHelp" %}
-    {% include "help/modal/explanation/profile/by_route/table.html" with modal_id="tableHelp" %}
+   {% include "help/modal/explanation/bip/by_operator/filter.html" with modal_id="filterHelp" %}
+    {% include "help/modal/explanation/bip/by_operator/chart.html" with modal_id="chartHelp" %}
     {{ block.super }}
 {% endblock %}
 
 {% block js %}
     {{ block.super }}
-    {% with "components/gentelella/vendors/" as gentelella_static %}
-        <script src="{% static gentelella_static|add:"jquery-sparkline/dist/jquery.sparkline.min.js" %}"></script>
-    {% endwith %}
-    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
-    <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
-    <script src="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.js" %}"></script>
     <script src="{% static "bip/js/byOperator.js" %}"></script>
 {% endblock %}
