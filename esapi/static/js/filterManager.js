@@ -517,7 +517,7 @@ function FilterManager(opts) {
             console.log(data);
             data.data = data.data.map(function (el) {
                 return {
-                    id: el.value,
+                    id: el.item,
                     text: el.item
                 }
             });
