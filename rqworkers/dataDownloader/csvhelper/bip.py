@@ -13,7 +13,7 @@ class BipData(object):
     def __init__(self, es_query, es_client=None):
         self.es_query = es_query
         self.es_client = settings.ES_CLIENT if es_client is None else es_client
-        self.bip_file = ProfileCSVHelper(self.es_client, self.es_query)
+        self.bip_file = BipCSVHelper(self.es_client, self.es_query)
 
     def get_filters(self):
         return self.bip_file.get_filter_criteria(BipCSVHelper.FORMATTER_FOR_WEB)

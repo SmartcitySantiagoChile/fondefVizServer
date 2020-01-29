@@ -29,8 +29,8 @@ class LoadBipData(TestCase):
     def test_check_make_docs(self):
         file_path = os.path.join(os.path.dirname(__file__), 'files', '2019-10-07.bip')
 
-        profile_uploader = BipFile(file_path)
-        list(profile_uploader.make_docs())
+        bip_uploader = BipFile(file_path)
+        list(bip_uploader.make_docs())
 
     @mock.patch('rqworkers.dataUploader.uploader.datafile.parallel_bulk')
     @mock.patch('rqworkers.dataUploader.uploader.datafile.Search')
@@ -55,9 +55,9 @@ class LoadBipData(TestCase):
         self.prepare_search_mock(search_mock)
         parallel_bulk.return_value = [(True, 'info')]
 
-        profile_uploader = BipFile(file_path)
-        profile_uploader.load(elasticsearch_mock, self.index_name, self.chunk_size, self.threads, self.timeout)
+        bip_uploader = BipFile(file_path)
+        bip_uploader.load(elasticsearch_mock, self.index_name, self.chunk_size, self.threads, self.timeout)
 
-        list(profile_uploader.make_docs())
+        list(bip_uploader.make_docs())
 
         parallel_bulk.assert_called()
