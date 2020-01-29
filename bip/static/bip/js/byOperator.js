@@ -1,85 +1,32 @@
 "use strict";
 $(document).ready(function () {
-    function ResumeApp() {
+    function OperatorApp() {
         var chart = echarts.init(document.getElementById("barChart"), theme);
 
-        var subgroupTranslation = {
-            smartcard: "Tarjetas y transacciones",
-            model: "Modelo",
-            transportMode: "Bus, metro, metrotren y zona paga",
-            stage: "Etapas",
-            expedition: "Expedición",
-            tripNumberInPeakHour: "N° viajes en hora punta",
-            tripTime: "Tiempo de viaje",
-            speed: "Velocidad",
-            distance: "Distancia",
-            tripWithsubway: "Viajes en metro",
-            gps: "Tiempo entre gps",
-            gpsNumber: "GPS con asignación de servicio"
-        };
-
-        var filters = {
-            clean: [],
-            transaction: {
-                smartcard: ["transactionNumber", "smartcardNumber"],
-                model: ["transactionWithoutRoute", "transactionWithRoute"],
-                transportMode: ["transactionOnBusNumber", "transactionOnMetroNumber", "transactionOnBusStation",
-                                "transactionOnTrainNumber"]
-            },
-            trip: {
-                stage: ["tripsWithOneStage", "tripsWithTwoStages", "tripsWithThreeStages", "tripsWithFourStages",
-                        "tripsWithFiveOrMoreStages"],
-                expedition: ["GPSPointsNumber", "licensePlateNumber"],
-                tripNumberInPeakHour: ["tripNumberInAfternoonRushHour", "tripNumberInMorningRushHour"],
-                tripTime: ["averageTimeInAfternoonRushTrips", "averageTimeInMorningRushTrips",
-                           "averageTimeOfTrips"],
-                speed: ["averageVelocityInMorningRushTrips", "averageVelocityInAfternoonRushTrips",
-                        "averageVelocityOfTrips"],
-                distance: ["averageDistanceInMorningRushTrips", "averageDistanceInAfternoonRushTrips",
-                           "averageDistanceOfTrips"],
-                model: ["completeTripNumber", "validTripNumber", "tripNumber", "tripsWithoutLastAlighting"],
-                gps: ["averageTimeBetweenGPSPoints"],
-                tripWithsubway: ["tripsThatUseMetro", "tripsWithOnlyMetro"]
-            },
-            stage: {
-                transportMode: ["stagesWithBusAlighting", "stagesWithTrainAlighting", "stagesWithMetroAlighting",
-                      "stagesWithBusStationAlighting"]
-            },
-            expedition: {
-                expedition: ["expeditionNumber"],
-                model: ["maxExpeditionTime", "minExpeditionTime", "averageExpeditionTime"],
-                gpsNumber: ["GPSNumberWithRoute", "GPSNumberWithoutRoute"]
+        this.updateMetrics = function (answer) {
+            var data = answer.data;
+            var datesKeys = {};
+            var header = [];
+            header.push("Día");
+            let operators_number = answer.operators.length;
+            for (let i = 0; i < operators_number; i++){
+                header.push(answer.operators[i].item);
             }
-        };
+            let rows = [];
 
-        $(".btn-filter-group").click(function () {
-            var $METRIC_FILTER = $("#metricFilter");
-            var groupId = $(this).attr("id");
-            if (groupId === "clean") {
-                $METRIC_FILTER.val(filters[groupId]).trigger("change");
-                return;
-            }
-            var container = $("#subgroup");
-            container.empty();
-            Object.keys(filters[groupId]).forEach(function(subgroup){
-                var button = $("<button></button>",{
-                    text: subgroupTranslation[subgroup],
-                    id: subgroup,
-                    class: "btn btn-default btn-round btn-filter-subgroup",
-                    click: function () {
-                        $METRIC_FILTER.val(filters[groupId][subgroup]).trigger("change");
-                    }
+            data.forEach(function (e) {
+                let row = [];
+                let dateTime = e.key_as_string;
+                datesKeys[dateTime] = {};
+                row.push(dateTime);
+                e.operators.buckets.forEach(function (f) {
+                    datesKeys[dateTime][f.key] = f.doc_count;
                 });
-                container.append(button);
+                for (let i = 0; i <= operators_number; i++){
+                    row.push(datesKeys[dateTime][i]);
+                }
+                rows.push(row);
             });
-        });
-
-        this.updateMetrics = function (data) {
-            var header = data.header;
-            var rows = data.rows;
-            if (rows === 0) {
-                return;
-            }
 
             // generate range of dates
             var firstDate = new Date(rows[0][0]);
@@ -90,7 +37,6 @@ $(document).ready(function () {
                 dates.push(currentDate.getTime());
                 currentDate.setUTCDate(currentDate.getUTCDate() + 1);
             }
-
             var rowData = dates.map(function (date) {
                 var row = header.map(function () {
                     return null;
@@ -98,6 +44,7 @@ $(document).ready(function () {
                 row[0] = date;
                 return row;
             });
+
             rows.forEach(function (row) {
                 var day = (new Date(row[0])).getTime();
                 var index = dates.indexOf(day);
@@ -107,7 +54,7 @@ $(document).ready(function () {
                     }
                 });
             });
-
+            console.log(rows);
             var yAxisDataName = [];
             var series = [];
             var dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -178,11 +125,9 @@ $(document).ready(function () {
                             params.forEach(function (el) {
                                 var ball = el.marker;
                                 var name = el.seriesName;
-                                let value = el.value;
-                                if (value === undefined){
-                                    value = "Sin datos";
-                                } else {
-                                    value = Number(Number(value).toFixed(2)).toLocaleString();
+                                let value = "sin datos";
+                                if (el.value !== undefined) {
+                                    value = Number(Number(el.value).toFixed(2)).toLocaleString();
                                 }
                                 info.push(ball + name + ": " + value);
                             });
@@ -223,6 +168,8 @@ $(document).ready(function () {
             };
 
             chart.setOption(option, {notMerge: true});
+            console.log(chart.getOption());
+
         };
 
         this.resizeCharts = function () {
@@ -232,22 +179,26 @@ $(document).ready(function () {
 
     // load filters
     (function () {
-        loadAvailableDays(Urls["esapi:availableStatisticDays"]());
-        loadRangeCalendar(Urls["esapi:availableStatisticDays"](), {});
+        loadAvailableDays(Urls["esapi:availableBipDays"]());
+        loadRangeCalendar(Urls["esapi:availableBipDays"](), {});
 
-        var app = new ResumeApp();
-        var afterCall = function (answer) {
-            if (answer.status) {
+        var app = new OperatorApp();
+        var previousCall = function () {
+        };
+        var afterCall = function (data) {
+            if (data.status) {
                 return;
             }
-            app.updateMetrics(answer.data);
+            app.updateMetrics(data);
         };
         var opts = {
-            urlFilterData: Urls["esapi:resumeData"](),
-            afterCallData: afterCall,
-            minimumDateLimit: 2
+            urlFilterData: Urls["esapi:operatorBipData"](),
+            previousCallData: previousCall,
+            afterCallData: afterCall
         };
+
         new FilterManager(opts);
+
         $(window).resize(function () {
             app.resizeCharts();
         });
