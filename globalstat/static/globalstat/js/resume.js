@@ -180,7 +180,7 @@ $(document).ready(function () {
                                 var name = el.seriesName;
                                 let value = el.value;
                                 if (value === undefined){
-                                    value = "sin datos";
+                                    value = "Sin datos";
                                 } else {
                                     value = Number(Number(value).toFixed(2)).toLocaleString();
                                 }
