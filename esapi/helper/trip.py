@@ -259,14 +259,9 @@ class ESTripHelper(ElasticSearchHelper):
             if not stages:
                 stages = ['1', '2', '3', '4']
             for stage in stages:
-                if stage == '1':
-                    filter_q = Q('terms', srv_1=routes)
-                elif stage == '2':
-                    filter_q = Q('terms', srv_2=routes)
-                elif stage == '3':
-                    filter_q = Q('terms', srv_3=routes)
-                elif stage == '4':
-                    filter_q = Q('terms', srv_4=routes)
+                srv = dict()
+                srv['srv_{0}'.format(stage)] = routes
+                filter_q = Q('terms', **srv)
                 routes_filter.append(filter_q)
             routes_filter = reduce((lambda x, y: x | y), routes_filter)
             es_query = es_query.query('bool', filter=[routes_filter])
