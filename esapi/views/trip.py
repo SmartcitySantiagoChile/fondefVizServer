@@ -414,7 +414,6 @@ class MultiRouteData(View):
             res.append({"item": hit.key})
         if len(res) == 0:
             raise ESQueryResultEmpty()
-        print(len(res))
         return {
             'data': res
         }
@@ -434,4 +433,3 @@ class MultiRouteData(View):
 
     def post(self, request):
         return self.process_request(request, request.POST, export_data=True)
-
