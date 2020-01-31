@@ -9,9 +9,8 @@ $(document).ready(function () {
         "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
     ];
 
-    var selectedTime = [];
-    var selectedDistance = [];
-    var previousLayers;
+    var selectedSpeed = [];
+    var speedMap;
 
     function DrawSegmentsApp(colorScale, labels) {
         var _self = this;
@@ -31,7 +30,6 @@ $(document).ready(function () {
             layers: [blackLayer]
         });
         L.control.scale().addTo(map);
-
         var colors = colorScale;
 
         /* to draw on map */
@@ -41,6 +39,14 @@ $(document).ready(function () {
         var decoratorPolylineList = [];
         var startMarker = null;
         var endMarker = null;
+
+        let compareElementsOfArray = function(a, b){
+            let n = Array.from(Array(a.length).keys());
+            let value = true;
+            n.forEach((index) =>
+                value = value && (a[index] === b[index]));
+            return value;
+        };
 
         this._clearMap = function () {
             if (startMarker !== null) {
@@ -76,7 +82,7 @@ $(document).ready(function () {
                 var div = L.DomUtil.create("info", "info legend");
                 div.id = "button_legend";
                 div.innerHTML = "<button id='legendButton' type='button' class='btn btn-primary' data-toggle='button' aria-pressed='false'" +
-                    "autocomplete='off'> Selección por tramos </button>";
+                    "autocomplete='off'> Selección por tramos </button> <div id='infoLegendButton'></div>";
                 return div;
             };
 
@@ -119,7 +125,6 @@ $(document).ready(function () {
 
         this.drawRoute = function (route, valuesRoute) {
             _self._clearMap();
-
             /* update routes and segments */
             startEndSegments = route.start_end;
             routePoints = route.points.map(function (el) {
@@ -158,25 +163,41 @@ $(document).ready(function () {
                 });
                 var speed = valuesRoute[i][1];
                 var obsNumber = valuesRoute[i][2];
-                let distance = valuesRoute[i][3];
-                let time = valuesRoute[i][4];
                 var popup = "Velocidad: " + speed.toFixed(2) + " k/m<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
                 segpol.bindPopup(popup);
                 deco.bindPopup(popup);
-                segpol.on("click", function (e) {
+                let createSpeedLegend = function(){
                     if ($("#legendButton").attr("aria-pressed") === 'true') {
-                        let newSegpol = segpol;
-                        segpol.options.color = 'red';
-                        console.log(map.hasLayer(segpol));
-                        map.removeLayer(segpol);
-                        map.addLayer(newSegpol);
-                    } else {
-                        selectedDistance = [];
-                        selectedTime = [];
-                        map.eachLayer(function (layer) {
+                        if (selectedSpeed.length === 0 || selectedSpeed.length > 1 ){
+                            selectedSpeed = [valuesRoute[i]];
+                        } else {
+                            selectedSpeed.push(valuesRoute[i]);
+                            let indexA = valuesRoute.findIndex(function(a){
+                                return compareElementsOfArray(a, selectedSpeed[0]);
+                            });
 
-                        })
+                            let indexB = valuesRoute.findIndex(function(a) {
+                                return compareElementsOfArray(a, selectedSpeed[1]);
+                            });
+                            let firstIndex = Math.min(indexA, indexB);
+                            let secondIndex = Math.max(indexA, indexB);
+                            let accumulateDistance = 0;
+                            let accumulateTime= 0;
+                            for (let index = firstIndex; index <= secondIndex; index++ ){
+                                accumulateDistance += valuesRoute[index][3];
+                                accumulateTime += valuesRoute[index][4];
+                            }
+                            let speedInfo = (3.6 *(accumulateDistance / accumulateTime)).toFixed(2);
+                            let firstInfo = "Velocidad entre los tramos " + firstIndex + " y " + secondIndex + ": <br> <h5>" + speedInfo + " km /h </h5>";
+                            $("#infoLegendButton").html("<br>" + firstInfo);
+                        }
                     }
+                };
+                segpol.on("click", function () {
+                    createSpeedLegend();
+                });
+                deco.on("click", function () {
+                    createSpeedLegend();
                 });
                 segmentPolylineList.push(segpol);
                 decoratorPolylineList.push(deco);
