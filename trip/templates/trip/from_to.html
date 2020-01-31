@@ -24,7 +24,7 @@
         {% columns 12 12 12 "<label>Número de etapas:</label><br />"|add:stage_selectors as col1 %}
         {% columns 12 12 12 "<label>Modo de viaje:</label><br />"|add:mode_selectors as col2 %}
         {% with extra_html=col1|add:col2 %}
-            {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True extra_html=extra_html info_target_id="filterHelp" %}
+            {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_multi_auth_route_filter=True show_start_trip_minute_filter=True extra_html=extra_html info_target_id="filterHelp" %}
         {% endwith %}
 
         <div class="row cols-same-height">

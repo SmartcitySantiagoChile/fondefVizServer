@@ -27,6 +27,8 @@ function FilterManager(opts) {
     var dataUrlParams = opts.dataUrlParams || function () {
         return {};
     };
+    /* url where filter manager asks for multiple route data */
+    var urlMultiRouteData = opts.urlMultiRouteData;
 
     if (opts.hasOwnProperty("previousCallData")) {
         previousCall = opts.previousCallData;
@@ -50,6 +52,8 @@ function FilterManager(opts) {
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
     var $METRIC_FILTER = $("#metricFilter");
     var $MULTI_STOP_FILTER = $("#multiStopFilter");
+    var $MULTI_AUTH_ROUTE_FILTER = $("#multiAuthRouteFilter");
+
 
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
@@ -72,6 +76,8 @@ function FilterManager(opts) {
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE, allowClear: Boolean($AUTH_ROUTE_FILTER.length)});
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
+    $MULTI_AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
+
 
     let urlKey = window.location.pathname;
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
@@ -208,7 +214,6 @@ function FilterManager(opts) {
         });
     }
 
-
     /* BUTTON ACTION */
     var getParameters = function () {
         var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
@@ -227,6 +232,7 @@ function FilterManager(opts) {
         var hourPeriodTo = $HOUR_RANGE_FILTER.data("to");
         var userRoute = $USER_ROUTE_FILTER.val();
         var authRoute = $AUTH_ROUTE_FILTER.val();
+        var authRoutes = $MULTI_AUTH_ROUTE_FILTER.val();
         var stopCode = $STOP_FILTER.val();
         var stopCodes = $MULTI_STOP_FILTER.val();
         var operator = $OPERATOR_FILTER.val();
@@ -305,6 +311,10 @@ function FilterManager(opts) {
         }
         if (metrics) {
             params.metrics = metrics;
+        }
+
+        if ($MULTI_AUTH_ROUTE_FILTER.length && authRoutes) {
+            params.authRoutes = authRoutes;
         }
 
         return params;
@@ -495,6 +505,52 @@ function FilterManager(opts) {
             }
         });
     }
+
+    if ($MULTI_AUTH_ROUTE_FILTER.length) {
+        var localMultiAuthRouteFilter = JSON.parse(window.localStorage.getItem(urlKey + "multiAuthRouteFilter"))
+        if (localMultiAuthRouteFilter !== null){
+            localMultiAuthRouteFilter = localMultiAuthRouteFilter.id;
+        } else {
+            localMultiAuthRouteFilter = [];
+        }
+        $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter);
+        $MULTI_AUTH_ROUTE_FILTER.trigger("change");
+        $MULTI_AUTH_ROUTE_FILTER.change(function () {
+            window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
+        });
+
+        var processMultiRouteData = function (data) {
+            data.data = data.data.map(function (el) {
+                return {
+                    id: el.item,
+                    text: el.item
+                }
+            });
+            if ($MULTI_AUTH_ROUTE_FILTER.length) {
+                $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});
+                $MULTI_AUTH_ROUTE_FILTER.on("select2:select", function (e) {
+                    if (!e.params.isFirstTime) {
+                        window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
+                    }
+                });
+                // call event to update user route filter
+                var selectedItem = localMultiAuthRouteFilter !== null ? localMultiAuthRouteFilter : $MULTI_AUTH_ROUTE_FILTER.select2("data")[0];
+                $MULTI_AUTH_ROUTE_FILTER.val(selectedItem).trigger("change").trigger({
+                    type: "select2:select",
+                    params: {data: selectedItem, isFirstTime: true}
+                });
+            }
+        };
+
+        $.getJSON(urlMultiRouteData, function (data) {
+            if (data.status) {
+                showMessage(data.status);
+            } else {
+                processMultiRouteData(data);
+            }
+        });
+    }
+
 
     if ($HOUR_RANGE_FILTER.length) {
         var periods = [

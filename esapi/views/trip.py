@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
+from esapi.helper.profile import ESProfileHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
@@ -198,7 +199,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         transport_modes = params.getlist('transportModes[]', [])
         origin_zones = params.getlist('originZones[]', [])
         destination_zones = params.getlist('destinationZones[]', [])
-
+        routes = params.getlist('authRoutes[]', [])
         response = {}
 
         es_helper = ESTripHelper()
@@ -210,12 +211,12 @@ class FromToMapData(PermissionRequiredMixin, View):
             if export_data:
                 es_query = es_helper.get_base_from_to_map_data_query(dates, day_types, periods, minutes,
                                                                      stages, transport_modes, origin_zones,
-                                                                     destination_zones)
+                                                                     destination_zones, routes)
                 ExporterManager(es_query).export_data(csv_helper.TRIP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 queries = es_helper.get_from_to_map_data(dates, day_types, periods, minutes, stages,
-                                                         transport_modes, origin_zones, destination_zones)
+                                                         transport_modes, origin_zones, destination_zones, routes)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
 
                 if origin_zone.hits.total == 0 or destination_zone.hits.total == 0:
@@ -387,6 +388,41 @@ class TransfersData(View):
                                                              half_hours)[:0]
                 response.update(self.process_data(es_query))
                 response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code)
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
+
+    def get(self, request):
+        return self.process_request(request, request.GET)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
+
+
+class MultiRouteData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(MultiRouteData, self).dispatch(request, *args, **kwargs)
+
+    def process_data(self, es_query):
+
+        res = []
+        response = es_query.execute()
+        for hit in response.aggregations.route:
+            res.append({"item": hit.key})
+        if len(res) == 0:
+            raise ESQueryResultEmpty()
+        return {
+            'data': res
+        }
+
+    def process_request(self, request, params, export_data=False):
+        es_helper = ESProfileHelper()
+        try:
+            es_query = es_helper.get_all_auth_routes()
+            response = self.process_data(es_query)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

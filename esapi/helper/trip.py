@@ -26,6 +26,7 @@ class ESTripHelper(ElasticSearchHelper):
         Builds a elastic search query for the travels histogram
         It is based on the requested filtering options
         """
+
         def add_histogram(field, interval, b_min, b_max):
             base_es_query.aggs.bucket(field, 'histogram', field=field, interval=interval,
                                       min_doc_count=0, extended_bounds={'min': b_min, 'max': b_max}) \
@@ -114,15 +115,14 @@ class ESTripHelper(ElasticSearchHelper):
             if not start_date or not end_date:
                 raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
-
 
         # TODO: esta restricción no existe sobre la consulta inicialmente, verificar que no cambia el resultado.
         """
@@ -221,7 +221,7 @@ class ESTripHelper(ElasticSearchHelper):
         return es_query
 
     def get_base_from_to_map_data_query(self, dates, day_types, periods, minutes, stages, modes,
-                                        origin_zones, destination_zones):
+                                        origin_zones, destination_zones, routes):
         es_query = self.get_base_query()
 
         combined_filter = []
@@ -254,13 +254,24 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', zona_subida=origin_zones)
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
+        if routes:
+            routes_filter = []
+            if not stages:
+                stages = ['1', '2', '3', '4']
+            for stage in stages:
+                srv = dict()
+                srv['srv_{0}'.format(stage)] = routes
+                filter_q = Q('terms', **srv)
+                routes_filter.append(filter_q)
+            routes_filter = reduce((lambda x, y: x | y), routes_filter)
+            es_query = es_query.query('bool', filter=[routes_filter])
 
         return es_query
 
     def get_from_to_map_data(self, dates, day_types, periods, minutes, stages, modes, origin_zones,
-                             destination_zones):
+                             destination_zones, routes):
         es_query = self.get_base_from_to_map_data_query(dates, day_types, periods, minutes, stages,
-                                                        modes, origin_zones, destination_zones)[:0]
+                                                        modes, origin_zones, destination_zones, routes)[:0]
 
         def _query_by_zone(query, field):
             by_zone_agg = A('terms', field=field, size=1000)
@@ -340,8 +351,8 @@ class ESTripHelper(ElasticSearchHelper):
         third_transport_mode = A('terms', field='srv_3', size=2000)
         fourth_transport_mode = A('terms', field='srv_4', size=2000)
 
-        es_query.aggs.bucket('strategies_without_metro_or_metrotren', A('filter', query_filter)).\
-            bucket('first', first_transport_mode).bucket('second', second_transport_mode).\
+        es_query.aggs.bucket('strategies_without_metro_or_metrotren', A('filter', query_filter)). \
+            bucket('first', first_transport_mode).bucket('second', second_transport_mode). \
             bucket('third', third_transport_mode).bucket('fourth', fourth_transport_mode). \
             metric('expansion_factor', 'sum', field='factor_expansion')
 
@@ -472,7 +483,7 @@ class ESTripHelper(ElasticSearchHelper):
     def get_transfers_data(self, dates, auth_stop_code, day_types, periods, half_hours):
 
         es_query = self.get_base_transfers_data_query(dates, auth_stop_code, day_types, periods,
-                                                           half_hours)
+                                                      half_hours)
 
         def add_aggregation(bucket_name, stop_name, additional_conditions, stage_route_init, stage_route_end,
                             not_conditions=None):
@@ -492,6 +503,7 @@ class ESTripHelper(ElasticSearchHelper):
                                                                       field='factor_expansion')
 
             return transfer_bucket
+
         first_condition = [{'range': {'n_etapas': {'gt': 1}}}]
         second_condition = [{'range': {'n_etapas': {'gt': 2}}}]
         third_condition = [{'range': {'n_etapas': {'gt': 3}}}]

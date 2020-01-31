@@ -278,3 +278,10 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('userStopName', 'top_hits', size=1, _source=['userStopName']). \
             metric('busCapacity', 'avg', field='busCapacity')
         return es_query
+
+    def get_all_auth_routes(self):
+        es_query = self.get_base_query()
+        es_query = es_query[:0]
+        aggs = A('terms', field="route", size=5000)
+        es_query.aggs.bucket('route', aggs)
+        return es_query
