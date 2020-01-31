@@ -10,7 +10,6 @@ $(document).ready(function () {
     ];
 
     var selectedSpeed = [];
-    var speedMap;
 
     function DrawSegmentsApp(colorScale, labels) {
         var _self = this;
@@ -30,6 +29,28 @@ $(document).ready(function () {
             layers: [blackLayer]
         });
         L.control.scale().addTo(map);
+
+        L.Control.selectBySegment = L.Control.extend({
+            onAdd: function (map) {
+                var div = L.DomUtil.create("info", "info legend");
+                div.id = "button_legend";
+                div.innerHTML = "<input id='legendButton' type='checkbox' class='form-check-input' data-toggle='button' aria-pressed='false'" +
+                    "autocomplete='off'> <label class='form-check-label' for='legendButton'> Selección por tramos</label> ";
+                return div;
+            },
+
+            onRemove: function (map) {
+                // Nothing to do here
+            }
+        });
+
+        L.control.selectBySegment = function (opts) {
+            return new L.Control.selectBySegment(opts);
+        };
+
+        L.control.selectBySegment({position: 'topleft'}).addTo(map);
+
+
         var colors = colorScale;
 
         /* to draw on map */
@@ -40,7 +61,7 @@ $(document).ready(function () {
         var startMarker = null;
         var endMarker = null;
 
-        let compareElementsOfArray = function(a, b){
+        let compareElementsOfArray = function (a, b) {
             let n = Array.from(Array(a.length).keys());
             let value = true;
             n.forEach((index) =>
@@ -77,19 +98,16 @@ $(document).ready(function () {
                 return div;
             };
             mapLegend.addTo(map);
-            var mapLegend = L.control({position: "topright"});
-            mapLegend.onAdd = function (map) {
-                var div = L.DomUtil.create("info", "info legend");
-                div.id = "button_legend";
-                div.innerHTML = "<button id='legendButton' type='button' class='btn btn-primary' data-toggle='button' aria-pressed='false'" +
-                    "autocomplete='off'> Selección por tramos </button> <div id='infoLegendButton'></div>";
+            var speedLegend = L.control({position: "topright"});
+            speedLegend.onAdd = function (map) {
+                var div = L.DomUtil.create("div", "info legend");
+                div.id = "infoLegendButton";
+                div.class = "d-flex justify-content-center";
+                div.style.visibility = "hidden";
                 return div;
             };
 
-            L.marker([50.5, 30.5]).addTo(map);
-
-
-            mapLegend.addTo(map);
+            speedLegend.addTo(map);
         };
         this._buildLegend();
 
@@ -163,33 +181,34 @@ $(document).ready(function () {
                 });
                 var speed = valuesRoute[i][1];
                 var obsNumber = valuesRoute[i][2];
-                var popup = "Velocidad: " + speed.toFixed(2) + " k/m<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
+                var popup = "Velocidad: " + speed.toFixed(2) + " km/h<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
                 segpol.bindPopup(popup);
                 deco.bindPopup(popup);
-                let createSpeedLegend = function(){
-                    if ($("#legendButton").attr("aria-pressed") === 'true') {
-                        if (selectedSpeed.length === 0 || selectedSpeed.length > 1 ){
+                let createSpeedLegend = function () {
+                    if ($("#legendButton").prop('checked') === true) {
+                        if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
                             selectedSpeed = [valuesRoute[i]];
                         } else {
                             selectedSpeed.push(valuesRoute[i]);
-                            let indexA = valuesRoute.findIndex(function(a){
+                            let indexA = valuesRoute.findIndex(function (a) {
                                 return compareElementsOfArray(a, selectedSpeed[0]);
                             });
 
-                            let indexB = valuesRoute.findIndex(function(a) {
+                            let indexB = valuesRoute.findIndex(function (a) {
                                 return compareElementsOfArray(a, selectedSpeed[1]);
                             });
                             let firstIndex = Math.min(indexA, indexB);
                             let secondIndex = Math.max(indexA, indexB);
                             let accumulateDistance = 0;
-                            let accumulateTime= 0;
-                            for (let index = firstIndex; index <= secondIndex; index++ ){
+                            let accumulateTime = 0;
+                            for (let index = firstIndex; index <= secondIndex; index++) {
                                 accumulateDistance += valuesRoute[index][3];
                                 accumulateTime += valuesRoute[index][4];
                             }
-                            let speedInfo = (3.6 *(accumulateDistance / accumulateTime)).toFixed(2);
-                            let firstInfo = "Velocidad entre los tramos " + firstIndex + " y " + secondIndex + ": <br> <h5>" + speedInfo + " km /h </h5>";
+                            let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2);
+                            let firstInfo = "Velocidad entre los tramos " + firstIndex + " y " + secondIndex + " <br>  <b>" + speedInfo + " km/h </b>";
                             $("#infoLegendButton").html("<br>" + firstInfo);
+                            $("#infoLegendButton").css({'visibility': 'visible'});
                         }
                     }
                 };
@@ -215,7 +234,7 @@ $(document).ready(function () {
         var matrix = null;
         var route = null;
 
-        var velRange = ["Sin Datos", " < 5 k/h", "5 - 7.5 k/h", "7.5 - 10 k/h", "10 - 15 k/h", "15 - 20 k/h", "20 - 25 k/h", "25 - 30 k/h", " > 30 k/h"];
+        var velRange = ["Sin Datos", " < 5 km/h", "5 - 7.5 km/h", "7.5 - 10 km/h", "10 - 15 km/h", "15 - 20 km/h", "20 - 25 km/h", "25 - 30 km/h", " > 30 km/h"];
         var colors = ["#dfdfdf", "#a100f2", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
         var mapApp = new DrawSegmentsApp(colors, velRange);
