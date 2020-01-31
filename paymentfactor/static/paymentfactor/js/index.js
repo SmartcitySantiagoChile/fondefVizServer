@@ -115,6 +115,8 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availablePaymentfactorDays"]());
+        loadRangeCalendar(Urls["esapi:availablePaymentfactorDays"](),{});
+
 
         var app = new IndexApp();
         var afterCall = function (data) {

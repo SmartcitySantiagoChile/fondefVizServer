@@ -178,7 +178,12 @@ $(document).ready(function () {
                             params.forEach(function (el) {
                                 var ball = el.marker;
                                 var name = el.seriesName;
-                                var value = Number(Number(el.value).toFixed(2)).toLocaleString();
+                                let value = el.value;
+                                if (value === undefined){
+                                    value = "Sin datos";
+                                } else {
+                                    value = Number(Number(value).toFixed(2)).toLocaleString();
+                                }
                                 info.push(ball + name + ": " + value);
                             });
                             return head + info.join("<br />");
@@ -198,7 +203,12 @@ $(document).ready(function () {
                         restore: {show: false, title: "restaurar"},
                         saveAsImage: {show: true, title: "Guardar imagen", name: "estadísticas globales"},
                         magicType: {
-                            type: ["line", "bar"]
+                            show: true,
+                            type: ["line", "bar"],
+                            title: {
+                            line: 'Lineas',
+                            bar: 'Barras'
+                            }
                         },
                         dataView: {
                             show: true,
@@ -223,6 +233,7 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableStatisticDays"]());
+        loadRangeCalendar(Urls["esapi:availableStatisticDays"](), {});
 
         var app = new ResumeApp();
         var afterCall = function (answer) {
@@ -236,9 +247,7 @@ $(document).ready(function () {
             afterCallData: afterCall,
             minimumDateLimit: 2
         };
-
         new FilterManager(opts);
-
         $(window).resize(function () {
             app.resizeCharts();
         });

@@ -634,7 +634,9 @@ $(document).ready(function () {
                                     value = sign + el.value.toFixed(1) + "%";
                                 }
                                 var colorBall = ball.replace("{}", el.color);
-                                info.push(colorBall + name + ": " + value);
+                                if (serieIndex !== 4){
+                                    info.push(colorBall + name + ": " + value);
+                                }
                             }
                             // add saturation rate after
                             var saturationRateInfo = ball.replace("{}", "#3145f7") + "Tasa ocupación promedio a la salida:" + yAxisData.saturationRateAfter[xValue].toFixed(1) + "% (" + yAxisData.averageSaturationRateAfter[xValue].toFixed(2) + ")";
@@ -725,6 +727,8 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
+
 
         var app = new ExpeditionApp();
         var previousCall = function () {

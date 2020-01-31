@@ -1,0 +1,43 @@
+{% extends 'help/modal/modal_base_xl.html' %}
+
+{% block title %}Filtrar por día{% endblock title %}
+
+{% block body %}
+    {% include "datamanager/dateRangeCalendar.html" with info_target_id="dayHelp" %}
+    <div class="container col-md-12">
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3"></div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                <div id="group-button" class="btn-group btn-group-toggle" role="group" data-toggle="buttons">
+                     <label class="btn btn-primary active">
+                        <input type="radio" name="options" id="option3" autocomplete="off" checked> Añadir rango
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="option4" autocomplete="off"> Eliminar rango
+                    </label>
+                    <label class="btn btn-primary ">
+                        <input type="radio" name="options" id="option1" autocomplete="off" > Añadir Día
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="option2" autocomplete="off"> Eliminar día
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-1 col-sm-1 col-xs-1">
+                <button data-toggle="tooltip" title="Eliminar selección" id="deleteSelection" class="btn btn-danger"><i class="fa fa-trash-o fa-2x"></i></button>
+            </div>
+        </div>
+        <div class="row">
+            <br>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <h4 id="selectedDaysTitle">Días seleccionados: </h4>
+                <h4 id="daysSelectedList" class="dl-horizontal">
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div id="popover-content" style="display: none">
+    </div>
+{% endblock body %}

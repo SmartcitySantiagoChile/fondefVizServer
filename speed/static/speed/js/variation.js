@@ -190,6 +190,7 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableSpeedDays"]());
+        loadRangeCalendar(Urls["esapi:availableSpeedDays"](),{singleDatePicker: true});
 
         var app = new VariationApp();
 

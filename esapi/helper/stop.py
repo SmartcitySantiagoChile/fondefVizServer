@@ -44,11 +44,13 @@ class ESStopHelper(ElasticSearchHelper):
 
         return answer
 
-    def get_stop_info(self, start_date, auth_stop_code):
+    def get_stop_info(self, dates, auth_stop_code):
         """ ask to elasticsearch for a match values """
 
         if not auth_stop_code:
             raise ESQueryStopParameterDoesNotExist()
+
+        start_date = dates[0][0]
         if not start_date:
             raise ESQueryDateParametersDoesNotExist()
 

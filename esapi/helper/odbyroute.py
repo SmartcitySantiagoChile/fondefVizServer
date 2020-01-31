@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 
-from elasticsearch_dsl import A
+from elasticsearch_dsl import A, Q
 
-from localinfo.helper import get_operator_list_for_select_input
-
-from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
+from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, \
+    ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
+from localinfo.helper import get_operator_list_for_select_input
 
 
 class ESODByRouteHelper(ElasticSearchHelper):
@@ -49,7 +49,7 @@ class ESODByRouteHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def get_base_query_for_od(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
+    def get_base_query_for_od(self, auth_route_code, time_periods, day_type, dates, valid_operator_list):
         """ base query to get raw data """
         es_query = self.get_base_query()
 
@@ -67,20 +67,29 @@ class ESODByRouteHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', timePeriodInStopTime=time_periods)
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
-        if start_date and end_date:
-            es_query = es_query.filter("range", date={
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q("range", date={
                 "gte": start_date + "||/d",
                 "lte": end_date + "||/d",
                 "format": "yyyy-MM-dd",
                 "time_zone": "+00:00"
             })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         return es_query
 
-    def get_od_data(self, auth_route_code, time_periods, day_type, start_date, end_date, valid_operator_list):
+    def get_od_data(self, auth_route_code, time_periods, day_type, dates, valid_operator_list):
         """ ask to elasticsearch for a match values """
 
-        es_query = self.get_base_query_for_od(auth_route_code, time_periods, day_type, start_date, end_date,
+        es_query = self.get_base_query_for_od(auth_route_code, time_periods, day_type, dates,
                                               valid_operator_list)[:0]
         es_query = es_query.source([])
 

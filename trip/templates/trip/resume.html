@@ -13,6 +13,8 @@
     <div class="">
         {% header "Indicadores de viajes" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+        {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
         {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True info_target_id="filterHelp" show_export_button=False %}
 
         <div class="row">
