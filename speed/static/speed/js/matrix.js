@@ -10,7 +10,9 @@ $(document).ready(function () {
     ];
 
     var selectedSpeed = [];
-
+    var selectedLayers = [];
+    var selectedPolyline = [];
+    var selectedDecorators = [];
     function DrawSegmentsApp(colorScale, labels) {
         var _self = this;
 
@@ -188,8 +190,11 @@ $(document).ready(function () {
                     if ($("#legendButton").prop('checked') === true) {
                         if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
                             selectedSpeed = [valuesRoute[i]];
+                            selectedLayers = [segpol];
                         } else {
+                            //calculate speed
                             selectedSpeed.push(valuesRoute[i]);
+                            selectedLayers.push(segpol);
                             let indexA = valuesRoute.findIndex(function (a) {
                                 return compareElementsOfArray(a, selectedSpeed[0]);
                             });
@@ -209,6 +214,16 @@ $(document).ready(function () {
                             let firstInfo = "Velocidad entre los tramos " + firstIndex + " y " + secondIndex + " <br>  <b>" + speedInfo + " km/h </b>";
                             $("#infoLegendButton").html("<br>" + firstInfo);
                             $("#infoLegendButton").css({'visibility': 'visible'});
+
+                            //reprint
+                            console.log(selectedLayers);
+                            selectedLayers.forEach(function (e) {
+                                let newSegpol = e;
+                                map.removeLayer(e);
+                                newSegpol.options.color = 'black';
+                                selectedPolyline.push(newSegpol);
+                                map.addLayer(newSegpol);
+                            });
                         }
                     }
                 };
@@ -228,6 +243,13 @@ $(document).ready(function () {
         $('#legendButton').on("change", function () {
             if ($("#legendButton").prop('checked') === false) {
                 $("#infoLegendButton").css({'visibility': 'hidden'});
+                selectedPolyline.forEach(function (e) {
+                    map.removeLayer(e);
+                });
+                segmentPolylineList.forEach(function (e) {
+                   map.addLayer(e);
+                });
+
             }
         });
     }
