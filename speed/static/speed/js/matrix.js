@@ -9,6 +9,10 @@ $(document).ready(function () {
         "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
     ];
 
+    var selectedTime = [];
+    var selectedDistance = [];
+    var previousLayers;
+
     function DrawSegmentsApp(colorScale, labels) {
         var _self = this;
 
@@ -66,6 +70,19 @@ $(document).ready(function () {
                 }
                 return div;
             };
+            mapLegend.addTo(map);
+            var mapLegend = L.control({position: "topright"});
+            mapLegend.onAdd = function (map) {
+                var div = L.DomUtil.create("info", "info legend");
+                div.id = "button_legend";
+                div.innerHTML = "<button id='legendButton' type='button' class='btn btn-primary' data-toggle='button' aria-pressed='false'" +
+                    "autocomplete='off'> Selección por tramos </button>";
+                return div;
+            };
+
+            L.marker([50.5, 30.5]).addTo(map);
+
+
             mapLegend.addTo(map);
         };
         this._buildLegend();
@@ -141,10 +158,26 @@ $(document).ready(function () {
                 });
                 var speed = valuesRoute[i][1];
                 var obsNumber = valuesRoute[i][2];
+                let distance = valuesRoute[i][3];
+                let time = valuesRoute[i][4];
                 var popup = "Velocidad: " + speed.toFixed(2) + " k/m<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
                 segpol.bindPopup(popup);
                 deco.bindPopup(popup);
+                segpol.on("click", function (e) {
+                    if ($("#legendButton").attr("aria-pressed") === 'true') {
+                        let newSegpol = segpol;
+                        segpol.options.color = 'red';
+                        console.log(map.hasLayer(segpol));
+                        map.removeLayer(segpol);
+                        map.addLayer(newSegpol);
+                    } else {
+                        selectedDistance = [];
+                        selectedTime = [];
+                        map.eachLayer(function (layer) {
 
+                        })
+                    }
+                });
                 segmentPolylineList.push(segpol);
                 decoratorPolylineList.push(deco);
                 segpol.addTo(map);
@@ -299,7 +332,6 @@ $(document).ready(function () {
             opts.yAxis.data = segments;
             opts.series[0].data = data;
             mChart.setOption(opts, {merge: false});
-
             mapApp.drawRoute(route, matrix[0]);
         };
 
@@ -336,7 +368,7 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableSpeedDays"]());
-        loadRangeCalendar(Urls["esapi:availableSpeedDays"](),{});
+        loadRangeCalendar(Urls["esapi:availableSpeedDays"](), {});
 
 
         var app = new MatrixApp();
@@ -356,6 +388,7 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data) {
+            console.log(data);
             processData(data, app);
             app.hideLoadingAnimationCharts();
         };
