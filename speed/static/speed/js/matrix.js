@@ -34,8 +34,8 @@ $(document).ready(function () {
             onAdd: function (map) {
                 var div = L.DomUtil.create("info", "info legend");
                 div.id = "button_legend";
-                div.innerHTML = "<input id='legendButton' type='checkbox' class='form-check-input' data-toggle='button' aria-pressed='false'" +
-                    "autocomplete='off'> <label class='form-check-label' for='legendButton'> Selección por tramos</label> ";
+                div.innerHTML = "<input id='legendButton' type='checkbox' class='form-check-input' " +
+                    "> <label class='form-check-label' for='legendButton'> Selección por tramos</label> ";
                 return div;
             },
 
@@ -225,7 +225,15 @@ $(document).ready(function () {
             });
             map.flyToBounds(L.polyline(routePoints).getBounds());
         };
+        $('#legendButton').on("change", function () {
+            if ($("#legendButton").prop('checked') === false) {
+                $("#infoLegendButton").css({'visibility': 'hidden'});
+            }
+        });
     }
+
+
+
 
     function MatrixApp() {
         var _self = this;
