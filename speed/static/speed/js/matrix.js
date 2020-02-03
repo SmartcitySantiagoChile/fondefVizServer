@@ -13,6 +13,8 @@ $(document).ready(function () {
     var selectedLayers = [];
     var selectedPolyline = [];
     var selectedDecorators = [];
+    var layersToChange = [];
+
 
     function DrawSegmentsApp(colorScale, labels) {
         var _self = this;
@@ -195,12 +197,23 @@ $(document).ready(function () {
                 let createSpeedLegend = function () {
                     if ($("#legendButton").prop('checked') === true) {
                         if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
-                            if (selectedLayers.length === 0) {
-                                //_self.drawRoute(lastRoute, lastValuesRoute);
+                            if (selectedLayers.length !== 0) {
+                                selectedLayers = [];
+                                _self.drawRoute(lastRoute, lastValuesRoute);
+                                deletePopups();
+                                map.eachLayer(function (e) {
+                                    if (e._latlngs){
+                                        let latInit = e._latlngs[0]['lat'];
+                                        let lngInit = e._latlngs[0]['lng'];
+                                        if (segpol._latlngs[0]['lat'] === latInit && segpol._latlngs[0]['lng'] === lngInit){
+                                            selectedLayers.push(e);
+                                        }
+                                    }
+                                });
+                            } else {
+                                selectedLayers = [segpol, deco];
                             }
                             selectedSpeed = [valuesRoute[i]];
-                            selectedLayers = [segpol, deco];
-
                         } else {
                             //calculate speed
                             selectedSpeed.push(valuesRoute[i]);
@@ -227,13 +240,12 @@ $(document).ready(function () {
                             $("#infoLegendButton").css({'visibility': 'visible'});
 
                             //reprint
-                            console.log(selectedLayers);
                             let indexSelectedLayers = selectedLayers.map(e => e._leaflet_id);
                             let firstLayerIndex = Math.min(...indexSelectedLayers);
                             let secondLayerIndex = Math.max(...indexSelectedLayers);
+                            console.log(indexSelectedLayers);
                             console.log(firstLayerIndex);
-                            let layersToChange = [];
-                            selectedLayers = [];
+                            layersToChange = [];
                             selectedSpeed = [];
                             map.eachLayer(function (e) {
                                 let id = e._leaflet_id;
@@ -278,13 +290,17 @@ $(document).ready(function () {
                 _self.drawRoute(lastRoute, lastValuesRoute);
 
             } else {
-                map.eachLayer(function (e) {
-                    e._popup = null;
-                })
+                deletePopups();
             }
             selectedSpeed = [];
             selectedLayers = [];
         });
+
+        var deletePopups = function () {
+            map.eachLayer(function (e) {
+                e._popup = null;
+            });
+        }
     }
 
 
