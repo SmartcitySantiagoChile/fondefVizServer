@@ -13,6 +13,7 @@ $(document).ready(function () {
     var selectedLayers = [];
     var selectedPolyline = [];
     var selectedDecorators = [];
+
     function DrawSegmentsApp(colorScale, labels) {
         var _self = this;
 
@@ -62,6 +63,9 @@ $(document).ready(function () {
         var decoratorPolylineList = [];
         var startMarker = null;
         var endMarker = null;
+        let lastRoute = null;
+        let lastValuesRoute = null;
+
 
         let compareElementsOfArray = function (a, b) {
             let n = Array.from(Array(a.length).keys());
@@ -144,6 +148,8 @@ $(document).ready(function () {
         };
 
         this.drawRoute = function (route, valuesRoute) {
+            lastRoute = route;
+            lastValuesRoute = valuesRoute;
             _self._clearMap();
             /* update routes and segments */
             startEndSegments = route.start_end;
@@ -240,15 +246,19 @@ $(document).ready(function () {
             });
             map.flyToBounds(L.polyline(routePoints).getBounds());
         };
+
         $('#legendButton').on("change", function () {
             if ($("#legendButton").prop('checked') === false) {
                 $("#infoLegendButton").css({'visibility': 'hidden'});
-                selectedPolyline.forEach(function (e) {
+                /*selectedPolyline.forEach(function (e) {
                     map.removeLayer(e);
                 });
                 segmentPolylineList.forEach(function (e) {
                    map.addLayer(e);
                 });
+
+                 */
+                _self.drawRoute(lastRoute, lastValuesRoute);
 
             }
         });
