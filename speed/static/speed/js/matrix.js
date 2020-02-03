@@ -149,7 +149,7 @@ $(document).ready(function () {
             map.flyToBounds(L.latLngBounds(firstBound, secondBound));
         };
 
-        this.drawRoute = function (route, valuesRoute) {
+        this.drawRoute = function (route, valuesRoute, fly = true) {
             lastRoute = route;
             lastValuesRoute = valuesRoute;
             _self._clearMap();
@@ -191,7 +191,7 @@ $(document).ready(function () {
                 });
                 var speed = valuesRoute[i][1];
                 var obsNumber = valuesRoute[i][2];
-                var popup = "Velocidad: " + speed.toFixed(2) + " km/h<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
+                var popup = "Velocidad: " + speed.toFixed(2).toString().replace(".", ",") + " km/h<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
                 segpol.bindPopup(popup);
                 deco.bindPopup(popup);
                 let createSpeedLegend = function () {
@@ -199,7 +199,7 @@ $(document).ready(function () {
                         if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
                             if (selectedLayers.length !== 0) {
                                 selectedLayers = [];
-                                _self.drawRoute(lastRoute, lastValuesRoute);
+                                _self.drawRoute(lastRoute, lastValuesRoute, false);
                                 deletePopups();
                                 map.eachLayer(function (e) {
                                     if (e._latlngs){
@@ -214,7 +214,19 @@ $(document).ready(function () {
                                 selectedLayers = [segpol, deco];
                             }
                             selectedSpeed = [valuesRoute[i]];
-                        } else {
+                            [segpol, deco].forEach(function (e) {
+                                let newLayer = e;
+                                map.removeLayer(e);
+                                newLayer._popup = null;
+                                if (newLayer.options.patterns !== undefined){
+                                    newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
+                                } else {
+                                    newLayer.options.color = '#28DCF2';
+
+                                }
+                                map.addLayer(newLayer);
+                            });
+                                } else {
                             //calculate speed
                             selectedSpeed.push(valuesRoute[i]);
                             selectedLayers.push(segpol);
@@ -234,7 +246,7 @@ $(document).ready(function () {
                                 accumulateDistance += valuesRoute[index][3];
                                 accumulateTime += valuesRoute[index][4];
                             }
-                            let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2);
+                            let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2).toString().replace(".", ",");
                             let firstInfo = `Velocidad entre los tramos ${firstIndex} y ${secondIndex}: <br>  <b> ${speedInfo} km/h </b>`;
                             $("#infoLegendButton").html(firstInfo);
                             $("#infoLegendButton").css({'visibility': 'visible'});
@@ -243,8 +255,7 @@ $(document).ready(function () {
                             let indexSelectedLayers = selectedLayers.map(e => e._leaflet_id);
                             let firstLayerIndex = Math.min(...indexSelectedLayers);
                             let secondLayerIndex = Math.max(...indexSelectedLayers);
-                            console.log(indexSelectedLayers);
-                            console.log(firstLayerIndex);
+                            if (indexSelectedLayers.length !== 4) { secondLayerIndex += 2;}
                             layersToChange = [];
                             selectedSpeed = [];
                             map.eachLayer(function (e) {
@@ -253,15 +264,14 @@ $(document).ready(function () {
                                     layersToChange.push(e);
                                 }
                             });
-                            console.log(layersToChange);
                             layersToChange.forEach(function (e) {
                                 let newLayer = e;
                                 map.removeLayer(e);
                                 newLayer._popup = null;
                                 if (newLayer.options.patterns !== undefined){
-                                    newLayer.options.patterns[0].symbol.options.pathOptions.color = 'white';
+                                    newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
                                 } else {
-                                    newLayer.options.color = 'white';
+                                    newLayer.options.color = '#28DCF2';
                                 }
                                 map.addLayer(newLayer);
                             });
@@ -281,8 +291,12 @@ $(document).ready(function () {
                 segpol.addTo(map);
                 deco.addTo(map);
             });
-            map.flyToBounds(L.polyline(routePoints).getBounds());
-        };
+            if (fly){
+                map.flyToBounds(L.polyline(routePoints).getBounds());
+            } else {
+                map.zoomIn(0.00001);
+            }
+            };
 
         $('#legendButton').on("change", function () {
             if ($("#legendButton").prop('checked') === false) {
@@ -313,7 +327,7 @@ $(document).ready(function () {
         var matrix = null;
         var route = null;
 
-        var velRange = ["Sin Datos", " < 5 km/h", "5 - 7.5 km/h", "7.5 - 10 km/h", "10 - 15 km/h", "15 - 20 km/h", "20 - 25 km/h", "25 - 30 km/h", " > 30 km/h"];
+        var velRange = ["Sin Datos", " < 5 km/h", "5 - 7,5 km/h", "7,5 - 10 km/h", "10 - 15 km/h", "15 - 20 km/h", "20 - 25 km/h", "25 - 30 km/h", " > 30 km/h"];
         var colors = ["#dfdfdf", "#a100f2", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
         var mapApp = new DrawSegmentsApp(colors, velRange);
@@ -507,7 +521,6 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data) {
-            console.log(data);
             processData(data, app);
             app.hideLoadingAnimationCharts();
         };
