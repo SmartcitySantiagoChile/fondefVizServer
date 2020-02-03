@@ -101,7 +101,6 @@ class MatrixData(View):
                 for hour in range(len(hours)):
                     route_segment_by_hour = []
                     for section in response['segments']:
-                        print(d_data.get((section, hour), (-1, 0, 0 , 0)))
                         speed, n_obs, distance, time = d_data.get((section, hour), (-1, 0, 0, 0))
                         interval = 8
                         for i, bound in enumerate([0, 5, 7.5, 10, 15, 20, 25, 30]):

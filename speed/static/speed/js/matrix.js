@@ -195,12 +195,17 @@ $(document).ready(function () {
                 let createSpeedLegend = function () {
                     if ($("#legendButton").prop('checked') === true) {
                         if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
+                            if (selectedLayers.length === 0) {
+                                //_self.drawRoute(lastRoute, lastValuesRoute);
+                            }
                             selectedSpeed = [valuesRoute[i]];
-                            selectedLayers = [segpol];
+                            selectedLayers = [segpol, deco];
+
                         } else {
                             //calculate speed
                             selectedSpeed.push(valuesRoute[i]);
                             selectedLayers.push(segpol);
+                            selectedLayers.push(deco);
                             let indexA = valuesRoute.findIndex(function (a) {
                                 return compareElementsOfArray(a, selectedSpeed[0]);
                             });
@@ -217,19 +222,39 @@ $(document).ready(function () {
                                 accumulateTime += valuesRoute[index][4];
                             }
                             let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2);
-                            let firstInfo = "Velocidad entre los tramos " + firstIndex + " y " + secondIndex + " <br>  <b>" + speedInfo + " km/h </b>";
-                            $("#infoLegendButton").html("<br>" + firstInfo);
+                            let firstInfo = `Velocidad entre los tramos ${firstIndex} y ${secondIndex}: <br>  <b> ${speedInfo} km/h </b>`;
+                            $("#infoLegendButton").html(firstInfo);
                             $("#infoLegendButton").css({'visibility': 'visible'});
 
                             //reprint
                             console.log(selectedLayers);
-                            selectedLayers.forEach(function (e) {
-                                let newSegpol = e;
-                                map.removeLayer(e);
-                                newSegpol.options.color = 'black';
-                                selectedPolyline.push(newSegpol);
-                                map.addLayer(newSegpol);
+                            let indexSelectedLayers = selectedLayers.map(e => e._leaflet_id);
+                            let firstLayerIndex = Math.min(...indexSelectedLayers);
+                            let secondLayerIndex = Math.max(...indexSelectedLayers);
+                            console.log(firstLayerIndex);
+                            let layersToChange = [];
+                            selectedLayers = [];
+                            selectedSpeed = [];
+                            map.eachLayer(function (e) {
+                                let id = e._leaflet_id;
+                                if (id >= firstLayerIndex && id <= secondLayerIndex){
+                                    layersToChange.push(e);
+                                }
                             });
+                            console.log(layersToChange);
+                            layersToChange.forEach(function (e) {
+                                let newLayer = e;
+                                map.removeLayer(e);
+                                newLayer._popup = null;
+                                if (newLayer.options.patterns !== undefined){
+                                    newLayer.options.patterns[0].symbol.options.pathOptions.color = 'white';
+                                } else {
+                                    newLayer.options.color = 'white';
+                                }
+                                map.addLayer(newLayer);
+                            });
+
+
                         }
                     }
                 };
@@ -250,17 +275,15 @@ $(document).ready(function () {
         $('#legendButton').on("change", function () {
             if ($("#legendButton").prop('checked') === false) {
                 $("#infoLegendButton").css({'visibility': 'hidden'});
-                /*selectedPolyline.forEach(function (e) {
-                    map.removeLayer(e);
-                });
-                segmentPolylineList.forEach(function (e) {
-                   map.addLayer(e);
-                });
-
-                 */
                 _self.drawRoute(lastRoute, lastValuesRoute);
 
+            } else {
+                map.eachLayer(function (e) {
+                    e._popup = null;
+                })
             }
+            selectedSpeed = [];
+            selectedLayers = [];
         });
     }
 
