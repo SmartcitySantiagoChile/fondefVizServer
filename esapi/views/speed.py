@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import datetime
-import json
 
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
