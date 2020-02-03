@@ -41,10 +41,6 @@ $(document).ready(function () {
                     "> <label class='form-check-label' for='legendButton'> Selección por tramos</label> ";
                 return div;
             },
-
-            onRemove: function (map) {
-                // Nothing to do here
-            }
         });
 
         L.control.selectBySegment = function (opts) {
