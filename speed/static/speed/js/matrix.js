@@ -11,8 +11,6 @@ $(document).ready(function () {
 
     var selectedSpeed = [];
     var selectedLayers = [];
-    var selectedPolyline = [];
-    var selectedDecorators = [];
     var layersToChange = [];
 
 
@@ -202,10 +200,10 @@ $(document).ready(function () {
                                 _self.drawRoute(lastRoute, lastValuesRoute, false);
                                 deletePopups();
                                 map.eachLayer(function (e) {
-                                    if (e._latlngs){
+                                    if (e._latlngs) {
                                         let latInit = e._latlngs[0]['lat'];
                                         let lngInit = e._latlngs[0]['lng'];
-                                        if (segpol._latlngs[0]['lat'] === latInit && segpol._latlngs[0]['lng'] === lngInit){
+                                        if (segpol._latlngs[0]['lat'] === latInit && segpol._latlngs[0]['lng'] === lngInit) {
                                             selectedLayers.push(e);
                                         }
                                     }
@@ -218,7 +216,7 @@ $(document).ready(function () {
                                 let newLayer = e;
                                 map.removeLayer(e);
                                 newLayer._popup = null;
-                                if (newLayer.options.patterns !== undefined){
+                                if (newLayer.options.patterns !== undefined) {
                                     newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
                                 } else {
                                     newLayer.options.color = '#28DCF2';
@@ -226,7 +224,7 @@ $(document).ready(function () {
                                 }
                                 map.addLayer(newLayer);
                             });
-                                } else {
+                        } else {
                             //calculate speed
                             selectedSpeed.push(valuesRoute[i]);
                             selectedLayers.push(segpol);
@@ -255,12 +253,14 @@ $(document).ready(function () {
                             let indexSelectedLayers = selectedLayers.map(e => e._leaflet_id);
                             let firstLayerIndex = Math.min(...indexSelectedLayers);
                             let secondLayerIndex = Math.max(...indexSelectedLayers);
-                            if (indexSelectedLayers.length !== 4) { secondLayerIndex += 2;}
+                            if (indexSelectedLayers.length !== 4) {
+                                secondLayerIndex += 2;
+                            }
                             layersToChange = [];
                             selectedSpeed = [];
                             map.eachLayer(function (e) {
                                 let id = e._leaflet_id;
-                                if (id >= firstLayerIndex && id <= secondLayerIndex){
+                                if (id >= firstLayerIndex && id <= secondLayerIndex) {
                                     layersToChange.push(e);
                                 }
                             });
@@ -268,7 +268,7 @@ $(document).ready(function () {
                                 let newLayer = e;
                                 map.removeLayer(e);
                                 newLayer._popup = null;
-                                if (newLayer.options.patterns !== undefined){
+                                if (newLayer.options.patterns !== undefined) {
                                     newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
                                 } else {
                                     newLayer.options.color = '#28DCF2';
@@ -291,12 +291,12 @@ $(document).ready(function () {
                 segpol.addTo(map);
                 deco.addTo(map);
             });
-            if (fly){
+            if (fly) {
                 map.flyToBounds(L.polyline(routePoints).getBounds());
             } else {
                 map.zoomIn(0.00001);
             }
-            };
+        };
 
         $('#legendButton').on("change", function () {
             if ($("#legendButton").prop('checked') === false) {
@@ -316,8 +316,6 @@ $(document).ready(function () {
             });
         }
     }
-
-
 
 
     function MatrixApp() {
