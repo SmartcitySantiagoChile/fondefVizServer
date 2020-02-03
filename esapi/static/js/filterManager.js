@@ -420,7 +420,7 @@ function FilterManager(opts) {
                 authRouteList.sort();
                 authRouteList = authRouteList.map(function (el) {
                     let dictName = ((routesDict[el]) === undefined) ? "" : ` (${routesDict[el]})`;
-                    return {id: el, text: `${el}${dictName}`  , value: el};
+                    return {id: el, text: `${el}${dictName}`};
                 });
                 $AUTH_ROUTE_FILTER.empty();
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
@@ -522,11 +522,10 @@ function FilterManager(opts) {
         });
 
         var processMultiRouteData = function (data) {
+            let routesDict = data.routesDict;
             data.data = data.data.map(function (el) {
-                return {
-                    id: el.item,
-                    text: el.item
-                }
+                let dictName = ((routesDict[el.item]) === undefined) ? "" : ` (${routesDict[el.item]})`;
+                    return {id: el.item, text: `${el.item}${dictName}`};
             });
             if ($MULTI_AUTH_ROUTE_FILTER.length) {
                 $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});

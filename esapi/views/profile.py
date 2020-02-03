@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from functools import reduce
 
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -20,9 +19,8 @@ from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBe
     ThereAreNotValidExpeditionsMessage
 from esapi.utils import check_operation_program
 from esapi.utils import get_dates_from_request
-from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input\
-    , get_calendar_info
-from localinfo.models import CustomRoute
+from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input \
+    , get_calendar_info, get_custom_routes_dict
 
 
 class LoadProfileByStopData(View):
@@ -139,13 +137,9 @@ class AvailableRoutes(View):
             es_helper = ESProfileHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
             available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
-            routes_dict = {}
-            for definition in CustomRoute.objects.all():
-                definition = definition.__dict__
-                routes_dict.update({definition['auth_route_code']:definition['custom_route_code']})
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
-            response['routesDict'] = routes_dict
+            response['routesDict'] = get_custom_routes_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

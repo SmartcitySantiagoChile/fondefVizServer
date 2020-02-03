@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo
+    CalendarInfo, CustomRoute
 
 
 def _list_parser(list):
@@ -80,6 +80,13 @@ def get_calendar_info():
         result.append(info)
     return result
 
+
+def get_custom_routes_dict():
+    routes_dict = {}
+    for definition in CustomRoute.objects.all():
+        definition = definition.__dict__
+        routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
+    return routes_dict
 
 class PermissionBuilder(object):
 
