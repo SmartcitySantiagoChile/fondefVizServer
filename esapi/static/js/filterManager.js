@@ -408,6 +408,7 @@ function FilterManager(opts) {
         }
 
         var processRouteData = function (data) {
+            let routesDict = data.routesDict;
             data.operatorDict = data.operatorDict.map(function (el) {
                 return {
                     id: el.value,
@@ -418,7 +419,8 @@ function FilterManager(opts) {
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
                 authRouteList.sort();
                 authRouteList = authRouteList.map(function (el) {
-                    return {id: el, text: el};
+                    let dictName = ((routesDict[el]) === undefined) ? "" : ` (${routesDict[el]})`;
+                    return {id: el, text: `${el}${dictName}`  , value: el};
                 });
                 $AUTH_ROUTE_FILTER.empty();
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
