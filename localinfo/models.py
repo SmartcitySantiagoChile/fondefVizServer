@@ -151,8 +151,8 @@ class CalendarInfo(models.Model):
 class CustomRoute(models.Model):
     """"CustomRouteCode-AuthRouteCode dictionary """
 
-    auth_route_code = models.CharField(max_length=20, unique=True)
-    custom_route_code = models.CharField(max_length=30)
+    auth_route_code = models.CharField("Código transantiago", max_length=20, unique=True)
+    custom_route_code = models.CharField("Código custom", max_length=30)
 
     class Meta:
         verbose_name = "diccionario de servicios"
