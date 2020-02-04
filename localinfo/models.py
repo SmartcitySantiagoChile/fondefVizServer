@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template.defaultfilters import truncatechars
+from django.utils import safestring
 
 
 class TimePeriod(models.Model):
@@ -158,3 +160,8 @@ class FAQS(models.Model):
     class Meta:
         verbose_name = "pregunta frecuente"
         verbose_name_plural = "preguntas frecuentes"
+
+    def short_answer(self):
+        return truncatechars(safestring.SafeString(self.answer.encode('utf-8')), 200)
+
+    short_answer.short_description = 'Respuesta'
