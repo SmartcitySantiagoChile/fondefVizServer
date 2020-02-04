@@ -245,7 +245,6 @@ $(document).ready(function () {
         var _self = this;
         var _dataManager = new DataManager();
         var _barChart = echarts.init(document.getElementById("barChart"), theme);
-        var _timePeriodChart = echarts.init(document.getElementById("timePeriodChart"), theme);
         var _datatable = $("#expeditionDetail").DataTable({
             lengthMenu: [[10, 25, 50], [10, 25, 50]],
             language: {
@@ -342,59 +341,8 @@ $(document).ready(function () {
 
         this.resizeCharts = function () {
             _barChart.resize();
-            _timePeriodChart.resize();
         };
 
-        var _updateTimePeriodChart = function () {
-            var stopTime = _dataManager.getAttrGroup("stopTime", function (attrValue) {
-                return attrValue.substring(11, 13);
-            });
-            stopTime = stopTime.sort(function (a, b) {
-                a = parseInt(a.name);
-                b = parseInt(b.name);
-                return a - b;
-            });
-            var hours = stopTime.map(function (el) {
-                return el.name;
-            });
-            var values = stopTime.map(function (el, index) {
-                return [index, el.value];
-            });
-            var option = {
-                tooltip: {
-                    positon: "top"
-                },
-                singleAxis: [{
-                    type: "category",
-                    boundaryGap: false,
-                    data: hours,
-                    top: "10%",
-                    height: "40%",
-                    axisLabel: {
-                        interval: 2
-                    }
-                }],
-                series: [{
-                    singleAxisIndex: 0,
-                    coordinateSystem: "singleAxis",
-                    type: "scatter",
-                    data: values,
-                    symbolSize: function (dataItem) {
-                        return [10, dataItem[1] * 0.3];
-                    },
-                    tooltip: {
-                        formatter: function (params) {
-                            var value = params.value[1];
-                            var name = params.name;
-                            var timePeriod = "[" + name + ":00, " + name + ":59]";
-                            return value + " expediciones iniciadas entre " + timePeriod;
-                        }
-                    }
-                }]
-            };
-            _timePeriodChart.clear();
-            _timePeriodChart.setOption(option, {notMerge: true});
-        };
 
         var _updateDatatable = function () {
             var dataset = _dataManager.getDatatableData();
@@ -665,7 +613,6 @@ $(document).ready(function () {
 
         this.updateCharts = function () {
             _updateBarChart();
-            _updateTimePeriodChart();
             _updateGlobalStats();
         };
         this.updateDatatable = function () {
@@ -674,16 +621,13 @@ $(document).ready(function () {
         this.showLoadingAnimationCharts = function () {
             var loadingText = "Cargando...";
             _barChart.showLoading(null, {text: loadingText});
-            _timePeriodChart.showLoading(null, {text: loadingText});
         };
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
-            _timePeriodChart.hideLoading();
         };
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
 
         if (dataSource.status) {
             return;
