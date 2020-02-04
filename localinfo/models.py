@@ -146,3 +146,15 @@ class CalendarInfo(models.Model):
     class Meta:
         verbose_name = "información de calendario"
         verbose_name_plural = "información de calendario"
+
+
+class FAQS(models.Model):
+    """Frequently asked questions"""
+
+    title = models.CharField("Título", max_length=250)
+    question = models.TextField("Pregunta")
+    answer = models.TextField("Respuesta")
+
+    class Meta:
+        verbose_name = "pregunta frecuente"
+        verbose_name_plural = "preguntas frecuentes"
