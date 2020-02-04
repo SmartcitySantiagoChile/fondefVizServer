@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from functools import reduce
 
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -20,7 +19,7 @@ from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBe
     ThereAreNotValidExpeditionsMessage
 from esapi.utils import check_operation_program
 from esapi.utils import get_dates_from_request
-from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input\
+from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input \
     , get_calendar_info
 
 

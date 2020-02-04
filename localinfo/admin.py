@@ -9,9 +9,9 @@ from django.db import transaction, IntegrityError
 from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
 
-from localinfo.forms import DayDescriptionForm, FAQSForm
+from localinfo.forms import DayDescriptionForm, FAQForm
 from localinfo.helper import PermissionBuilder
-from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo, FAQS
+from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo, FAQ
 
 admin.site.unregister(Group)
 admin.site.unregister(User)
@@ -75,7 +75,7 @@ class CalendarInfoAdmin(admin.ModelAdmin):
 
 class FAQSAdmin(admin.ModelAdmin):
     actions = None
-    form = FAQSForm
+    form = FAQForm
     list_display = ('title', 'question', 'short_answer')
     search_fields = ['title', 'question', 'answer']
 
@@ -85,4 +85,4 @@ admin.site.register(HalfHour, HalfHourAdmin)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(DayDescription, DayDescriptionAdmin)
 admin.site.register(CalendarInfo, CalendarInfoAdmin)
-admin.site.register(FAQS, FAQSAdmin)
+admin.site.register(FAQ, FAQSAdmin)

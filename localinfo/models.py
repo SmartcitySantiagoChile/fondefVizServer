@@ -150,7 +150,7 @@ class CalendarInfo(models.Model):
         verbose_name_plural = "información de calendario"
 
 
-class FAQS(models.Model):
+class FAQ(models.Model):
     """Frequently asked questions"""
 
     title = models.CharField("Título", max_length=250)

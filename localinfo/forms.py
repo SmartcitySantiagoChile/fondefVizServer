@@ -2,7 +2,7 @@ from django.forms import ModelForm
 from django.forms.widgets import TextInput, HiddenInput
 from django.template.loader import get_template
 
-from localinfo.models import DayDescription, FAQS
+from localinfo.models import DayDescription, FAQ
 
 
 class TrixEditorWidget(TextInput):
@@ -34,9 +34,9 @@ class DayDescriptionForm(ModelForm):
         fields = ('color', 'description')
 
 
-class FAQSForm(ModelForm):
+class FAQForm(ModelForm):
     class Meta:
-        model = FAQS
+        model = FAQ
         widgets = {
             'answer': TrixEditorWidget
         }
