@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from functools import reduce
 
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -20,8 +19,8 @@ from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBe
     ThereAreNotValidExpeditionsMessage
 from esapi.utils import check_operation_program
 from esapi.utils import get_dates_from_request
-from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input\
-    , get_calendar_info
+from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input \
+    , get_calendar_info, get_custom_routes_dict
 
 
 class LoadProfileByStopData(View):
@@ -138,9 +137,9 @@ class AvailableRoutes(View):
             es_helper = ESProfileHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
             available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
-
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
+            response['routesDict'] = get_custom_routes_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -228,7 +227,7 @@ class LoadProfileByExpeditionData(View):
                 diff_days = 0
                 for date_range in dates:
                     diff_days += len(es_profile_helper.get_available_days_between_dates(date_range[0], date_range[-1],
-                                                                               valid_operator_list))
+                                                                                        valid_operator_list))
                 day_limit = 7
 
                 if diff_days <= day_limit:
@@ -399,7 +398,7 @@ class BoardingAndAlightingAverageByStops(View):
             es_helper = ESProfileHelper()
 
             es_query = es_helper.get_profile_by_multiple_stop_data(dates, day_type, stop_codes, period, half_hour,
-                                                          valid_operator_list)
+                                                                   valid_operator_list)
             if export_data:
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_STOP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()

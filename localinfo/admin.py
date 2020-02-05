@@ -6,12 +6,11 @@ from django.contrib import messages
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
 from django.db import transaction, IntegrityError
-from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
 
 from localinfo.forms import DayDescriptionForm
 from localinfo.helper import PermissionBuilder
-from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo
+from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo, CustomRoute
 
 admin.site.unregister(Group)
 admin.site.unregister(User)
@@ -73,8 +72,14 @@ class CalendarInfoAdmin(admin.ModelAdmin):
     list_display = ('date', 'day_description')
 
 
+class CustomRouteAdmin(admin.ModelAdmin):
+    actions = None
+    list_display = ('auth_route_code', 'custom_route_code')
+
+
 admin.site.register(Operator, OperatorAdmin)
 admin.site.register(HalfHour, HalfHourAdmin)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(DayDescription, DayDescriptionAdmin)
 admin.site.register(CalendarInfo, CalendarInfoAdmin)
+admin.site.register(CustomRoute, CustomRouteAdmin)
