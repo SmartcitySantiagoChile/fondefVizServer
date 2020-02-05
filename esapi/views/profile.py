@@ -227,7 +227,7 @@ class LoadProfileByExpeditionData(View):
                 diff_days = 0
                 for date_range in dates:
                     diff_days += len(es_profile_helper.get_available_days_between_dates(date_range[0], date_range[-1],
-                                                                               valid_operator_list))
+                                                                                        valid_operator_list))
                 day_limit = 7
 
                 if diff_days <= day_limit:
@@ -398,7 +398,7 @@ class BoardingAndAlightingAverageByStops(View):
             es_helper = ESProfileHelper()
 
             es_query = es_helper.get_profile_by_multiple_stop_data(dates, day_type, stop_codes, period, half_hour,
-                                                          valid_operator_list)
+                                                                   valid_operator_list)
             if export_data:
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_STOP_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
