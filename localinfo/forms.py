@@ -7,8 +7,6 @@ from localinfo.models import DayDescription, FAQ
 
 class TrixEditorWidget(TextInput):
     template_name = "localinfo/trix_editor.html"
-    #TRIX_HIDE_TOOLBAR = 'data-trix-toolbar-hide'
-    #TRIX_ENABLE = 'data-trix-contenteditable'
 
     class Media:
         css = {'all': ('components/trix/dist/trix.css',)}
@@ -40,17 +38,4 @@ class FAQForm(ModelForm):
         widgets = {
             'answer': TrixEditorWidget
         }
-        fields = ('title', 'question', 'answer')
-
-    # def __init__(self, *args, **kwargs):
-    #     read_only = kwargs.pop('read_only', True)
-    #     super(FAQSForm, self).__init__(*args, **kwargs)
-    #     instance = getattr(self, 'instance', None)
-    #     if instance and (instance.sent and read_only):
-    #         for field_name in self.fields:
-    #             self.fields[field_name].disabled = True
-    #             if isinstance(self.fields[field_name].widget, TrixEditorWidget):
-    #                 self.fields[field_name].widget.attrs[TrixEditorWidget.TRIX_HIDE_TOOLBAR] = 'true'
-    #                 self.fields[field_name].widget.attrs[TrixEditorWidget.TRIX_ENABLE] = 'false'
-    #
-    #
+        fields = ('title', 'question', 'answer', 'category')

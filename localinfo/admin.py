@@ -76,7 +76,7 @@ class CalendarInfoAdmin(admin.ModelAdmin):
 class FAQSAdmin(admin.ModelAdmin):
     actions = None
     form = FAQForm
-    list_display = ('title', 'question', 'short_answer')
+    list_display = ('title', 'question', 'short_answer', 'category')
     search_fields = ['title', 'question', 'answer']
 
 
