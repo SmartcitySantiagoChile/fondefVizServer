@@ -105,6 +105,7 @@ bowerapp/static/components/
 fondefVizServer/keys/
 fondefVizServer/logs/
 static/*
+media/*
 bowerapp/static/components/*
 bowerapp/static/js/reverse.js
 
