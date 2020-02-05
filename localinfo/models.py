@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.template.defaultfilters import truncatechars
 from django.utils import safestring
+from django.utils.html import strip_tags
 
 
 class TimePeriod(models.Model):
@@ -162,6 +165,7 @@ class FAQ(models.Model):
         verbose_name_plural = "preguntas frecuentes"
 
     def short_answer(self):
-        return truncatechars(safestring.SafeString(self.answer.encode('utf-8')), 200)
+        text_safe = strip_tags(self.answer.encode('utf-8'))
+        return truncatechars(text_safe, 200)
 
     short_answer.short_description = 'Respuesta'

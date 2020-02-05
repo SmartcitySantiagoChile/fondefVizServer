@@ -15,14 +15,11 @@ class FaqImgUploader(View):
         return super(FaqImgUploader, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params):
-        print (request.FILES)
         file = request.FILES['file']
-        url_to_save = 'static/faq'
-        path_to_save = 'faq'
+        url_to_save = 'media/faq'
         file_storage = FileSystemStorage(url_to_save)
-        print(file.name)
         file_storage.save(file.name, file)
-        return JsonResponse(data={"url": path_to_save, "name": file.name})
+        return JsonResponse(data={"url": url_to_save, "name": file.name})
 
     def get(self, request):
         return self.process_request(request, request.GET)

@@ -110,3 +110,4 @@ bowerapp/static/components/*
 bowerapp/static/js/reverse.js
 
 *.env
+/media/
