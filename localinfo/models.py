@@ -153,7 +153,6 @@ class CalendarInfo(models.Model):
 class FAQ(models.Model):
     """Frequently asked questions"""
 
-    title = models.CharField("Título", max_length=250)
     question = models.TextField("Pregunta")
     answer = models.TextField("Respuesta")
 

@@ -38,4 +38,4 @@ class FAQForm(ModelForm):
         widgets = {
             'answer': TrixEditorWidget
         }
-        fields = ('title', 'question', 'answer', 'category')
+        fields = ('question', 'answer', 'category')
