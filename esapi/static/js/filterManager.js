@@ -54,7 +54,6 @@ function FilterManager(opts) {
     var $MULTI_STOP_FILTER = $("#multiStopFilter");
     var $MULTI_AUTH_ROUTE_FILTER = $("#multiAuthRouteFilter");
 
-
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
 
