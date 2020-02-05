@@ -109,7 +109,7 @@ class ESSpeedHelper(ElasticSearchHelper):
                 key_section = section.key
                 d_data[(key_section, key_period)] = (
                     -1 if section.time.value == 0 else 3.6 * section.distance.value / section.time.value,
-                    section.n_obs.value)
+                    section.n_obs.value, section.distance.value, section.time.value)
 
         if len(d_data.keys()) == 0:
             raise ESQueryResultEmpty()
