@@ -122,11 +122,14 @@ xhr.upload.addEventListener("progress", function(event) {
 });
 
 xhr.addEventListener("load", function(event) {
-    if (xhr.status === 204) {
+    if (xhr.status === 200) {
         console.log(xhr);
-        var attributes = {
-            url: HOST + key,
-            href: HOST + key + "?content-disposition=attachment"
+        let response = JSON.parse(xhr.response);
+        //let url = window.location.origin + "/" + response["url"] + "/" + response["name"];
+        let name = response["name"];
+        let attributes = {
+            url: {% static "" %}  + name,
+            href: {% static "" %}  + name + "?content-disposition=attachment"
         };
         successCallback(attributes);
     } else {
