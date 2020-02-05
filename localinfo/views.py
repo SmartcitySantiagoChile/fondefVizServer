@@ -33,4 +33,5 @@ class FaqHTML(View):
     def get(self, request):
         template = 'localinfo/faq.html'
         faqs = {"faqs": get_all_faqs()}
+        print(faqs)
         return render(request, template, faqs)

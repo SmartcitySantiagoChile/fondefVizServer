@@ -1,20 +1,78 @@
-{% extends 'localinfo/base.html' %}
-{% load static header panel  table columns update_button label data_filter tabs %}
+{% load i18n static %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>document.getElementsByTagName("html")[0].className += " js";</script>
 
-{% block title %}Preguntas Frecuentes{% endblock %}
+    <title>Preguntas Frecuentes</title>
 
-{% block content %}
-    {% header "Preguntas Frecuentes" %}
+    {% with "components/faq-template/" as faq_template_static %}
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{% static faq_template_static|add:"assets/css/style.css" %}">
+        {% block blockbots %}
+            <meta name="robots" content="NONE,NOARCHIVE"/>{% endblock %}
+        </head>
+
+        <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+              data-admin-utc-offset="{% now "Z" %}">
+        <header style="background-color: #2a3f54" class="cd-header flex flex-column flex-center">
+            <div class="text-component text-center">
+                <h1>Preguntas Frecuentes</h1>
+            </div>
+        </header>
+
+        <section class="cd-faq js-cd-faq container max-width-md margin-top-lg margin-bottom-lg">
+            <ul class="cd-faq__categories">
+                {% for key, values in faqs.items %}
+                    {% if forloop.first %}
+                        <li><a style="--cd-color-2: #7F8F9F" class="cd-faq__category cd-faq__category-selected truncate"
+                               href="#{{ key }}">{{ values.0.get_category_display }}</a></li>
+                    {% else %}
+                        <li><a class="cd-faq__category truncate"
+                               href="#{{ key }}">{{ values.0.get_category_display }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul> <!-- cd-faq__categories -->
+
+            <div class="cd-faq__items">
+                {% for key, values in faqs.items %}
+                    <ul id="{{ key }}" class="cd-faq__group">
+                        <li class="cd-faq__title"><h2>{{ values.0.get_category_display }}</h2></li>
+                        {% for question in values %}
+                            <li class="cd-faq__item">
+                                <a class="cd-faq__trigger" href="#0"><span
+                                        style="color: #2a3f54">{{ question.title }}</span></a>
+                                <div class="cd-faq__content">
+                                    <div class="text-component">
+                                        {{ question.answer |safe }}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul> <!-- cd-faq__group -->
+                {% endfor %}
+            </div> <!-- cd-faq__items -->
+
+            <a href="#0" class="cd-faq__close-panel text-replace">Close</a>
+
+            <div class="cd-faq__overlay" aria-hidden="true"></div>
+        </section> <!-- cd-faq -->
 
 
-    <div class="row">
-        {% panel "" "" ""  as panel %}
-        {% columns 12 12 12 panel %}
-    </div>
 
-    {{ block.super }}
-{% endblock %}
 
-{% block js %}
-    {{ block.super }}
-{% endblock %}
+
+        <script src="{% static faq_template_static|add:"assets/js/util.js" %}"></script>
+        <!-- util functions included in the CodyHouse framework -->
+        <script src="{% static faq_template_static|add:"assets/js/main.js" %}"></script>
+
+    {% endwith %}
+
+    </body>
+</html>

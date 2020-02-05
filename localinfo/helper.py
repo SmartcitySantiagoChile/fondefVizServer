@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db.models import Count
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
     CalendarInfo, FAQ
@@ -86,15 +87,11 @@ def get_all_faqs():
     :return: all faqs
     """
     query = FAQ.objects.all()
-    result = list()
+    grouped = dict()
     for info in query:
-        info = {
-            "title": info.title,
-            "question": info.question,
-            "answer": info.answer
-        }
-        result.append(info)
-    return result
+        print(info)
+        grouped.setdefault(info.category, []).append(info)
+    return grouped
 
 
 class PermissionBuilder(object):
