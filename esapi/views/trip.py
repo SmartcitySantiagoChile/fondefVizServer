@@ -18,7 +18,6 @@ from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
 from localinfo.helper import get_calendar_info, get_custom_routes_dict
-from localinfo.models import CustomRoute
 
 
 class ResumeData(PermissionRequiredMixin, View):
