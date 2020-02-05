@@ -34,7 +34,7 @@
                         <li><a style="--cd-color-2: #7F8F9F" class="cd-faq__category cd-faq__category-selected truncate"
                                href="#{{ key }}">{{ values.0.get_category_display }}</a></li>
                     {% else %}
-                        <li><a class="cd-faq__category truncate"
+                        <li><a style="--cd-color-2: #7F8F9F" class="cd-faq__category truncate"
                                href="#{{ key }}">{{ values.0.get_category_display }}</a></li>
                     {% endif %}
                 {% endfor %}
@@ -63,10 +63,6 @@
 
             <div class="cd-faq__overlay" aria-hidden="true"></div>
         </section> <!-- cd-faq -->
-
-
-
-
 
         <script src="{% static faq_template_static|add:"assets/js/util.js" %}"></script>
         <!-- util functions included in the CodyHouse framework -->

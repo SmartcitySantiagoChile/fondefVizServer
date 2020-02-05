@@ -89,7 +89,6 @@ def get_all_faqs():
     query = FAQ.objects.all()
     grouped = dict()
     for info in query:
-        print(info)
         grouped.setdefault(info.category, []).append(info)
     return grouped
 
