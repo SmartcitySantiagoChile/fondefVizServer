@@ -6,7 +6,7 @@ from localinfo.models import DayDescription, FAQ
 
 
 class TrixEditorWidget(TextInput):
-    template_name = "profile/trix_editor.html"
+    template_name = "localinfo/trix_editor.html"
     #TRIX_HIDE_TOOLBAR = 'data-trix-toolbar-hide'
     #TRIX_ENABLE = 'data-trix-contenteditable'
 

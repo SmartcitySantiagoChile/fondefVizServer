@@ -1,9 +1,11 @@
 from django.core.files.storage import FileSystemStorage
-from django.core.serializers import json
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+
+from localinfo.helper import get_all_faqs
 
 
 class FaqImgUploader(View):
@@ -27,3 +29,11 @@ class FaqImgUploader(View):
 
     def post(self, request):
         return self.process_request(request, request.POST)
+
+
+class FaqHTML(View):
+
+    def get(self, request):
+        template = 'localinfo/faq.html'
+        faqs = {"faqs": get_all_faqs()}
+        return render(request, template, faqs)

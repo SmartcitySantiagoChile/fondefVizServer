@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo
+    CalendarInfo, FAQ
 
 
 def _list_parser(list):
@@ -76,6 +76,22 @@ def get_calendar_info():
             "date": info.date,
             "color": info.day_description.color,
             "description": info.day_description.description
+        }
+        result.append(info)
+    return result
+
+
+def get_all_faqs():
+    """
+    :return: all faqs
+    """
+    query = FAQ.objects.all()
+    result = list()
+    for info in query:
+        info = {
+            "title": info.title,
+            "question": info.question,
+            "answer": info.answer
         }
         result.append(info)
     return result

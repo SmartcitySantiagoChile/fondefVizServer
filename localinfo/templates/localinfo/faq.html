@@ -1,0 +1,21 @@
+{% extends 'localinfo/base.html' %}
+{% load static header panel accordion table columns update_button label data_filter tabs %}
+
+{% block title %}Preguntas Frecuentes{% endblock %}
+
+{% block content %}
+    {% header "Preguntas Frecuentes" %}
+
+
+    <div class="row">
+        {% accordion {{ faqs }} as ac  %}
+        {% panel "" "" ""  as panel %}
+        {% columns 12 12 12 panel %}
+    </div>
+
+    {{ block.super }}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+{% endblock %}

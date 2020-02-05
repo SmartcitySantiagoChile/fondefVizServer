@@ -1,0 +1,31 @@
+{% extends 'admin/base_site.html' %}
+{% load static panel %}
+
+
+{% block css %}
+  <link href="{% static "css/filterManager.css" %}" rel="stylesheet">
+{% with "components/gentelella/vendors/" as gentelella_static %}
+{% endwith %}
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        {% panel "" "" '<div id="barChart" style="height:400px;"></div>' %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+    {% endwith %}
+
+    <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
+    <script src="{% static "js/echartsTheme.js" %}"></script>
+    <script src="{% static "js/filterManager.js" %}"></script>
+
+{% endblock %}
