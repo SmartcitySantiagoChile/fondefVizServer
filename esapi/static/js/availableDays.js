@@ -15,9 +15,8 @@ function loadAvailableDays(data_url) {
             nameMap: ["D", "L", "M", "M", "J", "V", "S"]
         },
         monthLabel: {
-            nameMap: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+            nameMap: []
         },
-        top: 20,
         left: "50",
         right: "0",
         cellSize: ["auto", 9]
@@ -90,7 +89,6 @@ function loadAvailableDays(data_url) {
            auxDescriptionDayList.push(aux_array);
         });
         descriptionDayList = auxDescriptionDayList;
-        let days = data.availableDays;
         data = data.availableDays.map(function (el) {
             return [el, 1];
         });
@@ -99,12 +97,18 @@ function loadAvailableDays(data_url) {
             var top = 50;
             let legendData = [];
             years.forEach(function (year, index) {
-                var calendarYear = $.extend({}, calendarYearTemplate);
+                let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
                 var serie = $.extend({}, serieTemplate);
-
+                if (index === 0){
+                    calendarYear.monthLabel.nameMap = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago",
+                        "Sep", "Oct", "Nov", "Dic"];
+                }
+                if (index === years.length - 1){
+                    calendarYear.bottom = '0%'
+                }
                 calendarYear.range = year;
                 calendarYear.top = top;
-                top += 100;
+                top += 80;
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.itemStyle = {
@@ -164,6 +168,7 @@ function loadAvailableDays(data_url) {
             $("#" + divId).height(top-20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
             availableDaysChart.resize();
+            console.log(newOpts);
         }
     });
 }
