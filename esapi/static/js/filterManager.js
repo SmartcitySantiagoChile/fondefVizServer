@@ -360,8 +360,6 @@ function FilterManager(opts) {
             } else {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);
-
-
             }
         }
     });
