@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
+from django.contrib.postgres.search import SearchVector
 from django.db import transaction, IntegrityError
 from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
@@ -77,6 +78,13 @@ class FAQSAdmin(admin.ModelAdmin):
     form = FAQForm
     list_display = ( 'question', 'short_answer', 'category')
     search_fields = [ 'question', 'answer']
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super(FAQSAdmin, self).get_search_results(request, queryset, search_term)
+        queryset |= self.model.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent'))\
+                .filter(search=search_term)
+        print(queryset)
+        return queryset, use_distinct
 
 
 class CustomRouteAdmin(admin.ModelAdmin):

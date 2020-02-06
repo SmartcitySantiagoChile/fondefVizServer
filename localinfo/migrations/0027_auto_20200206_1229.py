@@ -11,6 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL("CREATE TEXT SEARCH CONFIGURATION spanish_unaccent(COPY=spanish);"),
+        migrations.RunSQL("CREATE TEXT SEARCH CONFIGURATION french_unaccent(COPY=french);"),
 
     ]

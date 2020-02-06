@@ -11,8 +11,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL("ALTER TEXT SEARCH CONFIGURATION spanish_unaccent"
+        migrations.RunSQL("ALTER TEXT SEARCH CONFIGURATION french_unaccent"
                           " ALTER MAPPING FOR hword, hword_part, word"
-                          " WITH unaccent, spanish_stem;"
+                          " WITH unaccent, french_stem;"
                           )
     ]
