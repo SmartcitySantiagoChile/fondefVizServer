@@ -81,8 +81,8 @@ class FAQSAdmin(admin.ModelAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super(FAQSAdmin, self).get_search_results(request, queryset, search_term)
-        queryset |= self.model.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent'))\
-                .filter(search=search_term)
+        queryset |= self.model.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent')).\
+            filter(search=search_term)
         print(queryset)
         return queryset, use_distinct
 
