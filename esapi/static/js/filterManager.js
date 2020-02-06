@@ -349,8 +349,8 @@ function FilterManager(opts) {
                         status = true;
                     }
                     if (afterCall) {
-                            afterCall(data, status);
-                        }
+                        afterCall(data, status);
+                    }
                     // update backup to the last request params sent to server
                     paramsBackup = params;
                 }).always(function () {
