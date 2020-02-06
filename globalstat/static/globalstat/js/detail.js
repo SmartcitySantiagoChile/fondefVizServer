@@ -224,11 +224,13 @@ $(document).ready(function () {
 
 
         var app = new DetailApp();
-        var afterCall = function (answer) {
+        var afterCall = function (answer, status) {
             if (answer.status) {
                 return;
             }
-            app.updateMetrics(answer.data);
+            if (status) {
+                app.updateMetrics(answer.data);
+            }
         };
         var opts = {
             urlFilterData: Urls["esapi:resumeData"](),

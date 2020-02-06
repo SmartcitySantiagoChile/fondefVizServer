@@ -185,11 +185,14 @@ $(document).ready(function () {
         var app = new OperatorApp();
         var previousCall = function () {
         };
-        var afterCall = function (data) {
+        var afterCall = function (data, status) {
             if (data.status) {
                 return;
             }
-            app.updateMetrics(data);
+            if (status) {
+                app.updateMetrics(data);
+            }
+
         };
         var opts = {
             urlFilterData: Urls["esapi:operatorBipData"](),

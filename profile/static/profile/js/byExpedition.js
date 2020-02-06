@@ -802,18 +802,23 @@ $(document).ready(function () {
         loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
         var app = new ExpeditionApp();
+        var hideLoading = function(){return app.hideLoadingAnimationCharts()};
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status){
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {
             urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),
             urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
-            afterCallData: afterCall
+            afterCallData: afterCall,
+            hideLoading: hideLoading
+
         };
 
         new FilterManager(opts);

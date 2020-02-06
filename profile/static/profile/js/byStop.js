@@ -734,8 +734,10 @@ $(document).ready(function () {
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if(status){
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {
