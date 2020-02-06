@@ -36,7 +36,6 @@ class FaqHTML(View):
         if search is None or search == "":
             faqs = {"faqs": get_all_faqs()}
         else:
-            faqs = {"faqs": search_faq(search)}
+            faqs = {"faqs": search_faq(search),
+                    "query": search}
         return render(request, template, faqs)
-
-

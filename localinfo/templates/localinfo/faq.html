@@ -118,7 +118,9 @@
         <div class="topnav">
             <div class="search-container">
                 <form action="{% url "faq" %}">
-                    <input type="text" placeholder="Buscar" name="search">
+                    <input type="text" placeholder="Buscar" name="search"
+                    value = "{{ query |safe }}"
+                    >
                     <button type="submit"><i class="fa fa-search"></i></button>
                 </form>
             </div>
