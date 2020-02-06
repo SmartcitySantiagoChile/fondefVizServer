@@ -11,6 +11,7 @@ from django.views.generic import View
 
 from awsbackup.aws import AWSSession
 from awsbackup.models import DownloadLink
+from localinfo.helper import get_calendar_info
 
 
 class TableHTML(PermissionRequiredMixin, View):
@@ -73,9 +74,10 @@ class AvailableDays(PermissionRequiredMixin, View):
 
     def get(self, request, bucket_name):
         available_days = AWSSession().get_available_days(bucket_name)
-
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)
