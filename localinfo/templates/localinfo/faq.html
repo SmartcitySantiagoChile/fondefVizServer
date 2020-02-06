@@ -108,33 +108,76 @@
               data-admin-utc-offset="{% now "Z" %}">
         <header style="background-color: #2a3f54" class="cd-header flex flex-column flex-center">
             <div class="text-component text-center">
-                <h1> ADATRAP: Preguntas Frecuentes</h1>
+                <h1> ADATRAP: Preguntas Frecuentes </h1>
             </div>
             <!--<p style="color: white">Esta sección contiene las preguntas frecuentes para las distintas visualizaciones de la aplicación.</p>
             -->
         </header>
 
         <div class="topnav">
-
+            <a href="{% url "localinfo:faq" %}"><i class="fa fa-dashboard"></i> Inicio</a>
             <div class="search-container">
-                <form action="/action_page.php">
+                <form action="{% url "localinfo:faq" %}">
                     <input type="text" placeholder="Buscar" name="search">
                     <button type="submit"><i class="fa fa-search"></i></button>
                 </form>
             </div>
         </div>
 
-
-
         <section class="cd-faq js-cd-faq container max-width-md margin-top-lg margin-bottom-lg">
+            {% if faqs|length == 0 %}
+                <h5>No se encontraron resultados :( </h5>
+            {% endif %}
             <ul class="cd-faq__categories">
                 {% for key, values in faqs.items %}
                     {% if forloop.first %}
                         <li><a style="--cd-color-2: #7F8F9F" class="cd-faq__category cd-faq__category-selected truncate"
-                               href="#{{ key }}">{{ values.0.get_category_display }}</a></li>
+                               href="#{{ key }}">
+                            {% if key == "speed" %}
+                                <i class="fa fa-tachometer"></i>
+                            {% elif key == 'route' %}
+                                <i class="fa fa-map"></i>
+                            {% elif key == 'trip' %}
+                                <i class="fa fa-line-chart"></i>
+                            {% elif key == 'profile' %}
+                                <i class="fa fa-bus"></i>
+                            {% elif key == 'paymentfactor' %}
+                                <i class="fa fa-dollar"></i>
+                            {% elif key == 'administration' %}
+                                <i class="fa fa-users"></i>
+                            {% elif key == 'storage' %}
+                                <i class="fa fa-cloud-download"></i>
+                            {% elif key == 'global' %}
+                                <i class="fa fa-clone"></i>
+                            {% elif key == 'general' %}
+                                <i class="fa fa-question-circle-o"></i>
+                            {% endif %}
+                            &ensp;{{ values.0.get_category_display }}
+                        </a></li>
                     {% else %}
                         <li><a style="--cd-color-2: #7F8F9F" class="cd-faq__category truncate"
-                               href="#{{ key }}">{{ values.0.get_category_display }}</a></li>
+                               href="#{{ key }}">
+                            {% if key == "speed" %}
+                                <i class="fa fa-tachometer"></i>
+                            {% elif key == 'route' %}
+                                <i class="fa fa-map"></i>
+                            {% elif key == 'trip' %}
+                                <i class="fa fa-line-chart"></i>
+                            {% elif key == 'profile' %}
+                                <i class="fa fa-bus"></i>
+                            {% elif key == 'paymentfactor' %}
+                                <i class="fa fa-dollar"></i>
+                            {% elif key == 'administration' %}
+                                <i class="fa fa-users"></i>
+                            {% elif key == 'storage' %}
+                                <i class="fa fa-cloud-download"></i>
+                            {% elif key == 'global' %}
+                                <i class="fa fa-clone"></i>
+                            {% elif key == 'general' %}
+                                <i class="fa fa-question-circle-o"></i>
+                            {% endif %}
+                            &ensp;{{ values.0.get_category_display }}
+                        </a></li>
                     {% endif %}
                 {% endfor %}
             </ul> <!-- cd-faq__categories -->

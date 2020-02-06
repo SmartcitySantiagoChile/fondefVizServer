@@ -9,5 +9,5 @@ from views import FaqImgUploader, FaqHTML
 app_name = 'localinfo'
 urlpatterns = [
     url(r'^faqUpload/$', login_required(FaqImgUploader.as_view()), name='faqUpload'),
-    url(r'^faq/$', login_required(FaqHTML.as_view()), name='faq'),
+    url(r'^faq/$', FaqHTML.as_view(), name='faq'),
 ]

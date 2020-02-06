@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db.models import Count
+from django.contrib.postgres.search import SearchVector
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
     CalendarInfo, FAQ
@@ -87,6 +88,18 @@ def get_all_faqs():
     :return: all faqs
     """
     query = FAQ.objects.all()
+    grouped = dict()
+    for info in query:
+        grouped.setdefault(info.category, []).append(info)
+    return grouped
+
+
+def search_faq(searchText):
+    """
+    :param search:
+    :return: all faqs matched "search"
+    """
+    query = FAQ.objects.annotate(search=SearchVector('question', 'answer')).filter(search=searchText)
     grouped = dict()
     for info in query:
         grouped.setdefault(info.category, []).append(info)

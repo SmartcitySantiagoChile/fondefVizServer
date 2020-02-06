@@ -5,7 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from localinfo.helper import get_all_faqs
+from localinfo.helper import get_all_faqs, search_faq
 
 
 class FaqImgUploader(View):
@@ -32,5 +32,11 @@ class FaqHTML(View):
 
     def get(self, request):
         template = 'localinfo/faq.html'
-        faqs = {"faqs": get_all_faqs()}
+        search = request.GET.get('search')
+        if search is not None:
+            faqs = {"faqs": search_faq(search)}
+        else:
+            faqs = {"faqs": get_all_faqs()}
         return render(request, template, faqs)
+
+
