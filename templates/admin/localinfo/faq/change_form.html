@@ -89,7 +89,7 @@
 {# JavaScript for prepopulated fields #}
 {% prepopulated_fields_js %}
  <script>
-    var HOST = "{% url 'localinfo:faqUpload' %}";
+    var HOST = "{% url 'faqUpload' %}";
 
 addEventListener("trix-attachment-add", function(event) {
     if (event.attachment.file) {

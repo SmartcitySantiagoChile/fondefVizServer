@@ -99,7 +99,8 @@ def search_faq(searchText):
     :param search:
     :return: all faqs matched "search"
     """
-    query = FAQ.objects.annotate(search=SearchVector('question', 'answer')).filter(search=searchText)
+    query = FAQ.objects.annotate(search=SearchVector('question', 'answer',  config='french_unaccent')).filter(search=searchText)
+    print(unicode(query.query))
     grouped = dict()
     for info in query:
         grouped.setdefault(info.category, []).append(info)
