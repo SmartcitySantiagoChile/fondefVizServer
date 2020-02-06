@@ -1,22 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.views.generic import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
-from esapi.helper.odbyroute import ESODByRouteHelper
-from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
-from esapi.utils import check_operation_program, get_dates_from_request
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-
-from localinfo.helper import PermissionBuilder, get_calendar_info
-
-from datamanager.helper import ExporterManager
+from django.views.generic import View
 
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+from datamanager.helper import ExporterManager
+from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
+from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
+from esapi.utils import check_operation_program, get_dates_from_request
+from localinfo.helper import PermissionBuilder, get_calendar_info, get_custom_routes_dict
 
 
 class AvailableDays(View):
@@ -40,10 +37,10 @@ class AvailableRoutes(View):
         es_helper = ESODByRouteHelper()
         valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         available_days, op_dict = es_helper.get_available_routes(valid_operator_id_list)
-
         response = {
             'availableRoutes': available_days,
-            'operatorDict': op_dict
+            'operatorDict': op_dict,
+            'routesDict': get_custom_routes_dict()
         }
 
         return JsonResponse(response)

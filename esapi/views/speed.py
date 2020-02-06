@@ -16,7 +16,7 @@ from esapi.helper.speed import ESSpeedHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.messages import SpeedVariationWithLessDaysMessage
 from esapi.utils import check_operation_program, get_dates_from_request
-from localinfo.helper import PermissionBuilder, get_calendar_info
+from localinfo.helper import PermissionBuilder, get_calendar_info, get_custom_routes_dict
 
 hours = ["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00",
          "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -48,9 +48,9 @@ class AvailableRoutes(View):
             es_helper = ESSpeedHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
             available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
-
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
+            response['routesDict'] = get_custom_routes_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -100,13 +100,13 @@ class MatrixData(View):
                 for hour in range(len(hours)):
                     route_segment_by_hour = []
                     for section in response['segments']:
-                        speed, n_obs = d_data.get((section, hour), (-1, 0))
+                        speed, n_obs, distance, time = d_data.get((section, hour), (-1, 0, 0, 0))
                         interval = 8
                         for i, bound in enumerate([0, 5, 7.5, 10, 15, 20, 25, 30]):
                             if speed < bound:
                                 interval = i
                                 break
-                        route_segment_by_hour.append([interval, speed, n_obs])
+                        route_segment_by_hour.append([interval, speed, n_obs, distance, time])
                     response['matrix'].append(route_segment_by_hour)
 
                 response['route'] = {

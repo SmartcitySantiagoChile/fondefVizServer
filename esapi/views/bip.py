@@ -28,6 +28,7 @@ class AvailableDays(View):
 
         return JsonResponse(response)
 
+
 class BipTransactionByOperatorData(View):
 
     @method_decorator(csrf_exempt)

@@ -187,3 +187,14 @@ class FAQ(models.Model):
         return truncatechars(text_safe, 200)
 
     short_answer.short_description = 'Respuesta'
+
+
+class CustomRoute(models.Model):
+    """"CustomRouteCode-AuthRouteCode dictionary """
+
+    auth_route_code = models.CharField("Código transantiago", max_length=20, unique=True)
+    custom_route_code = models.CharField("Código custom", max_length=30)
+
+    class Meta:
+        verbose_name = "diccionario de servicios"
+        verbose_name_plural = "diccionario de servicios"

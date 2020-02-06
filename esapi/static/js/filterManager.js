@@ -54,8 +54,6 @@ function FilterManager(opts) {
     var $MULTI_STOP_FILTER = $("#multiStopFilter");
     var $MULTI_AUTH_ROUTE_FILTER = $("#multiAuthRouteFilter");
 
-
-
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
 
@@ -82,7 +80,7 @@ function FilterManager(opts) {
     let urlKey = window.location.pathname;
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
     var localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
-    if (localDayFilter !== null){
+    if (localDayFilter !== null) {
         localDayFilter = JSON.parse(localDayFilter);
     }
     var localDayTypeFilter = window.localStorage.getItem("dayTypeFilter");
@@ -121,11 +119,11 @@ function FilterManager(opts) {
         localDayFilter = Array.from(dates_array);
     });
 
-    if(singleDatePicker){
+    if (singleDatePicker) {
         $DAY_FILTER.parent().text("Día:").append($DAY_FILTER);
     }
 
-    $DAY_FILTER.click(function(e){
+    $DAY_FILTER.click(function (e) {
         $DATE_RANGE_MODAL.modal('show');
     });
 
@@ -218,8 +216,8 @@ function FilterManager(opts) {
     var getParameters = function () {
         var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
         dates = groupByDates(dates);
-        dates = dates.map(function(date_range){
-            if (date_range.length === 1){
+        dates = dates.map(function (date_range) {
+            if (date_range.length === 1) {
                 return [date_range[0][0]]
             } else {
                 return [date_range[0][0], date_range[date_range.length - 1][0]];
@@ -239,24 +237,24 @@ function FilterManager(opts) {
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
         var params = dataUrlParams();
-        if(dates){
+        if (dates) {
             params.dates = JSON.stringify(dates);
         }
 
-        let datesSize = function(){
-                let count = 0;
-                for (let i in dates){
-                    for (let j in dates[i]){
-                        count ++;
-                    }
+        let datesSize = function () {
+            let count = 0;
+            for (let i in dates) {
+                for (let j in dates[i]) {
+                    count++;
                 }
-                return count;
-            };
+            }
+            return count;
+        };
 
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
 
-            if (datesSize()< minimumDateLimit) {
+            if (datesSize() < minimumDateLimit) {
                 let status = {
                     message: "El período consultado debe ser mayor a 2 días",
                     title: "Advertencia",
@@ -267,7 +265,7 @@ function FilterManager(opts) {
             }
 
 
-            if (!metrics){
+            if (!metrics) {
                 let status = {
                     message: "Debe seleccionar alguna métrica",
                     title: "Advertencia",
@@ -408,6 +406,7 @@ function FilterManager(opts) {
         }
 
         var processRouteData = function (data) {
+            let routesDict = data.routesDict;
             data.operatorDict = data.operatorDict.map(function (el) {
                 return {
                     id: el.value,
@@ -418,7 +417,8 @@ function FilterManager(opts) {
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
                 authRouteList.sort();
                 authRouteList = authRouteList.map(function (el) {
-                    return {id: el, text: el};
+                    let dictName = ((routesDict[el]) === undefined) ? "" : ` (${routesDict[el]})`;
+                    return {id: el, text: `${el}${dictName}`};
                 });
                 $AUTH_ROUTE_FILTER.empty();
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
@@ -477,7 +477,10 @@ function FilterManager(opts) {
                 });
                 // call event to update user route filter
                 var selectedItem = localOperatorFilter !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
-                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({type: "select2:select", params: {data: selectedItem, isFirstTime: true}});
+                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
+                    type: "select2:select",
+                    params: {data: selectedItem, isFirstTime: true}
+                });
             } else {
                 var operatorId = Object.keys(data.availableRoutes)[0];
                 updateUserRouteList(operatorId, true);
@@ -508,7 +511,7 @@ function FilterManager(opts) {
 
     if ($MULTI_AUTH_ROUTE_FILTER.length) {
         var localMultiAuthRouteFilter = JSON.parse(window.localStorage.getItem(urlKey + "multiAuthRouteFilter"))
-        if (localMultiAuthRouteFilter !== null){
+        if (localMultiAuthRouteFilter !== null) {
             localMultiAuthRouteFilter = localMultiAuthRouteFilter.id;
         } else {
             localMultiAuthRouteFilter = [];
@@ -520,11 +523,10 @@ function FilterManager(opts) {
         });
 
         var processMultiRouteData = function (data) {
+            let routesDict = data.routesDict;
             data.data = data.data.map(function (el) {
-                return {
-                    id: el.item,
-                    text: el.item
-                }
+                let dictName = ((routesDict[el.item]) === undefined) ? "" : ` (${routesDict[el.item]})`;
+                return {id: el.item, text: `${el.item}${dictName}`};
             });
             if ($MULTI_AUTH_ROUTE_FILTER.length) {
                 $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});

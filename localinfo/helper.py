@@ -7,7 +7,7 @@ from django.db.models import Count
 from django.contrib.postgres.search import SearchVector
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo, FAQ
+    CalendarInfo, CustomRoute, FAQ
 
 
 def _list_parser(list):
@@ -105,6 +105,13 @@ def search_faq(searchText):
         grouped.setdefault(info.category, []).append(info)
     return grouped
 
+
+def get_custom_routes_dict():
+    routes_dict = {}
+    for definition in CustomRoute.objects.all():
+        definition = definition.__dict__
+        routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
+    return routes_dict
 
 class PermissionBuilder(object):
 
