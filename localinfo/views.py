@@ -33,10 +33,10 @@ class FaqHTML(View):
     def get(self, request):
         template = 'localinfo/faq.html'
         search = request.GET.get('search')
-        if search is not None:
-            faqs = {"faqs": search_faq(search)}
-        else:
+        if search is None or search == "":
             faqs = {"faqs": get_all_faqs()}
+        else:
+            faqs = {"faqs": search_faq(search)}
         return render(request, template, faqs)
 
 
