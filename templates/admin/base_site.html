@@ -60,6 +60,7 @@
                       <li><a href="{% url 'admin:localinfo_calendarinfo_changelist' %}">Asignar días al calendario</a></li>
                     </ul>
                   </li>
+                  <li><a  href="{% url 'admin:localinfo_faq_changelist' %}"> Preguntas Frecuentes</a></li>
                   <li><a href="{% url 'admin:localinfo_customroute_changelist' %}">Diccionario de servicios</a></li>
                 </ul>
               </li>
@@ -196,6 +197,11 @@
                   </div>
                 </li>
               </ul>
+            </li>
+            <li>
+              <a target="_blank" href="{% url 'faq' %}" >
+                  <i class="fa fa-question-circle-o fa-5x"></i>
+              </a>
             </li>
           </ul>
         </nav>
