@@ -74,8 +74,6 @@ $(document).ready(function () {
                         stops: data.stops,
                         route: route
                     });
-
-
                 });
             });
         };
