@@ -3,7 +3,7 @@ $(document).ready(function () {
 
     // define logic to manipulate data
     function Stop(name, userStopCode, authorityStopCode, expandedBoarding, expandedALighting, loadProfile,
-                  busCapacity, busSaturation, maxLoadProfile) {
+                  busCapacity, busSaturation, maxLoadProfile, sumExpandedBoarding, sumExpandedALighting, tripsCount) {
         this.name = name;
         this.userStopCode = userStopCode;
         this.authorityStopCode = authorityStopCode;
@@ -14,6 +14,9 @@ $(document).ready(function () {
         this.busSaturation = busSaturation;
         this.maxLoadProfile = maxLoadProfile;
         this.visible = true;
+        this.sumExpandedBoarding = sumExpandedBoarding;
+        this.sumExpandedAlighting = sumExpandedALighting;
+        this.tripsCount = tripsCount;
 
     }
 
@@ -77,7 +80,10 @@ $(document).ready(function () {
                 positiveSaturationRateAfter: [],
                 negativeSaturationRateAfter: [],
                 averageSaturationRateBefore: [],
-                averageSaturationRateAfter: []
+                averageSaturationRateAfter: [],
+                sumExpandedLanding: [],
+                sumExpandedGetIn: [],
+                tripsCount: []
             };
 
             for (var i = 0; i < xAxisLength; i++) {
@@ -90,6 +96,9 @@ $(document).ready(function () {
                 _yAxisData.negativeSaturationRateAfter.push(0);
                 _yAxisData.averageSaturationRateBefore.push(0);
                 _yAxisData.averageSaturationRateAfter.push(0);
+                _yAxisData.sumExpandedGetIn.push(0);
+                _yAxisData.sumExpandedLanding.push(0);
+                _yAxisData.tripsCount.push(0);
 
                 counterByStop.push(0);
                 capacityByStop.push(0);
@@ -104,10 +113,12 @@ $(document).ready(function () {
 
                 var key = _xAxisData.indexOf(stop.userStopCode);
 
-                _yAxisData.expandedLanding[key] = stop.expandedAlighting;
-                _yAxisData.expandedGetIn[key] = stop.expandedBoarding;
+
                 _yAxisData.saturationRateBefore[key] = stop.loadProfile;
                 _yAxisData.saturationDiff[key] = stop.expandedBoarding - stop.expandedAlighting;
+                _yAxisData.expandedLanding[key] = stop.sumExpandedAlighting;
+                _yAxisData.expandedGetIn[key] = stop.sumExpandedBoarding;
+                _yAxisData.tripsCount[key] = stop.tripsCount;
 
                 counterByStop[key] = 1;
                 capacityByStop[key] = stop.busCapacity;
@@ -120,7 +131,6 @@ $(document).ready(function () {
                 _yAxisData.averageSaturationRateAfter[stopIndex] = (_yAxisData.saturationRateBefore[stopIndex] + _yAxisData.saturationDiff[stopIndex]);
                 _yAxisData.saturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / capacityByStop[stopIndex] * 100;
                 percentageAfter = _yAxisData.saturationDiff[stopIndex] / capacityByStop[stopIndex] * 100;
-
                 var incValue = 0;
                 var decValue = 0;
                 if (percentageAfter > 0) {
@@ -132,6 +142,7 @@ $(document).ready(function () {
                 _yAxisData.positiveSaturationRateAfter[stopIndex] = incValue;
                 _yAxisData.negativeSaturationRateAfter[stopIndex] = decValue;
             }
+            console.log(_yAxisData);
         };
 
         this.getAttrGroup = function (attrName, formatFunc) {
@@ -183,7 +194,7 @@ $(document).ready(function () {
             var xAxisData = _dataManager.xAxisData();
 
             // get out, get in, load profile, percentage ocupation
-            var yAxisDataName = ["Subidas promedio", "Bajadas promedio", "% Ocupación promedio a la llegada"];
+            var yAxisDataName = ["Suma de subidas", "Suma de bajadas", "% Ocupación promedio a la llegada"];
             var yChartType = ["bar", "bar", "bar", "bar", "bar"];
             var yStack = [null, null, "stack", "stack", "stack"];
             var xGridIndex = [1, 1, 0, 0, 0];
@@ -351,6 +362,7 @@ $(document).ready(function () {
                             info.push("Código usuario: " + head);
                             info.push("Código transantiago: " + _dataManager.getStops()[xValue].authorityStopCode);
                             info.push("Nombre paradero: " + _dataManager.getStops()[xValue].name);
+                            info.push(`Expediciones utilizadas: ${_dataManager.getStops()[xValue].tripsCount} `);
                             var ball = "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:{}'></span>";
                             for (var i = 0; i < params.length - 1; i++) {
                                 var el = params[i];
@@ -421,6 +433,7 @@ $(document).ready(function () {
         var dataManager = new DataManager();
 
         for (let stop in dataSource) {
+            console.log(dataSource[stop]);
             let name = dataSource[stop].userStopName.hits['hits'][0]['_source']['userStopName'];
             let userStopCode = dataSource[stop].userStopCode.hits['hits'][0]['_source']['userStopCode'];
             let authorityStopCode = dataSource[stop].key;
@@ -430,8 +443,11 @@ $(document).ready(function () {
             let busCapacity = dataSource[stop].busCapacity.value;
             let busSaturation = dataSource[stop].busSaturation.value;
             let maxLoadProfile = dataSource[stop].maxLoadProfile.value;
+            let sumExpandedBoarding = dataSource[stop].sumExpandedBoarding.value;
+            let sumExpandedAlighting = dataSource[stop].sumExpandedAlighting.value;
+            let tripsCount = dataSource[stop].tripsCount.value;
             let stop_object = new Stop(name, userStopCode, authorityStopCode, expandedBoarding, expandedAlighting, loadProfile,
-                busCapacity, busSaturation, maxLoadProfile);
+                busCapacity, busSaturation, maxLoadProfile, sumExpandedBoarding, sumExpandedAlighting, tripsCount);
 
             dataManager.addStop(stop_object);
         }

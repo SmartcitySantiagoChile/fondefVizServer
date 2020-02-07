@@ -268,6 +268,8 @@ class ESProfileHelper(ElasticSearchHelper):
         es_query.aggs.bucket('stops', aggs). \
             metric('expandedAlighting', 'avg', field='expandedAlighting'). \
             metric('expandedBoarding', 'avg', field='expandedBoarding'). \
+            metric('sumExpandedAlighting', 'sum', field='expandedAlighting'). \
+            metric('sumExpandedBoarding', 'sum', field='expandedBoarding'). \
             metric('loadProfile', 'avg', field='loadProfile'). \
             metric('maxLoadProfile', 'max', field='loadProfile'). \
             metric('sumLoadProfile', 'sum', field='loadProfile'). \
@@ -276,7 +278,8 @@ class ESProfileHelper(ElasticSearchHelper):
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
             metric('userStopCode', 'top_hits', size=1, _source=['userStopCode']). \
             metric('userStopName', 'top_hits', size=1, _source=['userStopName']). \
-            metric('busCapacity', 'avg', field='busCapacity')
+            metric('busCapacity', 'avg', field='busCapacity'). \
+            metric('tripsCount', 'value_count', field='expandedAlighting')
         return es_query
 
     def get_all_auth_routes(self):
