@@ -61,6 +61,7 @@ $(document).ready(function () {
                 $.getJSON(Urls["shape:route"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
+                        layers[layerId].clearLayers();
                         return;
                     }
 
