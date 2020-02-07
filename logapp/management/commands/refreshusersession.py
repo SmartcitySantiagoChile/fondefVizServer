@@ -28,7 +28,6 @@ class User(object):
         start_session = self.activities[0][0]
         previous_timestamp = self.activities[0][0]
         sessions = []
-        print(self.activities)
         for index, activity in enumerate(self.activities):
             timestamp = activity[0]
 
