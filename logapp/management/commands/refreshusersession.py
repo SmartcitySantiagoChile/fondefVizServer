@@ -17,6 +17,7 @@ class User(object):
         self.min_session_duration = timezone.timedelta(days=100)
         self.avg_session_duration = timezone.timedelta()
         self.activities = []
+        self.total_session_duration = timezone.timedelta()
 
     def add_activity(self, activity):
         self.activities.append(activity)
@@ -27,14 +28,14 @@ class User(object):
         start_session = self.activities[0][0]
         previous_timestamp = self.activities[0][0]
         sessions = []
-
+        print(self.activities)
         for index, activity in enumerate(self.activities):
             timestamp = activity[0]
 
             diff_in_secs = (timestamp - previous_timestamp).total_seconds()
             if diff_in_secs > time_windows_in_sec or index == len(self.activities) - 1:
                 duration = previous_timestamp.replace(microsecond=0) - start_session.replace(microsecond=0)
-
+                self.total_session_duration += duration
                 self.command_instance.stdout.write(
                     self.command_instance.style.SUCCESS(
                         '{0} {1} {2} {3}'.format(self.user_obj, start_session, previous_timestamp, duration)))
@@ -62,7 +63,8 @@ class User(object):
                                         last_session_timestamp=self.last_session,
                                         max_session_duration=self.max_session_duration,
                                         min_session_duration=self.min_session_duration,
-                                        avg_session_duration=self.avg_session_duration)
+                                        avg_session_duration=self.avg_session_duration,
+                                        total_session_duration=self.total_session_duration)
 
 
 def valid_date(s):

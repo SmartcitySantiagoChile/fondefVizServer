@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -30,3 +32,4 @@ class UserSessionStats(models.Model):
     max_session_duration = models.DurationField(null=False)
     min_session_duration = models.DurationField(null=False)
     avg_session_duration = models.DurationField(null=False)
+    total_session_duration = models.DurationField(null=False, default=timedelta())
