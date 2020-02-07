@@ -45,6 +45,7 @@ DJANGO_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres'
 )
 
 THIRD_PARTY_APPS = (
@@ -221,6 +222,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Elastic-Search settings
 ES_CLIENT = Elasticsearch("{0}:{1}".format(config('ELASTICSEARCH_HOST'), config('ELASTICSEARCH_PORT')), timeout=600)

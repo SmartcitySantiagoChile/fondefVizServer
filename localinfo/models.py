@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template.defaultfilters import truncatechars
+from django.utils.html import strip_tags
 
 
 class TimePeriod(models.Model):
@@ -146,6 +148,45 @@ class CalendarInfo(models.Model):
     class Meta:
         verbose_name = "información de calendario"
         verbose_name_plural = "información de calendario"
+
+
+class FAQ(models.Model):
+    """Frequently asked questions"""
+
+    question = models.TextField("Pregunta")
+    answer = models.TextField("Respuesta")
+
+    ROUTE = 'route'
+    SPEED = 'speed'
+    TRIP = 'trip'
+    PROFILE = 'profile'
+    PAYMENT_FACTOR = 'paymentfactor'
+    ADMIN = 'administration'
+    STORAGE = 'storage'
+    GLOBAL = 'global'
+    GENERAL = 'general'
+    FILE_TYPE_CHOICES = (
+        (GENERAL, "General"),
+        (ADMIN, "Administración"),
+        (STORAGE, "Almacenamiento"),
+        (PAYMENT_FACTOR, 'Validaciones'),
+        (PROFILE, 'Perfil de carga'),
+        (SPEED, 'Velocidades'),
+        (ROUTE, 'Rutas'),
+        (TRIP, 'Viajes'),
+        (GLOBAL, 'Estadísticas Globales')
+    )
+    category = models.CharField('Categoría', max_length=30, null=False, default=GENERAL, choices=FILE_TYPE_CHOICES)
+
+    class Meta:
+            verbose_name = "pregunta frecuente"
+            verbose_name_plural = "preguntas frecuentes"
+
+    def short_answer(self):
+        text_safe = strip_tags(self.answer.encode('utf-8'))
+        return truncatechars(text_safe, 200)
+
+    short_answer.short_description = 'Respuesta'
 
 
 class CustomRoute(models.Model):

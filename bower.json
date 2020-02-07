@@ -25,6 +25,8 @@
     "bootstrap-colorpicker": "^2.5.1",
     "BeautifyMarker": "https://github.com/marslan390/BeautifyMarker.git",
     "Leaflet.Sync": "leaflet.sync#^0.2.2",
-    "bootstrap-datepicker": "^1.9.0"
+    "bootstrap-datepicker": "^1.9.0",
+    "trix": "https://github.com/basecamp/trix.git",
+    "faq-template": "https://github.com/CodyHouse/faq-template.git",
   }
 }
