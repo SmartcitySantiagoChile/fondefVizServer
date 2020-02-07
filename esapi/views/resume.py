@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from datetime import datetime
 
@@ -142,9 +142,9 @@ class GlobalData(PermissionRequiredMixin, View):
         answer = []
         for hit in es_query.scan():
             hit_row = hit.to_dict()
-            row = list(range(len(hit_row.keys())))
-            for key, value in hit_row.iteritems():
-                if key not in keys.keys():
+            row = list(range(len(list(hit_row.keys()))))
+            for key, value in hit_row.items():
+                if key not in list(keys.keys()):
                     keys[key] = len(header)
                     header.append(DICTIONARY[key]['name'])
                     chart_names.append(DICTIONARY[key]['chartName'])

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 
@@ -24,7 +24,7 @@ class SpeedDataWithShapeAndRoute(object):
     def get_date_range(self):
         for query_filter in self.es_query['query']['bool']['filter']:
             if 'range' in query_filter:
-                field = query_filter['range'].keys()[0]
+                field = list(query_filter['range'].keys())[0]
                 gte = query_filter['range'][field]["gte"].replace("||/d", "")
                 lte = query_filter['range'][field]["lte"].replace("||/d", "")
                 return gte, lte

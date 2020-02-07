@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import argparse
 import json
@@ -80,7 +80,7 @@ def main():
     csv_file = args.file
 
     query = json.loads(query.replace('\'', '"'))
-    print('downloading data to file {1} with downloader \'{1}\''.format(csv_file, downloader))
+    print(('downloading data to file {1} with downloader \'{1}\''.format(csv_file, downloader)))
     download_file(es, query, downloader, csv_file)
 
 

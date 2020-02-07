@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.test import TestCase, override_settings
 from mock import mock
@@ -7,7 +7,7 @@ from elasticsearch_dsl import Search
 
 from esapi.helper.basehelper import ElasticSearchHelper
 
-import __builtin__
+import builtins
 
 
 class IndexNameTest(TestCase):

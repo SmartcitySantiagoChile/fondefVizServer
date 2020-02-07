@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import defaultdict
 
@@ -45,7 +45,7 @@ class LoadProfileByStopData(View):
 
         for hit in es_query.scan():
 
-            if len(info.keys()) == 0:
+            if len(list(info.keys())) == 0:
                 info['authorityStopCode'] = hit.authStopCode
                 info['userStopCode'] = hit.userStopCode
                 info['name'] = hit.userStopName
@@ -67,7 +67,7 @@ class LoadProfileByStopData(View):
                 'expandedLanding': self.clean_data(hit.expandedAlighting)
             }
 
-        if len(info.keys()) == 0:
+        if len(list(info.keys())) == 0:
             raise ESQueryResultEmpty()
 
         result = {
@@ -193,7 +193,7 @@ class LoadProfileByExpeditionData(View):
             ]
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 
-        if len(trips.keys()) == 0:
+        if len(list(trips.keys())) == 0:
             raise ESQueryResultEmpty()
 
         return trips, bus_stations, expedition_not_valid_number
@@ -238,7 +238,7 @@ class LoadProfileByExpeditionData(View):
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
-                                                                                len(response['trips'].keys())). \
+                                                                                len(list(response['trips'].keys()))). \
                             get_status_response()
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(dates, day_type,
@@ -311,7 +311,7 @@ class LoadProfileByTrajectoryData(View):
             ]
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 
-        if len(trips.keys()) == 0:
+        if len(list(trips.keys())) == 0:
             raise ESQueryResultEmpty()
 
         return trips, bus_stations, expedition_not_valid_number

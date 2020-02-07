@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.shortcuts import render
 from django.views.generic import View
@@ -169,7 +169,7 @@ class LatestJobChanges(View):
             uploaderjobexecution__status=UploaderJobExecution.RUNNING) | Q(
             uploaderjobexecution__wasDeletedAt__gte=lower_time_bound))
 
-        filter_list = map(lambda x: x.fileName, files)
+        filter_list = [x.fileName for x in files]
         doc_number_by_file = FileManager().get_document_number_by_file_from_elasticsearch(filter_list)
 
         changes = []

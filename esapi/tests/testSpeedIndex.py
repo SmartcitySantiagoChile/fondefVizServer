@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.test import TestCase
 from django.urls import reverse
@@ -16,7 +16,7 @@ from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangePara
 from localinfo.models import Operator
 
 import json
-import __builtin__
+import builtins
 
 
 class ESSpeedIndexTest(TestCase):

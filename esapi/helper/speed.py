@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import defaultdict
 from functools import reduce
@@ -111,7 +111,7 @@ class ESSpeedHelper(ElasticSearchHelper):
                     -1 if section.time.value == 0 else 3.6 * section.distance.value / section.time.value,
                     section.n_obs.value, section.distance.value, section.time.value)
 
-        if len(d_data.keys()) == 0:
+        if len(list(d_data.keys())) == 0:
             raise ESQueryResultEmpty()
 
         return d_data

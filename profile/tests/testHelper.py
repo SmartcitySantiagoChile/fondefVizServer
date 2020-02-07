@@ -27,7 +27,7 @@ class TestHelper():
 
     def printJson(self, jsonResponse):
 
-        print json.dumps(jsonResponse,
+        print(json.dumps(jsonResponse,
                 sort_keys=True,
                 indent=4,
-                separators=(',', ': '))
+                separators=(',', ': ')))

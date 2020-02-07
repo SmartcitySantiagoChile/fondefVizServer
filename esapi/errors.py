@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 
 def format_date(date):
@@ -140,7 +140,7 @@ class ESQueryThereIsMoreThanOneOperationProgram(FondefVizError):
     """ It raises when user ask for a route stop list with a date that it does not have stop list declared before """
 
     def __init__(self, start_date, end_date, days_between):
-        days_between = "".join(map(lambda x: '<li>{0}</li>'.format(format_date(x)), days_between))
+        days_between = "".join(['<li>{0}</li>'.format(format_date(x)) for x in days_between])
         title = 'Existe más de un programa de operación entre {0} y {1}<br />'.format(
             format_date(start_date), format_date(end_date))
         first_paragraph = 'Programas de operación presentes en el período consultado: <br /><ul>{0}</ul>'.format(

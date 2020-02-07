@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import os
 import uuid
@@ -129,7 +129,7 @@ class CSVHelper:
 
         for query_filter in filters:
             if 'term' in query_filter:
-                field = query_filter['term'].keys()[0]
+                field = list(query_filter['term'].keys())[0]
                 value = query_filter['term'][field]
                 field = field.split('.')[0]
 
@@ -142,7 +142,7 @@ class CSVHelper:
                 # ignore operator filter
                 if 'operator' in query_filter['terms']:
                     continue
-                field = query_filter['terms'].keys()[0]
+                field = list(query_filter['terms'].keys())[0]
                 values = query_filter['terms'][field]
 
                 if field in ['dayType', 'tipodia']:
@@ -164,7 +164,7 @@ class CSVHelper:
                 }
                 formatted_filters.append(attr_filter)
             elif 'range' in query_filter:
-                field = query_filter['range'].keys()[0]
+                field = list(query_filter['range'].keys())[0]
                 gte = query_filter['range'][field]["gte"].replace("||/d", "")
                 lte = query_filter['range'][field]["lte"].replace("||/d", "")
 
@@ -191,8 +191,8 @@ class CSVHelper:
                 formatted_filters.append(attr_filter)
             elif 'must' in query_filter:
                 nested_filters = query_filter['must'][0]['term']
-                raw_field = nested_filters.keys()[0]
-                field = nested_filters.keys()[0].split('.')[0]
+                raw_field = list(nested_filters.keys())[0]
+                field = list(nested_filters.keys())[0].split('.')[0]
                 attr_filter = {
                     'field': self.translator[field],
                     'value': nested_filters[raw_field]
@@ -260,11 +260,11 @@ class CSVHelper:
 
     def get_header(self):
         """ get header of csv file """
-        return map(lambda el: el['csv_name'], self.get_column_dict())
+        return [el['csv_name'] for el in self.get_column_dict()]
 
     def get_fields(self):
         """ get fields retrieved by query """
-        return map(lambda el: el['es_name'], self.get_column_dict())
+        return [el['es_name'] for el in self.get_column_dict()]
 
     def get_file_description(self):
         """ description to add to readme file """

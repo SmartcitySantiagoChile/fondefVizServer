@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import defaultdict
 
@@ -31,8 +31,8 @@ class ResumeData(PermissionRequiredMixin, View):
         dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
-        origin_zones = map(lambda x: int(x), params.getlist('origin[]', []))
-        destination_zones = map(lambda x: int(x), params.getlist('destination[]', []))
+        origin_zones = [int(x) for x in params.getlist('origin[]', [])]
+        destination_zones = [int(x) for x in params.getlist('destination[]', [])]
 
         es_helper = ESTripHelper()
 

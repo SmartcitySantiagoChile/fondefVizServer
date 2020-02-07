@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.test import TestCase
 from django.urls import reverse
@@ -15,7 +15,7 @@ from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangePara
 from localinfo.models import Operator
 
 import json
-import __builtin__
+import builtins
 
 
 class ESProfileIndexTest(TestCase):
@@ -26,9 +26,9 @@ class ESProfileIndexTest(TestCase):
     def test_ask_for_base_params(self):
         result = self.instance.get_base_params()
 
-        self.assertIn('periods', result.keys())
-        self.assertIn('day_types', result.keys())
-        self.assertIn('days', result.keys())
+        self.assertIn('periods', list(result.keys()))
+        self.assertIn('day_types', list(result.keys()))
+        self.assertIn('days', list(result.keys()))
 
         for key in result:
             self.assertIsInstance(result[key], Search)
@@ -60,9 +60,9 @@ class ESProfileIndexTest(TestCase):
         term = ''
         result = self.instance.get_matched_stop_list(term)
 
-        self.assertIn('1', result.keys())
-        self.assertIn('2', result.keys())
-        self.assertIn('3', result.keys())
+        self.assertIn('1', list(result.keys()))
+        self.assertIn('2', list(result.keys()))
+        self.assertIn('3', list(result.keys()))
         for key in result:
             self.assertIsInstance(result[key], list)
 

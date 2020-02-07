@@ -3,7 +3,7 @@ from django.test import TestCase
 # python stuf
 import json
 
-from testHelper import TestHelper
+from .testHelper import TestHelper
 # Create your tests here.
 
 class TimePerStreetTestCase(TestCase):

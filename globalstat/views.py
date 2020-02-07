@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.shortcuts import render
 from django.views.generic import View
@@ -15,7 +15,7 @@ class ResumeHTML(PermissionRequiredMixin, View):
         template = 'globalstat/resume.html'
 
         attributes = []
-        for key, value in DICTIONARY.items():
+        for key, value in list(DICTIONARY.items()):
             if key == 'dayType':
                 continue
             attributes.append({
@@ -41,7 +41,7 @@ class DetailHTML(PermissionRequiredMixin, View):
         context = {}
 
         attributes = []
-        for key, value in DICTIONARY.items():
+        for key, value in list(DICTIONARY.items()):
             if key == 'dayType':
                 continue
             attributes.append({

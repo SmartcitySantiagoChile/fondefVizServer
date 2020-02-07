@@ -22,7 +22,7 @@ class TestHelper(TestCase):
     def check_html(self, url):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
-        print(response.content)
+        print((response.content))
         self.html
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import defaultdict
 
@@ -9,6 +9,7 @@ from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, 
     ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 from localinfo.helper import get_operator_list_for_select_input
+from functools import reduce
 
 
 class ESODByRouteHelper(ElasticSearchHelper):
