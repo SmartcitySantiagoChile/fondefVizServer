@@ -127,7 +127,8 @@ $(document).ready(function () {
                 positiveSaturationRateAfter: [],
                 negativeSaturationRateAfter: [],
                 averageSaturationRateBefore: [],
-                averageSaturationRateAfter: []
+                averageSaturationRateAfter: [],
+                tripsCount: []
             };
 
             for (var i = 0; i < xAxisLength; i++) {
@@ -140,6 +141,7 @@ $(document).ready(function () {
                 _yAxisData.negativeSaturationRateAfter.push(0);
                 _yAxisData.averageSaturationRateBefore.push(0);
                 _yAxisData.averageSaturationRateAfter.push(0);
+                _yAxisData.tripsCount.push(0);
 
                 counterByRoute.push(0);
                 capacityByRoute.push(0);
@@ -158,18 +160,19 @@ $(document).ready(function () {
                 _yAxisData.expandedGetIn[key] += trip.expandedGetIn;
                 _yAxisData.saturationRateBefore[key] += trip.loadProfile;
                 _yAxisData.saturationDiff[key] += trip.expandedGetIn - trip.expandedLanding;
-
+                _yAxisData.tripsCount[key] += 1;
                 counterByRoute[key] += 1;
                 capacityByRoute[key] += trip.busCapacity;
             }
 
+            console.log(_yAxisData);
             // it calculates average
             for (var routeIndex = 0; routeIndex < xAxisLength; routeIndex++) {
                 var percentageAfter = 0;
 
                 if (counterByRoute[routeIndex] !== 0) {
-                    _yAxisData.expandedLanding[routeIndex] = _yAxisData.expandedLanding[routeIndex] / counterByRoute[routeIndex];
-                    _yAxisData.expandedGetIn[routeIndex] = _yAxisData.expandedGetIn[routeIndex] / counterByRoute[routeIndex];
+                    _yAxisData.expandedLanding[routeIndex] = Math.round(_yAxisData.expandedLanding[routeIndex]);
+                    _yAxisData.expandedGetIn[routeIndex] = Math.round(_yAxisData.expandedGetIn[routeIndex]);
 
                     _yAxisData.averageSaturationRateBefore[routeIndex] = _yAxisData.saturationRateBefore[routeIndex] / counterByRoute[routeIndex];
                     _yAxisData.averageSaturationRateAfter[routeIndex] = (_yAxisData.saturationRateBefore[routeIndex] + _yAxisData.saturationDiff[routeIndex]) / counterByRoute[routeIndex];
@@ -387,7 +390,7 @@ $(document).ready(function () {
             var xAxisData = _dataManager.xAxisData();
 
             // get out, get in, load profile, percentage ocupation
-            var yAxisDataName = ["Subidas promedio", "Bajadas promedio", "% Ocupación promedio a la llegada"];
+            var yAxisDataName = ["Suma de subidas", "Suma de bajadas", "% Ocupación promedio a la llegada"];
             var yChartType = ["bar", "bar", "bar", "bar", "bar"];
             var yStack = [null, null, "stack", "stack", "stack"];
             var xGridIndex = [1, 1, 0, 0, 0];
@@ -559,10 +562,12 @@ $(document).ready(function () {
                             params.sort(function (a, b) {
                                 return a.seriesIndex > b.seriesIndex
                             });
+                            console.log(params);
                             var xValue = params[0].dataIndex;
                             var head = xAxisData[xValue];
                             var info = [];
                             info.push(head);
+                            info.push(`Expediciones utilizadas: ${yAxisData.tripsCount[xValue]}`);
                             var ball = "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:{}'></span>";
                             for (var i = 0; i < params.length - 1; i++) {
                                 var el = params[i];
@@ -581,7 +586,7 @@ $(document).ready(function () {
                                     value = sign + el.value.toFixed(1) + "%";
                                 }
                                 var colorBall = ball.replace("{}", el.color);
-                                if (serieIndex !== 4){
+                                if (serieIndex !== 4) {
                                     info.push(colorBall + name + ": " + value);
                                 }
                             }
@@ -677,7 +682,7 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data, status) {
-            if(status){
+            if (status) {
                 processData(data, app);
             }
             app.hideLoadingAnimationCharts();
