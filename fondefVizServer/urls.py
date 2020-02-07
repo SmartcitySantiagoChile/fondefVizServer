@@ -37,8 +37,8 @@ urlpatterns = [
     url(r'^globalstat/', include('globalstat.urls')),
     url(r'^esapi/', include('esapi.urls')),
     url(r'^user/', include('webuser.urls')),
-    url(r'^user/login/$', auth_views.login, name='login'),
-    url(r'^user/logout/$', auth_views.logout, name='logout'),
+    url(r'^user/login/$', auth_views.LoginView.as_view(), name='login'),
+    url(r'^user/logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^bip/', include('bip.urls')),
     url(r'^faqUpload/$', login_required(FaqImgUploader.as_view()), name='faqUpload'),
     url(r'^faq/$', FaqHTML.as_view(), name='faq'),
@@ -49,4 +49,4 @@ if settings.DEBUG:
 
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
+    #urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]

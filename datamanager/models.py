@@ -116,7 +116,7 @@ class JobExecution(models.Model):
 
 class UploaderJobExecution(JobExecution):
     """ record about async execution for upload data to elasticsearch """
-    file = models.ForeignKey(LoadFile)
+    file = models.ForeignKey(LoadFile, on_delete=models.CASCADE)
     # time when uploaded data was deleted
     wasDeletedAt = models.DateTimeField('Eliminado', null=True)
 
@@ -142,7 +142,7 @@ class ExporterJobExecution(JobExecution):
     # elasticsearch query used to generate file rows
     query = models.TextField('Consulta a elasticsearch', null=False)
     # user who creates job
-    user = models.ForeignKey(User, verbose_name='Usuario')
+    user = models.ForeignKey(User, verbose_name='Usuario',  on_delete=models.CASCADE)
     # True if it was seen for first time
     seen = models.BooleanField(default=False)
     # indicate which data has been downloaded
