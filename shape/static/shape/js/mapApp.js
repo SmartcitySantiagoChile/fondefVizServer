@@ -66,6 +66,8 @@ $(document).ready(function () {
                             return;
                         }
                     }
+                    // update map
+                    // clean featureGroup
                     layers[layerId].clearLayers();
                     var layer = layers[layerId];
                     app.addPolyline(layer, data.points, {
@@ -73,9 +75,6 @@ $(document).ready(function () {
                         route: route
                     });
 
-                    addLayers();
-                    // update map
-                    // clean featureGroup
 
                 });
             });
