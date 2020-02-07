@@ -111,6 +111,11 @@ function FilterManager(opts) {
         $METRIC_FILTER.val(localMetricFilter);
         $METRIC_FILTER.trigger("change");
     }
+    var localMetricFilter = window.localStorage.getItem("metricFilter");
+    if (localMetricFilter !== null) {
+        $METRIC_FILTER.val(localMetricFilter);
+        $METRIC_FILTER.trigger("change");
+    }
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
@@ -146,7 +151,6 @@ function FilterManager(opts) {
     /* It saves last parameters sent to server */
     var paramsBackup = {};
 
-    if ($STOP_FILTER.length) {
         $STOP_FILTER.select2({
             ajax: {
                 delay: 500, // milliseconds
@@ -171,13 +175,18 @@ function FilterManager(opts) {
                 }
             }
         });
-        var localStopFilter = window.localStorage.getItem("stopFilter");
-        $STOP_FILTER.val(localStopFilter);
+
+        var localStopFilter = window.localStorage.getItem(urlKey + "stopFilter");
+        let option = new Option(localStopFilter, localStopFilter, false,false)
+        $STOP_FILTER.append(option);
         $STOP_FILTER.trigger("change");
         $STOP_FILTER.change(function () {
-            window.localStorage.setItem("stopFilter", $STOP_FILTER.val());
+            window.localStorage.setItem(urlKey + "stopFilter", $STOP_FILTER.val());
+            console.log($STOP_FILTER);
+
         });
-    }
+
+
 
     if ($MULTI_STOP_FILTER.length) {
         $MULTI_STOP_FILTER.select2({
@@ -208,7 +217,7 @@ function FilterManager(opts) {
         $MULTI_STOP_FILTER.val(localMultiStopFilter);
         $MULTI_STOP_FILTER.trigger("change");
         $MULTI_STOP_FILTER.change(function () {
-            window.localStorage.setItem("multiStopFilter", $MULTI_STOP_FILTER.val());
+            window.localStorage.setItem(urlKey + "multiStopFilter", $MULTI_STOP_FILTER.val());
         });
     }
 
