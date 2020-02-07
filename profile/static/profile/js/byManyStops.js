@@ -142,7 +142,6 @@ $(document).ready(function () {
                 _yAxisData.positiveSaturationRateAfter[stopIndex] = incValue;
                 _yAxisData.negativeSaturationRateAfter[stopIndex] = decValue;
             }
-            console.log(_yAxisData);
         };
 
         this.getAttrGroup = function (attrName, formatFunc) {
@@ -433,7 +432,6 @@ $(document).ready(function () {
         var dataManager = new DataManager();
 
         for (let stop in dataSource) {
-            console.log(dataSource[stop]);
             let name = dataSource[stop].userStopName.hits['hits'][0]['_source']['userStopName'];
             let userStopCode = dataSource[stop].userStopCode.hits['hits'][0]['_source']['userStopCode'];
             let authorityStopCode = dataSource[stop].key;
