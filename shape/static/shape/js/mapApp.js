@@ -61,18 +61,22 @@ $(document).ready(function () {
                 $.getJSON(Urls["shape:route"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
-                        layers[layerId].clearLayers();
-                        return;
+                        if (!("points" in data)) {
+                            layers[layerId].clearLayers();
+                            return;
+                        }
                     }
-
-                    // update map
-                    // clean featureGroup
                     layers[layerId].clearLayers();
                     var layer = layers[layerId];
                     app.addPolyline(layer, data.points, {
                         stops: data.stops,
                         route: route
                     });
+
+                    addLayers();
+                    // update map
+                    // clean featureGroup
+
                 });
             });
         };
