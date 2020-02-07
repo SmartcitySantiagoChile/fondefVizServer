@@ -1,0 +1,162 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+  {{ media }}
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}
+  {{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form
+{% endblock %}
+
+{% block content %}
+<div id="content-main col-md-12 col-sm-12 col-xs-12">
+  <div class="x_panel">
+    <div class="x_title">
+      <h2></h2>
+      {% block object-tools %}
+        {% if change %}
+          {% if not is_popup %}
+            <ul class="nav navbar-right panel_toolbox">
+              {% block object-tools-items %}
+              <li>
+                {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+                <a href="{% add_preserved_filters history_url %}" class="historylink" style="color:#2A3F54"><i class="fa fa-history"></i> {% trans "History" %}</a>
+              </li>
+              {% if has_absolute_url %}
+                <li><a href="{{ absolute_url }}" class="viewsitelink">{% trans "View on site" %}</a></li>
+              {% endif %}
+              {% endblock %}
+            </ul>
+          {% endif %}
+        {% endif %}
+      {% endblock %}
+      <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+      <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>
+      {% csrf_token %}
+      {% block form_top %}{% endblock %}
+      <div>
+        {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
+        {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
+        {% if save_on_top %}{% block submit_buttons_top %}{% submit_row %}{% endblock %}{% endif %}
+        {% if errors %}
+          <div class="alert alert-danger"><i class="fa fa-warning fa-lg fa-2x"></i> 
+          {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+          </div>
+          {{ adminform.form.non_field_errors }}
+        {% endif %}
+
+        {% block field_sets %}
+          {% for fieldset in adminform %}
+            {% include "admin/includes/fieldset.html" %}
+          {% endfor %}
+        {% endblock %}
+
+        {% block after_field_sets %}{% endblock %}
+
+        {% block inline_field_sets %}
+          {% for inline_admin_formset in inline_admin_formsets %}
+            {% include inline_admin_formset.opts.template %}
+          {% endfor %}
+        {% endblock %}
+
+        {% block after_related_objects %}{% endblock %}
+
+        {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+
+        {% block admin_change_form_document_ready %}
+    <script type="text/javascript"
+            id="django-admin-form-add-constants"
+            src="{% static 'admin/js/change_form.js' %}"
+            {% if adminform and add %}
+                data-model-name="{{ opts.model_name }}"
+            {% endif %}>
+    </script>
+
+        {% endblock %}
+ 
+{# JavaScript for prepopulated fields #}
+{% prepopulated_fields_js %}
+ <script>
+    var HOST = "{% url 'faqUpload' %}";
+
+addEventListener("trix-attachment-add", function(event) {
+    if (event.attachment.file) {
+        uploadFileAttachment(event.attachment);
+    }
+});
+
+function uploadFileAttachment(attachment) {
+    uploadFile(attachment.file, setProgress, setAttributes);
+
+    function setProgress(progress) {
+        attachment.setUploadProgress(progress);
+    }
+
+    function setAttributes(attributes) {
+        attachment.setAttributes(attributes);
+    }
+}
+
+function uploadFile(file, progressCallback, successCallback) {
+    var key = createStorageKey(file);
+    var formData = createFormData(key, file);
+    var xhr = new XMLHttpRequest();
+
+xhr.open("POST", HOST, true);
+
+xhr.upload.addEventListener("progress", function(event) {
+    var progress = event.loaded / event.total * 100;
+    progressCallback(progress);
+});
+
+xhr.addEventListener("load", function(event) {
+    if (xhr.status === 200) {
+        console.log(xhr);
+        let response = JSON.parse(xhr.response);
+        let url = window.location.origin + "/" + response["url"] + "/" + response["name"];
+        let attributes = {
+            url: url,
+            href: url + "?content-disposition=attachment"
+        };
+        successCallback(attributes);
+    } else {
+        alert("fallo");
+    }
+});
+
+xhr.send(formData)
+}
+
+function createStorageKey(file) {
+    var date = new Date();
+    var day = date.toISOString().slice(0,10);
+    var name = date.getTime() + "-" + file.name;
+    return [ "tmp", day, name ].join("/");
+}
+
+function createFormData(key, file) {
+    var data = new FormData();
+    data.append("key", key);
+    data.append("Content-Type", file.type);
+    data.append("file", file);
+return data
+}
+    </script>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

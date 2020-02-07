@@ -3,9 +3,11 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db.models import Count
+from django.contrib.postgres.search import SearchVector
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo, CustomRoute
+    CalendarInfo, CustomRoute, FAQ
 
 
 def _list_parser(list):
@@ -79,6 +81,30 @@ def get_calendar_info():
         }
         result.append(info)
     return result
+
+
+def get_all_faqs():
+    """
+    :return: all faqs
+    """
+    query = FAQ.objects.all()
+    grouped = dict()
+    for info in query:
+        grouped.setdefault(info.category, []).append(info)
+    return grouped
+
+
+def search_faq(searchText):
+    """
+    :param search:
+    :return: all faqs matched "search"
+    """
+    query = FAQ.objects.annotate(search=SearchVector('question', 'answer',  config='french_unaccent'))\
+        .filter(search=searchText)
+    grouped = dict()
+    for info in query:
+        grouped.setdefault(info.category, []).append(info)
+    return grouped
 
 
 def get_custom_routes_dict():

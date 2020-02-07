@@ -13,8 +13,6 @@
     {% data_filter data_filter True True True False True False True False False False False info_target_id="filterHelp" %}
 
     <div class="row">
-        {% panel "fa-clock-o" "Expediciones por hora de inicio" '<div id="timePeriodChart" style="height:50px;"></div>' as panel1 %}
-        {% columns 12 12 12  panel1 %}
 
         {% panel "fa-bar-chart" "Perfil de carga <small>para <strong id='expeditionNumber'>N</strong> expediciones</small>" '<div id="barChart" style="height:400px;"></div>' info_target_id="chartHelp" as panel4 %}
         {% columns 12 12 12 panel4 %}

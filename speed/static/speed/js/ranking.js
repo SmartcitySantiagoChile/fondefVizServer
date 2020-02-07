@@ -206,8 +206,10 @@ $(document).ready(function () {
 
         var app = new RankingApp();
 
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
         };
         var opts = {
             urlFilterData: Urls["esapi:rankingData"](),
