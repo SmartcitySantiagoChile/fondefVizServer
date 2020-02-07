@@ -237,9 +237,6 @@ $(document).ready(function () {
 
         var app = new ResumeApp();
         var afterCall = function (answer, status) {
-            if (answer.status) {
-                return;
-            }
             if (status) {
                 app.updateMetrics(answer.data);
             }

@@ -817,8 +817,6 @@ $(document).ready(function () {
             urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
             afterCallData: afterCall,
-            hideLoading: hideLoading
-
         };
 
         new FilterManager(opts);
