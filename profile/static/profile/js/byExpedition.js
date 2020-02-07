@@ -815,7 +815,7 @@ $(document).ready(function () {
             urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),
             urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
-            afterCallData: afterCall,
+            afterCallData: afterCall
         };
 
         new FilterManager(opts);
