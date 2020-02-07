@@ -199,8 +199,10 @@ $(document).ready(function () {
 
         var app = new MapManagerApp();
 
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
         };
         var opts = {
             urlFilterData: Urls["esapi:tripMapData"](),

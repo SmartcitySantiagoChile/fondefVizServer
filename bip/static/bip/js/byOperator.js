@@ -9,7 +9,7 @@ $(document).ready(function () {
             var header = [];
             header.push("Día");
             let operators_number = answer.operators.length;
-            for (let i = 0; i < operators_number; i++){
+            for (let i = 0; i < operators_number; i++) {
                 header.push(answer.operators[i].item);
             }
             let rows = [];
@@ -22,7 +22,7 @@ $(document).ready(function () {
                 e.operators.buckets.forEach(function (f) {
                     datesKeys[dateTime][f.key] = f.doc_count;
                 });
-                for (let i = 0; i <= operators_number; i++){
+                for (let i = 0; i <= operators_number; i++) {
                     row.push(datesKeys[dateTime][i]);
                 }
                 rows.push(row);
@@ -151,8 +151,8 @@ $(document).ready(function () {
                             show: true,
                             type: ["line", "bar"],
                             title: {
-                            line: 'Lineas',
-                            bar: 'Barras'
+                                line: 'Lineas',
+                                bar: 'Barras'
                             }
                         },
                         dataView: {
@@ -185,11 +185,10 @@ $(document).ready(function () {
         var app = new OperatorApp();
         var previousCall = function () {
         };
-        var afterCall = function (data) {
-            if (data.status) {
-                return;
+        var afterCall = function (data, status) {
+            if (status) {
+                app.updateMetrics(data);
             }
-            app.updateMetrics(data);
         };
         var opts = {
             urlFilterData: Urls["esapi:operatorBipData"](),

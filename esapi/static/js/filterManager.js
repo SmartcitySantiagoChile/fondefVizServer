@@ -344,10 +344,12 @@ function FilterManager(opts) {
                             showMessage(data.status);
                         }
                     }
+                    let status = false;
                     if (!data.status || data.status.code === 252) {
-                        if (afterCall) {
-                            afterCall(data);
-                        }
+                        status = true;
+                    }
+                    if (afterCall) {
+                        afterCall(data, status);
                     }
                     // update backup to the last request params sent to server
                     paramsBackup = params;
