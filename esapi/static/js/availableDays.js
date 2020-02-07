@@ -108,7 +108,7 @@ function loadAvailableDays(data_url) {
                 }
                 calendarYear.range = year;
                 calendarYear.top = top;
-                top += 80;
+                top += 84;
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.itemStyle = {

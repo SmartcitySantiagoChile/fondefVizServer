@@ -3,11 +3,11 @@
 /**
  * Group dates array in a range of dates array
  * */
-function groupByDates(dates){
-    let parseDate =  function(input) {
-          var parts = input.match(/(\d+)/g);
-          return new Date(parts[0], parts[1]-1, parts[2], 0); // months are 0-based
-        };
+function groupByDates(dates) {
+    let parseDate = function (input) {
+        var parts = input.match(/(\d+)/g);
+        return new Date(parts[0], parts[1] - 1, parts[2], 0); // months are 0-based
+    };
     let sortedArray = Array.from(dates).sort();
     let dateArray = [];
     sortedArray.map(e => dateArray.push(parseDate(e[0])));
@@ -18,7 +18,7 @@ function groupByDates(dates){
         let next_day = new Date(dateArray[i]);
         next_day.setDate(dateArray[i].getDate() + 1);
         const index = dateArray.findIndex(function (x) {
-            return x.toISOString().slice(0,10) === next_day.toISOString().slice(0,10);
+            return x.toISOString().slice(0, 10) === next_day.toISOString().slice(0, 10);
         });
         if (index === -1) {
             selection_by_range.push(aux_selector);
@@ -37,9 +37,9 @@ function loadRangeCalendar(data_url, calendar_opts) {
     // set variables
     var urlKey = window.location.pathname;
     var auxSelectedDates = new Set();
-    var selectedDates = new Set(JSON.parse(window.localStorage.getItem(urlKey + 'dayFilter')) || [] );
+    var selectedDates = new Set(JSON.parse(window.localStorage.getItem(urlKey + 'dayFilter')) || []);
     var temporalDeleted = new Set();
-    if (selectedDates.size === 0){
+    if (selectedDates.size === 0) {
         window.localStorage.setItem(urlKey + 'dayFilter', JSON.stringify([]));
     }
     let $dayFilter = $('#dayFilter');
@@ -54,7 +54,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
             nameMap: ["D", "L", "M", "M", "J", "V", "S"]
         },
         monthLabel: {
-            nameMap: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+            nameMap: []
         },
         top: 20,
         left: "50",
@@ -100,10 +100,10 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     // optional configuration when singleDatePicker = True
     let singleDatePicker = calendar_opts.singleDatePicker || false;
-    if (singleDatePicker){
+    if (singleDatePicker) {
         let arrayToSave = Array.from(selectedDates);
         selectedDates = new Set([arrayToSave[0]]);
-        if (arrayToSave.length > 0){
+        if (arrayToSave.length > 0) {
             $dayFilter.val(reverse_date(arrayToSave[0][0]));
         } else {
             selectedDates = new Set([]);
@@ -119,13 +119,13 @@ function loadRangeCalendar(data_url, calendar_opts) {
         $dayFilter.val(dayMessageHandler(selectedDates.size));
     }
 
-    function dayMessageHandler(days){
-        if (days === 0){
+    function dayMessageHandler(days) {
+        if (days === 0) {
             return "Ningún día seleccionado";
-        } else if (days === 1){
+        } else if (days === 1) {
             return "1 día seleccionado";
         } else {
-            return  days +" días seleccionados";
+            return days + " días seleccionados";
         }
     }
 
@@ -136,7 +136,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         reprintSelection();
         var $ul = createSelectionUl(selectedDates);
         $('#daysSelectedList').empty().append($ul);
-        if (selectedDates.size === 0){
+        if (selectedDates.size === 0) {
             auxSelectedDates = new Set([]);
         } else {
             auxSelectedDates = new Set(selectedDates);
@@ -179,12 +179,18 @@ function loadRangeCalendar(data_url, calendar_opts) {
             var newOpts = $.extend({}, opts);
             var top = 20;
             years.forEach(function (year, index) {
-                var calendarYear = $.extend({}, calendarYearTemplate);
+                let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
                 var serie = $.extend({}, serieTemplate);
-
+                if (index === 0) {
+                    calendarYear.monthLabel.nameMap = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago",
+                        "Sep", "Oct", "Nov", "Dic"];
+                }
+                if (index === years.length - 1){
+                    calendarYear.bottom = '0%'
+                }
                 calendarYear.range = year;
                 calendarYear.top = top;
-                top += 100;
+                top += 82;
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.emphasis = {
@@ -206,15 +212,15 @@ function loadRangeCalendar(data_url, calendar_opts) {
     });
 
     //reprint only dates selected
-    function reprintSelection(auxiliar = false, global = true){
+    function reprintSelection(auxiliar = false, global = true) {
         var allDates = dateRangeChart.getOption().series[0].data;
-        for (var i = 0; i < allDates.length; i++){
+        for (var i = 0; i < allDates.length; i++) {
             dateRangeChart.dispatchAction({
                 type: 'downplay',
                 dataIndex: i,
             });
         }
-        if (auxiliar){
+        if (auxiliar) {
             auxSelectedDates.forEach(function (e) {
                 dateRangeChart.dispatchAction({
                     type: 'highlight',
@@ -222,7 +228,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 });
             });
         }
-        if(global){
+        if (global) {
             selectedDates.forEach(function (e) {
                 dateRangeChart.dispatchAction({
                     type: 'highlight',
@@ -234,81 +240,81 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     //downplay all dates selected
     function deleteSelection() {
-       auxSelectedDates.forEach(function (e) {
+        auxSelectedDates.forEach(function (e) {
             dateRangeChart.dispatchAction({
                 type: 'downplay',
                 dataIndex: e[1]
             });
-       });
-       auxSelectedDates = new Set([]);
-       //update the selection date list
-       var $ul = createSelectionUl(auxSelectedDates);
-       $("#daysSelectedList").empty().append($ul);
+        });
+        auxSelectedDates = new Set([]);
+        //update the selection date list
+        var $ul = createSelectionUl(auxSelectedDates);
+        $("#daysSelectedList").empty().append($ul);
     }
 
     //add single date
-    function singleSelectionDate(selected_date, value, data_index){
+    function singleSelectionDate(selected_date, value, data_index) {
         dateRangeChart.dispatchAction({
             type: 'highlight',
             dataIndex: data_index,
         });
         let this_day_exist = false;
-        selected_date.forEach(function(e){
+        selected_date.forEach(function (e) {
             if (e[0] === value) {
-            this_day_exist = true;
-        }
+                this_day_exist = true;
+            }
         });
-        if (!this_day_exist){
+        if (!this_day_exist) {
             selected_date.add([value, data_index]);
         }
     }
 
     //delete single date
-    function singleDeleteDate(selected_date, value, data_index){
+    function singleDeleteDate(selected_date, value, data_index) {
         dateRangeChart.dispatchAction({
             type: 'downplay',
             dataIndex: data_index,
         });
 
-        selected_date.forEach(function(e){
-          if (e[0] === value) {
-            selected_date.delete(e);
-          }
+        selected_date.forEach(function (e) {
+            if (e[0] === value) {
+                selected_date.delete(e);
+            }
         });
     }
 
     //add dates range
-    function rangeSelectionDate(selected_date, range_selection){
-        range_selection.forEach(e => singleSelectionDate(selected_date, e.data[0], e.dataIndex ));
+    function rangeSelectionDate(selected_date, range_selection) {
+        range_selection.forEach(e => singleSelectionDate(selected_date, e.data[0], e.dataIndex));
         var rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
         rs_sort.sort();
         var allData = dateRangeChart.getOption().series[0].data;
-        for (var i = 0; i < allData.length; i++){
-            if (allData[i][0] > rs_sort[0] && allData[i][0] < rs_sort[1]){
+        for (var i = 0; i < allData.length; i++) {
+            if (allData[i][0] > rs_sort[0] && allData[i][0] < rs_sort[1]) {
                 singleSelectionDate(selected_date, allData[i][0], i);
             }
         }
     }
 
     //delete dates range
-    function rangeDeleteDate(selected_date, range_selection){
-        range_selection.forEach(e => singleDeleteDate(selected_date, e.data[0], e.dataIndex ));
+    function rangeDeleteDate(selected_date, range_selection) {
+        range_selection.forEach(e => singleDeleteDate(selected_date, e.data[0], e.dataIndex));
         var rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
         rs_sort.sort();
         var allData = dateRangeChart.getOption().series[0].data;
-        for (var i = 0; i < allData.length; i++){
-            if (allData[i][0] > rs_sort[0] && allData[i][0] < rs_sort[1]){
+        for (var i = 0; i < allData.length; i++) {
+            if (allData[i][0] > rs_sort[0] && allData[i][0] < rs_sort[1]) {
                 singleDeleteDate(selected_date, allData[i][0], i);
             }
         }
     }
 
     //create dates list
-    function createSelectionUl(selection_date){
+    function createSelectionUl(selection_date) {
         let selection_by_range = groupByDates(selection_date);
         const ul = $('<ul>', {class: "mylist"});
         selection_by_range.forEach(function (e) {
-            if (e.length === 1){
+            if (e.length === 1) {
                 ul.append($("<li>").append($("<a>").text(reverse_date(e[0][0]))));
             } else {
                 ul.append($("<li>").append($("<a>").text("Desde " + reverse_date(e[0][0]) + " hasta "
@@ -318,18 +324,18 @@ function loadRangeCalendar(data_url, calendar_opts) {
         return ul;
     }
 
-    function reverse_date(date){
+    function reverse_date(date) {
         return date.toString().split("-").reverse().join("-")
     }
 
 
-    function downplay_date(params){
+    function downplay_date(params) {
         dateRangeChart.dispatchAction({
-                type: 'downplay',
-                seriesIndex: params.seriesIndex,
-                seriesName: params.seriesName,
-                dataIndex: params.dataIndex,
-            });
+            type: 'downplay',
+            seriesIndex: params.seriesIndex,
+            seriesName: params.seriesName,
+            dataIndex: params.dataIndex,
+        });
     }
 
     //filter selection
@@ -337,7 +343,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
     var deletedRangeDate = [];
 
     //over event
-    dateRangeChart.on("mouseover", function(params){
+    dateRangeChart.on("mouseover", function (params) {
         dateRangeChart.dispatchAction({
             type: 'highlight',
             seriesIndex: params.seriesIndex,
@@ -345,11 +351,11 @@ function loadRangeCalendar(data_url, calendar_opts) {
             dataIndex: params.dataIndex,
         });
 
-        if (selectedRangeDate.length !== 0){
+        if (selectedRangeDate.length !== 0) {
             let allData = dateRangeChart.getOption().series[0].data;
             let rs_sort = [selectedRangeDate[0].data[0], params.data[0]].sort();
-            for (let i = 0; i < allData.length; i++){
-                if (allData[i][0] >= rs_sort[0] && allData[i][0] <= rs_sort[1]){
+            for (let i = 0; i < allData.length; i++) {
+                if (allData[i][0] >= rs_sort[0] && allData[i][0] <= rs_sort[1]) {
                     dateRangeChart.dispatchAction({
                         type: 'highlight',
                         dataIndex: i,
@@ -362,25 +368,25 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 }
             }
             auxSelectedDates.forEach(function (e) {
-            dateRangeChart.dispatchAction({
+                dateRangeChart.dispatchAction({
                     type: 'highlight',
                     dataIndex: e[1],
                 });
             });
         }
 
-        if (deletedRangeDate.length !== 0){
+        if (deletedRangeDate.length !== 0) {
             let allData = dateRangeChart.getOption().series[0].data;
             let rs_sort = [deletedRangeDate[0].data[0], params.data[0]].sort();
             temporalDeleted = new Set([]);
             auxSelectedDates.forEach(function (e) {
-            dateRangeChart.dispatchAction({
+                dateRangeChart.dispatchAction({
                     type: 'highlight',
                     dataIndex: e[1],
                 });
             });
-            for (let i = 0; i < allData.length; i++){
-                if (allData[i][0] >= rs_sort[0] && allData[i][0] <= rs_sort[1]){
+            for (let i = 0; i < allData.length; i++) {
+                if (allData[i][0] >= rs_sort[0] && allData[i][0] <= rs_sort[1]) {
                     temporalDeleted.add([[allData[i][0]], i]);
                     dateRangeChart.dispatchAction({
                         type: 'downplay',
@@ -392,17 +398,17 @@ function loadRangeCalendar(data_url, calendar_opts) {
     });
 
     //out event
-    dateRangeChart.on("mouseout", function(params){
+    dateRangeChart.on("mouseout", function (params) {
         var is_date = false;
-        auxSelectedDates.forEach(function(e){
-          if (e[0] === params.data[0]) {
-            is_date = true;
-          }
+        auxSelectedDates.forEach(function (e) {
+            if (e[0] === params.data[0]) {
+                is_date = true;
+            }
         });
-        selectedRangeDate.forEach(function(e){
-          if (e.data[0] === params.data[0]) {
-            is_date = true;
-          }
+        selectedRangeDate.forEach(function (e) {
+            if (e.data[0] === params.data[0]) {
+                is_date = true;
+            }
         });
         if (!is_date) {
             dateRangeChart.dispatchAction({
@@ -417,28 +423,28 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     //click event
     dateRangeChart.on('click', function (params) {
-        if (singleDatePicker){
+        if (singleDatePicker) {
             deleteSelection();
         }
-        if ($("#option1").is(":checked")){
+        if ($("#option1").is(":checked")) {
             selectedRangeDate = [];
             deletedRangeDate = [];
             singleSelectionDate(auxSelectedDates, params.data[0], params.dataIndex);
-        } else if ($("#option2").is(":checked")){
+        } else if ($("#option2").is(":checked")) {
             selectedRangeDate = [];
             deletedRangeDate = [];
             singleDeleteDate(auxSelectedDates, params.data[0], params.dataIndex);
-        } else if ($("#option3").is(":checked")){
+        } else if ($("#option3").is(":checked")) {
             deletedRangeDate = [];
             selectedRangeDate.push(params);
-            if (selectedRangeDate.length  === 2) {
+            if (selectedRangeDate.length === 2) {
                 rangeSelectionDate(auxSelectedDates, selectedRangeDate);
                 selectedRangeDate = [];
             }
-        } else if ($("#option4").is(":checked")){
+        } else if ($("#option4").is(":checked")) {
             selectedRangeDate = [];
             deletedRangeDate.push(params);
-            if (deletedRangeDate.length  === 2) {
+            if (deletedRangeDate.length === 2) {
                 rangeDeleteDate(auxSelectedDates, deletedRangeDate);
                 deletedRangeDate = [];
             }
@@ -465,12 +471,12 @@ function loadRangeCalendar(data_url, calendar_opts) {
             $('#dayFilter').popover('disable');
         }
 
-        if(!singleDatePicker){
+        if (!singleDatePicker) {
             $dayFilter.val(dayMessageHandler(datesSize));
             $dayFilter.attr("data-content", "");
             $('#popover-content').empty().append(createSelectionUl(auxSelectedDates));
         } else {
-            if (datesSize !== 0){
+            if (datesSize !== 0) {
                 $dayFilter.val(reverse_date(Array.from(auxSelectedDates)[0][0]));
             } else {
                 $dayFilter.val("Ningún día seleccionado");
@@ -485,9 +491,9 @@ function loadRangeCalendar(data_url, calendar_opts) {
     });
 
     // downplay when global out
-    dateRangeChart.on("globalout", function(params){
+    dateRangeChart.on("globalout", function (params) {
         reprintSelection(true, false);
-        if(selectedRangeDate.length !== 0){
+        if (selectedRangeDate.length !== 0) {
             downplay_date(selectedRangeDate[0]);
             selectedRangeDate = [];
         } else {
