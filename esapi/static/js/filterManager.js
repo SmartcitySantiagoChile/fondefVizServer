@@ -14,7 +14,7 @@ function FilterManager(opts) {
     /* function executed before server returns data */
     var previousCall = undefined;
     /* function executed after server returns data */
-    var afterCall = undefined
+    var afterCall = undefined;
     /* url where filter manager asks for data */
     var urlFilterData = opts.urlFilterData;
     /* url where filter manager asks for route data (operator, user route code and authority route code) */
@@ -349,8 +349,8 @@ function FilterManager(opts) {
                         status = true;
                     }
                     if (afterCall) {
-                            afterCall(data, status);
-                        }
+                        afterCall(data, status);
+                    }
                     // update backup to the last request params sent to server
                     paramsBackup = params;
                 }).always(function () {
@@ -360,8 +360,6 @@ function FilterManager(opts) {
             } else {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);
-
-
             }
         }
     });
