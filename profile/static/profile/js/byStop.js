@@ -343,7 +343,6 @@ $(document).ready(function () {
             _barChart.resize();
         };
 
-
         var _updateDatatable = function () {
             var dataset = _dataManager.getDatatableData();
             var rows = dataset.rows;
