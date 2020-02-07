@@ -52,8 +52,8 @@ class User(object):
                 start_session = timestamp
 
             previous_timestamp = timestamp
-
-        self.avg_session_duration = sum(sessions, timezone.timedelta()) / len(sessions)
+        self.total_session_duration = sum(sessions, timezone.timedelta())
+        self.avg_session_duration = self.total_session_duration / len(sessions)
         # remove microseconds
         self.avg_session_duration = self.avg_session_duration - timezone.timedelta(
             microseconds=self.avg_session_duration.microseconds)
