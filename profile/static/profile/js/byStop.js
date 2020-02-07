@@ -672,7 +672,6 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
         loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
-
         var app = new ExpeditionApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
