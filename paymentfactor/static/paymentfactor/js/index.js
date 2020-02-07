@@ -115,12 +115,14 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availablePaymentfactorDays"]());
-        loadRangeCalendar(Urls["esapi:availablePaymentfactorDays"](),{});
+        loadRangeCalendar(Urls["esapi:availablePaymentfactorDays"](), {});
 
 
         var app = new IndexApp();
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
         };
         var opts = {
             urlFilterData: Urls["esapi:paymentfactorData"](),

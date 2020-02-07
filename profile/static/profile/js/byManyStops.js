@@ -35,7 +35,7 @@ $(document).ready(function () {
             _stops.push(stop);
         };
 
-        this.getStops = function(){
+        this.getStops = function () {
             return _stops;
         };
 
@@ -117,7 +117,7 @@ $(document).ready(function () {
             for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                 var percentageAfter = 0;
                 _yAxisData.averageSaturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex];
-                _yAxisData.averageSaturationRateAfter[stopIndex] = (_yAxisData.saturationRateBefore[stopIndex] + _yAxisData.saturationDiff[stopIndex])  ;
+                _yAxisData.averageSaturationRateAfter[stopIndex] = (_yAxisData.saturationRateBefore[stopIndex] + _yAxisData.saturationDiff[stopIndex]);
                 _yAxisData.saturationRateBefore[stopIndex] = _yAxisData.saturationRateBefore[stopIndex] / capacityByStop[stopIndex] * 100;
                 percentageAfter = _yAxisData.saturationDiff[stopIndex] / capacityByStop[stopIndex] * 100;
 
@@ -369,7 +369,7 @@ $(document).ready(function () {
                                     value = sign + el.value.toFixed(1) + "%";
                                 }
                                 var colorBall = ball.replace("{}", el.color);
-                                if (serieIndex !== 4){
+                                if (serieIndex !== 4) {
                                     info.push(colorBall + name + ": " + value);
                                 }
                             }
@@ -420,7 +420,7 @@ $(document).ready(function () {
 
         var dataManager = new DataManager();
 
-        for (let stop in dataSource){
+        for (let stop in dataSource) {
             let name = dataSource[stop].userStopName.hits['hits'][0]['_source']['userStopName'];
             let userStopCode = dataSource[stop].userStopCode.hits['hits'][0]['_source']['userStopCode'];
             let authorityStopCode = dataSource[stop].key;
@@ -453,8 +453,10 @@ $(document).ready(function () {
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {
