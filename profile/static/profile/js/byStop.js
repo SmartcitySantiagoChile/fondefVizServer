@@ -245,7 +245,6 @@ $(document).ready(function () {
         var _self = this;
         var _dataManager = new DataManager();
         var _barChart = echarts.init(document.getElementById("barChart"), theme);
-        var _timePeriodChart = echarts.init(document.getElementById("timePeriodChart"), theme);
         var _datatable = $("#expeditionDetail").DataTable({
             lengthMenu: [[10, 25, 50], [10, 25, 50]],
             language: {
@@ -342,58 +341,6 @@ $(document).ready(function () {
 
         this.resizeCharts = function () {
             _barChart.resize();
-            _timePeriodChart.resize();
-        };
-
-        var _updateTimePeriodChart = function () {
-            var stopTime = _dataManager.getAttrGroup("stopTime", function (attrValue) {
-                return attrValue.substring(11, 13);
-            });
-            stopTime = stopTime.sort(function (a, b) {
-                a = parseInt(a.name);
-                b = parseInt(b.name);
-                return a - b;
-            });
-            var hours = stopTime.map(function (el) {
-                return el.name;
-            });
-            var values = stopTime.map(function (el, index) {
-                return [index, el.value];
-            });
-            var option = {
-                tooltip: {
-                    positon: "top"
-                },
-                singleAxis: [{
-                    type: "category",
-                    boundaryGap: false,
-                    data: hours,
-                    top: "10%",
-                    height: "40%",
-                    axisLabel: {
-                        interval: 2
-                    }
-                }],
-                series: [{
-                    singleAxisIndex: 0,
-                    coordinateSystem: "singleAxis",
-                    type: "scatter",
-                    data: values,
-                    symbolSize: function (dataItem) {
-                        return [10, dataItem[1] * 0.3];
-                    },
-                    tooltip: {
-                        formatter: function (params) {
-                            var value = params.value[1];
-                            var name = params.name;
-                            var timePeriod = "[" + name + ":00, " + name + ":59]";
-                            return value + " expediciones iniciadas entre " + timePeriod;
-                        }
-                    }
-                }]
-            };
-            _timePeriodChart.clear();
-            _timePeriodChart.setOption(option, {notMerge: true});
         };
 
         var _updateDatatable = function () {
@@ -634,7 +581,9 @@ $(document).ready(function () {
                                     value = sign + el.value.toFixed(1) + "%";
                                 }
                                 var colorBall = ball.replace("{}", el.color);
-                                info.push(colorBall + name + ": " + value);
+                                if (serieIndex !== 4){
+                                    info.push(colorBall + name + ": " + value);
+                                }
                             }
                             // add saturation rate after
                             var saturationRateInfo = ball.replace("{}", "#3145f7") + "Tasa ocupación promedio a la salida:" + yAxisData.saturationRateAfter[xValue].toFixed(1) + "% (" + yAxisData.averageSaturationRateAfter[xValue].toFixed(2) + ")";
@@ -663,7 +612,6 @@ $(document).ready(function () {
 
         this.updateCharts = function () {
             _updateBarChart();
-            _updateTimePeriodChart();
             _updateGlobalStats();
         };
         this.updateDatatable = function () {
@@ -672,16 +620,13 @@ $(document).ready(function () {
         this.showLoadingAnimationCharts = function () {
             var loadingText = "Cargando...";
             _barChart.showLoading(null, {text: loadingText});
-            _timePeriodChart.showLoading(null, {text: loadingText});
         };
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
-            _timePeriodChart.hideLoading();
         };
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
 
         if (dataSource.status) {
             return;
@@ -725,13 +670,16 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
         var app = new ExpeditionApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if(status){
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {

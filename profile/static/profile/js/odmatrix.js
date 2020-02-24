@@ -419,13 +419,17 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableODDays"]());
+        loadRangeCalendar(Urls["esapi:availableODDays"](), {});
+
 
         var app = new TransfersApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {

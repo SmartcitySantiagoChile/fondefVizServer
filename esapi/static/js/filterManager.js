@@ -27,6 +27,8 @@ function FilterManager(opts) {
     var dataUrlParams = opts.dataUrlParams || function () {
         return {};
     };
+    /* url where filter manager asks for multiple route data */
+    var urlMultiRouteData = opts.urlMultiRouteData;
 
     if (opts.hasOwnProperty("previousCallData")) {
         previousCall = opts.previousCallData;
@@ -38,6 +40,7 @@ function FilterManager(opts) {
     /* VARIABLE DEFINITIONS */
 
     var $DAY_FILTER = $("#dayFilter");
+    var $DATE_RANGE_MODAL = $("#dateRangeModal");
     var $STOP_FILTER = $("#stopFilter");
     var $DAY_TYPE_FILTER = $("#dayTypeFilter");
     var $PERIOD_FILTER = $("#periodFilter");
@@ -48,7 +51,8 @@ function FilterManager(opts) {
     var $HOUR_RANGE_FILTER = $("#hourRangeFilter");
     var $BOARDING_PERIOD_FILTER = $("#boardingPeriodFilter");
     var $METRIC_FILTER = $("#metricFilter");
-    var $EXCLUDE_DATE_FILTER = $("#removeDayFilter");
+    var $MULTI_STOP_FILTER = $("#multiStopFilter");
+    var $MULTI_AUTH_ROUTE_FILTER = $("#multiAuthRouteFilter");
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
@@ -59,20 +63,9 @@ function FilterManager(opts) {
     var PLACEHOLDER_USER_ROUTE = "Servicio usuario";
     var PLACEHOLDER_AUTH_ROUTE = "Servicio transantiago";
 
-    /* RETRIEVE DEFAULT VALUES */
-    optionDateRangePicker.singleDatePicker = singleDatePicker;
-    var localStartDate = window.localStorage.getItem("startDate");
-    var localEndDate = window.localStorage.getItem("endDate");
-    if (localStartDate !== null) {
-        optionDateRangePicker.startDate = moment(localStartDate);
-    }
-    if (localEndDate !== null) {
-        optionDateRangePicker.endDate = moment(localEndDate);
-    }
 
     /* ENABLE select2 library */
 
-    $DAY_FILTER.daterangepicker(optionDateRangePicker);
     $DAY_TYPE_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MINUTE_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
@@ -81,8 +74,15 @@ function FilterManager(opts) {
     $USER_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_USER_ROUTE, allowClear: Boolean($AUTH_ROUTE_FILTER.length)});
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
+    $MULTI_AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
 
+
+    let urlKey = window.location.pathname;
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
+    var localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
+    if (localDayFilter !== null) {
+        localDayFilter = JSON.parse(localDayFilter);
+    }
     var localDayTypeFilter = window.localStorage.getItem("dayTypeFilter");
     if (localDayTypeFilter !== null) {
         localDayTypeFilter = JSON.parse(localDayTypeFilter);
@@ -114,9 +114,19 @@ function FilterManager(opts) {
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
-        window.localStorage.setItem("startDate", $DAY_FILTER.data("daterangepicker").startDate.format());
-        window.localStorage.setItem("endDate", $DAY_FILTER.data("daterangepicker").endDate.format());
+        var dates_array = Array.from(auxSelectedDates);
+        window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(dates_array));
+        localDayFilter = Array.from(dates_array);
     });
+
+    if (singleDatePicker) {
+        $DAY_FILTER.parent().text("Día:").append($DAY_FILTER);
+    }
+
+    $DAY_FILTER.click(function (e) {
+        $DATE_RANGE_MODAL.modal('show');
+    });
+
     $DAY_TYPE_FILTER.change(function () {
         window.localStorage.setItem("dayTypeFilter", JSON.stringify($DAY_TYPE_FILTER.val()));
     });
@@ -169,12 +179,50 @@ function FilterManager(opts) {
         });
     }
 
-    if ($EXCLUDE_DATE_FILTER.length) {
-        $EXCLUDE_DATE_FILTER.datepicker({multidate: true, format: "dd-mm-yyyy", language: "es"});
+    if ($MULTI_STOP_FILTER.length) {
+        $MULTI_STOP_FILTER.select2({
+            ajax: {
+                delay: 500, // milliseconds
+                url: Urls["esapi:matchedStopData"](),
+                dataType: "json",
+                data: function (params) {
+                    return {
+                        term: params.term
+                    }
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.items
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+            language: {
+                inputTooShort: function () {
+                    return "Ingresar 3 o más caracteres";
+                }
+            }
+        });
+        var localMultiStopFilter = window.localStorage.getItem(urlKey + "multiStopFilter");
+        $MULTI_STOP_FILTER.val(localMultiStopFilter);
+        $MULTI_STOP_FILTER.trigger("change");
+        $MULTI_STOP_FILTER.change(function () {
+            window.localStorage.setItem("multiStopFilter", $MULTI_STOP_FILTER.val());
+        });
     }
 
     /* BUTTON ACTION */
     var getParameters = function () {
+        var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
+        dates = groupByDates(dates);
+        dates = dates.map(function (date_range) {
+            if (date_range.length === 1) {
+                return [date_range[0][0]]
+            } else {
+                return [date_range[0][0], date_range[date_range.length - 1][0]];
+            }
+        });
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
         var minutes = $MINUTE_PERIOD_FILTER.val();
@@ -182,36 +230,49 @@ function FilterManager(opts) {
         var hourPeriodTo = $HOUR_RANGE_FILTER.data("to");
         var userRoute = $USER_ROUTE_FILTER.val();
         var authRoute = $AUTH_ROUTE_FILTER.val();
+        var authRoutes = $MULTI_AUTH_ROUTE_FILTER.val();
         var stopCode = $STOP_FILTER.val();
+        var stopCodes = $MULTI_STOP_FILTER.val();
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
-        var excludeDates = $EXCLUDE_DATE_FILTER.val()===""||$EXCLUDE_DATE_FILTER.val()===undefined?[]:$EXCLUDE_DATE_FILTER.val().split(",").map(function (el) {
-            return moment(el, "DD-MM-YYYY").format();
-        });
-
         var params = dataUrlParams();
-        params.startDate = $DAY_FILTER.data("daterangepicker").startDate.format();
-        params.endDate = $DAY_FILTER.data("daterangepicker").endDate.format();
+        if (dates) {
+            params.dates = JSON.stringify(dates);
+        }
+
+        let datesSize = function () {
+            let count = 0;
+            for (let i in dates) {
+                for (let j in dates[i]) {
+                    count++;
+                }
+            }
+            return count;
+        };
 
         // check diff days
         if (minimumDateLimit !== undefined && !singleDatePicker) {
-            var diffDays = function (startDate, endDate) {
-                startDate = new Date(startDate);
-                endDate = new Date(endDate);
-                var diff = new Date(endDate - startDate);
-                var daysWindow = diff / 1000 / 60 / 60 / 24;
-                return parseInt(daysWindow);
-            };
 
-            if (diffDays(params.startDate, params.endDate) < minimumDateLimit) {
-                var status = {
-                    message: "La período consultado debe ser mayor a 2 días",
+            if (datesSize() < minimumDateLimit) {
+                let status = {
+                    message: "El período consultado debe ser mayor a 2 días",
                     title: "Advertencia",
                     type: "warning"
                 };
                 showMessage(status);
-                return;
+                return null;
+            }
+
+
+            if (!metrics) {
+                let status = {
+                    message: "Debe seleccionar alguna métrica",
+                    title: "Advertencia",
+                    type: "warning"
+                };
+                showMessage(status);
+                return null;
             }
         }
 
@@ -230,6 +291,9 @@ function FilterManager(opts) {
         if ($STOP_FILTER.length && stopCode) {
             params.stopCode = stopCode;
         }
+        if ($MULTI_STOP_FILTER.length && stopCodes) {
+            params.stopCodes = stopCodes;
+        }
         if ($HOUR_RANGE_FILTER.length) {
             params.hourPeriodFrom = hourPeriodFrom;
             params.hourPeriodTo = hourPeriodTo - 1;
@@ -246,8 +310,9 @@ function FilterManager(opts) {
         if (metrics) {
             params.metrics = metrics;
         }
-        if (excludeDates.length) {
-            params.excludeDates = excludeDates
+
+        if ($MULTI_AUTH_ROUTE_FILTER.length && authRoutes) {
+            params.authRoutes = authRoutes;
         }
 
         return params;
@@ -267,25 +332,35 @@ function FilterManager(opts) {
             }
 
             var params = getParameters();
-            $.getJSON(urlFilterData, params, function (data) {
-                if (data.status) {
-                    if (Array.isArray(data.status)) {
-                        data.status.forEach(function (message) {
-                            showMessage(message);
-                        })
-                    } else {
-                        showMessage(data.status);
+
+            if (params !== null) {
+                $.getJSON(urlFilterData, params, function (data) {
+                    if (data.status) {
+                        if (Array.isArray(data.status)) {
+                            data.status.forEach(function (message) {
+                                showMessage(message);
+                            })
+                        } else {
+                            showMessage(data.status);
+                        }
                     }
-                }
-                if (afterCall) {
-                    afterCall(data);
-                }
-                // update backup to the last request params sent to server
-                paramsBackup = params;
-            }).always(function () {
+                    let status = false;
+                    if (!data.status || data.status.code === 252) {
+                        status = true;
+                    }
+                    if (afterCall) {
+                        afterCall(data, status);
+                    }
+                    // update backup to the last request params sent to server
+                    paramsBackup = params;
+                }).always(function () {
+                    _makeAjaxCallForUpdateButton = true;
+                    button.html(previousMessage);
+                });
+            } else {
                 _makeAjaxCallForUpdateButton = true;
                 button.html(previousMessage);
-            });
+            }
         }
     });
 
@@ -333,6 +408,7 @@ function FilterManager(opts) {
         }
 
         var processRouteData = function (data) {
+            let routesDict = data.routesDict;
             data.operatorDict = data.operatorDict.map(function (el) {
                 return {
                     id: el.value,
@@ -343,7 +419,8 @@ function FilterManager(opts) {
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
                 authRouteList.sort();
                 authRouteList = authRouteList.map(function (el) {
-                    return {id: el, text: el};
+                    let dictName = ((routesDict[el]) === undefined) ? "" : ` (${routesDict[el]})`;
+                    return {id: el, text: `${el}${dictName}`};
                 });
                 $AUTH_ROUTE_FILTER.empty();
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
@@ -402,7 +479,10 @@ function FilterManager(opts) {
                 });
                 // call event to update user route filter
                 var selectedItem = localOperatorFilter !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
-                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({type: "select2:select", params: {data: selectedItem, isFirstTime: true}});
+                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
+                    type: "select2:select",
+                    params: {data: selectedItem, isFirstTime: true}
+                });
             } else {
                 var operatorId = Object.keys(data.availableRoutes)[0];
                 updateUserRouteList(operatorId, true);
@@ -430,6 +510,51 @@ function FilterManager(opts) {
             }
         });
     }
+
+    if ($MULTI_AUTH_ROUTE_FILTER.length) {
+        var localMultiAuthRouteFilter = JSON.parse(window.localStorage.getItem(urlKey + "multiAuthRouteFilter"))
+        if (localMultiAuthRouteFilter !== null) {
+            localMultiAuthRouteFilter = localMultiAuthRouteFilter.id;
+        } else {
+            localMultiAuthRouteFilter = [];
+        }
+        $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter);
+        $MULTI_AUTH_ROUTE_FILTER.trigger("change");
+        $MULTI_AUTH_ROUTE_FILTER.change(function () {
+            window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
+        });
+
+        var processMultiRouteData = function (data) {
+            let routesDict = data.routesDict;
+            data.data = data.data.map(function (el) {
+                let dictName = ((routesDict[el.item]) === undefined) ? "" : ` (${routesDict[el.item]})`;
+                return {id: el.item, text: `${el.item}${dictName}`};
+            });
+            if ($MULTI_AUTH_ROUTE_FILTER.length) {
+                $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});
+                $MULTI_AUTH_ROUTE_FILTER.on("select2:select", function (e) {
+                    if (!e.params.isFirstTime) {
+                        window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
+                    }
+                });
+                // call event to update user route filter
+                var selectedItem = localMultiAuthRouteFilter !== null ? localMultiAuthRouteFilter : $MULTI_AUTH_ROUTE_FILTER.select2("data")[0];
+                $MULTI_AUTH_ROUTE_FILTER.val(selectedItem).trigger("change").trigger({
+                    type: "select2:select",
+                    params: {data: selectedItem, isFirstTime: true}
+                });
+            }
+        };
+
+        $.getJSON(urlMultiRouteData, function (data) {
+            if (data.status) {
+                showMessage(data.status);
+            } else {
+                processMultiRouteData(data);
+            }
+        });
+    }
+
 
     if ($HOUR_RANGE_FILTER.length) {
         var periods = [

@@ -163,15 +163,21 @@ $(document).ready(function () {
         };
 
         this.drawSegment = function (route, period, section) {
-            var dateFilter = $("#dayFilter");
-            var startDate = dateFilter.data("daterangepicker").startDate.format();
-            var endDate = dateFilter.data("daterangepicker").endDate.format();
+            var urlKey = window.location.pathname;
+            var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
+            dates = groupByDates(dates);
+            dates = dates.map(function(date_range){
+                if (date_range.length === 1){
+                    return [date_range[0][0]]
+                } else {
+                    return [date_range[0][0], date_range[date_range.length - 1][0]];
+                }
+            });
             var dayType = $("#dayTypeFilter").val();
 
             var params = {
                 authRoute: route,
-                startDate: startDate,
-                endDate: endDate,
+                dates: JSON.stringify(dates),
                 period: period
             };
             if (dayType) {
@@ -196,11 +202,14 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableSpeedDays"]());
+        loadRangeCalendar(Urls["esapi:availableSpeedDays"](),{});
 
         var app = new RankingApp();
 
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
         };
         var opts = {
             urlFilterData: Urls["esapi:rankingData"](),

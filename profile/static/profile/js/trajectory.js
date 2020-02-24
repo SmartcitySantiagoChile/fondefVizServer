@@ -640,13 +640,17 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadRangeCalendar(Urls["esapi:availableProfileDays"](), {singleDatePicker: true});
+
 
         var app = new ExpeditionApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {

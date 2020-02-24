@@ -88,5 +88,15 @@
       "indexName": "paymentfactor",
       "timeStamp": "2019-08-10T19:02:10.838Z"
     }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 10,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.bip",
+      "indexName": "bip",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
   }
 ]

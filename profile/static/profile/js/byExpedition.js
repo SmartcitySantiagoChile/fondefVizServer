@@ -356,7 +356,6 @@ $(document).ready(function () {
             var yAxisData = _dataManager.yAxisData().loadProfile;
 
             var maxLoadProfile = Math.max(...yAxisData);
-
             stops.forEach(function (stop, i) {
                 var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
                 var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
@@ -800,13 +799,16 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
         var app = new ExpeditionApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status){
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {

@@ -3,8 +3,11 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db.models import Count
+from django.contrib.postgres.search import SearchVector
 
-from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission
+from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
+    CalendarInfo, CustomRoute, FAQ
 
 
 def _list_parser(list):
@@ -63,6 +66,53 @@ def get_transport_mode_list_for_select_input(to_dict=False):
         parser = _dict_parser
     return parser(TransportMode.objects.values_list('esId', 'name'))
 
+
+def get_calendar_info():
+    """
+    :return: all calendar info
+    """
+    query = CalendarInfo.objects.select_related('day_description')
+    result = list()
+    for info in query:
+        info = {
+            "date": info.date,
+            "color": info.day_description.color,
+            "description": info.day_description.description
+        }
+        result.append(info)
+    return result
+
+
+def get_all_faqs():
+    """
+    :return: all faqs
+    """
+    query = FAQ.objects.all()
+    grouped = dict()
+    for info in query:
+        grouped.setdefault(info.category, []).append(info)
+    return grouped
+
+
+def search_faq(searchText):
+    """
+    :param search:
+    :return: all faqs matched "search"
+    """
+    query = FAQ.objects.annotate(search=SearchVector('question', 'answer',  config='french_unaccent'))\
+        .filter(search=searchText)
+    grouped = dict()
+    for info in query:
+        grouped.setdefault(info.category, []).append(info)
+    return grouped
+
+
+def get_custom_routes_dict():
+    routes_dict = {}
+    for definition in CustomRoute.objects.all():
+        definition = definition.__dict__
+        routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
+    return routes_dict
 
 class PermissionBuilder(object):
 

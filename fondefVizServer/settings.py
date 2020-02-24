@@ -9,6 +9,10 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
+from elasticsearch import Elasticsearch
+
+from decouple import config, Csv
+
 import os
 
 from ddtrace import patch
@@ -32,19 +36,28 @@ DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 INTERNAL_IPS = config('INTERNAL_IPS', cast=Csv())
-# Application definition
 
-INSTALLED_APPS = [
+# Application definition
+DJANGO_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres'
+)
+
+THIRD_PARTY_APPS = (
     'django_crontab',
     'django_js_reverse',
     'django_rq',
+    'debug_toolbar',
+    'debug_panel',
     'ddtrace.contrib.django',
+)
+
+LOCAL_APPS = (
     'bowerapp',
     'esapi',
     'datamanager',
@@ -55,12 +68,13 @@ INSTALLED_APPS = [
     'speed',
     'globalstat',
     'webuser',
-    'debug_toolbar',
-    'debug_panel',
     'logapp',
     'awsbackup',
     'paymentfactor',
-]
+    'bip',
+)
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -208,6 +222,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Elastic-Search settings
 ES_CLIENT = Elasticsearch("{0}:{1}".format(config('ELASTICSEARCH_HOST'), config('ELASTICSEARCH_PORT')), timeout=600)

@@ -3,13 +3,14 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 from datetime import datetime
+from functools import reduce
+
 from elasticsearch_dsl import A, Q
 
-from localinfo.helper import get_operator_list_for_select_input
-
-from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
+from esapi.helper.basehelper import ElasticSearchHelper
+from localinfo.helper import get_operator_list_for_select_input
 
 
 class ESProfileHelper(ElasticSearchHelper):
@@ -19,7 +20,7 @@ class ESProfileHelper(ElasticSearchHelper):
         file_extensions = ['profile']
         super(ESProfileHelper, self).__init__(index_name, file_extensions)
 
-    def get_profile_by_stop_data(self, start_date, end_date, day_type, stop_code, period, half_hour,
+    def get_profile_by_stop_data(self, dates, day_type, stop_code, period, half_hour,
                                  valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
@@ -34,9 +35,6 @@ class ESProfileHelper(ElasticSearchHelper):
         else:
             raise ESQueryStopParameterDoesNotExist()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
         if period:
@@ -44,12 +42,21 @@ class ESProfileHelper(ElasticSearchHelper):
         if half_hour:
             es_query = es_query.filter('terms', halfHourInStopTime=half_hour)
 
-        es_query = es_query.filter("range", expeditionStartTime={
-            "gte": start_date + "||/d",
-            "lte": end_date + "||/d",
-            "format": "yyyy-MM-dd",
-            "time_zone": "+00:00"
-        })
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q("range", expeditionStartTime={
+                "gte": start_date + "||/d",
+                "lte": end_date + "||/d",
+                "format": "yyyy-MM-dd",
+                "time_zone": "+00:00"
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         es_query = es_query.source(['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
                                     'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
@@ -90,7 +97,7 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def get_base_profile_by_expedition_data_query(self, start_date, end_date, day_type, auth_route, period, half_hour,
+    def get_base_profile_by_expedition_data_query(self, dates, day_type, auth_route, period, half_hour,
                                                   valid_operator_list, show_only_valid_expeditions=True):
         es_query = self.get_base_query()
 
@@ -112,15 +119,22 @@ class ESProfileHelper(ElasticSearchHelper):
             half_hour = map(lambda x: int(x), half_hour)
             es_query = es_query.filter('terms', halfHourInStartTime=half_hour)
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q("range", expeditionStartTime={
+                "gte": start_date + "||/d",
+                "lte": end_date + "||/d",
+                "format": "yyyy-MM-dd",
+                "time_zone": "+00:00"
+            })
+            combined_filter.append(filter_q)
 
-        es_query = es_query.filter("range", expeditionStartTime={
-            "gte": start_date + "||/d",
-            "lte": end_date + "||/d",
-            "format": "yyyy-MM-dd",
-            "time_zone": "+00:00"
-        })
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         if show_only_valid_expeditions:
             es_query = es_query.filter('term', notValid=0)
@@ -132,9 +146,9 @@ class ESProfileHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_profile_by_expedition_data(self, start_date, end_date, day_type, auth_route, period, half_hour,
+    def get_profile_by_expedition_data(self, dates, day_type, auth_route, period, half_hour,
                                        valid_operator_list):
-        es_query = self.get_base_profile_by_expedition_data_query(start_date, end_date, day_type, auth_route, period,
+        es_query = self.get_base_profile_by_expedition_data_query(dates, day_type, auth_route, period,
                                                                   half_hour, valid_operator_list)[:0]
         stops = A('terms', field='authStopCode.raw', size=500)
         es_query.aggs.bucket('stops', stops). \
@@ -151,10 +165,9 @@ class ESProfileHelper(ElasticSearchHelper):
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
             bucket('station', A('terms', field='authStopCode.raw', size=500))
-
         return es_query
 
-    def get_base_profile_by_trajectory_data_query(self, start_date, end_date, day_type, auth_route, period, half_hour,
+    def get_base_profile_by_trajectory_data_query(self, dates, day_type, auth_route, period, half_hour,
                                                   valid_operator_list):
         es_query = self.get_base_query()
 
@@ -170,22 +183,29 @@ class ESProfileHelper(ElasticSearchHelper):
 
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
+
         if period:
             es_query = es_query.filter('terms', timePeriodInStartTime=period)
+
         if half_hour:
             half_hour = map(lambda x: int(x), half_hour)
             es_query = es_query.filter('terms', halfHourInStartTime=half_hour)
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
-        es_query = es_query.filter("range", expeditionStartTime={
-            "gte": start_date + "||/d",
-            "lte": end_date + "||/d",
-            "format": "yyyy-MM-dd",
-            "time_zone": "+00:00"
-        })
-
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q("range", expeditionStartTime={
+                "gte": start_date + "||/d",
+                "lte": end_date + "||/d",
+                "format": "yyyy-MM-dd",
+                "time_zone": "+00:00"
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
         es_query = es_query.source(
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
@@ -205,5 +225,66 @@ class ESProfileHelper(ElasticSearchHelper):
             day_obj = datetime.strptime(day, date_format)
             if start_date <= day_obj <= end_date:
                 days_in_between.append(day)
-
         return days_in_between
+
+    def get_profile_by_multiple_stop_data(self, dates, day_type, stop_codes, period, half_hour,
+                                          valid_operator_list):
+        """ return iterator to process load profile by stop """
+        es_query = self.get_base_query()
+
+        if valid_operator_list:
+            es_query = es_query.filter('terms', operator=valid_operator_list)
+        else:
+            raise ESQueryOperatorParameterDoesNotExist
+
+        if stop_codes:
+            es_query = es_query.query(Q({'terms': {"authStopCode.raw": stop_codes}}))
+        else:
+            raise ESQueryStopParameterDoesNotExist()
+        if day_type:
+            es_query = es_query.filter('terms', dayType=day_type)
+        if period:
+            es_query = es_query.filter('terms', timePeriodInStopTime=period)
+        if half_hour:
+            es_query = es_query.filter('terms', halfHourInStopTime=half_hour)
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q("range", expeditionStartTime={
+                "gte": start_date + "||/d",
+                "lte": end_date + "||/d",
+                "format": "yyyy-MM-dd",
+                "time_zone": "+00:00"
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+        es_query = es_query[:0]
+        aggs = A('terms', field="authStopCode.raw", size=1000)
+        es_query.aggs.bucket('stops', aggs). \
+            metric('expandedAlighting', 'avg', field='expandedAlighting'). \
+            metric('expandedBoarding', 'avg', field='expandedBoarding'). \
+            metric('sumExpandedAlighting', 'sum', field='expandedAlighting'). \
+            metric('sumExpandedBoarding', 'sum', field='expandedBoarding'). \
+            metric('loadProfile', 'avg', field='loadProfile'). \
+            metric('maxLoadProfile', 'max', field='loadProfile'). \
+            metric('sumLoadProfile', 'sum', field='loadProfile'). \
+            metric('sumBusCapacity', 'sum', field='busCapacity'). \
+            metric('busSaturation', 'bucket_script', script='params.d / params.t',
+                   buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
+            metric('userStopCode', 'top_hits', size=1, _source=['userStopCode']). \
+            metric('userStopName', 'top_hits', size=1, _source=['userStopName']). \
+            metric('busCapacity', 'avg', field='busCapacity'). \
+            metric('tripsCount', 'value_count', field='expandedAlighting')
+        return es_query
+
+    def get_all_auth_routes(self):
+        es_query = self.get_base_query()
+        es_query = es_query[:0]
+        aggs = A('terms', field="route", size=5000)
+        es_query.aggs.bucket('route', aggs)
+        return es_query

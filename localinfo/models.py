@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from django.template.defaultfilters import truncatechars
+from django.utils.html import strip_tags
 
 
 class TimePeriod(models.Model):
@@ -121,3 +123,78 @@ class GlobalPermission(Permission):
         )
         self.content_type = ct
         super(GlobalPermission, self).save(*args)
+
+
+class DayDescription(models.Model):
+    """color and description for days"""
+
+    color = models.CharField(max_length=7)
+    description = models.CharField("Descripción", max_length=250)
+
+    class Meta:
+        verbose_name = "descripción de día"
+        verbose_name_plural = "descripciónes de días"
+
+    def __str__(self):
+        return self.description.encode('utf8')
+
+
+class CalendarInfo(models.Model):
+    """"Calendar's daydescription information"""
+
+    date = models.DateField("Fecha", unique=True)
+    day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE, verbose_name="Descripción de día")
+
+    class Meta:
+        verbose_name = "información de calendario"
+        verbose_name_plural = "información de calendario"
+
+
+class FAQ(models.Model):
+    """Frequently asked questions"""
+
+    question = models.TextField("Pregunta")
+    answer = models.TextField("Respuesta")
+
+    ROUTE = 'route'
+    SPEED = 'speed'
+    TRIP = 'trip'
+    PROFILE = 'profile'
+    PAYMENT_FACTOR = 'paymentfactor'
+    ADMIN = 'administration'
+    STORAGE = 'storage'
+    GLOBAL = 'global'
+    GENERAL = 'general'
+    FILE_TYPE_CHOICES = (
+        (GENERAL, "General"),
+        (ADMIN, "Administración"),
+        (STORAGE, "Almacenamiento"),
+        (PAYMENT_FACTOR, 'Validaciones'),
+        (PROFILE, 'Perfil de carga'),
+        (SPEED, 'Velocidades'),
+        (ROUTE, 'Rutas'),
+        (TRIP, 'Viajes'),
+        (GLOBAL, 'Estadísticas Globales')
+    )
+    category = models.CharField('Categoría', max_length=30, null=False, default=GENERAL, choices=FILE_TYPE_CHOICES)
+
+    class Meta:
+            verbose_name = "pregunta frecuente"
+            verbose_name_plural = "preguntas frecuentes"
+
+    def short_answer(self):
+        text_safe = strip_tags(self.answer.encode('utf-8'))
+        return truncatechars(text_safe, 200)
+
+    short_answer.short_description = 'Respuesta'
+
+
+class CustomRoute(models.Model):
+    """"CustomRouteCode-AuthRouteCode dictionary """
+
+    auth_route_code = models.CharField("Código transantiago", max_length=20, unique=True)
+    custom_route_code = models.CharField("Código custom", max_length=30)
+
+    class Meta:
+        verbose_name = "diccionario de servicios"
+        verbose_name_plural = "diccionario de servicios"

@@ -214,10 +214,18 @@ $(document).ready(function () {
             };
 
             originZones.forEach(function (item) {
-                createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00").addTo(originGroupLayer);
+                try {
+                    createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00").addTo(originGroupLayer);
+                } catch (error) {
+                    console.log(error);
+                }
             });
             destinationZones.forEach(function (item) {
-                createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF").addTo(destinationGroupLayer);
+                try {
+                    createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF").addTo(destinationGroupLayer);
+                } catch (error) {
+                    console.log(error);
+                }
             });
 
             originMapLegend.update();
@@ -328,14 +336,18 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableTripDays"]());
+        loadRangeCalendar(Urls["esapi:availableTripDays"](),{});
 
         var app = new FromToApp();
 
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
         };
         var opts = {
             urlFilterData: Urls["esapi:fromToMapData"](),
+            urlMultiRouteData: Urls["esapi:multiRouteData"](),
             afterCallData: afterCall,
             dataUrlParams: function () {
                 return {

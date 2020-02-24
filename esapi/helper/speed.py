@@ -2,13 +2,14 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
-from elasticsearch_dsl import A
+from functools import reduce
 
-from localinfo.helper import get_operator_list_for_select_input
+from elasticsearch_dsl import A, Q
 
-from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryOperatorParameterDoesNotExist
+from esapi.helper.basehelper import ElasticSearchHelper
+from localinfo.helper import get_operator_list_for_select_input
 
 
 class ESSpeedHelper(ElasticSearchHelper):
@@ -55,7 +56,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return result, operator_list
 
-    def get_base_speed_data_query(self, auth_route, day_type, start_date, end_date, valid_operator_list):
+    def get_base_speed_data_query(self, auth_route, day_type, dates, valid_operator_list):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -68,22 +69,30 @@ class ESSpeedHelper(ElasticSearchHelper):
         else:
             raise ESQueryRouteParameterDoesNotExist()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
 
-        es_query = es_query.filter("range", date={
-            'gte': start_date,
-            'lte': end_date,
-            'format': 'yyyy-MM-dd'
-        })
+        combined_filter = []
+
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', date={
+                'gte': start_date,
+                'lte': end_date,
+                'format': 'yyyy-MM-dd'
+            })
+            combined_filter.append(filter_q)
+
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         return es_query
 
-    def get_speed_data(self, auth_route, day_type, start_date, end_date, valid_operator_list):
-        es_query = self.get_base_speed_data_query(auth_route, day_type, start_date, end_date, valid_operator_list)[:0]
+    def get_speed_data(self, auth_route, day_type, dates, valid_operator_list):
+        es_query = self.get_base_speed_data_query(auth_route, day_type, dates, valid_operator_list)[:0]
 
         aggs2 = A('terms', field='section', size=1000)
         aggs1 = A('terms', field='periodId', size=1000)
@@ -100,14 +109,14 @@ class ESSpeedHelper(ElasticSearchHelper):
                 key_section = section.key
                 d_data[(key_section, key_period)] = (
                     -1 if section.time.value == 0 else 3.6 * section.distance.value / section.time.value,
-                    section.n_obs.value)
+                    section.n_obs.value, section.distance.value, section.time.value)
 
         if len(d_data.keys()) == 0:
             raise ESQueryResultEmpty()
 
         return d_data
 
-    def get_base_ranking_data_query(self, start_date, end_date, hour_period_from, hour_period_to, day_type,
+    def get_base_ranking_data_query(self, dates, hour_period_from, hour_period_to, day_type,
                                     valid_operator_list, route_list=None):
         es_query = self.get_base_query()
 
@@ -116,11 +125,23 @@ class ESSpeedHelper(ElasticSearchHelper):
         else:
             raise ESQueryOperatorParameterDoesNotExist()
 
-        es_query = es_query.filter('range', date={
-            "gte": start_date,
-            "lte": end_date,
-            "format": "yyyy-MM-dd"
-        })
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', date={
+                'gte': start_date,
+                'lte': end_date,
+                'format': 'yyyy-MM-dd'
+            })
+
+            combined_filter.append(filter_q)
+
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+
         es_query = es_query.filter('range', periodId={
             "gte": hour_period_from,
             "lte": hour_period_to
@@ -140,13 +161,9 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_ranking_data(self, start_date, end_date, hour_period_from, hour_period_to, day_type, valid_operator_list):
-
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
+    def get_ranking_data(self, dates, hour_period_from, hour_period_to, day_type, valid_operator_list):
         data = []
-        es_query = self.get_base_ranking_data_query(start_date, end_date, hour_period_from, hour_period_to,
+        es_query = self.get_base_ranking_data_query(dates, hour_period_from, hour_period_to,
                                                     day_type, valid_operator_list)[:0]
         aggs0 = A('terms', field='merged', size=5000, order={'avg_speed': 'asc'})
         aggs0.metric('n_obs', 'sum', field='nObs')
@@ -177,7 +194,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
         return data
 
-    def get_base_detail_ranking_data_query(self, route, start_date, end_date, period, day_type, valid_operator_list):
+    def get_base_detail_ranking_data_query(self, route, dates, period, day_type, valid_operator_list):
         es_query = self.get_base_query()
 
         if valid_operator_list:
@@ -186,17 +203,29 @@ class ESSpeedHelper(ElasticSearchHelper):
             raise ESQueryOperatorParameterDoesNotExist()
 
         es_query = es_query.filter('term', authRouteCode=route)
-        es_query = es_query.filter('range', date={
-            "gte": start_date,
-            "lte": end_date, "format": "yyyy-MM-dd"})
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+
+            filter_q = Q('range', date={
+                "gte": start_date,
+                "lte": end_date, "format": "yyyy-MM-dd"})
+            combined_filter.append(filter_q)
+
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+
         es_query = es_query.filter('term', periodId=int(period))
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
 
         return es_query
 
-    def get_detail_ranking_data(self, route, start_date, end_date, period, day_type, valid_operator_list):
-        es_query = self.get_base_detail_ranking_data_query(route, start_date, end_date, period, day_type,
+    def get_detail_ranking_data(self, route, dates, period, day_type, valid_operator_list):
+        es_query = self.get_base_detail_ranking_data_query(route, dates, period, day_type,
                                                            valid_operator_list)[:0]
 
         aggs0 = A('terms', field='section', size=200)
@@ -210,6 +239,7 @@ class ESSpeedHelper(ElasticSearchHelper):
         return es_query
 
     def get_base_variation_speed_query(self, start_date, end_date, day_type, user_route, operator, valid_operator_list):
+
         es_query = self.get_base_query()
         es_query = es_query.filter('range', date={
             "gte": start_date + "||/d",

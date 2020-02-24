@@ -15,6 +15,7 @@ import rqworkers.dataDownloader.csvhelper.helper as csv_helper
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
     ThereIsNotActiveJobError, ThereIsPreviousJobExporterDataError
 from datamanager.models import UploaderJobExecution, LoadFile, ExporterJobExecution
+from esapi.helper.bip import ESBipHelper
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.profile import ESProfileHelper
@@ -29,6 +30,7 @@ from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
 from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
 from rqworkers.dataDownloader.csvhelper.speed import SpeedData
 from rqworkers.dataDownloader.csvhelper.trip import TripData
+from rqworkers.dataDownloader.csvhelper.bip import BipData
 from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
 from rqworkers.killClass import KillJob
 from rqworkers.tasks import upload_file_job, export_data_job
@@ -47,7 +49,8 @@ def get_util_helpers(file_path):
         ESShapeHelper(),
         ESODByRouteHelper(),
         ESResumeStatisticHelper(),
-        ESPaymentFactorHelper()
+        ESPaymentFactorHelper(),
+        ESBipHelper()
     ]
 
     result_helpers = []
@@ -92,6 +95,10 @@ class ExporterManager(object):
             elif downloader == csv_helper.PAYMENT_FACTOR_DATA:
                 downloader_instance = PaymentFactorData(self.es_query.to_dict())
                 file_type = ExporterJobExecution.PAYMENT_FACTOR
+            elif downloader == csv_helper.BIP_DATA:
+                downloader_instance = BipData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.BIP
+
             else:
                 raise UnrecognizedDownloaderNameError()
 
@@ -200,7 +207,8 @@ class FileManager(object):
             ESShapeHelper(),
             ESODByRouteHelper(),
             ESResumeStatisticHelper(),
-            ESPaymentFactorHelper()
+            ESPaymentFactorHelper(),
+            ESBipHelper()
         ]
 
         file_name_list = None

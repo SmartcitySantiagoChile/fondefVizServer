@@ -5,7 +5,6 @@
 {% block css %}
   <link href="{% static "css/filterManager.css" %}" rel="stylesheet">
 {% with "components/gentelella/vendors/" as gentelella_static %}
-  <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}" rel="stylesheet">
   <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
 {% endwith %}
 {% endblock %}
@@ -23,13 +22,13 @@
 {% block js %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"moment/min/moment-with-locales.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.js" %}"></script>
         <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
     {% endwith %}
 
     <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
     <script src="{% static "js/echartsTheme.js" %}"></script>
-    <script src="{% static "js/dateRangePickerOpt.js" %}"></script>
     <script src="{% static "js/filterManager.js" %}"></script>
     <script src="{% static "js/availableDays.js" %}"></script>
+    <script src="{% static "js/dateRangeCalendar.js" %}"></script>
+
 {% endblock %}
