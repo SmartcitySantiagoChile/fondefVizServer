@@ -61,9 +61,11 @@ $(document).ready(function () {
                 $.getJSON(Urls["shape:route"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
-                        return;
+                        if (!("points" in data)) {
+                            layers[layerId].clearLayers();
+                            return;
+                        }
                     }
-
                     // update map
                     // clean featureGroup
                     layers[layerId].clearLayers();
