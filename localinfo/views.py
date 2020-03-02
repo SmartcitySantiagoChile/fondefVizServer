@@ -33,3 +33,18 @@ class FaqHTML(View):
             faqs = {"faqs": search_faq(search),
                     "query": search}
         return render(request, template, faqs)
+
+
+class CustomRouteCsvUploader(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CustomRouteCsvUploader, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        print("csv")
+        #file = request.FILES['file']
+        #url_to_save = 'media/faq'
+        #file_storage = FileSystemStorage(url_to_save)
+        #file_storage.save(file.name, file)
+        return JsonResponse(data={"data": ""})
