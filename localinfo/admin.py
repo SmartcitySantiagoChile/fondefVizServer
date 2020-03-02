@@ -73,15 +73,16 @@ class CalendarInfoAdmin(admin.ModelAdmin):
     actions = None
     list_display = ('date', 'day_description')
 
+
 class FAQSAdmin(admin.ModelAdmin):
     actions = None
     form = FAQForm
-    list_display = ( 'question', 'short_answer', 'category')
-    search_fields = [ 'question', 'answer']
+    list_display = ('question', 'short_answer', 'category')
+    search_fields = ['question', 'answer']
 
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super(FAQSAdmin, self).get_search_results(request, queryset, search_term)
-        queryset |= self.model.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent')).\
+        queryset |= self.model.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent')). \
             filter(search=search_term)
         return queryset, use_distinct
 
