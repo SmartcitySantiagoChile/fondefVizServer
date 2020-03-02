@@ -175,15 +175,15 @@ function FilterManager(opts) {
                 }
             }
         });
+        var localStopFilterVal= window.localStorage.getItem(urlKey + "stopFilter/val");
+        var localStopFilterText= window.localStorage.getItem(urlKey + "stopFilter/text");
 
-        var localStopFilter = window.localStorage.getItem(urlKey + "stopFilter");
-        let option = new Option(localStopFilter, localStopFilter, false,false)
+        let option = new Option(localStopFilterText, localStopFilterVal, false,false);
         $STOP_FILTER.append(option);
         $STOP_FILTER.trigger("change");
         $STOP_FILTER.change(function () {
-            window.localStorage.setItem(urlKey + "stopFilter", $STOP_FILTER.val());
-            console.log($STOP_FILTER);
-
+            window.localStorage.setItem(urlKey + "stopFilter/val", $STOP_FILTER.val());
+            window.localStorage.setItem(urlKey + "stopFilter/text", $STOP_FILTER[0].selectedOptions[0].text);
         });
 
 
