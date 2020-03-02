@@ -165,7 +165,6 @@ $(document).ready(function () {
                 capacityByRoute[key] += trip.busCapacity;
             }
 
-            console.log(_yAxisData);
             // it calculates average
             for (var routeIndex = 0; routeIndex < xAxisLength; routeIndex++) {
                 var percentageAfter = 0;
@@ -562,7 +561,6 @@ $(document).ready(function () {
                             params.sort(function (a, b) {
                                 return a.seriesIndex > b.seriesIndex
                             });
-                            console.log(params);
                             var xValue = params[0].dataIndex;
                             var head = xAxisData[xValue];
                             var info = [];

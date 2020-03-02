@@ -151,41 +151,40 @@ function FilterManager(opts) {
     /* It saves last parameters sent to server */
     var paramsBackup = {};
 
-        $STOP_FILTER.select2({
-            ajax: {
-                delay: 500, // milliseconds
-                url: Urls["esapi:matchedStopData"](),
-                dataType: "json",
-                data: function (params) {
-                    return {
-                        term: params.term
-                    }
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.items
-                    }
-                },
-                cache: true
-            },
-            minimumInputLength: 3,
-            language: {
-                inputTooShort: function () {
-                    return "Ingresar 3 o más caracteres";
+    $STOP_FILTER.select2({
+        ajax: {
+            delay: 500, // milliseconds
+            url: Urls["esapi:matchedStopData"](),
+            dataType: "json",
+            data: function (params) {
+                return {
+                    term: params.term
                 }
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data.items
+                }
+            },
+            cache: true
+        },
+        minimumInputLength: 3,
+        language: {
+            inputTooShort: function () {
+                return "Ingresar 3 o más caracteres";
             }
-        });
-        var localStopFilterVal= window.localStorage.getItem(urlKey + "stopFilter/val");
-        var localStopFilterText= window.localStorage.getItem(urlKey + "stopFilter/text");
+        }
+    });
+    let localStopFilterVal = window.localStorage.getItem(urlKey + "stopFilter/val");
+    let localStopFilterText = window.localStorage.getItem(urlKey + "stopFilter/text");
 
-        let option = new Option(localStopFilterText, localStopFilterVal, false,false);
-        $STOP_FILTER.append(option);
-        $STOP_FILTER.trigger("change");
-        $STOP_FILTER.change(function () {
-            window.localStorage.setItem(urlKey + "stopFilter/val", $STOP_FILTER.val());
-            window.localStorage.setItem(urlKey + "stopFilter/text", $STOP_FILTER[0].selectedOptions[0].text);
-        });
-
+    let option = new Option(localStopFilterText, localStopFilterVal, false, false);
+    $STOP_FILTER.append(option);
+    $STOP_FILTER.trigger("change");
+    $STOP_FILTER.change(function () {
+        window.localStorage.setItem(urlKey + "stopFilter/val", $STOP_FILTER.val());
+        window.localStorage.setItem(urlKey + "stopFilter/text", $STOP_FILTER[0].selectedOptions[0].text);
+co    });
 
 
     if ($MULTI_STOP_FILTER.length) {
