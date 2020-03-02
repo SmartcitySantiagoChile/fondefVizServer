@@ -169,7 +169,7 @@ class FAQ(models.Model):
         (GENERAL, "General"),
         (ADMIN, "Administración"),
         (STORAGE, "Almacenamiento"),
-        (PAYMENT_FACTOR, 'Validaciones'),
+        (PAYMENT_FACTOR, 'Transacciones'),
         (PROFILE, 'Perfil de carga'),
         (SPEED, 'Velocidades'),
         (ROUTE, 'Rutas'),
