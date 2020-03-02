@@ -61,6 +61,7 @@ class CustomUserAdmin(UserAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
     list_filter = []
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'last_login')
 
 
 class DayDescriptionAdmin(admin.ModelAdmin):
