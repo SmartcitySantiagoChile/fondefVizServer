@@ -1,6 +1,8 @@
 from django.core.files.storage import FileSystemStorage
-from django.http import JsonResponse
-from django.shortcuts import render
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, redirect
+from django.template.loader import get_template
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
@@ -44,4 +46,7 @@ class CustomRouteCsvUploader(View):
             status = read_csv_dict(csv_file)
         else:
             status = "No existe archivo."
+        # template = "admin/localinfo/customroute/change_list.html"
+        # return redirect(reverse('admin:localinfo_customroute_changelist'), kwargs={'status': status})
+        # return render(request, reverse('admin:localinfo_customroute_changelist'), context={"status": status})
         return JsonResponse(data={"status": status})

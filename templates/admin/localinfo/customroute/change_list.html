@@ -66,12 +66,13 @@
             {% endblock %}
           </ul>
         {% endblock %}
-        <form method="post" enctype="multipart/form-data" action="{% url 'customRouteCsvUpload' %}">{% csrf_token %}
+        <form name="csvForm" id="csvForm" method="post" enctype="multipart/form-data"
+              action="{% url 'customroutecsvupload' %}">{% csrf_token %}
           <div class="form-group">
             <label for="csvDictionary">Subir csv de diccionario de servicios</label>
             <input required type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
           </div>
-          <button  type="submit" class="btn btn-primary btn-sm ">Subir diccionario</button>
+          <button type="submit" class="btn btn-primary btn-sm ">Subir diccionario</button>
         </form>
         <div class="clearfix"></div>
       </div>
@@ -119,4 +120,32 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extrajs %}
+  <script>
+      $("#csvForm").on("submit", function (e) {
+              e.preventDefault();
+              let f = $(this);
+              let formData = new FormData(document.getElementById("csvForm"));
+              $.ajax("{% url 'customroutecsvupload' %}", {
+                  method: "POST",
+                  data: formData,
+                  cache: false,
+                  processData: false,
+                  contentType: false,
+                  success: function (e) {
+                      console.log('Upload success');
+                      console.log(e);
+                      location.reload();
+                  },
+                  error: function (e) {
+                      console.log('Upload error');
+                      console.log(e);
+                  },
+              });
+          }
+      )
+  </script>
+
 {% endblock %}
