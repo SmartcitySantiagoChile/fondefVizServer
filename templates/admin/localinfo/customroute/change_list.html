@@ -66,10 +66,10 @@
             {% endblock %}
           </ul>
         {% endblock %}
-        <form method="post" enctype="multipart/form-data" action="{% url "customRouteCsvUploader"%}">
+        <form method="post" enctype="multipart/form-data" action="{% url 'customRouteCsvUpload' %}">{% csrf_token %}
           <div class="form-group">
             <label for="csvDictionary">Subir csv de diccionario de servicios</label>
-            <input type="file" class="form-control-file" id="csvDictionary">
+            <input type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
           </div>
           <button  type="submit" class="btn btn-primary btn-sm ">Subir diccionario</button>
         </form>

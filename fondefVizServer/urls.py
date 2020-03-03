@@ -42,7 +42,7 @@ urlpatterns = [
     url(r'^bip/', include('bip.urls')),
     url(r'^faqUpload/$', login_required(FaqImgUploader.as_view()), name='faqUpload'),
     url(r'^faq/$', FaqHTML.as_view(), name='faq'),
-    url(r'^customRouteCsvUploader/$', login_required(CustomRouteCsvUploader.as_view()), name='customRouteCsvUpload'),
+    url(r'^customRouteCsvUpload/$', login_required(CustomRouteCsvUploader.as_view()), name='customRouteCsvUpload'),
 ]
 
 if settings.DEBUG:

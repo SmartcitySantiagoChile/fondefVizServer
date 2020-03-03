@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import csv
+
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db.models import Count
@@ -99,7 +101,7 @@ def search_faq(searchText):
     :param search:
     :return: all faqs matched "search"
     """
-    query = FAQ.objects.annotate(search=SearchVector('question', 'answer',  config='french_unaccent'))\
+    query = FAQ.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent')) \
         .filter(search=searchText)
     grouped = dict()
     for info in query:
@@ -113,6 +115,15 @@ def get_custom_routes_dict():
         definition = definition.__dict__
         routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
     return routes_dict
+
+
+def read_csv_dict(csv_file):
+    with open(csv_file.name, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            print row
+    return True
+
 
 class PermissionBuilder(object):
 
