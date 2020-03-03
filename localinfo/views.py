@@ -42,11 +42,10 @@ class CustomRouteCsvUploader(View):
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
         if csv_file is not False:
-            print(csv_file)
             status = read_csv_dict(csv_file)
         else:
             status = "No existe archivo."
-        # template = "admin/localinfo/customroute/change_list.html"
-        # return redirect(reverse('admin:localinfo_customroute_changelist'), kwargs={'status': status})
-        # return render(request, reverse('admin:localinfo_customroute_changelist'), context={"status": status})
-        return JsonResponse(data={"status": status})
+        if status == True:
+            return JsonResponse(data={"status": status})
+        else:
+            return JsonResponse(data={"error": status}, status=500)

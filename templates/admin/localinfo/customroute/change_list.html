@@ -126,7 +126,6 @@
   <script>
       $("#csvForm").on("submit", function (e) {
               e.preventDefault();
-              let f = $(this);
               let formData = new FormData(document.getElementById("csvForm"));
               $.ajax("{% url 'customroutecsvupload' %}", {
                   method: "POST",
@@ -135,13 +134,23 @@
                   processData: false,
                   contentType: false,
                   success: function (e) {
-                      console.log('Upload success');
-                      console.log(e);
+                      let status = {
+                          message: "Los datos se han cargado correctamente",
+                          title: "Carga exitosa",
+                          type: "success"
+                      };
+                      showMessage(status);
                       location.reload();
+
                   },
                   error: function (e) {
-                      console.log('Upload error');
                       console.log(e);
+                      let status = {
+                          message: e.responseJSON.error,
+                          title: "Carga fallida",
+                          type: "error"
+                      };
+                      showMessage(status);
                   },
               });
           }
