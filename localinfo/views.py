@@ -43,5 +43,5 @@ class CustomRouteCsvUploader(View):
             print(csv_file)
             status = read_csv_dict(csv_file)
         else:
-            status = False
+            status = "No existe archivo."
         return JsonResponse(data={"status": status})

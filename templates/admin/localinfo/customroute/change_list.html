@@ -69,7 +69,7 @@
         <form method="post" enctype="multipart/form-data" action="{% url 'customRouteCsvUpload' %}">{% csrf_token %}
           <div class="form-group">
             <label for="csvDictionary">Subir csv de diccionario de servicios</label>
-            <input type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
+            <input required type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
           </div>
           <button  type="submit" class="btn btn-primary btn-sm ">Subir diccionario</button>
         </form>

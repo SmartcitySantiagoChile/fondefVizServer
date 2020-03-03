@@ -5,7 +5,6 @@ import csv
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.db.models import Count
 from django.contrib.postgres.search import SearchVector
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
@@ -118,10 +117,14 @@ def get_custom_routes_dict():
 
 
 def read_csv_dict(csv_file):
-    with open(csv_file.name, 'r') as f:
+    try:
+        f = open(csv_file.name, 'r')
         reader = csv.reader(f)
         for row in reader:
-            print row
+            CustomRoute.objects.update_or_create(
+                auth_route_code=row[0], defaults={'custom_route_code': row[1]})
+    except Exception as e:
+        return 'error: ' + str(e)
     return True
 
 
