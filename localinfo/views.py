@@ -1,8 +1,6 @@
 from django.core.files.storage import FileSystemStorage
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, redirect
-from django.template.loader import get_template
-from django.urls import reverse
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View

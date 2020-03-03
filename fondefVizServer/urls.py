@@ -27,8 +27,6 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
     url(r'^admin/datamanager/', include('datamanager.urls')),
     url(r'^admin/django-rq/', include('django_rq.urls')),
-    url(r'^admin/localinfo/customroute/csvupload/$', login_required(CustomRouteCsvUploader.as_view()),
-        name='customroutecsvupload'),
     url(r'^admin/', admin.site.urls),
     url(r'^paymentfactor/', include('paymentfactor.urls')),
     url(r'^profile/', include('profile.urls')),
@@ -44,6 +42,8 @@ urlpatterns = [
     url(r'^bip/', include('bip.urls')),
     url(r'^faqUpload/$', login_required(FaqImgUploader.as_view()), name='faqUpload'),
     url(r'^faq/$', FaqHTML.as_view(), name='faq'),
+    url(r'^csvupload/$', login_required(CustomRouteCsvUploader.as_view()),
+        name='customroutecsvupload'),
 ]
 
 if settings.DEBUG:
