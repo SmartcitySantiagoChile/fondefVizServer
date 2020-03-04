@@ -111,11 +111,6 @@ function FilterManager(opts) {
         $METRIC_FILTER.val(localMetricFilter);
         $METRIC_FILTER.trigger("change");
     }
-    var localMetricFilter = window.localStorage.getItem("metricFilter");
-    if (localMetricFilter !== null) {
-        $METRIC_FILTER.val(localMetricFilter);
-        $METRIC_FILTER.trigger("change");
-    }
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
     $DAY_FILTER.change(function (e) {
@@ -176,16 +171,16 @@ function FilterManager(opts) {
             }
         });
     }
-    let localStopFilterVal = window.localStorage.getItem(urlKey + "stopFilter/val") || "";
-    let localStopFilterText = window.localStorage.getItem(urlKey + "stopFilter/text") || "";
+        let localStopFilterVal = window.localStorage.getItem(urlKey + "stopFilter/val") || "";
+        let localStopFilterText = window.localStorage.getItem(urlKey + "stopFilter/text") || "";
 
-    let option = new Option(localStopFilterText, localStopFilterVal, false, false);
-    $STOP_FILTER.append(option);
-    $STOP_FILTER.trigger("change");
-    $STOP_FILTER.change(function () {
-        window.localStorage.setItem(urlKey + "stopFilter/val", $STOP_FILTER.val());
-        window.localStorage.setItem(urlKey + "stopFilter/text", $STOP_FILTER[0].selectedOptions[0].text);
-    });
+        let option = new Option(localStopFilterText, localStopFilterVal, false, false);
+        $STOP_FILTER.append(option);
+        $STOP_FILTER.trigger("change");
+        $STOP_FILTER.change(function () {
+            window.localStorage.setItem(urlKey + "stopFilter/val", $STOP_FILTER.val());
+            window.localStorage.setItem(urlKey + "stopFilter/text", $STOP_FILTER[0].selectedOptions[0].text);
+        });
 
 
     if ($MULTI_STOP_FILTER.length) {
@@ -213,13 +208,14 @@ function FilterManager(opts) {
                 }
             }
         });
+        }
         var localMultiStopFilter = window.localStorage.getItem(urlKey + "multiStopFilter");
         $MULTI_STOP_FILTER.val(localMultiStopFilter);
         $MULTI_STOP_FILTER.trigger("change");
         $MULTI_STOP_FILTER.change(function () {
             window.localStorage.setItem(urlKey + "multiStopFilter", $MULTI_STOP_FILTER.val());
         });
-    }
+
 
     /* BUTTON ACTION */
     var getParameters = function () {
