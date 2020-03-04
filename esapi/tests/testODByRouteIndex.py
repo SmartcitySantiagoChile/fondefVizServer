@@ -57,22 +57,28 @@ class ESODByRouteIndexTest(TestCase):
         auth_route_code = ''
         time_periods = [1, 2]
         day_type = ['LABORAL']
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = ['2018-01-01', '2018-02-01']
         valid_operator_list = []
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_query_for_od, auth_route_code,
-                          time_periods, day_type, start_date, end_date, valid_operator_list)
+                          time_periods, day_type, dates, valid_operator_list)
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_base_query_for_od, auth_route_code,
-                          time_periods, day_type, start_date, end_date, valid_operator_list)
+                          time_periods, day_type, dates, valid_operator_list)
         auth_route_code = 'route'
-        result = self.instance.get_base_query_for_od(auth_route_code, time_periods, day_type, start_date, end_date,
+        result = self.instance.get_base_query_for_od(auth_route_code, time_periods, day_type, dates,
                                                      valid_operator_list)
-        expected = {'query': {'bool': {
-            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'route'}},
-                       {'terms': {'timePeriodInStopTime': [1, 2]}}, {'terms': {'dayType': [u'LABORAL']}}, {'range': {
-                    'date': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                             u'format': u'yyyy-MM-dd'}}}]}}}
+        expected = {'query':
+                        {'bool':
+                             {'filter':
+                                  [{'terms': {'operator': [1, 2, 3]}},
+                                   {'term': {'authRouteCode': u'route'}},
+                                   {'terms': {'timePeriodInStopTime': [1, 2]}},
+                                   {'terms': {'dayType': [u'LABORAL']}},
+                                   {'bool': {'should': [{'range': {
+                                       'date': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
+                                                u'format': u'yyyy-MM-dd'}}}, {'range': {
+                                       'date': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
+                                                u'format': u'yyyy-MM-dd'}}}]}}]}}}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -133,10 +139,9 @@ class ESODByRouteIndexTest(TestCase):
         auth_route_code = ''
         time_periods = []
         day_type = ['LABORAL']
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = ['2018-01-01', '2018-02-01']
         valid_operator_list = [1, 2, 3]
-        matrix, max_value = self.instance.get_od_data(auth_route_code, time_periods, day_type, start_date, end_date,
+        matrix, max_value = self.instance.get_od_data(auth_route_code, time_periods, day_type, dates,
                                                       valid_operator_list)
         self.assertListEqual(matrix, result)
         self.assertEqual(max_value, 0)
@@ -154,8 +159,7 @@ class ESODByRouteIndexTest(TestCase):
         auth_route_code = ''
         time_periods = []
         day_type = ['LABORAL']
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = ['2018-01-01', '2018-02-01']
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryResultEmpty, self.instance.get_od_data, auth_route_code, time_periods, day_type,
-                          start_date, end_date, valid_operator_list)
+                          dates, valid_operator_list)
