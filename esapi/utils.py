@@ -54,6 +54,7 @@ def get_dates_from_request(request, export_data):
     index = 0
     if dates_raw != []:
         for indexes in range(len(dates_raw)):
+            print(dates_raw[indexes])
             if dates_raw[indexes][0] == "dates":
                 index = indexes
         dates_raw = json.loads(dates_raw[index][1])

@@ -7,7 +7,7 @@ import mock
 
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty
 
 import json
 
@@ -26,6 +26,7 @@ class AvailableDaysTest(TestHelper):
         response = self.client.get(self.url, self.data)
         self.assertNotContains(response, 'status')
         answer = {
+            'info': [],
             'availableDays': [self.available_date]
         }
         self.assertJSONEqual(response.content, answer)
@@ -46,6 +47,7 @@ class AvailableRoutesTest(TestHelper):
         response = self.client.get(self.url, self.data)
         self.assertNotContains(response, 'status')
         expected = {
+            "routesDict": {},
             'availableRoutes': {
                 'Metbus': {
                     '506': [self.available_route]
@@ -63,26 +65,19 @@ class ODMatrixDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:ODMatrixData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '',
             'authRoute': '',
             'dayType[]': [],
             'period[]': []
         }
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_stop_list')
     @mock.patch('esapi.helper.odbyroute.ESODByRouteHelper.get_od_data')
@@ -94,8 +89,7 @@ class ODMatrixDataTest(TestHelper):
         check_operation_program.return_value = None
         get_od_data.return_value = ([], 0)
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'authRoute': '506 00I',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3]
@@ -117,8 +111,7 @@ class ODMatrixDataTest(TestHelper):
         check_operation_program.return_value = None
         exporter_manager_instance = exporter_manager.return_value
         exporter_manager_instance.export_data.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
