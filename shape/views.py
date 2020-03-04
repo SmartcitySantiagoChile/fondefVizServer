@@ -25,7 +25,6 @@ class GetRouteInfo(View):
                 raise ESQueryRouteParameterDoesNotExist()
             if not operation_program_date:
                 raise ESQueryDateParametersDoesNotExist()
-
             es_shape_helper = ESShapeHelper()
             es_stop_helper = ESStopByRouteHelper()
 
@@ -35,7 +34,6 @@ class GetRouteInfo(View):
                 'stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
-
         return JsonResponse(response)
 
 

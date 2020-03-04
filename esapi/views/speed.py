@@ -94,7 +94,6 @@ class MatrixData(View):
 
                 max_section = len(limits) - 1
                 response['segments'] = list(range(max_section + 1))
-
                 d_data = es_speed_helper.get_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
 
                 for hour in range(len(hours)):
@@ -220,7 +219,6 @@ class SpeedByRoute(View):
             check_operation_program(start_date, end_date)
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
-
             if export_data:
                 es_query = es_speed_helper.get_base_detail_ranking_data_query(route, start_date, end_date, hour_period,
                                                                               day_type, valid_operator_list)
@@ -231,7 +229,6 @@ class SpeedByRoute(View):
                 route_points = [[s['latitude'], s['longitude']] for s in shape]
                 limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
                 start_end = list(zip(limits[:-1], limits[1:]))
-
                 response['route']['start_end'] = start_end
                 response['route']['points'] = route_points
 
@@ -239,7 +236,7 @@ class SpeedByRoute(View):
                                                                    valid_operator_list)
                 response['speed'] = self.process_data(es_query, limits)
 
-        except ESQueryResultEmpty as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -355,7 +352,6 @@ class SpeedVariation(View):
 
             start_date = (end_date_obj - datetime.timedelta(days=days)).strftime(date_format)
             check_operation_program(start_date, end_date)
-
             es_speed_helper = ESSpeedHelper()
 
             if export_data:

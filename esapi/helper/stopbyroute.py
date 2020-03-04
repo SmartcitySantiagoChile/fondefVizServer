@@ -22,6 +22,7 @@ class ESStopByRouteHelper(ElasticSearchHelper):
         :param end_date: upper date bound
         :return: None
         """
+
         es_query = self.get_base_query().filter('range', startDate={
             'gte': start_date,
             'lte': end_date,

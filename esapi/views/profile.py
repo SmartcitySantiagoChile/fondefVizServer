@@ -38,7 +38,6 @@ class LoadProfileByStopData(View):
         """ transform ES answer to something util to web client """
         info = {}
         trips = {}
-
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
 
@@ -133,8 +132,8 @@ class AvailableRoutes(View):
         try:
             es_helper = ESProfileHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-            available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
 
+            available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
         except FondefVizError as e:
@@ -162,7 +161,6 @@ class LoadProfileByExpeditionData(View):
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
 
@@ -213,7 +211,6 @@ class LoadProfileByExpeditionData(View):
             es_stop_helper = ESStopByRouteHelper()
             es_shape_helper = ESShapeHelper()
             es_profile_helper = ESProfileHelper()
-
             if export_data:
                 es_query = es_profile_helper.get_base_profile_by_expedition_data_query(start_date, end_date, day_type,
                                                                                        auth_route_code, period,
@@ -230,6 +227,7 @@ class LoadProfileByExpeditionData(View):
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False)
+
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
@@ -245,7 +243,6 @@ class LoadProfileByExpeditionData(View):
                 response['shape'] = es_shape_helper.get_route_shape(auth_route_code, start_date, end_date)['points']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
-
         return JsonResponse(response, safe=False)
 
     def get(self, request):
@@ -271,16 +268,12 @@ class LoadProfileByTrajectoryData(View):
         trips = defaultdict(lambda: {'info': {}, 'stops': {}})
         bus_stations = []
         expedition_not_valid_number = 0
-
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-        # TODO: replace random value with value given by data
-        import random
+
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
-
             if 'capacity' not in trips[expedition_id]['info']:
-                is_valid = int(round(random.uniform(0, 1)))
                 trips[expedition_id]['info'] = {
                     'capacity': hit.busCapacity,
                     'licensePlate': hit.licensePlate,
@@ -289,9 +282,9 @@ class LoadProfileByTrajectoryData(View):
                     'timeTripInit': hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
                     'timeTripEnd': hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
                     'dayType': day_type_dict[hit.dayType],
-                    'valid': bool(is_valid)
+                    'valid': not bool(hit.notValid)
                 }
-                if not is_valid:
+                if not bool(hit.notValid):
                     expedition_not_valid_number += 1
 
             if hit.busStation == 1 and hit.authStopCode not in bus_stations:

@@ -344,7 +344,6 @@ class TransfersData(View):
                     if end == '-':
                         end = 'end'
                     answer[end][from_bucket.key] += to_bucket.doc_count
-
         for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
             answer['end'][from_bucket.key] += from_bucket.doc_count
 

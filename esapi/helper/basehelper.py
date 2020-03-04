@@ -41,18 +41,16 @@ class ElasticSearchHelper(object):
         :return: list of values
         """
         result_list = []
+
         for tag in es_query_result.aggregations[aggs_name].buckets:
             if tag.doc_count == 0:
                 continue
-
             if "key_as_string" in tag:
                 result_list.append(tag.key_as_string)
             else:
                 result_list.append(tag.key)
-
         if sort:
             result_list.sort()
-
         return result_list
 
     def make_multisearch_query_for_aggs(self, *args, **kwargs):
@@ -62,21 +60,16 @@ class ElasticSearchHelper(object):
         :return: list of result for each query
         """
         multi_search = MultiSearch(using=self.client, index=self.index_name)
-
         for es_query in args:
             multi_search = multi_search.add(es_query)
-
         result = multi_search.execute()
-
         flat = kwargs.get('flat', False)
         if len(result) == 1 and flat:
             return result[0]
-
         return result
 
     def get_histogram_query(self, field, interval, date_format, time_zone=None, es_query=None):
         """ create aggregation query of histogram """
-
         kwargs = {}
         if time_zone is not None:
             kwargs['time_zone'] = time_zone
@@ -91,19 +84,15 @@ class ElasticSearchHelper(object):
         return es_query
 
     def get_unique_list_query(self, field, size=0, query=None):
-        """ create query to get unique list of values from field """
-
+        # create query to get unique list of values from field
         if query is None:
             query = self.get_base_query()
-
         query = query[:0]
         aggs = A('terms', field=field, size=size)
         query.aggs.bucket('unique', aggs)
-
         return query
 
     def _get_available_days(self, field, valid_operator_list=None, time_zone=None):
-
         es_query = None
         if valid_operator_list:
             es_query = self.get_base_query()[:0]
@@ -111,9 +100,7 @@ class ElasticSearchHelper(object):
 
         es_query = self.get_histogram_query(field, interval="day", date_format="yyy-MM-dd", es_query=es_query,
                                             time_zone=time_zone)
-
         result = self.get_attr_list(self.make_multisearch_query_for_aggs(es_query, flat=True), 'unique')
-
         return result
 
     def get_data_by_file(self, file_filter=None):
@@ -128,14 +115,11 @@ class ElasticSearchHelper(object):
             es_query = es_query.filter('terms', path=file_filter)
         aggs = A('terms', field="path", size=5000)
         es_query.aggs.bucket('files', aggs)
-
         return es_query
 
     def delete_data_by_file(self, file_name):
-
         es_query = self.get_base_query()
         es_query = es_query.filter('term', path=file_name)
-
         try:
             # if query select a lot of files this call will fail with timeout
             return es_query.delete()

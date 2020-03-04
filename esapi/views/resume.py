@@ -151,6 +151,7 @@ class GlobalData(PermissionRequiredMixin, View):
                 row[keys[key]] = value
             answer.append(row)
         # sort
+
         answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
 
         if len(answer) == 0:

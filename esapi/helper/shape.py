@@ -58,7 +58,6 @@ class ESShapeHelper(ElasticSearchHelper):
         dates = es_query.execute().aggregations.unique.buckets
         if len(dates) == 0:
             raise ESQueryOperationProgramDoesNotExist(asked_date)
-
         return dates[0].key_as_string[:10]
 
     def get_route_shape(self, auth_route_code, start_date, end_date):
@@ -74,7 +73,6 @@ class ESShapeHelper(ElasticSearchHelper):
             'lte': start_date,
             'format': 'yyyy-MM-dd'
         }).sort('-startDate')[:1]
-
         try:
             point_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:
@@ -87,6 +85,6 @@ class ESShapeHelper(ElasticSearchHelper):
 
     def get_route_list(self):
         query = self.get_unique_list_query('authRouteCode', size=5000)
-        result = self.get_attr_list(self.make_multisearch_query_for_aggs(query, flat=True), 'unique')
-
+        a = self.make_multisearch_query_for_aggs(query, flat=True)
+        result = self.get_attr_list(a, 'unique')
         return result

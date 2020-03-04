@@ -14,10 +14,8 @@ def check_operation_program(start_date, end_date):
     :param end_date: upper date bound
     :return: None
     """
-
     if not start_date or not end_date:
         raise ESQueryDateRangeParametersDoesNotExist()
-
     operation_program_error_for_stop = False
     operation_program_error_for_shape = False
     error_raised = None

@@ -83,7 +83,6 @@ class ESODByRouteHelper(ElasticSearchHelper):
         es_query = self.get_base_query_for_od(auth_route_code, time_periods, day_type, start_date, end_date,
                                               valid_operator_list)[:0]
         es_query = es_query.source([])
-
         aggs = A('terms', field="authStartStopCode", size=500)
         es_query.aggs.bucket('start', aggs).bucket('end', 'terms', field="authEndStopCode")
         # add metrics to start bucket
