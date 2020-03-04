@@ -17,26 +17,22 @@ class ESProfileIndexTest(TestCase):
         self.instance = ESProfileHelper()
 
     def test_get_profile_by_stop_data(self):
-        start_date = ''
-        end_date = ''
+        dates = [[""]]
         day_type = ['LABORAL']
         stop_code = ''
         period = [1, 2, 3]
         half_hour = [1, 2, 3]
         valid_operator_list = []
-        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
-                          end_date, day_type, stop_code, period, half_hour, valid_operator_list)
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_profile_by_stop_data, dates,
+                          day_type, stop_code, period, half_hour, valid_operator_list)
         valid_operator_list = [1, 2, 3]
-        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
-                          end_date, day_type, stop_code, period, half_hour, valid_operator_list)
+        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_profile_by_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
         stop_code = 'PA433'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
-                          end_date, day_type, stop_code, period, half_hour, valid_operator_list)
-        start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
-                          end_date, day_type, stop_code, period, half_hour, valid_operator_list)
-        end_date = '2018-01-02'
-        result = self.instance.get_profile_by_stop_data(start_date, end_date, day_type, stop_code, period, half_hour,
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        result = self.instance.get_profile_by_stop_data(dates, day_type, stop_code, period, half_hour,
                                                         valid_operator_list)
         expected = {'query': {'bool': {
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'terms': {'dayType': [u'LABORAL']}},
@@ -92,29 +88,22 @@ class ESProfileIndexTest(TestCase):
         self.assertListEqual(operator_list, [1, 2])
 
     def test_get_base_profile_by_expedition_data_query(self):
-        start_date = ''
-        end_date = ''
+        dates = [[""]]
         day_type = ['LABORAL']
         auth_route = ''
         period = [1, 2, 3]
         half_hour = [1, 2, 3]
         valid_operator_list = []
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_profile_by_expedition_data,
-                          start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
         valid_operator_list = [1, 2, 3]
-        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_profile_by_expedition_data, start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
+        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_profile_by_expedition_data, dates,
+                          day_type, auth_route, period, half_hour, valid_operator_list)
         auth_route = '506 00I'
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_expedition_data,
-                          start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
-        start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_expedition_data,
-                          start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
-        end_date = '2018-01-02'
-        result = self.instance.get_base_profile_by_expedition_data_query(start_date, end_date, day_type, auth_route,
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        result = self.instance.get_base_profile_by_expedition_data_query(dates, day_type, auth_route,
                                                                          period, half_hour,
                                                                          valid_operator_list)
         expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'506 00I'}},
@@ -132,9 +121,8 @@ class ESProfileIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_profile_by_expedition_data(self):
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
-        result = self.instance.get_profile_by_expedition_data(start_date, end_date, ['LABORAL'], 'route', [1, 2, 3],
+        dates = [['2018-01-01', '2018-02-01']]
+        result = self.instance.get_profile_by_expedition_data(dates, ['LABORAL'], 'route', [1, 2, 3],
                                                               [1, 2, 3], [1, 2, 3])
         expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'route'}},
                                                   {'terms': {'dayType': [u'LABORAL']}},
@@ -163,30 +151,23 @@ class ESProfileIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_base_profile_by_trajectory_data_query(self):
-        start_date = ''
-        end_date = ''
+        dates = [[""]]
         day_type = ['LABORAL']
         auth_route = ''
         period = [1, 2, 3]
         half_hour = [1, 2, 3]
         valid_operator_list = []
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_profile_by_trajectory_data_query,
-                          start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_base_profile_by_trajectory_data_query,
-                          start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
         auth_route = '506 00I'
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist,
-                          self.instance.get_base_profile_by_trajectory_data_query, start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
-        start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist,
-                          self.instance.get_base_profile_by_trajectory_data_query, start_date,
-                          end_date, day_type, auth_route, period, half_hour, valid_operator_list)
-        end_date = '2018-01-02'
-        result = self.instance.get_base_profile_by_trajectory_data_query(start_date, end_date, day_type, auth_route,
+                          self.instance.get_base_profile_by_trajectory_data_query,
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        result = self.instance.get_base_profile_by_trajectory_data_query(dates, day_type, auth_route,
                                                                          period, half_hour,
                                                                          valid_operator_list)
         expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'506 00I'}},
