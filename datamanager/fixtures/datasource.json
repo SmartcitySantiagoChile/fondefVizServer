@@ -1,10 +1,102 @@
 [
-  {"model": "datamanager.datasourcepath", "pk":1 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.profile",  "indexName":"profile" }},
-  {"model": "datamanager.datasourcepath", "pk":2 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.speed",  "indexName":"speed" }},
-  {"model": "datamanager.datasourcepath", "pk":3 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.trip",  "indexName":"trip" }},
-  {"model": "datamanager.datasourcepath", "pk":4 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.shape",  "indexName":"shape" }},
-  {"model": "datamanager.datasourcepath", "pk":5 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.stop",  "indexName":"stopbyroute" }},
-  {"model": "datamanager.datasourcepath", "pk":6 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.expedition",  "indexName":"expedition" }},
-  {"model": "datamanager.datasourcepath", "pk":7 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.odbyroute",  "indexName":"odbyroute" }},
-  {"model": "datamanager.datasourcepath", "pk":8 , "fields":{ "path":"/home/serverza/esdata/", "filePattern":"*.general",  "indexName":"general" }}
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 1,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.profile",
+      "indexName": "profile",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 2,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.speed",
+      "indexName": "speed",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 3,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.trip",
+      "indexName": "trip",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 4,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.shape",
+      "indexName": "shape",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 5,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.stop",
+      "indexName": "stopbyroute",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 6,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.expedition",
+      "indexName": "expedition",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 7,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.odbyroute",
+      "indexName": "odbyroute",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 8,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.general",
+      "indexName": "general",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 9,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.paymentfactor",
+      "indexName": "paymentfactor",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 10,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.bip",
+      "indexName": "bip",
+      "timeStamp": "2019-08-10T19:02:10.838Z"
+    }
+  }
 ]

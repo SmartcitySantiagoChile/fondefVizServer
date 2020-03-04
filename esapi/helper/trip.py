@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import copy
+import itertools
+from functools import reduce
+
 from elasticsearch_dsl import A
 from elasticsearch_dsl.query import Q
 
-from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty, \
     ESQueryOriginZoneParameterDoesNotExist, ESQueryDestinationZoneParameterDoesNotExist, \
     ESQueryStopParameterDoesNotExist, ESQueryTooManyOriginZonesError, ESQueryTooManyDestinationZonesError
-
-import copy
-import itertools
+from esapi.helper.basehelper import ElasticSearchHelper
 
 
 class ESTripHelper(ElasticSearchHelper):
@@ -33,6 +34,7 @@ class ESTripHelper(ElasticSearchHelper):
                 .pipeline('total', 'cumulative_sum', buckets_path='bin')
 
         # up to 120 min
+
         add_histogram('tviaje', '15', 0, 120)
 
         # at least from 1 to 5 stages
@@ -51,21 +53,10 @@ class ESTripHelper(ElasticSearchHelper):
         base_es_query.aggs.metric('n_etapas', 'stats', field='n_etapas')
         base_es_query.aggs.metric('distancia_ruta', 'stats', field='distancia_ruta')
         base_es_query.aggs.metric('distancia_eucl', 'stats', field='distancia_eucl')
-
         return base_es_query
 
-    def get_base_resume_data_query(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
+    def get_base_resume_data_query(self, dates, day_types, periods, origin_zones, destination_zones):
         es_query = self.get_base_query()
-
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
 
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
@@ -79,10 +70,28 @@ class ESTripHelper(ElasticSearchHelper):
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
 
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+
         return es_query
 
-    def get_resume_data(self, start_date, end_date, day_types, periods, origin_zones, destination_zones):
-        es_query = self.get_base_resume_data_query(start_date, end_date, day_types, periods, origin_zones,
+    def get_resume_data(self, dates, day_types, periods, origin_zones, destination_zones):
+        es_query = self.get_base_resume_data_query(dates, day_types, periods, origin_zones,
                                                    destination_zones)[:0]
         histogram_es_query = copy.copy(es_query)
         return self._build_histogram_query(histogram_es_query), self._build_indicators_query(es_query)
@@ -90,24 +99,30 @@ class ESTripHelper(ElasticSearchHelper):
     def get_available_days(self):
         return self._get_available_days('tiempo_subida')
 
-    def get_base_map_data_query(self, start_date, end_date, day_types, periods, sectors):
+    def get_base_map_data_query(self, dates, day_types, periods, sectors):
         es_query = self.get_base_query()
-
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
 
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
 
         if periods:
             es_query = es_query.filter('terms', periodo_subida=periods)
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         # TODO: esta restricción no existe sobre la consulta inicialmente, verificar que no cambia el resultado.
         """
@@ -120,11 +135,11 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_map_data(self, start_date, end_date, day_types, periods, sectors):
+    def get_map_data(self, dates, day_types, periods, sectors):
         """
         Builds a elastic search query for the travels map
         """
-        es_query = self.get_base_map_data_query(start_date, end_date, day_types, periods, sectors)[:0]
+        es_query = self.get_base_map_data_query(dates, day_types, periods, sectors)[:0]
 
         # obs: by using size=1000, we assume there are less than '1000' zones
         by_zone_agg = A('terms', field='zona_subida', size=1000)
@@ -146,18 +161,24 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_base_large_travel_data_query(self, start_date, end_date, day_types, periods, n_etapas):
+    def get_base_large_travel_data_query(self, dates, day_types, periods, n_etapas):
         es_query = self.get_base_query()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
@@ -176,8 +197,8 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_large_travel_data(self, start_date, end_date, day_types, periods, n_etapas, origin_or_destination):
-        es_query = self.get_base_large_travel_data_query(start_date, end_date, day_types, periods, n_etapas)[:0]
+    def get_large_travel_data(self, dates, day_types, periods, n_etapas, origin_or_destination):
+        es_query = self.get_base_large_travel_data_query(dates, day_types, periods, n_etapas)[:0]
 
         field_aggs_name = 'zona_subida'
         if origin_or_destination == 'destination':
@@ -199,19 +220,25 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_base_from_to_map_data_query(self, start_date, end_date, day_types, periods, minutes, stages, modes,
-                                        origin_zones, destination_zones):
+    def get_base_from_to_map_data_query(self, dates, day_types, periods, minutes, stages, modes,
+                                        origin_zones, destination_zones, routes):
         es_query = self.get_base_query()
 
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
@@ -227,13 +254,24 @@ class ESTripHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', zona_subida=origin_zones)
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
+        if routes:
+            routes_filter = []
+            if not stages:
+                stages = ['1', '2', '3', '4']
+            for stage in stages:
+                srv = dict()
+                srv['srv_{0}'.format(stage)] = routes
+                filter_q = Q('terms', **srv)
+                routes_filter.append(filter_q)
+            routes_filter = reduce((lambda x, y: x | y), routes_filter)
+            es_query = es_query.query('bool', filter=[routes_filter])
 
         return es_query
 
-    def get_from_to_map_data(self, start_date, end_date, day_types, periods, minutes, stages, modes, origin_zones,
-                             destination_zones):
-        es_query = self.get_base_from_to_map_data_query(start_date, end_date, day_types, periods, minutes, stages,
-                                                        modes, origin_zones, destination_zones)[:0]
+    def get_from_to_map_data(self, dates, day_types, periods, minutes, stages, modes, origin_zones,
+                             destination_zones, routes):
+        es_query = self.get_base_from_to_map_data_query(dates, day_types, periods, minutes, stages,
+                                                        modes, origin_zones, destination_zones, routes)[:0]
 
         def _query_by_zone(query, field):
             by_zone_agg = A('terms', field=field, size=1000)
@@ -255,15 +293,11 @@ class ESTripHelper(ElasticSearchHelper):
         # origin zone, destination zone
         return es_query, destination_es_query
 
-    def get_base_strategies_data_query(self, start_date, end_date, day_types, periods, minutes, origin_zones,
-                                       destination_zones):
+    def get_base_strategies_data_query(self, dates, day_types, periods, minutes, origin_zones,
+                                       destination_zones, routes):
         es_query = self.get_base_query()
         origin_zone_limit = 50
         destination_zone_limit = 50
-
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
         if not origin_zones:
             raise ESQueryOriginZoneParameterDoesNotExist()
 
@@ -276,12 +310,21 @@ class ESTripHelper(ElasticSearchHelper):
         if len(destination_zones) > destination_zone_limit:
             raise ESQueryTooManyDestinationZonesError(destination_zone_limit)
 
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
 
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
@@ -294,12 +337,18 @@ class ESTripHelper(ElasticSearchHelper):
         if destination_zones:
             es_query = es_query.filter('terms', zona_bajada=destination_zones)
 
+        if routes:
+            routes_filter = [Q('terms', srv_1=routes), Q('terms', srv_2=routes), Q('terms', srv_3=routes),
+                             Q('terms', srv_4=routes)]
+            routes_filter = reduce((lambda x, y: x | y), routes_filter)
+            es_query = es_query.query('bool', filter=[routes_filter])
+
         return es_query
 
-    def get_strategies_data(self, start_date, end_date, day_types, periods, minutes, origin_zones,
-                            destination_zones):
-        es_query = self.get_base_strategies_data_query(start_date, end_date, day_types, periods, minutes, origin_zones,
-                                                       destination_zones)[:0]
+    def get_strategies_data(self, dates, day_types, periods, minutes, origin_zones,
+                            destination_zones, routes):
+        es_query = self.get_base_strategies_data_query(dates, day_types, periods, minutes, origin_zones,
+                                                       destination_zones, routes)[:0]
         query_filter = Q({'bool': {'must_not': {'bool': {
             'should': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}},
                        {'terms': {'tipo_transporte_3': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}}}})
@@ -308,8 +357,8 @@ class ESTripHelper(ElasticSearchHelper):
         third_transport_mode = A('terms', field='srv_3', size=2000)
         fourth_transport_mode = A('terms', field='srv_4', size=2000)
 
-        es_query.aggs.bucket('strategies_without_metro_or_metrotren', A('filter', query_filter)).\
-            bucket('first', first_transport_mode).bucket('second', second_transport_mode).\
+        es_query.aggs.bucket('strategies_without_metro_or_metrotren', A('filter', query_filter)). \
+            bucket('first', first_transport_mode).bucket('second', second_transport_mode). \
             bucket('third', third_transport_mode).bucket('fourth', fourth_transport_mode). \
             metric('expansion_factor', 'sum', field='factor_expansion')
 
@@ -393,22 +442,25 @@ class ESTripHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_base_transfers_data_query(self, start_date, end_date, auth_stop_code, day_types, periods, half_hours):
+    def get_base_transfers_data_query(self, dates, auth_stop_code, day_types, periods, half_hours):
         es_query = self.get_base_query()
-
-        if not start_date or not end_date:
-            raise ESQueryDateRangeParametersDoesNotExist()
-
         if not auth_stop_code:
             raise ESQueryStopParameterDoesNotExist()
-
-        es_query = es_query.filter('range', tiempo_subida={
-            'gte': start_date + '||/d',
-            'lte': end_date + '||/d',
-            'format': 'yyyy-MM-dd',
-            'time_zone': '+00:00'
-        })
-
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
         landing_stop_in_first_stage = Q('term', parada_bajada_1=auth_stop_code)
         landing_stop_in_second_stage = Q('term', parada_bajada_2=auth_stop_code)
         landing_stop_in_third_stage = Q('term', parada_bajada_3=auth_stop_code)
@@ -432,12 +484,11 @@ class ESTripHelper(ElasticSearchHelper):
             half_hour_in_fourth_stage = Q('terms', mediahora_bajada_4=half_hours)
             es_query = es_query.filter(
                 half_hour_in_first_stage | half_hour_in_second_stage | half_hour_in_third_stage | half_hour_in_fourth_stage)
-
         return es_query
 
-    def get_transfers_data(self, start_date, end_date, auth_stop_code, day_types, periods, half_hours):
+    def get_transfers_data(self, dates, auth_stop_code, day_types, periods, half_hours):
 
-        es_query = self.get_base_transfers_data_query(start_date, end_date, auth_stop_code, day_types, periods,
+        es_query = self.get_base_transfers_data_query(dates, auth_stop_code, day_types, periods,
                                                       half_hours)
 
         def add_aggregation(bucket_name, stop_name, additional_conditions, stage_route_init, stage_route_end,
@@ -467,9 +518,12 @@ class ESTripHelper(ElasticSearchHelper):
         second_not_condition = [{'term': {'tipo_transporte_3': 2}}, {'term': {'tipo_transporte_3': 4}}]
         third_not_condition = [{'term': {'tipo_transporte_4': 2}}, {'term': {'tipo_transporte_4': 4}}]
 
-        add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2', first_not_condition)
-        add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3', second_not_condition)
-        add_aggregation('third_transfer', 'parada_bajada_3', third_condition, 'srv_3', 'srv_4', third_not_condition)
+        add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2',
+                        first_not_condition)
+        add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3',
+                        second_not_condition)
+        add_aggregation('third_transfer', 'parada_bajada_3', third_condition, 'srv_3', 'srv_4',
+                        third_not_condition)
 
         add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2')
         add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3')

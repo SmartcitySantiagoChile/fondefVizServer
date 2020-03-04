@@ -4,15 +4,17 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
-    LoadProfileByExpeditionData, LoadProfileByTrajectoryData
+from esapi.views.bip import AvailableDays as BAD, BipTransactionByOperatorData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
+from esapi.views.paymentfactor import AvailableDays as PFAD, PaymentFactorData
+from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
+    LoadProfileByExpeditionData, LoadProfileByTrajectoryData, BoardingAndAlightingAverageByStops
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
-from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
-    TransfersData
 from esapi.views.stop import MatchedStopData
+from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
+    TransfersData, MultiRouteData
 
 app_name = 'esapi'
 urlpatterns = [
@@ -23,6 +25,8 @@ urlpatterns = [
         name='loadProfileByExpeditionData'),
     url(r'^profile/loadProfileByTrajectoryData/$', login_required(LoadProfileByTrajectoryData.as_view()),
         name='loadProfileByTrajectoryData'),
+    url(r'^profile/boardingAndAlightingAverageByStops/$', login_required(BoardingAndAlightingAverageByStops.as_view()),
+        name='boardingAndAlightingAverageByStops'),
     url(r'^profile/availableDays/$', login_required(AvailableDays.as_view()), name='availableProfileDays'),
     url(r'^profile/availableRoutes/$', login_required(AvailableRoutes.as_view()), name='availableProfileRoutes'),
 
@@ -51,10 +55,20 @@ urlpatterns = [
     url(r'^trip/mapData/$', login_required(MapData.as_view()), name='tripMapData'),
     url(r'^trip/availableDays/$', login_required(TAD.as_view()), name='availableTripDays'),
     url(r'^trip/transfersData/$', login_required(TransfersData.as_view()), name='transfersData'),
+    url(r'^trip/multiRouteData/$', login_required(MultiRouteData.as_view()), name='multiRouteData'),
 
     # stop indes
     url(r'^stop/matchedStopData/$', login_required(MatchedStopData.as_view()), name='matchedStopData'),
 
     # shape index
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
+
+    # paymentfactor index
+    url(r'^paymentfactor/availableDays/$', login_required(PFAD.as_view()), name='availablePaymentfactorDays'),
+    url(r'^paymentfactor/data/$', login_required(PaymentFactorData.as_view()), name='paymentfactorData'),
+
+    # bip index
+    url(r'^bip/availableDays/$', login_required(BAD.as_view()), name='availableBipDays'),
+    url(r'^bip/bipTransactionByOperatorData/$', login_required(BipTransactionByOperatorData.as_view()),
+        name='operatorBipData'),
 ]

@@ -46,8 +46,17 @@ class LoadManagerHTML(View):
                 'id': 'generalTable', 'title_icon': 'fa-clone', 'title': 'Datos generales'
             },
             {
+                'bubble_title': '', 'bubble_content': 'Datos de la distribución de validaciones en zonas pago',
+                'id': 'paymentfactorTable', 'title_icon': 'fa-money',
+                'title': 'Distribución de validaciones en zona de pago'
+            },
+            {
                 'bubble_title': '', 'bubble_content': 'Archivos de viajes',
                 'id': 'tripTable', 'title_icon': 'fa-line-chart', 'title': 'Viajes'
+            },
+            {
+                'bubble_title': '', 'bubble_content': 'Archivos de validaciones bip',
+                'id': 'bipTable', 'title_icon': 'fa-line-chart', 'title': 'Validaciones Bip'
             }
         ]
         operation_program_tables = [
@@ -57,7 +66,7 @@ class LoadManagerHTML(View):
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivo con secuencia de paradas por servicio',
-                'id': 'stopbyrouteTable', 'title_icon': 'fa-map-marker', 'title': 'Secuencia de paradas'
+                'id': 'stopTable', 'title_icon': 'fa-map-marker', 'title': 'Secuencia de paradas'
             }
         ]
         context = {

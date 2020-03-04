@@ -30,17 +30,27 @@ DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 INTERNAL_IPS = config('INTERNAL_IPS', cast=Csv())
-# Application definition
 
-INSTALLED_APPS = [
+# Application definition
+DJANGO_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres'
+)
+
+THIRD_PARTY_APPS = (
+    'django_crontab',
     'django_js_reverse',
     'django_rq',
+    'debug_toolbar',
+    'debug_panel',
+)
+
+LOCAL_APPS = (
     'bowerapp',
     'esapi',
     'datamanager',
@@ -51,9 +61,13 @@ INSTALLED_APPS = [
     'speed',
     'globalstat',
     'webuser',
-    'debug_toolbar',
-    'debug_panel'
-]
+    'logapp',
+    'awsbackup',
+    'paymentfactor',
+    'bip',
+)
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,6 +75,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'logapp.middleware.UserLogMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_panel.middleware.DebugPanelMiddleware'
@@ -154,7 +169,7 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), 'logs', 'file.log'),
-            'maxBytes': 1024*1024*100,
+            'maxBytes': 1024 * 1024 * 100,
             'backupCount': 10,
             'formatter': 'simple',
         },
@@ -201,8 +216,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 # Elastic-Search settings
-ES_CLIENT = Elasticsearch("{0}:{1}".format(config('ELASTICSEARCH_HOST'), config('ELASTICSEARCH_PORT')), timeout=60)
+ES_CLIENT = Elasticsearch("{0}:{1}".format(config('ELASTICSEARCH_HOST'), config('ELASTICSEARCH_PORT')), timeout=600)
 
 # Django js reverse settings
 JS_REVERSE_EXCLUDE_NAMESPACES = []
@@ -253,7 +271,9 @@ SERVER_EMAIL = config('SERVER_EMAIL')
 
 # crontab
 CRONJOBS = [
-    ('0 0 * * *', 'datamanager.cron.delete_old_file_job')  # at 00:00 every day
+    ('0 0 * * *', 'datamanager.cron.delete_old_file_job'),  # at 00:00 every day
+    ('0 2 * * *', 'django.core.management.call_command',
+     ['refreshusersession', '2018-01-01', '2030-01-01', '--delete-previous'], {})
 ]
 
 # secure proxy SSL header and secure cookies

@@ -28,9 +28,9 @@ class GetRouteInfo(View):
             es_shape_helper = ESShapeHelper()
             es_stop_helper = ESStopByRouteHelper()
 
-            response["points"] = es_shape_helper.get_route_shape(route, operation_program_date, operation_program_date)[
+            response["points"] = es_shape_helper.get_route_shape(route, [[operation_program_date]])[
                 'points']
-            response["stops"] = es_stop_helper.get_stop_list(route, operation_program_date, operation_program_date)[
+            response["stops"] = es_stop_helper.get_stop_list(route, [[operation_program_date]])[
                 'stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()

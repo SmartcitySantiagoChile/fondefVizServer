@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.views import View
+import datetime
+
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from esapi.helper.speed import ESSpeedHelper
-from esapi.helper.shape import ESShapeHelper
-from esapi.errors import FondefVizError, ESQueryResultEmpty
-from esapi.messages import SpeedVariationWithLessDaysMessage
-from esapi.utils import check_operation_program
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-
-from localinfo.helper import PermissionBuilder
-
-from datamanager.helper import ExporterManager
-
 import rqworkers.dataDownloader.csvhelper.helper as csv_helper
-import datetime
+from datamanager.helper import ExporterManager
+from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.speed import ESSpeedHelper
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
+from esapi.messages import SpeedVariationWithLessDaysMessage
+from esapi.utils import check_operation_program, get_dates_from_request
+from localinfo.helper import PermissionBuilder, get_calendar_info, get_custom_routes_dict
 
 hours = ["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00",
          "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -33,9 +31,10 @@ class AvailableDays(View):
         es_helper = ESSpeedHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         available_days = es_helper.get_available_days(valid_operator_list)
-
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)
@@ -49,9 +48,9 @@ class AvailableRoutes(View):
             es_helper = ESSpeedHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
             available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
-
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
+            response['routesDict'] = get_custom_routes_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -65,8 +64,8 @@ class MatrixData(View):
         return super(MatrixData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+
+        dates = get_dates_from_request(request, export_data)
         auth_route = params.get('authRoute', '')
         day_type = params.getlist('dayType[]', [])
 
@@ -78,34 +77,36 @@ class MatrixData(View):
         }
 
         try:
-            check_operation_program(start_date, end_date)
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
+
+            check_operation_program(dates[0][0], dates[-1][-1])
+
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
-                es_query = es_speed_helper.get_base_speed_data_query(auth_route, day_type, start_date, end_date,
+                es_query = es_speed_helper.get_base_speed_data_query(auth_route, day_type, dates,
                                                                      valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                shape = es_shape_helper.get_route_shape(auth_route, start_date, end_date)['points']
+                shape = es_shape_helper.get_route_shape(auth_route, dates)['points']
                 route_points = [[s['latitude'], s['longitude']] for s in shape]
                 limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
-
                 max_section = len(limits) - 1
                 response['segments'] = list(range(max_section + 1))
-                d_data = es_speed_helper.get_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
-
+                d_data = es_speed_helper.get_speed_data(auth_route, day_type, dates, valid_operator_list)
                 for hour in range(len(hours)):
                     route_segment_by_hour = []
                     for section in response['segments']:
-                        speed, n_obs = d_data.get((section, hour), (-1, 0))
-                        interval = 7
-                        for i, bound in enumerate([0, 5, 10, 15, 20, 25, 30]):
+                        speed, n_obs, distance, time = d_data.get((section, hour), (-1, 0, 0, 0))
+                        interval = 8
+                        for i, bound in enumerate([0, 5, 7.5, 10, 15, 20, 25, 30]):
                             if speed < bound:
                                 interval = i
                                 break
-                        route_segment_by_hour.append([interval, speed, n_obs])
+                        route_segment_by_hour.append([interval, speed, n_obs, distance, time])
                     response['matrix'].append(route_segment_by_hour)
 
                 response['route'] = {
@@ -132,12 +133,10 @@ class RankingData(View):
         return super(RankingData, self).dispatch(request, *args, **kwargs)
 
     def process_request(self, request, params, export_data=False):
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, export_data)
         hour_period_from = params.get('hourPeriodFrom', None)
         hour_period_to = params.get('hourPeriodTo', None)
         day_type = params.getlist('dayType[]', None)
-
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         response = {
@@ -146,16 +145,19 @@ class RankingData(View):
         }
 
         try:
-            check_operation_program(start_date, end_date)
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
+            check_operation_program(dates[0][0], dates[-1][-1])
+
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
-                es_query = es_speed_helper.get_base_ranking_data_query(start_date, end_date, hour_period_from,
+                es_query = es_speed_helper.get_base_ranking_data_query(dates, hour_period_from,
                                                                        hour_period_to, day_type, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                response['data'] = es_speed_helper.get_ranking_data(start_date, end_date, hour_period_from,
+                response['data'] = es_speed_helper.get_ranking_data(dates, hour_period_from,
                                                                     hour_period_to,
                                                                     day_type, valid_operator_list)
 
@@ -199,8 +201,7 @@ class SpeedByRoute(View):
 
     def process_request(self, request, params, export_data=False):
         route = params.get('authRoute', '')
-        start_date = params.get('startDate', '')[:10]
-        end_date = params.get('endDate', '')[:10]
+        dates = get_dates_from_request(request, export_data)
         hour_period = params.get('period', [])
         day_type = params.getlist('dayType[]', [])
 
@@ -216,27 +217,31 @@ class SpeedByRoute(View):
         }
 
         try:
-            check_operation_program(start_date, end_date)
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
+            check_operation_program(dates[0][0], dates[-1][-1])
+
             es_shape_helper = ESShapeHelper()
             es_speed_helper = ESSpeedHelper()
             if export_data:
-                es_query = es_speed_helper.get_base_detail_ranking_data_query(route, start_date, end_date, hour_period,
+                es_query = es_speed_helper.get_base_detail_ranking_data_query(route, dates, hour_period,
                                                                               day_type, valid_operator_list)
                 ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                shape = es_shape_helper.get_route_shape(route, start_date, end_date)['points']
+                shape = es_shape_helper.get_route_shape(route, dates)['points']
                 route_points = [[s['latitude'], s['longitude']] for s in shape]
                 limits = [i for i, s in enumerate(shape) if s['segmentStart'] == 1] + [len(shape) - 1]
                 start_end = list(zip(limits[:-1], limits[1:]))
+
                 response['route']['start_end'] = start_end
                 response['route']['points'] = route_points
 
-                es_query = es_speed_helper.get_detail_ranking_data(route, start_date, end_date, hour_period, day_type,
+                es_query = es_speed_helper.get_detail_ranking_data(route, dates, hour_period, day_type,
                                                                    valid_operator_list)
                 response['speed'] = self.process_data(es_query, limits)
 
-        except FondefVizError as e:
+        except ESQueryResultEmpty as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -324,7 +329,7 @@ class SpeedVariation(View):
         return data, l_routes
 
     def process_request(self, request, params, export_data=False):
-        end_date = params.get('startDate', '')[:10]
+        dates = get_dates_from_request(request, export_data)
         # startDate is the variable name that represents the date we need to calculate speed variation with respect to
         # previous days, that it's why we called end_date
         operator = int(params.get('operator', 0))
@@ -338,11 +343,14 @@ class SpeedVariation(View):
             'routes': []
         }
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
+            end_date = dates[0][0]
+
             date_format = "%Y-%m-%d"
 
             most_recent_op_program_date = ESShapeHelper().get_most_recent_operation_program_date(end_date)
             most_recent_op_program_date_obj = datetime.datetime.strptime(most_recent_op_program_date, date_format)
-
             end_date_obj = datetime.datetime.strptime(end_date, date_format)
             days = 31
             if (end_date_obj - most_recent_op_program_date_obj).days < days:
@@ -352,6 +360,7 @@ class SpeedVariation(View):
 
             start_date = (end_date_obj - datetime.timedelta(days=days)).strftime(date_format)
             check_operation_program(start_date, end_date)
+
             es_speed_helper = ESSpeedHelper()
 
             if export_data:

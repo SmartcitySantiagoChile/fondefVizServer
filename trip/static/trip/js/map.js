@@ -100,9 +100,7 @@ function MapApp(opts) {
     tileLayer = tileLayerURL[tileLayer];
 
     /* map options */
-    var accessToken = "pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og";
-    //var accessToken = "pk.eyJ1IjoidHJhbnNhcHB2aXMiLCJhIjoiY2l0bG9qd3ppMDBiNjJ6bXBpY3J0bm40cCJ9.ajifidV4ypi0cXgiGQwR-A";
-
+    var accessToken = "pk.eyJ1IjoiY2VwaGVpIiwiYSI6ImNrMzA0MHlvMjBsbmEzaHIzd24xNGV0NW0ifQ.5yTsjnoXTZ5ihlNbtf8cbw";
     var map = L.map(mapId, {
         doubleClickZoom: doubleClickZoom
     }).setView(mapStartLocation, minZoom);
@@ -466,7 +464,7 @@ function MapApp(opts) {
         popUpDescription += " Nombre: <b>" + stopInfo.stopName + "</b><br />";
         popUpDescription += " Código transantiago: <b>" + stopInfo.authStopCode + "</b><br />";
         popUpDescription += " Código usuario: <b>" + stopInfo.userStopCode + "</b><br />";
-        popUpDescription += " Posición en la ruta: <b>" + stopInfo.order + "</b><br />";
+        popUpDescription += " Posición en la ruta: <b>" + (stopInfo.order + 1) + "</b><br />";
         popUpDescription += additonalStopInfo;
         marker.bindPopup(popUpDescription + "</p>");
         layer.addLayer(marker);

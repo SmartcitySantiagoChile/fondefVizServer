@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+import uuid
+import zipfile
+
 from elasticsearch_dsl import Search
 
-from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
-from rqworkers.dataDownloader.errors import FilterHasToBeListError
-
+from esapi.helper.bip import ESBipHelper
+from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
+from esapi.helper.profile import ESProfileHelper
+from esapi.helper.shape import ESShapeHelper
+from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.helper.trip import ESTripHelper
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input, \
     get_transport_mode_list_for_select_input
-
-from esapi.helper.profile import ESProfileHelper
-from esapi.helper.shape import ESShapeHelper
-from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.helper.speed import ESSpeedHelper
-from esapi.helper.trip import ESTripHelper
-from esapi.helper.odbyroute import ESODByRouteHelper
-
-import os
-import zipfile
-import uuid
+from rqworkers.dataDownloader.errors import FilterHasToBeListError
+from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
 
 README_FILE_NAME = 'Léeme.txt'
 
@@ -28,6 +28,9 @@ PROFILE_BY_STOP_DATA = 'profile_by_stop'
 OD_BY_ROUTE_DATA = 'od_by_route_data'
 SPEED_MATRIX_DATA = 'speed_matrix_data'
 TRIP_DATA = 'trip_data'
+PAYMENT_FACTOR_DATA = 'payment_factor_data'
+BIP_DATA = 'bip'
+
 
 
 class WrongFormatterError(Exception):
@@ -39,7 +42,7 @@ class ZipManager:
 
     def __init__(self, file_path):
         self.file_path = file_path
-        self.zip_file_obj = zipfile.ZipFile(self.file_path, mode='w', compression=zipfile.ZIP_DEFLATED)
+        self.zip_file_obj = zipfile.ZipFile(self.file_path, mode='w', compression=zipfile.ZIP_DEFLATED, allowZip64=True)
 
     def build_readme(self, file_title, files_description, data_filter, field_explanation):
         file_path = os.path.join(os.path.dirname(__file__), '..', 'helptemplate', 'template.readme')
@@ -91,16 +94,18 @@ class CSVHelper:
         tmp_file_name = str(uuid.uuid4())
         try:
             with open(tmp_file_name, 'wb') as output:
-                writter = UnicodeWriter(output, delimiter=str(','))
-                writter.writerow(self.get_header())
+                # added BOM to file to recognize accent in excel files
+                output.write('\ufeff'.encode('utf-8-sig'))
+                writer = UnicodeWriter(output, delimiter=str(','))
+                writer.writerow(self.get_header())
 
                 for doc in self.get_iterator(kwargs):
                     row = self.row_parser(doc)
                     if isinstance(row[0], list):
                         # there are more than one row in variable
-                        writter.writerows(row)
+                        writer.writerows(row)
                     else:
-                        writter.writerow(row)
+                        writer.writerow(row)
 
             zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
         finally:
@@ -169,12 +174,20 @@ class CSVHelper:
                 }
                 formatted_filters.append(attr_filter)
             elif 'bool' in query_filter:
-                nested_filters = query_filter['bool']['should']
-                attr_filter = {
-                    'group': True,
-                    'field': '',
-                    'value': self._process_filters(nested_filters)
-                }
+                if 'should' in query_filter['bool']:
+                    nested_filters = query_filter['bool']['should']
+                    attr_filter = {
+                        'group': 'should',
+                        'field': '',
+                        'value': self._process_filters(nested_filters)
+                    }
+                else:
+                    nested_filters = query_filter['bool']['must_not']
+                    attr_filter = {
+                        'group': 'must_not',
+                        'field': '',
+                        'value': self._process_filters(nested_filters)
+                    }
                 formatted_filters.append(attr_filter)
             elif 'must' in query_filter:
                 nested_filters = query_filter['must'][0]['term']
@@ -193,7 +206,8 @@ class CSVHelper:
         description = ''
         for element in elements:
             if 'group' in element:
-                description += '{0}({1})'.format(sep, self._formatter_for_web(element['value'], ' o '))
+                format_str = '{0}({1})' if element['group'] == 'should' else '{0} no {1}'
+                description += format_str.format(sep, self._formatter_for_web(element['value'], ' o '))
             else:
                 value = element['value']
                 if isinstance(value, list):
@@ -206,7 +220,9 @@ class CSVHelper:
         description = ''
         for element in elements:
             if 'group' in element:
-                description += '{0}({1}){2}'.format(sep, self._formatter_for_file(element['value'], ' o ', '', True), break_line)
+                format_str = '{0}({1}){2}' if element['group'] == 'should' else '{0} no {1}{2}'
+                description += format_str.format(sep, self._formatter_for_file(element['value'], ' o ', '', True),
+                                                 break_line)
             else:
                 value = element['value']
                 if isinstance(value, list):
@@ -505,12 +521,18 @@ class TripCSVHelper(CSVHelper):
              'definition': 'Distancia euclidiana del viaje'},
             {'es_name': 'distancia_ruta', 'csv_name': 'Distancia_considerando_ruta',
              'definition': 'distancia considerando la ruta de los modos utilizados durante el viaje'},
-            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida', 'definition': 'Fecha y hora en que se inició el viaje'},
-            {'es_name': 'tiempo_bajada', 'csv_name': 'Tiempo_bajada', 'definition': 'Fecha y hora en que terminó el viaje'},
-            {'es_name': 'mediahora_subida', 'csv_name': 'Media_hora_subida', 'definition': 'Tramo de media hora en que inició el viaje'},
-            {'es_name': 'mediahora_bajada', 'csv_name': 'Media_hora_bajada', 'definition': 'Tramo de media hora en que finalizó el viaje'},
-            {'es_name': 'periodo_subida', 'csv_name': 'Periodo_transantiago_subida', 'definition': 'Período transantiago en que inició el viaje'},
-            {'es_name': 'periodo_bajada', 'csv_name': 'Período_transantiago_bajada', 'definition': 'Período transantiago en que finalizó el viaje'},
+            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
+             'definition': 'Fecha y hora en que se inició el viaje'},
+            {'es_name': 'tiempo_bajada', 'csv_name': 'Tiempo_bajada',
+             'definition': 'Fecha y hora en que terminó el viaje'},
+            {'es_name': 'mediahora_subida', 'csv_name': 'Media_hora_subida',
+             'definition': 'Tramo de media hora en que inició el viaje'},
+            {'es_name': 'mediahora_bajada', 'csv_name': 'Media_hora_bajada',
+             'definition': 'Tramo de media hora en que finalizó el viaje'},
+            {'es_name': 'periodo_subida', 'csv_name': 'Periodo_transantiago_subida',
+             'definition': 'Período transantiago en que inició el viaje'},
+            {'es_name': 'periodo_bajada', 'csv_name': 'Período_transantiago_bajada',
+             'definition': 'Período transantiago en que finalizó el viaje'},
             {'es_name': 'tipo_transporte_1', 'csv_name': 'Tipo_transporte_etapa_1',
              'definition': 'Modo de transporte utilizado en la etapa 1'},
             {'es_name': 'tipo_transporte_2', 'csv_name': 'Tipo_transporte_etapa_1',
@@ -523,8 +545,10 @@ class TripCSVHelper(CSVHelper):
             {'es_name': 'srv_2', 'csv_name': 'Servicio_etapa_2', 'definition': 'Servicio utilizado en la etapa 2'},
             {'es_name': 'srv_3', 'csv_name': 'Servicio_etapa_3', 'definition': 'Servicio utilizado en la etapa 3'},
             {'es_name': 'srv_4', 'csv_name': 'Servicio_etapa_4', 'definition': 'Servicio utilizado en la etapa 4'},
-            {'es_name': 'paradero_subida', 'csv_name': 'Parada_subida', 'definition': 'Código transantiago de la parada donde inició el viaje'},
-            {'es_name': 'paradero_bajada', 'csv_name': 'Parada_bajada', 'definition': 'Código transantiago de la parada donde finalizó el viaje'},
+            {'es_name': 'paradero_subida', 'csv_name': 'Parada_subida',
+             'definition': 'Código transantiago de la parada donde inició el viaje'},
+            {'es_name': 'paradero_bajada', 'csv_name': 'Parada_bajada',
+             'definition': 'Código transantiago de la parada donde finalizó el viaje'},
             {'es_name': 'comuna_subida', 'csv_name': 'Comuna_subida',
              'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
             {'es_name': 'comuna_bajada', 'csv_name': 'Comuna_bajada',
@@ -559,14 +583,22 @@ class TripCSVHelper(CSVHelper):
              'definition': 'Media hora de la bajada asociada a la etapa 3'},
             {'es_name': 'mediahora_bajada_4', 'csv_name': 'mediahora_bajada_etapa_4',
              'definition': 'Media hora de la bajada asociada a la etapa 4'},
-            {'es_name': 'parada_subida_1', 'csv_name': 'parada_subida_1', 'definition': 'Código transantiago de la parada donde inició la etapa 1'},
-            {'es_name': 'parada_subida_2', 'csv_name': 'parada_subida_2', 'definition': 'Código transantiago de la parada donde inició la etapa 2'},
-            {'es_name': 'parada_subida_3', 'csv_name': 'parada_subida_3', 'definition': 'Código transantiago de la parada donde inició la etapa 3'},
-            {'es_name': 'parada_subida_4', 'csv_name': 'parada_subida_4', 'definition': 'Código transantiago de la parada donde inició la etapa 4'},
-            {'es_name': 'parada_bajada_1', 'csv_name': 'parada_bajada_1', 'definition': 'Código transantiago de la parada donde terminó la etapa 1'},
-            {'es_name': 'parada_bajada_2', 'csv_name': 'parada_bajada_2', 'definition': 'Código transantiago de la parada donde terminó la etapa 2'},
-            {'es_name': 'parada_bajada_3', 'csv_name': 'parada_bajada_3', 'definition': 'Código transantiago de la parada donde terminó la etapa 3'},
-            {'es_name': 'parada_bajada_4', 'csv_name': 'parada_bajada_4', 'definition': 'Código transantiago de la parada donde terminó la etapa 4'},
+            {'es_name': 'parada_subida_1', 'csv_name': 'parada_subida_1',
+             'definition': 'Código transantiago de la parada donde inició la etapa 1'},
+            {'es_name': 'parada_subida_2', 'csv_name': 'parada_subida_2',
+             'definition': 'Código transantiago de la parada donde inició la etapa 2'},
+            {'es_name': 'parada_subida_3', 'csv_name': 'parada_subida_3',
+             'definition': 'Código transantiago de la parada donde inició la etapa 3'},
+            {'es_name': 'parada_subida_4', 'csv_name': 'parada_subida_4',
+             'definition': 'Código transantiago de la parada donde inició la etapa 4'},
+            {'es_name': 'parada_bajada_1', 'csv_name': 'parada_bajada_1',
+             'definition': 'Código transantiago de la parada donde terminó la etapa 1'},
+            {'es_name': 'parada_bajada_2', 'csv_name': 'parada_bajada_2',
+             'definition': 'Código transantiago de la parada donde terminó la etapa 2'},
+            {'es_name': 'parada_bajada_3', 'csv_name': 'parada_bajada_3',
+             'definition': 'Código transantiago de la parada donde terminó la etapa 3'},
+            {'es_name': 'parada_bajada_4', 'csv_name': 'parada_bajada_4',
+             'definition': 'Código transantiago de la parada donde terminó la etapa 4'},
             {'es_name': 'periodo_bajada_1', 'csv_name': 'periodo_bajada_etapa_1',
              'definition': 'Período transantiago de bajada asociada a la etapa 1'},
             {'es_name': 'periodo_bajada_2', 'csv_name': 'periodo_bajada_etapa_2',
@@ -738,3 +770,115 @@ class StopByRouteCSVHelper(CSVHelper):
             rows.append(stop_row)
 
         return rows
+
+
+class PaymentFactorCSVHelper(CSVHelper):
+    """ Class that represents a bus station distribution data downloader. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESPaymentFactorHelper().index_name)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'date', 'csv_name': 'Fecha', 'definition': 'Día en que se realizaron las validaciones'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'Tipo de día'},
+            {'es_name': 'operator', 'csv_name': 'Id Operador',
+             'definition': 'Identificador de empresa asociada a la zona paga'},
+            {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa asociada a la zona paga'},
+            {'es_name': 'assignation', 'csv_name': 'Asignación',
+             'definition': 'Indica si el operador está asignado a la zona paga'},
+            {'es_name': 'busStationId', 'csv_name': 'Identificador_zona_paga',
+             'definition': 'Código que identifica la zona paga'},
+            {'es_name': 'busStationName', 'csv_name': 'Nombre_zona_paga',
+             'definition': 'Nombre de la parada donde se encuentra la zona paga'},
+            {'es_name': 'total', 'csv_name': 'Total', 'definition': ''},
+            {'es_name': 'sum', 'csv_name': 'Suman', 'definition': ''},
+            {'es_name': 'subtraction', 'csv_name': 'Restan', 'definition': ''},
+            {'es_name': 'neutral', 'csv_name': 'Neutras', 'definition': ''},
+            {'es_name': 'factor', 'csv_name': 'Factor', 'definition': 'Factor de pago'},
+            {'es_name': 'routes', 'csv_name': 'Servicios',
+             'definition': 'Servicios que se detienen en esta parada, separados por el signo "-"'},
+            {'es_name': 'transactions', 'csv_name': 'Validaciones',
+             'definition': 'N° de validaciones por servicio, están separados por el signo "-" y su servicio asociado es el ubicado en la misma posición de la columna "Servicios"'},
+            {'es_name': 'validatorId', 'csv_name': 'Id de validador',
+             'definition': 'Identificador del validador asociado a la zona paga'},
+        ]
+
+    def get_data_file_name(self):
+        return 'Distribución_de_validaciones.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa las validaciones asociadas a un operador en una zona paga'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        is_second_operator_value = False
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'dayType':
+                    value = self.day_type_dict[value]
+                elif column_name == 'operator' and not is_second_operator_value:
+                    # we do this to add operator raw data and data given by operator dict the second time
+                    is_second_operator_value = True
+                elif column_name == 'operator' and is_second_operator_value:
+                    value = self.operator_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row
+
+class BipCSVHelper(CSVHelper):
+    """ Class that represents a bip downloader. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESBipHelper().index_name)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa que opera el servicio'},
+            {'es_name': 'route', 'csv_name': 'Servicio_transantiago',
+             'definition': 'Código de transantiago del servicio'},
+            {'es_name': 'userRoute', 'csv_name': 'Servicio_usuario',
+             'definition': 'Código de usuario del servicio (ejemplo: 506)'},
+            {'es_name': 'validationTime', 'csv_name': 'Hora_validacion',
+             'definition': 'Fecha y hora de la validación'},
+            {'es_name': 'bipNumber', 'csv_name': 'Número Bip', 'definition': 'Número de la tarjeta bip'},
+            {'es_name': 'source', 'csv_name': 'Fuente de dato', 'definition': 'Bus, estación de metro, metrobus o totem validador.'}
+        ]
+
+    def get_data_file_name(self):
+        return 'Bip.csv'
+
+    def get_file_description(self):
+        description = 'archivo de transacciones bip, cada fila representa una validación bip'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'operator':
+                    value = self.operator_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row

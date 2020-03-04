@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.views.generic import View
-from django.http import JsonResponse
-from django.contrib.auth.mixins import PermissionRequiredMixin
-
-from esapi.helper.resume import ESResumeStatisticHelper
-from esapi.errors import ESQueryResultEmpty
-
 from datetime import datetime
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import JsonResponse
+from django.views.generic import View
+
+from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, FondefVizError
+from esapi.helper.resume import ESResumeStatisticHelper
 # to translate variable to user name
+from esapi.utils import get_dates_from_request
+from localinfo.helper import get_calendar_info
+
 DICTIONARY = {
     'date': {'name': 'Día', 'order': 1},
     'transactionWithoutRoute': {'name': 'transacciones sin servicio asignado', 'chartName': 'Sin servicio asignado', 'order': 2},
@@ -138,7 +140,6 @@ class GlobalData(PermissionRequiredMixin, View):
         identifiers = ['date']
         chart_names = ['Día']
         answer = []
-
         for hit in es_query.scan():
             hit_row = hit.to_dict()
             row = list(range(len(hit_row.keys())))
@@ -153,10 +154,8 @@ class GlobalData(PermissionRequiredMixin, View):
         # sort
 
         answer = sorted(answer, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'))
-
         if len(answer) == 0:
             raise ESQueryResultEmpty()
-
         return {
             'chartNames': chart_names,
             'header': header,
@@ -167,19 +166,15 @@ class GlobalData(PermissionRequiredMixin, View):
     def get(self, request):
 
         metrics = request.GET.getlist('metrics[]', [])
-        start_date = request.GET.get('startDate')[:10]
-        end_date = request.GET.get('endDate', '')[:10]
-
-        if start_date and not end_date:
-            end_date = start_date
-
+        dates = get_dates_from_request(request, False)
         response = {}
         try:
+            if len(dates) == 0:
+                raise ESQueryDateParametersDoesNotExist
             es_helper = ESResumeStatisticHelper()
-            es_query = es_helper.get_data(start_date, end_date, metrics)
-
+            es_query = es_helper.get_data(dates, metrics)
             response['data'] = self.transform_data(es_query)
-        except ESQueryResultEmpty as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -192,8 +187,11 @@ class AvailableDays(PermissionRequiredMixin, View):
         es_helper = ESResumeStatisticHelper()
         available_days = es_helper.get_available_days()
 
+        calendar_info = get_calendar_info()
         response = {
-            'availableDays': available_days
+            'availableDays': available_days,
+            'info': calendar_info
         }
 
         return JsonResponse(response)
+

@@ -10,10 +10,23 @@ $(document).ready(function () {
             },
             searching: false,
             columns: [
-                {title: "Archivo", data: "name", searchable: true},
+                {
+                    title: "Archivo",
+                    data: "name",
+                    searchable: true,
+                    render: function (data, type, row, meta) {
+                        if (type === "sort") {
+                            return (new Date(data.split(".")[0])).getTime();
+                        }
+                        return data;
+                    }
+                },
                 {
                     title: "Última modificación", data: "lastModified", searchable: true,
                     render: function (data, type, row, meta) {
+                        if (type === "sort") {
+                            return (new Date(data)).getTime();
+                        }
                         return (new Date(data)).toLocaleString();
                     }
                 },

@@ -150,13 +150,17 @@ class ExporterJobExecution(JobExecution):
     SPEED = 'speed'
     TRIP = 'trip'
     PROFILE = 'profile'
+    PAYMENT_FACTOR = 'paymentfactor'
+    BIP = 'bip'
     FILE_TYPE_CHOICES = (
         (OD_BY_ROUTE, 'Matriz de etapa por servicio'),
         (SPEED, 'Velocidades'),
         (TRIP, 'Viajes'),
-        (PROFILE, 'Perfil de carga')
+        (PROFILE, 'Perfil de carga'),
+        (PAYMENT_FACTOR, 'Validaciones en zona paga'),
+        (BIP, "Validaciones bip")
     )
-    fileType = models.CharField('Fuente de datos', max_length=10, null=False, choices=FILE_TYPE_CHOICES)
+    fileType = models.CharField('Fuente de datos', max_length=30, null=False, choices=FILE_TYPE_CHOICES)
     # to save data downloader (name, filters, etc)
     filters = models.TextField('Filtros aplicados', null=True)
 

@@ -356,7 +356,6 @@ $(document).ready(function () {
             var yAxisData = _dataManager.yAxisData().loadProfile;
 
             var maxLoadProfile = Math.max(...yAxisData);
-
             stops.forEach(function (stop, i) {
                 var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
                 var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
@@ -377,7 +376,10 @@ $(document).ready(function () {
                 stops: stops,
                 additonalStopInfo: function(stopPosition) {
                     var loadProfile = yAxisData[stopPosition];
-                    return "<br />Perfil de carga: <b>" + Number(loadProfile.toFixed(2)).toLocaleString() + "</b>";
+                    if (loadProfile !== null) {
+                        loadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
+                    }
+                    return "<br />Perfil de carga: <b>" + loadProfile + "</b>";
                 }
             });
         };
@@ -797,13 +799,16 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
         var app = new ExpeditionApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status){
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {

@@ -88,7 +88,7 @@ $(document).ready(function () {
             _yAxisData = null;
             _tripsUsed = 0;
         };
-        this.setVisibilty = function (tripIdArray, value) {
+        this.setVisibility = function (tripIdArray, value) {
             for (var i = 0; i < tripIdArray.length; i++) {
                 var tripId = tripIdArray[i];
                 if (_trips[tripId].visible !== value) {
@@ -199,6 +199,7 @@ $(document).ready(function () {
                 _yAxisData.negativeSaturationRateAfter[routeIndex] = decValue;
             }
         };
+
         this.getAttrGroup = function (attrName, formatFunc) {
             var values = [];
             var dict = {};
@@ -223,6 +224,7 @@ $(document).ready(function () {
             }
             return values;
         };
+
         this.getDatatableData = function () {
             var values = [];
             for (var i in _trips) {
@@ -237,50 +239,12 @@ $(document).ready(function () {
                 rows: values
             };
         };
-
-        this.getDistributionData = function () {
-
-            var globalMax = 0;
-            var trips = [];
-
-            for (var i in _trips) {
-                var trip = _trips[i];
-                var tripData = {};
-                if (!trip.visible) {
-                    continue;
-                }
-                tripData.name = trip.stopTime;
-
-                var loadProfile = [];
-                for (var j = 0; j < _xAxisData.length; j++) {
-                    var authStopCode = _xAxisData[j].authCode;
-                    var value = trip.yAxisData.loadProfile[authStopCode];
-
-                    if (globalMax < value) {
-                        globalMax = value;
-                    }
-                    loadProfile.push(value);
-                }
-                tripData.loadProfile = loadProfile;
-                trips.push(tripData);
-            }
-
-            var result = {};
-            result.globalMax = globalMax;
-            result.trips = trips;
-
-            return result;
-        }
     }
 
     function ExpeditionApp() {
         var _self = this;
         var _dataManager = new DataManager();
         var _barChart = echarts.init(document.getElementById("barChart"), theme);
-        var _wordcloudCharts = [
-            echarts.init(document.getElementById("wordcloudChart1"), theme),
-            echarts.init(document.getElementById("wordcloudChart2"), theme)];
-        var _timePeriodChart = echarts.init(document.getElementById("timePeriodChart"), theme);
         var _datatable = $("#expeditionDetail").DataTable({
             lengthMenu: [[10, 25, 50], [10, 25, 50]],
             language: {
@@ -343,7 +307,7 @@ $(document).ready(function () {
                     var tripIds = _datatable.rows({"search": "applied"}).data().map(function (el) {
                         return el.id
                     });
-                    _dataManager.setVisibilty(tripIds, addToAggr);
+                    _dataManager.setVisibility(tripIds, addToAggr);
                     _self.updateCharts();
                 });
             }
@@ -377,109 +341,6 @@ $(document).ready(function () {
 
         this.resizeCharts = function () {
             _barChart.resize();
-            _timePeriodChart.resize();
-            _wordcloudCharts.forEach(function (chart) {
-                chart.resize();
-            });
-        };
-
-        var _updateTimePeriodChart = function () {
-            var stopTime = _dataManager.getAttrGroup("stopTime", function (attrValue) {
-                return attrValue.substring(11, 13);
-            });
-            stopTime = stopTime.sort(function (a, b) {
-                a = parseInt(a.name);
-                b = parseInt(b.name);
-                return a - b;
-            });
-            var hours = stopTime.map(function (el) {
-                return el.name;
-            });
-            var values = stopTime.map(function (el, index) {
-                return [index, el.value];
-            });
-            var option = {
-                tooltip: {
-                    positon: "top"
-                },
-                singleAxis: [{
-                    type: "category",
-                    boundaryGap: false,
-                    data: hours,
-                    top: "10%",
-                    height: "40%",
-                    axisLabel: {
-                        interval: 2
-                    }
-                }],
-                series: [{
-                    singleAxisIndex: 0,
-                    coordinateSystem: "singleAxis",
-                    type: "scatter",
-                    data: values,
-                    symbolSize: function (dataItem) {
-                        return [10, dataItem[1] * 0.3];
-                    },
-                    tooltip: {
-                        formatter: function (params) {
-                            var value = params.value[1];
-                            var name = params.name;
-                            var timePeriod = "[" + name + ":00, " + name + ":59]";
-                            return value + " expediciones iniciadas entre " + timePeriod;
-                        }
-                    }
-                }]
-            };
-            _timePeriodChart.clear();
-            _timePeriodChart.setOption(option, {notMerge: true});
-        };
-
-        var _updateWordcloudCharts = function () {
-            var lpValues = _dataManager.getAttrGroup("licensePlate");
-            var dayTypeValues = _dataManager.getAttrGroup("dayType");
-
-            $("#licensePlateNumber").html("(" + lpValues.length + ")");
-
-            var values = [lpValues, dayTypeValues];
-            for (var i = 0; i < values.length; i++) {
-                var chart = _wordcloudCharts[i];
-
-                chart.on("click", function (params) {
-                    console.log(params);
-                });
-
-                var options = {
-                    tooltip: {},
-                    series: [{
-                        type: "wordCloud",
-                        shape: "pentagon",
-                        width: "100%",
-                        height: "100%",
-                        sizeRange: [6, 14],
-                        rotationRange: [0, 0],
-                        rotationStep: 0,
-                        gridSize: 8,
-                        textStyle: {
-                            normal: {
-                                color: function () {
-                                    return "rgb(" + [
-                                        Math.round(Math.random() * 160),
-                                        Math.round(Math.random() * 160),
-                                        Math.round(Math.random() * 160)
-                                    ].join(",") + ")";
-                                }
-                            },
-                            emphasis: {
-                                shadowBlur: 10,
-                                shadowColor: "#169F85"
-                            }
-                        },
-                        data: values[i]
-                    }]
-                };
-                chart.clear();
-                chart.setOption(options, {notMerge: true});
-            }
         };
 
         var _updateDatatable = function () {
@@ -511,7 +372,7 @@ $(document).ready(function () {
 
                     // updateChart
                     var tripId = parseInt($(this).attr("name").replace("trip", ""));
-                    _dataManager.setVisibilty([tripId], addToAggr);
+                    _dataManager.setVisibility([tripId], addToAggr);
                     _self.updateCharts();
                 });
             });
@@ -720,7 +581,9 @@ $(document).ready(function () {
                                     value = sign + el.value.toFixed(1) + "%";
                                 }
                                 var colorBall = ball.replace("{}", el.color);
-                                info.push(colorBall + name + ": " + value);
+                                if (serieIndex !== 4){
+                                    info.push(colorBall + name + ": " + value);
+                                }
                             }
                             // add saturation rate after
                             var saturationRateInfo = ball.replace("{}", "#3145f7") + "Tasa ocupación promedio a la salida:" + yAxisData.saturationRateAfter[xValue].toFixed(1) + "% (" + yAxisData.averageSaturationRateAfter[xValue].toFixed(2) + ")";
@@ -749,8 +612,6 @@ $(document).ready(function () {
 
         this.updateCharts = function () {
             _updateBarChart();
-            _updateWordcloudCharts();
-            _updateTimePeriodChart();
             _updateGlobalStats();
         };
         this.updateDatatable = function () {
@@ -759,22 +620,13 @@ $(document).ready(function () {
         this.showLoadingAnimationCharts = function () {
             var loadingText = "Cargando...";
             _barChart.showLoading(null, {text: loadingText});
-            _timePeriodChart.showLoading(null, {text: loadingText});
-            for (var i = 0; i < _wordcloudCharts.length; i++) {
-                _wordcloudCharts[i].showLoading(null, {text: loadingText});
-            }
         };
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
-            _timePeriodChart.hideLoading();
-            for (var i = 0; i < _wordcloudCharts.length; i++) {
-                _wordcloudCharts[i].hideLoading();
-            }
         };
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
 
         if (dataSource.status) {
             return;
@@ -818,13 +670,16 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
+        loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
         var app = new ExpeditionApp();
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if(status){
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {

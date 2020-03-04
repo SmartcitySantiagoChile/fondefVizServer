@@ -1,0 +1,49 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block css %}
+    <link href="{% static "css/filterManager.css" %}" rel="stylesheet">
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
+              rel="stylesheet">
+    {% endwith %}
+    <style>
+        tbody .btn {
+            margin-bottom: 0px;
+            font-size: 12px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}Almacenamiento{% endblock %}
+
+{% block content %}
+    {% include "help/modal/explanation/calendar.html" with modal_id="dayHelp" %}
+    {% include "help/modal/export_data.html" with show_ok_button=True modal_id="exportDataModal" %}
+{% endblock %}
+
+{% block js %}
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
+    {% endwith %}
+
+    <script src="{% static "components/echarts/dist/echarts.min.js" %}"></script>
+
+    <script src="{% static "js/echartsTheme.js" %}"></script>
+    <script src="{% static "js/availableDays.js" %}"></script>
+{% endblock %}

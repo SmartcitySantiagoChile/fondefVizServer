@@ -25,14 +25,16 @@
     <div class="">
         {% header "Estrategias de viaje" %}
         {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+        {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
         {% with panel_body="<div class='col-md-12 col-sm-12 col-xs-12'><label>Seleccione el origen y destino:</label><div id='mapChart' style='height:500px;'></div></div>" %}
-            {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_start_trip_minute_filter=True extra_html=panel_body info_target_id="filterHelp" %}
+            {% data_filter data_filter show_day_filter=True show_day_type_filter=True show_start_trip_period_filter=True show_multi_auth_route_filter=True show_start_trip_minute_filter=True extra_html=panel_body info_target_id="filterHelp" %}
         {% endwith %}
 
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 {% with panel_body="<table id='tupleDetail' class='table table-striped table-bordered dt-responsive table-condensed nowrap' width='100%'><thead><tr><th></th><th></th><th></th><th></th><th></th></tr></thead></table>" %}
-                    {% panel "fa-chain" "<span id='mapTitle'>Estrategias utilizadas para </span> <span id='tripTotalNumberValue'>0</span> <span id='tripTotalNumberLabel'>viajes</span> en <span id='dataTotalNumberValue'>0</span> <span id='dataTotalNumberLabel'>datos</span>" panel_body info_target_id="mapHelp" %}
+                    {% panel "fa-chain" "<span id='mapTitle'> Suma de estrategias utilizadas para </span> <span id='tripTotalNumberValue'>0</span> <span id='tripTotalNumberLabel'>viajes</span> en <span id='dataTotalNumberValue'>0</span> <span id='dataTotalNumberLabel'>datos</span>" panel_body info_target_id="mapHelp" %}
                 {% endwith %}
             </div>
         </div>

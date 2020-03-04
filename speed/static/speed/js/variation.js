@@ -190,14 +190,17 @@ $(document).ready(function () {
     // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableSpeedDays"]());
+        loadRangeCalendar(Urls["esapi:availableSpeedDays"](),{singleDatePicker: true});
 
         var app = new VariationApp();
 
         var previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data) {
-            processData(data, app);
+        var afterCall = function (data, status) {
+            if (status) {
+                processData(data, app);
+            }
             app.hideLoadingAnimationCharts();
         };
         var opts = {

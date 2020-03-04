@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.core.management.base import BaseCommand
-from django.conf import settings
+import os
 
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
+from esapi.helper.bip import ESBipHelper
+from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
+from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.helper.shape import ESShapeHelper
-from esapi.helper.odbyroute import ESODByRouteHelper
-from esapi.helper.profile import ESProfileHelper
 from esapi.helper.speed import ESSpeedHelper
-from esapi.helper.trip import ESTripHelper
-from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.stop import ESStopHelper
-
-import os
+from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.helper.trip import ESTripHelper
 
 
 class Command(BaseCommand):
@@ -31,7 +33,9 @@ class Command(BaseCommand):
             ESTripHelper(),
             ESShapeHelper(),
             ESODByRouteHelper(),
-            ESResumeStatisticHelper()
+            ESResumeStatisticHelper(),
+            ESPaymentFactorHelper(),
+            ESBipHelper()
         ]
 
         def get_mapping_file(helper):

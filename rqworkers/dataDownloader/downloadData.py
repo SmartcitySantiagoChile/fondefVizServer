@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import sys
-import os
-import django
 import argparse
 import json
+import os
+import sys
+
+import django
 
 # add path so we can use function through command line
 new_path = os.path.join(os.path.dirname(__file__), '..', '..')
@@ -20,6 +21,8 @@ from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, 
 from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
 from rqworkers.dataDownloader.csvhelper.speed import SpeedData
 from rqworkers.dataDownloader.csvhelper.trip import TripData
+from rqworkers.dataDownloader.csvhelper.paymentfactor import PaymentFactorData
+from rqworkers.dataDownloader.csvhelper.bip import BipData
 
 from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
 
@@ -40,6 +43,10 @@ def download_file(es_instance, query, downloader, zip_file_path):
         data_to_download = SpeedData(query, es_instance)
     elif downloader == csv_helper.TRIP_DATA:
         data_to_download = TripData(query, es_instance)
+    elif downloader == csv_helper.PAYMENT_FACTOR_DATA:
+        data_to_download = PaymentFactorData(query, es_instance)
+    elif downloader == csv_helper.BIP_DATA:
+        data_to_download = BipData(query, es_instance)
     else:
         raise UnrecognizedDownloaderNameError()
 

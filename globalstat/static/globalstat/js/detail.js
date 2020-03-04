@@ -127,7 +127,7 @@ $(document).ready(function () {
                     var name = chartNames[ids.indexOf(attr)];
                     chartOpts[index].series[0].data.push({value: value, name: name});
                 });
-                console.log(chartOpts[index]);
+                // console.log(chartOpts[index]);
                 chart.setOption(chartOpts[index]);
                 charts.push(chart);
             });
@@ -215,14 +215,19 @@ $(document).ready(function () {
 
     // load filters
     (function () {
+        var calendar_opts = {
+            singleDatePicker: true
+        };
+
         loadAvailableDays(Urls["esapi:availableStatisticDays"]());
+        loadRangeCalendar(Urls["esapi:availableStatisticDays"](), calendar_opts);
+
 
         var app = new DetailApp();
-        var afterCall = function (answer) {
-            if (answer.status) {
-                return;
+        var afterCall = function (answer, status) {
+            if (status) {
+                app.updateMetrics(answer.data);
             }
-            app.updateMetrics(answer.data);
         };
         var opts = {
             urlFilterData: Urls["esapi:resumeData"](),

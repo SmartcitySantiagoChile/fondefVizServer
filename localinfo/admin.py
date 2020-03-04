@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
-from django.contrib.auth.models import Group, User
-from django.contrib.auth.admin import UserAdmin
-from django.db import transaction, IntegrityError
 from django.contrib import messages
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group, User
+from django.contrib.postgres.search import SearchVector
+from django.db import transaction, IntegrityError
+from django.forms.widgets import TextInput
+from django.utils.translation import gettext_lazy as _
 
-from localinfo.models import Operator, HalfHour
+from localinfo.forms import DayDescriptionForm, FAQForm
 from localinfo.helper import PermissionBuilder
+from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo, FAQ, CustomRoute
 
 admin.site.unregister(Group)
 admin.site.unregister(User)
@@ -58,8 +61,42 @@ class CustomUserAdmin(UserAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
     list_filter = []
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'last_login')
+
+
+class DayDescriptionAdmin(admin.ModelAdmin):
+    actions = None
+    form = DayDescriptionForm
+    list_display = ('color', 'description')
+
+
+class CalendarInfoAdmin(admin.ModelAdmin):
+    actions = None
+    list_display = ('date', 'day_description')
+
+
+class FAQSAdmin(admin.ModelAdmin):
+    actions = None
+    form = FAQForm
+    list_display = ('question', 'short_answer', 'category')
+    search_fields = ['question', 'answer']
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super(FAQSAdmin, self).get_search_results(request, queryset, search_term)
+        queryset |= self.model.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent')). \
+            filter(search=search_term)
+        return queryset, use_distinct
+
+
+class CustomRouteAdmin(admin.ModelAdmin):
+    actions = None
+    list_display = ('auth_route_code', 'custom_route_code')
 
 
 admin.site.register(Operator, OperatorAdmin)
 admin.site.register(HalfHour, HalfHourAdmin)
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(DayDescription, DayDescriptionAdmin)
+admin.site.register(CalendarInfo, CalendarInfoAdmin)
+admin.site.register(CustomRoute, CustomRouteAdmin)
+admin.site.register(FAQ, FAQSAdmin)
