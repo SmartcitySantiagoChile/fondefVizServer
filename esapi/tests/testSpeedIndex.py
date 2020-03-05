@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.test import TestCase
-
 import mock
+from django.test import TestCase
 from elasticsearch_dsl import Search
 
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty
 from esapi.helper.speed import ESSpeedHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty
 
 
 class ESSpeedIndexTest(TestCase):
@@ -55,29 +53,24 @@ class ESSpeedIndexTest(TestCase):
         self.assertListEqual(operator_list, [])
 
     def test_get_base_speed_data_query(self):
-        start_date = ''
-        end_date = ''
+        dates = '[[""]]'
         day_type = ['LABORAL']
         auth_route = ''
         valid_operator_list = []
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_speed_data_query, auth_route,
-                          day_type, start_date, end_date, valid_operator_list)
+                          day_type, dates, valid_operator_list)
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_base_speed_data_query, auth_route,
-                          day_type, start_date, end_date, valid_operator_list)
+                          day_type, dates, valid_operator_list)
         auth_route = '506 00I'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_speed_data_query, auth_route,
-                          day_type, start_date, end_date, valid_operator_list)
-        start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_speed_data_query, auth_route,
-                          day_type, start_date, end_date, valid_operator_list)
-        end_date = '2018-01-02'
-        result = self.instance.get_base_speed_data_query(auth_route, day_type, start_date, end_date,
+        dates = [["2018-01-01", "2018-01-02"]]
+        result = self.instance.get_base_speed_data_query(auth_route, day_type, dates,
                                                          valid_operator_list)
         expected = {'query': {'bool': {
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'506 00I'}},
                        {'terms': {'dayType': [u'LABORAL']}},
                        {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-01-02', u'format': u'yyyy-MM-dd'}}}]}}}
+        print (result.to_dict())
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -107,14 +100,12 @@ class ESSpeedIndexTest(TestCase):
         es_query.__getitem__.return_value = es_query
         get_base_speed_data_query.return_value = es_query
 
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = "[['2018-01-01']]"
         day_type = ['LABORAL']
         auth_route = '506 00I'
         valid_operator_list = [1, 2, 3]
-
-        result = self.instance.get_speed_data(auth_route, day_type, start_date, end_date, valid_operator_list)
-        self.assertDictEqual(result, {('key2', 'key'): (-1, 0)})
+        result = self.instance.get_speed_data(auth_route, day_type, dates, valid_operator_list)
+        self.assertDictEqual(result, {('key2', 'key'): (-1, 0, result.values()[0][2], 0)})
 
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_base_speed_data_query')
     def test_get_speed_data_without_result(self, get_base_speed_data_query):
@@ -125,48 +116,44 @@ class ESSpeedIndexTest(TestCase):
         type(es_query).buckets = mock.PropertyMock(return_value=[])
         es_query.__getitem__.return_value = es_query
         get_base_speed_data_query.return_value = es_query
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = [['2018-01-01', '2018-02-01']]
         day_type = ['LABORAL']
         auth_route = '506 00I'
         valid_operator_list = [1, 2, 3]
-        self.assertRaises(ESQueryResultEmpty, self.instance.get_speed_data, auth_route, day_type, start_date, end_date,
+        self.assertRaises(ESQueryResultEmpty, self.instance.get_speed_data, auth_route, day_type, dates,
                           valid_operator_list)
 
     def test_get_base_ranking_data_query(self):
-        start_date = ''
-        end_date = ''
+        dates = [['2018-01-01']]
         hour_period_from = ''
         hour_period_to = ''
         day_type = ['LABORAL']
         valid_operator_list = []
         route_list = [1, 2, 3]
-        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_ranking_data_query, start_date,
-                          end_date, hour_period_from, hour_period_to, day_type, valid_operator_list)
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_ranking_data_query, dates,
+                          hour_period_from, hour_period_to, day_type, valid_operator_list)
         valid_operator_list = [1, 2, 3]
-        result = self.instance.get_base_ranking_data_query(start_date, end_date, hour_period_from, hour_period_to,
+        result = self.instance.get_base_ranking_data_query(dates, hour_period_from, hour_period_to,
                                                            day_type, valid_operator_list, route_list)
         expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {
-            'range': {'date': {u'gte': u'', u'lte': u'', u'format': u'yyyy-MM-dd'}}},
+            'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-01-01', u'format': u'yyyy-MM-dd'}}},
                                                   {'range': {'periodId': {u'gte': u'', u'lte': u''}}},
                                                   {'bool': {'must_not': [{'term': {'section': 0}}]}},
                                                   {'bool': {'must_not': [{'term': {'isEndSection': 1}}]}},
                                                   {'terms': {'authRouteCode': [1, 2, 3]}},
                                                   {'terms': {'dayType': [u'LABORAL']}}]}}}
-
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_base_ranking_data_query')
     def test_get_ranking_data(self, get_base_ranking_data_query):
-        start_date = '2018-01-01'
+        dates = "[['2018-01-01']]"
         hour_period_from = ''
         hour_period_to = ''
         day_type = ['LABORAL']
         valid_operator_list = []
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_ranking_data, start_date, '',
+        self.assertRaises(ESQueryResultEmpty, self.instance.get_ranking_data, dates,
                           hour_period_from, hour_period_to, day_type, valid_operator_list)
-        end_date = '2018-02-01'
 
         es_query = mock.Mock()
         tup = mock.Mock()
@@ -187,7 +174,7 @@ class ESSpeedIndexTest(TestCase):
         get_base_ranking_data_query.return_value = get_base_ranking_data_query
         get_base_ranking_data_query.__getitem__.return_value = es_query
 
-        result = self.instance.get_ranking_data(start_date, end_date, hour_period_from, hour_period_to, day_type,
+        result = self.instance.get_ranking_data(dates, hour_period_from, hour_period_to, day_type,
                                                 valid_operator_list)
         expected = [{
             u'n_obs': 5,
@@ -202,8 +189,7 @@ class ESSpeedIndexTest(TestCase):
 
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_base_ranking_data_query')
     def test_get_ranking_data_without_result(self, get_base_ranking_data_query):
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = "[['2018-01-01', '2018-02-01']]"
         hour_period_from = ''
         hour_period_to = ''
         day_type = ['LABORAL']
@@ -228,20 +214,20 @@ class ESSpeedIndexTest(TestCase):
         get_base_ranking_data_query.return_value = get_base_ranking_data_query
         get_base_ranking_data_query.__getitem__.return_value = es_query
 
-        self.assertRaises(ESQueryResultEmpty, self.instance.get_ranking_data, start_date, end_date, hour_period_from,
+        self.assertRaises(ESQueryResultEmpty, self.instance.get_ranking_data, dates, hour_period_from,
                           hour_period_to, day_type, valid_operator_list)
 
     def test_get_base_detail_ranking_data_query(self):
         route = 'route'
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = [['2018-01-01', '2018-02-01']]
+
         period = 1
         day_type = ['LABORAL']
         valid_operator_list = []
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_detail_ranking_data_query, route,
-                          start_date, end_date, period, day_type, valid_operator_list)
+                          dates, period, day_type, valid_operator_list)
         valid_operator_list = [1, 2, 3]
-        result = self.instance.get_base_detail_ranking_data_query(route, start_date, end_date, period, day_type,
+        result = self.instance.get_base_detail_ranking_data_query(route, dates, period, day_type,
                                                                   valid_operator_list)
         expected = {'query': {'bool': {
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'route'}},
@@ -251,7 +237,8 @@ class ESSpeedIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_detail_ranking_data(self):
-        result = self.instance.get_detail_ranking_data('route', '2018-01-01', '2018-02-01', 1, ['LABORAL'], [1, 2, 3])
+        result = self.instance.get_detail_ranking_data('route', [['2018-01-01', '2018-02-01']],
+                                                       1, ['LABORAL'], [1, 2, 3])
         expected = {'query': {'bool': {
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'route'}},
                        {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-02-01', u'format': u'yyyy-MM-dd'}}},
@@ -271,16 +258,15 @@ class ESSpeedIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_base_variation_speed_query(self):
-        start_date = '2018-01-01'
-        end_date = '2018-02-01'
+        dates = [['2018-01-01', '2018-02-01']]
         day_type = ['LABORAL']
         user_route = 'route'
         operator = 'operator'
         valid_operator_list = []
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_variation_speed_query,
-                          start_date, end_date, day_type, user_route, operator, valid_operator_list)
+                          dates[0][0], dates[0][-1], day_type, user_route, operator, valid_operator_list)
         valid_operator_list = ['operator']
-        result = self.instance.get_base_variation_speed_query(start_date, end_date, day_type, user_route, operator,
+        result = self.instance.get_base_variation_speed_query(dates[0][0], dates[0][-1], day_type, user_route, operator,
                                                               valid_operator_list)
         expected = {'query': {'bool': {'filter': [{'range': {
             'date': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
