@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.urls import reverse
+import json
 
 import mock
+from django.urls import reverse
 
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, \
+    ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryOperatorParameterDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
-
-import json
 
 
 class LoadProfileByStopTest(TestHelper):

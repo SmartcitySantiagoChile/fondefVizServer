@@ -279,7 +279,6 @@ class LoadProfileByTrajectoryData(View):
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-        import random
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
             if 'capacity' not in trips[expedition_id]['info']:
