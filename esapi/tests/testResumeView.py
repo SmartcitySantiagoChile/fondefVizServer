@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mock
 from django.urls import reverse
 
-import mock
-
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage, SpeedVariationWithLessDaysMessage
 from testhelper.helper import TestHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty
-
-import json
 
 
 class AvailableDaysTest(TestHelper):
@@ -27,7 +21,8 @@ class AvailableDaysTest(TestHelper):
         response = self.client.get(self.url, self.data)
         self.assertNotContains(response, 'status')
         answer = {
-            'availableDays': [self.available_date]
+            'availableDays': [self.available_date],
+            'info': []
         }
         self.assertJSONEqual(response.content, answer)
 
@@ -39,25 +34,22 @@ class GlobalDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:resumeData')
         self.data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
-            'metrics[]': [],
+            'dates': '[["2019-01-01, 2019-02-01"]]',
+            'metrics[]': ['transactionNumber'],
         }
-        self.available_date = '2018-01-01'
+        self.available_date = '2019-01-01'
 
+    # TODO: verificar como funciona este test
     @mock.patch('esapi.helper.resume.ESResumeStatisticHelper.get_data')
     def test_exec_elasticsearch_query_get(self, get_data):
         es_query = mock.Mock()
         hit = mock.Mock()
         hit.to_dict.return_value = {
             'transactionWithoutRoute': 0,
-
         }
         es_query.scan.return_value = [hit]
         get_data.return_value = es_query
         response = self.client.get(self.url, self.data)
+        print(response)
         self.assertNotContains(response, 'status')
-        #self.assertJSONEqual(response.content, expected)
-
-
-
+        # self.assertJSONEqual(response.content, expected)
