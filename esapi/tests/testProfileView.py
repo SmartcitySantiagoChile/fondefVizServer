@@ -20,26 +20,22 @@ class LoadProfileByStopTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:loadProfileByStopData')
         self.data = {
-            'dates': [[""]],
+            'dates': '[[""]]',
             'stopCode': '',
             'dayType[]': [],
             'period': [],
             'halfHour': []
         }
 
-    def test_wrong_start_date(self):
-        self.data['dates'] = [['2018-01-01']]
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['stopCode'] = 'PA433'
         response = self.client.get(self.url, self.data)
-        print(response.content)
-        #status = json.dumps(json.loads(response.content)['status'])
-        #self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
-
-    def test_wrong_stop_code(self, check_operation_program):
-        check_operation_program.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_stop_code(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryStopParameterDoesNotExist().get_status_response())
@@ -78,8 +74,7 @@ class LoadProfileByStopTest(TestHelper):
                          "expandedLanding": 1.073773265}}}
 
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [0, 1, 2],
             'halfHour[]': [0, 1, 2],
@@ -98,8 +93,7 @@ class LoadProfileByStopTest(TestHelper):
         es_query_instance.query.return_value = es_query_instance
         es_query_instance.source.return_value = es_query_instance
         es_query_instance.scan.return_value = []
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['stopCode'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -111,8 +105,7 @@ class LoadProfileByStopTest(TestHelper):
         check_operation_program.return_value = None
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['stopCode'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -132,7 +125,8 @@ class AvailableDaysTest(TestHelper):
         get_available_days.return_value = [self.available_date]
         response = self.client.get(self.url, self.data)
         expected = {
-            'availableDays': [self.available_date]
+            'availableDays': [self.available_date],
+            'info': []
         }
         self.assertJSONEqual(response.content, expected)
 
@@ -156,7 +150,8 @@ class AvailableRoutesTest(TestHelper):
                     '506': [self.available_route]
                 }
             },
-            'operatorDict': []
+            'operatorDict': [],
+            'routesDict': {}
         }
         self.assertJSONEqual(response.content, expected)
 
@@ -175,8 +170,7 @@ class LoadProfileByExpeditionTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:loadProfileByExpeditionData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'authRoute': '',
             'dayType[]': [],
             'period[]': [],
@@ -188,32 +182,25 @@ class LoadProfileByExpeditionTest(TestHelper):
     def test_wrong_route(self, check_operation_program, get_available_days_between_dates):
         check_operation_program.return_value = None
         get_available_days_between_dates.return_value = []
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
     @mock.patch('esapi.helper.profile.ESProfileHelper.get_available_days_between_dates')
     @mock.patch('esapi.views.profile.check_operation_program')
     @mock.patch('esapi.helper.basehelper.Search')
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_stop_list')
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
-    def test_exec_elasticsearch_query_with_result(self, get_route_shape, get_stop_list, es_query, check_operation_program,
+    def test_exec_elasticsearch_query_with_result(self, get_route_shape, get_stop_list, es_query,
+                                                  check_operation_program,
                                                   get_available_days_between_dates):
         get_stop_list.return_value = {'stops': []}
         get_route_shape.return_value = {'points': []}
@@ -242,8 +229,7 @@ class LoadProfileByExpeditionTest(TestHelper):
         type(hit).notValid = mock.PropertyMock(return_value=1)
         es_query_instance.scan.return_value = [hit]
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [0, 1, 2],
             'halfHour[]': [0, 1, 2],
@@ -262,7 +248,8 @@ class LoadProfileByExpeditionTest(TestHelper):
     @mock.patch('esapi.helper.basehelper.Search')
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_stop_list')
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
-    def test_exec_elasticsearch_query_without_result(self, get_route_shape, get_stop_list, es_query, check_operation_program,
+    def test_exec_elasticsearch_query_without_result(self, get_route_shape, get_stop_list, es_query,
+                                                     check_operation_program,
                                                      get_available_days_between_dates):
         get_stop_list.return_value = {'stops': []}
         get_route_shape.return_value = {'points': []}
@@ -274,8 +261,7 @@ class LoadProfileByExpeditionTest(TestHelper):
         es_query_instance.source.return_value = es_query_instance
         es_query_instance.scan.return_value = []
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [0, 1, 2],
             'halfHour[]': [0, 1, 2],
@@ -306,8 +292,7 @@ class LoadProfileByExpeditionTest(TestHelper):
         es_query_instance.source.return_value = es_query_instance
         es_query_instance.scan.return_value = []
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [0, 1, 2],
             'halfHour[]': [0, 1, 2],
@@ -329,8 +314,7 @@ class LoadProfileByExpeditionTest(TestHelper):
         check_operation_program.return_value = None
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -344,35 +328,25 @@ class LoadProfileByTrajectoryTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:loadProfileByTrajectoryData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'authRoute': '',
             'dayType[]': [],
             'period[]': [],
             'halfHour[]': []
         }
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.profile.ESProfileHelper.get_available_days_between_dates')
     @mock.patch('esapi.views.profile.check_operation_program')
     def test_wrong_route(self, check_operation_program, get_available_days_between_dates):
         check_operation_program.return_value = None
         get_available_days_between_dates.return_value = []
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
@@ -413,8 +387,7 @@ class LoadProfileByTrajectoryTest(TestHelper):
         type(hit).notValid = mock.PropertyMock(return_value=0)
         es_query_instance.scan.return_value = [hit]
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [0, 1, 2],
             'halfHour[]': [0, 1, 2],
@@ -427,6 +400,7 @@ class LoadProfileByTrajectoryTest(TestHelper):
             "stops": {"T-8-65-NS-10": [9663, 36.33063507, 1.215768337, 1.073773265, "2017-07-31T17:39:36.000Z"]}}},
                     "stops": []}
         response = self.client.get(self.url, data)
+        print(response.content)
         self.assertNotContains(response, 'status')
         self.assertJSONEqual(response.content, expected)
 
@@ -435,7 +409,8 @@ class LoadProfileByTrajectoryTest(TestHelper):
     @mock.patch('esapi.helper.basehelper.Search')
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_stop_list')
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
-    def test_exec_elasticsearch_query_without_result(self, get_route_shape, get_stop_list, es_query, check_operation_program,
+    def test_exec_elasticsearch_query_without_result(self, get_route_shape, get_stop_list, es_query,
+                                                     check_operation_program,
                                                      get_available_days_between_dates):
         get_stop_list.return_value = {'stops': []}
         get_route_shape.return_value = {'points': []}
@@ -447,8 +422,7 @@ class LoadProfileByTrajectoryTest(TestHelper):
         es_query_instance.source.return_value = es_query_instance
         es_query_instance.scan.return_value = []
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [0, 1, 2],
             'halfHour[]': [0, 1, 2],
@@ -465,8 +439,7 @@ class LoadProfileByTrajectoryTest(TestHelper):
         check_operation_program.return_value = None
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])

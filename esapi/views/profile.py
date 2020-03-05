@@ -332,8 +332,8 @@ class LoadProfileByTrajectoryData(View):
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
-            es_stop_helper = ESStopByRouteHelper()
             es_profile_helper = ESProfileHelper()
+            es_stop_helper = ESStopByRouteHelper()
 
             es_query = es_profile_helper.get_base_profile_by_trajectory_data_query(dates, day_type,
                                                                                    auth_route_code, period, half_hour,
