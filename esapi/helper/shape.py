@@ -85,7 +85,7 @@ class ESShapeHelper(ElasticSearchHelper):
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter]).sort('-startDate')[:1]
-
+        print(es_query.to_dict())
         try:
             point_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:
