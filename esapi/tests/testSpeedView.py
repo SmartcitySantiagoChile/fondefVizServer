@@ -8,7 +8,7 @@ import mock
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage, SpeedVariationWithLessDaysMessage
 from testhelper.helper import TestHelper
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty
+    ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty, ESQueryShapeDoesNotExist
 
 import json
 
@@ -27,7 +27,8 @@ class AvailableDaysTest(TestHelper):
         response = self.client.get(self.url, self.data)
         self.assertNotContains(response, 'status')
         answer = {
-            'availableDays': [self.available_date]
+            'availableDays': [self.available_date],
+            'info': []
         }
         self.assertJSONEqual(response.content, answer)
 
@@ -52,7 +53,8 @@ class AvailableRoutesTest(TestHelper):
                     '506': [self.available_route]
                 }
             },
-            'operatorDict': []
+            'operatorDict': [],
+            'routesDict': {}
         }
         self.assertJSONEqual(response.content, expected)
 
@@ -72,8 +74,7 @@ class MatrixDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:matrixData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'authRoute': '',
             'dayType[]': [],
         }
@@ -81,25 +82,17 @@ class MatrixDataTest(TestHelper):
     @mock.patch('esapi.views.speed.check_operation_program')
     def test_wrong_route(self, check_operation_program):
         check_operation_program.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_date(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryShapeDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_speed_data')
@@ -114,28 +107,43 @@ class MatrixDataTest(TestHelper):
         check_operation_program.return_value = None
         get_speed_data.return_value = {}
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'authRoute': '506 00I',
             'dayType[]': ['LABORAL'],
         }
         expected = {"route": {"points": [[1, 2]], "start_end": [[0, 0]], "name": "506 00I"}, "segments": [0, 1],
-                    "matrix": [[[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]],
-                               [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]], [[0, -1, 0], [0, -1, 0]]]}
+                    "matrix": [[[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]],
+                               [[0, -1, 0, 0, 0], [0, -1, 0, 0, 0]], ]}
         response = self.client.get(self.url, data)
         self.assertNotContains(response, 'status')
         self.assertJSONEqual(response.content, expected)
@@ -146,8 +154,7 @@ class MatrixDataTest(TestHelper):
         check_operation_program.return_value = None
         exporter_manager_instance = exporter_manager.return_value
         exporter_manager_instance.export_data.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -160,25 +167,17 @@ class RankingDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:rankingData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'authRoute': '',
             'dayType[]': [],
         }
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_ranking_data')
     @mock.patch('esapi.views.speed.check_operation_program')
@@ -186,8 +185,7 @@ class RankingDataTest(TestHelper):
         check_operation_program.return_value = None
         get_ranking_data.return_value = ['data'] * 1001
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'authRoute': '506 00I',
             'dayType[]': ['LABORAL'],
         }
@@ -291,8 +289,7 @@ class RankingDataTest(TestHelper):
         check_operation_program.return_value = None
         exporter_manager_instance = exporter_manager.return_value
         exporter_manager_instance.export_data.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -305,8 +302,7 @@ class SpeedByRouteTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:speedByRoute')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[["2018-01-01"]]',
             'authRoute': '',
             'dayType[]': [],
         }
@@ -314,25 +310,18 @@ class SpeedByRouteTest(TestHelper):
     @mock.patch('esapi.views.speed.check_operation_program')
     def test_wrong_route(self, check_operation_program):
         check_operation_program.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
 
     def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryShapeDoesNotExist().get_status_response())
 
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_detail_ranking_data')
@@ -358,8 +347,7 @@ class SpeedByRouteTest(TestHelper):
         check_operation_program.return_value = None
         get_detail_ranking_data.return_value = search_instance
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'authRoute': '506 00I',
             'dayType[]': ['LABORAL'],
         }
@@ -385,8 +373,7 @@ class SpeedByRouteTest(TestHelper):
         check_operation_program.return_value = None
         exporter_manager_instance = exporter_manager.return_value
         exporter_manager_instance.export_data.return_value = None
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -400,8 +387,7 @@ class SpeedVariationTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:speedVariation')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'authRoute': '',
             'dayType[]': [],
         }
@@ -439,7 +425,7 @@ class SpeedVariationTest(TestHelper):
         get_most_recent_operation_program_date.return_value = '2018-01-01'
         check_operation_program.return_value = None
         data = {
-            'startDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'operator': 1,
             'userRoute': '506 00I',
             'dayType[]': ['LABORAL'],
@@ -464,7 +450,7 @@ class SpeedVariationTest(TestHelper):
         get_most_recent_operation_program_date.return_value = '2018-01-01'
         check_operation_program.return_value = None
         data = {
-            'startDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'operator': 1,
             'userRoute': '506 00I',
             'dayType[]': ['LABORAL'],
@@ -483,7 +469,7 @@ class SpeedVariationTest(TestHelper):
         exporter_manager_instance = exporter_manager.return_value
         exporter_manager_instance.export_data.return_value = None
         get_most_recent_operation_program_date.return_value = '2019-01-01'
-        self.data['startDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['operator'] = '1'
         self.data['userRoute'] = '506 00I'
         self.data['dayType[]'] = ['LABORAL']
