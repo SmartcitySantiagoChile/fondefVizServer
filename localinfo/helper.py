@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import csv
-
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
@@ -114,18 +112,6 @@ def get_custom_routes_dict():
         definition = definition.__dict__
         routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
     return routes_dict
-
-
-def read_csv_dict(csv_file):
-    try:
-        f = open(csv_file.name, 'r')
-        reader = csv.reader(f)
-        for row in reader:
-            CustomRoute.objects.update_or_create(
-                auth_route_code=row[0], defaults={'custom_route_code': row[1]})
-    except Exception as e:
-        return 'error: ' + str(e)
-    return True
 
 
 class PermissionBuilder(object):
