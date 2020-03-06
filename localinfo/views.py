@@ -43,7 +43,7 @@ class CustomRouteCsvUploader(View):
 
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
-        if csv_file and os.stat(csv_file.name).st_size != 0:
+        if csv_file and len(csv_file.read()) != 0:
             f = open(csv_file.name, 'r')
             reader = csv.reader(f)
             for row in reader:
