@@ -209,20 +209,20 @@ function FilterManager(opts) {
             }
         });
     }
-    /*let localMultiStopFilterVal = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/val")) || "";
+    let localMultiStopFilterVal = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/val")) || "";
     let localMultiStopFilterText = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/text")) || "";
-    console.log(localMultiStopFilterVal);
-    console.log(localMultiStopFilterText.split("\n")[0]);
-    $MULTI_STOP_FILTER.val(null).trigger('change');
-    $MULTI_STOP_FILTER.val(localMultiStopFilterVal);
-    $MULTI_STOP_FILTER.trigger("change");
+    localMultiStopFilterText = localMultiStopFilterText !== "" ? localMultiStopFilterText.split("\n") : "" ;
+    for (let i = 0; i < localMultiStopFilterText.length; i++) {
+        let multi_option = new Option(localMultiStopFilterText[i], localMultiStopFilterVal[i], false, true);
+        $MULTI_STOP_FILTER.append(multi_option);
+        $MULTI_STOP_FILTER.trigger("change");
+    }
+
     $MULTI_STOP_FILTER.change(function () {
         window.localStorage.setItem(urlKey + "multiStopFilter/val", JSON.stringify($MULTI_STOP_FILTER.val()));
         console.log($MULTI_STOP_FILTER);
         window.localStorage.setItem(urlKey + "multiStopFilter/text", JSON.stringify($MULTI_STOP_FILTER[0].innerText));
     });
-    */
-
     /* BUTTON ACTION */
     var getParameters = function () {
         var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
