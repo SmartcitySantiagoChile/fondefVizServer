@@ -50,6 +50,30 @@
   <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
       <div class="x_title">
+        Subir csv de diccionario de servicios
+      </div>
+      <div class="x_content">
+        <form name="csvForm" id="csvForm" method="post" enctype="multipart/form-data"
+              action="{% url 'customroutecsvupload' %}">{% csrf_token %}
+          <div class="row">
+            <div class="col-md-3 col-sm-12 col-xs-12">
+              <div class="title_left">
+                <div class="form-group">
+                  <input required type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-12 col-xs-12">
+              <button type="submit" class="btn btn-primary btn-sm ">Subir diccionario</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+      <div class="x_title">
         <h2></h2>
         {% block object-tools %}
           <ul class="nav navbar-right panel_toolbox">
@@ -66,14 +90,6 @@
             {% endblock %}
           </ul>
         {% endblock %}
-        <form name="csvForm" id="csvForm" method="post" enctype="multipart/form-data"
-              action="{% url 'customroutecsvupload' %}">{% csrf_token %}
-          <div class="form-group">
-            <label for="csvDictionary">Subir csv de diccionario de servicios</label>
-            <input required type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
-          </div>
-          <button type="submit" class="btn btn-primary btn-sm ">Subir diccionario</button>
-        </form>
         <div class="clearfix"></div>
       </div>
 
