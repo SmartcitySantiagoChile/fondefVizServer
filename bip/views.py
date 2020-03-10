@@ -10,7 +10,6 @@ from localinfo.helper import get_halfhour_list_for_select_input, get_timeperiod_
 
 class LoadBipByOperatorHTML(View):
 
-
     def get(self, request):
         template = "bip/byOperator.html"
 

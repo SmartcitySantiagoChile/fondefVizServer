@@ -39,7 +39,6 @@ class GlobalDataTest(TestHelper):
         }
         self.available_date = '2019-01-01'
 
-    # # TODO: verificar como funciona este test
     # @mock.patch('esapi.helper.resume.ESResumeStatisticHelper.get_data')
     # def test_exec_elasticsearch_query_get(self, get_data):
     #     es_query = mock.Mock()
@@ -50,6 +49,5 @@ class GlobalDataTest(TestHelper):
     #     es_query.scan.return_value = [hit]
     #     get_data.return_value = es_query
     #     response = self.client.get(self.url, self.data)
-    #     print(response)
     #     self.assertNotContains(response, 'status')
     #     # self.assertJSONEqual(response.content, expected)
