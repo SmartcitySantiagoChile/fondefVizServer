@@ -19,8 +19,7 @@ class ResumeDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:resumeTripData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': "[['']]",
             'dayType[]': [],
             'period[]': [],
             'origin[]': [],
@@ -28,19 +27,13 @@ class ResumeDataTest(TestHelper):
         }
         self.available_date = '2018-01-01'
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.trip.ESTripHelper.make_multisearch_query_for_aggs')
     def test_exec_elasticsearch_query_get(self, make_multisearch_query_for_aggs):
@@ -52,8 +45,7 @@ class ResumeDataTest(TestHelper):
         indicators.to_dict.return_value = {}
         make_multisearch_query_for_aggs.return_value = (histogram, indicators)
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01", "2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [],
             'origin[]': [1, 2, 3],
@@ -75,8 +67,7 @@ class ResumeDataTest(TestHelper):
         type(histogram).total = 0
         make_multisearch_query_for_aggs.return_value = (histogram, indicators)
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [],
             'origin[]': [1, 2, 3],
@@ -92,8 +83,7 @@ class ResumeDataTest(TestHelper):
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01", "2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [],
             'origin[]': [1, 2, 3],
@@ -112,19 +102,19 @@ class MapDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:tripMapData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'dayType[]': [],
             'boardingPeriod[]': [],
         }
         self.available_date = '2018-01-01'
 
     def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+        self.data['dates'] = '[["2018-01-01"]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
+        print(response)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
     def test_wrong_end_date(self):
         self.data['startDate'] = '2018-01-01'
