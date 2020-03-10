@@ -1,3 +1,6 @@
+import csv
+import os
+
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -6,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from localinfo.helper import get_all_faqs, search_faq
+from localinfo.models import CustomRoute
 
 
 class FaqImgUploader(View):
@@ -33,3 +37,19 @@ class FaqHTML(View):
             faqs = {"faqs": search_faq(search),
                     "query": search}
         return render(request, template, faqs)
+
+
+class CustomRouteCsvUploader(View):
+
+    def post(self, request):
+        csv_file = request.FILES.get('csvDictionary', False)
+        if csv_file and len(csv_file.read()) != 0:
+            f = open(csv_file.name, 'r')
+            reader = csv.reader(f)
+            for row in reader:
+                if row[1].strip():
+                    CustomRoute.objects.update_or_create(
+                        auth_route_code=row[0], defaults={'custom_route_code': row[1]})
+            return JsonResponse(data={"status": True})
+        else:
+            return JsonResponse(data={"error": "No existe archivo."}, status=500)
