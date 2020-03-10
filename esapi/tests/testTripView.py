@@ -6,8 +6,8 @@ import json
 import mock
 from django.urls import reverse
 
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty, ESQueryStagesEmpty, ESQueryOriginZoneParameterDoesNotExist, \
+    ESQueryStopParameterDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
 
@@ -33,7 +33,6 @@ class ResumeDataTest(TestHelper):
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-
 
     @mock.patch('esapi.helper.trip.ESTripHelper.make_multisearch_query_for_aggs')
     def test_exec_elasticsearch_query_get(self, make_multisearch_query_for_aggs):
@@ -108,28 +107,12 @@ class MapDataTest(TestHelper):
         }
         self.available_date = '2018-01-01'
 
-    def test_wrong_start_date(self):
-        self.data['dates'] = '[["2018-01-01"]]'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        print(response)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
     @mock.patch('esapi.helper.trip.ESTripHelper.make_multisearch_query_for_aggs')
     def test_exec_elasticsearch_query_get(self, make_multisearch_query_for_aggs):
         make_multisearch_query_for_aggs.return_value = make_multisearch_query_for_aggs
         make_multisearch_query_for_aggs.to_dict.return_value = {}
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01", "2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [],
             'origin[]': [1, 2, 3],
@@ -152,8 +135,7 @@ class MapDataTest(TestHelper):
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01", "2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [],
             'origin[]': [1, 2, 3],
@@ -172,8 +154,7 @@ class AvailableDaysTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:availableTripDays')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'dayType[]': [],
             'boardingPeriod[]': [],
         }
@@ -183,14 +164,13 @@ class AvailableDaysTest(TestHelper):
     def test_exec_elasticsearch_query_get(self, get_available_days):
         get_available_days.return_value = 'days'
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [],
             'origin[]': [1, 2, 3],
             'destination[]': [3, 2, 1]
         }
-        expected = {u'availableDays': u'days'}
+        expected = {u'availableDays': u'days', u'info': []}
         response = self.client.get(self.url, data)
         self.assertNotContains(response, 'status')
         self.assertJSONEqual(response.content, expected)
@@ -203,8 +183,7 @@ class LargeTravelDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:largeTravelData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'dayType[]': [],
             'period[]': [],
             'stages[]': [],
@@ -212,25 +191,18 @@ class LargeTravelDataTest(TestHelper):
         }
         self.available_date = '2018-01-01'
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryStagesEmpty().get_status_response())
 
     @mock.patch('esapi.helper.trip.ESTripHelper.make_multisearch_query_for_aggs')
     def test_exec_elasticsearch_query_get(self, make_multisearch_query_for_aggs):
         make_multisearch_query_for_aggs.return_value = make_multisearch_query_for_aggs
         make_multisearch_query_for_aggs.to_dict.return_value = {}
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'stages[]': [1, 2, 3],
@@ -248,8 +220,7 @@ class LargeTravelDataTest(TestHelper):
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'stages[]': [1, 2, 3],
@@ -268,8 +239,7 @@ class FromToMapDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:fromToMapData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'dayType[]': [],
             'period[]': [],
             'halfHour[]': [],
@@ -280,17 +250,11 @@ class FromToMapDataTest(TestHelper):
         }
         self.available_date = '2018-01-01'
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
     @mock.patch('esapi.helper.trip.ESTripHelper.make_multisearch_query_for_aggs')
     def test_exec_elasticsearch_query_get(self, make_multisearch_query_for_aggs):
@@ -300,8 +264,7 @@ class FromToMapDataTest(TestHelper):
         destination_zone.to_dict.return_value = {}
         make_multisearch_query_for_aggs.return_value = (origin_zone, destination_zone)
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'stages[]': [1, 2, 3],
@@ -325,8 +288,7 @@ class FromToMapDataTest(TestHelper):
         type(destination_zone).total = mock.PropertyMock(return_value=0)
         make_multisearch_query_for_aggs.return_value = (origin_zone, destination_zone)
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'stages[]': [1, 2, 3],
@@ -346,8 +308,7 @@ class FromToMapDataTest(TestHelper):
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'stages[]': [1, 2, 3],
@@ -366,8 +327,7 @@ class StrategiesDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:tripStrategiesData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'daytypes[]': [],
             'period[]': [],
             'halfHour[]': [],
@@ -376,17 +336,11 @@ class StrategiesDataTest(TestHelper):
         }
         self.available_date = '2018-01-01'
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryOriginZoneParameterDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.trip.ESTripHelper.get_strategies_data')
     def test_exec_elasticsearch_query_get(self, get_strategies_data):
@@ -424,8 +378,7 @@ class StrategiesDataTest(TestHelper):
         get_strategies_data.__dir__ = mock.Mock(
             return_value=['expansion_factor', 'strategies_without_metro_or_metrotren'])
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01"]]',
             'daytypes[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'halfHour[]': [1, 2, 3],
@@ -454,8 +407,7 @@ class StrategiesDataTest(TestHelper):
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'daytypes[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'halfHour[]': [1, 2, 3],
@@ -475,8 +427,7 @@ class TransfersDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:transfersData')
         self.data = {
-            'startDate': '',
-            'endDate': '',
+            'dates': '[[""]]',
             'stopCode': '',
             'period[]': [],
             'dayType[]': [],
@@ -484,17 +435,11 @@ class TransfersDataTest(TestHelper):
         }
         self.available_date = '2018-01-01'
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryStopParameterDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.stop.ESStopHelper.get_stop_info')
     @mock.patch('esapi.helper.trip.ESTripHelper.get_transfers_data')
@@ -530,8 +475,7 @@ class TransfersDataTest(TestHelper):
         type(get_transfers_data).third_transfer_is_end = mock.PropertyMock(return_value=step)
         type(get_transfers_data).fourth_transfer_is_end = mock.PropertyMock(return_value=step)
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'halfHour[]': [1, 2, 3],
@@ -581,8 +525,7 @@ class TransfersDataTest(TestHelper):
         type(get_transfers_data).third_transfer_is_end = mock.PropertyMock(return_value=step)
         type(get_transfers_data).fourth_transfer_is_end = mock.PropertyMock(return_value=step)
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'halfHour[]': [1, 2, 3],
@@ -598,8 +541,7 @@ class TransfersDataTest(TestHelper):
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
         data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
+            'dates': '[["2018-01-01","2018-01-01"]]',
             'dayType[]': ['LABORAL'],
             'period[]': [1, 2, 3],
             'halfHour[]': [1, 2, 3],
