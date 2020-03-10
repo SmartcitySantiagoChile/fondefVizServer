@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mock
 from django.test import TestCase
 
-import mock
-
-from esapi.helper.shape import ESShapeHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryOperationProgramDoesNotExist, ESQueryShapeDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram, \
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperationProgramDoesNotExist, \
+    ESQueryShapeDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram, \
     ESQueryResultEmpty
+from esapi.helper.shape import ESShapeHelper
 
 
 class ESShapeIndexTest(TestCase):

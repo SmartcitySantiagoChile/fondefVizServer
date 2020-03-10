@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.urls import reverse
+import json
 
 import mock
+from django.urls import reverse
 
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty, \
+    ESQueryShapeDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage, SpeedVariationWithLessDaysMessage
 from testhelper.helper import TestHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty, ESQueryShapeDoesNotExist
-
-import json
 
 
 class AvailableDaysTest(TestHelper):
@@ -321,7 +320,6 @@ class SpeedByRouteTest(TestHelper):
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryShapeDoesNotExist().get_status_response())
-
 
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_detail_ranking_data')

@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.test import TestCase
-from django.urls import reverse
+import json
 
 import mock
-from elasticsearch_dsl import Search
+from django.urls import reverse
 
-from esapi.helper.trip import ESTripHelper
-from esapi.messages import ExporterDataHasBeenEnqueuedMessage, SpeedVariationWithLessDaysMessage
-from testhelper.helper import TestHelper
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryOperatorParameterDoesNotExist, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort, \
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist, \
     ESQueryResultEmpty
-
-from localinfo.models import Operator
-
-import json
-import __builtin__
+from esapi.messages import ExporterDataHasBeenEnqueuedMessage
+from testhelper.helper import TestHelper
 
 
 class ResumeDataTest(TestHelper):

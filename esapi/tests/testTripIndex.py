@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
-
-from django.test import TestCase
-
 import mock
+from django.test import TestCase
 from elasticsearch_dsl import Search
 
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty, ESQueryTooManyOriginZonesError, \
+    ESQueryDestinationZoneParameterDoesNotExist, \
+    ESQueryTooManyDestinationZonesError, ESQueryStopParameterDoesNotExist
 from esapi.helper.trip import ESTripHelper
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryOriginZoneParameterDoesNotExist, \
-    ESQueryStagesEmpty, ESQueryTooManyOriginZonesError, ESQueryDestinationZoneParameterDoesNotExist, \
-    ESQueryTooManyDestinationZonesError, ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
 
 
 class ESTripIndexTest(TestCase):
@@ -339,7 +336,6 @@ class ESTripIndexTest(TestCase):
         self.assertDictEqual(result1.to_dict(), expected1)
         self.assertDictEqual(result2.to_dict(), expected2)
 
-
     def test_get_base_strategies_data_query(self):
         day_types = ['LABORAL']
         periods = [1, 2, 3]
@@ -373,7 +369,6 @@ class ESTripIndexTest(TestCase):
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
-
 
     def test_get_strategies_data(self):
         dates = [['2018-01-01', '2018-02-01']]
@@ -558,7 +553,6 @@ class ESTripIndexTest(TestCase):
             u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}, 'size': 0}
         self.assertDictEqual(result.to_dict(), expected)
 
-
     def test_get_base_transfers_data_query(self):
         dates = [[""]]
         auth_stop_code = ''
@@ -592,7 +586,6 @@ class ESTripIndexTest(TestCase):
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
-
 
     def test_get_transfers_data(self):
         dates = [['2018-01-01', '2018-02-01']]

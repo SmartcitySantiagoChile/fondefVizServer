@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mock
 from django.test import TestCase
 
-import mock
-
-from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.errors import ESQueryStopListDoesNotExist, ESQueryRouteParameterDoesNotExist, \
-    ESQueryDateRangeParametersDoesNotExist, ESQueryOperationProgramDoesNotExist, \
+from esapi.errors import ESQueryRouteParameterDoesNotExist, \
+    ESQueryOperationProgramDoesNotExist, \
     ESQueryThereIsMoreThanOneOperationProgram, ESQueryResultEmpty
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 
 
 class ESStopByRouteIndexTest(TestCase):

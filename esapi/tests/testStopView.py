@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.urls import reverse
+import json
 
 import mock
+from django.urls import reverse
 
-from testhelper.helper import TestHelper
 from esapi.errors import ESQueryStopPatternTooShort
-
-import json
+from testhelper.helper import TestHelper
 
 
 class MatchedStopDataTest(TestHelper):

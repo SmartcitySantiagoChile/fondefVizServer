@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mock
 from django.test import TestCase
 
-import mock
-
+from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryStopInfoDoesNotExist
 from esapi.helper.stop import ESStopHelper
-from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryStopInfoDoesNotExist, \
-    ESQueryDateParametersDoesNotExist, ESQueryResultEmpty
 
 
 class ESStopIndexTest(TestCase):

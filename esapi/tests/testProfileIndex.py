@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.test import TestCase
-
 import mock
-
-from esapi.helper.profile import ESProfileHelper
+from django.test import TestCase
 from elasticsearch_dsl import Search
+
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryOperatorParameterDoesNotExist, ESQueryStopParameterDoesNotExist
+from esapi.helper.profile import ESProfileHelper
 
 
 class ESProfileIndexTest(TestCase):

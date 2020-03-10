@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.test import TestCase, override_settings
 import mock
-from elasticsearch_dsl import Search
+from django.test import TestCase, override_settings
 from elasticsearch.exceptions import ConnectionTimeout
+from elasticsearch_dsl import Search
 
 from esapi.helper.basehelper import ElasticSearchHelper
 

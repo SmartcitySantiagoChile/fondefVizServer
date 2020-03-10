@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.test import TestCase
-
 import mock
+from django.test import TestCase
 from elasticsearch_dsl import Search
 
-from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.errors import ESQueryOperatorParameterDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
+from esapi.helper.odbyroute import ESODByRouteHelper
 
 
 class ESODByRouteIndexTest(TestCase):

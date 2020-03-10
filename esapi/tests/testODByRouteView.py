@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.urls import reverse
+import json
 
 import mock
+from django.urls import reverse
 
+from esapi.errors import ESQueryResultEmpty
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryResultEmpty
-
-import json
 
 
 class AvailableDaysTest(TestHelper):
@@ -77,7 +76,6 @@ class ODMatrixDataTest(TestHelper):
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-
 
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_stop_list')
     @mock.patch('esapi.helper.odbyroute.ESODByRouteHelper.get_od_data')
