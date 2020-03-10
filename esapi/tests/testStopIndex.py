@@ -7,7 +7,7 @@ import mock
 
 from esapi.helper.stop import ESStopHelper
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryStopInfoDoesNotExist, \
-    ESQueryDateParametersDoesNotExist
+    ESQueryDateParametersDoesNotExist, ESQueryResultEmpty
 
 
 class ESStopIndexTest(TestCase):
@@ -33,11 +33,10 @@ class ESStopIndexTest(TestCase):
     @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
     def test_get_stop_info(self, get_base_query):
         auth_stop_code = ''
-        start_date = ''
+        start_date = '[[""]]'
         self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_stop_info, start_date, auth_stop_code)
         auth_stop_code = 'auth_stop_code'
-        self.assertRaises(ESQueryDateParametersDoesNotExist, self.instance.get_stop_info, start_date, auth_stop_code)
-        start_date = '2018-01-01'
+        start_date = '[["2018-01-01"]]'
         get_base_query.return_value = get_base_query
         get_base_query.filter.return_value = get_base_query
         get_base_query.sort.return_value = get_base_query
