@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 from elasticsearch_dsl import Search, A
 from elasticsearch_dsl.query import Match
 
-from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateParametersDoesNotExist, \
-    ESQueryStopInfoDoesNotExist
+from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryStopInfoDoesNotExist, \
+    ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
@@ -46,13 +46,13 @@ class ESStopHelper(ElasticSearchHelper):
 
     def get_stop_info(self, dates, auth_stop_code):
         """ ask to elasticsearch for a match values """
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         if not auth_stop_code:
             raise ESQueryStopParameterDoesNotExist()
 
         start_date = dates[0][0]
-        if not start_date:
-            raise ESQueryDateParametersDoesNotExist()
 
         es_query = self.get_base_query().filter('term', **{'authCode.raw': auth_stop_code})
         es_query = es_query.filter('range', startDate={

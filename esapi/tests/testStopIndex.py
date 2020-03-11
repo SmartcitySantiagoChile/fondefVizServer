@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 import mock
 from django.test import TestCase
 
-from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryStopInfoDoesNotExist
+from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryStopInfoDoesNotExist, \
+    ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.stop import ESStopHelper
 
 
@@ -31,10 +32,11 @@ class ESStopIndexTest(TestCase):
     @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
     def test_get_stop_info(self, get_base_query):
         auth_stop_code = ''
-        start_date = '[[""]]'
-        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_stop_info, start_date, auth_stop_code)
+        dates = [[]]
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_stop_info, dates, auth_stop_code)
+        dates = [["2018-01-01"]]
+        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_stop_info, dates, auth_stop_code)
         auth_stop_code = 'auth_stop_code'
-        start_date = '[["2018-01-01"]]'
         get_base_query.return_value = get_base_query
         get_base_query.filter.return_value = get_base_query
         get_base_query.sort.return_value = get_base_query
@@ -49,7 +51,7 @@ class ESStopIndexTest(TestCase):
                 'key': 'value'
             }
         }])
-        result = self.instance.get_stop_info(start_date, auth_stop_code)
+        result = self.instance.get_stop_info(dates, auth_stop_code)
         self.assertDictEqual(result, {'key': 'value'})
 
     @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
