@@ -52,7 +52,7 @@ class ESODByRouteHelper(ElasticSearchHelper):
     def get_base_query_for_od(self, auth_route_code, time_periods, day_type, dates, valid_operator_list):
         """ base query to get raw data """
         es_query = self.get_base_query()
-        if not dates or not isinstance(dates[0], list):
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
             raise ESQueryDateRangeParametersDoesNotExist()
 
         if valid_operator_list:

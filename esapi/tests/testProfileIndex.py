@@ -193,3 +193,56 @@ class ESProfileIndexTest(TestCase):
         result = self.instance.get_available_days_between_dates(start_date, end_date)
         self.assertIsInstance(result, list)
         self.assertListEqual(result, ['2018-01-03'])
+
+    def test_get_profile_by_multiple_stop_data(self):
+        dates = []
+        day_type = ['LABORAL']
+        stop_code = ''
+        period = [1, 2, 3]
+        half_hour = [1, 2, 3]
+        valid_operator_list = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_multiple_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_profile_by_multiple_stop_data, dates,
+                          day_type, stop_code, period, half_hour, valid_operator_list)
+        valid_operator_list = [1, 2, 3]
+        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_profile_by_multiple_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
+        stop_code = 'PA433'
+        result = self.instance.get_profile_by_multiple_stop_data(dates, day_type, stop_code, period, half_hour,
+                                                                 valid_operator_list)
+        print(result.to_dict())
+        expected = {'query': {'bool': {
+            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'terms': {'dayType': [u'LABORAL']}},
+                       {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {
+                           'range': {'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
+                                                             u'lte': u'2018-01-02||/d', u'format': u'yyyy-MM-dd'}}}],
+            'must': [{'terms': {u'authStopCode.raw': u'PA433'}}]}},
+            'from': 0, 'aggs': {u'stops': {'terms': {'field': u'authStopCode.raw', 'size': 1000},
+                                           'aggs': {u'sumExpandedAlighting': {'sum': {'field': u'expandedAlighting'}},
+                                                    u'expandedAlighting': {'avg': {'field': u'expandedAlighting'}},
+                                                    u'tripsCount': {'value_count': {'field': u'expandedAlighting'}},
+                                                    u'loadProfile': {'avg': {'field': u'loadProfile'}},
+                                                    u'expandedBoarding': {'avg': {'field': u'expandedBoarding'}},
+                                                    u'userStopName': {
+                                                        'top_hits': {'size': 1, '_source': [u'userStopName']}},
+                                                    u'maxLoadProfile': {'max': {'field': u'loadProfile'}},
+                                                    u'sumLoadProfile': {'sum': {'field': u'loadProfile'}},
+                                                    u'sumBusCapacity': {'sum': {'field': u'busCapacity'}},
+                                                    u'busSaturation': {'bucket_script': {
+                                                        'buckets_path': {u'd': u'sumLoadProfile',
+                                                                         u't': u'sumBusCapacity'},
+                                                        'script': u'params.d / params.t'}},
+                                                    u'sumExpandedBoarding': {'sum': {'field': u'expandedBoarding'}},
+                                                    u'userStopCode': {
+                                                        'top_hits': {'size': 1, '_source': [u'userStopCode']}},
+                                                    u'busCapacity': {'avg': {'field': u'busCapacity'}}}}}, 'size': 0}
+
+        self.assertIsInstance(result, Search)
+        self.assertDictEqual(result.to_dict(), expected)
+
+    def test_get_all_auth_routes(self):
+        expected = {'from': 0, 'aggs': {u'route': {'terms': {'field': u'route', 'size': 5000}}}, 'size': 0}
+        result = self.instance.get_all_auth_routes().to_dict()
+        self.assertDictEqual(result, expected)

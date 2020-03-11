@@ -231,6 +231,9 @@ class ESProfileHelper(ElasticSearchHelper):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
 
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -240,6 +243,7 @@ class ESProfileHelper(ElasticSearchHelper):
             es_query = es_query.query(Q({'terms': {"authStopCode.raw": stop_codes}}))
         else:
             raise ESQueryStopParameterDoesNotExist()
+
         if day_type:
             es_query = es_query.filter('terms', dayType=day_type)
         if period:
@@ -251,8 +255,6 @@ class ESProfileHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q("range", expeditionStartTime={
                 "gte": start_date + "||/d",
                 "lte": end_date + "||/d",
