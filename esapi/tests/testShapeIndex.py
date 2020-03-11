@@ -120,6 +120,7 @@ class ESShapeIndexTest(TestCase):
         auth_route_code = 'auth_route_code'
         dates = [["2018-01-01"]]
         get_base_query.return_value = get_base_query
+        get_base_query.query.return_value = get_base_query
         get_base_query.filter.return_value = get_base_query
         get_base_query.sort.return_value = get_base_query
         get_base_query.__getitem__.return_value = get_base_query
@@ -127,7 +128,7 @@ class ESShapeIndexTest(TestCase):
         hit = mock.Mock()
         type(hit).hits = mock.PropertyMock(return_value=[])
         type(get_base_query).hits = mock.PropertyMock(return_value=hit)
-        # self.assertRaises(ESQueryShapeDoesNotExist, self.instance.get_route_shape, auth_route_code, dates)
+        self.assertRaises(ESQueryShapeDoesNotExist, self.instance.get_route_shape, auth_route_code, dates)
 
     @mock.patch('esapi.helper.shape.ESShapeHelper.make_multisearch_query_for_aggs')
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_attr_list')
