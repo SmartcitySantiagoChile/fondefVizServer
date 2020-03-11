@@ -5,7 +5,8 @@ import mock
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
-from esapi.errors import ESQueryOperatorParameterDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty
+from esapi.errors import ESQueryOperatorParameterDoesNotExist, ESQueryRouteParameterDoesNotExist, ESQueryResultEmpty, \
+    ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.odbyroute import ESODByRouteHelper
 
 
@@ -56,8 +57,11 @@ class ESODByRouteIndexTest(TestCase):
         auth_route_code = ''
         time_periods = [1, 2]
         day_type = ['LABORAL']
-        dates = ['2018-01-01', '2018-02-01']
         valid_operator_list = []
+        dates = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_query_for_od, auth_route_code,
+                          time_periods, day_type, dates, valid_operator_list)
+        dates = [['2018-01-01', '2018-02-01']]
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_query_for_od, auth_route_code,
                           time_periods, day_type, dates, valid_operator_list)
         valid_operator_list = [1, 2, 3]
@@ -73,11 +77,8 @@ class ESODByRouteIndexTest(TestCase):
                                    {'term': {'authRouteCode': u'route'}},
                                    {'terms': {'timePeriodInStopTime': [1, 2]}},
                                    {'terms': {'dayType': [u'LABORAL']}},
-                                   {'bool': {'should': [{'range': {
-                                       'date': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                                u'format': u'yyyy-MM-dd'}}}, {'range': {
-                                       'date': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                                u'format': u'yyyy-MM-dd'}}}]}}]}}}
+                                   {'range': {'date': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
+                                                       u'lte': u'2018-02-01||/d', u'format': u'yyyy-MM-dd'}}}]}}}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -158,7 +159,7 @@ class ESODByRouteIndexTest(TestCase):
         auth_route_code = ''
         time_periods = []
         day_type = ['LABORAL']
-        dates = ['2018-01-01', '2018-02-01']
+        dates = [['2018-01-01', '2018-02-01']]
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryResultEmpty, self.instance.get_od_data, auth_route_code, time_periods, day_type,
                           dates, valid_operator_list)
