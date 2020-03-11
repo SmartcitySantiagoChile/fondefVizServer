@@ -5,6 +5,7 @@ import mock
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.resume import ESResumeStatisticHelper
 
 
@@ -20,8 +21,10 @@ class ESResumeIndexTest(TestCase):
         self.assertListEqual(result, [])
 
     def test_get_data(self):
-        dates = [['2018-01-01', '2018-02-01']]
+        dates = []
         metrics = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_data, dates, metrics)
+        dates = [['2018-01-01', '2018-02-01']]
         expected = {'query': {'bool': {'filter': [{'range': {
             'date': {'time_zone': '+00:00', 'gte': u'2018-01-01||/d', 'lte': u'2018-02-01||/d',
                      'format': 'yyyy-MM-dd'}}}]}},
