@@ -332,8 +332,6 @@ class ESTripIndexTest(TestCase):
                                   u'expansion_factor': {'sum': {'field': u'factor_expansion'}},
                                   u'distancia_eucl': {'avg': {'field': u'distancia_eucl'}},
                                   u'tviaje': {'avg': {'field': u'tviaje'}}}}}, 'size': 0}
-        print(result1.to_dict())
-        print(result2.to_dict())
         self.assertDictEqual(result1.to_dict(), expected1)
         self.assertDictEqual(result2.to_dict(), expected2)
 
@@ -342,7 +340,7 @@ class ESTripIndexTest(TestCase):
         periods = [1, 2, 3]
         minutes = [1, 2, 3]
         destination_zones = []
-        routes = ''
+        routes = ['a', 'b', 'c']
         dates = []
         origin_zones = [None] * 51
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_strategies_data_query,
@@ -370,8 +368,12 @@ class ESTripIndexTest(TestCase):
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'mediahora_subida': [1, 2, 3]}},
             {'terms': {'zona_subida': [1, 2, 3]}},
-            {'terms': {'zona_bajada': [3, 2, 1]}}]}}}
-
+            {'terms': {'zona_bajada': [3, 2, 1]}},
+            {'bool': {'should': [{'terms': {'srv_1': [u'a', u'b', u'c']}}, {'terms': {'srv_2': [u'a', u'b', u'c']}},
+                                 {'terms': {'srv_3': [u'a', u'b', u'c']}},
+                                 {'terms': {'srv_4': [u'a', u'b', u'c']}}
+                                 ]}}]}}}
+        print(result.to_dict())
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 

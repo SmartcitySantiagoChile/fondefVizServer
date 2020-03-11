@@ -123,7 +123,6 @@ class ESTripHelper(ElasticSearchHelper):
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
-
         # TODO: esta restricción no existe sobre la consulta inicialmente, verificar que no cambia el resultado.
         """
         if sectors:
