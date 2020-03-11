@@ -55,6 +55,9 @@ class ESTripIndexTest(TestCase):
         periods = [1, 2, 3]
         origin_zones = [1, 2, 3]
         destination_zones = [3, 2, 1]
+        dates = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_resume_data_query,
+                          dates, day_types, periods, origin_zones, destination_zones)
         dates = [["2018-01-01", "2018-02-01"]]
         result = self.instance.get_base_resume_data_query(dates, day_types, periods, origin_zones,
                                                           destination_zones)
@@ -67,7 +70,6 @@ class ESTripIndexTest(TestCase):
                 'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
                                   u'format': u'yyyy-MM-dd'}}},
         ]}}}
-        print(result.to_dict())
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
@@ -270,7 +272,6 @@ class ESTripIndexTest(TestCase):
                                  {'terms': {u'srv_2': u'authRoutes[]'}},
                                  {'terms': {u'srv_1': u'authRoutes[]'}}]
                       }}]}}}
-        print(result.to_dict())
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
@@ -342,8 +343,12 @@ class ESTripIndexTest(TestCase):
         minutes = [1, 2, 3]
         destination_zones = []
         routes = ''
-        dates = [['2018-01-01', '2018-02-01']]
+        dates = []
         origin_zones = [None] * 51
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_strategies_data_query,
+                          dates, day_types, periods, minutes, origin_zones,
+                          destination_zones, routes)
+        dates = [['2018-01-01', '2018-02-01']]
         self.assertRaises(ESQueryTooManyOriginZonesError, self.instance.get_base_strategies_data_query,
                           dates, day_types, periods, minutes, origin_zones,
                           destination_zones, routes)
