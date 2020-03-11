@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from elasticsearch_dsl import Search, A, Q
+from elasticsearch_dsl import Search, A
 from elasticsearch_dsl.query import Match
 
-from esapi.helper.basehelper import ElasticSearchHelper
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateParametersDoesNotExist, \
     ESQueryStopInfoDoesNotExist
+from esapi.helper.basehelper import ElasticSearchHelper
 
 
 class ESStopHelper(ElasticSearchHelper):

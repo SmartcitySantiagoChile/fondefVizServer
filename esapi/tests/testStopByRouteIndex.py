@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from esapi.errors import ESQueryRouteParameterDoesNotExist, \
     ESQueryOperationProgramDoesNotExist, \
-    ESQueryThereIsMoreThanOneOperationProgram, ESQueryResultEmpty
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryStopListDoesNotExist, ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 
 
@@ -95,40 +95,40 @@ class ESStopByRouteIndexTest(TestCase):
         result = self.instance.get_most_recent_operation_program_date(asked_date)
         self.assertListEqual(result, ['key'])
 
-    # @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_base_query')
-    # def test_get_stop_list(self, get_base_query):
-    #     auth_route_code = ''
-    #     dates = '[[""]'
-    #     self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_stop_list, auth_route_code, dates)
-    #     auth_route_code = 'auth_route_code'
-    #     dates = '[["2018-01-01"]]'
-    #     get_base_query.return_value = get_base_query
-    #     get_base_query.filter.return_value = get_base_query
-    #     get_base_query.sort.return_value = get_base_query
-    #     get_base_query.__getitem__.return_value = get_base_query
-    #     get_base_query.execute.return_value = get_base_query
-    #     hit = mock.Mock()
-    #     type(get_base_query).hits = mock.PropertyMock(return_value=hit)
-    #     type(hit).hits = mock.PropertyMock(return_value=[{'_source': [1, 2, 3]}])
-    #     result = self.instance.get_stop_list(auth_route_code, dates)
-    #     print(result.return_value)
-    #     self.assertListEqual(result, [1, 2, 3])
+    @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_base_query')
+    def test_get_stop_list(self, get_base_query):
+        auth_route_code = ''
+        dates = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_stop_list, auth_route_code, dates)
+        dates = [["2018-01-01"]]
+        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_stop_list, auth_route_code, dates)
+        auth_route_code = 'auth_route_code'
+        get_base_query.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.query.return_value = get_base_query
+        get_base_query.sort.return_value = get_base_query
+        get_base_query.__getitem__.return_value = get_base_query
+        get_base_query.execute.return_value = get_base_query
+        hit = mock.Mock()
+        type(get_base_query).hits = mock.PropertyMock(return_value=hit)
+        type(hit).hits = mock.PropertyMock(return_value=[{'_source': [1, 2, 3]}])
+        result = self.instance.get_stop_list(auth_route_code, dates)
+        self.assertListEqual(result, [1, 2, 3])
 
-    # @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_base_query')
-    # def test_get_stop_list_out_of_index(self, get_base_query):
-    #     auth_route_code = 'auth_route_code'
-    #     dates = '[["2018-01-01", "2018-02-01"]]'
-    #     get_base_query.return_value = get_base_query
-    #     get_base_query.filter.return_value = get_base_query
-    #     get_base_query.sort.return_value = get_base_query
-    #     get_base_query.__getitem__.return_value = get_base_query
-    #     get_base_query.execute.return_value = get_base_query
-    #     hit = mock.Mock()
-    #     type(hit).hits = mock.PropertyMock(return_value=[])
-    #     type(get_base_query).hits = mock.PropertyMock(return_value=hit)
-    #     result = self.instance.get_stop_list(auth_route_code, dates)
-    #     print(result)
-    #     self.assertRaises(ESQueryResultEmpty, self.instance.get_stop_list, auth_route_code, dates)
+    @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_base_query')
+    def test_get_stop_list_out_of_index(self, get_base_query):
+        auth_route_code = 'auth_route_code'
+        dates = [["2018-01-01", "2018-02-01"]]
+        get_base_query.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.query.return_value = get_base_query
+        get_base_query.sort.return_value = get_base_query
+        get_base_query.__getitem__.return_value = get_base_query
+        get_base_query.execute.return_value = get_base_query
+        hit = mock.Mock()
+        type(hit).hits = mock.PropertyMock(return_value=[])
+        type(get_base_query).hits = mock.PropertyMock(return_value=hit)
+        self.assertRaises(ESQueryStopListDoesNotExist, self.instance.get_stop_list, auth_route_code, dates)
 
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.make_multisearch_query_for_aggs')
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_attr_list')
