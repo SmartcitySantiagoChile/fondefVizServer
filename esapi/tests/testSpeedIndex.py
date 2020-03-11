@@ -5,7 +5,8 @@ import mock
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
-from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty
+from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty, \
+    ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.speed import ESSpeedHelper
 
 
@@ -53,17 +54,19 @@ class ESSpeedIndexTest(TestCase):
         self.assertListEqual(operator_list, [])
 
     def test_get_base_speed_data_query(self):
-        dates = '[[""]]'
+        dates = [[]]
         day_type = ['LABORAL']
         auth_route = ''
         valid_operator_list = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_speed_data_query, auth_route,
+                          day_type, dates, valid_operator_list)
+        dates = [["2018-01-01", "2018-01-02"]]
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_speed_data_query, auth_route,
                           day_type, dates, valid_operator_list)
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_base_speed_data_query, auth_route,
                           day_type, dates, valid_operator_list)
         auth_route = '506 00I'
-        dates = [["2018-01-01", "2018-01-02"]]
         result = self.instance.get_base_speed_data_query(auth_route, day_type, dates,
                                                          valid_operator_list)
         expected = {'query': {'bool': {
@@ -124,12 +127,15 @@ class ESSpeedIndexTest(TestCase):
                           valid_operator_list)
 
     def test_get_base_ranking_data_query(self):
-        dates = [['2018-01-01']]
+        dates = []
         hour_period_from = ''
         hour_period_to = ''
         day_type = ['LABORAL']
         valid_operator_list = []
         route_list = [1, 2, 3]
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_ranking_data_query, dates,
+                          hour_period_from, hour_period_to, day_type, valid_operator_list)
+        dates = [['2018-01-01']]
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_ranking_data_query, dates,
                           hour_period_from, hour_period_to, day_type, valid_operator_list)
         valid_operator_list = [1, 2, 3]
@@ -219,11 +225,13 @@ class ESSpeedIndexTest(TestCase):
 
     def test_get_base_detail_ranking_data_query(self):
         route = 'route'
-        dates = [['2018-01-01', '2018-02-01']]
-
+        dates = []
         period = 1
         day_type = ['LABORAL']
         valid_operator_list = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_detail_ranking_data_query, route,
+                          dates, period, day_type, valid_operator_list)
+        dates = [['2018-01-01', '2018-02-01']]
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_detail_ranking_data_query, route,
                           dates, period, day_type, valid_operator_list)
         valid_operator_list = [1, 2, 3]
