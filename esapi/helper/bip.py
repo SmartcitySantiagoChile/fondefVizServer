@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from collections import defaultdict
-
 from elasticsearch_dsl import A, Q
 
 from esapi.errors import ESQueryOperatorParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist
@@ -48,7 +46,7 @@ class ESBipHelper(ElasticSearchHelper):
         es_query = es_query.query('bool', filter=[combined_filter])
 
         aggs = A('date_histogram', field='validationTime', interval='day')
-        es_query.aggs.bucket('histogram', aggs).\
+        es_query.aggs.bucket('histogram', aggs). \
             bucket('operators', 'terms', field='operator', size=1000)
 
         return es_query, operator_list
