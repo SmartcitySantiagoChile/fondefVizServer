@@ -162,13 +162,12 @@ class ESTripHelper(ElasticSearchHelper):
 
     def get_base_large_travel_data_query(self, dates, day_types, periods, n_etapas):
         es_query = self.get_base_query()
-
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
         combined_filter = []
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', tiempo_subida={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',

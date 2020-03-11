@@ -176,7 +176,7 @@ class ESTripIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_base_large_travel_data_query_five_stages(self):
-        dates = [[""]]
+        dates = [[]]
         day_types = ['LABORAL']
         periods = [1, 2, 3]
         n_etapas = [1, 2, 3, 4, '5+']
@@ -195,7 +195,7 @@ class ESTripIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_base_large_travel_data_query(self):
-        dates = [[""]]
+        dates = []
         day_types = ['LABORAL']
         periods = [1, 2, 3]
         n_etapas = []
