@@ -53,3 +53,38 @@ class LoadBipTransactionByOperatorData(TestHelper):
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ExporterDataHasBeenEnqueuedMessage().get_status_response())
+
+    @mock.patch('esapi.helper.bip.ESBipHelper.get_available_days')
+    @mock.patch('esapi.helper.basehelper.Search')
+    def test_exec_elasticsearch_query_without_result(self, es_query,
+                                                     operator_list):
+        operator_list.return_value = []
+        es_query_instance = es_query.return_value
+        es_query_instance.filter.return_value = es_query_instance
+        es_query_instance.query.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
+        es_query_instance.scan.return_value = []
+        data = {
+            'dates': '[["2018-01-01"]]'
+        }
+        response = self.client.get(self.url, data)
+        print(response.content)
+        self.assertContains(response, 'status')
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+
+    # @mock.patch('esapi.helper.bip.ESBipHelper.get_available_days')
+    # @mock.patch('esapi.helper.basehelper.Search')
+    # @mock.patch('esapi.helper.bip.ESBipHelper.get_bip_by_operator_data')
+    # def test_exec_elasticsearch_query_with_result(self, es_query,
+    #                                               get_bip_by_operator_data):
+    #     get_bip_by_operator_data.return_value = [[0], [1, 2, 3, 4, 5, 6, 7, 8, 9]]
+    #     es_query_instance = es_query.return_value
+    #     es_query_instance.filter.return_value = es_query_instance
+    #     es_query_instance.query.return_value = es_query_instance
+    #     hit = mock.Mock()
+    #     data = {
+    #         'dates': '[["2018-01-01"]]'
+    #     }
+    #     response = self.client.get(self.url, data)
+    #     print(response.content)
