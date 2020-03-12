@@ -21,3 +21,5 @@ class ConnectionTest(TestHelper):
     def test_site_odmatrix(self):
         self.check_http_response(self.client, 'profile:odmatrix', 200)
 
+    def test_site_manystops(self):
+        self.check_http_response(self.client, 'profile:manystops', 200)
