@@ -34,20 +34,20 @@ class GlobalDataTest(TestHelper):
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:resumeData')
         self.data = {
-            'dates': '[["2019-01-01, 2019-02-01"]]',
+            'dates': '[["2019-01-01", "2019-02-01"]]',
             'metrics[]': ['transactionNumber'],
         }
         self.available_date = '2019-01-01'
 
-    # @mock.patch('esapi.helper.resume.ESResumeStatisticHelper.get_data')
-    # def test_exec_elasticsearch_query_get(self, get_data):
-    #     es_query = mock.Mock()
-    #     hit = mock.Mock()
-    #     hit.to_dict.return_value = {
-    #         'transactionWithoutRoute': 0,
-    #     }
-    #     es_query.scan.return_value = [hit]
-    #     get_data.return_value = es_query
-    #     response = self.client.get(self.url, self.data)
-    #     self.assertNotContains(response, 'status')
-    #     # self.assertJSONEqual(response.content, expected)
+    @mock.patch('esapi.helper.resume.ESResumeStatisticHelper.get_data')
+    def test_exec_elasticsearch_query_get(self, get_data):
+        es_query = mock.Mock()
+        hit = mock.Mock()
+        hit.to_dict.return_value = {
+            'transactionWithoutRoute': 0,
+        }
+        es_query.scan.return_value = [hit]
+        get_data.return_value = es_query
+        response = self.client.get(self.url, self.data)
+        self.assertNotContains(response, 'status')
+        # self.assertJSONEqual(response.content, expected)
