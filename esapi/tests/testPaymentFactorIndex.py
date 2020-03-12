@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import mock
 from django.test import TestCase
 
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryOperatorParameterDoesNotExist
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
 
 
