@@ -443,3 +443,102 @@ class LoadProfileByTrajectoryTest(TestHelper):
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ExporterDataHasBeenEnqueuedMessage().get_status_response())
+
+
+class LoadBoardingAndAlightingAverageByStopsTest(TestHelper):
+    fixtures = ['timeperiods', 'operators', 'daytypes']
+
+    def setUp(self):
+        self.client = self.create_logged_client_with_global_permission()
+        self.url = reverse('esapi:boardingAndAlightingAverageByStops')
+        self.data = {
+            'dates': '[[""]]',
+            'stopCodes[]': [],
+            'dayType[]': [],
+            'period': [],
+            'halfHour': []
+        }
+
+    def test_wrong_dates(self):
+        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['stopCodes[]'] = ["PA433"]
+        response = self.client.get(self.url, self.data)
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+
+    def test_wrong_stop_code(self):
+        self.data['dates'] = '[["2018-01-01"]]'
+        response = self.client.get(self.url, self.data)
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ESQueryStopParameterDoesNotExist().get_status_response())
+
+    # @mock.patch('esapi.helper.basehelper.Search')
+    # @mock.patch('esapi.views.profile.check_operation_program')
+    # def test_exec_elasticsearch_query_with_result(self, check_operation_program, es_query):
+    #     check_operation_program.return_value = None
+    #     es_query_instance = es_query.return_value
+    #     es_query_instance.filter.return_value = es_query_instance
+    #     es_query_instance.query.return_value = es_query_instance
+    #     es_query_instance.source.return_value = es_query_instance
+    #     hit = mock.Mock()
+    #     type(hit).timePeriodInStopTime = mock.PropertyMock(return_value=9)
+    #     type(hit).dayType = mock.PropertyMock(return_value=0)
+    #     type(hit).loadProfile = mock.PropertyMock(return_value=36.33063507)
+    #     type(hit).expandedBoarding = mock.PropertyMock(return_value=1.215768337)
+    #     type(hit).expandedAlighting = mock.PropertyMock(return_value=1.073773265)
+    #     type(hit).userStopCode = mock.PropertyMock(return_value='PJ2')
+    #     type(hit).authStopCode = mock.PropertyMock(return_value='T-8-65-NS-10')
+    #     type(hit).userStopName = mock.PropertyMock(return_value='Lo Espinoza esq- / Carmen Lidia')
+    #     type(hit).busStation = mock.PropertyMock(return_value=1)
+    #     type(hit).licensePlate = mock.PropertyMock(return_value='ZN-6496')
+    #     type(hit).busCapacity = mock.PropertyMock(return_value=91)
+    #     type(hit).route = mock.PropertyMock(return_value='T101 00I')
+    #     type(hit).stopDistanceFromPathStart = mock.PropertyMock(return_value=9663)
+    #     type(hit).expeditionStopTime = mock.PropertyMock(return_value='2017-07-31T17:39:36.000Z')
+    #     type(hit).expeditionDayId = mock.PropertyMock(return_value=152)
+    #     type(hit).path = mock.PropertyMock(return_value='path')
+    #     es_query_instance.scan.return_value = [hit]
+    #     expected = {"info": {"userStopCode": "PJ2", "busStation": True, "authorityStopCode": "T-8-65-NS-10",
+    #                          "name": "Lo Espinoza esq- / Carmen Lidia"}, "trips": {
+    #         "path-152": {"licensePlate": "ZN-6496", "capacity": 91, "expandedGetIn": 1.215768337,
+    #                      "stopTimePeriod": "Punta tarde", "loadProfile": 36.33063507, "dayType": "Laboral",
+    #                      "route": "T101 00I", "distOnPath": 9663, "stopTime": "2017-07-31T17:39:36.000Z",
+    #                      "expandedLanding": 1.073773265}}}
+    #
+    #     data = {
+    #         'dates': '[["2018-01-01"]]',
+    #         'dayType[]': ['LABORAL'],
+    #         'period[]': [0, 1, 2],
+    #         'halfHour[]': [0, 1, 2],
+    #         'stopCodes[]': ['PA433']
+    #     }
+    #     response = self.client.get(self.url, data)
+    #     self.assertNotContains(response, 'status')
+    #     self.assertJSONEqual(response.content, expected)
+
+    @mock.patch('esapi.helper.basehelper.Search')
+    @mock.patch('esapi.views.profile.check_operation_program')
+    def test_exec_elasticsearch_query_without_result(self, check_operation_program, es_query):
+        check_operation_program.return_value = None
+        es_query_instance = es_query.return_value
+        es_query_instance.filter.return_value = es_query_instance
+        es_query_instance.query.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
+        es_query_instance.scan.return_value = []
+        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['stopCodes[]'] = ['506 00I']
+        response = self.client.get(self.url, self.data)
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+
+    @mock.patch('esapi.views.profile.ExporterManager')
+    @mock.patch('esapi.views.profile.check_operation_program')
+    def test_exec_elasticsearch_query_post(self, check_operation_program, exporter_manager):
+        check_operation_program.return_value = None
+        exporter_manager.return_value = exporter_manager
+        exporter_manager.export_data.return_value = None
+        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['stopCodes[]'] = ['506 00I']
+        response = self.client.post(self.url, self.data)
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ExporterDataHasBeenEnqueuedMessage().get_status_response())
