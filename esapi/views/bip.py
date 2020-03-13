@@ -48,7 +48,6 @@ class BipTransactionByOperatorData(View):
             histogram.append(hit.to_dict())
         if len(histogram) == 0:
             raise ESQueryResultEmpty()
-        print(histogram)
         return histogram
 
     def process_request(self, request, params, export_data=False):
@@ -69,7 +68,6 @@ class BipTransactionByOperatorData(View):
                     'data': data,
                     'operators': operator_list
                 }
-
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
