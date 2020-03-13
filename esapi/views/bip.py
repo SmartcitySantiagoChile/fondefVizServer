@@ -48,6 +48,7 @@ class BipTransactionByOperatorData(View):
             histogram.append(hit.to_dict())
         if len(histogram) == 0:
             raise ESQueryResultEmpty()
+        print(histogram)
         return histogram
 
     def process_request(self, request, params, export_data=False):

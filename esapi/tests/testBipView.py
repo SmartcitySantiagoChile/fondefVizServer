@@ -6,7 +6,7 @@ import json
 import mock
 from django.urls import reverse
 
-from esapi.errors import ESQueryResultEmpty
+from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
 
@@ -44,6 +44,11 @@ class LoadBipTransactionByOperatorData(TestHelper):
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+        self.data['dates'] = '[]'
+        response = self.client.get(self.url, self.data)
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
+
 
     @mock.patch('esapi.views.profile.ExporterManager')
     def test_exec_elasticsearch_query_post(self, exporter_manager):
@@ -73,21 +78,19 @@ class LoadBipTransactionByOperatorData(TestHelper):
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
 
-    # @mock.patch('esapi.helper.bip.ESBipHelper.get_available_days')
-    # @mock.patch('esapi.helper.basehelper.Search')
-    # def test_exec_elasticsearch_query_with_result(self, es_query,
-    #                                               operator_list):
-    #     operator_list.return_value = []
-    #     es_query_instance = es_query.return_value
-    #     es_query_instance.filter.return_value = es_query_instance
-    #     es_query_instance.query.return_value = es_query_instance
-    #     es_query_instance.source.return_value = es_query_instance
-    #     es_query_instance.scan.return_value = es_query_instance
-    #     es_query_instance.execute = es_query_instance
-    #     hit = mock.Mock()
-    #     es_query_instance.aggregations.histogram.return_value = [hit]
-    #     data = {
-    #         'dates': '[["2018-01-01"]]'
-    #     }
-    #     response = self.client.get(self.url, data)
-    #     print(response.content)
+    @mock.patch('esapi.helper.basehelper.Search')
+    def test_exec_elasticsearch_query_with_result(self, es_query):
+        print(es_query.to_dict())
+        es_query_instance = es_query.return_value
+        es_query_instance.filter.return_value = es_query_instance
+        es_query_instance.query.return_value = es_query_instance
+        es_query_instance.source.return_value = es_query_instance
+        es_query_instance.scan.return_value = []
+        data = {
+            'dates': '[["2018-01-01"]]'
+        }
+        response = self.client.get(self.url, data)
+        print(response.content)
+        self.assertContains(response, 'status')
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
