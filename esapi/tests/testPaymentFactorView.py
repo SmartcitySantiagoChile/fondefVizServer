@@ -63,7 +63,6 @@ class PaymentFactorDataTest(TestHelper):
             'dates': '[["2018-01-01"]]'
         }
         response = self.client.get(self.url, data)
-        print(response.content)
         self.assertContains(response, 'status')
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
@@ -76,3 +75,25 @@ class PaymentFactorDataTest(TestHelper):
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ExporterDataHasBeenEnqueuedMessage().get_status_response())
+
+    @mock.patch('esapi.views.paymentfactor.PaymentFactorData.transform_es_answer')
+    @mock.patch('esapi.helper.paymentfactor.ESPaymentFactorHelper.get_data')
+    def test_exec_elasticsearch_query_with_result(self, operator_data, data):
+        operator_data.return_value = ''
+        data.return_value = {u'rows': [
+            {'total': 4686.0, 'operator_id': 1, 'factor_by_date': [(1561939200000, 0.0)], 'assignation': u'VISITANTE',
+             'factor_average': 0.0, 'sum': 0.0, 'neutral': 4686.0,
+             'bus_station_name': u'Parada 2 / (M) Estaci\xf3n Central', 'day_type': u'Laboral', 'operator': u'Alsacia',
+             'bus_station_id': u'365', 'subtraction': 0.0},
+        ]}
+
+        data = {
+            'dates': '[["2018-01-01"]]'
+        }
+        expected = {"rows": [
+            {"bus_station_name": "Parada 2 / (M) Estaci\u00f3n Central", "factor_by_date": [[1561939200000, 0.0]],
+             "subtraction": 0.0, "neutral": 4686.0, "operator_id": 1, "day_type": "Laboral", "operator": "Alsacia",
+             "bus_station_id": "365", "total": 4686.0, "assignation": "VISITANTE", "sum": 0.0, "factor_average": 0.0}]}
+
+        response = self.client.get(self.url, data)
+        self.assertDictEqual(json.loads(response.content), expected)
