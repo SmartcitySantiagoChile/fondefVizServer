@@ -39,13 +39,12 @@ class GlobalDataTest(TestHelper):
         }
         self.available_date = '2019-01-01'
 
-    @mock.patch('esapi.views.resume.GlobalData.transform_data')
     @mock.patch('esapi.helper.resume.ESResumeStatisticHelper.get_data')
-    def test_exec_elasticsearch_query_get(self, get_data, transform_data):
-        transform_data.return_value = []
+    def test_exec_elasticsearch_query_get(self, get_data):
         es_query = mock.Mock()
         hit = mock.Mock()
         hit.to_dict.return_value = {
+            'date': '2019-10-22',
             'transactionWithoutRoute': 0,
             'smartcardNumber': 0
         }

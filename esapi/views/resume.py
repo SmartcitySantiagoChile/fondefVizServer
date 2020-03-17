@@ -190,6 +190,7 @@ class GlobalData(PermissionRequiredMixin, View):
         answer = []
         for hit in es_query.scan():
             hit_row = hit.to_dict()
+            print(hit_row)
             row = list(range(len(hit_row.keys())))
             print row
             for key, value in hit_row.iteritems():
