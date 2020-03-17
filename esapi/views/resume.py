@@ -191,12 +191,14 @@ class GlobalData(PermissionRequiredMixin, View):
         for hit in es_query.scan():
             hit_row = hit.to_dict()
             row = list(range(len(hit_row.keys())))
+            print row
             for key, value in hit_row.iteritems():
                 if key not in keys.keys():
                     keys[key] = len(header)
                     header.append(DICTIONARY[key]['name'])
                     chart_names.append(DICTIONARY[key]['chartName'])
                     identifiers.append(key)
+                    print(keys[key])
                 row[keys[key]] = value
             answer.append(row)
         # sort

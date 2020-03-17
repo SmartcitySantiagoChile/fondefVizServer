@@ -35,16 +35,19 @@ class GlobalDataTest(TestHelper):
         self.url = reverse('esapi:resumeData')
         self.data = {
             'dates': '[["2019-01-01", "2019-02-01"]]',
-            'metrics[]': ['transactionNumber'],
+            'metrics[]': ['transactionNumber', 'smartcardNumber'],
         }
         self.available_date = '2019-01-01'
 
+    @mock.patch('esapi.views.resume.GlobalData.transform_data')
     @mock.patch('esapi.helper.resume.ESResumeStatisticHelper.get_data')
-    def test_exec_elasticsearch_query_get(self, get_data):
+    def test_exec_elasticsearch_query_get(self, get_data, transform_data):
+        transform_data.return_value = []
         es_query = mock.Mock()
         hit = mock.Mock()
         hit.to_dict.return_value = {
             'transactionWithoutRoute': 0,
+            'smartcardNumber': 0
         }
         es_query.scan.return_value = [hit]
         get_data.return_value = es_query
