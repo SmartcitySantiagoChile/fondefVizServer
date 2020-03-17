@@ -7,7 +7,7 @@ import mock
 from django.urls import reverse
 
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty, \
-    ESQueryShapeDoesNotExist
+    ESQueryShapeDoesNotExist, ESQueryOperationProgramDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage, SpeedVariationWithLessDaysMessage
 from testhelper.helper import TestHelper
 
@@ -91,7 +91,7 @@ class MatrixDataTest(TestHelper):
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryShapeDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryOperationProgramDoesNotExist("2018-01-01", "2018-01-01").get_status_response())
 
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_speed_data')
