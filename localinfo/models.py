@@ -27,7 +27,7 @@ class TimePeriod(models.Model):
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
 
     def __str__(self):
-        return self.authorityPeriodName
+        return str(self.authorityPeriodName)
 
 
 class Commune(models.Model):
@@ -43,7 +43,7 @@ class Commune(models.Model):
     prettyName = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.prettyName
+        return str(self.prettyName)
 
 
 class HalfHour(models.Model):
@@ -64,7 +64,7 @@ class HalfHour(models.Model):
     authorityPeriodName = models.CharField("Período Transantiago", max_length=50)
 
     def __str__(self):
-        return self.shortName
+        return str(self.shortName)
 
     class Meta:
         verbose_name = "Período de media hora"
