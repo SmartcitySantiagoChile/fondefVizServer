@@ -3,7 +3,6 @@
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.db.models import Count
 from django.contrib.postgres.search import SearchVector
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
@@ -99,7 +98,7 @@ def search_faq(searchText):
     :param search:
     :return: all faqs matched "search"
     """
-    query = FAQ.objects.annotate(search=SearchVector('question', 'answer',  config='french_unaccent'))\
+    query = FAQ.objects.annotate(search=SearchVector('question', 'answer', config='french_unaccent')) \
         .filter(search=searchText)
     grouped = dict()
     for info in query:
@@ -113,6 +112,7 @@ def get_custom_routes_dict():
         definition = definition.__dict__
         routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
     return routes_dict
+
 
 class PermissionBuilder(object):
 

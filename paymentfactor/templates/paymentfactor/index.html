@@ -1,7 +1,7 @@
 {% extends 'paymentfactor/base.html' %}
 {% load static header panel inline_select table columns update_button label data_filter tabs %}
 
-{% block title %}Distribución de validaciones en zona paga mixta{% endblock %}
+{% block title %}Distribución de transacciones en zona paga mixta{% endblock %}
 
 {% block css %}
     {{ block.super }}
@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block content %}
-    {% header "Distribución de validaciones" "en zona paga mixta" %}
+    {% header "Distribución de transacciones" "en zona paga mixta" %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
     {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
@@ -25,7 +25,7 @@
 
     <div class="row">
         {% table "validationDetail" 12 with_checker=False as validationTable %}
-        {% panel "fa-money" 'Validaciones' validationTable info_target_id="tableHelp" as panel5 %}
+        {% panel "fa-money" 'Transacciones' validationTable info_target_id="tableHelp" as panel5 %}
         {% columns 12 12 12 panel5 %}
     </div>
 

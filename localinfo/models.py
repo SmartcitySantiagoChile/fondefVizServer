@@ -169,7 +169,7 @@ class FAQ(models.Model):
         (GENERAL, "General"),
         (ADMIN, "Administración"),
         (STORAGE, "Almacenamiento"),
-        (PAYMENT_FACTOR, 'Validaciones'),
+        (PAYMENT_FACTOR, 'Transacciones'),
         (PROFILE, 'Perfil de carga'),
         (SPEED, 'Velocidades'),
         (ROUTE, 'Rutas'),
@@ -179,8 +179,8 @@ class FAQ(models.Model):
     category = models.CharField('Categoría', max_length=30, null=False, default=GENERAL, choices=FILE_TYPE_CHOICES)
 
     class Meta:
-            verbose_name = "pregunta frecuente"
-            verbose_name_plural = "preguntas frecuentes"
+        verbose_name = "pregunta frecuente"
+        verbose_name_plural = "preguntas frecuentes"
 
     def short_answer(self):
         text_safe = strip_tags(self.answer.encode('utf-8'))
