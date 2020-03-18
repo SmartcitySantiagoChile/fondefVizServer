@@ -136,7 +136,7 @@ class DayDescription(models.Model):
         verbose_name_plural = "descripciónes de días"
 
     def __str__(self):
-        return self.description.encode('utf8')
+        return str(self.description)
 
 
 class CalendarInfo(models.Model):
