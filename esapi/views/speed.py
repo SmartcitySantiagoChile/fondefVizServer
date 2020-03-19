@@ -77,7 +77,7 @@ class MatrixData(View):
         }
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
 
             check_operation_program(dates[0][0], dates[-1][-1])

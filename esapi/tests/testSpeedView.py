@@ -7,7 +7,7 @@ import mock
 from django.urls import reverse
 
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty, \
-    ESQueryShapeDoesNotExist
+    ESQueryShapeDoesNotExist, ESQueryDateParametersDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage, SpeedVariationWithLessDaysMessage
 from testhelper.helper import TestHelper
 
@@ -87,11 +87,11 @@ class MatrixDataTest(TestHelper):
         self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
 
     def test_wrong_date(self):
-        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['dates'] = '[[]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryShapeDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_speed_data')
