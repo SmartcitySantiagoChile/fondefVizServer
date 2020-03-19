@@ -79,7 +79,6 @@ class MatrixData(View):
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
-
             check_operation_program(dates[0][0], dates[-1][-1])
 
             es_shape_helper = ESShapeHelper()
@@ -145,7 +144,7 @@ class RankingData(View):
         }
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
 
@@ -217,7 +216,7 @@ class SpeedByRoute(View):
         }
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
 
@@ -241,9 +240,10 @@ class SpeedByRoute(View):
                                                                    valid_operator_list)
                 response['speed'] = self.process_data(es_query, limits)
 
-        except ESQueryResultEmpty as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
+        print(response)
         return JsonResponse(response, safe=False)
 
     def get(self, request):
@@ -343,7 +343,7 @@ class SpeedVariation(View):
             'routes': []
         }
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             end_date = dates[0][0]
 
