@@ -86,7 +86,6 @@ class ESShapeHelper(ElasticSearchHelper):
         es_query = es_query.query('bool', filter=[combined_filter]).sort('-startDate')[:1]
         try:
             point_list = es_query.execute().hits.hits[0]['_source']
-            print(point_list)
         except IndexError:
             raise ESQueryShapeDoesNotExist()
 

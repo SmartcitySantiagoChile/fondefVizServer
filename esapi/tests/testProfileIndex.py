@@ -212,7 +212,6 @@ class ESProfileIndexTest(TestCase):
         stop_code = 'PA433'
         result = self.instance.get_profile_by_multiple_stop_data(dates, day_type, stop_code, period, half_hour,
                                                                  valid_operator_list)
-        print(result.to_dict())
         expected = {'query': {'bool': {
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'terms': {'dayType': [u'LABORAL']}},
                        {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {

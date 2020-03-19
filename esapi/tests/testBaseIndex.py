@@ -101,7 +101,6 @@ class BaseIndexTest(TestCase):
         multi_search_instance.add.return_value = multi_search_instance
         multi_search_instance.execute.return_value = [{}]
         result = self.instance.make_multisearch_query_for_aggs(tuple(), flat=True)
-        print(result)
         self.assertDictEqual(result, dict())
 
     def test_get_histogram_query(self):

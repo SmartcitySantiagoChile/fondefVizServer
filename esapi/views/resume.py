@@ -197,7 +197,6 @@ class GlobalData(PermissionRequiredMixin, View):
                     header.append(DICTIONARY[key]['name'])
                     chart_names.append(DICTIONARY[key]['chartName'])
                     identifiers.append(key)
-                    print(keys[key])
                 row[keys[key]] = value
             answer.append(row)
         # sort

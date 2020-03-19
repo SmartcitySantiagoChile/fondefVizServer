@@ -68,7 +68,6 @@ class LoadBipTransactionByOperatorData(TestHelper):
             'dates': '[["2018-01-01"]]'
         }
         response = self.client.get(self.url, data)
-        print(response.content)
         self.assertContains(response, 'status')
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())

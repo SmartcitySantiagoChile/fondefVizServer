@@ -394,7 +394,6 @@ class LoadProfileByTrajectoryTest(TestHelper):
             "stops": {"T-8-65-NS-10": [9663, 36.33063507, 1.215768337, 1.073773265, "2017-07-31T17:39:36.000Z"]}}},
                     "stops": []}
         response = self.client.get(self.url, data)
-        print(response.content)
         self.assertNotContains(response, 'status')
         self.assertJSONEqual(response.content, expected)
 

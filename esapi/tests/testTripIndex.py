@@ -135,7 +135,6 @@ class ESTripIndexTest(TestCase):
                           day_types, periods, sectors)
         dates = [["2018-01-01", "2018-02-01"]]
         result = self.instance.get_base_map_data_query(dates, day_types, periods, sectors)
-        print(result.to_dict())
         expected = {'query': {'bool': {'filter': [
             {'terms': {'tipodia': [u'LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
@@ -172,7 +171,6 @@ class ESTripIndexTest(TestCase):
                                                     u'tviaje': {'avg': {'field': u'tviaje'}}}}}},
                 u'sum_expansion_factor': {'sum': {'field': u'factor_expansion'}}}, 'size': 0}
         self.assertIsInstance(result, Search)
-        print(result.to_dict())
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_base_large_travel_data_query_five_stages(self):
@@ -373,7 +371,6 @@ class ESTripIndexTest(TestCase):
                                  {'terms': {'srv_3': [u'a', u'b', u'c']}},
                                  {'terms': {'srv_4': [u'a', u'b', u'c']}}
                                  ]}}]}}}
-        print(result.to_dict())
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
