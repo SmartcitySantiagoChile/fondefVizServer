@@ -1,3 +1,3 @@
 [submodule "rqworkers/dataUploader"]
-	path = rqworkers/dataUploader
+	path = dataUploader
 	url = https://github.com/SmartcitySantiagoChile/dataUploader
