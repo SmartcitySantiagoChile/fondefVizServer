@@ -184,7 +184,9 @@ class FAQ(models.Model):
 
     def short_answer(self):
         text_safe = strip_tags(self.answer.encode('utf-8'))
-        return truncatechars(text_safe, 200)
+        answer = truncatechars(text_safe, 200)
+        answer = answer[2:len(answer) - 1]
+        return answer
 
     short_answer.short_description = 'Respuesta'
 
