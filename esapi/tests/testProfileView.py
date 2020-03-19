@@ -7,7 +7,7 @@ import mock
 from django.urls import reverse
 
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, \
-    ESQueryStopParameterDoesNotExist, ESQueryResultEmpty
+    ESQueryStopParameterDoesNotExist, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
 
@@ -27,17 +27,12 @@ class LoadProfileByStopTest(TestHelper):
         }
 
     def test_wrong_dates(self):
-        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['dates'] = '[[]]'
         self.data['stopCode'] = 'PA433'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+        self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
-    def test_wrong_stop_code(self):
-        self.data['dates'] = '[["2018-01-01"]]'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryStopParameterDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.basehelper.Search')
     @mock.patch('esapi.views.profile.check_operation_program')
@@ -187,11 +182,11 @@ class LoadProfileByExpeditionTest(TestHelper):
         self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
 
     def test_wrong_dates(self):
-        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['dates'] = '[[]]'
         self.data['authRoute'] = '506 00I'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+        self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.profile.ESProfileHelper.get_available_days_between_dates')
     @mock.patch('esapi.views.profile.check_operation_program')
@@ -335,10 +330,10 @@ class LoadProfileByTrajectoryTest(TestHelper):
         }
 
     def test_wrong_dates(self):
-        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['dates'] = '[[]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
+        self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
     @mock.patch('esapi.helper.profile.ESProfileHelper.get_available_days_between_dates')
     @mock.patch('esapi.views.profile.check_operation_program')
@@ -460,11 +455,11 @@ class LoadBoardingAndAlightingAverageByStopsTest(TestHelper):
         }
 
     def test_wrong_dates(self):
-        self.data['dates'] = '[["2018-01-01"]]'
+        self.data['dates'] = '[[]]'
         self.data['stopCodes[]'] = ["PA433"]
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+        self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
     def test_wrong_stop_code(self):
         self.data['dates'] = '[["2018-01-01"]]'

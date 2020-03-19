@@ -40,11 +40,7 @@ class PaymentFactorDataTest(TestHelper):
         }
 
     def test_wrong_dates(self):
-        self.data['dates'] = '[["2018-01-01"]]'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        self.data['dates'] = '[]'
+        self.data['dates'] = '[[]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())

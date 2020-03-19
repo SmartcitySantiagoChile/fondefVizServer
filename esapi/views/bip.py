@@ -55,7 +55,7 @@ class BipTransactionByOperatorData(View):
         dates = get_dates_from_request(request, export_data)
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             es_helper = ESBipHelper()
             es_query, operator_list = es_helper.get_bip_by_operator_data(dates, valid_operator_list)

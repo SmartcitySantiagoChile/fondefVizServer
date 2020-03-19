@@ -89,7 +89,7 @@ class LoadProfileByStopData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
             es_helper = ESProfileHelper()
@@ -210,7 +210,7 @@ class LoadProfileByExpeditionData(View):
         response = {}
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
             es_stop_helper = ESStopByRouteHelper()
@@ -325,7 +325,7 @@ class LoadProfileByTrajectoryData(View):
         response = {}
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
             es_profile_helper = ESProfileHelper()
@@ -384,7 +384,7 @@ class BoardingAndAlightingAverageByStops(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
 
             if len(stop_codes) == 0:

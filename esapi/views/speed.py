@@ -243,7 +243,6 @@ class SpeedByRoute(View):
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
-        print(response)
         return JsonResponse(response, safe=False)
 
     def get(self, request):

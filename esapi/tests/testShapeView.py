@@ -74,6 +74,12 @@ class ConnectionTest(TestHelper):
         # answer = json_response['status']
         # self.assertDictEqual(answer, ESQueryDateParametersDoesNotExist().get_status_response())
 
-    def test_site_base(self):
+    @patch('esapi.views.shape.ESShapeHelper')
+    @patch('esapi.views.shape.ESStopByRouteHelper')
+    def test_site_base(self, es_stop_by_route_helper, es_shape_helper):
+        es_shape_helper.return_value = es_shape_helper
+        es_shape_helper.get_route_shape.return_value = dict(points=[])
+        es_stop_by_route_helper.return_value = es_stop_by_route_helper
+        es_stop_by_route_helper.get_stop_list.return_value = dict(stops=[])
         data = dict(route='', operationProgramDate='')
         self.check_http_response(self.client, 'esapi:shapeBase', 200, data)

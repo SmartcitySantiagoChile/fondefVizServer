@@ -218,7 +218,7 @@ class GlobalData(PermissionRequiredMixin, View):
         dates = get_dates_from_request(request, False)
         response = {}
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             es_helper = ESResumeStatisticHelper()
             es_query = es_helper.get_data(dates, metrics)

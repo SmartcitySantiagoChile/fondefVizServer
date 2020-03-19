@@ -40,16 +40,12 @@ class LoadBipTransactionByOperatorData(TestHelper):
         }
 
     def test_wrong_dates(self):
-        self.data['dates'] = '[["2018-01-01"]]'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        self.data['dates'] = '[]'
+        self.data['dates'] = '[[]]'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
-    @mock.patch('esapi.views.profile.ExporterManager')
+    @mock.patch('esapi.views.bip.ExporterManager')
     def test_exec_elasticsearch_query_post(self, exporter_manager):
         exporter_manager.return_value = exporter_manager
         exporter_manager.export_data.return_value = None
