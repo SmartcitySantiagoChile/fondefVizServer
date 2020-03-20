@@ -208,7 +208,6 @@ class LoadProfileByExpeditionData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         response = {}
-
         try:
             if len(dates) == 0:
                 raise ESQueryDateParametersDoesNotExist
@@ -236,10 +235,12 @@ class LoadProfileByExpeditionData(View):
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False)
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
+                    print(response)
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
                                                                                 len(list(response['trips'].keys()))). \
                             get_status_response()
+
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(dates, day_type,
                                                                                 auth_route_code, period, half_hour,
@@ -250,6 +251,7 @@ class LoadProfileByExpeditionData(View):
                 response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
 
         except FondefVizError as e:
+            print(response)
             response['status'] = e.get_status_response()
         return JsonResponse(response, safe=False)
 
@@ -342,11 +344,13 @@ class LoadProfileByTrajectoryData(View):
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
+                print(response)
                 response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
+                print(response)
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
-
         return JsonResponse(response, safe=False)
 
     def get(self, request):
