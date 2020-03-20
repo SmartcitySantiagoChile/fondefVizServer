@@ -30,7 +30,7 @@ class UserSessionStatsAdmin(admin.ModelAdmin):
     """ manager for session stats """
     list_filter = []
     list_display = ('user', 'session_number', 'last_session_timestamp', 'max_session_duration', 'min_session_duration',
-                    'avg_session_duration')
+                    'avg_session_duration', 'total_session_duration')
     actions = None
 
     def get_queryset(self, request):
