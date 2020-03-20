@@ -11,7 +11,7 @@ from smtplib import SMTPException
 
 from rq import get_current_job
 
-from rqworkers.dataUploader.loadData import upload_file
+from dataUploader.loadData import upload_file
 from rqworkers.dataDownloader.downloadData import download_file
 
 from esapi.helper.shape import ESShapeHelper
