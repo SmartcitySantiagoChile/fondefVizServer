@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 
-from rqworkers.dataDownloader.csvhelper.helper import ZipManager, PaymentFactorCSVHelper
+from dataDownloader.csvhelper.helper import ZipManager, PaymentFactorCSVHelper
 
 
 class PaymentFactorData(object):

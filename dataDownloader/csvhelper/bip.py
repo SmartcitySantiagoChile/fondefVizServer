@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 
-from rqworkers.dataDownloader.csvhelper.helper import ZipManager, ShapeCSVHelper, StopByRouteCSVHelper, \
-    ProfileCSVHelper, BipCSVHelper
+from dataDownloader.csvhelper.helper import ZipManager, BipCSVHelper
 
 
 class BipData(object):

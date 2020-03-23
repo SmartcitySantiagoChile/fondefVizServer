@@ -18,8 +18,8 @@ from esapi.helper.trip import ESTripHelper
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input, \
     get_transport_mode_list_for_select_input
-from rqworkers.dataDownloader.errors import FilterHasToBeListError
-from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
+from dataDownloader.errors import FilterHasToBeListError
+from dataDownloader.unicodecsv import UnicodeWriter
 
 README_FILE_NAME = 'Léeme.txt'
 
