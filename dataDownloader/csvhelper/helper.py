@@ -684,7 +684,7 @@ class ShapeCSVHelper(CSVHelper):
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
 
-        return [self.es_shape_helper.get_route_shape(route, start_date, end_date) for route in routes]
+        return [self.es_shape_helper.get_route_shape(route, [[start_date, end_date]]) for route in routes]
 
     def row_parser(self, row):
         rows = []
@@ -743,7 +743,7 @@ class StopByRouteCSVHelper(CSVHelper):
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
 
-        return [self.es_stop_helper.get_stop_list(route, start_date, end_date) for route in routes]
+        return [self.es_stop_helper.get_stop_list(route, [[start_date, end_date]]) for route in routes]
 
     def row_parser(self, row):
         rows = []
