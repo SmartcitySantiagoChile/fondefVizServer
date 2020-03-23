@@ -1,5 +1,5 @@
+import io
 import csv
-import os
 
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
@@ -43,13 +43,11 @@ class CustomRouteCsvUploader(View):
 
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
-        if csv_file and len(csv_file.read()) != 0:
-            f = open(csv_file.name, 'r')
-            reader = csv.reader(f)
-            for row in reader:
+        if csv_file and csv_file.size != 0:
+            for row in csv.reader(io.BytesIO(csv_file.read())):
                 if row[1].strip():
                     CustomRoute.objects.update_or_create(
                         auth_route_code=row[0], defaults={'custom_route_code': row[1]})
             return JsonResponse(data={"status": True})
         else:
-            return JsonResponse(data={"error": "No existe archivo."}, status=500)
+            return JsonResponse(data={"error": "No existe archivo."}, status=400)
