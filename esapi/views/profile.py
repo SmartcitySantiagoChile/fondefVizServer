@@ -338,10 +338,9 @@ class LoadProfileByTrajectoryData(View):
                 ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
-                print(response)
                 response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
-                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
-                print(response)
+                response['stops'] = list(map(lambda x: x.to_dict(),
+                                             es_stop_helper.get_stop_list(auth_route_code, dates)['stops']))
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
