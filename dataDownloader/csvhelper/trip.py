@@ -3,7 +3,7 @@
 
 from django.conf import settings
 
-from rqworkers.dataDownloader.csvhelper.helper import ZipManager, TripCSVHelper
+from dataDownloader.csvhelper.helper import ZipManager, TripCSVHelper
 
 
 class TripData(object):

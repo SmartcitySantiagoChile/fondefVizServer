@@ -9,7 +9,7 @@ import sys
 import django
 
 # add path so we can use function through command line
-new_path = os.path.join(os.path.dirname(__file__), '..', '..')
+new_path = os.path.join(os.path.dirname(__file__), '../rqworkers', '..')
 sys.path.append(new_path)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fondefVizServer.settings")
@@ -17,16 +17,16 @@ django.setup()
 
 from elasticsearch import Elasticsearch
 
-from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
-from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
-from rqworkers.dataDownloader.csvhelper.speed import SpeedData
-from rqworkers.dataDownloader.csvhelper.trip import TripData
-from rqworkers.dataDownloader.csvhelper.paymentfactor import PaymentFactorData
-from rqworkers.dataDownloader.csvhelper.bip import BipData
+from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
+from dataDownloader.csvhelper.odbyroute import OdByRouteData
+from dataDownloader.csvhelper.speed import SpeedData
+from dataDownloader.csvhelper.trip import TripData
+from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
+from dataDownloader.csvhelper.bip import BipData
 
-from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
+from dataDownloader.errors import UnrecognizedDownloaderNameError
 
-import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+import dataDownloader.csvhelper.helper as csv_helper
 
 
 def download_file(es_instance, query, downloader, zip_file_path):

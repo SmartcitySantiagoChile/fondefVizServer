@@ -11,13 +11,20 @@ from django.utils import timezone
 from redis import Redis
 from rq import Connection
 
-import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+import dataDownloader.csvhelper.helper as csv_helper
+from dataDownloader.csvhelper.bip import BipData
+from dataDownloader.csvhelper.odbyroute import OdByRouteData
+from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
+from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
+from dataDownloader.csvhelper.speed import SpeedData
+from dataDownloader.csvhelper.trip import TripData
+from dataDownloader.errors import UnrecognizedDownloaderNameError
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
     ThereIsNotActiveJobError, ThereIsPreviousJobExporterDataError
 from datamanager.models import UploaderJobExecution, LoadFile, ExporterJobExecution
 from esapi.helper.bip import ESBipHelper
-from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
+from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.helper.shape import ESShapeHelper
@@ -25,13 +32,6 @@ from esapi.helper.speed import ESSpeedHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.trip import ESTripHelper
-from rqworkers.dataDownloader.csvhelper.paymentfactor import PaymentFactorData
-from rqworkers.dataDownloader.csvhelper.odbyroute import OdByRouteData
-from rqworkers.dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
-from rqworkers.dataDownloader.csvhelper.speed import SpeedData
-from rqworkers.dataDownloader.csvhelper.trip import TripData
-from rqworkers.dataDownloader.csvhelper.bip import BipData
-from rqworkers.dataDownloader.errors import UnrecognizedDownloaderNameError
 from rqworkers.killClass import KillJob
 from rqworkers.tasks import upload_file_job, export_data_job
 

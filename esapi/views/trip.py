@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 from collections import defaultdict
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -9,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.profile import ESProfileHelper
@@ -387,7 +385,7 @@ class TransfersData(View):
                 es_query = es_trip_helper.get_transfers_data(dates, auth_stop_code, day_types, periods,
                                                              half_hours)[:0]
                 response.update(self.process_data(es_query))
-                response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code)
+                response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code).to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

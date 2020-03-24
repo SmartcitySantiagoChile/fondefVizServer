@@ -7,6 +7,8 @@ import zipfile
 
 from elasticsearch_dsl import Search
 
+from dataDownloader.errors import FilterHasToBeListError
+from dataDownloader.unicodecsv import UnicodeWriter
 from esapi.helper.bip import ESBipHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
@@ -18,8 +20,6 @@ from esapi.helper.trip import ESTripHelper
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input, \
     get_transport_mode_list_for_select_input
-from rqworkers.dataDownloader.errors import FilterHasToBeListError
-from rqworkers.dataDownloader.unicodecsv import UnicodeWriter
 
 README_FILE_NAME = 'Léeme.txt'
 
@@ -684,7 +684,7 @@ class ShapeCSVHelper(CSVHelper):
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
 
-        return [self.es_shape_helper.get_route_shape(route, start_date, end_date) for route in routes]
+        return [self.es_shape_helper.get_route_shape(route, [[start_date, end_date]]) for route in routes]
 
     def row_parser(self, row):
         rows = []
@@ -743,7 +743,7 @@ class StopByRouteCSVHelper(CSVHelper):
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
 
-        return [self.es_stop_helper.get_stop_list(route, start_date, end_date) for route in routes]
+        return [self.es_stop_helper.get_stop_list(route, [[start_date, end_date]]) for route in routes]
 
     def row_parser(self, row):
         rows = []

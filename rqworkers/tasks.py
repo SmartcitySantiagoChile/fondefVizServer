@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 
 import gzip
 import io
@@ -17,11 +17,11 @@ from django.utils import timezone
 from django_rq import job
 from rq import get_current_job
 
+from dataDownloader.downloadData import download_file
 from dataUploader.loadData import upload_file
 from datamanager.models import UploaderJobExecution, ExporterJobExecution
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
-from rqworkers.dataDownloader.downloadData import download_file
 
 
 @job('data_uploader')

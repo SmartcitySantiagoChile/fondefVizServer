@@ -3,7 +3,7 @@
 
 from django.conf import settings
 
-from rqworkers.dataDownloader.csvhelper.helper import ZipManager, ODByRouteCSVHelper, ShapeCSVHelper, StopByRouteCSVHelper
+from dataDownloader.csvhelper.helper import ZipManager, ODByRouteCSVHelper, ShapeCSVHelper, StopByRouteCSVHelper
 
 
 class OdByRouteData(object):

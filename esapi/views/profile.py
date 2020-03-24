@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import ESQueryResultEmpty, FondefVizError, ESQueryDateParametersDoesNotExist, \
     ESQueryStopParameterDoesNotExist
