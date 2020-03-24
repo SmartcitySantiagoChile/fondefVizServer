@@ -303,7 +303,7 @@ class SpeedVariation(View):
                                                                                            [None, 0, 0, 0, 0, 0, 0])
                 color = 7
                 if aux_data:
-                    if value < 0:
+                    if not value or value < 0:
                         color = 0
                     elif value == 0:
                         color = 8
