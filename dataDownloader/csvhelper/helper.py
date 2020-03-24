@@ -32,7 +32,6 @@ PAYMENT_FACTOR_DATA = 'payment_factor_data'
 BIP_DATA = 'bip'
 
 
-
 class WrongFormatterError(Exception):
     pass
 
@@ -48,10 +47,10 @@ class ZipManager:
         file_path = os.path.join(os.path.dirname(__file__), '..', 'helptemplate', 'template.readme')
         with open(file_path, 'r') as input_file:
             content = input_file.read()
-            content = content.replace('<put_title_here>'.encode('utf-8'), file_title.encode('utf-8'))
-            content = content.replace('<put_filters_here>'.encode('utf-8'), data_filter.encode('utf-8'))
-            content = content.replace('<put_file_description_here>'.encode('utf-8'), files_description.encode('utf-8'))
-            content = content.replace('<put_field_explanation_here>'.encode('utf-8'), field_explanation.encode('utf-8'))
+            content = content.replace('<put_title_here>', file_title)
+            content = content.replace('<put_filters_here>', data_filter)
+            content = content.replace('<put_file_description_here>', files_description)
+            content = content.replace('<put_field_explanation_here>', field_explanation)
         self.zip_file_obj.writestr(README_FILE_NAME, content)
 
     def write(self, file_path, arcname):
@@ -837,6 +836,7 @@ class PaymentFactorCSVHelper(CSVHelper):
 
         return formatted_row
 
+
 class BipCSVHelper(CSVHelper):
     """ Class that represents a bip downloader. """
 
@@ -853,7 +853,8 @@ class BipCSVHelper(CSVHelper):
             {'es_name': 'validationTime', 'csv_name': 'Hora_validacion',
              'definition': 'Fecha y hora de la validación'},
             {'es_name': 'bipNumber', 'csv_name': 'Número Bip', 'definition': 'Número de la tarjeta bip'},
-            {'es_name': 'source', 'csv_name': 'Fuente de dato', 'definition': 'Bus, estación de metro, metrobus o totem validador.'}
+            {'es_name': 'source', 'csv_name': 'Fuente de dato',
+             'definition': 'Bus, estación de metro, metrobus o totem validador.'}
         ]
 
     def get_data_file_name(self):
