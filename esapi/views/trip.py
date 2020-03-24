@@ -39,7 +39,7 @@ class ResumeData(PermissionRequiredMixin, View):
         response = {}
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_resume_data_query(dates, day_types, periods, origin_zones,
@@ -103,7 +103,7 @@ class MapData(PermissionRequiredMixin, View):
         }
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_map_data_query(dates, day_types, periods, sectors)
@@ -161,7 +161,7 @@ class LargeTravelData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_large_travel_data_query(dates, day_types, periods, stages)
@@ -205,7 +205,7 @@ class FromToMapData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
 
             if export_data:
@@ -306,7 +306,7 @@ class StrategiesData(PermissionRequiredMixin, View):
         es_helper = ESTripHelper()
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_helper.get_base_strategies_data_query(dates, day_types, periods, minutes,
@@ -353,7 +353,6 @@ class TransfersData(View):
                     if end == '-':
                         end = 'end'
                     answer[end][from_bucket.key] += to_bucket.doc_count
-
         for from_bucket in result.fourth_transfer_is_end.route_from.buckets:
             answer['end'][from_bucket.key] += from_bucket.doc_count
 
@@ -377,7 +376,7 @@ class TransfersData(View):
         es_stop_helper = ESStopHelper()
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
                 es_query = es_trip_helper.get_base_transfers_data_query(dates, auth_stop_code, day_types,

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
 
-from collections import defaultdict
+from functools import reduce
 
 from elasticsearch_dsl import A, Q
 
 from esapi.errors import ESQueryOperatorParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 from localinfo.helper import get_operator_list_for_select_input
-from functools import reduce
 
 
 class ESBipHelper(ElasticSearchHelper):
@@ -25,6 +24,9 @@ class ESBipHelper(ElasticSearchHelper):
 
         es_query = self.get_base_query()
 
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -35,8 +37,6 @@ class ESBipHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q("range", validationTime={
                 "gte": start_date + "||/d",
                 "lte": end_date + "||/d",
@@ -48,7 +48,7 @@ class ESBipHelper(ElasticSearchHelper):
         es_query = es_query.query('bool', filter=[combined_filter])
 
         aggs = A('date_histogram', field='validationTime', interval='day')
-        es_query.aggs.bucket('histogram', aggs).\
+        es_query.aggs.bucket('histogram', aggs). \
             bucket('operators', 'terms', field='operator', size=1000)
 
         return es_query, operator_list

@@ -2,6 +2,7 @@
 
 
 from collections import defaultdict
+from functools import reduce
 
 from elasticsearch_dsl import A, Q
 
@@ -9,7 +10,6 @@ from esapi.errors import ESQueryResultEmpty, ESQueryRouteParameterDoesNotExist, 
     ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 from localinfo.helper import get_operator_list_for_select_input
-from functools import reduce
 
 
 class ESODByRouteHelper(ElasticSearchHelper):
@@ -53,6 +53,8 @@ class ESODByRouteHelper(ElasticSearchHelper):
     def get_base_query_for_od(self, auth_route_code, time_periods, day_type, dates, valid_operator_list):
         """ base query to get raw data """
         es_query = self.get_base_query()
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
@@ -73,8 +75,6 @@ class ESODByRouteHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q("range", date={
                 "gte": start_date + "||/d",
                 "lte": end_date + "||/d",
@@ -93,7 +93,6 @@ class ESODByRouteHelper(ElasticSearchHelper):
         es_query = self.get_base_query_for_od(auth_route_code, time_periods, day_type, dates,
                                               valid_operator_list)[:0]
         es_query = es_query.source([])
-
         aggs = A('terms', field="authStartStopCode", size=500)
         es_query.aggs.bucket('start', aggs).bucket('end', 'terms', field="authEndStopCode")
         # add metrics to start bucket

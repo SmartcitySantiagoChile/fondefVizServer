@@ -1,33 +1,27 @@
 # -*- coding: utf-8 -*-
 
 
-from django_rq import job
-from django.conf import settings
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.core.files import File
-
+import gzip
+import io
+import os
+import time
+import traceback
+import uuid
+import zipfile
+from itertools import groupby
 from smtplib import SMTPException
 
+from django.conf import settings
+from django.core.mail import send_mail
+from django.utils import timezone
+from django_rq import job
 from rq import get_current_job
 
-from rqworkers.dataUploader.loadData import upload_file
-from rqworkers.dataDownloader.downloadData import download_file
-
+from dataUploader.loadData import upload_file
+from datamanager.models import UploaderJobExecution, ExporterJobExecution
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
-
-from datamanager.models import UploaderJobExecution, ExporterJobExecution
-
-from itertools import groupby
-
-import time
-import uuid
-import os
-import zipfile
-import io
-import traceback
-import gzip
+from rqworkers.dataDownloader.downloadData import download_file
 
 
 @job('data_uploader')

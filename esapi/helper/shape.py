@@ -66,6 +66,8 @@ class ESShapeHelper(ElasticSearchHelper):
         return dates[0].key_as_string[:10]
 
     def get_route_shape(self, auth_route_code, dates):
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         if not auth_route_code:
             raise ESQueryRouteParameterDoesNotExist()
@@ -75,9 +77,6 @@ class ESShapeHelper(ElasticSearchHelper):
         combined_filter = []
         for date_range in dates:
             start_date = date_range[0]
-            end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', startDate={
                 'lte': start_date,
                 'format': 'yyyy-MM-dd'
@@ -85,7 +84,6 @@ class ESShapeHelper(ElasticSearchHelper):
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter]).sort('-startDate')[:1]
-
         try:
             point_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:

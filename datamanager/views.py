@@ -1,24 +1,21 @@
 # -*- coding: utf-8 -*-
 
 
-from django.shortcuts import render
-from django.views.generic import View
+from django.db.models import Q
 from django.http import JsonResponse
+from django.shortcuts import render
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
-from django.db.models import Q
-
-from esapi.errors import FondefVizError
-
-from rqworkers.dataUploader.errors import IndexNotEmptyError
-
-from datamanager.errors import IndexWithDocumentError, BadFormatDocumentError, ThereIsNotActiveJobError
-from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully, DataIsDeleting
-from datamanager.helper import UploaderManager, FileManager
-from datamanager.models import LoadFile, UploaderJobExecution, ExporterJobExecution
-
+from django.views.generic import View
 from rq.exceptions import NoSuchJobError
+
+from dataUploader.errors import IndexNotEmptyError
+from datamanager.errors import IndexWithDocumentError, BadFormatDocumentError, ThereIsNotActiveJobError
+from datamanager.helper import UploaderManager, FileManager
+from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully, DataIsDeleting
+from datamanager.models import LoadFile, UploaderJobExecution, ExporterJobExecution
+from esapi.errors import FondefVizError
 
 
 class LoadManagerHTML(View):

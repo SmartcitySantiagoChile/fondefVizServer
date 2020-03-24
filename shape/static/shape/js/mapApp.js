@@ -58,7 +58,7 @@ $(document).ready(function () {
                     operationProgramDate: $(this).closest(".selectorRow").find(".date").val()
                 };
 
-                $.getJSON(Urls["shape:route"](), params, function (data) {
+                $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
                         if (!("points" in data)) {
@@ -167,7 +167,7 @@ $(document).ready(function () {
         };
 
         this.loadBaseData = function () {
-            $.getJSON(Urls["shape:base"](), function (data) {
+            $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
                 var authorityRouteList = data.routes.map(function (el) {
                     return "<option>" + el + "</option>";

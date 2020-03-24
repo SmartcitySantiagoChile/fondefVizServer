@@ -26,6 +26,7 @@ class ESStopByRouteHelper(ElasticSearchHelper):
         :param end_date: upper date bound
         :return: None
         """
+
         es_query = self.get_base_query().filter('range', startDate={
             'gte': start_date,
             'lte': end_date,
@@ -67,6 +68,8 @@ class ESStopByRouteHelper(ElasticSearchHelper):
 
     def get_stop_list(self, auth_route_code, dates):
         """ ask to elasticsearch for a match values """
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         if not auth_route_code:
             raise ESQueryRouteParameterDoesNotExist()
@@ -76,9 +79,6 @@ class ESStopByRouteHelper(ElasticSearchHelper):
         combined_filter = []
         for date_range in dates:
             start_date = date_range[0]
-            end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', startDate={
                 'lte': start_date,
                 'format': 'yyyy-MM-dd'

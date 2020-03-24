@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 from collections import defaultdict
 
 from django.http import JsonResponse
@@ -89,7 +87,7 @@ class LoadProfileByStopData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
             es_helper = ESProfileHelper()
@@ -209,7 +207,7 @@ class LoadProfileByExpeditionData(View):
 
         response = {}
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
             es_stop_helper = ESStopByRouteHelper()
@@ -235,7 +233,6 @@ class LoadProfileByExpeditionData(View):
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False)
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
-                    print(response)
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
                                                                                 len(list(response['trips'].keys()))). \
@@ -247,11 +244,12 @@ class LoadProfileByExpeditionData(View):
                                                                                 valid_operator_list)
                     response['groupedTrips'] = es_query.execute().to_dict()
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
-                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
-                response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
+                response['stops'] = list(map(lambda x: x.to_dict(),
+                                             es_stop_helper.get_stop_list(auth_route_code, dates)['stops']))
+                response['shape'] = list(map(lambda x: x.to_dict(),
+                                             es_shape_helper.get_route_shape(auth_route_code, dates)['points']))
 
         except FondefVizError as e:
-            print(response)
             response['status'] = e.get_status_response()
         return JsonResponse(response, safe=False)
 
@@ -281,13 +279,9 @@ class LoadProfileByTrajectoryData(View):
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-        # TODO: replace random value with value given by data
-        import random
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
-
             if 'capacity' not in trips[expedition_id]['info']:
-                is_valid = int(round(random.uniform(0, 1)))
                 trips[expedition_id]['info'] = {
                     'capacity': hit.busCapacity,
                     'licensePlate': hit.licensePlate,
@@ -296,9 +290,9 @@ class LoadProfileByTrajectoryData(View):
                     'timeTripInit': hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
                     'timeTripEnd': hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
                     'dayType': day_type_dict[hit.dayType],
-                    'valid': bool(is_valid)
+                    'valid': bool(hit.isValid)
                 }
-                if not is_valid:
+                if not hit.isValid:
                     expedition_not_valid_number += 1
 
             if hit.busStation == 1 and hit.authStopCode not in bus_stations:
@@ -331,11 +325,11 @@ class LoadProfileByTrajectoryData(View):
         response = {}
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
-            es_stop_helper = ESStopByRouteHelper()
             es_profile_helper = ESProfileHelper()
+            es_stop_helper = ESStopByRouteHelper()
 
             es_query = es_profile_helper.get_base_profile_by_trajectory_data_query(dates, day_type,
                                                                                    auth_route_code, period, half_hour,
@@ -392,7 +386,7 @@ class BoardingAndAlightingAverageByStops(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
 
             if len(stop_codes) == 0:

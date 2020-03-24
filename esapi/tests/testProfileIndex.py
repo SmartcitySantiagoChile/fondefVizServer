@@ -1,21 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-
+import mock
 from django.test import TestCase
-from django.urls import reverse
-
-from mock import mock
-
-from esapi.helper.profile import ESProfileHelper
 from elasticsearch_dsl import Search
-from esapi.tests.helper import TestHelper
+
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
-    ESQueryResultEmpty, ESQueryStopParameterDoesNotExist, ESQueryStopPatternTooShort
-
-from localinfo.models import Operator
-
-import json
-import builtins
+    ESQueryOperatorParameterDoesNotExist, ESQueryStopParameterDoesNotExist
+from esapi.helper.profile import ESProfileHelper
 
 
 class ESProfileIndexTest(TestCase):
@@ -23,63 +15,54 @@ class ESProfileIndexTest(TestCase):
     def setUp(self):
         self.instance = ESProfileHelper()
 
-    def test_ask_for_base_params(self):
-        result = self.instance.get_base_params()
-
-        self.assertIn('periods', list(result.keys()))
-        self.assertIn('day_types', list(result.keys()))
-        self.assertIn('days', list(result.keys()))
-
-        for key in result:
-            self.assertIsInstance(result[key], Search)
-
-    def test_ask_for_profile_by_stop(self):
-        start_date = ''
-        end_date = ''
+    def test_get_profile_by_stop_data(self):
+        dates = [[""]]
         day_type = ['LABORAL']
         stop_code = ''
         period = [1, 2, 3]
         half_hour = [1, 2, 3]
-
-        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_profile_by_stop_data, start_date, end_date,
-                          day_type, stop_code, period, half_hour)
+        valid_operator_list = []
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_profile_by_stop_data, dates,
+                          day_type, stop_code, period, half_hour, valid_operator_list)
+        valid_operator_list = [1, 2, 3]
+        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_profile_by_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
         stop_code = 'PA433'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
-                          end_date, day_type, stop_code, period, half_hour)
-        start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data, start_date,
-                          end_date, day_type, stop_code, period, half_hour)
-        end_date = '2018-01-02'
-        result = self.instance.get_profile_by_stop_data(start_date, end_date, day_type, stop_code, period, half_hour)
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        result = self.instance.get_profile_by_stop_data(dates, day_type, stop_code, period, half_hour,
+                                                        valid_operator_list)
+        expected = {'query': {'bool': {
+            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'terms': {'dayType': [u'LABORAL']}},
+                       {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {
+                           'range': {'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
+                                                             u'lte': u'2018-01-02||/d', u'format': u'yyyy-MM-dd'}}}],
+            'must': [{'term': {u'authStopCode.raw': u'PA433'}}]}},
+            '_source': [u'busCapacity', u'expeditionStopTime', u'licensePlate', u'route', u'expeditionDayId',
+                        u'userStopName', u'expandedAlighting', u'expandedBoarding', u'fulfillment',
+                        u'stopDistanceFromPathStart', u'expeditionStartTime', u'expeditionEndTime',
+                        u'authStopCode', u'userStopCode', u'timePeriodInStartTime', u'dayType',
+                        u'timePeriodInStopTime', u'loadProfile', u'busStation', u'path']}
 
         self.assertIsInstance(result, Search)
+        self.assertDictEqual(result.to_dict(), expected)
 
-    @mock.patch('esapi.helper.profile.ElasticSearchHelper.make_multisearch_query_for_aggs')
-    def test_ask_for_stop(self, mock_method):
-        mock_method.return_value = {'1': [], '2': [], '3': []}
-        term = ''
-        result = self.instance.get_matched_stop_list(term)
-
-        self.assertIn('1', list(result.keys()))
-        self.assertIn('2', list(result.keys()))
-        self.assertIn('3', list(result.keys()))
-        for key in result:
-            self.assertIsInstance(result[key], list)
-
-    @mock.patch('esapi.helper.profile.ElasticSearchHelper.make_multisearch_query_for_aggs')
-    def test_ask_for_available_days(self, mock_method):
-        mock_method.return_value = {'days': []}
-
-        result = self.instance.get_available_days()
+    @mock.patch('esapi.helper.basehelper.ElasticSearchHelper._get_available_days')
+    def test_get_available_days(self, _get_available_days):
+        _get_available_days.return_value = list()
+        result = self.instance.get_available_days(valid_operator_list=[])
         self.assertListEqual(result, [])
 
-    @mock.patch('esapi.helper.profile.Search.execute')
-    def test_ask_for_available_routes(self, mock_method):
-        mock_bucket = mock.Mock()
-        type(mock_bucket).aggregations = mock.PropertyMock(return_value=mock_bucket)
-        type(mock_bucket).route = mock.PropertyMock(return_value=mock_bucket)
-        mock_hit = mock.Mock()
-        mock_hit.to_dict.return_value = {
+    def test_get_available_routes_without_operator_list(self):
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist,
+                          self.instance.get_available_routes, valid_operator_list=[])
+
+    @mock.patch('esapi.helper.profile.get_operator_list_for_select_input')
+    @mock.patch('esapi.helper.profile.ESProfileHelper.get_base_query')
+    def test_get_available_routes(self, get_base_query, get_operator_list_for_select_input):
+        hit = mock.Mock()
+        hit.to_dict.return_value = {
             'key': '506 00I',
             'additionalInfo': {
                 'hits': {
@@ -90,401 +73,175 @@ class ESProfileIndexTest(TestCase):
                 }
             }
         }
-        type(mock_bucket).buckets = mock.PropertyMock(return_value=[mock_hit])
-        mock_method.return_value = mock_bucket
-
-        # create operator
-        Operator.objects.create(esId=1, name='Metbus', description='description')
-
-        result, operator_list = self.instance.get_available_routes()
-
+        get_base_query.return_value = get_base_query
+        get_base_query.__getitem__.return_value = get_base_query
+        get_base_query.source.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.execute.return_value = get_base_query
+        type(get_base_query).aggregations = mock.PropertyMock(return_value=get_base_query)
+        type(get_base_query).route = mock.PropertyMock(return_value=get_base_query)
+        type(get_base_query).buckets = mock.PropertyMock(return_value=[hit])
+        get_operator_list_for_select_input.return_value = [1, 2]
+        result, operator_list = self.instance.get_available_routes(valid_operator_list=[1, 2, 3])
         self.assertDictEqual(result, {'1': {'506': ['506 00I']}})
-        self.assertListEqual(operator_list, [{'id': 1, 'text': 'Metbus'}])
+        self.assertListEqual(operator_list, [1, 2])
 
-    def test_ask_for_profile_by_expedition(self):
-        start_date = ''
-        end_date = ''
+    def test_get_base_profile_by_expedition_data_query(self):
+        dates = [[""]]
         day_type = ['LABORAL']
         auth_route = ''
         period = [1, 2, 3]
         half_hour = [1, 2, 3]
-
-        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_profile_by_expedition_data, start_date,
-                          end_date, day_type, auth_route, period, half_hour)
+        valid_operator_list = []
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_profile_by_expedition_data,
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
+        valid_operator_list = [1, 2, 3]
+        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_profile_by_expedition_data, dates,
+                          day_type, auth_route, period, half_hour, valid_operator_list)
         auth_route = '506 00I'
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_expedition_data,
-                          start_date, end_date, day_type, auth_route, period, half_hour)
-        start_date = '2018-01-01'
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_expedition_data,
-                          start_date, end_date, day_type, auth_route, period, half_hour)
-        end_date = '2018-02-01'
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        result = self.instance.get_base_profile_by_expedition_data_query(dates, day_type, auth_route,
+                                                                         period, half_hour,
+                                                                         valid_operator_list)
+        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'506 00I'}},
+                                                  {'terms': {'dayType': [u'LABORAL']}},
+                                                  {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
+                                                  {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
+                'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-01-02||/d',
+                                        u'format': u'yyyy-MM-dd'}}}, {'term': {'notValid': 0}}]}},
+                    '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
+                                u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
+                                u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
+                                u'busStation', u'path', u'notValid']}
 
-        result = self.instance.get_profile_by_expedition_data(start_date, end_date, day_type, auth_route, period,
-                                                              half_hour)
         self.assertIsInstance(result, Search)
+        self.assertDictEqual(result.to_dict(), expected)
 
+    def test_get_profile_by_expedition_data(self):
+        dates = [['2018-01-01', '2018-02-01']]
+        result = self.instance.get_profile_by_expedition_data(dates, ['LABORAL'], 'route', [1, 2, 3],
+                                                              [1, 2, 3], [1, 2, 3])
+        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'route'}},
+                                                  {'terms': {'dayType': [u'LABORAL']}},
+                                                  {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
+                                                  {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
+                'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
+                                        u'format': u'yyyy-MM-dd'}}}, {'term': {'notValid': 0}}]}},
+                    '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
+                                u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
+                                u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
+                                u'busStation', u'path', u'notValid'], 'from': 0, 'aggs': {
+                u'stop': {'filter': {'term': {'busStation': 1}},
+                          'aggs': {u'station': {'terms': {'field': u'authStopCode.raw', 'size': 500}}}},
+                u'stops': {'terms': {'field': u'authStopCode.raw', 'size': 500},
+                           'aggs': {u'expandedBoarding': {'avg': {'field': u'expandedBoarding'}},
+                                    u'expandedAlighting': {'avg': {'field': u'expandedAlighting'}},
+                                    u'loadProfile': {'avg': {'field': u'loadProfile'}},
+                                    u'sumBusCapacity': {'sum': {'field': u'busCapacity'}},
+                                    u'maxLoadProfile': {'max': {'field': u'loadProfile'}},
+                                    u'sumLoadProfile': {'sum': {'field': u'loadProfile'}}, u'busSaturation': {
+                                   'bucket_script': {'buckets_path': {u'd': u'sumLoadProfile', u't': u'sumBusCapacity'},
+                                                     'script': u'params.d / params.t'}}, u'pathDistance': {
+                                   'top_hits': {'size': 1, '_source': [u'stopDistanceFromPathStart']}}}}}, 'size': 0}
 
-class LoadProfileByExpedition(TestCase):
+        self.assertIsInstance(result, Search)
+        self.assertDictEqual(result.to_dict(), expected)
 
-    def setUp(self):
-        self.helper = TestHelper(self)
-        self.client = self.helper.create_logged_client()
+    def test_get_base_profile_by_trajectory_data_query(self):
+        dates = [[""]]
+        day_type = ['LABORAL']
+        auth_route = ''
+        period = [1, 2, 3]
+        half_hour = [1, 2, 3]
+        valid_operator_list = []
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_profile_by_trajectory_data_query,
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
+        valid_operator_list = [1, 2, 3]
+        self.assertRaises(ESQueryRouteParameterDoesNotExist, self.instance.get_base_profile_by_trajectory_data_query,
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
+        auth_route = '506 00I'
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist,
+                          self.instance.get_base_profile_by_trajectory_data_query,
+                          dates, day_type, auth_route, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        result = self.instance.get_base_profile_by_trajectory_data_query(dates, day_type, auth_route,
+                                                                         period, half_hour,
+                                                                         valid_operator_list)
+        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'506 00I'}},
+                                                  {'terms': {'dayType': [u'LABORAL']}},
+                                                  {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
+                                                  {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
+                'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-01-02||/d',
+                                        u'format': u'yyyy-MM-dd'}}}]}},
+                    '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
+                                u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
+                                u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
+                                u'busStation', u'path', u'stopDistanceFromPathStart', u'expeditionStopTime']}
+        self.assertIsInstance(result, Search)
+        self.assertDictEqual(result.to_dict(), expected)
 
-        self.url = reverse('esapi:loadProfileByExpeditionData')
-        self.data = {
-            'startDate': '',
-            'endDate': '',
-            'authRoute': '',
-            'dayType[]': [],
-            'period[]': [],
-            'halfHour[]': []
-        }
+    @mock.patch('esapi.helper.basehelper.ElasticSearchHelper._get_available_days')
+    def test_get_available_days_between_dates(self, _get_available_days):
+        start_date = '2018-01-01'
+        end_date = '2018-01-05'
+        _get_available_days.return_value = [
+            '2018-01-03',
+            '2018-02-05',
+        ]
+        result = self.instance.get_available_days_between_dates(start_date, end_date)
+        self.assertIsInstance(result, list)
+        self.assertListEqual(result, ['2018-01-03'])
 
-    def test_wrong_route(self):
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryRouteParameterDoesNotExist().get_status_response())
+    def test_get_profile_by_multiple_stop_data(self):
+        dates = []
+        day_type = ['LABORAL']
+        stop_code = ''
+        period = [1, 2, 3]
+        half_hour = [1, 2, 3]
+        valid_operator_list = []
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_profile_by_multiple_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
+        dates = [['2018-01-01', '2018-01-02']]
+        self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_profile_by_multiple_stop_data, dates,
+                          day_type, stop_code, period, half_hour, valid_operator_list)
+        valid_operator_list = [1, 2, 3]
+        self.assertRaises(ESQueryStopParameterDoesNotExist, self.instance.get_profile_by_multiple_stop_data,
+                          dates, day_type, stop_code, period, half_hour, valid_operator_list)
+        stop_code = 'PA433'
+        result = self.instance.get_profile_by_multiple_stop_data(dates, day_type, stop_code, period, half_hour,
+                                                                 valid_operator_list)
+        expected = {'query': {'bool': {
+            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'terms': {'dayType': [u'LABORAL']}},
+                       {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {
+                           'range': {'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
+                                                             u'lte': u'2018-01-02||/d', u'format': u'yyyy-MM-dd'}}}],
+            'must': [{'terms': {u'authStopCode.raw': u'PA433'}}]}},
+            'from': 0, 'aggs': {u'stops': {'terms': {'field': u'authStopCode.raw', 'size': 1000},
+                                           'aggs': {u'sumExpandedAlighting': {'sum': {'field': u'expandedAlighting'}},
+                                                    u'expandedAlighting': {'avg': {'field': u'expandedAlighting'}},
+                                                    u'tripsCount': {'value_count': {'field': u'expandedAlighting'}},
+                                                    u'loadProfile': {'avg': {'field': u'loadProfile'}},
+                                                    u'expandedBoarding': {'avg': {'field': u'expandedBoarding'}},
+                                                    u'userStopName': {
+                                                        'top_hits': {'size': 1, '_source': [u'userStopName']}},
+                                                    u'maxLoadProfile': {'max': {'field': u'loadProfile'}},
+                                                    u'sumLoadProfile': {'sum': {'field': u'loadProfile'}},
+                                                    u'sumBusCapacity': {'sum': {'field': u'busCapacity'}},
+                                                    u'busSaturation': {'bucket_script': {
+                                                        'buckets_path': {u'd': u'sumLoadProfile',
+                                                                         u't': u'sumBusCapacity'},
+                                                        'script': u'params.d / params.t'}},
+                                                    u'sumExpandedBoarding': {'sum': {'field': u'expandedBoarding'}},
+                                                    u'userStopCode': {
+                                                        'top_hits': {'size': 1, '_source': [u'userStopCode']}},
+                                                    u'busCapacity': {'avg': {'field': u'busCapacity'}}}}}, 'size': 0}
 
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
+        self.assertIsInstance(result, Search)
+        self.assertDictEqual(result.to_dict(), expected)
 
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    @mock.patch('esapi.helper.basehelper.Search')
-    def test_exec_elasticsearch_query_with_result(self, es_query):
-        es_query_instance = es_query.return_value
-        es_query_instance.filter.return_value = es_query_instance
-        es_query_instance.source.return_value = es_query_instance
-        item = mock.Mock()
-        item.to_dict.return_value = {
-            'expeditionStartTime': '2017-07-31T16:59:11.000Z',
-            'expeditionStopTime': '2017-07-31T17:39:36.000Z',
-            'expeditionEndTime': '2017-07-31T18:39:41.000Z',
-            'dayType': 'LABORAL',
-            'stopDistanceFromPathStart': 9663,
-            'timePeriodInStartTime': '08 - FUERA DE PUNTA TARDE',
-            'timePeriodInStopTime': '09 - PUNTA TARDE',
-            'expeditionDayId': 152,
-            'expeditionStopOrder': 25,
-            'licensePlate': 'ZN-6496',
-            'route': 'T101 00I',
-            'busCapacity': 91,
-            'fulfillment': 'C',
-            'userStopName': 'Lo Espinoza esq- / Carmen Lidia',
-            'userStopCode': 'PJ2',
-            'authStopCode': 'T-8-65-NS-10',
-            'busStation': '0',
-            'expandedBoarding': 1.215768337,
-            'loadProfile': 36.33063507,
-            'expandedAlighting': 1.073773265
-        }
-        es_query_instance.scan.return_value = [item]
-
-        data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
-            'dayType[]': ['LABORAL'],
-            'period[]': [0, 1, 2],
-            'halfHour[]': [0, 1, 2],
-            'authRoute': '506 00I'
-        }
-        response = self.client.get(self.url, data)
-
-        self.assertNotContains(response, 'status')
-        es_query_instance.scan.assert_called_once()
-
-    @mock.patch('esapi.helper.basehelper.Search')
-    def test_exec_elasticsearch_query_without_result(self, es_query):
-        es_query_instance = es_query.return_value
-        es_query_instance.filter.return_value = es_query_instance
-        es_query_instance.source.return_value = es_query_instance
-        es_query_instance.scan.return_value = []
-
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
-        self.data['authRoute'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        es_query_instance.scan.assert_called_once()
-
-
-class LoadProfileByStop(TestCase):
-
-    def setUp(self):
-        self.helper = TestHelper(self)
-        self.client = self.helper.create_logged_client()
-
-        self.url = reverse('esapi:loadProfileByStopData')
-        self.data = {
-            'startDate': '',
-            'endDate': '',
-            'stopCode': '',
-            'dayType[]': [],
-            'period': [],
-            'halfHour': []
-        }
-
-    def test_wrong_stop_code(self):
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryStopParameterDoesNotExist().get_status_response())
-
-    def test_wrong_start_date(self):
-        self.data['endDate'] = '2018-01-01'
-        self.data['stopCode'] = 'PA433'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    def test_wrong_end_date(self):
-        self.data['startDate'] = '2018-01-01'
-        self.data['stopCode'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
-
-    @mock.patch('esapi.helper.basehelper.Search')
-    def test_exec_elasticsearch_query_with_result(self, es_query):
-        es_query_instance = es_query.return_value
-        es_query_instance.filter.return_value = es_query_instance
-        es_query_instance.query.return_value = es_query_instance
-        es_query_instance.source.return_value = es_query_instance
-        item = mock.Mock()
-        item.to_dict.return_value = {
-            'expeditionStartTime': '2017-07-31T16:59:11.000Z',
-            'expeditionStopTime': '2017-07-31T17:39:36.000Z',
-            'expeditionEndTime': '2017-07-31T18:39:41.000Z',
-            'dayType': 'LABORAL',
-            'stopDistanceFromPathStart': 9663,
-            'timePeriodInStartTime': '08 - FUERA DE PUNTA TARDE',
-            'timePeriodInStopTime': '09 - PUNTA TARDE',
-            'expeditionDayId': 152,
-            'expeditionStopOrder': 25,
-            'licensePlate': 'ZN-6496',
-            'route': 'T101 00I',
-            'busCapacity': 91,
-            'fulfillment': 'C',
-            'userStopName': 'Lo Espinoza esq- / Carmen Lidia',
-            'userStopCode': 'PJ2',
-            'authStopCode': 'T-8-65-NS-10',
-            'busStation': '0',
-            'expandedBoarding': 1.215768337,
-            'loadProfile': 36.33063507,
-            'expandedAlighting': 1.073773265
-        }
-        es_query_instance.scan.return_value = [item]
-
-        data = {
-            'startDate': '2018-01-01',
-            'endDate': '2018-01-01',
-            'dayType[]': ['LABORAL'],
-            'period[]': [0, 1, 2],
-            'halfHour[]': [0, 1, 2],
-            'stopCode': 'PA433'
-        }
-        response = self.client.get(self.url, data)
-
-        self.assertNotContains(response, 'status')
-        es_query_instance.scan.assert_called_once()
-
-    @mock.patch('esapi.helper.basehelper.Search')
-    def test_exec_elasticsearch_query_without_result(self, es_query):
-        es_query_instance = es_query.return_value
-        es_query_instance.filter.return_value = es_query_instance
-        es_query_instance.query.return_value = es_query_instance
-        es_query_instance.source.return_value = es_query_instance
-        es_query_instance.scan.return_value = []
-
-        self.data['startDate'] = '2018-01-01'
-        self.data['endDate'] = '2018-01-01'
-        self.data['stopCode'] = '506 00I'
-        response = self.client.get(self.url, self.data)
-
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
-        es_query_instance.scan.assert_called_once()
-
-
-class AskForStops(TestCase):
-
-    def setUp(self):
-        self.helper = TestHelper(self)
-        self.client = self.helper.create_logged_client()
-
-        self.url = reverse('esapi:matchedStopData')
-        self.data = {
-            'term': ''
-        }
-
-        self.item = mock.Mock()
-        type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
-        type(self.item).unique = mock.PropertyMock(return_value=self.item)
-        type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
-
-    def test_empty_stop_pattern(self):
-        response = self.client.get(self.url, self.data)
-        status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryStopPatternTooShort().get_status_response())
-
-    @mock.patch.object(__builtin__, 'dir')
-    @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result(self, es_multi_query, dir_mock):
-        dir_mock.return_value = ['unique']
-        es_multi_query_instance = es_multi_query.return_value
-        es_multi_query_instance.add.return_value = es_multi_query_instance
-        type(self.item).doc_count = 0
-        es_multi_query_instance.execute.return_value = [self.item]
-
-        self.data['term'] = 'PA4'
-        response = self.client.get(self.url, self.data)
-
-        self.assertNotContains(response, 'status')
-        es_multi_query_instance.execute.assert_called_once()
-
-    @mock.patch.object(__builtin__, 'dir')
-    @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result_with_key_as_string(self, es_multi_query, dir_mock):
-        dir_mock.return_value = ['unique']
-        es_multi_query_instance = es_multi_query.return_value
-        es_multi_query_instance.add.return_value = es_multi_query_instance
-
-        type(self.item).doc_count = mock.PropertyMock(return_value=1)
-        self.item.__iter__ = mock.Mock(return_value=iter(['key_as_string']))
-        type(self.item).key_as_string = mock.PropertyMock(return_value='PA433')
-        es_multi_query_instance.execute.return_value = [self.item]
-
-        self.data['term'] = 'PA4'
-        response = self.client.get(self.url, self.data)
-
-        self.assertNotContains(response, 'status')
-        answer = {
-            'items': [{
-                'id': 'PA433',
-                'text': 'PA433'
-            }]
-        }
-        self.assertJSONEqual(response.content, answer)
-        es_multi_query_instance.execute.assert_called_once()
-
-    @mock.patch.object(__builtin__, 'dir')
-    @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_exec_elasticsearch_query_with_result_without_key_as_string(self, es_multi_query, dir_mock):
-        dir_mock.return_value = ['unique']
-        es_multi_query_instance = es_multi_query.return_value
-        es_multi_query_instance.add.return_value = es_multi_query_instance
-        type(self.item).doc_count = mock.PropertyMock(return_value=1)
-        self.item.__iter__ = mock.Mock(return_value=iter([]))
-        type(self.item).key = mock.PropertyMock(return_value='PA433')
-        es_multi_query_instance.execute.return_value = [self.item]
-
-        self.data['term'] = 'PA4'
-        response = self.client.get(self.url, self.data)
-
-        self.assertNotContains(response, 'status')
-        answer = {
-            'items': [{
-                'id': 'PA433',
-                'text': 'PA433'
-            }]
-        }
-        self.assertJSONEqual(response.content, answer)
-        es_multi_query_instance.execute.assert_called_once()
-
-
-class AskForAvailableDays(TestCase):
-
-    def setUp(self):
-        self.helper = TestHelper(self)
-        self.client = self.helper.create_logged_client()
-
-        self.url = reverse('esapi:availableProfileDays')
-        self.data = {}
-        self.available_date = '2018-01-01'
-
-        self.item = mock.Mock()
-        type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
-        type(self.item).unique = mock.PropertyMock(return_value=self.item)
-        type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
-        type(self.item).doc_count = mock.PropertyMock(return_value=1)
-        self.item.__iter__ = mock.Mock(return_value=iter([]))
-        type(self.item).key = mock.PropertyMock(return_value=self.available_date)
-
-    @mock.patch.object(__builtin__, 'dir')
-    @mock.patch('esapi.helper.basehelper.MultiSearch')
-    def test_ask_for_days_with_data(self, es_multi_query, dir_mock):
-        dir_mock.return_value = ['unique']
-        es_multi_query_instance = es_multi_query.return_value
-        es_multi_query_instance.add.return_value = es_multi_query_instance
-        type(self.item).doc_count = 1
-        es_multi_query_instance.execute.return_value = [self.item]
-
-        response = self.client.get(self.url, self.data)
-
-        self.assertNotContains(response, 'status')
-        answer = {
-            'availableDays': [self.available_date]
-        }
-        self.assertJSONEqual(response.content, answer)
-        es_multi_query_instance.execute.assert_called_once()
-
-
-class AskForAvailableRoutes(TestCase):
-
-    def setUp(self):
-        self.helper = TestHelper(self)
-        self.client = self.helper.create_logged_client()
-
-        self.url = reverse('esapi:availableProfileRoutes')
-        self.data = {}
-        self.available_route = '506 00I'
-
-        self.item = mock.Mock()
-        type(self.item).aggregations = mock.PropertyMock(return_value=self.item)
-        type(self.item).route = mock.PropertyMock(return_value=self.item)
-        type(self.item).buckets = mock.PropertyMock(return_value=[self.item])
-        self.item.to_dict.return_value = {
-            'key': self.available_route,
-            'additionalInfo': {
-                'hits': {
-                    'hits': [{'_source': {
-                        'operator': 'Metbus',
-                        'userRoute': '506'
-                    }}]
-                }
-            }
-        }
-
-    @mock.patch.object(__builtin__, 'dir')
-    @mock.patch('esapi.helper.basehelper.Search')
-    def test_ask_for_days_with_data(self, es_query, dir_mock):
-        dir_mock.return_value = ['unique']
-        es_query_instance = es_query.return_value
-        es_query_instance.__getitem__.return_value = es_query_instance
-        es_query_instance.source.return_value = es_query_instance
-        type(es_query_instance).aggs = mock.PropertyMock()
-        es_query_instance.execute.return_value = self.item
-
-        response = self.client.get(self.url, self.data)
-
-        self.assertNotContains(response, 'status')
-        answer = {
-            'availableRoutes': {
-                'Metbus': {
-                    '506': [self.available_route]
-                }
-            },
-            'operatorDict': []
-        }
-        self.assertJSONEqual(response.content, answer)
-        es_query_instance.execute.assert_called_once()
+    def test_get_all_auth_routes(self):
+        expected = {'from': 0, 'aggs': {u'route': {'terms': {'field': u'route', 'size': 5000}}}, 'size': 0}
+        result = self.instance.get_all_auth_routes().to_dict()
+        self.assertDictEqual(result, expected)

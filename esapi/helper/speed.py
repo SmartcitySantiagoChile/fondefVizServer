@@ -59,6 +59,9 @@ class ESSpeedHelper(ElasticSearchHelper):
     def get_base_speed_data_query(self, auth_route, day_type, dates, valid_operator_list):
         es_query = self.get_base_query()
 
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -77,8 +80,6 @@ class ESSpeedHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', date={
                 'gte': start_date,
                 'lte': end_date,
@@ -120,6 +121,9 @@ class ESSpeedHelper(ElasticSearchHelper):
                                     valid_operator_list, route_list=None):
         es_query = self.get_base_query()
 
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -129,8 +133,6 @@ class ESSpeedHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', date={
                 'gte': start_date,
                 'lte': end_date,
@@ -196,6 +198,8 @@ class ESSpeedHelper(ElasticSearchHelper):
 
     def get_base_detail_ranking_data_query(self, route, dates, period, day_type, valid_operator_list):
         es_query = self.get_base_query()
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
@@ -207,9 +211,6 @@ class ESSpeedHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
-
             filter_q = Q('range', date={
                 "gte": start_date,
                 "lte": end_date, "format": "yyyy-MM-dd"})

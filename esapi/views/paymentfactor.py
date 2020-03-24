@@ -87,12 +87,13 @@ class PaymentFactorData(View):
         day_type = params.getlist('dayType[]', [])
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
 
             es_helper = ESPaymentFactorHelper()
 
             es_query = es_helper.get_data(dates, day_type)
+
             if export_data:
                 ExporterManager(es_query).export_data(csv_helper.PAYMENT_FACTOR_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
