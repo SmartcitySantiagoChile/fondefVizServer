@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.test import Client
 from django.contrib.auth.models import User
+from django.test import Client
 
 
 class TestHelper:

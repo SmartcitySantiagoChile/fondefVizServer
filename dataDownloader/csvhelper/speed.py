@@ -3,16 +3,16 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 
-from rqworkers.dataDownloader.csvhelper.helper import ZipManager, ODByRouteCSVHelper, ShapeCSVHelper, StopByRouteCSVHelper
+from dataDownloader.csvhelper.helper import ZipManager, SpeedCSVHelper, ShapeCSVHelper, StopByRouteCSVHelper
 
 
-class OdByRouteData(object):
-    """ Class that represents an odbyroute file. """
+class SpeedDataWithShapeAndRoute(object):
+    """ Class that build speed csv """
 
     def __init__(self, es_query, es_client=None):
         self.es_query = es_query
         self.es_client = settings.ES_CLIENT if es_client is None else es_client
-        self.od_by_route_file = ODByRouteCSVHelper(self.es_client, self.es_query)
+        self.speed_file = SpeedCSVHelper(self.es_client, self.es_query)
 
     def get_routes(self):
         for query_filter in self.es_query['query']['bool']['filter']:
@@ -30,11 +30,11 @@ class OdByRouteData(object):
                 return gte, lte
 
     def get_filters(self):
-        return self.od_by_route_file.get_filter_criteria(ODByRouteCSVHelper.FORMATTER_FOR_WEB)
+        return self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_WEB)
 
     def build_file(self, file_path):
         zip_manager = ZipManager(file_path)
-        self.od_by_route_file.download(zip_manager)
+        self.speed_file.download(zip_manager)
 
         routes = self.get_routes()
         start_date, end_date = self.get_date_range()
@@ -45,9 +45,31 @@ class OdByRouteData(object):
         stop_file = StopByRouteCSVHelper(self.es_client)
         stop_file.download(zip_manager, routes=routes, start_date=start_date, end_date=end_date)
 
-        help_file_title = 'ARCHIVO DE MATRIZ DE ETAPA POR SERVICIO'
-        files_description = [self.od_by_route_file.get_file_description(), shape_file.get_file_description(),
+        help_file_title = 'ARCHIVO DE VELOCIDAD'
+        files_description = [self.speed_file.get_file_description(), shape_file.get_file_description(),
                              stop_file.get_file_description()]
-        data_filter = self.od_by_route_file.get_filter_criteria(ODByRouteCSVHelper.FORMATTER_FOR_FILE)
-        explanation = self.od_by_route_file.get_field_explanation()
+        data_filter = self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_FILE)
+        explanation = self.speed_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
+
+
+class SpeedData(object):
+    """ Class that build speed csv """
+
+    def __init__(self, es_query, es_client=None):
+        self.es_query = es_query
+        self.es_client = settings.ES_CLIENT if es_client is None else es_client
+        self.speed_file = SpeedCSVHelper(self.es_client, self.es_query)
+
+    def get_filters(self):
+        return self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_WEB)
+
+    def build_file(self, file_path):
+        zip_manager = ZipManager(file_path)
+        self.speed_file.download(zip_manager)
+
+        template = 'speed.readme'
+        files_description = [self.speed_file.get_file_description()]
+        data_filter = self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_FILE)
+        explanation = self.speed_file.get_field_explanation()
+        zip_manager.build_readme(template, "\r\n".join(files_description), data_filter, explanation)

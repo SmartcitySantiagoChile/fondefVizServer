@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from esapi.errors import FondefVizError
 
-from rqworkers.dataUploader.errors import IndexNotEmptyError
+from dataUploader.errors import IndexNotEmptyError
 
 from datamanager.errors import IndexWithDocumentError, BadFormatDocumentError, ThereIsNotActiveJobError
 from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully, DataIsDeleting
