@@ -61,7 +61,7 @@ class ESQueryDateRangeParametersDoesNotExist(FondefVizError):
 
     def __init__(self):
         message = 'Debe proveer parámetros con fecha de inicio y fin para realizar la búsqueda'
-        super(ESQueryDateRangeParametersDoesNotExist, self).__init__(403, message)
+        super(ESQueryDateRangeParametersDoesNotExist, self).__init__(402, message)
 
 
 class ESQueryResultEmpty(FondefVizError):

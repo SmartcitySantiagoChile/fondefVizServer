@@ -9,34 +9,27 @@ from elasticsearch_dsl import Search
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
+@override_settings(ES_CLIENT=mock.MagicMock(return_value=None))
 class IndexNameTest(TestCase):
 
-    @mock.patch('esapi.helper.basehelper.settings')
-    def test_wrong_index_name(self, settings):
-        settings.ES_CLIENT.return_value = None
+    def test_wrong_index_name(self):
         fail_name = None
         file_extensions = ['a', 'b']
         self.assertRaises(ValueError, ElasticSearchHelper, fail_name, file_extensions)
         other_fail_name = ''
         self.assertRaises(ValueError, ElasticSearchHelper, other_fail_name, file_extensions)
 
-    @mock.patch('esapi.helper.basehelper.settings')
-    def test_good_index_name(self, settings):
-        settings.ES_CLIENT.return_value = None
+    def test_good_index_name(self):
         name = 'goodIndexName'
         file_extensions = []
         self.assertIsInstance(ElasticSearchHelper(name, file_extensions), ElasticSearchHelper)
 
-    @mock.patch('esapi.helper.basehelper.settings')
-    def test_index_name(self, settings):
-        settings.ES_CLIENT.return_value = None
+    def test_index_name(self):
         name = 'index'
         file_extensions = []
         self.assertEqual(ElasticSearchHelper('index', file_extensions).index_name, name)
 
-    @mock.patch('esapi.helper.basehelper.settings')
-    def test_file_extensions(self, settings):
-        settings.ES_CLIENT.return_value = None
+    def test_file_extensions(self):
         name = 'name'
         files = ['file1']
         self.assertListEqual(ElasticSearchHelper(name, files).file_extensions, files)

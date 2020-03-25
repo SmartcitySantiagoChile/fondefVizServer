@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-# Create your tests here.
 from testhelper.helper import TestHelper
 
 

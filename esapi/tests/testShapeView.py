@@ -62,17 +62,10 @@ class ConnectionTest(TestHelper):
     def test_site_route_without_route_param(self):
         data = dict(operationProgramDate='abc')
         self.check_json_response(self.client, 'esapi:shapeRoute', 200, data)
-        # json_response = self.check_json_response(self.client, 'shape:route', 200, data)
-        # answer = json_response['status']
-        # print(answer)
-        # self.assertDictEqual(answer, ESQueryRouteParameterDoesNotExist().get_status_response())
 
     def test_site_route_without_operation_program_date_param(self):
         data = dict(route='abc')
         self.check_json_response(self.client, 'esapi:shapeRoute', 200, data)
-        # json_response = self.check_json_response(self.client, 'shape:route', 200, data)
-        # answer = json_response['status']
-        # self.assertDictEqual(answer, ESQueryDateParametersDoesNotExist().get_status_response())
 
     @patch('esapi.views.shape.ESShapeHelper')
     @patch('esapi.views.shape.ESStopByRouteHelper')
