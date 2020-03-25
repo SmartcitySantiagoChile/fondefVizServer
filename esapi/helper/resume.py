@@ -67,15 +67,15 @@ class ESResumeStatisticHelper(ElasticSearchHelper):
                        'transactionNumberInNinethBusStopWithMoreValidations',
                        'transactionNumberInTenthBusStopWithMoreValidations',
                        ]
-        es_query = self.get_base_query()
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
 
+        es_query = self.get_base_query()
         es_query = es_query.source(['date'] + metrics)
         combined_filter = []
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', date={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',

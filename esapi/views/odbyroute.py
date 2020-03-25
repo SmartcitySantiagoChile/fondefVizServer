@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
 from esapi.helper.odbyroute import ESODByRouteHelper
@@ -67,7 +67,7 @@ class ODMatrixData(View):
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
             es_od_helper = ESODByRouteHelper()
