@@ -58,6 +58,9 @@ class ESTripHelper(ElasticSearchHelper):
     def get_base_resume_data_query(self, dates, day_types, periods, origin_zones, destination_zones):
         es_query = self.get_base_query()
 
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
         if day_types:
             es_query = es_query.filter('terms', tipodia=day_types)
 
@@ -74,9 +77,6 @@ class ESTripHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
-
             filter_q = Q('range', tiempo_subida={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',
@@ -123,7 +123,6 @@ class ESTripHelper(ElasticSearchHelper):
             combined_filter.append(filter_q)
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
-
         # TODO: esta restricción no existe sobre la consulta inicialmente, verificar que no cambia el resultado.
         """
         if sectors:
@@ -163,13 +162,12 @@ class ESTripHelper(ElasticSearchHelper):
 
     def get_base_large_travel_data_query(self, dates, day_types, periods, n_etapas):
         es_query = self.get_base_query()
-
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
         combined_filter = []
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', tiempo_subida={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',
@@ -295,6 +293,9 @@ class ESTripHelper(ElasticSearchHelper):
 
     def get_base_strategies_data_query(self, dates, day_types, periods, minutes, origin_zones,
                                        destination_zones, routes):
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
         es_query = self.get_base_query()
         origin_zone_limit = 50
         destination_zone_limit = 50
@@ -314,8 +315,6 @@ class ESTripHelper(ElasticSearchHelper):
         for date_range in dates:
             start_date = date_range[0]
             end_date = date_range[-1]
-            if not start_date or not end_date:
-                raise ESQueryDateRangeParametersDoesNotExist()
             filter_q = Q('range', tiempo_subida={
                 'gte': start_date + '||/d',
                 'lte': end_date + '||/d',

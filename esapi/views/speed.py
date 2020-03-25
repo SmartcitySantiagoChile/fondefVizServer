@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-import rqworkers.dataDownloader.csvhelper.helper as csv_helper
+import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.helper.shape import ESShapeHelper
@@ -77,9 +77,8 @@ class MatrixData(View):
         }
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
-
             check_operation_program(dates[0][0], dates[-1][-1])
 
             es_shape_helper = ESShapeHelper()
@@ -145,7 +144,7 @@ class RankingData(View):
         }
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
 
@@ -217,7 +216,7 @@ class SpeedByRoute(View):
         }
 
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             check_operation_program(dates[0][0], dates[-1][-1])
 
@@ -241,7 +240,7 @@ class SpeedByRoute(View):
                                                                    valid_operator_list)
                 response['speed'] = self.process_data(es_query, limits)
 
-        except ESQueryResultEmpty as e:
+        except FondefVizError as e:
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
@@ -343,7 +342,7 @@ class SpeedVariation(View):
             'routes': []
         }
         try:
-            if len(dates) == 0:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             end_date = dates[0][0]
 

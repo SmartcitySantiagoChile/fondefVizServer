@@ -1,3 +1,4 @@
-[submodule "rqworkers/dataUploader"]
-	path = rqworkers/dataUploader
+[submodule "dataUploader"]
+	path = dataUploader
 	url = https://github.com/SmartcitySantiagoChile/dataUploader
+    branch = adaptation/FondefVizProject
