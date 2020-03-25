@@ -1,7 +1,6 @@
 from django.conf import settings
-
-from elasticsearch_dsl import Search, A, MultiSearch
 from elasticsearch.exceptions import ConnectionTimeout
+from elasticsearch_dsl import Search, A, MultiSearch
 
 
 class ElasticSearchHelper(object):
@@ -84,7 +83,7 @@ class ElasticSearchHelper(object):
         return es_query
 
     def get_unique_list_query(self, field, size=0, query=None):
-        # create query to get unique list of values from field
+        """create query to get unique list of values from field"""
         if query is None:
             query = self.get_base_query()
         query = query[:0]

@@ -52,4 +52,3 @@ class GlobalDataTest(TestHelper):
         get_data.return_value = es_query
         response = self.client.get(self.url, self.data)
         self.assertNotContains(response, 'status')
-        # self.assertJSONEqual(response.content, expected)
