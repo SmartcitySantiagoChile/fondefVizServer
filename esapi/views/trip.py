@@ -250,13 +250,17 @@ class StrategiesData(PermissionRequiredMixin, View):
                 for third in second.third.buckets:
                     for fourth in third.fourth.buckets:
                         trips[first.key][second.key][third.key][fourth.key] += fourth.expansion_factor.value
-
         agg_names = dir(result.aggregations)
         del agg_names[agg_names.index('expansion_factor')]
         del agg_names[agg_names.index('strategies_without_metro_or_metrotren')]
 
         def group_strategy(item, previous_part, current_agg_name):
-            if hasattr(item, 'buckets'):
+            try:
+                attr = getattr(item, "buckets", None)
+            except Exception:
+                attr = None
+            if attr is not None:
+                print("hola")
                 nested_strategies = []
                 for bucket in item.buckets:
                     cloned_list = list(previous_part)
@@ -279,7 +283,10 @@ class StrategiesData(PermissionRequiredMixin, View):
                 next_agg_name = dir(item)[0]
                 return group_strategy(item[next_agg_name], previous_part, next_agg_name)
 
+        print(agg_names)
         for agg_name in agg_names:
+            print(agg_name)
+            print(result.aggregations[agg_name].to_dict())
             strategies = group_strategy(result.aggregations[agg_name], [], agg_name)
             for strategy in strategies:
                 trips[strategy[0]][strategy[1]][strategy[2]][strategy[3]] += strategy[4]
