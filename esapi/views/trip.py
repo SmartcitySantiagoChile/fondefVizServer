@@ -260,7 +260,6 @@ class StrategiesData(PermissionRequiredMixin, View):
             except Exception:
                 attr = None
             if attr is not None:
-                print("hola")
                 nested_strategies = []
                 for bucket in item.buckets:
                     cloned_list = list(previous_part)
@@ -283,10 +282,7 @@ class StrategiesData(PermissionRequiredMixin, View):
                 next_agg_name = dir(item)[0]
                 return group_strategy(item[next_agg_name], previous_part, next_agg_name)
 
-        print(agg_names)
         for agg_name in agg_names:
-            print(agg_name)
-            print(result.aggregations[agg_name].to_dict())
             strategies = group_strategy(result.aggregations[agg_name], [], agg_name)
             for strategy in strategies:
                 trips[strategy[0]][strategy[1]][strategy[2]][strategy[3]] += strategy[4]
