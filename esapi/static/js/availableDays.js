@@ -122,6 +122,8 @@ function loadAvailableDays(data_url) {
                 data.forEach(function (e) {
                     dataObject[e[0]] = 1;
                 });
+                let noDataDay = [["", "#F8F8F8", "Sin datos"]];
+                descriptionDayList.push(noDataDay);
                 descriptionDayList.forEach(function (date) {
                     let descriptionSerie = $.extend({}, serieTemplate);
                     descriptionSerie.name = date[0][2];
