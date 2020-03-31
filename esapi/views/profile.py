@@ -337,8 +337,7 @@ class LoadProfileByTrajectoryData(View):
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
-                response['stops'] = list(map(lambda x: x.to_dict(),
-                                             es_stop_helper.get_stop_list(auth_route_code, dates)['stops']))
+                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
