@@ -88,7 +88,7 @@ class ESShapeHelper(ElasticSearchHelper):
             point_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:
             raise ESQueryShapeDoesNotExist()
-
+        point_list['points'] = list(map(lambda x: x.to_dict(), point_list['points']))
         return point_list
 
     def get_available_days(self):

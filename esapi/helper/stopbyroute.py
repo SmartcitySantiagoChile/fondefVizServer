@@ -91,7 +91,7 @@ class ESStopByRouteHelper(ElasticSearchHelper):
             stop_list = es_query.execute().hits.hits[0]['_source']
         except IndexError:
             raise ESQueryStopListDoesNotExist()
-
+        stop_list['stops'] = list(map(lambda x: x.to_dict(), stop_list['stops']))
         return stop_list
 
     def get_available_days(self):

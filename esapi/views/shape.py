@@ -27,12 +27,10 @@ class GetRouteInfo(View):
             es_shape_helper = ESShapeHelper()
             es_stop_helper = ESStopByRouteHelper()
 
-            response["points"] = list(map(lambda x: x.to_dict(),
-                                          es_shape_helper.get_route_shape(route, [[operation_program_date]])[
-                                              'points']))
-            response["stops"] = list(map(lambda x: x.to_dict(),
-                                         es_stop_helper.get_stop_list(route, [[operation_program_date]])[
-                                             'stops']))
+            response["points"] = es_shape_helper.get_route_shape(route, [[operation_program_date]])[
+                'points']
+            response["stops"] = es_stop_helper.get_stop_list(route, [[operation_program_date]])[
+                'stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
         return JsonResponse(response)

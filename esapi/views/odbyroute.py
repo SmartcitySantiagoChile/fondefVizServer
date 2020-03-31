@@ -81,8 +81,7 @@ class ODMatrixData(View):
             else:
                 matrix, max_value = es_od_helper.get_od_data(auth_route_code, period, day_type, dates,
                                                              valid_operator_list)
-                stop_list = list(map(lambda x: x.to_dict(),
-                                     es_stop_helper.get_stop_list(auth_route_code, dates)['stops']))
+                stop_list = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
 
                 response["data"] = {
                     "matrix": matrix,

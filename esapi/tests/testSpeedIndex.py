@@ -108,7 +108,6 @@ class ESSpeedIndexTest(TestCase):
         auth_route = '506 00I'
         valid_operator_list = [1, 2, 3]
         result = self.instance.get_speed_data(auth_route, day_type, dates, valid_operator_list)
-        print(result)
         self.assertDictEqual(result, {('key2', 'key'): (-1, 0, list(result.values())[0][2], 0)})
 
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_base_speed_data_query')

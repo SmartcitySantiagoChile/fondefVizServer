@@ -111,9 +111,11 @@ class ESStopByRouteIndexTest(TestCase):
         get_base_query.execute.return_value = get_base_query
         hit = mock.Mock()
         type(get_base_query).hits = mock.PropertyMock(return_value=hit)
-        type(hit).hits = mock.PropertyMock(return_value=[{'_source': [1, 2, 3]}])
+        stops = mock.MagicMock()
+        stops.to_dict.return_value = 1
+        type(hit).hits = mock.PropertyMock(return_value=[{'_source': {'stops': [stops]}}])
         result = self.instance.get_stop_list(auth_route_code, dates)
-        self.assertListEqual(result, [1, 2, 3])
+        self.assertDictEqual(result, {'stops': [1]})
 
     @mock.patch('esapi.helper.stopbyroute.ESStopByRouteHelper.get_base_query')
     def test_get_stop_list_out_of_index(self, get_base_query):
