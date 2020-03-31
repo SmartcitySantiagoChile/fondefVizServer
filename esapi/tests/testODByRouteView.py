@@ -82,9 +82,7 @@ class ODMatrixDataTest(TestHelper):
     @mock.patch('esapi.helper.odbyroute.ESODByRouteHelper.get_od_data')
     @mock.patch('esapi.views.odbyroute.check_operation_program')
     def test_exec_elasticsearch_query_get(self, check_operation_program, get_od_data, get_stop_list):
-        stop_list = mock.MagicMock()
-        stop_list.to_dict.return_value = {}
-        get_stop_list.return_value = stop_list
+        get_stop_list.return_value = {'stops': []}
         check_operation_program.return_value = None
         get_od_data.return_value = ([], 0)
         data = {

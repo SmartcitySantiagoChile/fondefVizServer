@@ -244,10 +244,8 @@ class LoadProfileByExpeditionData(View):
                                                                                 valid_operator_list)
                     response['groupedTrips'] = es_query.execute().to_dict()
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
-                response['stops'] = list(map(lambda x: x.to_dict(),
-                                             es_stop_helper.get_stop_list(auth_route_code, dates)['stops']))
-                response['shape'] = list(map(lambda x: x.to_dict(),
-                                             es_shape_helper.get_route_shape(auth_route_code, dates)['points']))
+                response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
+                response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
