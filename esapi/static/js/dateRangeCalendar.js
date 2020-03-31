@@ -172,12 +172,33 @@ function loadRangeCalendar(data_url, calendar_opts) {
         }).filter(function (el, index, self) {
             return self.indexOf(el) === index;
         });
+
+        const groupBy = keys => array =>
+            array.reduce((objectsByKeyValue, obj) => {
+                const value = keys.map(key => obj[key]).join('-');
+                objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+                return objectsByKeyValue;
+            }, {});
+
+        const groupByColor = groupBy(["color"]);
+        let descriptionDayList = groupByColor(data.info);
+        descriptionDayList = Object.values(descriptionDayList);
+        let auxDescriptionDayList = [];
+        descriptionDayList.forEach(function (e) {
+            let aux_array = [];
+            e.forEach(function (f) {
+                aux_array.push(Object.values(f));
+            });
+            auxDescriptionDayList.push(aux_array);
+        });
+        descriptionDayList = auxDescriptionDayList;
         data = data.availableDays.map(function (el) {
             return [el, 1];
         });
         if (data.length > 0) {
             var newOpts = $.extend({}, opts);
-            var top = 20;
+            var top = 50;
+            let legendData = [];
             years.forEach(function (year, index) {
                 let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
                 var serie = $.extend({}, serieTemplate);
@@ -185,12 +206,12 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     calendarYear.monthLabel.nameMap = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago",
                         "Sep", "Oct", "Nov", "Dic"];
                 }
-                if (index === years.length - 1){
+                if (index === years.length - 1) {
                     calendarYear.bottom = '0%'
                 }
                 calendarYear.range = year;
                 calendarYear.top = top;
-                top += 82;
+                top += 84;
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.emphasis = {
@@ -202,7 +223,65 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
 
+                //year-date dictionary
+                let dataObject = {};
+                data.forEach(function (e) {
+                    dataObject[e[0]] = 1;
+                });
+
+                let noDataDay = [["", "#F8F8F8", "Sin datos"]];
+                descriptionDayList.push(noDataDay);
+                console.log(descriptionDayList);
+                descriptionDayList.forEach(function (date) {
+                    let descriptionSerie = $.extend({}, serieTemplate);
+                    descriptionSerie.name = date[0][2];
+                    let dataAux = [];
+                    date.forEach(function (e) {
+                        const index = e[0] in dataObject;
+                        if (index) {
+                            dataAux.push(e);
+                        }
+                    });
+                    descriptionSerie.data = dataAux.map(function (e) {
+                        return [e[0], 1];
+                    });
+                    legendData.push(descriptionSerie.name);
+                    descriptionSerie.itemStyle = {
+                        color: date[0][1],
+                        shadowBlur: 2,
+                        shadowColor: "#333"
+                    };
+                    descriptionSerie.emphasis = {
+                        itemStyle: {
+                            color: 'green'
+                        }
+                    };
+                    descriptionSerie.color = "black";
+                    descriptionSerie.showEffectOn = "render";
+                    descriptionSerie.rippleEffect = {
+                        brushType: "stroke"
+                    };
+                    descriptionSerie.hoverAnimation = true;
+                    descriptionSerie.zlevel = 1;
+                    newOpts.series.push(descriptionSerie);
+                    descriptionSerie.calendarIndex = index;
+                    descriptionSerie.tooltip = {
+                        position: "top",
+                        formatter: function (p) {
+                            let date = echarts.format.formatTime("dd/MM/yyyy", p.data[0]);
+                            return date + "<br />" + descriptionSerie.name;
+                        }
+                    }
+                });
+
+
             });
+
+            newOpts.legend = {
+                top: "0",
+                left: "0",
+                data: legendData
+            };
 
             $("#" + divId).height(top - 20);
             dateRangeChart.setOption(newOpts, {notMerge: true});
@@ -213,6 +292,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     //reprint only dates selected
     function reprintSelection(auxiliar = false, global = true) {
+        console.log(dateRangeChart.getOption());
         var allDates = dateRangeChart.getOption().series[0].data;
         for (var i = 0; i < allDates.length; i++) {
             dateRangeChart.dispatchAction({
