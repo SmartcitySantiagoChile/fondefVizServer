@@ -255,11 +255,8 @@ class StrategiesData(PermissionRequiredMixin, View):
         del agg_names[agg_names.index('strategies_without_metro_or_metrotren')]
 
         def group_strategy(item, previous_part, current_agg_name):
-            try:
-                attr = getattr(item, "buckets", None)
-            except Exception:
-                attr = None
-            if attr is not None:
+
+            if 'buckets' in item:
                 nested_strategies = []
                 for bucket in item.buckets:
                     cloned_list = list(previous_part)
@@ -277,7 +274,7 @@ class StrategiesData(PermissionRequiredMixin, View):
                         nested_strategies += group_strategy(bucket[next_agg_name], cloned_list, next_agg_name)
                 return nested_strategies
             else:
-                if hasattr(item, 'doc_count'):
+                if 'doc_count' in item:
                     del item.doc_count
                 next_agg_name = dir(item)[0]
                 return group_strategy(item[next_agg_name], previous_part, next_agg_name)
