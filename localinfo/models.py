@@ -183,8 +183,8 @@ class FAQ(models.Model):
         verbose_name_plural = "preguntas frecuentes"
 
     def short_answer(self):
-        text_safe = strip_tags(self.answer.encode('utf-8'))
-        answer = truncatechars(text_safe, 200)[2:-1]
+        text_safe = strip_tags(self.answer)
+        answer = truncatechars(text_safe, 200)
         return answer
 
     short_answer.short_description = 'Respuesta'
