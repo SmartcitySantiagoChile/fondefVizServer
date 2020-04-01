@@ -231,7 +231,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
                 let noDataDay = [["", "#F8F8F8", "Sin datos"]];
                 descriptionDayList.push(noDataDay);
-                console.log(descriptionDayList);
                 descriptionDayList.forEach(function (date) {
                     let descriptionSerie = $.extend({}, serieTemplate);
                     descriptionSerie.name = date[0][2];
@@ -262,7 +261,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                         brushType: "stroke"
                     };
                     descriptionSerie.hoverAnimation = true;
-                    descriptionSerie.zlevel = 1;
+                    descriptionSerie.zlevel = 3;
                     newOpts.series.push(descriptionSerie);
                     descriptionSerie.calendarIndex = index;
                     descriptionSerie.tooltip = {
@@ -292,7 +291,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     //reprint only dates selected
     function reprintSelection(auxiliar = false, global = true) {
-        console.log(dateRangeChart.getOption());
+        console.log(dateRangeChart.getOption().series);
         var allDates = dateRangeChart.getOption().series[0].data;
         for (var i = 0; i < allDates.length; i++) {
             dateRangeChart.dispatchAction({

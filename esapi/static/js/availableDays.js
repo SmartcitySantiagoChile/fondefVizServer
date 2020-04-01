@@ -170,6 +170,8 @@ function loadAvailableDays(data_url) {
             $("#" + divId).height(top - 20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
             availableDaysChart.resize();
+            console.log(dateRangeChart.getOption().series);
+
         }
     });
 }
