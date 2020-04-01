@@ -114,9 +114,10 @@ function loadAvailableDays(data_url) {
                 serie.itemStyle = {
                     color: "#97b58d"
                 };
+                serie.zlevel = 3;
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
-
+                console.log(newOpts.series);
                 //year-date dictionary
                 let dataObject = {};
                 data.forEach(function (e) {
@@ -149,7 +150,7 @@ function loadAvailableDays(data_url) {
                         brushType: "stroke"
                     };
                     descriptionSerie.hoverAnimation = true;
-                    descriptionSerie.zlevel = 1;
+                    descriptionSerie.zlevel = 3;
                     newOpts.series.push(descriptionSerie);
                     descriptionSerie.calendarIndex = index;
                     descriptionSerie.tooltip = {
@@ -170,7 +171,6 @@ function loadAvailableDays(data_url) {
             $("#" + divId).height(top - 20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
             availableDaysChart.resize();
-            console.log(dateRangeChart.getOption().series);
 
         }
     });

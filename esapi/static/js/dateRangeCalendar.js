@@ -86,7 +86,9 @@ function loadRangeCalendar(data_url, calendar_opts) {
             show: false,
         },
         calendar: [],
-        series: []
+        series: [],
+        legend: [],
+        dataRange: []
     };
 
     $(window).resize(function () {
@@ -219,7 +221,9 @@ function loadRangeCalendar(data_url, calendar_opts) {
                         color: 'green'
                     }
                 };
-
+                serie.itemStyle = {
+                    color: "#97b58d"
+                };
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
 
