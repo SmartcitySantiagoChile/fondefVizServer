@@ -6,7 +6,7 @@ import json
 import mock
 from django.urls import reverse
 
-from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
+from esapi.errors import ESQueryDateParametersDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
 
@@ -82,9 +82,7 @@ class ODMatrixDataTest(TestHelper):
     @mock.patch('esapi.helper.odbyroute.ESODByRouteHelper.get_od_data')
     @mock.patch('esapi.views.odbyroute.check_operation_program')
     def test_exec_elasticsearch_query_get(self, check_operation_program, get_od_data, get_stop_list):
-        get_stop_list.return_value = {
-            'stops': [1, 2],
-        }
+        get_stop_list.return_value = {'stops': []}
         check_operation_program.return_value = None
         get_od_data.return_value = ([], 0)
         data = {
@@ -95,7 +93,7 @@ class ODMatrixDataTest(TestHelper):
         }
         expected = {
             "data": {
-                "stopList": [1, 2],
+                "stopList": [],
                 "matrix": [],
                 "maximum": 0
             }

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import defaultdict
+from functools import reduce
 
 from elasticsearch_dsl import A, Q
 

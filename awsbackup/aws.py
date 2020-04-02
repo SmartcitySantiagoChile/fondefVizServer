@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
-import urllib
+
+import urllib.request, urllib.parse, urllib.error
 
 import boto3
 import botocore
@@ -81,7 +81,7 @@ class AWSSession:
             return True
 
     def _build_url(self, key, bucket_name):
-        return ''.join(['https://s3.amazonaws.com/', bucket_name, '/', urllib.quote(key)])
+        return ''.join(['https://s3.amazonaws.com/', bucket_name, '/', urllib.parse.quote(key)])
 
     def create_download_link(self, key, bucket_name, expire_time):
         s3 = self.session.client('s3')

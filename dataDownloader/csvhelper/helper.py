@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import os
 import uuid
@@ -7,6 +7,8 @@ import zipfile
 
 from elasticsearch_dsl import Search
 
+from dataDownloader.errors import FilterHasToBeListError
+from dataDownloader.unicodecsv import UnicodeWriter
 from esapi.helper.bip import ESBipHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
@@ -18,8 +20,6 @@ from esapi.helper.trip import ESTripHelper
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_operator_list_for_select_input, get_halfhour_list_for_select_input, get_commune_list_for_select_input, \
     get_transport_mode_list_for_select_input
-from dataDownloader.errors import FilterHasToBeListError
-from dataDownloader.unicodecsv import UnicodeWriter
 
 README_FILE_NAME = 'Léeme.txt'
 
@@ -30,7 +30,6 @@ SPEED_MATRIX_DATA = 'speed_matrix_data'
 TRIP_DATA = 'trip_data'
 PAYMENT_FACTOR_DATA = 'payment_factor_data'
 BIP_DATA = 'bip'
-
 
 
 class WrongFormatterError(Exception):
@@ -48,10 +47,10 @@ class ZipManager:
         file_path = os.path.join(os.path.dirname(__file__), '..', 'helptemplate', 'template.readme')
         with open(file_path, 'r') as input_file:
             content = input_file.read()
-            content = content.replace('<put_title_here>'.encode('utf-8'), file_title.encode('utf-8'))
-            content = content.replace('<put_filters_here>'.encode('utf-8'), data_filter.encode('utf-8'))
-            content = content.replace('<put_file_description_here>'.encode('utf-8'), files_description.encode('utf-8'))
-            content = content.replace('<put_field_explanation_here>'.encode('utf-8'), field_explanation.encode('utf-8'))
+            content = content.replace('<put_title_here>', file_title)
+            content = content.replace('<put_filters_here>', data_filter)
+            content = content.replace('<put_file_description_here>', files_description)
+            content = content.replace('<put_field_explanation_here>', field_explanation)
         self.zip_file_obj.writestr(README_FILE_NAME, content)
 
     def write(self, file_path, arcname):
@@ -129,7 +128,7 @@ class CSVHelper:
 
         for query_filter in filters:
             if 'term' in query_filter:
-                field = query_filter['term'].keys()[0]
+                field = list(query_filter['term'].keys())[0]
                 value = query_filter['term'][field]
                 field = field.split('.')[0]
 
@@ -142,7 +141,7 @@ class CSVHelper:
                 # ignore operator filter
                 if 'operator' in query_filter['terms']:
                     continue
-                field = query_filter['terms'].keys()[0]
+                field = list(query_filter['terms'].keys())[0]
                 values = query_filter['terms'][field]
 
                 if field in ['dayType', 'tipodia']:
@@ -164,7 +163,7 @@ class CSVHelper:
                 }
                 formatted_filters.append(attr_filter)
             elif 'range' in query_filter:
-                field = query_filter['range'].keys()[0]
+                field = list(query_filter['range'].keys())[0]
                 gte = query_filter['range'][field]["gte"].replace("||/d", "")
                 lte = query_filter['range'][field]["lte"].replace("||/d", "")
 
@@ -191,8 +190,8 @@ class CSVHelper:
                 formatted_filters.append(attr_filter)
             elif 'must' in query_filter:
                 nested_filters = query_filter['must'][0]['term']
-                raw_field = nested_filters.keys()[0]
-                field = nested_filters.keys()[0].split('.')[0]
+                raw_field = list(nested_filters.keys())[0]
+                field = list(nested_filters.keys())[0].split('.')[0]
                 attr_filter = {
                     'field': self.translator[field],
                     'value': nested_filters[raw_field]
@@ -260,11 +259,11 @@ class CSVHelper:
 
     def get_header(self):
         """ get header of csv file """
-        return map(lambda el: el['csv_name'], self.get_column_dict())
+        return [el['csv_name'] for el in self.get_column_dict()]
 
     def get_fields(self):
         """ get fields retrieved by query """
-        return map(lambda el: el['es_name'], self.get_column_dict())
+        return [el['es_name'] for el in self.get_column_dict()]
 
     def get_file_description(self):
         """ description to add to readme file """
@@ -837,6 +836,7 @@ class PaymentFactorCSVHelper(CSVHelper):
 
         return formatted_row
 
+
 class BipCSVHelper(CSVHelper):
     """ Class that represents a bip downloader. """
 
@@ -853,7 +853,8 @@ class BipCSVHelper(CSVHelper):
             {'es_name': 'validationTime', 'csv_name': 'Hora_validacion',
              'definition': 'Fecha y hora de la validación'},
             {'es_name': 'bipNumber', 'csv_name': 'Número Bip', 'definition': 'Número de la tarjeta bip'},
-            {'es_name': 'source', 'csv_name': 'Fuente de dato', 'definition': 'Bus, estación de metro, metrobus o totem validador.'}
+            {'es_name': 'source', 'csv_name': 'Fuente de dato',
+             'definition': 'Bus, estación de metro, metrobus o totem validador.'}
         ]
 
     def get_data_file_name(self):

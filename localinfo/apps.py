@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.apps import AppConfig
 
-from io import BytesIO
+from io import StringIO
 
 
 class LocalinfoConfig(AppConfig):
@@ -14,7 +11,7 @@ class LocalinfoConfig(AppConfig):
         from django.core.management import call_command
         from localinfo.helper import PermissionBuilder
 
-        out = BytesIO()
+        out = StringIO()
         call_command('showmigrations', '--list', 'localinfo', stdout=out)
 
         if '[ ]' in out.getvalue():

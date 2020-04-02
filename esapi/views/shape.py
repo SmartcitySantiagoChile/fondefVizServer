@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from datetime import datetime
 
 from django.http import JsonResponse
 from django.views import View
 
-from esapi.helper.shape import ESShapeHelper
 from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
+from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 
 

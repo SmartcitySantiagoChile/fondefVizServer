@@ -17,7 +17,7 @@ class TrixEditorWidget(TextInput):
         default_options = {}
         options = kwargs.get('options', {})
         default_options.update(options)
-        for key, val in default_options.items():
+        for key, val in list(default_options.items()):
             attrs['data-' + key] = val
 
         super(TrixEditorWidget, self).__init__(attrs)
