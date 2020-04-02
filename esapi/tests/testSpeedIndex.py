@@ -73,7 +73,6 @@ class ESSpeedIndexTest(TestCase):
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'506 00I'}},
                        {'terms': {'dayType': [u'LABORAL']}},
                        {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-01-02', u'format': u'yyyy-MM-dd'}}}]}}}
-        print (result.to_dict())
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)

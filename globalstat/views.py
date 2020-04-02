@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
-from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from esapi.views.resume import DICTIONARY
 
@@ -15,7 +15,7 @@ class ResumeHTML(PermissionRequiredMixin, View):
         template = 'globalstat/resume.html'
 
         attributes = []
-        for key, value in list(DICTIONARY.items()):
+        for key, value in DICTIONARY.items():
             if key == 'dayType':
                 continue
             attributes.append({
@@ -41,7 +41,7 @@ class DetailHTML(PermissionRequiredMixin, View):
         context = {}
 
         attributes = []
-        for key, value in list(DICTIONARY.items()):
+        for key, value in DICTIONARY.items():
             if key == 'dayType':
                 continue
             attributes.append({
