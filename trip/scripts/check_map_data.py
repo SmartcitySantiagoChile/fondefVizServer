@@ -44,9 +44,9 @@ stat_multipliers = [1, 1, 1/1000.0, 1/1000.0]
 
 results = dict()
 
-print(" => Stat Names: %s" % stat_keys)
-print(" => Checking sector '%s': %s" % (sector_name, sectors[sector_name]))
-print(" => Opening file: %s" % input_filename)
+print((" => Stat Names: %s" % stat_keys))
+print((" => Checking sector '%s': %s" % (sector_name, sectors[sector_name])))
+print((" => Opening file: %s" % input_filename))
 with open(input_filename, 'rb') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=csv_delimiter)
     for row in reader:
@@ -78,7 +78,7 @@ with open(input_filename, 'rb') as csvfile:
 
 
 print(" => Writing results to screen")
-print("zona_subida, count, %s" % stat_keys)
+print(("zona_subida, count, %s" % stat_keys))
 for zone_id in results:
     zone = results[zone_id]
     count_ = zone['count']

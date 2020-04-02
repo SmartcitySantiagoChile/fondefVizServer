@@ -1,9 +1,11 @@
 # -*- encoding: utf-8 -*-
+import json
+
 from django.contrib.auth.models import User, Group
 from django.test import TestCase, Client
 from django.urls import reverse
+
 from localinfo.helper import PermissionBuilder
-import json
 
 
 class TestHelper(TestCase):

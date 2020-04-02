@@ -1,6 +1,7 @@
-from django.test import Client
 # python stuf
 import json
+
+from django.test import Client
 
 
 # Create your tests here.

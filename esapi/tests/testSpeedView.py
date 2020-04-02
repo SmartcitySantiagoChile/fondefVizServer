@@ -7,7 +7,7 @@ import mock
 from django.urls import reverse
 
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, ESQueryResultEmpty, \
-    ESQueryShapeDoesNotExist, ESQueryDateParametersDoesNotExist
+    ESQueryDateParametersDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage, SpeedVariationWithLessDaysMessage
 from testhelper.helper import TestHelper
 
