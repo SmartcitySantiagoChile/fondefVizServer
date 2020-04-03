@@ -283,7 +283,8 @@ function loadRangeCalendar(data_url, calendar_opts) {
             newOpts.legend = {
                 top: "0",
                 left: "0",
-                data: legendData
+                data: legendData,
+                selectedMode: false
             };
 
             $("#" + divId).height(top - 20);
