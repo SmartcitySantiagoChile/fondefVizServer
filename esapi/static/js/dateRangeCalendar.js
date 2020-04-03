@@ -494,8 +494,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 let allData = dateRangeChart.getOption().series[j].data;
                 let rs_sort = [deletedRangeDate[0].data[0], params.data[0]].sort();
                 temporalDeleted = new Set([]);
-                console.log(auxSelectedDates);
-
                 for (let i = 0; i < allData.length; i++) {
                     if (allData[i][0] >= rs_sort[0] && allData[i][0] <= rs_sort[1]) {
                         temporalDeleted.add([[allData[i][0]], i]);
