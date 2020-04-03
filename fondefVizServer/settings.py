@@ -52,8 +52,6 @@ THIRD_PARTY_APPS = (
     'django_crontab',
     'django_js_reverse',
     'django_rq',
-    'debug_toolbar',
-    'debug_panel',
     'ddtrace.contrib.django',
 )
 
@@ -85,7 +83,6 @@ MIDDLEWARE = [
     'logapp.middleware.UserLogMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_panel.middleware.DebugPanelMiddleware'
 ]
 
 ROOT_URLCONF = 'fondefVizServer.urls'

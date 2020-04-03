@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import defaultdict
 from datetime import datetime
@@ -116,7 +116,7 @@ class ESProfileHelper(ElasticSearchHelper):
         if period:
             es_query = es_query.filter('terms', timePeriodInStartTime=period)
         if half_hour:
-            half_hour = map(lambda x: int(x), half_hour)
+            half_hour = [int(x) for x in half_hour]
             es_query = es_query.filter('terms', halfHourInStartTime=half_hour)
 
         combined_filter = []
@@ -188,7 +188,7 @@ class ESProfileHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', timePeriodInStartTime=period)
 
         if half_hour:
-            half_hour = map(lambda x: int(x), half_hour)
+            half_hour = [int(x) for x in half_hour]
             es_query = es_query.filter('terms', halfHourInStartTime=half_hour)
 
         combined_filter = []

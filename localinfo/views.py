@@ -1,5 +1,5 @@
-import io
 import csv
+from io import StringIO
 
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
@@ -44,7 +44,9 @@ class CustomRouteCsvUploader(View):
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
         if csv_file and csv_file.size != 0:
-            for row in csv.reader(io.BytesIO(csv_file.read())):
+            csvf = StringIO(csv_file.read().decode())
+            reader = csv.reader(csvf, delimiter=',')
+            for row in reader:
                 if row[1].strip():
                     CustomRoute.objects.update_or_create(
                         auth_route_code=row[0], defaults={'custom_route_code': row[1]})

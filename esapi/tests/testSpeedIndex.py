@@ -73,7 +73,6 @@ class ESSpeedIndexTest(TestCase):
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'506 00I'}},
                        {'terms': {'dayType': [u'LABORAL']}},
                        {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-01-02', u'format': u'yyyy-MM-dd'}}}]}}}
-        print (result.to_dict())
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -108,7 +107,7 @@ class ESSpeedIndexTest(TestCase):
         auth_route = '506 00I'
         valid_operator_list = [1, 2, 3]
         result = self.instance.get_speed_data(auth_route, day_type, dates, valid_operator_list)
-        self.assertDictEqual(result, {('key2', 'key'): (-1, 0, result.values()[0][2], 0)})
+        self.assertDictEqual(result, {('key2', 'key'): (-1, 0, list(result.values())[0][2], 0)})
 
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_base_speed_data_query')
     def test_get_speed_data_without_result(self, get_base_speed_data_query):

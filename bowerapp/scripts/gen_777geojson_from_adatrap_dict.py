@@ -32,7 +32,7 @@ zonification_key = "diseno_777"
 
 # READ
 # ----------------------------------------------------------------
-print(" - reading zonification from file: %s" % dict_filename)
+print((" - reading zonification from file: %s" % dict_filename))
 zonification = dict()
 with open(dict_filename, 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=csv_delimiter)
@@ -63,7 +63,7 @@ with open(dict_filename, 'rb') as csvfile:
 
             # append
             zonification[zone_id].append([lat, lon])
-print(" - found %d zones" % len(zonification))
+print((" - found %d zones" % len(zonification)))
 
 
 # FORMAT
@@ -98,7 +98,7 @@ for zone_id in zonification:
 # WRITE
 # ----------------------------------------------------------------
 # write to file
-print(" - writing geojson to file: %s" % geojson_filename)
+print((" - writing geojson to file: %s" % geojson_filename))
 with codecs.open(geojson_filename, 'w', 'utf-8-sig') as fp:
     json.dump(geojson, fp)
 

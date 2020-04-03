@@ -23,7 +23,7 @@ class UserLogMiddleware:
 
         end_time = timezone.now()
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             try:
                 UserActions.objects.create(user=request.user, url=request.get_full_path(), method=request.method,
                                            duration=(end_time - start_time))

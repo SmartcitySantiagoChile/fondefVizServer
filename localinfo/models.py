@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -27,7 +27,7 @@ class TimePeriod(models.Model):
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
 
     def __str__(self):
-        return self.authorityPeriodName
+        return str(self.authorityPeriodName)
 
 
 class Commune(models.Model):
@@ -43,7 +43,7 @@ class Commune(models.Model):
     prettyName = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.prettyName
+        return str(self.prettyName)
 
 
 class HalfHour(models.Model):
@@ -64,7 +64,7 @@ class HalfHour(models.Model):
     authorityPeriodName = models.CharField("Período Transantiago", max_length=50)
 
     def __str__(self):
-        return self.shortName
+        return str(self.shortName)
 
     class Meta:
         verbose_name = "Período de media hora"
@@ -136,7 +136,7 @@ class DayDescription(models.Model):
         verbose_name_plural = "descripciónes de días"
 
     def __str__(self):
-        return self.description.encode('utf8')
+        return str(self.description)
 
 
 class CalendarInfo(models.Model):
@@ -183,8 +183,9 @@ class FAQ(models.Model):
         verbose_name_plural = "preguntas frecuentes"
 
     def short_answer(self):
-        text_safe = strip_tags(self.answer.encode('utf-8'))
-        return truncatechars(text_safe, 200)
+        text_safe = strip_tags(self.answer)
+        answer = truncatechars(text_safe, 200)
+        return answer
 
     short_answer.short_description = 'Respuesta'
 
