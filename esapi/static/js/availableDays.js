@@ -117,7 +117,6 @@ function loadAvailableDays(data_url) {
                 serie.zlevel = 3;
                 newOpts.calendar.push(calendarYear);
                 newOpts.series.push(serie);
-                console.log(newOpts.series);
                 //year-date dictionary
                 let dataObject = {};
                 data.forEach(function (e) {
