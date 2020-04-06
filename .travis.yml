@@ -9,6 +9,6 @@ env:
 install:
   - pip install -r requirements.txt
 before_script:
-  -touch /logs/file.log
+  - touch "/logs/file.log"
 script:
   - python manage.py test
