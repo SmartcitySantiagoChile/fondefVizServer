@@ -1,0 +1,12 @@
+language: python
+python:
+  - "3.7"
+services:
+  - elasticsearch
+  - redis
+env:
+  -DJANGO=3.0.4 DB=postgres
+install:
+  - pip install -r requirements.txt
+script:
+  - python manage.py test
