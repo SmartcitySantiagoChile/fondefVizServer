@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/SmartcitySantiagoChile/fondefVizServer.svg?branch=master)](https://travis-ci.com/SmartcitySantiagoChile/fondefVizServer)
+
 ### ADATRAP
 
 Plataforma de visualización para grandes volúmenes de datos de Transantiago.
