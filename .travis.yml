@@ -4,6 +4,7 @@ python:
 services:
   - elasticsearch
   - redis
+  - postgresql
 env:
   -DJANGO=3.0.4 DB=postgres
 install:
