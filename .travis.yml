@@ -10,6 +10,7 @@ env:
 install:
   - pip install -r requirements.txt
 before_script:
+  - psql -c 'create database fondefdev;' -U postgres
   - mkdir "/home/travis/build/SmartcitySantiagoChile/fondefVizServer/fondefVizServer/logs/" && touch file.log
 script:
   - python manage.py test
