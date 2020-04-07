@@ -19,6 +19,7 @@ params = [
     dict(bucket_name=AWSSession.STAGE_BUCKET_NAME, subtitle='Etapas'),
     dict(bucket_name=AWSSession.SPEED_BUCKET_NAME, subtitle='Velocidades'),
     dict(bucket_name=AWSSession.TRANSACTION_BUCKET_NAME, subtitle='Transacciones'),
+    dict(bucket_name=AWSSession.OP_SPEED_BUCKET_NAME, subtitle='Velocidasdes PO'),
 ]
 urlpatterns = [
     url(r'^gps/$', login_required(TableHTML.as_view(**params[0])), name='gps'),
@@ -31,7 +32,8 @@ urlpatterns = [
     url(r'^stage/$', login_required(TableHTML.as_view(**params[6])), name='stage'),
     url(r'^speed/$', login_required(TableHTML.as_view(**params[7])), name='speed'),
     url(r'^transaction/$', login_required(TableHTML.as_view(**params[8])), name='transaction'),
-
+    url(r'^opspeed/$', login_required(TableWithoutCalendarHTML.as_view(**params[9])),
+        name='opspeed'),
     url(r'^availableDays/(?P<bucket_name>[\w-]+)/$', login_required(AvailableDays.as_view()), name='availableDays'),
     url(r'^createDownloadLink/$', login_required(CreateDownloadLink.as_view()), name='createDownloadLink'),
     url(r'^activeDownloadLink/$', login_required(ListDownloadLink.as_view()), name='activeDownloadLink'),
