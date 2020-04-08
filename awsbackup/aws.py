@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import boto3
 import botocore
@@ -21,6 +23,9 @@ class AWSSession:
     STAGE_BUCKET_NAME = config('STAGE_BUCKET_NAME')
     SPEED_BUCKET_NAME = config('SPEED_BUCKET_NAME')
     TRANSACTION_BUCKET_NAME = config('TRANSACTION_BUCKET_NAME')
+    OP_SPEED_BUCKET_NAME = config('OP_SPEED_BUCKET_NAME')
+    STOP_TIMES_BUCKET_NAME = config('STOP_TIMES_BUCKET_NAME')
+
 
     def __init__(self):
 
