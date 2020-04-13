@@ -518,11 +518,11 @@ class ESTripHelper(ElasticSearchHelper):
         third_not_condition = [{'term': {'tipo_transporte_4': 2}}, {'term': {'tipo_transporte_4': 4}}]
 
         add_aggregation('first_transfer', 'parada_bajada_1', first_condition, 'srv_1', 'srv_2',
-                        first_not_condition)
+                        None)
         add_aggregation('second_transfer', 'parada_bajada_2', second_condition, 'srv_2', 'srv_3',
-                        second_not_condition)
+                        None)
         add_aggregation('third_transfer', 'parada_bajada_3', third_condition, 'srv_3', 'srv_4',
-                        third_not_condition)
+                        None)
 
         add_aggregation('first_transfer_is_end', 'parada_bajada_1', [{'term': {'n_etapas': 1}}], 'srv_1', 'srv_2')
         add_aggregation('second_transfer_is_end', 'parada_bajada_2', [{'term': {'n_etapas': 2}}], 'srv_2', 'srv_3')
