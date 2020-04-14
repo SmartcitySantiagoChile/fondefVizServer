@@ -615,7 +615,6 @@ class ESTripIndexTest(TestCase):
                                      'terms': {
                                          'mediahora_bajada_4': [1, 2, 3]}}]}}]}},
             'aggs': {u'second_transfer': {'filter': {'bool': {
-                u'must_not': [{'term': {u'tipo_transporte_3': 2}}, {'term': {u'tipo_transporte_3': 4}}],
                 u'must': [{'term': {u'parada_bajada_2': u'auth_stop_code'}},
                           {'range': {u'n_etapas': {u'gt': 2}}}]}}, 'aggs': {
                 u'route_from': {'terms': {'field': u'srv_2', 'size': 5000}, 'aggs': {
@@ -628,9 +627,7 @@ class ESTripIndexTest(TestCase):
                     u'route_from': {'terms': {'field': u'srv_3', 'size': 5000}, 'aggs': {
                         u'route_to': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
                             u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'first_transfer': {'filter': {'bool': {u'must_not': [{'term': {u'tipo_transporte_2': 2}},
-                                                                      {'term': {u'tipo_transporte_2': 4}}],
-                                                        u'must': [{'term': {
+                u'first_transfer': {'filter': {'bool': {u'must': [{'term': {
                                                             u'parada_bajada_1': u'auth_stop_code'}},
                                                             {'range': {u'n_etapas': {u'gt': 1}}}]}},
                                     'aggs': {u'route_from': {'terms': {'field': u'srv_1', 'size': 5000},
@@ -663,9 +660,7 @@ class ESTripIndexTest(TestCase):
                     u'route_from': {'terms': {'field': u'srv_3', 'size': 5000}, 'aggs': {
                         u'route_to': {'terms': {'field': u'srv_4', 'size': 5000}, 'aggs': {
                             u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'third_transfer': {'filter': {'bool': {u'must_not': [{'term': {u'tipo_transporte_4': 2}},
-                                                                      {'term': {u'tipo_transporte_4': 4}}],
-                                                        u'must': [{'term': {
+                u'third_transfer': {'filter': {'bool': {u'must': [{'term': {
                                                             u'parada_bajada_3': u'auth_stop_code'}},
                                                             {'range': {u'n_etapas': {u'gt': 3}}}]}},
                                     'aggs': {u'route_from': {'terms': {'field': u'srv_3', 'size': 5000},
