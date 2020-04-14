@@ -598,7 +598,6 @@ class ESTripIndexTest(TestCase):
         periods = [1, 2, 3]
         half_hours = [1, 2, 3]
         result = self.instance.get_transfers_data(dates, auth_stop_code, day_types, periods, half_hours)
-        print(result.to_dict())
         expected = {'query': {'bool': {'filter': [{'range': {
             'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
                               u'format': u'yyyy-MM-dd'}}}, {'bool': {
