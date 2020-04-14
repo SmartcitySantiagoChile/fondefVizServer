@@ -97,7 +97,6 @@ function loadAvailableDays(data_url) {
         if (data.length > 0) {
             var newOpts = $.extend({}, opts);
             var top = 50;
-            var bottom = 0;
             let legendData = [];
             years.forEach(function (year, index) {
                 let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
@@ -111,7 +110,6 @@ function loadAvailableDays(data_url) {
                 }
                 calendarYear.range = year;
                 calendarYear.top = top;
-                bottom += 84;
                 top += 84;
                 serie.calendarIndex = index;
                 serie.data = data;
