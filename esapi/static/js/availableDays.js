@@ -18,7 +18,8 @@ function loadAvailableDays(data_url) {
             nameMap: []
         },
         left: "50",
-        right: "0",
+        right: "20",
+        bottom: "50",
         cellSize: ["auto", 9]
     };
 
@@ -43,7 +44,8 @@ function loadAvailableDays(data_url) {
             orient: "vertical",
             left: "0",
             top: "center",
-            show: false
+            show: false,
+
         },
         calendar: [],
         series: [],
@@ -95,6 +97,7 @@ function loadAvailableDays(data_url) {
         if (data.length > 0) {
             var newOpts = $.extend({}, opts);
             var top = 50;
+            var bottom = 0;
             let legendData = [];
             years.forEach(function (year, index) {
                 let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
@@ -104,10 +107,11 @@ function loadAvailableDays(data_url) {
                         "Sep", "Oct", "Nov", "Dic"];
                 }
                 if (index === years.length - 1) {
-                    calendarYear.bottom = '0%'
+                    calendarYear.bottom = '1%'
                 }
                 calendarYear.range = year;
                 calendarYear.top = top;
+                bottom += 84;
                 top += 84;
                 serie.calendarIndex = index;
                 serie.data = data;
@@ -167,6 +171,7 @@ function loadAvailableDays(data_url) {
                 left: "0",
                 data: legendData
             };
+            let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
             $("#" + divId).height(top - 20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
             availableDaysChart.resize();
