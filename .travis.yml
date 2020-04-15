@@ -13,4 +13,6 @@ before_script:
   - psql -c 'create database fondefdev;' -U postgres
   - mkdir "/home/travis/build/SmartcitySantiagoChile/fondefVizServer/fondefVizServer/logs/" && touch file.log
 script:
-  - python manage.py test
+  - python manage.py test --doctest-modules --pep8 coveralls -v --cov coveralls --cov-report term-missing
+after_success:
+  - coveralls
