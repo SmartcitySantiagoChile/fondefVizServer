@@ -19,7 +19,7 @@ function loadAvailableDays(data_url) {
         },
         left: "50",
         right: "20",
-        bottom: "50",
+
         cellSize: ["auto", 9]
     };
 
