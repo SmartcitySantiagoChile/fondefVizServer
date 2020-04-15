@@ -232,7 +232,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     dataObject[e[0]] = 1;
                 });
 
-                let noDataDay = [["", "#F8F8F8", "Sin datos"]];
+                let noDataDay = [["", "#FFFFFF", "Sin datos"]];
                 descriptionDayList.push(noDataDay);
                 descriptionDayList.forEach(function (date) {
                     let descriptionSerie = $.extend({}, serieTemplate);
@@ -283,7 +283,11 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 top: "0",
                 left: "0",
                 data: legendData,
-                selectedMode: false
+                selectedMode: false,
+                itemStyle: {
+                    borderColor: "black",
+                    borderWidth: 1
+                }
             };
 
             $("#" + divId).height(top - 20);

@@ -114,7 +114,7 @@ function loadAvailableDays(data_url) {
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.itemStyle = {
-                    color: "#97b58d"
+                    color: "#97b58d",
                 };
                 serie.zlevel = 3;
                 newOpts.calendar.push(calendarYear);
@@ -124,7 +124,7 @@ function loadAvailableDays(data_url) {
                 data.forEach(function (e) {
                     dataObject[e[0]] = 1;
                 });
-                let noDataDay = [["", "#F8F8F8", "Sin datos"]];
+                let noDataDay = [["", "#FFFFFF", "Sin datos"]];
                 descriptionDayList.push(noDataDay);
                 descriptionDayList.forEach(function (date) {
                     let descriptionSerie = $.extend({}, serieTemplate);
@@ -139,11 +139,12 @@ function loadAvailableDays(data_url) {
                     descriptionSerie.data = dataAux.map(function (e) {
                         return [e[0], 1];
                     });
-                    legendData.push(descriptionSerie.name);
+                    legendData.push({
+                        name: descriptionSerie.name,
+                    });
+                    console.log(legendData);
                     descriptionSerie.itemStyle = {
                         color: date[0][1],
-                        shadowBlur: 2,
-                        shadowColor: "#333"
                     };
 
                     descriptionSerie.showEffectOn = "render";
@@ -167,9 +168,13 @@ function loadAvailableDays(data_url) {
             newOpts.legend = {
                 top: "0",
                 left: "0",
-                data: legendData
+                data: legendData,
+                itemStyle: {
+                    borderColor: "black",
+                    borderWidth: 1
+                }
+
             };
-            let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
             $("#" + divId).height(top - 20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
             availableDaysChart.resize();
