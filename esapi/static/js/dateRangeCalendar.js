@@ -56,9 +56,8 @@ function loadRangeCalendar(data_url, calendar_opts) {
         monthLabel: {
             nameMap: []
         },
-        top: 20,
         left: "50",
-        right: "0",
+        right: "20",
         cellSize: ["auto", 9]
     };
 
@@ -209,7 +208,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                         "Sep", "Oct", "Nov", "Dic"];
                 }
                 if (index === years.length - 1) {
-                    calendarYear.bottom = '0%'
+                    calendarYear.bottom = '2%'
                 }
                 calendarYear.range = year;
                 calendarYear.top = top;
