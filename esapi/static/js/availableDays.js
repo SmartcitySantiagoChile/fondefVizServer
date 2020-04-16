@@ -18,7 +18,8 @@ function loadAvailableDays(data_url) {
             nameMap: []
         },
         left: "50",
-        right: "0",
+        right: "20",
+
         cellSize: ["auto", 9]
     };
 
@@ -43,7 +44,8 @@ function loadAvailableDays(data_url) {
             orient: "vertical",
             left: "0",
             top: "center",
-            show: false
+            show: false,
+
         },
         calendar: [],
         series: [],
@@ -104,7 +106,7 @@ function loadAvailableDays(data_url) {
                         "Sep", "Oct", "Nov", "Dic"];
                 }
                 if (index === years.length - 1) {
-                    calendarYear.bottom = '0%'
+                    calendarYear.bottom = '1%'
                 }
                 calendarYear.range = year;
                 calendarYear.top = top;
@@ -112,7 +114,7 @@ function loadAvailableDays(data_url) {
                 serie.calendarIndex = index;
                 serie.data = data;
                 serie.itemStyle = {
-                    color: "#97b58d"
+                    color: "#97b58d",
                 };
                 serie.zlevel = 3;
                 newOpts.calendar.push(calendarYear);
@@ -122,7 +124,7 @@ function loadAvailableDays(data_url) {
                 data.forEach(function (e) {
                     dataObject[e[0]] = 1;
                 });
-                let noDataDay = [["", "#F8F8F8", "Sin datos"]];
+                let noDataDay = [["", "#FFFFFF", "Sin datos"]];
                 descriptionDayList.push(noDataDay);
                 descriptionDayList.forEach(function (date) {
                     let descriptionSerie = $.extend({}, serieTemplate);
@@ -137,11 +139,12 @@ function loadAvailableDays(data_url) {
                     descriptionSerie.data = dataAux.map(function (e) {
                         return [e[0], 1];
                     });
-                    legendData.push(descriptionSerie.name);
+                    legendData.push({
+                        name: descriptionSerie.name,
+                    });
+                    console.log(legendData);
                     descriptionSerie.itemStyle = {
                         color: date[0][1],
-                        shadowBlur: 2,
-                        shadowColor: "#333"
                     };
 
                     descriptionSerie.showEffectOn = "render";
@@ -165,7 +168,12 @@ function loadAvailableDays(data_url) {
             newOpts.legend = {
                 top: "0",
                 left: "0",
-                data: legendData
+                data: legendData,
+                itemStyle: {
+                    borderColor: "black",
+                    borderWidth: 1
+                }
+
             };
             $("#" + divId).height(top - 20);
             availableDaysChart.setOption(newOpts, {notMerge: true});
