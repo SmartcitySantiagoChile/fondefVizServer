@@ -23,7 +23,7 @@ A continuación se describe el proceso de instalación para un entorno de desarr
 
 ### Instalación del proyecto
 
-Este proyecto se encuentra desarrollado en Python 2.7, utilizando el framework web Django, base de datos relacional Postgresql, el motor de análisis de datos Elasticsearch y Redis como base de datos en memoria.
+Este proyecto se encuentra desarrollado en Python 3.7, utilizando el framework web Django, base de datos relacional Postgresql, el motor de análisis de datos Elasticsearch y Redis como base de datos en memoria.
 
 En primer lugar se debe descargar el proyecto desde Github: 
 
