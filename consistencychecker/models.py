@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Consistency(models.Model):
-    date = models.DateTimeField("Fecha")
+    date = models.DateField("Fecha")
     profile_file = models.IntegerField()
     profile_index = models.IntegerField()
     speed_file = models.IntegerField()
