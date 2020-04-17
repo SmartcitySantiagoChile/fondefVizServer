@@ -30,10 +30,7 @@ class Command(BaseCommand):
             for key in keys_list:
                 if not key in date_dict[date]:
                     date_dict[date].update({key: {"lines": 0, "docNumber": 0}})
-            date_split = date.split("-")
-            print(date)
-            print(int(date_split[2]))
-            Consistency.objects.create(date=datetime(int(date_split[0]), int(date_split[1]), int(date_split[2])),
+            Consistency.objects.create(date=datetime.strptime(date, '%Y-%m-%d'),
                                        profile_file=date_dict[date]['profile']['lines'],
                                        profile_index=date_dict[date]['profile']['docNumber'],
                                        speed_file=date_dict[date]['speed']['lines'],
