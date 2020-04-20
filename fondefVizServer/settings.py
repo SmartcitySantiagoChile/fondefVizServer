@@ -270,7 +270,9 @@ SERVER_EMAIL = config('SERVER_EMAIL')
 CRONJOBS = [
     ('0 0 * * *', 'datamanager.cron.delete_old_file_job'),  # at 00:00 every day
     ('0 2 * * *', 'django.core.management.call_command',
-     ['refreshusersession', '2018-01-01', '2030-01-01', '--delete-previous'], {})
+     ['refreshusersession', '2018-01-01', '2030-01-01', '--delete-previous'], {}),
+    ('* 1 * * *', 'django.core.management.call_command',
+     ['buildconsistencymetrics'], {})
 ]
 
 # secure proxy SSL header and secure cookies
