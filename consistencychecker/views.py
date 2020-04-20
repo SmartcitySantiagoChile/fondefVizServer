@@ -22,5 +22,4 @@ class GetConsistencyData(View):
         """ consisetency data """
 
         response = {"response": serialize('json', Consistency.objects.all())}
-        print(response)
         return JsonResponse(response)
