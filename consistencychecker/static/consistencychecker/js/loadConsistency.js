@@ -8,7 +8,7 @@ $(document).ready(function () {
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
-            order: [[4, "desc"]],
+            order: [[0, 'desc']],
             columns: [
                 {
                     title: 'Fecha',
@@ -63,25 +63,27 @@ $(document).ready(function () {
                         return data.general_index.toString() + " / " + data.general_file.toString();
                     }
                 },
-            ]
-            //createdRow: function (row, data, index) {
-            //    addColorToRow(data, row);
-            //}
+            ],
+            createdRow: function (row, data, index) {
+                addColorToRow(data, row);
+            }
         };
-        console.log(_datatableOpts);
 
         var addColorToRow = function (data, row) {
             $(row).removeClass("danger warning success");
-            if (data.lines !== data.docNumber) {
+            let sum_dif = 0;
+            sum_dif += (data.profile_file - data.profile_index);
+            sum_dif += (data.speed_file - data.speed_index);
+            sum_dif += (data.bip_file - data.bip_index);
+            sum_dif += (data.odbyroute_file - data.odbyroute_index);
+            sum_dif += (data.trip_file - data.trip_index);
+            sum_dif += (data.paymentfactor_file - data.paymentfactor_index);
+            sum_dif += (data.general_file - data.general_index);
+
+            if (sum_dif !== 0) {
                 $(row).addClass("danger");
             } else {
                 $(row).addClass("success");
-            }
-            if (data.lastExecution !== null) {
-                if (["enqueued", "running"].indexOf(data.lastExecution.status) >= 0) {
-                    $(row).removeClass("danger success");
-                    $(row).addClass("warning");
-                }
             }
         };
 
@@ -92,7 +94,6 @@ $(document).ready(function () {
                 var files = dictFiles.map(e => {
                     return e.fields;
                 });
-                console.log(files);
                 var opts = $.extend({data: files}, _datatableOpts);
                 $("#fechas-id").DataTable(opts);
             });
