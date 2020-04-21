@@ -4,11 +4,12 @@ $(document).ready(function () {
     function DataManagerApp() {
         var _self = this;
         var _datatableOpts = {
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+            lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "Todos"]],
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
             order: [[0, 'desc']],
+            autowidth: true,
             columns: [
                 {
                     title: 'Fecha',
