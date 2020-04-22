@@ -13,35 +13,21 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         Consistency.objects.all().delete()
         keys_list = ["profile", "speed", "bip", "odbyroute", "trip", "paymentfactor", "general"]
-        date_dict = defaultdict()
+        date_dict = defaultdict(lambda: {key: {'lines': 0, 'docNumber': 0} for key in keys_list})
         filemanager = FileManager()
         file_dict = filemanager.get_file_list()
-
         for key in file_dict.keys():
             for file in file_dict[key]:
                 date = file['name'].split(".")[0]
                 date_info = {key: {'lines': file['lines'], 'docNumber': file['docNumber']}}
-                if date in date_dict:
-                    date_dict[date].update(date_info)
-                else:
-                    date_dict[date] = date_info
+                date_dict[date].update(date_info)
 
         for date in date_dict.keys():
-            for key in keys_list:
-                if not key in date_dict[date]:
-                    date_dict[date].update({key: {"lines": 0, "docNumber": 0}})
-            Consistency.objects.create(date=datetime.strptime(date, '%Y-%m-%d'),
-                                       profile_file=date_dict[date]['profile']['lines'],
-                                       profile_index=date_dict[date]['profile']['docNumber'],
-                                       speed_file=date_dict[date]['speed']['lines'],
-                                       speed_index=date_dict[date]['speed']['docNumber'],
-                                       bip_file=date_dict[date]['bip']['lines'],
-                                       bip_index=date_dict[date]['bip']['docNumber'],
-                                       odbyroute_file=date_dict[date]['odbyroute']['lines'],
-                                       odbyroute_index=date_dict[date]['odbyroute']['docNumber'],
-                                       trip_file=date_dict[date]['trip']['lines'],
-                                       trip_index=date_dict[date]['trip']['docNumber'],
-                                       paymentfactor_file=date_dict[date]['paymentfactor']['lines'],
-                                       paymentfactor_index=date_dict[date]['paymentfactor']['docNumber'],
-                                       general_index=date_dict[date]['general']['lines'],
-                                       general_file=date_dict[date]['general']['docNumber'])
+            params = dict(date=datetime.strptime(date, '%Y-%m-%d'))
+            for index_name in keys_list:
+                aux = dict()
+                aux['{0}_file'.format(index_name)] = date_dict[date][index_name]['lines']
+                aux['{0}_index'.format(index_name)] = date_dict[date][index_name]['docNumber']
+                params.update(aux)
+
+            Consistency.objects.create(**params)
