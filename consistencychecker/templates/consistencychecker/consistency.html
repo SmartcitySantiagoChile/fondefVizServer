@@ -5,19 +5,13 @@
 
 {% block css %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
-              rel="stylesheet">
+        rel="stylesheet">
         <!-- iCheck -->
         <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}"
               rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}"
-              rel="stylesheet">
-        <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}"
-              rel="stylesheet">
-        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
-              rel="stylesheet">
-        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
-              rel="stylesheet">
+              et">
         <style>
             tbody .btn {
                 margin-bottom: 0px;
@@ -48,10 +42,7 @@
         <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
 
-        <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
     {% endwith %}
     <script src="{% static "consistencychecker/js/loadConsistency.js" %}"></script>
 {% endblock %}

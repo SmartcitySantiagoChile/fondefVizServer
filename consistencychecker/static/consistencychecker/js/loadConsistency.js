@@ -3,6 +3,9 @@ $(document).ready(function () {
 
     function DataManagerApp() {
         var _self = this;
+        var indexNames = ["Profile", "Speed", "Bip", "Odbyroute", "Trip", "Paymentfactor", "General"];
+        var lowerIndexNames = indexNames.map(e => e.toLowerCase());
+
         var _datatableOpts = {
             lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "Todos"]],
             language: {
@@ -11,65 +14,12 @@ $(document).ready(function () {
             order: [[0, 'desc']],
             autowidth: true,
             searching: false,
-            columns: [
-                {
-                    title: 'Fecha',
-                    data: 'date',
-                },
-                {
-                    title: "Profile",
-                    data: null,
-                    render: function (data, type, row) {
-                        return data.profile_index.toString() + " / " + data.profile_file.toString();
-                    }
-                },
-                {
-                    title: "Speed",
-                    data: null,
-                    render: function (data, type, row) {
-                        return data.speed_index.toString() + " / " + data.speed_file.toString();
-                    }
-                },
-                {
-                    title: "Bip",
-                    data: null,
-                    render: function (data, type, row) {
-                        return data.bip_index.toString() + " / " + data.bip_file.toString();
-                    }
-                },
-                {
-                    title: "Odbyroute",
-                    data: null,
-                    render: function (data, type, row) {
-                        return data.odbyroute_index.toString() + " / " + data.odbyroute_file.toString();
-                    }
-                },
-                {
-                    title: "Trip",
-                    data: null,
-                    render: function (data, type, row) {
-                        return data.trip_index.toString() + " / " + data.trip_file.toString();
-                    }
-                },
-                {
-                    title: "Paymentfactor",
-                    data: null,
-                    render: function (data, type, row) {
-                        return data.paymentfactor_index.toString() + " / " + data.paymentfactor_file.toString();
-                    }
-                },
-                {
-                    title: "General",
-                    data: null,
-                    render: function (data, type, row) {
-                        return data.general_index.toString() + " / " + data.general_file.toString();
-                    }
-                },
-            ],
+
             createdRow: function (row, data, index) {
                 addColorToRow(data, row);
             }
         };
+
 
         var addColorToRow = function (data, row) {
             $(row).removeClass("danger warning success");
@@ -96,7 +46,27 @@ $(document).ready(function () {
                 var files = dictFiles.map(e => {
                     return e.fields;
                 });
-                var opts = $.extend({data: files}, _datatableOpts);
+
+
+                let columns = [{
+                    title: 'Fecha',
+                    data: 'date'
+                }];
+
+                for (let index in lowerIndexNames) {
+                    let lower_index = lowerIndexNames[index].toLowerCase();
+                    columns.push(
+                        {
+                            title: lowerIndexNames[index],
+                            data: null,
+                            render: function (data) {
+                                return data[lower_index + "_index"].toString() + " / " + data[lower_index + "_file"].toString();
+                            }
+
+                        }
+                    )
+                }
+                var opts = $.extend({data: files, columns: columns}, _datatableOpts);
                 $("#fechas-id").DataTable(opts);
             });
         };
