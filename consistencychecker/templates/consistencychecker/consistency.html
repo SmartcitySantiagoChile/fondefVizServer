@@ -1,13 +1,11 @@
 {% extends 'admin/base_site.html' %}
 {% load static panel bubble_message table tabs header %}
 
-{% block title %}Administrador de carga de datos{% endblock %}
+{% block title %}Inconsistencias de datos{% endblock %}
 
 {% block css %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
-        <link href="{% static gentelella_static|add:"bootstrap-daterangepicker/daterangepicker.css" %}"
               rel="stylesheet">
-        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
         <!-- iCheck -->
         <link href="{% static gentelella_static|add:"iCheck/skins/flat/green.css" %}" rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}"
@@ -33,7 +31,7 @@
 
 {% block content %}
     <div class="">
-    {% header "Incosistencia de Datos" %}
+    {% header "Incosistencias de Datos" %}
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             {% table html_id="fechas-id" columns=8 with_checker=False as file_table %}

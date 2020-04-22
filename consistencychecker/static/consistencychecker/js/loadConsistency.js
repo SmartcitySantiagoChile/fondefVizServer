@@ -10,6 +10,7 @@ $(document).ready(function () {
             },
             order: [[0, 'desc']],
             autowidth: true,
+            searching: false,
             columns: [
                 {
                     title: 'Fecha',
