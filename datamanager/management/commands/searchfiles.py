@@ -4,6 +4,7 @@
 import glob
 import os
 import re
+import sys
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -53,6 +54,8 @@ class Command(BaseCommand):
                     if name in file:
                         if name != file:
                             print("WARNING:", name, "exist in elasticsearch as", file)
+                            sys.exit()
+
 
             for name in clean_gzipped_name_list:
                 for file in files_name:
@@ -60,6 +63,7 @@ class Command(BaseCommand):
                     if name_without_gz in file:
                         if name != file:
                             print("WARNING:", name, "exist in elasticsearch as", file)
+                            sys.exit()
 
             for name in clean_zipped_name_list:
                 for file in files_name:
@@ -67,6 +71,8 @@ class Command(BaseCommand):
                     if name_without_zip in file:
                         if name != file:
                             print("WARNING:", name, "exist in elasticsearch as", file)
+                            sys.exit()
+
             for file_path in file_name_list:
                 file_name = os.path.basename(file_path)
                 last_modified = timezone.make_aware(timezone.datetime.fromtimestamp(os.path.getmtime(file_path)))
