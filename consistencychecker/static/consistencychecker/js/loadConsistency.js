@@ -23,20 +23,9 @@ $(document).ready(function () {
 
         var addColorToRow = function (data, row) {
             $(row).removeClass("danger warning success");
-            let sum_dif = 0;
-            sum_dif += (data.profile_file - data.profile_index);
-            sum_dif += (data.speed_file - data.speed_index);
-            sum_dif += (data.bip_file - data.bip_index);
-            sum_dif += (data.odbyroute_file - data.odbyroute_index);
-            sum_dif += (data.trip_file - data.trip_index);
-            sum_dif += (data.paymentfactor_file - data.paymentfactor_index);
-            sum_dif += (data.general_file - data.general_index);
-
-            if (sum_dif !== 0) {
-                $(row).addClass("danger");
-            } else {
-                $(row).addClass("success");
-            }
+            let calculatedDiff = lowerIndexNames.map(index => data[index + "_file"] - data[index + "_index"]);
+            const sum_diff = calculatedDiff.reduce((a, b) => a + b);
+            $(row).addClass(sum_diff ? "danger" : "success");
         };
 
 
