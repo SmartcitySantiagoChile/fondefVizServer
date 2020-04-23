@@ -11,21 +11,17 @@
         <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}"
               rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}"
-              et">
-        <style>
-            tbody .btn {
-                margin-bottom: 0px;
-                font-size: 12px;
-                padding-top: 0px;
-                padding-bottom: 0px;
-            }
-        </style>
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
+              rel="stylesheet">
     {% endwith %}
 {% endblock %}
 
 {% block content %}
     <div class="">
-    {% header "Incosistencias de Datos" %}
+    {% header "Inconsistencias de Datos" %}
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             {% table html_id="fechas-id" columns=8 with_checker=False as file_table %}
@@ -33,7 +29,6 @@
         </div>
     </div>
 
-    {% include "help/modal/modal.html" with show_ok_button=True modal_id="modal" %}
 {% endblock %}
 
 {% block js %}

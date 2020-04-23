@@ -21,7 +21,6 @@ class Command(BaseCommand):
                 date = file['name'].split(".")[0]
                 date_info = {key: {'lines': file['lines'], 'docNumber': file['docNumber']}}
                 date_dict[date].update(date_info)
-
         for date in date_dict.keys():
             params = dict(date=datetime.strptime(date, '%Y-%m-%d'))
             for index_name in keys_list:
@@ -30,4 +29,6 @@ class Command(BaseCommand):
                 aux['{0}_index'.format(index_name)] = date_dict[date][index_name]['docNumber']
                 params.update(aux)
 
-            Consistency.objects.create(**params)
+            create = Consistency.objects.create(**params)
+            self.stdout.write(str(create.date) + " created.")
+        self.stdout.write("All metrics recalculated.")
