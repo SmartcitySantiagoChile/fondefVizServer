@@ -51,7 +51,6 @@ def upload_exception_handler(job_instance, exc_type, exc_value, exc_tb):
     try:
         tb_str = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
         job_execution_obj = UploaderJobExecution.objects.get(jobId=job_instance.id)
-
         job_execution_obj.executionEnd = timezone.now()
         job_execution_obj.status = UploaderJobExecution.FAILED
         job_execution_obj.errorMessage = '{0}\n{1}\n{2}'.format(exc_type, exc_value, tb_str)
