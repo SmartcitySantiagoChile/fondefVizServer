@@ -1,11 +1,14 @@
+from smtplib import SMTPException
+
 import mock
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
 from fakeredis import FakeStrictRedis
 from rq import Queue
 
-from datamanager.models import UploaderJobExecution, LoadFile
-from rqworkers.tasks import upload_file_job, upload_exception_handler
+from datamanager.models import UploaderJobExecution, LoadFile, ExporterJobExecution
+from rqworkers.tasks import upload_file_job, upload_exception_handler, export_data_job, export_exception_handler
 
 
 class TaskTest(TestCase):
@@ -22,6 +25,21 @@ class TaskTest(TestCase):
                                             errorMessage='',
                                             file_id=1,
                                             wasDeletedAt=None)
+
+        ExporterJobExecution.objects.create(id=1, jobId='d8c961e5-db5b-4033-a27f-6f2d30662548',
+                                            enqueueTimestamp=timezone.now(),
+                                            executionStart=timezone.now(),
+                                            executionEnd=timezone.now(),
+                                            status='',
+                                            errorMessage='',
+                                            file='file',
+                                            query='{"query": {"bool": {"filter": [{"terms": {"operator": [1, 2, 3, 4, 5, 6, 7, 8, 9]}}, {"term": {"route": "T549 00I"}}, {"range": {"expeditionStartTime": {"gte": "2019-10-17||/d", "lte": "2019-10-17||/d", "format": "yyyy-MM-dd", "time_zone": "+00:00"}}}, {"term": {"notValid": 0}}]}}, "_source": ["busCapacity", "licensePlate", "route", "loadProfile", "expeditionDayId", "expandedAlighting", "expandedBoarding", "expeditionStartTime", "expeditionEndTime", "authStopCode", "timePeriodInStartTime", "dayType", "timePeriodInStopTime", "busStation", "path", "notValid"]}',
+                                            user_id=1,
+                                            seen=True,
+                                            fileType='profile',
+                                            filters=' Hora_inicio_expedición: entre 2020-10-17 00:00:00 y 2020-10-17 23:59:59<br /> y Código_parada_transantiago: T-20-205-SN-44<br />')
+
+        User.objects.create_user('test_user', id=1)
 
         self.queue = Queue(is_async=False, connection=FakeStrictRedis())
 
@@ -59,6 +77,50 @@ class TaskTest(TestCase):
         self.assertEqual(updatedJob.status, 'failed')
         self.assertEqual(updatedJob.errorMessage, "<class 'datamanager.models.UploaderJobExecution.DoesNotExist'>\n\n")
 
-    @mock.patch('rqworkers.tasks.get_current_job')
-    def test_export_data_job(self, get_current_job):
-        get_current_job.return_value = mock.MagicMock(id=1)
+    @mock.patch('rqworkers.tasks.download_file')
+    @mock.patch('rqworkers.tasks.send_mail')
+    def test_export_data_job_correct(self, send_mail, download_file):
+        send_mail.return_value = mock.Mock()
+        download_file.return_value = mock.Mock()
+        job = self.queue.enqueue(export_data_job, "", '', job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        job_uploader = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        self.assertEqual(job_uploader.status, 'finished')
+        self.assertTrue(job.is_finished)
+
+    @mock.patch('django.db.models.query.QuerySet.get')
+    @mock.patch('rqworkers.tasks.download_file')
+    @mock.patch('rqworkers.tasks.send_mail')
+    def test_export_data_job_correct_with_first_error(self, send_mail, download_file, exporter_job_execution):
+        send_mail.return_value = mock.Mock()
+        download_file.return_value = mock.Mock()
+        exporter_job_in_dbb = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        exporter_job_execution.side_effect = [ExporterJobExecution.DoesNotExist, exporter_job_in_dbb]
+        job = self.queue.enqueue(export_data_job, "", '', job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        self.assertTrue(job.is_finished)
+
+    @mock.patch('rqworkers.tasks.download_file')
+    @mock.patch('rqworkers.tasks.send_mail')
+    def test_export_data_job_correct_with_STMP_error(self, send_mail, download_file):
+        send_mail.side_effect = SMTPException
+        download_file.return_value = mock.Mock()
+        job = self.queue.enqueue(export_data_job, "", '', job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        job_uploader = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        self.assertEqual(ExporterJobExecution.FINISHED_BUT_MAIL_WAS_NOT_SENT, job_uploader.status)
+        self.assertTrue(job.is_finished)
+
+    @mock.patch('django.db.models.query.QuerySet.get')
+    @mock.patch('rqworkers.tasks.traceback')
+    def test_export_exception_handler_does_not_exist(self, traceback, export_job_execution):
+        job_instance = mock.MagicMock(id=1)
+        traceback.return_value = mock.MagicMock()
+        export_job_execution.side_effect = ExporterJobExecution.DoesNotExist
+        self.assertTrue(export_exception_handler(job_instance, ExporterJobExecution.DoesNotExist, "", ""))
+
+    @mock.patch('rqworkers.tasks.traceback')
+    def test_export_exception_handler_correct(self, traceback):
+        job_instance = mock.MagicMock(id='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        traceback.return_value = mock.MagicMock()
+        self.assertTrue(export_exception_handler(job_instance, ExporterJobExecution.DoesNotExist, "", ""))
+        updatedJob = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
+        self.assertEqual(updatedJob.status, 'failed')
+        self.assertEqual(updatedJob.errorMessage, "<class 'datamanager.models.ExporterJobExecution.DoesNotExist'>\n\n")
