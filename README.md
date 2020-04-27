@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.com/SmartcitySantiagoChile/fondefVizServer.svg?branch=master)](https://travis-ci.com/SmartcitySantiagoChile/fondefVizServer)
 
+[![Coverage Status](https://coveralls.io/repos/github/SmartcitySantiagoChile/fondefVizServer/badge.svg?branch=master)](https://coveralls.io/github/SmartcitySantiagoChile/fondefVizServer?branch=master)
+
 ### ADATRAP
 
 Plataforma de visualización para grandes volúmenes de datos de Transantiago.
@@ -21,7 +23,7 @@ A continuación se describe el proceso de instalación para un entorno de desarr
 
 ### Instalación del proyecto
 
-Este proyecto se encuentra desarrollado en Python 2.7, utilizando el framework web Django, base de datos relacional Postgresql, el motor de análisis de datos Elasticsearch y Redis como base de datos en memoria.
+Este proyecto se encuentra desarrollado en Python 3.7, utilizando el framework web Django, base de datos relacional Postgresql, el motor de análisis de datos Elasticsearch y Redis como base de datos en memoria.
 
 En primer lugar se debe descargar el proyecto desde Github: 
 

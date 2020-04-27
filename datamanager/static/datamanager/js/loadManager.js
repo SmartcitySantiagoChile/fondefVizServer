@@ -185,7 +185,6 @@ $(document).ready(function () {
 
         this.updateTables = function () {
             $.get(Urls["datamanager:getLoadFileData"](), function (data) {
-                console.log(data);
                 var dictFiles = data.routeDictFiles;
 
                 for (var key in dictFiles) {
