@@ -1,3 +1,4 @@
+import os
 from smtplib import SMTPException
 
 import mock
@@ -8,13 +9,15 @@ from fakeredis import FakeStrictRedis
 from rq import Queue
 
 from datamanager.models import UploaderJobExecution, LoadFile, ExporterJobExecution
-from rqworkers.tasks import upload_file_job, upload_exception_handler, export_data_job, export_exception_handler
+from rqworkers.tasks import upload_file_job, upload_exception_handler, export_data_job, export_exception_handler, \
+    count_line_of_file_job
 
 
 class TaskTest(TestCase):
 
     def setUp(self):
-        LoadFile.objects.create(id=1, dataSourcePath='/', discoveredAt=timezone.now(), lines=1,
+        count = 1
+        LoadFile.objects.create(id=count, dataSourcePath='/', discoveredAt=timezone.now(), lines=1,
                                 lastModified=timezone.now())
 
         UploaderJobExecution.objects.create(id=1, jobId='d8c961e5-db5b-4033-a27f-6f2d30662548',
@@ -42,6 +45,18 @@ class TaskTest(TestCase):
         User.objects.create_user('test_user', id=1)
 
         self.queue = Queue(is_async=False, connection=FakeStrictRedis())
+
+        self.file_path_list = ["files/2016-03-14.trip", "files/2016-03-14.trip.gz", "files/2016-03-14.trip.zip",
+                               "files/2017-04-03.shape"]
+        self.file_list = []
+        for file_path in self.file_path_list:
+            count += 1
+            name = "".join(file_path.split("/")[1])
+            self.file_list.append(LoadFile.objects.get_or_create(id=count, fileName=name, defaults={
+                'dataSourcePath': file_path,
+                'discoveredAt': timezone.now(),
+                'lastModified': timezone.now()
+            })[0])
 
     @mock.patch('rqworkers.tasks.upload_file')
     def test_upload_file_job_correct(self, upload_file):
@@ -124,3 +139,31 @@ class TaskTest(TestCase):
         updatedJob = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertEqual(updatedJob.status, 'failed')
         self.assertEqual(updatedJob.errorMessage, "<class 'datamanager.models.ExporterJobExecution.DoesNotExist'>\n\n")
+
+    def test_count_line_of_file_job_correct(self):
+        job = self.queue.enqueue(count_line_of_file_job, self.file_list[0], 'trip',
+                                 os.path.join(os.path.dirname(__file__), self.file_path_list[0]))
+        count_line_obj = LoadFile.objects.get(dataSourcePath=self.file_path_list[0])
+        self.assertTrue(job.is_finished)
+        self.assertEqual(9, count_line_obj.lines)
+
+    def test_count_line_of_file_job_correct_gz(self):
+        job = self.queue.enqueue(count_line_of_file_job, self.file_list[1], 'trip',
+                                 os.path.join(os.path.dirname(__file__), self.file_path_list[1]))
+        count_line_obj = LoadFile.objects.get(dataSourcePath=self.file_path_list[1])
+        self.assertTrue(job.is_finished)
+        self.assertEqual(9, count_line_obj.lines)
+
+    def test_count_line_of_file_job_correct_zip(self):
+        job = self.queue.enqueue(count_line_of_file_job, self.file_list[2], 'trip',
+                                 os.path.join(os.path.dirname(__file__), self.file_path_list[2]))
+        count_line_obj = LoadFile.objects.get(dataSourcePath=self.file_path_list[2])
+        self.assertTrue(job.is_finished)
+        self.assertEqual(9, count_line_obj.lines)
+
+    def test_count_line_of_file_job_correct_shape(self):
+        job = self.queue.enqueue(count_line_of_file_job, self.file_list[3], 'shape',
+                                 os.path.join(os.path.dirname(__file__), self.file_path_list[3]))
+        count_line_obj = LoadFile.objects.get(dataSourcePath=self.file_path_list[3])
+        self.assertTrue(job.is_finished)
+        self.assertEqual(1, count_line_obj.lines)

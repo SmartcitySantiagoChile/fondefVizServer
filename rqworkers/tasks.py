@@ -135,7 +135,9 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
     def is_gzipfile(_file_path):
         with gzip.open(_file_path) as _file_obj:
             try:
+                print(_file_obj)
                 _file_obj.read(1)
+
                 return True
             except IOError:
                 return False
@@ -149,7 +151,7 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
             zip_file_obj = zipfile.ZipFile(_file_path, 'r')
             # it assumes that zip file has only one file
             file_name = zip_file_obj.namelist()[0]
-            _file_obj = zip_file_obj.open(file_name, 'rU')
+            _file_obj = zip_file_obj.open(file_name, 'r')
         elif is_gzipfile(_file_path):
             _file_obj = gzip.open(_file_path, 'rb')
         else:
@@ -160,7 +162,7 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
     i = 0
     with get_file_object(file_path) as f:
         if data_source_code in [ESShapeHelper().index_name, ESStopByRouteHelper().index_name]:
-            for group_id, __ in groupby(f, lambda row: row.split(str('|'))[0]):
+            for group_id, __ in groupby(f, lambda row: row.decode().split(str('|'))[0]):
                 # lines with hyphen on first column are bad lines and must not be considered
                 if group_id != str('-'):
                     i += 1
@@ -170,7 +172,7 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
             # how it starts from zero is not count header
             for i, _ in enumerate(f):
                 pass
-
     file_obj.refresh_from_db()
     file_obj.lines = i
     file_obj.save()
+    print(file_obj.__dict__)
