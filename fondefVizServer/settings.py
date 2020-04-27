@@ -9,11 +9,10 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-from elasticsearch import Elasticsearch
+import os
 
 from decouple import config, Csv
-
-import os
+from elasticsearch import Elasticsearch
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -63,6 +62,7 @@ LOCAL_APPS = (
     'awsbackup',
     'paymentfactor',
     'bip',
+    'consistencychecker'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -270,7 +270,9 @@ SERVER_EMAIL = config('SERVER_EMAIL')
 CRONJOBS = [
     ('0 0 * * *', 'datamanager.cron.delete_old_file_job'),  # at 00:00 every day
     ('0 2 * * *', 'django.core.management.call_command',
-     ['refreshusersession', '2018-01-01', '2030-01-01', '--delete-previous'], {})
+     ['refreshusersession', '2018-01-01', '2030-01-01', '--delete-previous'], {}),
+    ('* 1 * * *', 'django.core.management.call_command',
+     ['buildconsistencymetrics'], {})
 ]
 
 # secure proxy SSL header and secure cookies
