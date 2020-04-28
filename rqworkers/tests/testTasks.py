@@ -109,6 +109,7 @@ class TaskTest(TestCase):
         send_mail.return_value = mock.Mock()
         download_file.return_value = mock.Mock()
         exporter_job_in_dbb = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
+
         exporter_job_execution.side_effect = [ExporterJobExecution.DoesNotExist, exporter_job_in_dbb]
         job = self.queue.enqueue(export_data_job, "", '', job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertTrue(job.is_finished)
@@ -167,4 +168,3 @@ class TaskTest(TestCase):
         count_line_obj = LoadFile.objects.get(dataSourcePath=self.file_path_list[3])
         self.assertTrue(job.is_finished)
         self.assertEqual(1, count_line_obj.lines)
-
