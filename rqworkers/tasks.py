@@ -173,4 +173,3 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
     file_obj.refresh_from_db()
     file_obj.lines = i
     file_obj.save()
-    print(file_obj.__dict__)
