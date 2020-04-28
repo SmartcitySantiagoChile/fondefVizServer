@@ -14,6 +14,6 @@ before_script:
   - psql -c 'create database fondefdev;' -U postgres
   - mkdir "/home/travis/build/SmartcitySantiagoChile/fondefVizServer/fondefVizServer/logs/" && touch file.log
 script:
-  - coverage run --source=bowerapp,esapi,datamanager,localinfo,profile,shape,trip,speed,globalstat,webuser,logapp,awsbackup,paymentfactor,bip,rqworkers manage.py test
+  - coverage run --source=bowerapp,esapi,datamanager,localinfo,profile,shape,trip,speed,globalstat,webuser,logapp,awsbackup,paymentfactor,bip,rqworkers, consistencychecker manage.py test
 after_success:
   - coveralls

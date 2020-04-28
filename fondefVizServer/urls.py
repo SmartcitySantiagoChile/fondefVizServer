@@ -44,9 +44,10 @@ urlpatterns = [
     url(r'^faq/$', FaqHTML.as_view(), name='faq'),
     url(r'^csvupload/$', login_required(CustomRouteCsvUploader.as_view()),
         name='customroutecsvupload'),
+    url(r'^consistencychecker/', include('consistencychecker.urls')),
+
 ]
 
 if settings.DEBUG:
-
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
