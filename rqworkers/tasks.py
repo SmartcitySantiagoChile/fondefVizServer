@@ -135,11 +135,9 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
     def is_gzipfile(_file_path):
         with gzip.open(_file_path) as _file_obj:
             try:
-                print(_file_obj)
                 _file_obj.read(1)
-
                 return True
-            except IOError:
+            except OSError:
                 return False
 
     def get_file_object(_file_path):

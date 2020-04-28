@@ -167,3 +167,4 @@ class TaskTest(TestCase):
         count_line_obj = LoadFile.objects.get(dataSourcePath=self.file_path_list[3])
         self.assertTrue(job.is_finished)
         self.assertEqual(1, count_line_obj.lines)
+
