@@ -73,21 +73,25 @@ class TaskTest(TestCase):
         job = self.queue.enqueue(upload_file_job, "", [0], job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertTrue(job.is_finished)
 
+    @mock.patch('rqworkers.tasks.traceback')
     @mock.patch('django.db.models.query.QuerySet.get')
-    def test_upload_exception_handler_does_not_exist(self, uploader_job_execution):
+    def test_upload_exception_handler_does_not_exist(self, uploader_job_execution, traceback):
         job_instance = mock.MagicMock(id=1)
-        uploader_job_execution.side_effect = UploaderJobExecution.DoesNotExist
-        self.assertTrue(upload_exception_handler(job_instance, UploaderJobExecution.DoesNotExist,
-                                                 UploaderJobExecution.DoesNotExist, ""))
+        e = UploaderJobExecution.DoesNotExist
+        uploader_job_execution.side_effect = e
+        self.assertTrue(upload_exception_handler(job_instance, type(e),
+                                                 e, e().__traceback__))
+        traceback.format_exception.assert_called_once()
 
     @mock.patch('rqworkers.tasks.traceback')
     def test_upload_exception_handler_correct(self, traceback):
         job_instance = mock.MagicMock(id='d8c961e5-db5b-4033-a27f-6f2d30662548')
-        traceback.return_value = mock.MagicMock()
-        self.assertTrue(upload_exception_handler(job_instance, UploaderJobExecution.DoesNotExist, "", ""))
+        e = UploaderJobExecution.DoesNotExist()
+        self.assertTrue(upload_exception_handler(job_instance, type(e), e, e.__traceback__))
         updatedJob = UploaderJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertEqual(updatedJob.status, 'failed')
         self.assertEqual(updatedJob.errorMessage, "<class 'datamanager.models.UploaderJobExecution.DoesNotExist'>\n\n")
+        traceback.format_exception.assert_called_once()
 
     @mock.patch('rqworkers.tasks.download_file')
     @mock.patch('rqworkers.tasks.send_mail')
@@ -120,14 +124,16 @@ class TaskTest(TestCase):
     @mock.patch('rqworkers.tasks.traceback')
     def test_export_exception_handler_does_not_exist(self, traceback, export_job_execution):
         job_instance = mock.MagicMock(id=1)
-        traceback.return_value = mock.MagicMock()
-        export_job_execution.side_effect = ExporterJobExecution.DoesNotExist
-        self.assertTrue(export_exception_handler(job_instance, ExporterJobExecution.DoesNotExist, "", ""))
+        e = ExporterJobExecution.DoesNotExist
+        export_job_execution.side_effect = e
+        self.assertTrue(export_exception_handler(job_instance, type(e), e, e().__traceback__))
+        traceback.format_exception.assert_called_once()
 
     @mock.patch('rqworkers.tasks.traceback')
     def test_export_exception_handler_correct(self, traceback):
         job_instance = mock.MagicMock(id='d8c961e5-db5b-4033-a27f-6f2d30662548')
-        self.assertTrue(export_exception_handler(job_instance, ExporterJobExecution.DoesNotExist, "", ""))
+        e = ExporterJobExecution.DoesNotExist
+        self.assertTrue(export_exception_handler(job_instance, type(e()), e(), e().__traceback__))
         updatedJob = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertEqual(updatedJob.status, 'failed')
         self.assertEqual(updatedJob.errorMessage, "<class 'datamanager.models.ExporterJobExecution.DoesNotExist'>\n\n")
