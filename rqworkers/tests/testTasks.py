@@ -51,7 +51,7 @@ class TaskTest(TestCase):
         self.file_list = []
         for file_path in self.file_path_list:
             count += 1
-            name = "".join(file_path.split("/")[1])
+            name = file_path.split("/")[1]
             self.file_list.append(LoadFile.objects.get_or_create(id=count, fileName=name, defaults={
                 'dataSourcePath': file_path,
                 'discoveredAt': timezone.now(),
@@ -60,7 +60,6 @@ class TaskTest(TestCase):
 
     @mock.patch('rqworkers.tasks.upload_file')
     def test_upload_file_job_correct(self, upload_file):
-        upload_file.return_value = mock.Mock()
         job = self.queue.enqueue(upload_file_job, "", [0], job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
         job_uploader = UploaderJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertEqual(job_uploader.status, 'finished')
@@ -69,19 +68,17 @@ class TaskTest(TestCase):
     @mock.patch('rqworkers.tasks.upload_file')
     @mock.patch('django.db.models.query.QuerySet.get')
     def test_upload_file_job_with_first_error(self, uploader_job_execution, upload_file):
-        uploader_job_in_dbb = UploaderJobExecution.objects.get(jobId='test_id')
-        uploader_job_execution.side_effect = [UploaderJobExecution.DoesNotExist, uploader_job_in_dbb]
-        upload_file.return_value = mock.Mock()
+        uploader_job_in_db = UploaderJobExecution.objects.get(jobId='test_id')
+        uploader_job_execution.side_effect = [UploaderJobExecution.DoesNotExist, uploader_job_in_db]
         job = self.queue.enqueue(upload_file_job, "", [0], job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertTrue(job.is_finished)
 
     @mock.patch('django.db.models.query.QuerySet.get')
-    @mock.patch('rqworkers.tasks.traceback')
-    def test_upload_exception_handler_does_not_exist(self, traceback, uploader_job_execution):
+    def test_upload_exception_handler_does_not_exist(self, uploader_job_execution):
         job_instance = mock.MagicMock(id=1)
-        traceback.return_value = mock.MagicMock()
         uploader_job_execution.side_effect = UploaderJobExecution.DoesNotExist
-        self.assertTrue(upload_exception_handler(job_instance, UploaderJobExecution.DoesNotExist, "", ""))
+        self.assertTrue(upload_exception_handler(job_instance, UploaderJobExecution.DoesNotExist,
+                                                 UploaderJobExecution.DoesNotExist, ""))
 
     @mock.patch('rqworkers.tasks.traceback')
     def test_upload_exception_handler_correct(self, traceback):
@@ -95,8 +92,6 @@ class TaskTest(TestCase):
     @mock.patch('rqworkers.tasks.download_file')
     @mock.patch('rqworkers.tasks.send_mail')
     def test_export_data_job_correct(self, send_mail, download_file):
-        send_mail.return_value = mock.Mock()
-        download_file.return_value = mock.Mock()
         job = self.queue.enqueue(export_data_job, "", '', job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
         job_uploader = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertEqual(job_uploader.status, 'finished')
@@ -106,8 +101,6 @@ class TaskTest(TestCase):
     @mock.patch('rqworkers.tasks.download_file')
     @mock.patch('rqworkers.tasks.send_mail')
     def test_export_data_job_correct_with_first_error(self, send_mail, download_file, exporter_job_execution):
-        send_mail.return_value = mock.Mock()
-        download_file.return_value = mock.Mock()
         exporter_job_in_dbb = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
 
         exporter_job_execution.side_effect = [ExporterJobExecution.DoesNotExist, exporter_job_in_dbb]
@@ -118,7 +111,6 @@ class TaskTest(TestCase):
     @mock.patch('rqworkers.tasks.send_mail')
     def test_export_data_job_correct_with_STMP_error(self, send_mail, download_file):
         send_mail.side_effect = SMTPException
-        download_file.return_value = mock.Mock()
         job = self.queue.enqueue(export_data_job, "", '', job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
         job_uploader = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertEqual(ExporterJobExecution.FINISHED_BUT_MAIL_WAS_NOT_SENT, job_uploader.status)
@@ -135,7 +127,6 @@ class TaskTest(TestCase):
     @mock.patch('rqworkers.tasks.traceback')
     def test_export_exception_handler_correct(self, traceback):
         job_instance = mock.MagicMock(id='d8c961e5-db5b-4033-a27f-6f2d30662548')
-        traceback.return_value = mock.MagicMock()
         self.assertTrue(export_exception_handler(job_instance, ExporterJobExecution.DoesNotExist, "", ""))
         updatedJob = ExporterJobExecution.objects.get(jobId='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertEqual(updatedJob.status, 'failed')
