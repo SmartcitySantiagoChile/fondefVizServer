@@ -1,0 +1,13 @@
+{% extends "admin/delete_confirmation.html" %}
+
+{% block content %}
+    {{ block.super }}
+    <script>
+        let p = document.getElementsByTagName("p");
+        let pText = p[0].innerHTML;
+        p[0].innerText = pText.split("?")[0] + "?";
+        let elem = document.getElementsByTagName("h2");
+        elem[1].remove();
+        elem[1].remove();
+    </script>
+{% endblock %}
