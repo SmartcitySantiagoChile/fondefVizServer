@@ -7,7 +7,6 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
 from django.contrib.postgres.search import SearchVector
 from django.db import transaction, IntegrityError
-from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
 
 from localinfo.forms import DayDescriptionForm, FAQForm
@@ -62,6 +61,12 @@ class CustomUserAdmin(UserAdmin):
     )
     list_filter = []
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'last_login')
+
+    def render_delete_form(self, request, context):
+        del context['model_count']
+        del context['deleted_objects']
+
+        return super(CustomUserAdmin, self).render_delete_form(request, context)
 
 
 class DayDescriptionAdmin(admin.ModelAdmin):

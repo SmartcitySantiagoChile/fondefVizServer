@@ -20,7 +20,7 @@ class UserSessionAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
 
     def get_readonly_fields(self, request, obj=None):
         return 'user', 'start_time', 'end_time', 'duration'
@@ -41,7 +41,7 @@ class UserSessionStatsAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
 
     def get_readonly_fields(self, request, obj=None):
         return 'user', 'session_number', 'last_session_timestamp', 'max_session_duration', 'min_session_duration', 'avg_session_duration'
