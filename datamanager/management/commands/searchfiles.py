@@ -56,7 +56,6 @@ class Command(BaseCommand):
                             print("WARNING:", name, "exist in elasticsearch as", file)
                             sys.exit()
 
-
             for name in clean_gzipped_name_list:
                 for file in files_name:
                     name_without_gz = "".join(name.split("gz")[:-1])[:-1]

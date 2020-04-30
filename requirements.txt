@@ -18,3 +18,5 @@ python-decouple==3.3
 django-crontab==0.7.1
 boto3==1.12.39
 python-coveralls
+fakeredis==1.4.0
+six==1.14.0
