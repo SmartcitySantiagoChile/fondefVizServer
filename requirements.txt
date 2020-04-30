@@ -20,3 +20,5 @@ boto3==1.12.39
 python-coveralls
 ddtrace==0.29.0
 datadog==0.30.0
+fakeredis==1.4.0
+six==1.14.0
