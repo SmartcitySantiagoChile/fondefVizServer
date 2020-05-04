@@ -11,9 +11,20 @@ $(document).ready(function () {
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
+            dom: 'Bfrtip',
             order: [[0, 'desc']],
             autowidth: true,
-            searching: false,
+
+            buttons: [
+                {
+                    extend: 'csvHtml5',
+                    text: 'Guardar como CSV'
+                },
+                {
+                    extend: 'excel',
+                    text: 'Guardar como Excel'
+                },
+            ],
 
             createdRow: function (row, data, index) {
                 addColorToRow(data, row);
@@ -57,6 +68,7 @@ $(document).ready(function () {
                 }
                 var opts = $.extend({data: files, columns: columns}, _datatableOpts);
                 $("#fechas-id").DataTable(opts);
+
             });
         };
 
