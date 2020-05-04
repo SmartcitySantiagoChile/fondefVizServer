@@ -18,11 +18,16 @@ $(document).ready(function () {
             buttons: [
                 {
                     extend: 'csvHtml5',
-                    text: 'Guardar como CSV'
+                    text: 'Guardar como CSV',
+                    className: "buttons-csv buttons-html5 btn btn-success",
                 },
                 {
                     extend: 'excel',
-                    text: 'Guardar como Excel'
+                    text: 'Guardar como Excel',
+                    className: "buttons-excel buttons-html5 btn btn-success",
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                    }
                 },
             ],
 
