@@ -11,7 +11,7 @@ $(document).ready(function () {
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
             order: [[0, 'desc']],
             autowidth: true,
 
