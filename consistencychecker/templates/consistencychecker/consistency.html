@@ -14,11 +14,14 @@
               rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
               rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-buttons-bs/css/buttons.bootstrap.min.css" %}"
+              rel="stylesheet">
+
     {% endwith %}
 {% endblock %}
 
 {% block content %}
-    <div class="">
+
     {% header "Inconsistencias de Datos" %}
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -33,9 +36,11 @@
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-buttons/js/dataTables.buttons.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-keytable/js/dataTables.keyTable.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"jszip/dist/jszip.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:"datatables.net-buttons/js/buttons.html5.min.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-
     {% endwith %}
     <script src="{% static "consistencychecker/js/loadConsistency.js" %}"></script>
 {% endblock %}
