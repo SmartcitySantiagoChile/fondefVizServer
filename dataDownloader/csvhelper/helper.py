@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+import csv
 import os
 import uuid
 import zipfile
@@ -8,7 +9,6 @@ import zipfile
 from elasticsearch_dsl import Search
 
 from dataDownloader.errors import FilterHasToBeListError
-from dataDownloader.unicodecsv import UnicodeWriter
 from esapi.helper.bip import ESBipHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
@@ -92,17 +92,18 @@ class CSVHelper:
     def download(self, zip_file_obj, **kwargs):
         tmp_file_name = str(uuid.uuid4())
         try:
-            with open(tmp_file_name, 'wb') as output:
+            with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
                 # added BOM to file to recognize accent in excel files
-                output.write('\ufeff'.encode('utf-8-sig'))
-                writer = UnicodeWriter(output, delimiter=str(','))
+                output.write('\ufeff')
+                writer = csv.writer(output, dialect='excel', delimiter=',')
                 writer.writerow(self.get_header())
 
                 for doc in self.get_iterator(kwargs):
                     row = self.row_parser(doc)
                     if isinstance(row[0], list):
                         # there are more than one row in variable
-                        writer.writerows(row)
+                        for r in row:
+                            writer.writerow(r)
                     else:
                         writer.writerow(row)
 
