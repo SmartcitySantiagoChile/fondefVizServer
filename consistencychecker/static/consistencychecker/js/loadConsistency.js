@@ -11,9 +11,23 @@ $(document).ready(function () {
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
             },
+            dom: 'Blfrtip',
             order: [[0, 'desc']],
             autowidth: true,
-            searching: false,
+
+            buttons: [
+                {
+                    extend: 'csvHtml5',
+                    text: 'Guardar como CSV',
+                    className: "buttons-csv buttons-html5 btn btn-success",
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Guardar como Excel',
+                    className: "buttons-excel buttons-html5 btn btn-success",
+
+                },
+            ],
 
             createdRow: function (row, data, index) {
                 addColorToRow(data, row);
@@ -57,6 +71,7 @@ $(document).ready(function () {
                 }
                 var opts = $.extend({data: files, columns: columns}, _datatableOpts);
                 $("#fechas-id").DataTable(opts);
+
             });
         };
 
