@@ -1,4 +1,4 @@
-import io
+import filecmp
 import os
 import zipfile
 from unittest import mock
@@ -13,7 +13,6 @@ class TestZipManager(TestCase):
     def setUp(self):
         self.path = os.path.join(os.path.dirname(__file__), 'files', 'test.zip')
         self.zip_manager = helper.ZipManager(self.path)
-        self.test_text = os.path.join(os.path.dirname(__file__), 'test-leeme.txt')
 
     def test_build_readme(self):
         self.zip_manager.build_readme('title', 'file_description', 'data_filter', 'field_explanation')
@@ -21,14 +20,20 @@ class TestZipManager(TestCase):
         self.assertTrue(zipfile.is_zipfile(self.path))
         zip_file_obj = zipfile.ZipFile(self.path)
         file_name = zip_file_obj.namelist()[0]
-        file_obj_0 = zip_file_obj.open(file_name, 'r')
-        file_obj = io.TextIOWrapper(file_obj_0, encoding='utf-8')
-        with open(self.test_text, encoding='latin-1') as file_2:
-            for l1, l2 in zip(file_obj, file_2):
-                print(l1)
-                print(l2)
-                if l1 == l2:
-                    print(True)
+        zip_file_obj.extract(file_name, os.path.join(os.path.dirname(__file__), 'files'))
+        path_test = os.path.join(os.path.dirname(__file__), 'files', 'Léeme.txt')
+        self.assertTrue(filecmp.cmp(os.path.join(os.path.dirname(__file__), 'files', 'Léeme-test.txt'),
+                                    path_test))
+        zip_file_obj.close()
+        os.remove(path_test)
+        os.remove(self.path)
+
+
+@override_settings(ES_CLIENT=mock.MagicMock(return_value=None))
+class TestCSVHelper(TestCase):
+
+    def test_get_column_dict(self):
+        self.assertRaises(NotImplementedError, helper.CSVHelper, None, None, None)
 
 
 @override_settings(ES_CLIENT=mock.MagicMock(return_value=None))
