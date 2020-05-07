@@ -42,19 +42,38 @@ $(document).ready(function () {
             $(row).addClass(sum_diff ? "danger" : "success");
         };
 
+        const daysDict = {
+            0: 'Domingo',
+            1: 'Lunes',
+            2: 'Martes',
+            3: 'Miércoles',
+            4: 'Jueves',
+            5: 'Viernes',
+            6: 'Sábado'
+        };
 
         this.updateTables = function () {
             $.get(Urls["consistencychecker:getConsistencyData"](), function (data) {
                 var dictFiles = JSON.parse(data.response);
                 var files = dictFiles.map(e => {
-                    return e.fields;
+                    let row = e.fields;
+                    let date = new Date(row.date);
+                    date = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+                    row['day'] = daysDict[date.getDay()];
+                    return row;
                 });
 
+                let columns = [
+                    {
+                        title: 'Fecha',
+                        data: 'date'
+                    },
+                    {
+                        title: 'Días',
+                        data: 'day'
+                    }
+                ];
 
-                let columns = [{
-                    title: 'Fecha',
-                    data: 'date'
-                }];
 
                 for (let index in lowerIndexNames) {
                     let lower_index = lowerIndexNames[index].toLowerCase();
