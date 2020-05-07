@@ -37,10 +37,33 @@ $(document).ready(function () {
 
         var addColorToRow = function (data, row, index,) {
             $(row).removeClass("danger warning success");
-            console.log(row);
-            let calculatedDiff = lowerIndexNames.map(index => data[index + "_file"] - data[index + "_index"]);
-            const sum_diff = calculatedDiff.reduce((a, b) => a + b);
-            $(row).addClass(sum_diff ? "danger" : "success");
+
+            lowerIndexNames.forEach((index_name, index_position) => {
+                let diff = (data[index_name + "_file"] / data[index_name + "_index"]);
+                if (diff === 1) {
+                    $(row).find(`td:eq(${index_position + 2})`).css({
+                            'background-color': '#d4edda',
+                            'border-color': '#c3e6cb', 'color': '#155724'
+                        }
+                    );
+
+                } else if (diff > 1) {
+                    $(row).find(`td:eq(${index_position + 2})`).css({
+                            'background-color': '#f8d7da',
+                            'border-color': '#f5c6cb', 'color': '#721c24'
+                        }
+                    );
+
+                } else {
+                    $(row).find(`td:eq(${index_position + 2})`).css({
+                            'background-color': '#fff3cd',
+                            'border-color': '#ffeeba', 'color': '#856404'
+                        }
+                    );
+                }
+
+            });
+
         };
 
         const daysDict = {
