@@ -6,7 +6,7 @@
     <p>La tabla de incosistencias muestra la diferencia de registros entre los datos contenidos en los archivos y los
         datos
         presentes en Elasticsearch. Esta diferencia se muestra en cada celda de la forma Datos en Archivo / Datos en
-        Elasticsearch
+        Elasticsearch.
         Las columnas que contiene la tabla son:</p>
     <ul>
         <li>Fecha: fecha que representan los datos. Esto se encuentra escrito de la forma Yyyy-mm-dd.
@@ -28,6 +28,16 @@
         <li>general: datos almamcenados en el índice General.
         </li>
     </ul>
+    <p>Los colores de las celdas son:</p>
+    <ul>
+        <li>Verde: existen los mismos registros en el archivo y en Elasticsearch.
+        </li>
+        <li>Amarillo: no existen registros en el archivo ni en Elasticsearch.
+        </li>
+        <li>Rojo: existen más registros en el archivo que en Elasticsearch.
+        </li>
+    </ul>
+
     <p>Esta tabla permite descargar los datos en formato csv y excel por medio de los botones de descarga en el
         sector superior izquierdo.
     </p>
