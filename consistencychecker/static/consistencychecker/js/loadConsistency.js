@@ -30,13 +30,14 @@ $(document).ready(function () {
             ],
 
             createdRow: function (row, data, index) {
-                addColorToRow(data, row);
+                addColorToRow(data, row, index);
             }
         };
 
 
-        var addColorToRow = function (data, row) {
+        var addColorToRow = function (data, row, index,) {
             $(row).removeClass("danger warning success");
+            console.log(row);
             let calculatedDiff = lowerIndexNames.map(index => data[index + "_file"] - data[index + "_index"]);
             const sum_diff = calculatedDiff.reduce((a, b) => a + b);
             $(row).addClass(sum_diff ? "danger" : "success");
@@ -69,7 +70,7 @@ $(document).ready(function () {
                         data: 'date'
                     },
                     {
-                        title: 'Días',
+                        title: 'Día de la semana',
                         data: 'day'
                     }
                 ];
@@ -82,7 +83,8 @@ $(document).ready(function () {
                             title: lowerIndexNames[index],
                             data: null,
                             render: function (data) {
-                                return data[lower_index + "_index"].toString() + " / " + data[lower_index + "_file"].toString();
+                                let addDot = e => e.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                                return `${addDot(data[lower_index + "_file"].toString())}/${addDot(data[lower_index + "_index"].toString())}`;
                             }
 
                         }
