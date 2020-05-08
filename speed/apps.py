@@ -4,5 +4,5 @@
 from django.apps import AppConfig
 
 
-class VelocityConfig(AppConfig):
+class SpeedConfig(AppConfig):
     name = 'speed'

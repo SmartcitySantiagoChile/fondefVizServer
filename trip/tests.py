@@ -5,7 +5,7 @@ from testhelper.helper import TestHelper
 from trip.apps import TravelConfig
 
 
-class VelocityConfigTest(TestCase):
+class TravelConfigTest(TestCase):
     def test_apps(self):
         self.assertEqual(TravelConfig.name, 'trip')
         self.assertEqual(apps.get_app_config('trip').name, 'trip')
