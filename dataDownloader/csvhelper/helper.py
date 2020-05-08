@@ -45,7 +45,7 @@ class ZipManager:
 
     def build_readme(self, file_title, files_description, data_filter, field_explanation):
         file_path = os.path.join(os.path.dirname(__file__), '..', 'helptemplate', 'template.readme')
-        with open(file_path, 'r', encoding='utf-8') as input_file:
+        with open(file_path, 'r', encoding='utf-8', newline='\r\n') as input_file:
             content = input_file.read()
             content = content.replace('<put_title_here>', file_title)
             content = content.replace('<put_filters_here>', data_filter)
