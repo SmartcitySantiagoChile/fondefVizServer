@@ -29,13 +29,13 @@ $(document).ready(function () {
                 },
             ],
 
-            createdRow: function (row, data, index) {
-                addColorToRow(data, row, index);
+            createdRow: function (row, data) {
+                addColorToRow(data, row);
             }
         };
 
 
-        var addColorToRow = function (data, row, index,) {
+        var addColorToRow = function (data, row) {
             $(row).removeClass("danger warning success");
 
             lowerIndexNames.forEach((index_name, index_position) => {
