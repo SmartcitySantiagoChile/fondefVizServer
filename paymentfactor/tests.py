@@ -1,8 +1,15 @@
-# -*- coding: utf-8 -*-
+from django.apps import apps
+from django.test import TestCase
 
-
-# Create your tests here.
+from paymentfactor.apps import PaymentfactorConfig
 from testhelper.helper import TestHelper
+
+
+class PaymentfactorConfigTest(TestCase):
+    def test_apps(self):
+        self.assertEqual(PaymentfactorConfig.name, 'paymentfactor')
+        self.assertEqual(apps.get_app_config('paymentfactor').name, 'paymentfactor')
+
 
 
 class ConnectionTest(TestHelper):

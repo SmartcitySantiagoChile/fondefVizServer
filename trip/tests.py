@@ -1,4 +1,14 @@
+from django.apps import apps
+from django.test import TestCase
+
 from testhelper.helper import TestHelper
+from trip.apps import TravelConfig
+
+
+class TravelConfigTest(TestCase):
+    def test_apps(self):
+        self.assertEqual(TravelConfig.name, 'trip')
+        self.assertEqual(apps.get_app_config('trip').name, 'trip')
 
 
 class ConnectionTest(TestHelper):
