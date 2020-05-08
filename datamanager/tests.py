@@ -20,11 +20,5 @@ class ConnectionTest(TestHelper):
     def test_site_loadmanager(self):
         self.check_http_response(self.client, 'datamanager:loadmanager', 200)
 
-    def test_data_getLoadFileData(self):
-        self.check_http_response(self.client, 'datamanager:getLoadFileData', 200)
-
-    def test_data_latestJobChanges(self):
-        self.check_http_response(self.client, 'datamanager:latestJobChanges', 200)
-
     def test_data_jobHistoryByUser(self):
         self.check_http_response(self.client, 'datamanager:jobHistoryByUser', 200)
