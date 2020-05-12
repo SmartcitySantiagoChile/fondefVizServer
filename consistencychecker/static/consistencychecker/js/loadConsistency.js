@@ -29,7 +29,7 @@ $(document).ready(function () {
                 },
             ],
 
-            createdRow: function (row, data, index) {
+            createdRow: function (row, data) {
                 addColorToRow(data, row);
             }
         };
@@ -37,24 +37,67 @@ $(document).ready(function () {
 
         var addColorToRow = function (data, row) {
             $(row).removeClass("danger warning success");
-            let calculatedDiff = lowerIndexNames.map(index => data[index + "_file"] - data[index + "_index"]);
-            const sum_diff = calculatedDiff.reduce((a, b) => a + b);
-            $(row).addClass(sum_diff ? "danger" : "success");
+
+            lowerIndexNames.forEach((index_name, index_position) => {
+                let diff = (data[index_name + "_file"] / data[index_name + "_index"]);
+                if (diff === 1) {
+                    $(row).find(`td:eq(${index_position + 2})`).css({
+                            'background-color': '#d4edda',
+                            'border-color': '#c3e6cb', 'color': '#155724'
+                        }
+                    );
+
+                } else if (diff > 1) {
+                    $(row).find(`td:eq(${index_position + 2})`).css({
+                            'background-color': '#f8d7da',
+                            'border-color': '#f5c6cb', 'color': '#721c24'
+                        }
+                    );
+
+                } else {
+                    $(row).find(`td:eq(${index_position + 2})`).css({
+                            'background-color': '#fff3cd',
+                            'border-color': '#ffeeba', 'color': '#856404'
+                        }
+                    );
+                }
+
+            });
+
         };
 
+        const daysDict = {
+            0: 'Domingo',
+            1: 'Lunes',
+            2: 'Martes',
+            3: 'Miércoles',
+            4: 'Jueves',
+            5: 'Viernes',
+            6: 'Sábado'
+        };
 
         this.updateTables = function () {
             $.get(Urls["consistencychecker:getConsistencyData"](), function (data) {
                 var dictFiles = JSON.parse(data.response);
                 var files = dictFiles.map(e => {
-                    return e.fields;
+                    let row = e.fields;
+                    let date = new Date(row.date);
+                    date = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+                    row['day'] = daysDict[date.getDay()];
+                    return row;
                 });
 
+                let columns = [
+                    {
+                        title: 'Fecha',
+                        data: 'date'
+                    },
+                    {
+                        title: 'Día de la semana',
+                        data: 'day'
+                    }
+                ];
 
-                let columns = [{
-                    title: 'Fecha',
-                    data: 'date'
-                }];
 
                 for (let index in lowerIndexNames) {
                     let lower_index = lowerIndexNames[index].toLowerCase();
@@ -63,7 +106,8 @@ $(document).ready(function () {
                             title: lowerIndexNames[index],
                             data: null,
                             render: function (data) {
-                                return data[lower_index + "_index"].toString() + " / " + data[lower_index + "_file"].toString();
+                                let addDot = e => e.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                                return `${addDot(data[lower_index + "_file"].toString())}/${addDot(data[lower_index + "_index"].toString())}`;
                             }
 
                         }

@@ -2,6 +2,7 @@
 
 
 from django.contrib import admin
+from django.utils.safestring import SafeString
 from django.utils.safestring import mark_safe
 
 from datamanager.models import DataSourcePath, UploaderJobExecution, ExporterJobExecution, LoadFile
@@ -63,8 +64,8 @@ class ExporterJobExecutionAdmin(admin.ModelAdmin):
 
     def get_file_link(self, obj):
         if bool(obj.file):
-            return '<a href="{0}">Descargar</a>'.format(obj.file.url)
-        return '<a class="disabled" href="#">No hay archivo</a>'
+            return SafeString('<a href="{0}">Descargar</a>'.format(obj.file.url))
+        return SafeString('<a class="disabled" href="#">No hay archivo</a>')
     get_file_link.allow_tags = True
     get_file_link.short_description = 'Descargar archivo'
 

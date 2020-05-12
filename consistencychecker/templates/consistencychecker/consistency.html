@@ -5,7 +5,6 @@
 
 {% block css %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
-        rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-bs/css/dataTables.bootstrap.min.css" %}"
               rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" %}"
@@ -25,10 +24,13 @@
     {% header "Inconsistencias de Datos" %}
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
-            {% table html_id="fechas-id" columns=8 with_checker=False as file_table %}
-            {% panel title_icon="fa-file" title="Fechas" body=file_table %}
+            {% table html_id="fechas-id" columns=9 with_checker=False as file_table %}
+            {% panel title_icon="fa-file" title="Fechas" body=file_table info_target_id="tableHelp" %}
         </div>
     </div>
+
+    {% include "help/modal/explanation/consistencychecker/consistency/table.html" with modal_id="tableHelp" %}
+
 
 {% endblock %}
 
