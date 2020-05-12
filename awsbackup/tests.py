@@ -74,7 +74,7 @@ class ConnectionTest(TestHelper):
         self.assertNotContains(response, 'status')
 
     @mock.patch('awsbackup.aws.AWSSession')
-    def test_site_stoptime(self, awessesion):
+    def test_site_stoptime(self, awesesion):
         url = reverse('awsbackup:stoptime')
         response = self.client.get(url)
         self.assertNotContains(response, 'status')
