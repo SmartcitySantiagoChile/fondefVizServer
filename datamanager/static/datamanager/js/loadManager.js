@@ -62,7 +62,7 @@ $(document).ready(function () {
                     }
                 }
             ],
-            order: [[4, "desc"]],
+            order: [[0, "desc"]],
             createdRow: function (row, data, index) {
                 addColorToRow(data, row);
             }
@@ -303,9 +303,10 @@ $(document).ready(function () {
                     var table = $("#" + tableId).DataTable();
                     var index = table.rows().eq(0).filter(function (rowIdx) {
                         return table.cell(rowIdx, 0).data() === rowData.name;
-                    })[0];
+                    });
+
                     table.row(index).data(rowData).invalidate("data");
-                    addColorToRow(rowData, table.row(index));
+                    addColorToRow(rowData, table.rows(index).nodes());
                 });
             });
         };

@@ -1,5 +1,14 @@
+from django.apps import apps
+from django.test import TestCase
+
+from speed.apps import SpeedConfig
 from testhelper.helper import TestHelper
 
+
+class VelocityConfigTest(TestCase):
+    def test_apps(self):
+        self.assertEqual(SpeedConfig.name, 'speed')
+        self.assertEqual(apps.get_app_config('speed').name, 'speed')
 
 class ConnectionTest(TestHelper):
 

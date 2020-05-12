@@ -1,4 +1,14 @@
+from django.apps import apps
+from django.test import TestCase
+
+from globalstat.apps import GlobalstatConfig
 from testhelper.helper import TestHelper
+
+
+class GlobalstatConfigTest(TestCase):
+    def test_apps(self):
+        self.assertEqual(GlobalstatConfig.name, 'globalstat')
+        self.assertEqual(apps.get_app_config('globalstat').name, 'globalstat')
 
 
 class ConnectionTest(TestHelper):
@@ -11,4 +21,3 @@ class ConnectionTest(TestHelper):
 
     def test_site_detail(self):
         self.check_http_response(self.client, 'globalstat:detail', 200)
-
