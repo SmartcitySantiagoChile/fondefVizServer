@@ -1,0 +1,13 @@
+########################################################################################################################
+#  title
+########################################################################################################################
+
+El archivo zip contiene los siguientes archivos:
+
+file_description        - Léeme.txt: ayuda
+
+Los datos contenidos en los archivos fueron construidos con los siguientes filtros:
+
+data_filter
+
+field_explanation
