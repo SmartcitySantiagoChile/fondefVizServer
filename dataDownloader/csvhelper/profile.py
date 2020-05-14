@@ -25,11 +25,11 @@ class ProfileByExpeditionData(object):
         for query_filter in self.es_query['query']['bool']['filter']:
             if 'bool' in query_filter:
                 should = query_filter['bool']['should']
-                fieldA = list(should[0]['range'].keys())[0]
-                fieldB = list(should[-1]['range'].keys())[0]
+                field_a = list(should[0]['range'].keys())[0]
+                field_b = list(should[-1]['range'].keys())[0]
 
-                gte = should[0]['range'][fieldA]["gte"].replace("||/d", "")
-                lte = should[-1]['range'][fieldB]["lte"].replace("||/d", "")
+                gte = should[0]['range'][field_a]["gte"].replace("||/d", "")
+                lte = should[-1]['range'][field_b]["lte"].replace("||/d", "")
                 return gte, lte
 
     def get_filters(self):

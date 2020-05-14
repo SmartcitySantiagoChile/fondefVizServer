@@ -29,6 +29,3 @@ class TestProfileByExpeditionData(TestCase):
 
     def test_get_date_range(self):
         self.assertEqual(('2019-08-05', '2019-08-11'), self.profile.get_date_range())
-
-    def test_get_filters(self):
-        print(self.profile.get_filters())
