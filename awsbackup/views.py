@@ -101,7 +101,7 @@ class CreateDownloadLink(PermissionRequiredMixin, View):
             url = AWSSession().create_download_link(filename, bucket_name, time_delta.total_seconds())
             expire_at = now + time_delta
             download_link_obj = DownloadLink.objects.create(filename=filename, created_at=now, expire_at=expire_at,
-                                                            url=url)
+                                                            url=url, user=request.user)
         else:
             download_link_obj = queryset.first()
 
