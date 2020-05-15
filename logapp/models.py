@@ -26,7 +26,7 @@ class UserSession(models.Model):
 
     class Meta:
         verbose_name = "sesión de usuario"
-        verbose_name_plural = "sesioness de usuarios"
+        verbose_name_plural = "sesiones de usuarios"
 
 
 class UserSessionStats(models.Model):
