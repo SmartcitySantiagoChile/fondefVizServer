@@ -1,10 +1,13 @@
-from unittest import mock
-
+import mock
 from django.apps import apps
+from django.contrib.admin import AdminSite
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
+from awsbackup.admin import DownloadLinkAdmin
 from awsbackup.apps import AwsbackupConfig
+from awsbackup.models import DownloadLink
 from testhelper.helper import TestHelper
 
 
@@ -12,6 +15,19 @@ class AwsbackupConfigTest(TestCase):
     def test_apps(self):
         self.assertEqual(AwsbackupConfig.name, 'awsbackup')
         self.assertEqual(apps.get_app_config('awsbackup').name, 'awsbackup')
+
+
+class AdminTest(TestCase):
+    def test_DownloadLinkAdmin(self):
+        my_model_admin = DownloadLinkAdmin(model=DownloadLink, admin_site=AdminSite())
+        super_user = User.objects.create_superuser(username='super', email='super@email.org',
+                                                   password='pass')
+        # filename = "filename"
+        # created_at = mock.MagicMock
+        # expire_at = mock.MagicMock
+        # url = mock.MagicMock
+        # my_model_admin.save_model(obj=DownloadLink(), request=mock.MagicMock(user=super_user), form=None, change=None)
+        # self.assertTrue(True)
 
 
 class ConnectionTest(TestHelper):
