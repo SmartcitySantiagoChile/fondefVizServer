@@ -85,6 +85,7 @@ class DayType(models.Model):
     """ operator code that exist in elasticsearch """
     esId = models.IntegerField("Identificador", unique=True, null=False)
     name = models.CharField("Nombre", max_length=50)
+    name = models.CharField("Nombre", max_length=50)
 
     class Meta:
         verbose_name = "Tipo de día"
