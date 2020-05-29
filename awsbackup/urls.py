@@ -20,7 +20,7 @@ params = [
     dict(bucket_name=AWSSession.SPEED_BUCKET_NAME, subtitle='Velocidades'),
     dict(bucket_name=AWSSession.TRANSACTION_BUCKET_NAME, subtitle='Transacciones'),
     dict(bucket_name=AWSSession.OP_SPEED_BUCKET_NAME, subtitle='Velocidasdes PO'),
-    dict(bucket_name=AWSSession.EARLY_TRANSACTION, subtitle='Subidas por parada'),
+    dict(bucket_name=AWSSession.EARLY_TRANSACTION_BUCKET_NAME, subtitle='Subidas por parada'),
     dict(bucket_name=AWSSession.STOP_TIMES_BUCKET_NAME, subtitle='Cruce buses por paraderos')
 ]
 urlpatterns = [
