@@ -15,7 +15,7 @@ class DownloadLinkAdmin(admin.ModelAdmin):
         (None, {'fields': ('created_at', 'expire_at')}),
     )
     list_filter = []
-    list_display = ('filename', 'created_at', 'expire_at', 'is_active', 'link')
+    list_display = ('filename', 'user', 'created_at', 'expire_at', 'is_active', 'link')
     actions = None
 
     def is_active(self, obj):

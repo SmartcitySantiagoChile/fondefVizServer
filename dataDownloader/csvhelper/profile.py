@@ -23,10 +23,13 @@ class ProfileByExpeditionData(object):
 
     def get_date_range(self):
         for query_filter in self.es_query['query']['bool']['filter']:
-            if 'range' in query_filter:
-                field = list(query_filter['range'].keys())[0]
-                gte = query_filter['range'][field]["gte"].replace("||/d", "")
-                lte = query_filter['range'][field]["lte"].replace("||/d", "")
+            if 'bool' in query_filter:
+                should = query_filter['bool']['should']
+                field_a = list(should[0]['range'].keys())[0]
+                field_b = list(should[-1]['range'].keys())[0]
+
+                gte = should[0]['range'][field_a]["gte"].replace("||/d", "")
+                lte = should[-1]['range'][field_b]["lte"].replace("||/d", "")
                 return gte, lte
 
     def get_filters(self):
@@ -37,6 +40,7 @@ class ProfileByExpeditionData(object):
         self.profile_file.download(zip_manager)
 
         routes = self.get_routes()
+
         start_date, end_date = self.get_date_range()
 
         shape_file = ShapeCSVHelper(self.es_client)

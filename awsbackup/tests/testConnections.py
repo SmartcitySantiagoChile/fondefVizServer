@@ -1,17 +1,8 @@
 from unittest import mock
 
-from django.apps import apps
-from django.test import TestCase
 from django.urls import reverse
 
-from awsbackup.apps import AwsbackupConfig
 from testhelper.helper import TestHelper
-
-
-class AwsbackupConfigTest(TestCase):
-    def test_apps(self):
-        self.assertEqual(AwsbackupConfig.name, 'awsbackup')
-        self.assertEqual(apps.get_app_config('awsbackup').name, 'awsbackup')
 
 
 class ConnectionTest(TestHelper):
