@@ -22,7 +22,7 @@ class DataSourcePath(models.Model):
     # last time record was updated
     timeStamp = models.DateTimeField('Última actualización', default=timezone.now)
 
-    def __unicode__(self):
+    def __str__(self):
         return os.path.join(self.path, self.filePattern)
 
     class Meta:
@@ -66,7 +66,7 @@ class LoadFile(models.Model):
 
         return file_dict
 
-    def __unicode__(self):
+    def __str__(self):
         return os.path.join(self.dataSourcePath, self.fileName)
 
 
