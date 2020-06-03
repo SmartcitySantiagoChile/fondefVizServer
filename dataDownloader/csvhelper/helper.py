@@ -164,14 +164,28 @@ class CSVHelper:
                 }
                 formatted_filters.append(attr_filter)
             elif 'range' in query_filter:
+                is_int = True
                 field = list(query_filter['range'].keys())[0]
-                gte = query_filter['range'][field]["gte"].replace("||/d", "")
-                lte = query_filter['range'][field]["lte"].replace("||/d", "")
+                gte = query_filter['range'][field]["gte"]
+                if type(gte) is not int:
+                    gte = gte.replace("||/d", "")
+                    is_int = False
+                if "lte" in query_filter['range'][field].keys():
+                    lte = query_filter['range'][field]["lte"]
+                    if type(gte) is not int:
+                        lte = lte.replace("||/d", "")
+                if is_int:
+                    attr_filter = {
+                        'field': self.translator[field],
+                        'value': gte
+                    }
+                else:
+                    attr_filter = {
+                        'field': self.translator[field],
+                        'value': 'entre {0} 00:00:00 y {1} 23:59:59'.format(gte, lte)
+                    }
 
-                attr_filter = {
-                    'field': self.translator[field],
-                    'value': 'entre {0} 00:00:00 y {1} 23:59:59'.format(gte, lte)
-                }
+
                 formatted_filters.append(attr_filter)
             elif 'bool' in query_filter:
                 if 'should' in query_filter['bool']:
@@ -241,8 +255,10 @@ class CSVHelper:
         for bool_filter in self.es_query['query']['bool']:
             bool_filter_list = self.es_query['query']['bool'][bool_filter]
             if not isinstance(bool_filter_list, list):
-                raise FilterHasToBeListError()
-            filter_list += self._process_filters(bool_filter_list)
+                if bool_filter != 'minimum_should_match':
+                    raise FilterHasToBeListError()
+            else:
+                filter_list += self._process_filters(bool_filter_list)
 
         if formatter == self.FORMATTER_FOR_FILE:
             return self._formatter_for_file(filter_list)

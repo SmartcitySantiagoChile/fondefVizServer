@@ -36,6 +36,7 @@ class TestCSVHelper(TestCase):
         self.assertRaises(NotImplementedError, helper.CSVHelper, None, None, None)
 
 
+
 @override_settings(ES_CLIENT=mock.MagicMock(return_value=None))
 class TestProfileCSVHelper(TestCase):
 
