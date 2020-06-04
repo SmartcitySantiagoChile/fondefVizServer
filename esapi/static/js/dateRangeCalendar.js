@@ -168,11 +168,11 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     $.get(data_url, function (data) {
         dateRangeChart.hideLoading();
-        var years = data.availableDays.map(function (el) {
-            return el.split("-")[0];
-        }).filter(function (el, index, self) {
-            return self.indexOf(el) === index;
-        });
+        let years = data.availableDays
+            .map(el => el.split("-")[0])
+            .filter(
+                (el, index, self) =>
+                    self.indexOf(el) === index);
 
         const groupBy = keys => array =>
             array.reduce((objectsByKeyValue, obj) => {
