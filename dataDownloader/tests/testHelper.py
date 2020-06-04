@@ -309,15 +309,17 @@ class TestTripCSVHelper(TestCase):
         expected = '\t\t- Viajes.csv: Cada línea representa un viaje.\r\n'
         self.assertEqual(expected, self.csv_helper.get_file_description())
 
-
     def test__process_filters(self):
-        date_range = {'range': {'tiempo_subida': {'gte': '2020-02-26||/d', 'lte': '2020-02-27||/d', 'format': 'yyyy-MM-dd',
-                                     'time_zone': '+00:00'}}}
+        date_range = {
+            'range': {'tiempo_subida': {'gte': '2020-02-26||/d', 'lte': '2020-02-27||/d', 'format': 'yyyy-MM-dd',
+                                        'time_zone': '+00:00'}}}
         int_range = {'range': {'n_etapas': {'gte': 5}}}
 
-        expected_output = [{'field': 'Tiempo_subida', 'value': 'entre 2020-02-26 00:00:00 y 2020-02-27 23:59:59'}, {'field': 'Número_etapas', 'value': 5}]
+        expected_output = [{'field': 'Tiempo_subida', 'value': 'entre 2020-02-26 00:00:00 y 2020-02-27 23:59:59'},
+                           {'field': 'Número_etapas', 'value': 5}]
 
         self.assertEqual(self.csv_helper._process_filters([date_range, int_range]), expected_output)
+
 
 @override_settings(ES_CLIENT=mock.MagicMock(return_value=None))
 class TestShapeCSVHelper(TestCase):
