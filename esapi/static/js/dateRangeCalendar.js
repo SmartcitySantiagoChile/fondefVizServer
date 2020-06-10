@@ -298,14 +298,12 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     });
 
+
     //reprint only dates selected
     function reprintSelection(auxiliar = false, global = true) {
         let seriesLength = dateRangeChart.getOption().series.length;
-        console.log(seriesLength);
-        console.log(tempSelectedDates);
         for (var j = 0; j < seriesLength; j++) {
             var allDates = dateRangeChart.getOption().series[j].data;
-
             for (var i = 0; i < allDates.length; i++) {
                 dateRangeChart.dispatchAction({
                     type: 'downplay',
@@ -313,13 +311,13 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     seriesIndex: j
                 });
             }
-            if (auxiliar) {
 
+            if (auxiliar) {
+                console.log(tempSelectedDates);
                 tempSelectedDates.forEach(function (e) {
                     dateRangeChart.dispatchAction({
                         type: 'highlight',
                         dataIndex: e[1],
-                        seriesIndex: e[2]
                     });
                 });
             }
@@ -329,7 +327,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     dateRangeChart.dispatchAction({
                         type: 'highlight',
                         dataIndex: e[1],
-                        seriesIndex: e[2]
                     });
                 });
             }
@@ -392,12 +389,12 @@ function loadRangeCalendar(data_url, calendar_opts) {
     //add dates range
     function rangeSelectionDate(selected_date, range_selection) {
         range_selection.forEach(e => singleSelectionDate(selected_date, e.data[0], e.dataIndex, e.seriesIndex));
-        var rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
+        let rs_sort = [range_selection[0].data[0], range_selection[1].data[0]];
         rs_sort.sort();
         let seriesLength = dateRangeChart.getOption().series.length;
-        for (var j = 0; j < seriesLength; j++) {
-            var allData = dateRangeChart.getOption().series[j].data;
-            for (var i = 0; i < allData.length; i++) {
+        for (let j = 0; j < seriesLength; j++) {
+            let allData = dateRangeChart.getOption().series[j].data;
+            for (let i = 0; i < allData.length; i++) {
                 if (allData[i][0] > rs_sort[0] && allData[i][0] < rs_sort[1]) {
                     singleSelectionDate(selected_date, allData[i][0], i, j);
                 }
@@ -463,6 +460,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
         });
 
         if (selectedRangeDate.length !== 0) {
+
             let seriesLength = dateRangeChart.getOption().series.length;
             for (var j = 0; j < seriesLength; j++) {
                 let allData = dateRangeChart.getOption().series[j].data;
@@ -485,6 +483,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     }
                 }
             }
+
             tempSelectedDates.forEach(function (e) {
                 dateRangeChart.dispatchAction({
                     type: 'highlight',
@@ -512,7 +511,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     }
                 }
             }
-
         }
     });
 
@@ -537,6 +535,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 dataIndex: params.dataIndex,
             });
         }
+
     });
 
 
@@ -553,6 +552,8 @@ function loadRangeCalendar(data_url, calendar_opts) {
             selectedRangeDate = [];
             deletedRangeDate = [];
             singleDeleteDate(tempSelectedDates, params.data[0], params.dataIndex, params.seriesIndex);
+            reprintSelection(true, false);
+
         } else if ($("#option3").is(":checked")) {
             deletedRangeDate = [];
             selectedRangeDate.push(params);
@@ -560,6 +561,8 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 rangeSelectionDate(tempSelectedDates, selectedRangeDate);
                 selectedRangeDate = [];
             }
+            reprintSelection(true, false);
+
         } else if ($("#option4").is(":checked")) {
             selectedRangeDate = [];
             deletedRangeDate.push(params);
@@ -567,6 +570,8 @@ function loadRangeCalendar(data_url, calendar_opts) {
                 rangeDeleteDate(tempSelectedDates, deletedRangeDate);
                 deletedRangeDate = [];
             }
+            reprintSelection(true, false);
+
         }
         //update the selection date list
         var $ul = createSelectionUl(tempSelectedDates);
@@ -611,14 +616,14 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     // downplay when global out
     dateRangeChart.on("globalout", function (params) {
-        console.log(selectedRangeDate);
+        reprintSelection(true, false);
+
         if (selectedRangeDate.length !== 0) {
             downplay_date(selectedRangeDate[0]);
             selectedRangeDate = [];
         } else {
             deletedRangeDate = [];
         }
-        reprintSelection(true, false);
 
     });
 
