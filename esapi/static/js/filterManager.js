@@ -220,7 +220,6 @@ function FilterManager(opts) {
 
     $MULTI_STOP_FILTER.change(function () {
         window.localStorage.setItem(urlKey + "multiStopFilter/val", JSON.stringify($MULTI_STOP_FILTER.val()));
-        console.log($MULTI_STOP_FILTER);
         window.localStorage.setItem(urlKey + "multiStopFilter/text", JSON.stringify($MULTI_STOP_FILTER[0].innerText));
     });
     /* BUTTON ACTION */
