@@ -142,7 +142,6 @@ function loadAvailableDays(data_url) {
                     legendData.push({
                         name: descriptionSerie.name,
                     });
-                    console.log(legendData);
                     descriptionSerie.itemStyle = {
                         color: date[0][1],
                     };
