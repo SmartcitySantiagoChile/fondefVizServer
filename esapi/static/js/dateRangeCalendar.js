@@ -297,8 +297,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
     function reprintSelection(auxiliar = false, global = true) {
 
         let seriesLength = dateRangeChart.getOption().series.length;
-        console.log(dateRangeChart.getOption().series);
-        console.log(tempSelectedDates);
         for (var j = 0; j < seriesLength; j++) {
             var allDates = dateRangeChart.getOption().series[j].data;
             for (var i = 0; i < allDates.length; i++) {
@@ -616,7 +614,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
     // downplay when global out
     dateRangeChart.on("globalout", function (params) {
         reprintSelection(true, false);
-
         if (selectedRangeDate.length !== 0) {
             downplay_date(selectedRangeDate[0]);
             selectedRangeDate = [];
