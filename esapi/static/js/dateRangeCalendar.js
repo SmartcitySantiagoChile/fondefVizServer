@@ -28,6 +28,9 @@ function groupByDates(dates) {
     return selection_by_range
 }
 
+/**
+ * Message to display when days are selected
+ * */
 const dayMessageHandler = days => {
     if (days === 0) {
         return "Ningún día seleccionado";
@@ -38,7 +41,9 @@ const dayMessageHandler = days => {
     }
 };
 
-
+/**
+ * Group elements by key arg
+ * */
 const groupBy = keys => array =>
     array.reduce((objectsByKeyValue, obj) => {
         const value = keys.map(key => obj[key]).join('-');
@@ -135,7 +140,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
         descriptionDayList = Object.values(descriptionDayList);
 
         //delete keys
-        //TODO: show only available days
         descriptionDayList = descriptionDayList.map(e => {
             return e.map(f => Object.values(f));
         });
@@ -295,7 +299,6 @@ function loadRangeCalendar(data_url, calendar_opts) {
 
     //reprint only dates selected
     function reprintSelection(auxiliar = false, global = true) {
-
         let seriesLength = dateRangeChart.getOption().series.length;
         for (var j = 0; j < seriesLength; j++) {
             var allDates = dateRangeChart.getOption().series[j].data;
