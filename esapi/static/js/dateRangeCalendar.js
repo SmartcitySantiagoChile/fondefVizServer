@@ -38,6 +38,14 @@ const dayMessageHandler = days => {
     }
 };
 
+
+const groupBy = keys => array =>
+    array.reduce((objectsByKeyValue, obj) => {
+        const value = keys.map(key => obj[key]).join('-');
+        objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+        return objectsByKeyValue;
+    }, {});
+
 /**
  * Calendar to show available days (dates with data)
  * Filter to select multiple range of dates.
@@ -99,15 +107,136 @@ function loadRangeCalendar(data_url, calendar_opts) {
         dataRange: []
     };
 
-    $(window).resize(() => {
-        dateRangeChart.resize();
-        reprintSelection();
+    // show loading
+    var loadingText = "Cargando ...";
+    dateRangeChart.showLoading(null, {text: loadingText});
+    $.get(data_url, function (data) {
+        dateRangeChart.hideLoading();
+        //get years
+        const days_by_years = e => {
+            let year_dict = {};
+            e.map(f => {
+                let year = f.split("-")[0];
+                if (year in year_dict) {
+                    year_dict[f.split("-")[0]].push([f, 1]);
+                } else {
+                    year_dict[f.split("-")[0]] = [[f, 1]];
+                }
+            });
+            return year_dict;
+        };
+        let availableDaysByYear = days_by_years(data.availableDays);
+        let years = Object.keys(availableDaysByYear);
+
+
+        //get colors
+        const groupByColor = groupBy(["color"]);
+        let descriptionDayList = groupByColor(data.info);
+        descriptionDayList = Object.values(descriptionDayList);
+
+        //delete keys
+        //TODO: show only available days
+        descriptionDayList = descriptionDayList.map(e => {
+            return e.map(f => Object.values(f));
+        });
+
+        let noDataDay = [["", "#FFFFFF", "Sin datos"]];
+        descriptionDayList.push(noDataDay);
+
+        if (years.length > 0) {
+            let newOpts = $.extend({}, opts);
+            let top = 50;
+            let legendData = [];
+            years.map((year, index) => {
+                let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
+                let serie = $.extend({}, serieTemplate);
+                if (index === 0) calendarYear.monthLabel.nameMap = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago",
+                    "Sep", "Oct", "Nov", "Dic"];
+                if (index === years.length - 1) calendarYear.bottom = '2%';
+                calendarYear.range = year;
+                calendarYear.top = top;
+                top += 84;
+                serie.calendarIndex = index;
+
+                serie.data = availableDaysByYear[year];
+                serie.emphasis = {
+                    itemStyle: {
+                        color: 'green'
+                    }
+                };
+                serie.itemStyle = {
+                    color: "#97b58d"
+                };
+                newOpts.calendar.push(calendarYear);
+                newOpts.series.push(serie);
+
+                //year-date dictionary
+                let dataObject = {};
+                availableDaysByYear[year].map(e => {
+                    dataObject[e[0]] = 1;
+                });
+
+                descriptionDayList.map(date => {
+                    let descriptionSerie = $.extend({}, serieTemplate);
+
+                    descriptionSerie.name = date[0][2];
+                    let dataAux = [];
+                    date.forEach(function (e) {
+                        const index = e[0] in dataObject;
+                        if (index) {
+                            dataAux.push(e);
+                        }
+                    });
+                    descriptionSerie.data = dataAux.map(e => [e[0], 1]);
+                    legendData.push(descriptionSerie.name);
+                    descriptionSerie.itemStyle = {
+                        color: date[0][1],
+                        shadowBlur: 2,
+                        shadowColor: "#333"
+                    };
+                    descriptionSerie.emphasis = {
+                        itemStyle: {
+                            color: 'green'
+                        }
+                    };
+                    descriptionSerie.color = "black";
+                    descriptionSerie.showEffectOn = "render";
+                    descriptionSerie.rippleEffect = {
+                        brushType: "stroke"
+                    };
+                    descriptionSerie.hoverAnimation = true;
+                    descriptionSerie.zlevel = 3;
+                    newOpts.series.push(descriptionSerie);
+                    descriptionSerie.calendarIndex = index;
+                    descriptionSerie.tooltip = {
+                        position: "top",
+                        formatter: function (p) {
+                            let date = echarts.format.formatTime("dd/MM/yyyy", p.data[0]);
+                            return date + "<br />" + descriptionSerie.name;
+                        }
+                    }
+                });
+            });
+
+            newOpts.legend = {
+                top: "0",
+                left: "0",
+                data: legendData,
+                selectedMode: false,
+                itemStyle: {
+                    borderColor: "black",
+                    borderWidth: 1
+                }
+            };
+
+            $("#" + divId).height(top - 20);
+            dateRangeChart.setOption(newOpts, {notMerge: true});
+            dateRangeChart.resize();
+
+        }
+
     });
 
-    $("#menu_toggle").click(() => {
-        dateRangeChart.resize();
-        reprintSelection();
-    });
 
     // optional configuration when singleDatePicker = True
     let singleDatePicker = calendar_opts.singleDatePicker || false;
@@ -156,6 +285,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
             html: true,
             content: function () {
                 return $('#popover-content').html();
+
             }
         });
     }
@@ -163,145 +293,12 @@ function loadRangeCalendar(data_url, calendar_opts) {
     $('#popover-content').empty().append(createSelectionUl(selectedDates));
 
 
-    // show loading
-    var loadingText = "Cargando ...";
-    dateRangeChart.showLoading(null, {text: loadingText});
-
-    $.get(data_url, function (data) {
-        dateRangeChart.hideLoading();
-        let years = data.availableDays
-            .map(el => el.split("-")[0])
-            .filter(
-                (el, index, self) =>
-                    self.indexOf(el) === index);
-
-        const groupBy = keys => array =>
-            array.reduce((objectsByKeyValue, obj) => {
-                const value = keys.map(key => obj[key]).join('-');
-                objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
-                return objectsByKeyValue;
-            }, {});
-
-        const groupByColor = groupBy(["color"]);
-        let descriptionDayList = groupByColor(data.info);
-        descriptionDayList = Object.values(descriptionDayList);
-        let auxDescriptionDayList = [];
-        descriptionDayList.forEach(function (e) {
-            let aux_array = [];
-            e.forEach(function (f) {
-                aux_array.push(Object.values(f));
-            });
-            auxDescriptionDayList.push(aux_array);
-        });
-        descriptionDayList = auxDescriptionDayList;
-        data = data.availableDays.map(function (el) {
-            return [el, 1];
-        });
-        if (data.length > 0) {
-            var newOpts = $.extend({}, opts);
-            var top = 50;
-            let legendData = [];
-            years.forEach(function (year, index) {
-                let calendarYear = JSON.parse(JSON.stringify($.extend({}, calendarYearTemplate)));
-                var serie = $.extend({}, serieTemplate);
-                if (index === 0) {
-                    calendarYear.monthLabel.nameMap = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago",
-                        "Sep", "Oct", "Nov", "Dic"];
-                }
-                if (index === years.length - 1) {
-                    calendarYear.bottom = '2%'
-                }
-                calendarYear.range = year;
-                calendarYear.top = top;
-                top += 84;
-                serie.calendarIndex = index;
-                serie.data = data;
-                serie.emphasis = {
-                    itemStyle: {
-                        color: 'green'
-                    }
-                };
-                serie.itemStyle = {
-                    color: "#97b58d"
-                };
-                newOpts.calendar.push(calendarYear);
-                newOpts.series.push(serie);
-
-                //year-date dictionary
-                let dataObject = {};
-                data.forEach(function (e) {
-                    dataObject[e[0]] = 1;
-                });
-
-                let noDataDay = [["", "#FFFFFF", "Sin datos"]];
-                descriptionDayList.push(noDataDay);
-                descriptionDayList.forEach(function (date) {
-                    let descriptionSerie = $.extend({}, serieTemplate);
-                    descriptionSerie.name = date[0][2];
-                    let dataAux = [];
-                    date.forEach(function (e) {
-                        const index = e[0] in dataObject;
-                        if (index) {
-                            dataAux.push(e);
-                        }
-                    });
-                    descriptionSerie.data = dataAux.map(function (e) {
-                        return [e[0], 1];
-                    });
-                    legendData.push(descriptionSerie.name);
-                    descriptionSerie.itemStyle = {
-                        color: date[0][1],
-                        shadowBlur: 2,
-                        shadowColor: "#333"
-                    };
-                    descriptionSerie.emphasis = {
-                        itemStyle: {
-                            color: 'green'
-                        }
-                    };
-                    descriptionSerie.color = "black";
-                    descriptionSerie.showEffectOn = "render";
-                    descriptionSerie.rippleEffect = {
-                        brushType: "stroke"
-                    };
-                    descriptionSerie.hoverAnimation = true;
-                    descriptionSerie.zlevel = 3;
-                    newOpts.series.push(descriptionSerie);
-                    descriptionSerie.calendarIndex = index;
-                    descriptionSerie.tooltip = {
-                        position: "top",
-                        formatter: function (p) {
-                            let date = echarts.format.formatTime("dd/MM/yyyy", p.data[0]);
-                            return date + "<br />" + descriptionSerie.name;
-                        }
-                    }
-                });
-
-
-            });
-
-            newOpts.legend = {
-                top: "0",
-                left: "0",
-                data: legendData,
-                selectedMode: false,
-                itemStyle: {
-                    borderColor: "black",
-                    borderWidth: 1
-                }
-            };
-
-            $("#" + divId).height(top - 20);
-            dateRangeChart.setOption(newOpts, {notMerge: true});
-            dateRangeChart.resize();
-        }
-
-    });
-
-
     //reprint only dates selected
     function reprintSelection(auxiliar = false, global = true) {
+
         let seriesLength = dateRangeChart.getOption().series.length;
+        console.log(dateRangeChart.getOption().series);
+        console.log(tempSelectedDates);
         for (var j = 0; j < seriesLength; j++) {
             var allDates = dateRangeChart.getOption().series[j].data;
             for (var i = 0; i < allDates.length; i++) {
@@ -311,13 +308,13 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     seriesIndex: j
                 });
             }
-
             if (auxiliar) {
-                console.log(tempSelectedDates);
                 tempSelectedDates.forEach(function (e) {
                     dateRangeChart.dispatchAction({
                         type: 'highlight',
                         dataIndex: e[1],
+                        seriesIndex: e[2]
+
                     });
                 });
             }
@@ -327,6 +324,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
                     dateRangeChart.dispatchAction({
                         type: 'highlight',
                         dataIndex: e[1],
+                        seriesIndex: e[2]
                     });
                 });
             }
@@ -339,6 +337,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
             dateRangeChart.dispatchAction({
                 type: 'downplay',
                 dataIndex: e[1],
+                seriesIndex: e[2]
             });
         });
         tempSelectedDates = new Set([]);
@@ -626,5 +625,17 @@ function loadRangeCalendar(data_url, calendar_opts) {
         }
 
     });
+
+
+    $(window).resize(() => {
+        dateRangeChart.resize();
+        reprintSelection();
+    });
+
+    $("#menu_toggle").click(() => {
+        dateRangeChart.resize();
+        reprintSelection();
+    });
+
 
 }
