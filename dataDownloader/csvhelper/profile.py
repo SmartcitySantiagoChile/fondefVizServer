@@ -32,10 +32,9 @@ class ProfileByExpeditionData(object):
                 lte = should[-1]['range'][field_b]["lte"].replace("||/d", "")
                 return gte, lte
             elif 'range' in query_filter:
-                field_a = list(query_filter['range'].keys())[0]
-                field_b = list(query_filter['range'].keys())[0]
-                gte = query_filter['range'][field_a]["gte"].replace("||/d", "")
-                lte = query_filter['range'][field_b]["lte"].replace("||/d", "")
+                field = list(query_filter['range'].keys())[0]
+                gte = query_filter['range'][field]["gte"].replace("||/d", "")
+                lte = query_filter['range'][field]["lte"].replace("||/d", "")
                 return gte, lte
 
     def get_filters(self):
