@@ -31,6 +31,12 @@ class ProfileByExpeditionData(object):
                 gte = should[0]['range'][field_a]["gte"].replace("||/d", "")
                 lte = should[-1]['range'][field_b]["lte"].replace("||/d", "")
                 return gte, lte
+            elif 'range' in query_filter:
+                field_a = list(query_filter['range'].keys())[0]
+                field_b = list(query_filter['range'].keys())[0]
+                gte = query_filter['range'][field_a]["gte"].replace("||/d", "")
+                lte = query_filter['range'][field_b]["lte"].replace("||/d", "")
+                return gte, lte
 
     def get_filters(self):
         return self.profile_file.get_filter_criteria(ProfileCSVHelper.FORMATTER_FOR_WEB)
