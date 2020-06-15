@@ -1,20 +1,16 @@
 "use strict";
 $(document).ready(function () {
     function OperatorApp() {
-        var chart = echarts.init(document.getElementById("barChart"), theme);
+        let chart = echarts.init(document.getElementById("barChart"), theme);
 
         this.updateMetrics = function (answer) {
-            var data = answer.data;
-            var datesKeys = {};
-            var header = [];
-            header.push("Día");
-            let operators_number = answer.operators.length;
-            for (let i = 0; i < operators_number; i++) {
-                header.push(answer.operators[i].item);
-            }
-            let rows = [];
+            let datesKeys = {};
+            let header = answer.operators.map(e => e.item);
+            header.unshift("Día");
+            let operatorsNumber = answer.operators.length;
 
-            data.forEach(function (e) {
+            let rows = [];
+            answer.data.map(e => {
                 let row = [];
                 let dateTime = e.key_as_string;
                 datesKeys[dateTime] = {};
@@ -22,7 +18,7 @@ $(document).ready(function () {
                 e.operators.buckets.forEach(function (f) {
                     datesKeys[dateTime][f.key] = f.doc_count;
                 });
-                for (let i = 0; i <= operators_number; i++) {
+                for (let i = 0; i <= operatorsNumber; i++) {
                     row.push(datesKeys[dateTime][i]);
                 }
                 rows.push(row);
@@ -44,11 +40,13 @@ $(document).ready(function () {
                 row[0] = date;
                 return row;
             });
-
-            rows.forEach(function (row) {
+            console.log(dates);
+            console.log(rows);
+            rows.map(row => {
+                console.log(day);
                 var day = (new Date(row[0])).getTime();
                 var index = dates.indexOf(day);
-                row.forEach(function (el, j) {
+                row.map(function (el, j) {
                     if (j !== 0) {
                         rowData[index][j] = el;
                     }
