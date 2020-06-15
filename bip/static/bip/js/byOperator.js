@@ -8,7 +8,6 @@ $(document).ready(function () {
             let header = answer.operators.map(e => e.item);
             header.unshift("Día");
             let operatorsNumber = answer.operators.length;
-
             let rows = [];
             answer.data.map(e => {
                 let row = [];
@@ -16,7 +15,7 @@ $(document).ready(function () {
                 datesKeys[dateTime] = {};
                 row.push(dateTime);
                 e.operators.buckets.forEach(function (f) {
-                    datesKeys[dateTime][f.key] = f.doc_count;
+                    datesKeys[dateTime][f.key - 1] = f.doc_count;
                 });
                 for (let i = 0; i <= operatorsNumber; i++) {
                     row.push(datesKeys[dateTime][i]);
@@ -25,42 +24,22 @@ $(document).ready(function () {
             });
 
             // generate range of dates
-            var firstDate = new Date(rows[0][0]);
-            var endDate = new Date(rows[rows.length - 1][0]);
-            var dates = [];
-            var currentDate = firstDate;
+            let firstDate = new Date(rows[0][0]);
+            let endDate = new Date(rows[rows.length - 1][0]);
+            let dates = [];
+            let currentDate = firstDate;
             while (currentDate <= endDate) {
                 dates.push(currentDate.getTime());
                 currentDate.setUTCDate(currentDate.getUTCDate() + 1);
             }
-            var rowData = dates.map(function (date) {
-                var row = header.map(function () {
-                    return null;
-                });
-                row[0] = date;
-                return row;
-            });
-            console.log(dates);
-            console.log(rows);
-            rows.map(row => {
-                console.log(day);
-                var day = (new Date(row[0])).getTime();
-                var index = dates.indexOf(day);
-                row.map(function (el, j) {
-                    if (j !== 0) {
-                        rowData[index][j] = el;
-                    }
-                });
-            });
-            console.log(rows);
-            var yAxisDataName = [];
-            var series = [];
-            var dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-            var xData = dates.map(function (date) {
+            let yAxisDataName = [];
+            let series = [];
+            let dayName = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+            let xData = dates.map(function (date) {
                 date = new Date(date);
-                var mm = date.getUTCMonth() + 1;
-                var dd = date.getUTCDate();
-                var day = [date.getUTCFullYear(), (mm > 9 ? "" : "0") + mm, (dd > 9 ? "" : "0") + dd].join("-");
+                let mm = date.getUTCMonth() + 1;
+                let dd = date.getUTCDate();
+                let day = [date.getUTCFullYear(), (mm > 9 ? "" : "0") + mm, (dd > 9 ? "" : "0") + dd].join("-");
                 return day + " (" + dayName[date.getUTCDay()] + ")";
             });
 
@@ -68,13 +47,11 @@ $(document).ready(function () {
                 if (name === "Día" || name === "Tipo de día") {
                     return;
                 }
-                var attributeData = rowData.map(function (dateData) {
-                    return dateData[index];
-                });
+                let attributeData = rows.map(dateData => dateData[index]);
 
                 yAxisDataName.push(name);
 
-                var serie = {
+                let serie = {
                     name: name,
                     type: "line",
                     data: attributeData,
@@ -84,7 +61,7 @@ $(document).ready(function () {
                 series.push(serie);
             });
 
-            var option = {
+            let option = {
                 legend: {
                     data: yAxisDataName
                 },
@@ -118,11 +95,11 @@ $(document).ready(function () {
                     trigger: "axis",
                     formatter: function (params) {
                         if (Array.isArray(params)) {
-                            var head = params[0].axisValueLabel + "<br />";
-                            var info = [];
+                            let head = params[0].axisValueLabel + "<br />";
+                            let info = [];
                             params.forEach(function (el) {
-                                var ball = el.marker;
-                                var name = el.seriesName;
+                                let ball = el.marker;
+                                let name = el.seriesName;
                                 let value = "sin datos";
                                 if (el.value !== undefined) {
                                     value = Number(Number(el.value).toFixed(2)).toLocaleString();
@@ -166,7 +143,6 @@ $(document).ready(function () {
             };
 
             chart.setOption(option, {notMerge: true});
-            console.log(chart.getOption());
 
         };
 
@@ -180,15 +156,15 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableBipDays"]());
         loadRangeCalendar(Urls["esapi:availableBipDays"](), {});
 
-        var app = new OperatorApp();
-        var previousCall = function () {
+        let app = new OperatorApp();
+        let previousCall = function () {
         };
-        var afterCall = function (data, status) {
+        let afterCall = function (data, status) {
             if (status) {
                 app.updateMetrics(data);
             }
         };
-        var opts = {
+        let opts = {
             urlFilterData: Urls["esapi:operatorBipData"](),
             previousCallData: previousCall,
             afterCallData: afterCall
