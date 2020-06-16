@@ -17,7 +17,7 @@ django-debug-panel==0.8.3
 python-decouple==3.3
 django-crontab==0.7.1
 boto3==1.12.39
-python-coveralls
+python-coveralls==2.9.3
 ddtrace==0.29.0
 datadog==0.30.0
 fakeredis==1.4.0
