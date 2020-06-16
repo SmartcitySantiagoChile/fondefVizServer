@@ -17,6 +17,6 @@ django-debug-panel==0.8.3
 python-decouple==3.3
 django-crontab==0.7.1
 boto3==1.12.39
-python-coveralls
+python-coveralls==2.9.3
 fakeredis==1.4.0
 six==1.14.0
