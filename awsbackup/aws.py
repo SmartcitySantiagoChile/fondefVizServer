@@ -27,9 +27,7 @@ class AWSSession:
     STOP_TIMES_BUCKET_NAME = config('STOP_TIMES_BUCKET_NAME')
     EARLY_TRANSACTION_BUCKET_NAME = config('EARLY_TRANSACTION_BUCKET_NAME')
 
-
     def __init__(self):
-
         self.session = boto3.Session(
             aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
             aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'))
@@ -37,7 +35,6 @@ class AWSSession:
     def retrieve_obj_list(self, bucket_name):
         s3 = self.session.resource('s3')
         bucket = s3.Bucket(bucket_name)
-
         obj_list = []
         for obj in bucket.objects.all():
             size_in_mb = float(obj.size) / (1024 ** 2)
@@ -80,10 +77,8 @@ class AWSSession:
                 # The object does not exist.
                 return False
             else:
-                # Something else has gone wrong.
                 raise ValueError(e.response['Error'])
         else:
-            # The object exists.
             return True
 
     def _build_url(self, key, bucket_name):
