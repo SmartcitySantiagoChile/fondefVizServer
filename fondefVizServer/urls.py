@@ -21,7 +21,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.views.generic.base import RedirectView
 
-from localinfo.views import FaqImgUploader, FaqHTML, CustomRouteCsvUploader
+from localinfo.views import FaqImgUploader, FaqHTML, CustomRouteCsvUploader, OPDictionaryCsvUploader
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
@@ -45,6 +45,8 @@ urlpatterns = [
     url(r'^csvupload/$', login_required(CustomRouteCsvUploader.as_view()),
         name='customroutecsvupload'),
     url(r'^consistencychecker/', include('consistencychecker.urls')),
+    url(r'^csvuploadOP/$', login_required(OPDictionaryCsvUploader.as_view()),
+        name='opdictionarycsvupload'),
 
 ]
 
