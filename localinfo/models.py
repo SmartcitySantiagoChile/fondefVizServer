@@ -202,7 +202,7 @@ class CustomRoute(models.Model):
 
 
 class OPDictionary(models.Model):
-    """Serivices Operation dictionary"""
+    """Services Operation dictionary"""
 
     auth_route_code = models.CharField("Código transantiago", max_length=30)
     op_route_code = models.CharField("Código de operación", max_length=30)
