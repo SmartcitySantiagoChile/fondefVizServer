@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from django.apps import apps
 from django.test import TestCase
-
 from localinfo.apps import LocalinfoConfig
+from django.apps import apps
 
 
 class LocalInfoConfigTest(TestCase):
