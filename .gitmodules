@@ -1,4 +1,4 @@
 [submodule "dataUploader"]
-	path = dataUploader
+	path = dataUploader1
 	url = https://github.com/SmartcitySantiagoChile/dataUploader
     branch = adaptation/FondefVizProject
