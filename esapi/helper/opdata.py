@@ -40,3 +40,7 @@ class ESOPDataHelper(ElasticSearchHelper):
                 raise ESQueryOperationProgramDoesNotExist(start_date, end_date)
         elif days_quantity > 1 or (days_quantity == 1 and start_date != dates[0]):
             raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
+
+
+    def get_route_info(self, op_route_code, dates):
+        return None
