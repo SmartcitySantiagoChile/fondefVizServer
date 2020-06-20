@@ -24,7 +24,7 @@ from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadin
 from datamanager.models import UploaderJobExecution, LoadFile, ExporterJobExecution
 from esapi.helper.bip import ESBipHelper
 from esapi.helper.odbyroute import ESODByRouteHelper
-from esapi.helper.opdata import ESOpDataHelper
+from esapi.helper.opdata import ESOPDataHelper
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
@@ -52,7 +52,7 @@ def get_util_helpers(file_path):
         ESResumeStatisticHelper(),
         ESPaymentFactorHelper(),
         ESBipHelper(),
-        ESOpDataHelper()
+        ESOPDataHelper()
     ]
 
     result_helpers = []
