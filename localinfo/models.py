@@ -133,7 +133,7 @@ class DayDescription(models.Model):
 
     class Meta:
         verbose_name = "descripción de día"
-        verbose_name_plural = "descripciónes de días"
+        verbose_name_plural = "descripciones de días"
 
     def __str__(self):
         return str(self.description)
@@ -199,3 +199,14 @@ class CustomRoute(models.Model):
     class Meta:
         verbose_name = "diccionario de servicios"
         verbose_name_plural = "diccionario de servicios"
+
+
+class OPDictionary(models.Model):
+    """Services Operation dictionary"""
+
+    auth_route_code = models.CharField("Código transantiago", max_length=30)
+    op_route_code = models.CharField("Código de operación", max_length=30)
+
+    class Meta:
+        verbose_name = "diccionario PO "
+        verbose_name_plural = "diccionarios PO"

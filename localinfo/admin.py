@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from localinfo.forms import DayDescriptionForm, FAQForm
 from localinfo.helper import PermissionBuilder
-from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo, FAQ, CustomRoute
+from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo, FAQ, CustomRoute, OPDictionary
 
 admin.site.unregister(Group)
 admin.site.unregister(User)
@@ -98,6 +98,11 @@ class CustomRouteAdmin(admin.ModelAdmin):
     list_display = ('auth_route_code', 'custom_route_code')
 
 
+class CustomOPDictionaryAdmin(admin.ModelAdmin):
+    actions = None
+    list_display = ('auth_route_code', 'op_route_code')
+
+
 admin.site.register(Operator, OperatorAdmin)
 admin.site.register(HalfHour, HalfHourAdmin)
 admin.site.register(User, CustomUserAdmin)
@@ -105,3 +110,4 @@ admin.site.register(DayDescription, DayDescriptionAdmin)
 admin.site.register(CalendarInfo, CalendarInfoAdmin)
 admin.site.register(CustomRoute, CustomRouteAdmin)
 admin.site.register(FAQ, FAQSAdmin)
+admin.site.register(OPDictionary, CustomOPDictionaryAdmin)

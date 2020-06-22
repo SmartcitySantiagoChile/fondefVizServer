@@ -56,6 +56,21 @@ class LoadManagerHTML(View):
                 'id': 'bipTable', 'title_icon': 'fa-line-chart', 'title': 'Validaciones Bip'
             }
         ]
+        context = {
+            'tables': tables,
+            'operation_program_tables': []
+        }
+
+        return render(request, template, context)
+
+
+class LoadManagerOPHTML(View):
+    """ load  web page to load files """
+
+    def get(self, request):
+        template = 'datamanager/loadManager.html'
+
+        # define the order table appear in web page
         operation_program_tables = [
             {
                 'bubble_title': '', 'bubble_content': 'Archivo con geometría de servicios',
@@ -67,12 +82,11 @@ class LoadManagerHTML(View):
             }
         ]
         context = {
-            'tables': tables,
+            'tables': [],
             'operation_program_tables': operation_program_tables
         }
 
         return render(request, template, context)
-
 
 class UploadData(View):
     """ Load data to elastic search """
