@@ -36,7 +36,7 @@ class OPDataByAuthRouteCode(View):
 
             es_helper = ESOPDataHelper()
             es_query = es_helper.get_route_info(code, dates)
-            data = self.transform_data(es_query)
+            data = es_query.to_dict
             response = {
                 'data': data,
             }
