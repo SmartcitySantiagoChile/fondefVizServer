@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 def format_date(date):
     """
     transform format string yyyy-MM-dd to dd-MM-yyy
@@ -206,9 +205,10 @@ class ESQueryTooManyDestinationZonesError(FondefVizError):
         message = 'No puede seleccionar más de {0} zonas de destino'.format(limit_number)
         super(ESQueryTooManyDestinationZonesError, self).__init__(419, message)
 
-class ESQueryTooManyDestinationZonesError(FondefVizError):
-    """ It raises when user send more than destination zone limit """
+
+class ESQueryAuthRouteCodeTranslateDoesNotExists(FondefVizError):
+    """ It raises when user send an auth route code that doesnt exists """
 
     def __init__(self, limit_number):
-        message = 'No puede seleccionar más de {0} zonas de destino'.format(limit_number)
-        super(ESQueryTooManyDestinationZonesError, self).__init__(419, message)
+        message = 'El código de ruta {0} no existe.'.format(limit_number)
+        super(ESQueryAuthRouteCodeTranslateDoesNotExists, self).__init__(420, message)

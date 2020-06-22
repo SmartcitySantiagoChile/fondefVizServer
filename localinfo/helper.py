@@ -115,8 +115,11 @@ def get_custom_routes_dict():
 
 
 def get_op_route(auth_route_code):
-    return OPDictionary.objects.get(auth_route_code=auth_route_code).op_route_code
-
+    try:
+        res = OPDictionary.objects.get(auth_route_code=auth_route_code).op_route_code
+    except OPDictionary.DoesNotExist:
+        return None
+    return res
 
 class PermissionBuilder(object):
 

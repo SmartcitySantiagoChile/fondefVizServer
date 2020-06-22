@@ -19,3 +19,6 @@ class TestHelperUtils(TestCase):
         OPDictionary.objects.create(auth_route_code=auth_code, op_route_code=op_code)
         query = get_op_route(auth_code)
         self.assertEqual(op_code, query)
+
+    def test_get_op_route_wrong_code(self):
+        self.assertIsNone(get_op_route('T0000'))
