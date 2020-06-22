@@ -32,4 +32,4 @@ class OPDataByAuthRouteCode(TestHelper):
         self.data['authRouteCode'] = '100000'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(ESQueryAuthRouteCodeTranslateDoesNotExists('100000').get_status_response(), status)
+        self.assertJSONEqual(status, ESQueryAuthRouteCodeTranslateDoesNotExists('100000').get_status_response() )

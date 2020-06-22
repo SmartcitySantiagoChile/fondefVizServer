@@ -23,7 +23,6 @@ class OPDataByAuthRouteCode(View):
 
     def process_request(self, request, params, export_data=False):
         response = {}
-        print(1)
         dates = get_dates_from_request(request, export_data)
         auth_code = request.GET['authRouteCode']
         try:
