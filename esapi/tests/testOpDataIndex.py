@@ -5,7 +5,7 @@ import mock
 from django.test import TestCase
 
 from esapi.errors import ESQueryOperationProgramDoesNotExist, \
-    ESQueryThereIsMoreThanOneOperationProgram
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryDateRangeParametersDoesNotExist, ESQueryRouteParameterDoesNotExist
 from esapi.helper.opdata import ESOPDataHelper
 
 
@@ -65,3 +65,18 @@ class ESOpDataIndexTest(TestCase):
         self.assertRaises(ESQueryThereIsMoreThanOneOperationProgram,
                           self.instance.check_operation_program_between_dates,
                           start_date, end_date)
+
+    def test_get_route_info(self):
+        dates = []
+        code = None
+        with self.assertRaises(ESQueryDateRangeParametersDoesNotExist):
+            self.instance.get_route_info(code, dates)
+        dates = [['2020-03-05']]
+        with self.assertRaises(ESQueryRouteParameterDoesNotExist):
+            self.instance.get_route_info(code, dates)
+        code = '101I'
+        expected_query = {'query': {'bool': {
+            'filter': [{'range': {'date': {'gte': '2020-03-05||/d', 'lte': '2020-03-05||/d', 'format': 'yyyy-MM-dd'}}}],
+            'must': [{'term': {'opRouteCode': '101I'}}]}}}
+
+        self.assertDictEqual(expected_query, self.instance.get_route_info(code, dates).to_dict())

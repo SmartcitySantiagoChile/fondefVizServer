@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from functools import reduce
+
+from elasticsearch_dsl import Q
+
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryOperationProgramDoesNotExist, \
-    ESQueryThereIsMoreThanOneOperationProgram
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
@@ -41,6 +45,28 @@ class ESOPDataHelper(ElasticSearchHelper):
         elif days_quantity > 1 or (days_quantity == 1 and start_date != dates[0]):
             raise ESQueryThereIsMoreThanOneOperationProgram(start_date, end_date, dates)
 
-
     def get_route_info(self, op_route_code, dates):
-        return None
+
+        es_query = self.get_base_query()
+
+        if not dates or not isinstance(dates[0], list) or not dates[0]:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        if not op_route_code:
+            raise ESQueryRouteParameterDoesNotExist()
+
+        es_query = es_query.query(Q({'term': {"opRouteCode": op_route_code}}))
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            filter_q = Q("range", date={
+                "gte": start_date + "||/d",
+                "lte": end_date + "||/d",
+                "format": "yyyy-MM-dd",
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+        return es_query
