@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo, CustomRoute, FAQ
+    CalendarInfo, CustomRoute, FAQ, OPDictionary
 
 
 def _list_parser(list):
@@ -112,6 +112,10 @@ def get_custom_routes_dict():
         definition = definition.__dict__
         routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
     return routes_dict
+
+
+def get_op_route(auth_route_code):
+    return OPDictionary.objects.get(auth_route_code=auth_route_code).op_route_code
 
 
 class PermissionBuilder(object):
