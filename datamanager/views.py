@@ -82,7 +82,7 @@ class LoadManagerOPHTML(View):
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivo datos de programas de operación',
-                'id': 'opdataTable', 'title_icon': 'fa-map-marker', 'title': 'Datos de programas de operación'
+                'id': 'opdataTable', 'title_icon': 'fa-bar-chart', 'title': 'Datos de programas de operación'
             }
 
         ]

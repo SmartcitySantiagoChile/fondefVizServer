@@ -46,7 +46,7 @@
     {% endif %}
     {% if operation_program_tables %}
         {% header "Programa de operación" %}
-    {% bubble_message "" "<p>El programa de operación es representado dentro de la plataforma a través de dos archivos:</p><ul><li>Geometría de servicios: ruta física de cada servicio</li><li>Secuencia de paradas: secuencia de paradas de cada servicio</li></ul><p>Estos archivos generan umbrales temporales en los datos, es decir, datos generados con programas de operación distintos se consideran no comparables, situación que será considerada en las vistas</p>" "success" %}
+    {% bubble_message "" "<p>El programa de operación es representado dentro de la plataforma a través de tres archivos:</p><ul><li>Geometría de servicios: ruta física de cada servicio</li><li>Secuencia de paradas: secuencia de paradas de cada servicio</li><li>Datos de Programa de Operación: indicadores de operación (frecuencia, capacidad, entre otros) por período de cada servicio que opera en el programa de operación</li></ul><p>Estos archivos generan umbrales temporales en los datos, es decir, datos generados con programas de operación distintos se consideran no comparables, situación que será considerada en las vistas</p>" "success" %}
         <div class="row">
             {% for table in operation_program_tables %}
                 <div class="col-md-12 col-sm-12 col-xs-12">
