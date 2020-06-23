@@ -68,3 +68,6 @@ class ESStopHelper(ElasticSearchHelper):
             raise ESQueryStopInfoDoesNotExist()
 
         return stop_info
+
+    def get_available_days(self):
+        return self._get_available_days('startDate', [])

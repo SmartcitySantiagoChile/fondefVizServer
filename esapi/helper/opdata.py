@@ -70,3 +70,6 @@ class ESOPDataHelper(ElasticSearchHelper):
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
         return es_query
+
+    def get_available_days(self):
+        return self._get_available_days('date', [])
