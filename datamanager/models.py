@@ -158,7 +158,7 @@ class ExporterJobExecution(JobExecution):
         (TRIP, 'Viajes'),
         (PROFILE, 'Perfil de carga'),
         (PAYMENT_FACTOR, 'Validaciones en zona paga'),
-        (BIP, "Validaciones bip"),
+        (BIP, "Validaciones bip")
     )
     fileType = models.CharField('Fuente de datos', max_length=30, null=False, choices=FILE_TYPE_CHOICES)
     # to save data downloader (name, filters, etc)
