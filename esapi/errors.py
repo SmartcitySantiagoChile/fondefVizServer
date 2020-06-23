@@ -206,9 +206,9 @@ class ESQueryTooManyDestinationZonesError(FondefVizError):
         super(ESQueryTooManyDestinationZonesError, self).__init__(419, message)
 
 
-class ESQueryAuthRouteCodeTranslateDoesNotExists(FondefVizError):
-    """ It raises when user send an auth route code that doesnt exists """
+class ESQueryAuthRouteCodeTranslateDoesNotExist(FondefVizError):
+    """ It raises when user send an auth route code that does not exist """
 
     def __init__(self, limit_number):
         message = 'El código de ruta {0} no existe.'.format(limit_number)
-        super(ESQueryAuthRouteCodeTranslateDoesNotExists, self).__init__(420, message)
+        super(ESQueryAuthRouteCodeTranslateDoesNotExist, self).__init__(420, message)
