@@ -23,6 +23,7 @@ class OPDataByAuthRouteCode(TestHelper):
 
     def test_wrong_dates(self):
         self.data['dates'] = '[[]]'
+        self.data['authRouteCode'] = '100000'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
