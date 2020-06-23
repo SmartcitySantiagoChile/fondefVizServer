@@ -20,5 +20,8 @@ class ConnectionTest(TestHelper):
     def test_site_loadmanager(self):
         self.check_http_response(self.client, 'datamanager:loadmanager', 200)
 
+    def test_site_loadmanagerOp(self):
+        self.check_http_response(self.client, 'datamanager:loadmanagerOP', 200)
+
     def test_data_jobHistoryByUser(self):
         self.check_http_response(self.client, 'datamanager:jobHistoryByUser', 200)

@@ -21,7 +21,8 @@ params = [
     dict(bucket_name=AWSSession.TRANSACTION_BUCKET_NAME, subtitle='Transacciones'),
     dict(bucket_name=AWSSession.OP_SPEED_BUCKET_NAME, subtitle='Velocidasdes PO'),
     dict(bucket_name=AWSSession.EARLY_TRANSACTION_BUCKET_NAME, subtitle='Subidas por parada'),
-    dict(bucket_name=AWSSession.STOP_TIMES_BUCKET_NAME, subtitle='Cruce buses por paraderos')
+    dict(bucket_name=AWSSession.STOP_TIMES_BUCKET_NAME, subtitle='Cruce buses por paraderos'),
+    dict(bucket_name=AWSSession.MISCELLANEOUS_BUCKET_NAME, subtitle='Miscelaneo'),
 ]
 urlpatterns = [
     url(r'^gps/$', login_required(TableHTML.as_view(**params[0])), name='gps'),
@@ -39,6 +40,7 @@ urlpatterns = [
     url(r'earlyTransaction', login_required(TableHTML.as_view(**params[10])), name='early-transaction'),
     url(r'^stoptime/$', login_required(TableHTML.as_view(**params[11])),
         name='stoptime'),
+    url(r'miscellaneous', login_required(TableWithoutCalendarHTML.as_view(**params[12])), name='miscellaneous'),
     url(r'^availableDays/(?P<bucket_name>[\w-]+)/$', login_required(AvailableDays.as_view()), name='availableDays'),
     url(r'^createDownloadLink/$', login_required(CreateDownloadLink.as_view()), name='createDownloadLink'),
     url(r'^activeDownloadLink/$', login_required(ListDownloadLink.as_view()), name='activeDownloadLink'),

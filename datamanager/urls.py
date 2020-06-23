@@ -6,11 +6,12 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 
 from datamanager.views import LoadManagerHTML, GetLoadFileData, UploadData, DeleteData, CancelData, LatestJobChanges, \
-    ExportJobHistoryHTML
+    ExportJobHistoryHTML, LoadManagerOPHTML
 
 app_name = 'datamanager'
 urlpatterns = [
     url(r'^manager/$', staff_member_required(LoadManagerHTML.as_view()), name='loadmanager'),
+    url(r'^managerOP/$', staff_member_required(LoadManagerOPHTML.as_view()), name='loadmanagerOP'),
     url(r'^data/$', staff_member_required(GetLoadFileData.as_view()), name='getLoadFileData'),
     url(r'^uploadData/$', staff_member_required(UploadData.as_view()), name='uploadData'),
     url(r'^deleteData/$', staff_member_required(DeleteData.as_view()), name='deleteData'),

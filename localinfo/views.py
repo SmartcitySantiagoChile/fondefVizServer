@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from localinfo.helper import get_all_faqs, search_faq
-from localinfo.models import CustomRoute
+from localinfo.models import CustomRoute, OPDictionary
 
 
 class FaqImgUploader(View):
@@ -50,6 +50,22 @@ class CustomRouteCsvUploader(View):
                 if row[1].strip():
                     CustomRoute.objects.update_or_create(
                         auth_route_code=row[0], defaults={'custom_route_code': row[1]})
+            return JsonResponse(data={"status": True})
+        else:
+            return JsonResponse(data={"error": "No existe archivo."}, status=400)
+
+
+class OPDictionaryCsvUploader(View):
+
+    def post(self, request):
+        csv_file = request.FILES.get('csvDictionary', False)
+        if csv_file and csv_file.size != 0:
+            csvf = StringIO(csv_file.read().decode())
+            reader = csv.reader(csvf, delimiter=',')
+            for row in reader:
+                if row[1].strip():
+                    OPDictionary.objects.update_or_create(
+                        auth_route_code=row[0], defaults={'op_route_code': row[1]})
             return JsonResponse(data={"status": True})
         else:
             return JsonResponse(data={"error": "No existe archivo."}, status=400)

@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block extrahead %}
-    {% block title %} Diccionario de Servicios {% endblock %}
+    {% block title %} Diccionario de OP {% endblock %}
   {{ block.super }}
   {{ media.js }}
 {% endblock %}
@@ -55,7 +55,7 @@
       </div>
       <div class="x_content">
         <form name="csvForm" id="csvForm" method="post" enctype="multipart/form-data"
-              action="{% url 'customroutecsvupload' %}">{% csrf_token %}
+              action="{% url 'opdictionarycsvupload' %}">{% csrf_token %}
           <div class="row">
             <div class="col-md-3 col-sm-12 col-xs-12">
               <div class="title_left">
@@ -144,7 +144,7 @@
       $("#csvForm").on("submit", function (e) {
               e.preventDefault();
               let formData = new FormData(document.getElementById("csvForm"));
-              $.ajax("{% url 'customroutecsvupload' %}", {
+              $.ajax("{% url 'opdictionarycsvupload' %}", {
                   method: "POST",
                   data: formData,
                   cache: false,
