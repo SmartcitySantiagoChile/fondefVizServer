@@ -79,12 +79,7 @@ class LoadManagerOPHTML(View):
             {
                 'bubble_title': '', 'bubble_content': 'Archivo con secuencia de paradas por servicio',
                 'id': 'stopTable', 'title_icon': 'fa-map-marker', 'title': 'Secuencia de paradas'
-            },
-            {
-                'bubble_title': '', 'bubble_content': 'Archivo datos de programas de operación',
-                'id': 'opdataTable', 'title_icon': 'fa-bar-chart', 'title': 'Datos de programas de operación'
             }
-
         ]
         context = {
             'tables': [],

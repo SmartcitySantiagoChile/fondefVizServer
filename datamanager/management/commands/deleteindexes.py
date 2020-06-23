@@ -4,10 +4,8 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from esapi.helper.bip import ESBipHelper
-from esapi.helper.odbyroute import ESODByRouteHelper
-from esapi.helper.opdata import ESOPDataHelper
 from esapi.helper.paymentfactor import ESPaymentFactorHelper
+from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.helper.shape import ESShapeHelper
@@ -33,9 +31,7 @@ class Command(BaseCommand):
             ESShapeHelper(),
             ESODByRouteHelper(),
             ESResumeStatisticHelper(),
-            ESPaymentFactorHelper(),
-            ESBipHelper(),
-            ESOPDataHelper()
+            ESPaymentFactorHelper()
         ]
 
         for helper in helpers:

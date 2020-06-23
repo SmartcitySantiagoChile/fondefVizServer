@@ -16,7 +16,6 @@ from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, Matr
 from esapi.views.stop import MatchedStopData
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
     TransfersData, MultiRouteData
-from esapi.views.opdata import OPDataByAuthRouteCode as ODBAR
 
 app_name = 'esapi'
 urlpatterns = [
@@ -75,7 +74,4 @@ urlpatterns = [
     url(r'^bip/availableDays/$', login_required(BAD.as_view()), name='availableBipDays'),
     url(r'^bip/bipTransactionByOperatorData/$', login_required(BipTransactionByOperatorData.as_view()),
         name='operatorBipData'),
-
-    # opdata index
-    url(r'^opdata/ opDataByAuthRouteCode/', login_required(ODBAR.as_view()), name='opdataAuthRoute'),
 ]

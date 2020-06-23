@@ -98,15 +98,5 @@
       "indexName": "bip",
       "timeStamp": "2019-08-10T19:02:10.838Z"
     }
-  },
-  {
-    "model": "datamanager.datasourcepath",
-    "pk": 11,
-    "fields": {
-      "path": "/home/cephei/elasticdata/",
-      "filePattern": "*.opdata",
-      "indexName": "opdata",
-      "timeStamp": "2019-08-10T19:02:10.838Z"
-    }
   }
 ]
