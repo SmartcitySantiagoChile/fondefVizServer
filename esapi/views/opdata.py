@@ -18,8 +18,6 @@ class OPDataByAuthRouteCode(View):
     def dispatch(self, request, *args, **kwargs):
         return super(OPDataByAuthRouteCode, self).dispatch(request, *args, **kwargs)
 
-    def transform_data(self, query):
-        return '1'
 
     def process_request(self, request, params, export_data=False):
         response = {}

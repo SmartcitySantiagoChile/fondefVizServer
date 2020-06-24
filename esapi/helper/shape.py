@@ -6,7 +6,8 @@ from functools import reduce
 from elasticsearch_dsl import Q
 
 from esapi.errors import ESQueryOperationProgramDoesNotExist, ESQueryRouteParameterDoesNotExist, \
-    ESQueryDateRangeParametersDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram, ESQueryShapeDoesNotExist
+    ESQueryDateRangeParametersDoesNotExist, ESQueryThereIsMoreThanOneOperationProgram, ESQueryShapeDoesNotExist, \
+    ESQueryDateParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
@@ -99,3 +100,11 @@ class ESShapeHelper(ElasticSearchHelper):
         result = self.get_attr_list(self.make_multisearch_query_for_aggs(query, flat=True), 'unique')
 
         return result
+
+    def get_data_from_date(self, date):
+        if not date:
+            raise ESQueryDateParametersDoesNotExist
+        es_query = self.get_base_query()
+        es_query = es_query.filter('term', startDate=date)
+        es_query = es_query.update_from_dict({"size": 5000})
+        return es_query

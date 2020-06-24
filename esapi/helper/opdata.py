@@ -4,7 +4,7 @@ from functools import reduce
 from elasticsearch_dsl import Q
 
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryOperationProgramDoesNotExist, \
-    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 

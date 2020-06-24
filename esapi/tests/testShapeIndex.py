@@ -144,3 +144,12 @@ class ESShapeIndexTest(TestCase):
         _get_available_days.return_value = list()
         result = self.instance.get_available_days()
         self.assertListEqual(result, [])
+
+    @mock.patch('esapi.helper.basehelper.ElasticSearchHelper.get_base_query')
+    def test_get_available_days(self, get_data_from_date):
+        es_query = mock.MagicMock()
+        es_query.filter.return_value = es_query
+        es_query.update_from_dict.return_value = list()
+        get_data_from_date.return_value = es_query
+        result = self.instance.get_data_from_date('2020-01-01')
+        self.assertListEqual(result, [])
