@@ -24,22 +24,22 @@ class ESOPDataHelper(ElasticSearchHelper):
         :param end_date: upper date bound
         :return: None
         """
-        es_query = self.get_base_query().filter('range', startDate={
+        es_query = self.get_base_query().filter('range', date={
             'gte': start_date,
             'lte': end_date,
             'format': 'yyyy-MM-dd'
         })
-        es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
+        es_query = self.get_unique_list_query("date", size=5000, query=es_query)
         dates = [x.key_as_string[:10] for x in es_query.execute().aggregations.unique.buckets]
         days_quantity = len(dates)
 
         if days_quantity == 0:
             # check if there is operation program previous to start_Date
-            es_query = self.get_base_query().filter('range', startDate={
+            es_query = self.get_base_query().filter('range', date={
                 'lt': start_date,
                 'format': 'yyyy-MM-dd'
             })
-            es_query = self.get_unique_list_query("startDate", size=5000, query=es_query)
+            es_query = self.get_unique_list_query("date", size=5000, query=es_query)
             if len(es_query.execute().aggregations.unique.buckets) == 0:
                 raise ESQueryOperationProgramDoesNotExist(start_date, end_date)
         elif days_quantity > 1 or (days_quantity == 1 and start_date != dates[0]):
