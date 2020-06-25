@@ -211,7 +211,6 @@ function FilterManager(opts) {
     }
     let localMultiStopFilterVal = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/val")) || "";
     let localMultiStopFilterText = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/text")) || "";
-    localMultiStopFilterText = localMultiStopFilterText !== "" ? localMultiStopFilterText : "";
     for (let i = 0; i < localMultiStopFilterText.length; i++) {
         let multi_option = new Option(localMultiStopFilterText[i], localMultiStopFilterVal[i], false, true);
         $MULTI_STOP_FILTER.append(multi_option);
