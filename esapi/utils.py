@@ -24,7 +24,6 @@ def check_operation_program(start_date, end_date):
     operation_program_error_for_opdata = False
     error_raised = None
 
-
     try:
         ESStopByRouteHelper().check_operation_program_between_dates(start_date, end_date)
     except FondefVizError as e:
