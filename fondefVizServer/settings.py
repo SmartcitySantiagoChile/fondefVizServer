@@ -14,6 +14,12 @@ import os
 from decouple import config, Csv
 from elasticsearch import Elasticsearch
 
+from ddtrace import patch
+from decouple import config, Csv
+from elasticsearch import Elasticsearch
+
+patch(elasticsearch=True)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,6 +51,7 @@ THIRD_PARTY_APPS = (
     'django_crontab',
     'django_js_reverse',
     'django_rq',
+    'ddtrace.contrib.django',
 )
 
 LOCAL_APPS = (
@@ -285,3 +292,10 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
+
+DATADOG_TRACE = {
+    'DEFAULT_SERVICE': config('DATADOG_SERVICE_NAME'),
+    'DEFAULT_DATABASE_PREFIX': config('DATADOG_DB_PREFIX'),
+    'DEFAULT_CACHE_SERVICE ': config('DATADOG_CACHE_SERVICE_NAME'),
+    'TAGS': {'env': config('DATADOG_ENV')}
+}
