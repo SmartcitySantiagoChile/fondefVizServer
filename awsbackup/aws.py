@@ -26,6 +26,7 @@ class AWSSession:
     OP_SPEED_BUCKET_NAME = config('OP_SPEED_BUCKET_NAME')
     STOP_TIMES_BUCKET_NAME = config('STOP_TIMES_BUCKET_NAME')
     EARLY_TRANSACTION_BUCKET_NAME = config('EARLY_TRANSACTION_BUCKET_NAME')
+    MISCELLANEOUS_BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 
     def __init__(self):
         self.session = boto3.Session(
