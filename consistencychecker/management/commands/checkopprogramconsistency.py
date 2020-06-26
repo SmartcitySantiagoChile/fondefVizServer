@@ -63,5 +63,10 @@ class Command(BaseCommand):
                     data_list = opdata_helper.get_route_info(op_route_code, [[date]])
                 except ESQueryRouteParameterDoesNotExist:
                     dates[date]['opdata']['missing'].append(auth_route_code)
-            self.stdout.write("Warning: missing auth codes in stop: {0}".format(dates[date]['stop']['missing']))
-            self.stdout.write("Warning: missing auth codes in opdata: {0}".format(dates[date]['opdata']['missing']))
+
+            if dates[date]['stop']['missing']:
+                self.stdout.write(
+                    "Warning: [{0}] missing auth codes in stop: {1}".format(date, dates[date]['stop']['missing']))
+            if dates[date]['opdata']['missing']:
+                self.stdout.write(
+                    "Warning: [{0}] missing auth codes in opdata: {1}".format(date, dates[date]['opdata']['missing']))

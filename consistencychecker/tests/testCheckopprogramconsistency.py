@@ -39,8 +39,8 @@ class CheckopprogramconsistencyTest(TestCase):
         stopbyroute_helper.return_value.get_stop_list.side_effect = ESQueryStopListDoesNotExist
         out = StringIO()
         call_command('checkopprogramconsistency', stdout=out)
-        expected_out = "All dates checked successfully!\nWarning: missing auth codes in stop: ['B01']\n" \
-                       "Warning: missing auth codes in opdata: []\n"
+        expected_out = "All dates checked successfully!\nWarning: [2020-05-03] missing auth codes in stop: ['B01']\n"
+
 
         self.assertIn(expected_out, out.getvalue())
 
@@ -63,7 +63,6 @@ class CheckopprogramconsistencyTest(TestCase):
             ESQueryRouteParameterDoesNotExist
         out = StringIO()
         call_command('checkopprogramconsistency', stdout=out)
-        expected_out = "All dates checked successfully!\nWarning: missing auth codes in stop: []\n" \
-                       "Warning: missing auth codes in opdata: ['B01']\n"
+        expected_out = "All dates checked successfully!\nWarning: [2020-05-03] missing auth codes in opdata: ['B01']\n"
 
         self.assertIn(expected_out, out.getvalue())
