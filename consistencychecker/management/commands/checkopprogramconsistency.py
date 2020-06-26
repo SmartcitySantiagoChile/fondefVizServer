@@ -32,15 +32,15 @@ class Command(BaseCommand):
         finish = False
         for date in sorted(dates.keys()):
             if not dates[date]['shape']['status']:
-                self.stdout.write('Missing {0} date in Shape'.format(date))
+                self.stdout.write('Warning: missing {0} date in Shape'.format(date))
                 finish = True
 
             if not dates[date]['stop']['status']:
-                self.stdout.write('Missing {0} date in Stop'.format(date))
+                self.stdout.write('Warning: missing {0} date in Stop'.format(date))
                 finish = True
 
             if not dates[date]['opdata']['status']:
-                self.stdout.write('Missing {0} date in OPData'.format(date))
+                self.stdout.write('Warning: missing {0} date in OPData'.format(date))
                 finish = True
 
         if finish:
@@ -53,16 +53,15 @@ class Command(BaseCommand):
             shape_query = shape_helper.get_data_from_date(date).execute()
             for hit in shape_query.hits:
                 auth_route_code = hit['authRouteCode']
-                print(auth_route_code)
                 try:
                     stop_list = stop_by_route.get_stop_list(auth_route_code, [[date]])
-                except ESQueryStopListDoesNotExist as e:
+                except ESQueryStopListDoesNotExist:
                     dates[date]['stop']['missing'].append(auth_route_code)
 
                 op_route_code = helper.get_op_route(auth_route_code)
                 try:
                     data_list = opdata_helper.get_route_info(op_route_code, [[date]])
-                except ESQueryRouteParameterDoesNotExist as e:
+                except ESQueryRouteParameterDoesNotExist:
                     dates[date]['opdata']['missing'].append(auth_route_code)
-            print("Missing auth codes in stop: {0}".format(dates[date]['stop']['missing']))
-            print("Missing auth codes in opdata: {0}".format(dates[date]['opdata']['missing']))
+            self.stdout.write("Warning: missing auth codes in stop: {0}".format(dates[date]['stop']['missing']))
+            self.stdout.write("Warning: missing auth codes in opdata: {0}".format(dates[date]['opdata']['missing']))
