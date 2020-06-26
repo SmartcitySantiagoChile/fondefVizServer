@@ -4,6 +4,8 @@ import mock
 from django.core.management import call_command
 from django.test import TestCase
 
+from esapi.errors import ESQueryStopListDoesNotExist
+
 
 class CheckopprogramconsistencyTest(TestCase):
 
@@ -34,7 +36,7 @@ class CheckopprogramconsistencyTest(TestCase):
         stop_helper.return_value.get_available_days.return_value = ['2020-05-03']
         get_data_from_date = mock.MagicMock(hits=[{'authRouteCode': 'B01'}])
         shape_helper.return_value.get_data_from_date.return_value.execute.return_value = get_data_from_date
-        stopbyroute_helper.return_value.get_stop_list.return_value = True
+        stopbyroute_helper.return_value.get_stop_list.side_effect = ESQueryStopListDoesNotExist
         out = StringIO()
         call_command('checkopprogramconsistency', stdout=out)
         # expected_out = "Missing 2020-05-03 date in Shape\nMissing 2020-06-03 date in Stop\n" \
