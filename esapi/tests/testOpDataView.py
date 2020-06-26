@@ -5,7 +5,7 @@ import json
 
 from django.urls import reverse
 
-from esapi.errors import ESQueryDateParametersDoesNotExist, ESQueryAuthRouteCodeTranslateDoesNotExists
+from esapi.errors import ESQueryDateParametersDoesNotExist, ESQueryAuthRouteCodeTranslateDoesNotExist
 from localinfo.models import OPDictionary
 from testhelper.helper import TestHelper
 
@@ -33,4 +33,4 @@ class OPDataByAuthRouteCode(TestHelper):
         self.data['authRouteCode'] = '100000'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryAuthRouteCodeTranslateDoesNotExists('100000').get_status_response() )
+        self.assertJSONEqual(status, ESQueryAuthRouteCodeTranslateDoesNotExist('100000').get_status_response())

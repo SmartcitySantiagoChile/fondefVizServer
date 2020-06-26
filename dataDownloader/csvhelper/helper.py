@@ -153,6 +153,7 @@ class CSVHelper:
                 elif field in ['halfHourInStartTime', 'halfHourInStopTime', 'mediahora_bajada_1',
                                'mediahora_bajada_2', 'mediahora_bajada_3', 'mediahora_bajada_4']:
                     values = [self.halfhour_dict[int(x)] for x in values]
+                field = 'authStopCode' if field == 'authStopCode.raw' else field
 
                 formatted_values = []
                 for value in values:
