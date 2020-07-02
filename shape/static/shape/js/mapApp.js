@@ -48,13 +48,11 @@ $(document).ready(function () {
         var layers = {};
 
         this.refreshControlEvents = function () {
-            let USER_ROUTE = $(".userRoute");
-            USER_ROUTE.off("change");
-            USER_ROUTE.change(function () {
-                let layerId = $(this).closest(".selectorRow").data("id");
+            let $USER_ROUTE = $(".userRoute");
+            $USER_ROUTE.off("change");
+            $USER_ROUTE.change(function () {
                 let userRoute = $(this).closest(".selectorRow").find(".userRoute").first().val();
                 let route = $(this).closest(".selectorRow").find(".route");
-
                 //update authroute list
                 if (userRoute !== null) {
                     let routeValues = _self.data[userRoute];
@@ -62,13 +60,16 @@ $(document).ready(function () {
                     route.append('<option value="" disabled selected>Ruta Transantiago</option>');
                     route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
                 }
-
-
+            });
+            let $ROUTE = $(".route");
+            $ROUTE.off("change");
+            $ROUTE.change(function () {
+                let layerId = $(this).closest(".selectorRow").data("id");
+                let route = $(this).closest(".selectorRow").find(".route").val();
                 var params = {
-                    userRoute: userRoute,
+                    route: route,
                     operationProgramDate: $(this).closest(".selectorRow").find(".date").val()
                 };
-                console.log(params);
                 $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
@@ -83,10 +84,12 @@ $(document).ready(function () {
                     var layer = layers[layerId];
                     app.addPolyline(layer, data.points, {
                         stops: data.stops,
-                        route: userRoute
+                        route: route
                     });
                 });
+
             });
+
         };
 
         this.refrehRemoveButton = function () {
