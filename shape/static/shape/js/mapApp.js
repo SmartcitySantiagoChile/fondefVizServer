@@ -158,6 +158,18 @@ $(document).ready(function () {
             });
         };
 
+        this.refreshInfoButton = function () {
+            let $INFO_BUTTON = $(".selectorRow .showInfo");
+            console.log($INFO_BUTTON);
+            $INFO_BUTTON.off("click");
+            $INFO_BUTTON.click(function () {
+                let button = $(this);
+                let span = button.find("span");
+                let layerId = button.parent().data("id");
+            });
+        };
+
+
         this.addRow = function (dateList, userRouteList) {
             var newId = $ROW_CONTAINER.children().length + 1;
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
@@ -167,12 +179,14 @@ $(document).ready(function () {
                 '<select class="form-control input-sm route"><option value="" disabled selected>Ruta Transantiago</option></select>' +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '<div/>';
             $ROW_CONTAINER.append(row);
             _self.refreshControlEvents();
             _self.refrehRemoveButton();
             _self.refreshColorPickerButton();
             _self.refreshVisibilityButton();
+            _self.refreshInfoButton();
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
