@@ -18,6 +18,11 @@ class OPDataByAuthRouteCode(View):
     def dispatch(self, request, *args, **kwargs):
         return super(OPDataByAuthRouteCode, self).dispatch(request, *args, **kwargs)
 
+    def transform_data(self, query):
+        exec = query.execute()
+        for hit in exec:
+            res = list(map(lambda x: x.to_dict(), list(hit.dayType)))
+            return sorted(res, key=lambda x: x['timePeriod'])
 
     def process_request(self, request, params, export_data=False):
         response = {}
@@ -33,15 +38,12 @@ class OPDataByAuthRouteCode(View):
 
             es_helper = ESOPDataHelper()
             es_query = es_helper.get_route_info(code, dates)
-            data = es_query.to_dict
             response = {
-                'data': data,
+                'data': self.transform_data(es_query),
             }
         except FondefVizError as e:
             response['status'] = e.get_status_response()
-
         return JsonResponse(response, safe=False)
 
     def get(self, request):
         return self.process_request(request, request.GET)
-

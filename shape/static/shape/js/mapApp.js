@@ -163,9 +163,20 @@ $(document).ready(function () {
             console.log($INFO_BUTTON);
             $INFO_BUTTON.off("click");
             $INFO_BUTTON.click(function () {
-                let button = $(this);
-                let span = button.find("span");
-                let layerId = button.parent().data("id");
+                let route = $(this).closest(".selectorRow").find(".route").val();
+                let params = {
+                    authRouteCode: route,
+                    dates: JSON.stringify([[$(this).closest(".selectorRow").find(".date").val()]])
+                };
+                console.log(params);
+
+                if (params.authRouteCode !== null && params.dates !== null) {
+                    $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
+                        console.log(data);
+                    });
+                    $("#shape_info").modal("show");
+                }
+
             });
         };
 
