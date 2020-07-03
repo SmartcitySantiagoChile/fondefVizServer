@@ -1,3 +1,5 @@
+{% load static header panel inline_select columns update_button table label data_filter %}
+
 <div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -8,6 +10,11 @@
             </div>
             <div class="modal-body">
                 {{ modal_body }}
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        {% table "shapeDetail" 0 False %}
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>

@@ -158,6 +158,25 @@ $(document).ready(function () {
             });
         };
 
+        this.addTableInfo = function (data) {
+            let $TABLE = $('#shape_info');
+            let thead = $TABLE.find("thead").find("tr");
+            let head = ["Periodo Transantiago", "Inicio de periodo", "Fin de periodo", "Frecuencia", "Capacidad", "Distancia", "Velocidad"];
+            let headRow = head.map(e => "<th>" + e + "</th>").join("");
+            thead.append(headRow);
+            let tbody = $TABLE.find("tbody");
+            let keys = Object.keys(data[0]);
+            console.log(keys);
+            data.forEach(e => {
+                    let tr = $("<tr></tr>");
+                    tbody.append(tr);
+                    let tds = keys.map(f => "<td>" + e[f] + "</td>");
+                    tr.append(tds);
+                }
+            );
+            console.log(data);
+        };
+
         this.refreshInfoButton = function () {
             let $INFO_BUTTON = $(".selectorRow .showInfo");
             console.log($INFO_BUTTON);
@@ -172,7 +191,7 @@ $(document).ready(function () {
 
                 if (params.authRouteCode !== null && params.dates !== null) {
                     $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
-                        console.log(data);
+                        _self.addTableInfo(data.data);
                     });
                     $("#shape_info").modal("show");
                 }
