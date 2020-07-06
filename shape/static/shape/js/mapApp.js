@@ -181,7 +181,6 @@ $(document).ready(function () {
             let tbody = $TABLE.find("tbody");
             tbody.empty();
             let keys = Object.keys(data[0]);
-            console.log(keys);
             data.forEach(e => {
                     let tr = $("<tr></tr>");
                     tbody.append(tr);
@@ -193,24 +192,20 @@ $(document).ready(function () {
                     tr.append(tds);
                 }
             );
-            console.log(data);
         };
 
         this.refreshInfoButton = function () {
             let $INFO_BUTTON = $(".selectorRow .showInfo");
-            console.log($INFO_BUTTON);
             $INFO_BUTTON.off("click");
             $INFO_BUTTON.click(function () {
-                let route = $(this).closest(".selectorRow").find(".route").val();
-                let params = {
-                    authRouteCode: route,
-                    dates: JSON.stringify([[$(this).closest(".selectorRow").find(".date").val()]])
-                };
-                console.log(params);
-
-                if (params.authRouteCode !== null && params.dates !== null) {
+                    let route = $(this).closest(".selectorRow").find(".route").val();
+                    let date = $(this).closest(".selectorRow").find(".date").val();
+                    date = date !== null ? [[date]] : [[]];
+                    let params = {
+                        authRouteCode: route,
+                        dates: JSON.stringify(date)
+                    };
                     $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
-                        console.log(data);
                         if (data.status) {
                             showMessage(data.status);
                             return;
@@ -220,10 +215,8 @@ $(document).ready(function () {
 
                     });
                 }
-
-            });
+            );
         };
-
 
         this.addRow = function (dateList, userRouteList) {
             var newId = $ROW_CONTAINER.children().length + 1;
@@ -273,4 +266,5 @@ $(document).ready(function () {
 
     var mapShapeApp = new MapShapeApp();
     mapShapeApp.loadBaseData();
-});
+})
+;
