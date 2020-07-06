@@ -185,7 +185,11 @@ $(document).ready(function () {
             data.forEach(e => {
                     let tr = $("<tr></tr>");
                     tbody.append(tr);
-                    let tds = keys.map(f => "<td>" + e[f] + "</td>");
+                    let tds = keys.map(f => {
+                        let value = e[f];
+                        value = (typeof (value) === "number" && value % 1 !== 0) ? value.toFixed(3) : value;
+                        return "<td>" + value + "</td>";
+                    });
                     tr.append(tds);
                 }
             );
