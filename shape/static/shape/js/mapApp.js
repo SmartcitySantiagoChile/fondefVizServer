@@ -48,27 +48,14 @@ $(document).ready(function () {
         var layers = {};
 
         this.refreshControlEvents = function () {
-            let $USER_ROUTE = $(".userRoute");
-            $USER_ROUTE.off("change");
-            $USER_ROUTE.change(function () {
-                let userRoute = $(this).closest(".selectorRow").find(".userRoute").first().val();
-                let route = $(this).closest(".selectorRow").find(".route");
-                //update authroute list
-                if (userRoute !== null) {
-                    let routeValues = _self.data[userRoute];
-                    route.empty();
-                    route.append('<option value="" disabled selected>Ruta Transantiago</option>');
-                    route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
-                }
-            });
-            let $ROUTE = $(".route");
-            $ROUTE.off("change");
-            $ROUTE.change(function () {
-                let layerId = $(this).closest(".selectorRow").data("id");
-                let route = $(this).closest(".selectorRow").find(".route").val();
-                var params = {
+
+            //handle send data
+            let sendData = e => {
+                let layerId = $(e).closest(".selectorRow").data("id");
+                let route = $(e).closest(".selectorRow").find(".route").val();
+                let params = {
                     route: route,
-                    operationProgramDate: $(this).closest(".selectorRow").find(".date").val()
+                    operationProgramDate: $(e).closest(".selectorRow").find(".date").val()
                 };
                 $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
                     if (data.status) {
@@ -81,15 +68,41 @@ $(document).ready(function () {
                     // update map
                     // clean featureGroup
                     layers[layerId].clearLayers();
-                    var layer = layers[layerId];
+                    let layer = layers[layerId];
                     app.addPolyline(layer, data.points, {
                         stops: data.stops,
                         route: route
                     });
                 });
+            };
 
+            let $USER_ROUTE = $(".userRoute");
+            $USER_ROUTE.off("change");
+            $USER_ROUTE.change(function () {
+                let userRoute = $(this).closest(".selectorRow").find(".userRoute").first().val();
+                let route = $(this).closest(".selectorRow").find(".route");
+                //update authroute list
+                if (userRoute !== null) {
+                    let routeValues = _self.data[userRoute];
+                    route.empty();
+                    route.append('<option value="" disabled selected> Ruta Transantiago </option>');
+                    route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
+                }
             });
 
+            let $ROUTE = $(".route");
+            $ROUTE.off("change");
+            $ROUTE.change(function () {
+                sendData(this);
+            });
+
+            let $DATE = $(".date");
+            $DATE.off("change");
+            $DATE.change(function () {
+                if ($ROUTE.val() != null) {
+                    sendData(this);
+                }
+            });
         };
 
         this.refrehRemoveButton = function () {
@@ -161,10 +174,12 @@ $(document).ready(function () {
         this.addTableInfo = function (data) {
             let $TABLE = $('#shape_info');
             let thead = $TABLE.find("thead").find("tr");
+            thead.empty();
             let head = ["Periodo Transantiago", "Inicio de periodo", "Fin de periodo", "Frecuencia", "Capacidad", "Distancia", "Velocidad"];
             let headRow = head.map(e => "<th>" + e + "</th>").join("");
             thead.append(headRow);
             let tbody = $TABLE.find("tbody");
+            tbody.empty();
             let keys = Object.keys(data[0]);
             console.log(keys);
             data.forEach(e => {
@@ -191,9 +206,15 @@ $(document).ready(function () {
 
                 if (params.authRouteCode !== null && params.dates !== null) {
                     $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
+                        console.log(data);
+                        if (data.status) {
+                            showMessage(data.status);
+                            return;
+                        }
                         _self.addTableInfo(data.data);
+                        $("#shape_info").modal("show");
+
                     });
-                    $("#shape_info").modal("show");
                 }
 
             });
@@ -221,7 +242,7 @@ $(document).ready(function () {
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
 
-            $ROW_CONTAINER.find(".form-control").last().change();
+//            $ROW_CONTAINER.find(".form-control").last().change();
             $(".form-control").select2();
         };
 
