@@ -6,7 +6,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError, ESQueryAuthRouteCodeTranslateDoesNotExist
+from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError, ESQueryAuthRouteCodeTranslateDoesNotExist, \
+    ESQueryResultEmpty
 from esapi.helper.opdata import ESOPDataHelper
 from esapi.utils import get_dates_from_request
 from localinfo.helper import get_op_route
@@ -38,8 +39,11 @@ class OPDataByAuthRouteCode(View):
 
             es_helper = ESOPDataHelper()
             es_query = es_helper.get_route_info(code, dates)
+            data = self.transform_data(es_query)
+            if not data:
+                raise ESQueryResultEmpty()
             response = {
-                'data': self.transform_data(es_query),
+                'data': data,
             }
         except FondefVizError as e:
             response['status'] = e.get_status_response()
