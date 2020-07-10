@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from django import template
-from django.utils.html import format_html
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.html import format_html
 
 register = template.Library()
 
+
 @register.simple_tag
-def download_file_button(stepId, scene, disabled = ""):
-    url = reverse("scene:downloadStepFile", kwargs={"stepId":stepId, "sceneId":scene.id})
+def download_file_button(stepId, scene, disabled=""):
+    url = reverse("scene:downloadStepFile", kwargs={"stepId": stepId, "sceneId": scene.id})
 
     if stepId == 1:
         timeStamp = scene.timeStampStep1File
@@ -21,7 +22,6 @@ def download_file_button(stepId, scene, disabled = ""):
         timeStamp = scene.timeStampStep6File
     else:
         timeStamp = None
-
     if timeStamp is None:
         timeStamp = ""
         disabled = "disabled"
