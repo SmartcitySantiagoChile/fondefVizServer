@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from bowerapp.apps import BowerappConfig
 from bowerapp.templatetags.download_file_button import download_file_button
+from bowerapp.templatetags.toolbar import toolbar
 
 
 class BowerappConfigTest(TestCase):
@@ -78,4 +79,20 @@ class TemplateTagTest(SimpleTestCase):
                    '       (<span id="timestamp1"></span>)\n     </a>\n    '
         self.assertEqual(expected, rendered_template)
 
+    def test_rendered_read_only_field(self):
+        context = Context({})
+        template_to_render = Template('{% load read_only_field %}''{% read_only_field 1 1 1 %}')
+        rendered_template = template_to_render.render(context)
+        expected = '<div class="form-horizontal form-label-left"><div class="form-group">' \
+                   '<label class="control-label col-md-6 col-sm-6 col-xs-12">1</label>' \
+                   '<div class="input-group"><input class="form-control" readonly="readonly" value="1" />' \
+                   '<span class="input-group-addon">1</span></div></div></div>'
+        self.assertInHTML(expected, rendered_template)
 
+    def test_rendered_toolbar(self):
+        rendered_template = toolbar(1, 1, 2)
+        expected = '<div id="1" class="btn-toolbar" role="toolbar" data-toggle="buttons">' \
+                   '<div class="btn-group">&lt;label' \
+                   ' class=&quot;btn btn-default&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;groups&quot;' \
+                   ' value=&quot;1&quot; checked=&quot;&quot;&gt;2&lt;/label&gt;</div></div>'
+        self.assertInHTML(expected, rendered_template)
