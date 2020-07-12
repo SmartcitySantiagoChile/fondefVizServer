@@ -2,18 +2,16 @@
 import csv
 import os
 
-from django.test import TestCase
-
-from localinfo.models import OPDictionary, CustomRoute
-from localinfo.tests.helper import TestHelper
 from django.urls import reverse
 
+from localinfo.models import OPDictionary, CustomRoute
+from testhelper.helper import TestHelper
 
-class LocalInfoViewTest(TestCase):
+
+class LocalInfoViewTest(TestHelper):
 
     def setUp(self):
-        self.helper = TestHelper(self)
-        self.client = self.helper.create_logged_client()
+        self.client = self.create_logged_client_with_global_permission()
         self.path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files')
 
     def test_OPDictionaryCsvUploader_post(self):
