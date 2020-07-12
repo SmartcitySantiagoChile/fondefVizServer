@@ -1,0 +1,32 @@
+{% extends 'help/modal/modal_base.html' %}
+
+{% block title %}Ruta de servicios{% endblock title %}
+
+{% block body %}
+    <p>Esta vista permite visualizar espacialmente la ruta de uno o más servicios</p>
+    <h4>Modo de uso:</h4>
+    <p>Presionar el botón 'Agregar ruta'. Una vez hecho aparecerá una fila en la sección 'Rutas en mapa' representando
+        la nueva ruta, en ella aparecen los siguientes componentes:</p>
+    <ul>
+        <li>Botón para eliminar la ruta del mapa</li>
+        <li>Fecha del programa de operación asociado a la ruta que desea ver</li>
+        <li>Servicio de usuario</li>
+        <li>Servicio de Transantiago</li>
+        <li>Botón para cambiar el color de la ruta</li>
+        <li>Botón para ocultar la ruta en el mapa</li>
+        <li>Botón para mostrar indicadores de programa de operación</li>
+    </ul>
+
+    <h4>Indicadores de Programa de Operación:</h4>
+    <p>Esta tabla muestra los indicadores de la ruta en para cada periodo de tiempo:</p>
+    <ul>
+        <li>Periodo Transantiago</li>
+        <li>Inicio de periodo</li>
+        <li>Fin de periodo</li>
+        <li>Frecuencia</li>
+        <li>Capacidad</li>
+        <li>Distancia</li>
+        <li>Velocidad</li>
+    </ul>
+
+{% endblock body %}

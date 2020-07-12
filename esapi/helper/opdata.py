@@ -4,7 +4,7 @@ from functools import reduce
 from elasticsearch_dsl import Q
 
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryOperationProgramDoesNotExist, \
-    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
@@ -70,3 +70,6 @@ class ESOPDataHelper(ElasticSearchHelper):
         combined_filter = reduce((lambda x, y: x | y), combined_filter)
         es_query = es_query.query('bool', filter=[combined_filter])
         return es_query
+
+    def get_available_days(self):
+        return self._get_available_days('date', [])

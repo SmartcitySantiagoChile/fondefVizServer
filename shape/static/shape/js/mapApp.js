@@ -48,16 +48,15 @@ $(document).ready(function () {
         var layers = {};
 
         this.refreshControlEvents = function () {
-            var $FORM_CONTROLS = $(".form-control");
-            $FORM_CONTROLS.off("change");
-            $FORM_CONTROLS.change(function () {
-                var layerId = $(this).closest(".selectorRow").data("id");
-                var route = $(this).closest(".selectorRow").find(".route").first().val();
-                var params = {
-                    route: route,
-                    operationProgramDate: $(this).closest(".selectorRow").find(".date").val()
-                };
 
+            //handle send data
+            let sendData = e => {
+                let layerId = $(e).closest(".selectorRow").data("id");
+                let route = $(e).closest(".selectorRow").find(".route").val();
+                let params = {
+                    route: route,
+                    operationProgramDate: $(e).closest(".selectorRow").find(".date").val()
+                };
                 $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
@@ -69,12 +68,40 @@ $(document).ready(function () {
                     // update map
                     // clean featureGroup
                     layers[layerId].clearLayers();
-                    var layer = layers[layerId];
+                    let layer = layers[layerId];
                     app.addPolyline(layer, data.points, {
                         stops: data.stops,
                         route: route
                     });
                 });
+            };
+
+            let $USER_ROUTE = $(".userRoute");
+            $USER_ROUTE.off("change");
+            $USER_ROUTE.change(function () {
+                let userRoute = $(this).closest(".selectorRow").find(".userRoute").first().val();
+                let route = $(this).closest(".selectorRow").find(".route");
+                //update authroute list
+                if (userRoute !== null) {
+                    let routeValues = _self.data[userRoute];
+                    route.empty();
+                    route.append('<option value="" disabled selected> Ruta Transantiago </option>');
+                    route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
+                }
+            });
+
+            let $ROUTE = $(".route");
+            $ROUTE.off("change");
+            $ROUTE.change(function () {
+                sendData(this);
+            });
+
+            let $DATE = $(".date");
+            $DATE.off("change");
+            $DATE.change(function () {
+                if ($ROUTE.val() != null) {
+                    sendData(this);
+                }
             });
         };
 
@@ -144,46 +171,100 @@ $(document).ready(function () {
             });
         };
 
-        this.addRow = function (dateList, authorityRouteList) {
+        this.addTableInfo = function (data) {
+            let $TABLE = $('#shape_info');
+            let thead = $TABLE.find("thead").find("tr");
+            thead.empty();
+            let head = ["Periodo Transantiago", "Inicio de periodo", "Fin de periodo", "Frecuencia", "Capacidad", "Distancia", "Velocidad"];
+            let headRow = head.map(e => "<th>" + e + "</th>").join("");
+            thead.append(headRow);
+            let tbody = $TABLE.find("tbody");
+            tbody.empty();
+            let keys = Object.keys(data[0]);
+            data.forEach(e => {
+                    let tr = $("<tr></tr>");
+                    tbody.append(tr);
+                    let tds = keys.map(f => {
+                        let value = e[f];
+                        value = (typeof (value) === "number" && value % 1 !== 0) ? value.toFixed(3) : value;
+                        return "<td>" + value + "</td>";
+                    });
+                    tr.append(tds);
+                }
+            );
+        };
+
+        this.refreshInfoButton = function () {
+            let $INFO_BUTTON = $(".selectorRow .showInfo");
+            $INFO_BUTTON.off("click");
+            $INFO_BUTTON.click(function () {
+                    let route = $(this).closest(".selectorRow").find(".route").val();
+                    let date = $(this).closest(".selectorRow").find(".date").val();
+                    date = date !== null ? [[date]] : [[]];
+                    let params = {
+                        authRouteCode: route,
+                        dates: JSON.stringify(date)
+                    };
+                    $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
+                        if (data.status) {
+                            showMessage(data.status);
+                            return;
+                        }
+                        _self.addTableInfo(data.data);
+                        $("#shape_info").modal("show");
+
+                    });
+                }
+            );
+        };
+
+        this.addRow = function (dateList, userRouteList) {
             var newId = $ROW_CONTAINER.children().length + 1;
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                '<select class="form-control input-sm date">' + dateList + '</select>' +
-                '<select class="form-control input-sm route">' + authorityRouteList + '</select>' +
+                '<select class="form-control input-sm date"><option value="" disabled selected>Programa de Operación</option>' + dateList + '</select>' +
+                '<select class="form-control input-sm userRoute"><option value="" disabled selected>Ruta Usuario</option>' + userRouteList + '</select>' +
+                '<select class="form-control input-sm route"><option value="" disabled selected>Ruta Transantiago</option></select>' +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '<div/>';
             $ROW_CONTAINER.append(row);
             _self.refreshControlEvents();
             _self.refrehRemoveButton();
             _self.refreshColorPickerButton();
             _self.refreshVisibilityButton();
+            _self.refreshInfoButton();
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
 
-            $ROW_CONTAINER.find(".form-control").last().change();
+//            $ROW_CONTAINER.find(".form-control").last().change();
             $(".form-control").select2();
         };
 
         this.loadBaseData = function () {
+
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
-                var authorityRouteList = data.routes.map(function (el) {
-                    return "<option>" + el + "</option>";
-                }).join("");
-                var dateList = data.dates.map(function (el) {
+                _self.data = data.user_routes;
+                let userRouteList = Object.keys(data.user_routes).map(e =>
+                    "<option>" + e + "</option>"
+                ).join("");
+                let dateList = data.dates.map(function (el) {
                     return "<option>" + el + "</option>";
                 }).join("");
 
                 // activate add button when data exist
                 $("#addRouteButton").click(function () {
-                    _self.addRow(dateList, authorityRouteList);
+                    _self.addRow(dateList, userRouteList);
                 });
             });
         };
+
     }
 
     var mapShapeApp = new MapShapeApp();
     mapShapeApp.loadBaseData();
-});
+})
+;

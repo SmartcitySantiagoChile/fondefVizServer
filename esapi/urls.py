@@ -77,5 +77,5 @@ urlpatterns = [
         name='operatorBipData'),
 
     # opdata index
-    url(r'^opdata/ opDataByAuthRouteCode/', login_required(ODBAR.as_view()), name='opdataAuthRoute'),
+    url(r'^opdata/opDataByAuthRouteCode/', login_required(ODBAR.as_view()), name='opdataAuthRoute'),
 ]

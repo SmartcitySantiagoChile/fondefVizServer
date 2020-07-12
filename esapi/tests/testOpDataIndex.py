@@ -80,3 +80,9 @@ class ESOpDataIndexTest(TestCase):
             'must': [{'term': {'opRouteCode': '101I'}}]}}}
 
         self.assertDictEqual(expected_query, self.instance.get_route_info(code, dates).to_dict())
+
+    @mock.patch('esapi.helper.basehelper.ElasticSearchHelper._get_available_days')
+    def test_get_available_days(self, _get_available_days):
+        _get_available_days.return_value = list()
+        result = self.instance.get_available_days()
+        self.assertListEqual(result, [])
