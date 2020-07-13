@@ -207,9 +207,10 @@ class GetLoadFileData(View):
 
     def get(self, request):
         """ expedition data """
-
+        file_name = request.GET.get('filters')
+        print(file_name)
         response = {
-            'routeDictFiles': FileManager().get_file_list()
+            'routeDictFiles': FileManager().get_file_list(['speed', 'opdata'])
         }
 
         return JsonResponse(response)
