@@ -224,7 +224,8 @@ class FileManager(object):
         if index_filter is not None:
             helpers = []
             for index in index_filter:
-                helpers.append(helpers_dict[index])
+                if index in helpers_dict:
+                    helpers.append(helpers_dict[index])
         else:
             helpers = list(helpers_dict.values())
 
