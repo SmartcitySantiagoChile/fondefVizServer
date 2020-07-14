@@ -228,7 +228,6 @@ class FileManager(object):
         else:
             helpers = list(helpers_dict.values())
 
-        print(file_filter)
         if file_filter is not None:
             if isinstance(file_filter, list):
                 file_name_list = file_filter
