@@ -208,7 +208,6 @@ class GetLoadFileData(View):
     def get(self, request):
         """ expedition data """
         filters = request.GET.getlist('filters', [])
-        print(filters)
         response = {
             'routeDictFiles': FileManager().get_file_list(filters)
         }
