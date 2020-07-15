@@ -215,7 +215,7 @@ class FileManager(object):
             'trip': ESTripHelper(),
             'shape': ESShapeHelper(),
             'odbyroute': ESODByRouteHelper(),
-            'resume': ESResumeStatisticHelper(),
+            'general': ESResumeStatisticHelper(),
             'paymentfactor': ESPaymentFactorHelper(),
             'bip': ESBipHelper(),
             'opdata': ESOPDataHelper()

@@ -184,9 +184,12 @@ $(document).ready(function () {
         };
 
         this.updateTables = function () {
-            $.get(Urls["datamanager:getLoadFileData"](), function (data) {
+            let filters = JSON.parse($("#loadManager").attr("data-filter"));
+            var params = {
+                filters: filters
+            };
+            $.get(Urls["datamanager:getLoadFileData"](), params, function (data) {
                 var dictFiles = data.routeDictFiles;
-
                 for (var key in dictFiles) {
                     if (dictFiles.hasOwnProperty(key)) {
                         var files = dictFiles[key];

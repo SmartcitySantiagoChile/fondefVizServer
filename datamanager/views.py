@@ -211,7 +211,6 @@ class GetLoadFileData(View):
         response = {
             'routeDictFiles': FileManager().get_file_list(filters)
         }
-
         return JsonResponse(response)
 
 
