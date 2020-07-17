@@ -286,4 +286,3 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
-DEBUG_PROPAGATE_EXCEPTIONS = True
