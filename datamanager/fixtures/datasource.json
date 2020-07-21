@@ -3,7 +3,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 1,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/profile/",
       "filePattern": "*.profile",
       "indexName": "profile",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -13,7 +13,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 2,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/speed/",
       "filePattern": "*.speed",
       "indexName": "speed",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -23,7 +23,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 3,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/trip/",
       "filePattern": "*.trip",
       "indexName": "trip",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -33,7 +33,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 4,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/shape/",
       "filePattern": "*.shape",
       "indexName": "shape",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -43,7 +43,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 5,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/stop/",
       "filePattern": "*.stop",
       "indexName": "stopbyroute",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -51,19 +51,9 @@
   },
   {
     "model": "datamanager.datasourcepath",
-    "pk": 6,
-    "fields": {
-      "path": "/home/cephei/elasticdata/",
-      "filePattern": "*.expedition",
-      "indexName": "expedition",
-      "timeStamp": "2019-08-10T19:02:10.838Z"
-    }
-  },
-  {
-    "model": "datamanager.datasourcepath",
     "pk": 7,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/odbyroute/",
       "filePattern": "*.odbyroute",
       "indexName": "odbyroute",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -73,7 +63,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 8,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/general/",
       "filePattern": "*.general",
       "indexName": "general",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -83,7 +73,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 9,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/paymentfactor/",
       "filePattern": "*.paymentfactor",
       "indexName": "paymentfactor",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -93,7 +83,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 10,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/bip/",
       "filePattern": "*.bip",
       "indexName": "bip",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -103,7 +93,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 11,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/opdata/",
       "filePattern": "*.opdata",
       "indexName": "opdata",
       "timeStamp": "2020-06-23T19:02:10.838Z"
