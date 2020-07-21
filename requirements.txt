@@ -20,3 +20,4 @@ boto3==1.12.39
 python-coveralls==2.9.3
 fakeredis==1.4.0
 six==1.14.0
+gunicorn=20.0.4
