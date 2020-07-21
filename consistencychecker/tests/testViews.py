@@ -11,6 +11,7 @@ class ConsistencycheckerConfigTest(TestCase):
         self.assertEqual(ConsistencycheckerConfig.name, 'consistencychecker')
         self.assertEqual(apps.get_app_config('consistencychecker').name, 'consistencychecker')
 
+
 class ConnectionTest(TestHelper):
 
     def setUp(self):

@@ -9,6 +9,8 @@ from django.views import View
 from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
+from esapi.helper.profile import ESProfileHelper
+from localinfo.helper import PermissionBuilder
 
 
 class GetRouteInfo(View):
@@ -55,9 +57,17 @@ class GetBaseInfo(View):
         routes = list(set(stop_routes + shape_routes))
         routes.sort()
 
+        es_helper = ESProfileHelper()
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        available_routes, op_dict = es_helper.get_available_routes(valid_operator_list)
+        user_routes = {}
+        for key in available_routes:
+            for value in available_routes[key]:
+                user_routes[value] = available_routes[key][value]
         response = {
             'dates': dates,
-            'routes': routes
+            'routes': routes,
+            'user_routes': user_routes
         }
 
         return JsonResponse(response)

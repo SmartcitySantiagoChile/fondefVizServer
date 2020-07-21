@@ -210,7 +210,7 @@ function FilterManager(opts) {
         });
     }
     let localMultiStopFilterVal = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/val")) || "";
-    let localMultiStopFilterText = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/textValue")) || "";
+    let localMultiStopFilterText = JSON.parse(window.localStorage.getItem(urlKey + "multiStopFilter/text")) || "";
     for (let i = 0; i < localMultiStopFilterText.length; i++) {
         let multi_option = new Option(localMultiStopFilterText[i], localMultiStopFilterVal[i], false, true);
         $MULTI_STOP_FILTER.append(multi_option);
@@ -220,7 +220,7 @@ function FilterManager(opts) {
     $MULTI_STOP_FILTER.change(function () {
         window.localStorage.setItem(urlKey + "multiStopFilter/val", JSON.stringify($MULTI_STOP_FILTER.val()));
         let textOptions = [...$MULTI_STOP_FILTER[0].selectedOptions].map(e => e.innerText);
-        window.localStorage.setItem(urlKey + "multiStopFilter/textValue", JSON.stringify(textOptions));
+        window.localStorage.setItem(urlKey + "multiStopFilter/text", JSON.stringify(textOptions));
     });
     /* BUTTON ACTION */
     var getParameters = function () {

@@ -11,7 +11,6 @@ class PaymentfactorConfigTest(TestCase):
         self.assertEqual(apps.get_app_config('paymentfactor').name, 'paymentfactor')
 
 
-
 class ConnectionTest(TestHelper):
 
     def setUp(self):

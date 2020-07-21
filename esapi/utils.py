@@ -4,6 +4,7 @@
 import json
 
 from esapi.errors import FondefVizError, ESQueryOperationProgramError, ESQueryDateRangeParametersDoesNotExist
+from esapi.helper.opdata import ESOPDataHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 
@@ -20,6 +21,7 @@ def check_operation_program(start_date, end_date):
         raise ESQueryDateRangeParametersDoesNotExist()
     operation_program_error_for_stop = False
     operation_program_error_for_shape = False
+    operation_program_error_for_opdata = False
     error_raised = None
 
     try:
@@ -34,9 +36,15 @@ def check_operation_program(start_date, end_date):
         operation_program_error_for_shape = True
         error_raised = e
 
-    if operation_program_error_for_shape != operation_program_error_for_stop:
+    try:
+        ESOPDataHelper().check_operation_program_between_dates(start_date, end_date)
+    except FondefVizError as e:
+        operation_program_error_for_opdata = True
+        error_raised = e
+
+    if operation_program_error_for_shape != operation_program_error_for_stop or operation_program_error_for_stop != operation_program_error_for_opdata:
         raise ESQueryOperationProgramError()
-    elif operation_program_error_for_shape == True or operation_program_error_for_stop == True:
+    elif operation_program_error_for_shape == True or operation_program_error_for_stop == True or operation_program_error_for_opdata == True:
         raise error_raised
 
 
