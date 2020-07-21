@@ -1,0 +1,4 @@
+# for postgres container
+POSTGRES_DB=webapp
+POSTGRES_USER=webapp
+POSTGRES_PASSWORD=webapp
