@@ -71,13 +71,7 @@
 
         <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
     {% endwith %}
-
-    <script id="loadManager" src="{% static "datamanager/js/loadManager.js" %}"
-            {% if operation_program_tables %}
-            data-filter='["stop", "shape", "opdata"]'
-            {% else %}
-            data-filter='["profile", "speed", "general", "stopbyoute", "trip", "odbyroute", "paymentfactor", "bip"]'
-            {% endif %}
-    ></script>
+    {{ data|json_script:"data-filter" }}
+    <script id="loadManager" src="{% static "datamanager/js/loadManager.js" %}"></script>
 
 {% endblock %}

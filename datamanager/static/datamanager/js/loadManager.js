@@ -184,7 +184,7 @@ $(document).ready(function () {
         };
 
         this.updateTables = function () {
-            let filters = JSON.parse($("#loadManager").attr("data-filter"));
+            const filters = JSON.parse(document.getElementById('data-filter').textContent);
             var params = {
                 filters: filters
             };
