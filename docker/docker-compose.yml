@@ -10,8 +10,8 @@ services:
       - static_volume:/app/static
       - media_volume:/app/media
     environment:
-      - SU_DJANGO_USERNAME=transapp
-      - SU_DJANGO_PASS=transapp
+      - SU_DJANGO_USERNAME=adatrap
+      - SU_DJANGO_PASS=adatrap
     env_file:
       - ./docker_env
     depends_on:
