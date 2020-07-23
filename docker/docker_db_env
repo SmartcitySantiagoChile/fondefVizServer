@@ -1,4 +1,4 @@
 # for postgres container
-POSTGRES_DB=postgres
+POSTGRES_DB=fondefdev
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres

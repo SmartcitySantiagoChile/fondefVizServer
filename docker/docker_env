@@ -6,9 +6,9 @@ DEBUG=True
 ALLOWED_HOSTS=127.0.0.1,localhost
 
 DB_NAME=fondefdev
-DB_USER=adatrap
-DB_PASS=adatrap
-DB_HOST=localhost
+DB_USER=postgres
+DB_PASS=postgres
+DB_HOST=db
 DB_PORT=5432
 
 LOG_PATH=./file.log
