@@ -79,6 +79,21 @@ services:
       - 9200:9200
     networks:
       - elastic
+
+  test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: test
+    env_file:
+      - ./docker_env
+    depends_on:
+      - cache
+      - db
+    networks:
+      - database_network
+      - cache_network
+
 networks:
   nginx_network:
     driver: bridge
