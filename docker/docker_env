@@ -1,9 +1,9 @@
 # for project container
 SECRET_KEY=a
 
-DEBUG=True
+DEBUG=False
 
-ALLOWED_HOSTS=127.0.0.1,localhost
+ALLOWED_HOSTS=0.0.0.0, 127.0.0.1,localhost
 
 DB_NAME=fondefdev
 DB_USER=postgres
@@ -13,5 +13,11 @@ DB_PORT=5432
 
 LOG_PATH=./file.log
 
-REDIS_LOCATION=redis://cache:6379
+REDIS_HOST=cache
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_LOCATION=cache:6379
+
+ELASTICSEARCH_HOST=es
+ELASTICSEARCH_PORT=9200
 

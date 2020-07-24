@@ -58,13 +58,27 @@ services:
   db:
     image: postgres:9.6-alpine
     volumes:
-      - postgres_webapp_data:/var/lib/postgresql/data/
+      - postgres_fondefdev_data:/var/lib/postgresql/data/
     env_file:
       - ./docker_db_env
     networks:
       - cache_network
       - database_network
-
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
 networks:
   nginx_network:
     driver: bridge
@@ -72,8 +86,11 @@ networks:
     driver: bridge
   cache_network:
     driver: bridge
+  elastic:
+    driver: bridge
 
 volumes:
-  postgres_webapp_data:
+  postgres_fondefdev_data:
   static_volume:
   media_volume:
+  data:

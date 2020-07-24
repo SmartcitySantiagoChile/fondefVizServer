@@ -35,7 +35,7 @@ case "$1" in
       echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('$SU_DJANGO_USERNAME', 'a@b.com', '$SU_DJANGO_PASS') if not User.objects.filter(username='$SU_DJANGO_USERNAME').exists() else None;" | python manage.py shell
     fi
 
-    gunicorn --chdir webapp --access-logfile - --bind :8000 webapp.wsgi:application -t 1200
+    gunicorn --chdir fondefVizServer --access-logfile - --bind :8000 fondefVizServer.wsgi:application -t 1200
   ;;
   worker)
     echo "starting worker"
