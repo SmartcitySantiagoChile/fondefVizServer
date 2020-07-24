@@ -312,7 +312,22 @@ de la aplicación:
 
 ![Perfil_de_Carga](readme_data/perfil_carga.png)
 
+### Docker
+Docker es una tecnología que permite trabajar en ambientes controlados, aislados del resto de librerías del sistema operativo y operan bajo una lógica sin estado (stateless).
 
+Para crear la imagen docker y ejecutarla se utilizan los siguientes comandos:
+
+Construir imagen:
+
+`docker-compose -f docker/docker-compose.yml build`
+
+Ejecutar:
+
+`docker-compose -f docker/docker-compose.yml up`
+
+Detener:
+
+`docker-compose -f docker/docker-compose.yml down`
 
 ### Opcionales
 
