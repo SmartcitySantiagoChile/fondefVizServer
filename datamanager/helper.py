@@ -188,37 +188,54 @@ class UploaderManager(object):
 
 class FileManager(object):
 
-    def _get_file_list(self):
+    def _get_file_list(self, index_filter=None):
         """ list all files in directory with a given code """
         file_dict = defaultdict(list)
+        if index_filter:
+            query = Q()
+            for index in index_filter:
+                query |= Q(fileName__contains=index)
+            objects = LoadFile.objects.filter(query)
+        else:
+            objects = LoadFile.objects.all()
 
-        for file_obj in LoadFile.objects.all():
+        for file_obj in objects:
             serialized_file = file_obj.get_dictionary()
             index_name = file_obj.fileName.split('.')[1]
             file_dict[index_name].append(serialized_file)
 
         return file_dict
 
-    def get_document_number_by_file_from_elasticsearch(self, file_filter=None):
-        helpers = [
-            ESStopHelper(),
-            ESStopByRouteHelper(),
-            ESProfileHelper(),
-            ESSpeedHelper(),
-            ESTripHelper(),
-            ESShapeHelper(),
-            ESODByRouteHelper(),
-            ESResumeStatisticHelper(),
-            ESPaymentFactorHelper(),
-            ESBipHelper()
-        ]
+    def get_document_number_by_file_from_elasticsearch(self, file_filter=None, index_filter=None):
+        helpers_dict = {
+            'stop': ESStopHelper(),
+            'stopbyoute': ESStopByRouteHelper(),
+            'profile': ESProfileHelper(),
+            'speed': ESSpeedHelper(),
+            'trip': ESTripHelper(),
+            'shape': ESShapeHelper(),
+            'odbyroute': ESODByRouteHelper(),
+            'general': ESResumeStatisticHelper(),
+            'paymentfactor': ESPaymentFactorHelper(),
+            'bip': ESBipHelper(),
+            'opdata': ESOPDataHelper()
+        }
 
-        file_name_list = None
+        if index_filter is not None:
+            helpers = []
+            for index in index_filter:
+                if index in helpers_dict:
+                    helpers.append(helpers_dict[index])
+        else:
+            helpers = list(helpers_dict.values())
+
         if file_filter is not None:
             if isinstance(file_filter, list):
                 file_name_list = file_filter
             else:
                 file_name_list = [file_filter]
+        else:
+            file_name_list = None
 
         doc_number_by_file = {}
         for helper in helpers:
@@ -228,10 +245,9 @@ class FileManager(object):
 
         return doc_number_by_file
 
-    def get_file_list(self):
-        uploaded_files = self.get_document_number_by_file_from_elasticsearch()
-        file_list = self._get_file_list()
-
+    def get_file_list(self, index_filter=None):
+        uploaded_files = self.get_document_number_by_file_from_elasticsearch(index_filter=index_filter)
+        file_list = self._get_file_list(index_filter=index_filter)
         for key in file_list:
             for data_file in file_list[key]:
                 data_file['docNumber'] = uploaded_files[data_file['name']] if data_file['name'] in uploaded_files else 0
