@@ -1,7 +1,7 @@
 {% extends 'admin/base_site.html' %}
 {% load static panel bubble_message table tabs header %}
 
-{% block title %}{{  tables|yesno:'Administrador de carga de datos,Programa de operación'  }}{% endblock %}
+{% block title %}{{ tables|yesno:'Administrador de carga de datos,Programa de operación' }}{% endblock %}
 
 {% block css %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
@@ -33,30 +33,30 @@
 
 {% block content %}
     <div class="">
-    {% if tables %}
-        {% header "Administrador de carga de datos" %}
-        <div class="row">
-            {% for table in tables %}
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    {% table html_id=table.id columns=6 with_checker=False as file_table %}
-                    {% panel title_icon=table.title_icon title=table.title body=file_table %}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-    {% if operation_program_tables %}
-        {% header "Programa de operación" %}
-    {% bubble_message "" "<p>El programa de operación es representado dentro de la plataforma a través de tres archivos:</p><ul><li>Geometría de servicios: ruta física de cada servicio</li><li>Secuencia de paradas: secuencia de paradas de cada servicio</li><li>Datos de Programa de Operación: indicadores de operación (frecuencia, capacidad, entre otros) por período de cada servicio que opera en el programa de operación</li></ul><p>Estos archivos generan umbrales temporales en los datos, es decir, datos generados con programas de operación distintos se consideran no comparables, situación que será considerada en las vistas</p>" "success" %}
-        <div class="row">
-            {% for table in operation_program_tables %}
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    {% table html_id=table.id columns=6 with_checker=False as file_table %}
-                    {% panel title_icon=table.title_icon title=table.title body=file_table %}
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
+        {% if tables %}
+            {% header "Administrador de carga de datos" %}
+            <div class="row">
+                {% for table in tables %}
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        {% table html_id=table.id columns=6 with_checker=False as file_table %}
+                        {% panel title_icon=table.title_icon title=table.title body=file_table %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if operation_program_tables %}
+            {% header "Programa de operación" %}
+            {% bubble_message "" "<p>El programa de operación es representado dentro de la plataforma a través de tres archivos:</p><ul><li>Geometría de servicios: ruta física de cada servicio</li><li>Secuencia de paradas: secuencia de paradas de cada servicio</li><li>Datos de Programa de Operación: indicadores de operación (frecuencia, capacidad, entre otros) por período de cada servicio que opera en el programa de operación</li></ul><p>Estos archivos generan umbrales temporales en los datos, es decir, datos generados con programas de operación distintos se consideran no comparables, situación que será considerada en las vistas</p>" "success" %}
+            <div class="row">
+                {% for table in operation_program_tables %}
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        {% table html_id=table.id columns=6 with_checker=False as file_table %}
+                        {% panel title_icon=table.title_icon title=table.title body=file_table %}
+                    </div>
+                {% endfor %}
+            </div>
+            </div>
+        {% endif %}
     {% include "help/modal/modal.html" with show_ok_button=True modal_id="modal" %}
 {% endblock %}
 
@@ -71,5 +71,7 @@
 
         <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
     {% endwith %}
-    <script src="{% static "datamanager/js/loadManager.js" %}"></script>
+    {{ data|json_script:"data-filter" }}
+    <script id="loadManager" src="{% static "datamanager/js/loadManager.js" %}"></script>
+
 {% endblock %}

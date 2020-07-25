@@ -58,7 +58,8 @@ class LoadManagerHTML(View):
         ]
         context = {
             'tables': tables,
-            'operation_program_tables': []
+            'operation_program_tables': [],
+            'data': ["profile", "speed", "general", "stopbyoute", "trip", "odbyroute", "paymentfactor", "bip"]
         }
 
         return render(request, template, context)
@@ -88,7 +89,8 @@ class LoadManagerOPHTML(View):
         ]
         context = {
             'tables': [],
-            'operation_program_tables': operation_program_tables
+            'operation_program_tables': operation_program_tables,
+            'data': ["stop", "shape", "opdata"]
         }
 
         return render(request, template, context)
@@ -207,11 +209,10 @@ class GetLoadFileData(View):
 
     def get(self, request):
         """ expedition data """
-
+        filters = request.GET.getlist('filters[]', [])
         response = {
-            'routeDictFiles': FileManager().get_file_list()
+            'routeDictFiles': FileManager().get_file_list(filters)
         }
-
         return JsonResponse(response)
 
 
