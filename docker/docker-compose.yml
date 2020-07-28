@@ -52,6 +52,7 @@ services:
     depends_on:
       - web
       - es
+      - cerebro
     networks:
       - nginx_network
 
@@ -68,7 +69,6 @@ services:
     env_file:
       - ./docker_db_env
     networks:
-      - cache_network
       - database_network
       - elastic
   es:
@@ -82,8 +82,6 @@ services:
       - cluster.routing.allocation.disk.threshold_enabled=false
       - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
       - bootstrap.memory_lock=true
-    ports:
-      - "9200:9200"
 
     volumes:
       - data:/usr/share/elasticsearch/data
@@ -95,8 +93,6 @@ services:
     image: lmenezes/cerebro
     ports:
       - "9000:9000"
-    depends_on:
-      - es
     networks:
       - elastic
 
