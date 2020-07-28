@@ -32,6 +32,10 @@ RUN mkdir /app/mediafiles
 # copy project files on /app folder
 COPY . .
 
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh
+RUN git submodule init && git submodule update
+
 COPY --from=builder /bowerapp/static/components bowerapp/static/components
 
 EXPOSE 8000
