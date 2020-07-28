@@ -27,6 +27,7 @@ case "$1" in
   webserver)
     echo "starting webserver"
     python manage.py migrate
+    python manage.py collectstatic_js_reverse
     python manage.py collectstatic --no-input
 
     # if variable is not empty string
@@ -36,8 +37,8 @@ case "$1" in
     fi
 
     python manage.py loaddata datasource communes daytypes halfhours operators timeperiods transportmodes
+    python manage.py createindexes
 
-    python manage.py collectstatic_js_reverse
 
     gunicorn --chdir fondefVizServer --access-logfile - --bind :8000 fondefVizServer.wsgi:application -t 1200
   ;;

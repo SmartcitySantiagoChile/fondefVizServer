@@ -17,10 +17,12 @@ services:
     depends_on:
       - db
       - cache
+      - es
     networks:
       - nginx_network
       - database_network
       - cache_network
+      - elastic
 
   worker:
     build:
@@ -32,9 +34,11 @@ services:
     depends_on:
       - cache
       - db
+      - es
     networks:
       - database_network
       - cache_network
+      - elastic
 
   nginx:
     build:
@@ -47,6 +51,7 @@ services:
       - media_volume:/app/media
     depends_on:
       - web
+      - es
     networks:
       - nginx_network
 
@@ -54,6 +59,7 @@ services:
     image: redis:latest
     networks:
       - cache_network
+      - elastic
 
   db:
     image: postgres:9.6-alpine
@@ -64,6 +70,7 @@ services:
     networks:
       - cache_network
       - database_network
+      - elastic
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
     ulimits:
@@ -71,28 +78,27 @@ services:
         soft: -1
         hard: -1
     environment:
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+
     volumes:
       - data:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
     networks:
       - elastic
 
-  test:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    command: test
-    env_file:
-      - ./docker_env
+
+  cerebro:
+    image: lmenezes/cerebro
+    ports:
+      - "9000:9000"
     depends_on:
-      - cache
-      - db
+      - es
     networks:
-      - database_network
-      - cache_network
+      - elastic
 
 networks:
   nginx_network:

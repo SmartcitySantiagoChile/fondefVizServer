@@ -321,6 +321,11 @@ Construir imagen:
 
 `docker-compose -f docker/docker-compose.yml build`
 
+Antes de ejecutar la imagen es necesario aumentar la memoria virtual para el servicio de elasticsearch:
+
+`sysctl -w vm.max_map_count=262144`
+
+
 Ejecutar:
 
 `docker-compose -f docker/docker-compose.yml up`
