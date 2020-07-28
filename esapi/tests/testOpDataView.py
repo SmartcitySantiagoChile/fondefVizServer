@@ -15,6 +15,7 @@ from testhelper.helper import TestHelper
 
 
 class OPDataByAuthRouteCode(TestHelper):
+    fixtures = ['timeperiods.json', 'timeperiods']
 
     def setUp(self):
         auth_code = 'T101 00I'
@@ -22,10 +23,7 @@ class OPDataByAuthRouteCode(TestHelper):
         OPDictionary.objects.create(auth_route_code=auth_code, op_route_code=op_code)
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:opdataAuthRoute')
-        self.data = {
-        }
-        call_command('loaddata', 'timeperiods',
-                     verbosity=0)
+        self.data = {}
 
     def test_wrong_dates(self):
         self.data['dates'] = '[[]]'
