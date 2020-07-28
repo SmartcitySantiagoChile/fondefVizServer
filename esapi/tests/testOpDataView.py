@@ -2,14 +2,16 @@
 from __future__ import unicode_literals
 
 import json
+import os
 from unittest import mock
 
+from django.core.management import call_command
 from django.urls import reverse
+from elasticsearch_dsl import AttrList, AttrDict
 
 from esapi.errors import ESQueryDateParametersDoesNotExist, ESQueryAuthRouteCodeTranslateDoesNotExist
 from localinfo.models import OPDictionary
 from testhelper.helper import TestHelper
-from elasticsearch_dsl import AttrList, AttrDict
 
 
 class OPDataByAuthRouteCode(TestHelper):
@@ -22,6 +24,8 @@ class OPDataByAuthRouteCode(TestHelper):
         self.url = reverse('esapi:opdataAuthRoute')
         self.data = {
         }
+        call_command('loaddata', 'timeperiods',
+                     verbosity=0)
 
     def test_wrong_dates(self):
         self.data['dates'] = '[[]]'
@@ -41,10 +45,10 @@ class OPDataByAuthRouteCode(TestHelper):
     def test_correct_auth_code(self, helper):
         helper.return_value = helper
         helper.get_route_info.return_value = helper
-        unsorted_dict = [AttrDict({'timePeriod': 3}), AttrDict({'timePeriod': 1})]
+        unsorted_dict = [AttrDict({'timePeriod': 2}), AttrDict({'timePeriod': 1})]
         helper.execute.return_value = [AttrDict({'dayType': AttrList(unsorted_dict)})]
         self.data['dates'] = '[["2020-03-05"]]'
         self.data['authRouteCode'] = 'T101 00I'
         response = self.client.get(self.url, self.data)
-        expected_dict = '[{"timePeriod": 1}, {"timePeriod": 3}]'
+        expected_dict = '[{"timePeriod": "Pre nocturno"}, {"timePeriod": "Nocturno"}]'
         self.assertEqual(expected_dict, json.dumps(json.loads(response.content)['data']))
