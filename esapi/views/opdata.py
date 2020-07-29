@@ -10,7 +10,7 @@ from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError, ESQu
     ESQueryResultEmpty
 from esapi.helper.opdata import ESOPDataHelper
 from esapi.utils import get_dates_from_request
-from localinfo.helper import get_op_route
+from localinfo.helper import get_op_route, get_timeperiod_list_for_select_input
 
 
 class OPDataByAuthRouteCode(View):
@@ -20,10 +20,13 @@ class OPDataByAuthRouteCode(View):
         return super(OPDataByAuthRouteCode, self).dispatch(request, *args, **kwargs)
 
     def transform_data(self, query):
-        exec = query.execute()
-        for hit in exec:
+        time_period_dict = get_timeperiod_list_for_select_input(True)
+        for hit in query.execute():
             res = list(map(lambda x: x.to_dict(), list(hit.dayType)))
-            return sorted(res, key=lambda x: x['timePeriod'])
+            res = sorted(res, key=lambda x: x['timePeriod'])
+            for data_dict in res:
+                data_dict['timePeriod'] = time_period_dict[data_dict['timePeriod']]
+            return res
 
     def process_request(self, request, params, export_data=False):
         response = {}
