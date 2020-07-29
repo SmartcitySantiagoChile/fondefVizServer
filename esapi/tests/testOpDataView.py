@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
-import os
 from unittest import mock
 
-from django.core.management import call_command
 from django.urls import reverse
 from elasticsearch_dsl import AttrList, AttrDict
 
@@ -15,7 +10,7 @@ from testhelper.helper import TestHelper
 
 
 class OPDataByAuthRouteCode(TestHelper):
-    fixtures = ['timeperiods.json', 'timeperiods']
+    fixtures = ['timeperiods']
 
     def setUp(self):
         auth_code = 'T101 00I'
