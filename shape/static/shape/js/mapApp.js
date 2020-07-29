@@ -151,6 +151,7 @@ $(document).ready(function () {
                 $(this).css("color", color);
             });
         };
+
         this.refreshVisibilityButton = function () {
             var $VISIBILITY_BUTTON = $(".selectorRow .visibility");
             $VISIBILITY_BUTTON.off("click");
@@ -251,7 +252,7 @@ $(document).ready(function () {
                 let userRouteList = Object.keys(data.user_routes).map(e =>
                     "<option>" + e + "</option>"
                 ).join("");
-                let dateList = data.dates.map(function (el) {
+                let dateList = data.dates.reverse().map(function (el) {
                     return "<option>" + el + "</option>";
                 }).join("");
 
