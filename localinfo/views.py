@@ -68,8 +68,8 @@ class OPDictionaryCsvUploader(View):
                 if row[1].strip():
                     OPDictionary.objects.update_or_create(
                         auth_route_code=row[0],
-                        defaults={'user_route_code': row[1], 'op_route_code': row[2], 'route_type': row[3], 'created_at':
-                                  })
+                        defaults={'user_route_code': row[1], 'op_route_code': row[2], 'route_type': row[3],
+                                  'created_at': upload_time, 'updated_at': upload_time})
             return JsonResponse(data={"status": True})
         else:
             return JsonResponse(data={"error": "No existe archivo."}, status=400)
