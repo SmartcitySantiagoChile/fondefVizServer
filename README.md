@@ -334,12 +334,12 @@ Detener:
 
 `docker-compose -f docker/docker-compose.yml down`
 
-Para ejecutar los test es necesario construir la imagen y luego ejecutarla usando el flag --abort-on-container-exit,
+Para ejecutar los tests es necesario construir la imagen y luego ejecutarla usando el flag --abort-on-container-exit,
 esto con fin de evitar que siga ejecutándose el ambiente de pruebas posterior a la finalización de los tests.
 
 Construir la imagen:
 
-`sudo docker-compose -f docker/docker-compose-test.yml build ` 
+`docker-compose -f docker/docker-compose-test.yml build ` 
 
 Ejecutar tests:
  
