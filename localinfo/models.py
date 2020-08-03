@@ -206,6 +206,10 @@ class OPDictionary(models.Model):
 
     auth_route_code = models.CharField("Código transantiago", max_length=30)
     op_route_code = models.CharField("Código de operación", max_length=30)
+    user_route_code = models.CharField("Código de usuario", max_length=30, null=True)
+    route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
+    created_at = models.DateTimeField("Fecha de creación", null=True)
+    updated_at = models.DateTimeField("Fecha de última modificación", null=True)
 
     class Meta:
         verbose_name = "diccionario PO "
