@@ -100,7 +100,7 @@ class CustomRouteAdmin(admin.ModelAdmin):
 
 class CustomOPDictionaryAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ('auth_route_code', 'op_route_code')
+    list_display = ('auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at')
 
 
 admin.site.register(Operator, OperatorAdmin)
