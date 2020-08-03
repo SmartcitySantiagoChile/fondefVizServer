@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 from io import StringIO
 
 from django.core.files.storage import FileSystemStorage
@@ -61,11 +62,14 @@ class OPDictionaryCsvUploader(View):
         csv_file = request.FILES.get('csvDictionary', False)
         if csv_file and csv_file.size != 0:
             csvf = StringIO(csv_file.read().decode())
+            upload_time = datetime.now()
             reader = csv.reader(csvf, delimiter=',')
             for row in reader:
                 if row[1].strip():
                     OPDictionary.objects.update_or_create(
-                        auth_route_code=row[0], defaults={'op_route_code': row[1]})
+                        auth_route_code=row[0],
+                        defaults={'user_route_code': row[1], 'op_route_code': row[2], 'route_type': row[3], 'created_at':
+                                  })
             return JsonResponse(data={"status": True})
         else:
             return JsonResponse(data={"error": "No existe archivo."}, status=400)
