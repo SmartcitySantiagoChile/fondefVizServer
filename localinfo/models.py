@@ -8,6 +8,10 @@ from django.template.defaultfilters import truncatechars
 from django.utils.html import strip_tags
 
 
+class TimePeriodDate(models.Model):
+    date = models.DateField("Fecha ")
+
+
 class TimePeriod(models.Model):
     """ Time period with standard names """
 
@@ -25,6 +29,9 @@ class TimePeriod(models.Model):
 
     # End time for the period
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
+
+    # Date when the period is valid
+    date = models.ForeignKey(TimePeriodDate, on_delete=models.CASCADE, verbose_name="Fecha de validez")
 
     def __str__(self):
         return str(self.authorityPeriodName)
@@ -210,6 +217,3 @@ class OPDictionary(models.Model):
     class Meta:
         verbose_name = "diccionario PO "
         verbose_name_plural = "diccionarios PO"
-
-
-class TimePeriodType(models.Model):
