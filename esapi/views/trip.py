@@ -15,7 +15,7 @@ from esapi.helper.stop import ESStopHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
-from localinfo.helper import get_calendar_info
+from localinfo.helper import get_calendar_info, get_op_routes_dict
 
 
 class ResumeData(PermissionRequiredMixin, View):
@@ -421,7 +421,7 @@ class MultiRouteData(View):
         try:
             es_query = es_helper.get_all_auth_routes()
             response = self.process_data(es_query)
-            response['routesDict'] = []  # TODO: obtener con opdict
+            response['routesDict'] = get_op_routes_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
