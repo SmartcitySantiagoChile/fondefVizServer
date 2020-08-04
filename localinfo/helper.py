@@ -116,9 +116,8 @@ def get_op_route(auth_route_code):
 
 def get_op_routes_dict():
     routes_dict = {}
-    for definition in OPDictionary.objects.all():
-        definition = definition.__dict__
-        routes_dict.update({definition['auth_route_code']: definition['route_type']})
+    for auth_route_code, route_type in OPDictionary.objects.values_list('auth_route_code', 'route_type'):
+        routes_dict.update({auth_route_code: route_type})
     return routes_dict
 
 

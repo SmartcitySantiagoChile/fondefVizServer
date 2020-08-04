@@ -53,13 +53,13 @@ class OPDictionaryCsvUploader(View):
                     if row[1].strip():
                         created_object = OPDictionary.objects.filter(auth_route_code=row[0])
                         if created_object:
-                            created_object.update(user_route_code=row[1], op_route_code=row[2],
-                                                  route_type=row[3], updated_at=upload_time)
+                            created_object.bulk_update(user_route_code=row[1], op_route_code=row[2],
+                                                       route_type=row[3], updated_at=upload_time)
                         else:
-                            OPDictionary.objects.create(user_route_code=row[1], op_route_code=row[2],
-                                                        route_type=row[3], created_at=upload_time,
-                                                        updated_at=upload_time,
-                                                        auth_route_code=row[0])
+                            OPDictionary.objects.bulk_create(user_route_code=row[1], op_route_code=row[2],
+                                                             route_type=row[3], created_at=upload_time,
+                                                             updated_at=upload_time,
+                                                             auth_route_code=row[0])
                 return JsonResponse(data={"status": True})
             except Exception:
                 return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
