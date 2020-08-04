@@ -114,6 +114,14 @@ def get_op_route(auth_route_code):
     return res
 
 
+def get_op_routes_dict():
+    routes_dict = {}
+    for definition in OPDictionary.objects.all():
+        definition = definition.__dict__
+        routes_dict.update({definition['auth_route_code']: definition['route_type']})
+    return routes_dict
+
+
 class PermissionBuilder(object):
 
     def __init__(self):

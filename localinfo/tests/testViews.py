@@ -4,7 +4,7 @@ import os
 
 from django.urls import reverse
 
-from localinfo.models import OPDictionary, CustomRoute
+from localinfo.models import OPDictionary
 from testhelper.helper import TestHelper
 
 

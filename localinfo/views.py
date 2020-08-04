@@ -1,10 +1,10 @@
 import csv
-from datetime import datetime
 from io import StringIO
 
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
@@ -47,7 +47,7 @@ class OPDictionaryCsvUploader(View):
         if csv_file and csv_file.size != 0:
             try:
                 csvf = StringIO(csv_file.read().decode())
-                upload_time = datetime.now()
+                upload_time = timezone.now()
                 reader = csv.reader(csvf, delimiter=',')
                 for row in reader:
                     if row[1].strip():
