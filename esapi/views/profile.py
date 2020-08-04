@@ -18,7 +18,7 @@ from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBe
 from esapi.utils import check_operation_program
 from esapi.utils import get_dates_from_request
 from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input \
-    , get_calendar_info, get_custom_routes_dict
+    , get_calendar_info
 
 
 class LoadProfileByStopData(View):
@@ -137,7 +137,7 @@ class AvailableRoutes(View):
             available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
-            response['routesDict'] = get_custom_routes_dict()
+            response['routesDict'] = [] # TODO: agregar con opdata
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

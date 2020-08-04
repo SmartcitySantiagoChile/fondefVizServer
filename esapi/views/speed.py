@@ -16,7 +16,7 @@ from esapi.helper.speed import ESSpeedHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.messages import SpeedVariationWithLessDaysMessage
 from esapi.utils import check_operation_program, get_dates_from_request
-from localinfo.helper import PermissionBuilder, get_calendar_info, get_custom_routes_dict
+from localinfo.helper import PermissionBuilder, get_calendar_info
 
 hours = ["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00",
          "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -50,7 +50,7 @@ class AvailableRoutes(View):
             available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
-            response['routesDict'] = get_custom_routes_dict()
+            response['routesDict'] = [] # TODO: obtener con opdict
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
