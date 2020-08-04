@@ -210,3 +210,6 @@ class OPDictionary(models.Model):
     class Meta:
         verbose_name = "diccionario PO "
         verbose_name_plural = "diccionarios PO"
+
+
+class TimePeriodType(models.Model):
