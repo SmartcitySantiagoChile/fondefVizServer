@@ -77,8 +77,7 @@ class OPDictionaryCsvUploader(View):
                                                         updated_at=upload_time,
                                                         auth_route_code=row[0])
                 return JsonResponse(data={"status": True})
-            except Exception as e:
-                print(e)
+            except Exception:
                 return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
 
         else:
