@@ -49,19 +49,28 @@ class OPDictionaryCsvUploader(View):
                 csvf = StringIO(csv_file.read().decode())
                 upload_time = timezone.now()
                 reader = csv.reader(csvf, delimiter=',')
+                to_update = []
+                to_create = []
                 for row in reader:
                     if row[1].strip():
                         created_object = OPDictionary.objects.filter(auth_route_code=row[0])
                         if created_object:
-                            created_object.bulk_update(user_route_code=row[1], op_route_code=row[2],
-                                                       route_type=row[3], updated_at=upload_time)
+                            created_object[0].user_route_code = row[1]
+                            created_object[0].op_route_code = row[2]
+                            created_object[0].route_type = row[3]
+                            created_object[0].updated_at = upload_time
+                            to_update.append(created_object[0])
                         else:
-                            OPDictionary.objects.bulk_create(user_route_code=row[1], op_route_code=row[2],
-                                                             route_type=row[3], created_at=upload_time,
-                                                             updated_at=upload_time,
-                                                             auth_route_code=row[0])
+                            to_create.append(OPDictionary(user_route_code=row[1], op_route_code=row[2],
+                                                          route_type=row[3], created_at=upload_time,
+                                                          updated_at=upload_time,
+                                                          auth_route_code=row[0]))
+                OPDictionary.objects.bulk_create(to_create)
+                OPDictionary.objects.bulk_update(to_update,
+                                                 ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
                 return JsonResponse(data={"status": True})
-            except Exception:
+            except Exception as e:
+                print(e)
                 return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
 
         else:
