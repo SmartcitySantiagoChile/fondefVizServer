@@ -61,15 +61,25 @@ class OPDictionaryCsvUploader(View):
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
         if csv_file and csv_file.size != 0:
-            csvf = StringIO(csv_file.read().decode())
-            upload_time = datetime.now()
-            reader = csv.reader(csvf, delimiter=',')
-            for row in reader:
-                if row[1].strip():
-                    OPDictionary.objects.update_or_create(
-                        auth_route_code=row[0],
-                        defaults={'user_route_code': row[1], 'op_route_code': row[2], 'route_type': row[3],
-                                  'created_at': upload_time, 'updated_at': upload_time})
-            return JsonResponse(data={"status": True})
+            try:
+                csvf = StringIO(csv_file.read().decode())
+                upload_time = datetime.now()
+                reader = csv.reader(csvf, delimiter=',')
+                for row in reader:
+                    if row[1].strip():
+                        created_object = OPDictionary.objects.filter(auth_route_code=row[0])
+                        if created_object:
+                            created_object.update(user_route_code=row[1], op_route_code=row[2],
+                                                  route_type=row[3], updated_at=upload_time)
+                        else:
+                            OPDictionary.objects.create(user_route_code=row[1], op_route_code=row[2],
+                                                        route_type=row[3], created_at=upload_time,
+                                                        updated_at=upload_time,
+                                                        auth_route_code=row[0])
+                return JsonResponse(data={"status": True})
+            except Exception as e:
+                print(e)
+                return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
+
         else:
             return JsonResponse(data={"error": "No existe archivo."}, status=400)
