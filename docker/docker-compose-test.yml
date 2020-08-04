@@ -9,8 +9,6 @@ services:
 
   db:
     image: postgres:9.6-alpine
-    volumes:
-      - postgres_fondefdev_data:/var/lib/postgresql/data/
     env_file:
       - ./docker_db_env
     networks:
@@ -35,7 +33,3 @@ networks:
     driver: bridge
   cache_network:
     driver: bridge
-
-volumes:
-  postgres_fondefdev_data:
-  data:
