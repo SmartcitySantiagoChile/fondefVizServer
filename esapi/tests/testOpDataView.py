@@ -10,7 +10,7 @@ from testhelper.helper import TestHelper
 
 
 class OPDataByAuthRouteCode(TestHelper):
-    fixtures = ['timeperiods']
+    fixtures = ['timeperioddates', 'timeperiods']
 
     def setUp(self):
         auth_code = 'T101 00I'

@@ -13,7 +13,7 @@ from testhelper.helper import TestHelper
 
 
 class LoadProfileByStopTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -157,7 +157,7 @@ class AvailableRoutesTest(TestHelper):
 
 
 class LoadProfileByExpeditionTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -315,7 +315,7 @@ class LoadProfileByExpeditionTest(TestHelper):
 
 
 class LoadProfileByTrajectoryTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -439,7 +439,7 @@ class LoadProfileByTrajectoryTest(TestHelper):
 
 
 class LoadBoardingAndAlightingAverageByStopsTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
