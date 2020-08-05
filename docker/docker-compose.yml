@@ -1,0 +1,113 @@
+version: '3.7'
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: webserver
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    environment:
+      - SU_DJANGO_USERNAME=adatrap
+      - SU_DJANGO_PASS=adatrap
+    env_file:
+      - ./docker_env
+    depends_on:
+      - db
+      - cache
+      - es
+    networks:
+      - nginx_network
+      - database_network
+      - cache_network
+      - elastic
+
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: worker
+    env_file:
+      - ./docker_env
+    depends_on:
+      - cache
+      - db
+      - es
+    networks:
+      - database_network
+      - cache_network
+      - elastic
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: docker/nginx/NginxDockerfile
+    ports:
+      - 8000:80
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    depends_on:
+      - web
+      - es
+      - cerebro
+    networks:
+      - nginx_network
+
+  cache:
+    image: redis:latest
+    networks:
+      - cache_network
+      - elastic
+
+  db:
+    image: postgres:9.6-alpine
+    volumes:
+      - postgres_fondefdev_data:/var/lib/postgresql/data/
+    env_file:
+      - ./docker_db_env
+    networks:
+      - database_network
+      - elastic
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
+      - bootstrap.memory_lock=true
+
+    volumes:
+      - data:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+
+  cerebro:
+    image: lmenezes/cerebro
+    ports:
+      - "9000:9000"
+    networks:
+      - elastic
+
+networks:
+  nginx_network:
+    driver: bridge
+  database_network:
+    driver: bridge
+  cache_network:
+    driver: bridge
+  elastic:
+    driver: bridge
+
+volumes:
+  postgres_fondefdev_data:
+  static_volume:
+  media_volume:
+  data:
