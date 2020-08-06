@@ -107,6 +107,10 @@ def search_faq(searchText):
 
 
 def get_op_route(auth_route_code):
+    """
+    :param auth_route_code:
+    :return: op_route_code matched with auth_route_code
+    """
     try:
         res = OPDictionary.objects.get(auth_route_code=auth_route_code).op_route_code
     except OPDictionary.DoesNotExist:
@@ -115,6 +119,9 @@ def get_op_route(auth_route_code):
 
 
 def get_op_routes_dict():
+    """
+    :return: dict {auth_route_code: route_type}
+    """
     routes_dict = {}
     for auth_route_code, route_type in OPDictionary.objects.values_list('auth_route_code', 'route_type'):
         routes_dict.update({auth_route_code: route_type})

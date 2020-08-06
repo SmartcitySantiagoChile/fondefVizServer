@@ -1,12 +1,23 @@
-from django.utils import timezone
+from datetime import datetime
 
 from django.test import TestCase
+from django.utils import timezone
 
-from localinfo.helper import get_op_route, get_op_routes_dict
-from localinfo.models import OPDictionary
+from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
+    get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
+    get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
+    get_calendar_info, get_all_faqs, search_faq
+from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
+
 
 
 class TestHelperUtils(TestCase):
+    fixtures = ['daytypes', 'operators', 'timeperioddates', 'timeperiods', 'halfhours', 'communes', 'transportmodes']
+
+    def setUp(self):
+        self.test_faq = FAQ(question='¿Es esta una pregunta de prueba?', answer='Siempre lo fue', category='route')
+        self.test_faq.save()
+
     def test_get_custom_routes_dict(self):
         dict = {'T101 00I': '101 Ida', 'T101 00R': '101 Regreso', 'T112 00I': '112 Ida'}
         time_at = timezone.now()
@@ -15,7 +26,7 @@ class TestHelperUtils(TestCase):
                                         op_route_code=key, user_route_code=key, created_at=time_at,
                                         updated_at=time_at)
         query = get_op_routes_dict()
-        self.assertDictEqual(dict, query)
+        self.assertEqual(dict, query)
 
     def test_get_op_route(self):
         auth_code = 'T101 00I'
@@ -26,3 +37,176 @@ class TestHelperUtils(TestCase):
 
     def test_get_op_route_wrong_code(self):
         self.assertIsNone(get_op_route('T0000'))
+
+    def test__list_parser(self):
+        test_list = [[1, 2], [3, 4]]
+        expected_list = [{'value': 1, 'item': 2}, {'value': 3, 'item': 4}]
+        self.assertEqual(expected_list, _list_parser(test_list))
+
+    def test__dict_parser(self):
+        test_list = [[1, 2], [3, 4]]
+        expected_dict = {1: 2, 3: 4}
+        self.assertEqual(expected_dict, _dict_parser(test_list))
+
+    def test_get_day_type_list_for_select_input(self):
+        expected_list = [{'value': 0, 'item': 'Laboral'}, {'value': 1, 'item': 'Sábado'},
+                         {'value': 2, 'item': 'Domingo'}]
+        self.assertEqual(expected_list, get_day_type_list_for_select_input())
+
+        expected_dict = {0: 'Laboral', 1: 'Sábado', 2: 'Domingo'}
+        self.assertEqual(expected_dict, get_day_type_list_for_select_input(to_dict=True))
+
+    def test_get_operator_list_for_select_input(self):
+        expected_list = [{'value': 1, 'item': 'Alsacia'}, {'value': 2, 'item': 'Su Bus'},
+                         {'value': 3, 'item': 'Buses Vule'},
+                         {'value': 4, 'item': 'Express'}, {'value': 5, 'item': 'Buses Metropolitana'},
+                         {'value': 6, 'item': 'Red Bus Urbano'}, {'value': 7, 'item': 'STP Santiago'},
+                         {'value': 8, 'item': 'Metro'},
+                         {'value': 9, 'item': 'Metrotren'}]
+        self.assertEqual(expected_list, get_operator_list_for_select_input())
+
+        expected_dict = {1: 'Alsacia', 2: 'Su Bus', 3: 'Buses Vule', 4: 'Express', 5: 'Buses Metropolitana',
+                         6: 'Red Bus Urbano',
+                         7: 'STP Santiago', 8: 'Metro', 9: 'Metrotren'}
+
+        self.assertEqual(expected_dict, get_operator_list_for_select_input(to_dict=True))
+
+        expected_filter_list = [{'value': 1, 'item': 'Alsacia'}, {'value': 2, 'item': 'Su Bus'},
+                                {'value': 3, 'item': 'Buses Vule'}]
+        self.assertEqual(expected_filter_list, get_operator_list_for_select_input(filter=[1, 2, 3]))
+
+    def test_get_timeperiod_list_for_select_input(self):
+        expected_list = [{'value': 1, 'item': 'Pre nocturno'}, {'value': 2, 'item': 'Nocturno'},
+                         {'value': 3, 'item': 'Transición nocturno'}, {'value': 4, 'item': 'Punta mañana'},
+                         {'value': 5, 'item': 'Transición punta mañana'}, {'value': 6, 'item': 'Fuera de punta mañana'},
+                         {'value': 7, 'item': 'Punta mediodia'}, {'value': 8, 'item': 'Fuera de punta tarde'},
+                         {'value': 9, 'item': 'Punta tarde'}, {'value': 10, 'item': 'Transición punta tarde'},
+                         {'value': 11, 'item': 'Fuera de punta nocturno'}, {'value': 12, 'item': 'Pre nocturno'},
+                         {'value': 13, 'item': 'Pre nocturno sábado'}, {'value': 14, 'item': 'Nocturno sábado'},
+                         {'value': 15, 'item': 'Transición sábado mañana'},
+                         {'value': 16, 'item': 'Punta mañana sábado'}, {'value': 17, 'item': 'Mañana sábado'},
+                         {'value': 18, 'item': 'Punta mediodia sábado'}, {'value': 19, 'item': 'Tarde sábado'},
+                         {'value': 20, 'item': 'Transición sábado nocturno'},
+                         {'value': 21, 'item': 'Pre nocturno sábado'}, {'value': 22, 'item': 'Pre nocturno domingo'},
+                         {'value': 23, 'item': 'Nocturno domingo'}, {'value': 24, 'item': 'Transición domingo mañana'},
+                         {'value': 25, 'item': 'Mañana domingo'}, {'value': 26, 'item': 'Mediodia domingo'},
+                         {'value': 27, 'item': 'Tarde domingo'}, {'value': 28, 'item': 'Transición domingo nocturno'},
+                         {'value': 29, 'item': 'Pre nocturno domingo'}]
+        self.assertEqual(expected_list, get_timeperiod_list_for_select_input())
+
+        expected_dict = {1: 'Pre nocturno', 2: 'Nocturno', 3: 'Transición nocturno', 4: 'Punta mañana',
+                         5: 'Transición punta mañana', 6: 'Fuera de punta mañana', 7: 'Punta mediodia',
+                         8: 'Fuera de punta tarde', 9: 'Punta tarde', 10: 'Transición punta tarde',
+                         11: 'Fuera de punta nocturno', 12: 'Pre nocturno', 13: 'Pre nocturno sábado',
+                         14: 'Nocturno sábado', 15: 'Transición sábado mañana', 16: 'Punta mañana sábado',
+                         17: 'Mañana sábado', 18: 'Punta mediodia sábado', 19: 'Tarde sábado',
+                         20: 'Transición sábado nocturno', 21: 'Pre nocturno sábado', 22: 'Pre nocturno domingo',
+                         23: 'Nocturno domingo', 24: 'Transición domingo mañana', 25: 'Mañana domingo',
+                         26: 'Mediodia domingo', 27: 'Tarde domingo', 28: 'Transición domingo nocturno',
+                         29: 'Pre nocturno domingo'}
+        self.assertEqual(expected_dict, get_timeperiod_list_for_select_input(to_dict=True))
+
+    def test_get_halfhour_list_for_select_input(self):
+        expected_list = [{'value': 0, 'item': '00:00:00-00:29:59'}, {'value': 1, 'item': '00:30:00-00:59:59'},
+                         {'value': 2, 'item': '01:00:00-01:29:59'}, {'value': 3, 'item': '01:30:00-01:59:59'},
+                         {'value': 4, 'item': '02:00:00-02:29:59'}, {'value': 5, 'item': '02:30:00-02:59:59'},
+                         {'value': 6, 'item': '03:00:00-03:29:59'}, {'value': 7, 'item': '03:30:00-03:59:59'},
+                         {'value': 8, 'item': '04:00:00-04:29:59'}, {'value': 9, 'item': '04:30:00-04:59:59'},
+                         {'value': 10, 'item': '05:00:00-05:29:59'}, {'value': 11, 'item': '05:30:00-05:59:59'},
+                         {'value': 12, 'item': '06:00:00-06:29:59'}, {'value': 13, 'item': '06:30:00-06:59:59'},
+                         {'value': 14, 'item': '07:00:00-07:29:59'}, {'value': 15, 'item': '07:30:00-07:59:59'},
+                         {'value': 16, 'item': '08:00:00-08:29:59'}, {'value': 17, 'item': '08:30:00-08:59:59'},
+                         {'value': 18, 'item': '09:00:00-09:29:59'}, {'value': 19, 'item': '09:30:00-09:59:59'},
+                         {'value': 20, 'item': '10:00:00-10:29:59'}, {'value': 21, 'item': '10:30:00-10:59:59'},
+                         {'value': 22, 'item': '11:00:00-11:29:59'}, {'value': 23, 'item': '11:30:00-11:59:59'},
+                         {'value': 24, 'item': '12:00:00-12:29:59'}, {'value': 25, 'item': '12:30:00-12:59:59'},
+                         {'value': 26, 'item': '13:00:00-13:29:59'}, {'value': 27, 'item': '13:30:00-13:59:59'},
+                         {'value': 28, 'item': '14:00:00-14:29:59'}, {'value': 29, 'item': '14:30:00-14:59:59'},
+                         {'value': 30, 'item': '15:00:00-15:29:59'}, {'value': 31, 'item': '15:30:00-15:59:59'},
+                         {'value': 32, 'item': '16:00:00-16:29:59'}, {'value': 33, 'item': '16:30:00-16:59:59'},
+                         {'value': 34, 'item': '17:00:00-17:29:59'}, {'value': 35, 'item': '17:30:00-17:59:59'},
+                         {'value': 36, 'item': '18:00:00-18:29:59'}, {'value': 37, 'item': '18:30:00-18:59:59'},
+                         {'value': 38, 'item': '19:00:00-19:29:59'}, {'value': 39, 'item': '19:30:00-19:59:59'},
+                         {'value': 40, 'item': '20:00:00-20:29:59'}, {'value': 41, 'item': '20:30:00-20:59:59'},
+                         {'value': 42, 'item': '21:00:00-21:29:59'}, {'value': 43, 'item': '21:30:00-21:59:59'},
+                         {'value': 44, 'item': '22:00:00-22:29:59'}, {'value': 45, 'item': '22:30:00-22:59:59'},
+                         {'value': 46, 'item': '23:00:00-23:29:59'}, {'value': 47, 'item': '23:30:00-23:59:59'}]
+        self.assertEqual(expected_list, get_halfhour_list_for_select_input())
+        expected_dict = {0: '00:00:00-00:29:59', 1: '00:30:00-00:59:59', 2: '01:00:00-01:29:59', 3: '01:30:00-01:59:59',
+                         4: '02:00:00-02:29:59', 5: '02:30:00-02:59:59', 6: '03:00:00-03:29:59', 7: '03:30:00-03:59:59',
+                         8: '04:00:00-04:29:59', 9: '04:30:00-04:59:59', 10: '05:00:00-05:29:59',
+                         11: '05:30:00-05:59:59', 12: '06:00:00-06:29:59', 13: '06:30:00-06:59:59',
+                         14: '07:00:00-07:29:59', 15: '07:30:00-07:59:59', 16: '08:00:00-08:29:59',
+                         17: '08:30:00-08:59:59', 18: '09:00:00-09:29:59', 19: '09:30:00-09:59:59',
+                         20: '10:00:00-10:29:59', 21: '10:30:00-10:59:59', 22: '11:00:00-11:29:59',
+                         23: '11:30:00-11:59:59', 24: '12:00:00-12:29:59', 25: '12:30:00-12:59:59',
+                         26: '13:00:00-13:29:59', 27: '13:30:00-13:59:59', 28: '14:00:00-14:29:59',
+                         29: '14:30:00-14:59:59', 30: '15:00:00-15:29:59', 31: '15:30:00-15:59:59',
+                         32: '16:00:00-16:29:59', 33: '16:30:00-16:59:59', 34: '17:00:00-17:29:59',
+                         35: '17:30:00-17:59:59', 36: '18:00:00-18:29:59', 37: '18:30:00-18:59:59',
+                         38: '19:00:00-19:29:59', 39: '19:30:00-19:59:59', 40: '20:00:00-20:29:59',
+                         41: '20:30:00-20:59:59', 42: '21:00:00-21:29:59', 43: '21:30:00-21:59:59',
+                         44: '22:00:00-22:29:59', 45: '22:30:00-22:59:59', 46: '23:00:00-23:29:59',
+                         47: '23:30:00-23:59:59'}
+        self.assertEqual(expected_dict, get_halfhour_list_for_select_input(to_dict=True))
+
+    def test_get_commune_list_for_select_input(self):
+        expected_list = [{'value': 0, 'item': 'LAMPA'}, {'value': 1, 'item': 'COLINA'},
+                         {'value': 2, 'item': 'LO BARNECHEA'}, {'value': 3, 'item': 'LAS CONDES'},
+                         {'value': 4, 'item': 'PENALOLEN'}, {'value': 5, 'item': 'LA FLORIDA'},
+                         {'value': 6, 'item': 'PUENTE ALTO'}, {'value': 7, 'item': 'SAN JOSE DE MAIPO'},
+                         {'value': 8, 'item': 'SAN BERNARDO'}, {'value': 9, 'item': 'ISLA DE MAIPO'},
+                         {'value': 10, 'item': 'TALAGANTE'}, {'value': 11, 'item': 'CALERA DE TANGO'},
+                         {'value': 12, 'item': 'PENAFLOR'}, {'value': 13, 'item': 'PADRE HURTADO'},
+                         {'value': 14, 'item': 'MAIPU'}, {'value': 15, 'item': 'PUDAHUEL'},
+                         {'value': 16, 'item': 'ESTACION CENTRAL'}, {'value': 17, 'item': 'LO PRADO'},
+                         {'value': 18, 'item': 'CERRO NAVIA'}, {'value': 19, 'item': 'RENCA'},
+                         {'value': 20, 'item': 'QUILICURA'}, {'value': 21, 'item': 'HUECHURABA'},
+                         {'value': 22, 'item': 'VITACURA'}, {'value': 23, 'item': 'PROVIDENCIA'},
+                         {'value': 24, 'item': 'LA REINA'}, {'value': 25, 'item': 'NUNOA'},
+                         {'value': 26, 'item': 'MACUL'}, {'value': 27, 'item': 'SAN JOAQUIN'},
+                         {'value': 28, 'item': 'LA GRANJA'}, {'value': 29, 'item': 'LA PINTANA'},
+                         {'value': 30, 'item': 'EL BOSQUE'}, {'value': 31, 'item': 'LO ESPEJO'},
+                         {'value': 32, 'item': 'CERRILLOS'}, {'value': 33, 'item': 'PEDRO AGUIRRE CERDA'},
+                         {'value': 34, 'item': 'SANTIAGO'}, {'value': 35, 'item': 'QUINTA NORMAL'},
+                         {'value': 36, 'item': 'INDEPENDENCIA'}, {'value': 37, 'item': 'CONCHALI'},
+                         {'value': 38, 'item': 'RECOLETA'}, {'value': 39, 'item': 'SAN MIGUEL'},
+                         {'value': 40, 'item': 'SAN RAMON'}, {'value': 41, 'item': 'LA CISTERNA'}]
+        self.assertEqual(expected_list, get_commune_list_for_select_input())
+        expected_dict = {0: 'LAMPA', 1: 'COLINA', 2: 'LO BARNECHEA', 3: 'LAS CONDES', 4: 'PENALOLEN', 5: 'LA FLORIDA',
+                         6: 'PUENTE ALTO', 7: 'SAN JOSE DE MAIPO', 8: 'SAN BERNARDO', 9: 'ISLA DE MAIPO',
+                         10: 'TALAGANTE', 11: 'CALERA DE TANGO', 12: 'PENAFLOR', 13: 'PADRE HURTADO', 14: 'MAIPU',
+                         15: 'PUDAHUEL', 16: 'ESTACION CENTRAL', 17: 'LO PRADO', 18: 'CERRO NAVIA', 19: 'RENCA',
+                         20: 'QUILICURA', 21: 'HUECHURABA', 22: 'VITACURA', 23: 'PROVIDENCIA', 24: 'LA REINA',
+                         25: 'NUNOA', 26: 'MACUL', 27: 'SAN JOAQUIN', 28: 'LA GRANJA', 29: 'LA PINTANA',
+                         30: 'EL BOSQUE', 31: 'LO ESPEJO', 32: 'CERRILLOS', 33: 'PEDRO AGUIRRE CERDA', 34: 'SANTIAGO',
+                         35: 'QUINTA NORMAL', 36: 'INDEPENDENCIA', 37: 'CONCHALI', 38: 'RECOLETA', 39: 'SAN MIGUEL',
+                         40: 'SAN RAMON', 41: 'LA CISTERNA'}
+        self.assertDictEqual(expected_dict, get_commune_list_for_select_input(to_dict=True))
+
+    def test_get_transport_mode_list_for_select_input(self):
+        expected_list = [{'value': 1, 'item': 'Bus'}, {'value': 2, 'item': 'Metro'},
+                         {'value': 3, 'item': 'Bus + Metro'}, {'value': 4, 'item': 'MetroTren'},
+                         {'value': 5, 'item': 'Bus + Metrotren'}, {'value': 6, 'item': 'Metro + Metrotren'},
+                         {'value': 7, 'item': 'Bus + Metro + Metrotren'}]
+        self.assertEqual(expected_list, get_transport_mode_list_for_select_input())
+        expected_dict = {1: 'Bus', 2: 'Metro', 3: 'Bus + Metro', 4: 'MetroTren', 5: 'Bus + Metrotren',
+                         6: 'Metro + Metrotren', 7: 'Bus + Metro + Metrotren'}
+        self.assertEqual(expected_dict, get_transport_mode_list_for_select_input(to_dict=True))
+
+    def test_get_calendar_info(self):
+        test_day = DayDescription(color='#000000', description='Día Soleado')
+        test_day.save()
+        test_date = CalendarInfo(date=datetime(2020, 4, 20), day_description_id=test_day.id)
+        test_date.save()
+        expected_calendar_info = [
+            {'date': datetime(2020, 4, 20).date(), 'color': '#000000', 'description': 'Día Soleado'}]
+        self.assertEqual(expected_calendar_info, get_calendar_info())
+
+    def test_all_faqs(self):
+        expected_answer = {'route': [self.test_faq]}
+        self.assertEqual(expected_answer, get_all_faqs())
+
+    def test_search_faq(self):
+        expected_answer = {'route': [self.test_faq]}
+        self.assertEqual(expected_answer, search_faq('pregunta'))
