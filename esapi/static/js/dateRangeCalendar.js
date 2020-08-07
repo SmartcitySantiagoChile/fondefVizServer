@@ -607,6 +607,7 @@ function loadRangeCalendar(data_url, calendar_opts) {
             }
         }
         window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(Array.from(tempSelectedDates)));
+        $('#dayFilter').trigger('change');
     });
 
     //delete all selection

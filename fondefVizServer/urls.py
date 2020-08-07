@@ -21,7 +21,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.views.generic.base import RedirectView
 
-from localinfo.views import FaqImgUploader, FaqHTML, OPDictionaryCsvUploader
+from localinfo.views import FaqImgUploader, FaqHTML, OPDictionaryCsvUploader, TimePeriod
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
@@ -45,6 +45,8 @@ urlpatterns = [
     url(r'^consistencychecker/', include('consistencychecker.urls')),
     url(r'^csvuploadOP/$', login_required(OPDictionaryCsvUploader.as_view()),
         name='opdictionarycsvupload'),
+    url(r'^timePeriod/$', login_required(TimePeriod
+                                         .as_view()), name='timePeriod'),
 
 ]
 

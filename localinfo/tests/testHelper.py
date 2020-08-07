@@ -6,7 +6,7 @@ from django.utils import timezone
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
@@ -210,3 +210,14 @@ class TestHelperUtils(TestCase):
     def test_search_faq(self):
         expected_answer = {'route': [self.test_faq]}
         self.assertEqual(expected_answer, search_faq('pregunta'))
+
+    def test_get_valid_time_period_date(self):
+        valid_dates_list_first = ['2017-01-01', '2018-01-01']
+        valid_dates_list_second = ['2020-06-28', '2020-07-01']
+        invalid_dates_list = ['2017-01-01', '2020-07-01']
+        answer_first = True, '2017-01-01'
+        answer_second = True, '2020-06-28'
+        answer_invalid = False, ''
+        self.assertEqual(answer_first, get_valid_time_period_date(valid_dates_list_first))
+        self.assertEqual(answer_second, get_valid_time_period_date(valid_dates_list_second))
+        self.assertEqual(answer_invalid, get_valid_time_period_date(invalid_dates_list))

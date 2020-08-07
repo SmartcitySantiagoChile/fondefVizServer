@@ -75,9 +75,9 @@ function FilterManager(opts) {
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MULTI_AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
-
-
     let urlKey = window.location.pathname;
+
+
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
     var localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
     if (localDayFilter !== null) {
@@ -89,6 +89,7 @@ function FilterManager(opts) {
         $DAY_TYPE_FILTER.val(localDayTypeFilter);
         $DAY_TYPE_FILTER.trigger("change");
     }
+
     var localPeriodFilter = window.localStorage.getItem("periodFilter");
     if (localPeriodFilter !== null) {
         localPeriodFilter = JSON.parse(localPeriodFilter);
@@ -113,11 +114,6 @@ function FilterManager(opts) {
     }
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
-    $DAY_FILTER.change(function (e) {
-        var dates_array = Array.from(auxSelectedDates);
-        window.localStorage.setItem(urlKey + "dayFilter", JSON.stringify(dates_array));
-        localDayFilter = Array.from(dates_array);
-    });
 
     if (singleDatePicker) {
         $DAY_FILTER.parent().text("Día:").append($DAY_FILTER);
@@ -141,6 +137,36 @@ function FilterManager(opts) {
     });
     $METRIC_FILTER.change(function () {
         window.localStorage.setItem("metricFilter", $METRIC_FILTER.val());
+    });
+
+    $DAY_FILTER.change(function () {
+        let dates = getDates();
+        dates = [dates[0], dates[dates.length - 1]];
+        $PERIOD_FILTER.select2({
+            ajax: {
+                delay: 500, // milliseconds
+                url: Urls["esapi:matchedStopData"](),
+                dataType: "json",
+                data: function (params) {
+                    return {
+                        term: params.term
+                    }
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.items
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+            language: {
+                inputTooShort: function () {
+                    return "Ingresar 3 o más caracteres";
+                }
+            }
+        })
+
     });
 
     /* It saves last parameters sent to server */
@@ -222,9 +248,11 @@ function FilterManager(opts) {
         let textOptions = [...$MULTI_STOP_FILTER[0].selectedOptions].map(e => e.innerText);
         window.localStorage.setItem(urlKey + "multiStopFilter/text", JSON.stringify(textOptions));
     });
-    /* BUTTON ACTION */
-    var getParameters = function () {
-        var dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
+
+
+    /* GET DATES */
+    const getDates = function () {
+        let dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
         dates = groupByDates(dates);
         dates = dates.map(function (date_range) {
             if (date_range.length === 1) {
@@ -233,6 +261,14 @@ function FilterManager(opts) {
                 return [date_range[0][0], date_range[date_range.length - 1][0]];
             }
         });
+        return dates
+    };
+
+
+    /* BUTTON ACTION */
+    var getParameters = function () {
+
+        var dates = getDates();
         var dayType = $DAY_TYPE_FILTER.val();
         var period = $PERIOD_FILTER.val();
         var minutes = $MINUTE_PERIOD_FILTER.val();
