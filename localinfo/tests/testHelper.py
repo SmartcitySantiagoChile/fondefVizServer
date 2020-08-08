@@ -10,7 +10,6 @@ from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _di
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
-
 class TestHelperUtils(TestCase):
     fixtures = ['daytypes', 'operators', 'timeperioddates', 'timeperiods', 'halfhours', 'communes', 'transportmodes']
 
@@ -76,35 +75,78 @@ class TestHelperUtils(TestCase):
         self.assertEqual(expected_filter_list, get_operator_list_for_select_input(filter=[1, 2, 3]))
 
     def test_get_timeperiod_list_for_select_input(self):
-        expected_list = [{'value': 1, 'item': 'Pre nocturno'}, {'value': 2, 'item': 'Nocturno'},
-                         {'value': 3, 'item': 'Transición nocturno'}, {'value': 4, 'item': 'Punta mañana'},
-                         {'value': 5, 'item': 'Transición punta mañana'}, {'value': 6, 'item': 'Fuera de punta mañana'},
-                         {'value': 7, 'item': 'Punta mediodia'}, {'value': 8, 'item': 'Fuera de punta tarde'},
-                         {'value': 9, 'item': 'Punta tarde'}, {'value': 10, 'item': 'Transición punta tarde'},
-                         {'value': 11, 'item': 'Fuera de punta nocturno'}, {'value': 12, 'item': 'Pre nocturno'},
-                         {'value': 13, 'item': 'Pre nocturno sábado'}, {'value': 14, 'item': 'Nocturno sábado'},
-                         {'value': 15, 'item': 'Transición sábado mañana'},
-                         {'value': 16, 'item': 'Punta mañana sábado'}, {'value': 17, 'item': 'Mañana sábado'},
-                         {'value': 18, 'item': 'Punta mediodia sábado'}, {'value': 19, 'item': 'Tarde sábado'},
-                         {'value': 20, 'item': 'Transición sábado nocturno'},
-                         {'value': 21, 'item': 'Pre nocturno sábado'}, {'value': 22, 'item': 'Pre nocturno domingo'},
-                         {'value': 23, 'item': 'Nocturno domingo'}, {'value': 24, 'item': 'Transición domingo mañana'},
-                         {'value': 25, 'item': 'Mañana domingo'}, {'value': 26, 'item': 'Mediodia domingo'},
-                         {'value': 27, 'item': 'Tarde domingo'}, {'value': 28, 'item': 'Transición domingo nocturno'},
-                         {'value': 29, 'item': 'Pre nocturno domingo'}]
-        self.assertEqual(expected_list, get_timeperiod_list_for_select_input())
+        expected_list_period_1 = [{'value': 1, 'item': 'Pre nocturno'}, {'value': 2, 'item': 'Nocturno'},
+                                  {'value': 3, 'item': 'Transición nocturno'}, {'value': 4, 'item': 'Punta mañana'},
+                                  {'value': 5, 'item': 'Transición punta mañana'},
+                                  {'value': 6, 'item': 'Fuera de punta mañana'},
+                                  {'value': 7, 'item': 'Punta mediodia'}, {'value': 8, 'item': 'Fuera de punta tarde'},
+                                  {'value': 9, 'item': 'Punta tarde'}, {'value': 10, 'item': 'Transición punta tarde'},
+                                  {'value': 11, 'item': 'Fuera de punta nocturno'},
+                                  {'value': 12, 'item': 'Pre nocturno'},
+                                  {'value': 13, 'item': 'Pre nocturno sábado'},
+                                  {'value': 14, 'item': 'Nocturno sábado'},
+                                  {'value': 15, 'item': 'Transición sábado mañana'},
+                                  {'value': 16, 'item': 'Punta mañana sábado'}, {'value': 17, 'item': 'Mañana sábado'},
+                                  {'value': 18, 'item': 'Punta mediodia sábado'}, {'value': 19, 'item': 'Tarde sábado'},
+                                  {'value': 20, 'item': 'Transición sábado nocturno'},
+                                  {'value': 21, 'item': 'Pre nocturno sábado'},
+                                  {'value': 22, 'item': 'Pre nocturno domingo'},
+                                  {'value': 23, 'item': 'Nocturno domingo'},
+                                  {'value': 24, 'item': 'Transición domingo mañana'},
+                                  {'value': 25, 'item': 'Mañana domingo'}, {'value': 26, 'item': 'Mediodia domingo'},
+                                  {'value': 27, 'item': 'Tarde domingo'},
+                                  {'value': 28, 'item': 'Transición domingo nocturno'},
+                                  {'value': 29, 'item': 'Pre nocturno domingo'}]
+        self.assertEqual(expected_list_period_1, get_timeperiod_list_for_select_input())
 
-        expected_dict = {1: 'Pre nocturno', 2: 'Nocturno', 3: 'Transición nocturno', 4: 'Punta mañana',
-                         5: 'Transición punta mañana', 6: 'Fuera de punta mañana', 7: 'Punta mediodia',
-                         8: 'Fuera de punta tarde', 9: 'Punta tarde', 10: 'Transición punta tarde',
-                         11: 'Fuera de punta nocturno', 12: 'Pre nocturno', 13: 'Pre nocturno sábado',
-                         14: 'Nocturno sábado', 15: 'Transición sábado mañana', 16: 'Punta mañana sábado',
-                         17: 'Mañana sábado', 18: 'Punta mediodia sábado', 19: 'Tarde sábado',
-                         20: 'Transición sábado nocturno', 21: 'Pre nocturno sábado', 22: 'Pre nocturno domingo',
-                         23: 'Nocturno domingo', 24: 'Transición domingo mañana', 25: 'Mañana domingo',
-                         26: 'Mediodia domingo', 27: 'Tarde domingo', 28: 'Transición domingo nocturno',
-                         29: 'Pre nocturno domingo'}
-        self.assertEqual(expected_dict, get_timeperiod_list_for_select_input(to_dict=True))
+        expected_dict_period_1 = {1: 'Pre nocturno', 2: 'Nocturno', 3: 'Transición nocturno', 4: 'Punta mañana',
+                                  5: 'Transición punta mañana', 6: 'Fuera de punta mañana', 7: 'Punta mediodia',
+                                  8: 'Fuera de punta tarde', 9: 'Punta tarde', 10: 'Transición punta tarde',
+                                  11: 'Fuera de punta nocturno', 12: 'Pre nocturno', 13: 'Pre nocturno sábado',
+                                  14: 'Nocturno sábado', 15: 'Transición sábado mañana', 16: 'Punta mañana sábado',
+                                  17: 'Mañana sábado', 18: 'Punta mediodia sábado', 19: 'Tarde sábado',
+                                  20: 'Transición sábado nocturno', 21: 'Pre nocturno sábado',
+                                  22: 'Pre nocturno domingo',
+                                  23: 'Nocturno domingo', 24: 'Transición domingo mañana', 25: 'Mañana domingo',
+                                  26: 'Mediodia domingo', 27: 'Tarde domingo', 28: 'Transición domingo nocturno',
+                                  29: 'Pre nocturno domingo'}
+        self.assertEqual(expected_dict_period_1, get_timeperiod_list_for_select_input(to_dict=True))
+
+        expected_list_period_2 = [{'value': 30, 'item': 'Pre Nocturno'}, {'value': 31, 'item': 'Nocturno'},
+                                  {'value': 32, 'item': 'Transición nocturno'}, {'value': 33, 'item': 'Punta mañana'},
+                                  {'value': 34, 'item': 'Transición punta mañana'},
+                                  {'value': 35, 'item': 'Fuera de punta mañana'},
+                                  {'value': 36, 'item': 'Punta mediodía'},
+                                  {'value': 37, 'item': 'Fuera de punta tarde'}, {'value': 38, 'item': 'Punta tarde 1'},
+                                  {'value': 39, 'item': 'Punta tarde 2'},
+                                  {'value': 40, 'item': 'Fuera de punta nocturno'},
+                                  {'value': 41, 'item': 'Pre nocturno'}, {'value': 42, 'item': 'Pre nocturno sábado'},
+                                  {'value': 43, 'item': 'Nocturno sábado'},
+                                  {'value': 44, 'item': 'Transición sábado mañana'},
+                                  {'value': 45, 'item': 'Punta mañana sábado'}, {'value': 46, 'item': 'Mañana sábado'},
+                                  {'value': 47, 'item': 'Punta mediodia sábado'}, {'value': 48, 'item': 'Tarde sábado'},
+                                  {'value': 49, 'item': 'Transición sábado nocturno'},
+                                  {'value': 50, 'item': 'Pre nocturno sábado'},
+                                  {'value': 51, 'item': 'Pre nocturno domingo'},
+                                  {'value': 52, 'item': 'Nocturno domingo'},
+                                  {'value': 53, 'item': 'Transición domingo mañana'},
+                                  {'value': 54, 'item': 'Mañana domingo'}, {'value': 55, 'item': 'Mediodia domingo'},
+                                  {'value': 56, 'item': 'Tarde domingo'},
+                                  {'value': 57, 'item': 'Transición domingo nocturno'},
+                                  {'value': 58, 'item': 'Pre nocturno domingo'}]
+        self.assertEqual(expected_list_period_2, get_timeperiod_list_for_select_input(filter_id=2))
+
+        expected_dict_period_2 = {30: 'Pre Nocturno', 31: 'Nocturno', 32: 'Transición nocturno', 33: 'Punta mañana',
+                                  34: 'Transición punta mañana', 35: 'Fuera de punta mañana', 36: 'Punta mediodía',
+                                  37: 'Fuera de punta tarde', 38: 'Punta tarde 1', 39: 'Punta tarde 2',
+                                  40: 'Fuera de punta nocturno', 41: 'Pre nocturno', 42: 'Pre nocturno sábado',
+                                  43: 'Nocturno sábado', 44: 'Transición sábado mañana', 45: 'Punta mañana sábado',
+                                  46: 'Mañana sábado', 47: 'Punta mediodia sábado', 48: 'Tarde sábado',
+                                  49: 'Transición sábado nocturno', 50: 'Pre nocturno sábado',
+                                  51: 'Pre nocturno domingo', 52: 'Nocturno domingo', 53: 'Transición domingo mañana',
+                                  54: 'Mañana domingo', 55: 'Mediodia domingo', 56: 'Tarde domingo',
+                                  57: 'Transición domingo nocturno', 58: 'Pre nocturno domingo'}
+        self.assertEqual(expected_dict_period_2, get_timeperiod_list_for_select_input(to_dict=True, filter_id=2))
 
     def test_get_halfhour_list_for_select_input(self):
         expected_list = [{'value': 0, 'item': '00:00:00-00:29:59'}, {'value': 1, 'item': '00:30:00-00:59:59'},
