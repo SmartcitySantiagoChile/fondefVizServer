@@ -80,7 +80,6 @@ class TimePeriod(View):
 
     def get(self, request):
         dates = request.GET.getlist('dates[]')
-        print(dates)
         valid, date_id = get_valid_time_period_date(dates)
         if not valid:
             return JsonResponse(data={"error": "Las fechas seleccionadas ocurren entre dos periodos distintos."},
