@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date
+from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input
 from localinfo.models import OPDictionary
 
 
@@ -81,10 +81,10 @@ class TimePeriod(View):
     def get(self, request):
         dates = request.GET.getlist('dates[]')
         print(dates)
-        valid, date = get_valid_time_period_date(dates)
+        valid, date_id = get_valid_time_period_date(dates)
         if not valid:
             return JsonResponse(data={"error": "Las fechas seleccionadas ocurren entre dos periodos distintos."},
                                 status=400)
         else:
-
-            return JsonResponse(data={'timePeriod': date}, status=200)
+            valid_period_time = get_timeperiod_list_for_select_input(filter_id=date_id)
+            return JsonResponse(data={'timePeriod': valid_period_time}, status=200)

@@ -4,6 +4,8 @@ from datetime import date as dt
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
+from django.db.models import CharField, Value
+from django.db.models.functions import Concat
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
     CalendarInfo, FAQ, OPDictionary, TimePeriodDate
@@ -42,7 +44,9 @@ def get_timeperiod_list_for_select_input(to_dict=False, filter_id=1):
     parser = _list_parser
     if to_dict:
         parser = _dict_parser
-    return parser(TimePeriod.objects.filter(date_id=filter_id).values_list('esId', 'authorityPeriodName'))
+    return parser(TimePeriod.objects.filter(date_id=filter_id).values_list('esId').annotate(
+        name=Concat('authorityPeriodName', Value(' ('), 'initialTime', Value('-'), 'endTime', Value(')'),
+                    output_field=CharField())))
 
 
 def get_halfhour_list_for_select_input(to_dict=False, format='longName'):
@@ -129,6 +133,10 @@ def get_op_routes_dict():
 
 
 def get_valid_time_period_date(date_list):
+    """
+    :param date_list:
+    :return: (valid | not_valid, period_date_id)
+    """
     valid_dates = TimePeriodDate.objects.values('date', 'id')
     period_date_valid = ''
     first_date = dt.fromisoformat(date_list[0])
