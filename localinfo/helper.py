@@ -129,17 +129,16 @@ def get_op_routes_dict():
 
 
 def get_valid_time_period_date(date_list):
-    valid_dates = TimePeriodDate.objects.values('date')
+    valid_dates = TimePeriodDate.objects.values('date', 'id')
     period_date_valid = ''
     first_date = dt.fromisoformat(date_list[0])
     last_date = dt.fromisoformat(date_list[-1])
     for valid_date in valid_dates:
-        valid_date = valid_date['date']
-        if first_date < valid_date <= last_date:
+        if first_date < valid_date['date'] <= last_date:
             return False, ''
         else:
-            if first_date >= valid_date:
-                period_date_valid = str(valid_date)
+            if first_date >= valid_date['date']:
+                period_date_valid = valid_date['id']
     return True, period_date_valid
 
 

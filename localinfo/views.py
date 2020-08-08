@@ -86,4 +86,5 @@ class TimePeriod(View):
             return JsonResponse(data={"error": "Las fechas seleccionadas ocurren entre dos periodos distintos."},
                                 status=400)
         else:
+
             return JsonResponse(data={'timePeriod': date}, status=200)
