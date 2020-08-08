@@ -40,14 +40,8 @@ urlpatterns = [
     url(r'^user/login/$', auth_views.LoginView.as_view(), name='login'),
     url(r'^user/logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^bip/', include('bip.urls')),
-    url(r'^faqUpload/$', login_required(FaqImgUploader.as_view()), name='faqUpload'),
-    url(r'^faq/$', FaqHTML.as_view(), name='faq'),
     url(r'^consistencychecker/', include('consistencychecker.urls')),
-    url(r'^csvuploadOP/$', login_required(OPDictionaryCsvUploader.as_view()),
-        name='opdictionarycsvupload'),
-    url(r'^timePeriod/$', login_required(TimePeriod
-                                         .as_view()), name='timePeriod'),
-
+    url(r'^localinfo/', include('localinfo.urls')),
 ]
 
 if settings.DEBUG:

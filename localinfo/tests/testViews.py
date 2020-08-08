@@ -21,10 +21,12 @@ class LocalInfoViewTest(TestHelper):
 
     def test_OPDictionaryCsvUploader_post(self):
         with open(os.path.join(self.path, 'op_data.csv'), 'r') as file:
-            response = self.client.post(reverse('opdictionarycsvupload'), {'name': 'file.csv', 'csvDictionary': file})
+            response = self.client.post(reverse('localinfo:opdictionarycsvupload'),
+                                        {'name': 'file.csv', 'csvDictionary': file})
             self.assertEqual(200, response.status_code)
         with open(os.path.join(self.path, 'op_data_2.csv'), 'r') as file:
-            response = self.client.post(reverse('opdictionarycsvupload'), {'name': 'file.csv', 'csvDictionary': file})
+            response = self.client.post(reverse('localinfo:opdictionarycsvupload'),
+                                        {'name': 'file.csv', 'csvDictionary': file})
             self.assertEqual(200, response.status_code)
         saved_objects = OPDictionary.objects.all()
         with open(os.path.join(self.path, 'op_data_2.csv'), 'r') as file:
@@ -33,12 +35,14 @@ class LocalInfoViewTest(TestHelper):
                 self.assertTrue(
                     saved_objects.filter(auth_route_code=row[0], user_route_code=row[1], op_route_code=row[2],
                                          route_type=row[3]).exists())
-        bad_response = self.client.post(reverse('opdictionarycsvupload'), {'name': 'file.csv', 'csvDictionary': ''})
+        bad_response = self.client.post(reverse('localinfo:opdictionarycsvupload'),
+                                        {'name': 'file.csv', 'csvDictionary': ''})
         self.assertEqual(400, bad_response.status_code)
 
     def test_OPDictionaryCsvUploaderError_post(self):
         with open(os.path.join(self.path, 'op_data_error.csv'), 'r') as file:
-            response = self.client.post(reverse('opdictionarycsvupload'), {'name': 'file.csv', 'csvDictionary': file})
+            response = self.client.post(reverse('localinfo:opdictionarycsvupload'),
+                                        {'name': 'file.csv', 'csvDictionary': file})
             self.assertEqual(400, response.status_code)
 
     def test_TimePeriod_error(self):
@@ -49,7 +53,7 @@ class LocalInfoViewTest(TestHelper):
 
     def test_TimePeriod(self):
         self.data['dates[]'] = ['2017-01-01', '2017-07-01']
-        url = reverse('timePeriod')
+        url = reverse('localinfo:timePeriod')
         response = self.client.get(url, self.data)
         expected_time_period = {'timePeriod': [{'value': 1, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
                                                {'value': 2, 'item': 'Nocturno (01:00:00-05:29:59)'},
