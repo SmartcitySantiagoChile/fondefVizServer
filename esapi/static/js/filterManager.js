@@ -139,6 +139,10 @@ function FilterManager(opts) {
         window.localStorage.setItem("metricFilter", $METRIC_FILTER.val());
     });
 
+    const updateTimePeriod = function (data) {
+        console.log(data);
+    };
+
     $DAY_FILTER.change(function () {
         let dates = getDates();
         dates = [dates[0][0], dates[dates.length - 1].pop()];
@@ -146,12 +150,7 @@ function FilterManager(opts) {
             method: "GET",
             data: {"dates": dates},
             success: function (e) {
-                let status = {
-                    message: "Los datos se han cargado correctamente",
-                    title: "Carga exitosa",
-                    type: "success"
-                };
-                showMessage(status);
+                updateTimePeriod(e);
             },
             error: function (e) {
                 console.log(e);
