@@ -86,4 +86,4 @@ class TimePeriod(View):
                                 status=400)
         else:
             valid_period_time = get_timeperiod_list_for_select_input(filter_id=date_id)
-            return JsonResponse(data={'timePeriod': valid_period_time}, status=200)
+            return JsonResponse(data={'timePeriod': valid_period_time})

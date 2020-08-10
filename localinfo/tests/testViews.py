@@ -47,7 +47,7 @@ class LocalInfoViewTest(TestHelper):
 
     def test_TimePeriod_error(self):
         self.data['dates[]'] = ['2017-01-01', '2020-07-01']
-        url = reverse('timePeriod')
+        url = reverse('localinfo:timePeriod')
         response = self.client.get(url, self.data)
         self.assertEqual(400, response.status_code)
 

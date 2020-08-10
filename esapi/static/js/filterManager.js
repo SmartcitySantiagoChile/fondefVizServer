@@ -141,32 +141,28 @@ function FilterManager(opts) {
 
     $DAY_FILTER.change(function () {
         let dates = getDates();
-        dates = [dates[0], dates[dates.length - 1]];
-        $PERIOD_FILTER.select2({
-            ajax: {
-                delay: 500, // milliseconds
-                url: Urls["esapi:matchedStopData"](),
-                dataType: "json",
-                data: function (params) {
-                    return {
-                        term: params.term
-                    }
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.items
-                    }
-                },
-                cache: true
+        dates = [dates[0][0], dates[dates.length - 1].pop()];
+        $.ajax(Urls["localinfo:timePeriod"](), {
+            method: "GET",
+            data: {"dates": dates},
+            success: function (e) {
+                let status = {
+                    message: "Los datos se han cargado correctamente",
+                    title: "Carga exitosa",
+                    type: "success"
+                };
+                showMessage(status);
             },
-            minimumInputLength: 3,
-            language: {
-                inputTooShort: function () {
-                    return "Ingresar 3 o más caracteres";
-                }
-            }
-        })
-
+            error: function (e) {
+                console.log(e);
+                let status = {
+                    message: e.responseJSON.error,
+                    title: "Error",
+                    type: "error"
+                };
+                showMessage(status);
+            },
+        });
     });
 
     /* It saves last parameters sent to server */
