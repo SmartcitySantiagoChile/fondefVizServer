@@ -98,6 +98,7 @@ function FilterManager(opts) {
             obj.id = obj.id || obj.value;
             obj.text = obj.text || obj.item;
         });
+        $PERIOD_FILTER.html("");
         $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data['timePeriod']});
     };
 
