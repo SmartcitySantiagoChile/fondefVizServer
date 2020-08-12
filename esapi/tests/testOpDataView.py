@@ -43,5 +43,5 @@ class OPDataByAuthRouteCode(TestHelper):
         self.data['dates'] = '[["2020-03-05"]]'
         self.data['authRouteCode'] = 'T101 00I'
         response = self.client.get(self.url, self.data)
-        expected_dict = '[{"timePeriod": "Pre nocturno"}, {"timePeriod": "Nocturno"}]'
+        expected_dict = '[{"timePeriod": "Pre nocturno (00:00:00-00:59:59)"}, {"timePeriod": "Nocturno (01:00:00-05:29:59)"}]'
         self.assertEqual(expected_dict, json.dumps(json.loads(response.content)['data']))

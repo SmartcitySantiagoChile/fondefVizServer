@@ -62,7 +62,8 @@ class LoadProfileByStopTest(TestHelper):
         expected = {"info": {"userStopCode": "PJ2", "busStation": True, "authorityStopCode": "T-8-65-NS-10",
                              "name": "Lo Espinoza esq- / Carmen Lidia"}, "trips": {
             "path-152": {"licensePlate": "ZN-6496", "capacity": 91, "expandedGetIn": 1.215768337,
-                         "stopTimePeriod": "Punta tarde", "loadProfile": 36.33063507, "dayType": "Laboral",
+                         "stopTimePeriod": "Punta tarde (17:30:00-20:29:59)", "loadProfile": 36.33063507,
+                         "dayType": "Laboral",
                          "route": "T101 00I", "distOnPath": 9663, "stopTime": "2017-07-31T17:39:36.000Z",
                          "expandedLanding": 1.073773265}}}
 
@@ -388,7 +389,8 @@ class LoadProfileByTrajectoryTest(TestHelper):
         }
         expected = {"busStations": ["T-8-65-NS-10"], "trips": {"path-152": {
             "info": {"licensePlate": "ZN-6496", "capacity": 91, "valid": True, "timeTripInit": "2017-07-31 16:59:11",
-                     "dayType": "Laboral", "route": "T101 00I", "authTimePeriod": "Fuera de punta tarde",
+                     "dayType": "Laboral", "route": "T101 00I",
+                     "authTimePeriod": "Fuera de punta tarde (14:00:00-17:29:59)",
                      "timeTripEnd": "2017-07-31 17:39:36"},
             "stops": {"T-8-65-NS-10": [9663, 36.33063507, 1.215768337, 1.073773265, "2017-07-31T17:39:36.000Z"]}}},
                     "stops": []}
