@@ -121,8 +121,12 @@ function FilterManager(opts) {
                     };
                     showMessage(status);
                     $PERIOD_FILTER.html("");
+                    $PERIOD_FILTER.select2();
                 },
             });
+        } else {
+            $PERIOD_FILTER.html("");
+            $PERIOD_FILTER.select2();
         }
     };
 
