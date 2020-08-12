@@ -98,11 +98,10 @@ function FilterManager(opts) {
             obj.id = obj.id || obj.value;
             obj.text = obj.text || obj.item;
         });
-        $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data['timePeriod']})
+        $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data['timePeriod']});
     };
 
-
-    $DAY_FILTER.change(function () {
+    const getTimePeriod = function () {
         let dates = getDates();
         if (dates.length > 0) {
             dates = [dates[0][0], dates[dates.length - 1].pop()];
@@ -114,17 +113,17 @@ function FilterManager(opts) {
                     getLocalPeriodFilter();
                 },
                 error: function (e) {
-                    console.log(e);
                     let status = {
                         message: e.responseJSON.error,
                         title: "Error",
                         type: "error"
                     };
                     showMessage(status);
+                    $PERIOD_FILTER.html("");
                 },
             });
         }
-    });
+    };
 
 
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
@@ -142,7 +141,6 @@ function FilterManager(opts) {
     const getLocalPeriodFilter = function () {
         let localPeriodFilter = window.localStorage.getItem("periodFilter");
         let localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
-        console.log(localDayFilter);
         if (localPeriodFilter !== null && localDayFilter.length !== 0) {
             localPeriodFilter = JSON.parse(localPeriodFilter);
             $PERIOD_FILTER.val(localPeriodFilter);
@@ -150,7 +148,6 @@ function FilterManager(opts) {
         }
     };
 
-    $DAY_FILTER.trigger("change");
     var localMinutePeriodFilter = window.localStorage.getItem("minutePeriodFilter");
     if (localMinutePeriodFilter !== null) {
         localMinutePeriodFilter = JSON.parse(localMinutePeriodFilter);
@@ -195,6 +192,11 @@ function FilterManager(opts) {
         window.localStorage.setItem("metricFilter", $METRIC_FILTER.val());
     });
 
+    $DAY_FILTER.change(function () {
+        getTimePeriod();
+    });
+
+    $DAY_FILTER.trigger("change");
 
     /* It saves last parameters sent to server */
     var paramsBackup = {};
