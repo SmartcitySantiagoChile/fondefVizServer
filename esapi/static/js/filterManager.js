@@ -78,8 +78,57 @@ function FilterManager(opts) {
     let urlKey = window.location.pathname;
 
 
+    /* GET DATES */
+    const getDates = function () {
+        let dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
+        dates = groupByDates(dates);
+        dates = dates.map(function (date_range) {
+            if (date_range.length === 1) {
+                return [date_range[0][0]]
+            } else {
+                return [date_range[0][0], date_range[date_range.length - 1][0]];
+            }
+        });
+        return dates
+    };
+
+
+    const updateTimePeriod = function (data) {
+        $.map(data['timePeriod'], function (obj) {
+            obj.id = obj.id || obj.value;
+            obj.text = obj.text || obj.item;
+        });
+        $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data['timePeriod']})
+    };
+
+
+    $DAY_FILTER.change(function () {
+        let dates = getDates();
+        if (dates.length > 0) {
+            dates = [dates[0][0], dates[dates.length - 1].pop()];
+            $.ajax(Urls["localinfo:timePeriod"](), {
+                method: "GET",
+                data: {"dates": dates},
+                success: function (e) {
+                    updateTimePeriod(e);
+                    getLocalPeriodFilter();
+                },
+                error: function (e) {
+                    console.log(e);
+                    let status = {
+                        message: e.responseJSON.error,
+                        title: "Error",
+                        type: "error"
+                    };
+                    showMessage(status);
+                },
+            });
+        }
+    });
+
+
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
-    var localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
+    let localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
     if (localDayFilter !== null) {
         localDayFilter = JSON.parse(localDayFilter);
     }
@@ -90,12 +139,18 @@ function FilterManager(opts) {
         $DAY_TYPE_FILTER.trigger("change");
     }
 
-    var localPeriodFilter = window.localStorage.getItem("periodFilter");
-    if (localPeriodFilter !== null) {
-        localPeriodFilter = JSON.parse(localPeriodFilter);
-        $PERIOD_FILTER.val(localPeriodFilter);
-        $PERIOD_FILTER.trigger("change");
-    }
+    const getLocalPeriodFilter = function () {
+        let localPeriodFilter = window.localStorage.getItem("periodFilter");
+        let localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
+        console.log(localDayFilter);
+        if (localPeriodFilter !== null && localDayFilter.length !== 0) {
+            localPeriodFilter = JSON.parse(localPeriodFilter);
+            $PERIOD_FILTER.val(localPeriodFilter);
+            $PERIOD_FILTER.trigger("change");
+        }
+    };
+
+    $DAY_FILTER.trigger("change");
     var localMinutePeriodFilter = window.localStorage.getItem("minutePeriodFilter");
     if (localMinutePeriodFilter !== null) {
         localMinutePeriodFilter = JSON.parse(localMinutePeriodFilter);
@@ -140,53 +195,6 @@ function FilterManager(opts) {
         window.localStorage.setItem("metricFilter", $METRIC_FILTER.val());
     });
 
-    /* GET DATES */
-    const getDates = function () {
-        let dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
-        dates = groupByDates(dates);
-        dates = dates.map(function (date_range) {
-            if (date_range.length === 1) {
-                return [date_range[0][0]]
-            } else {
-                return [date_range[0][0], date_range[date_range.length - 1][0]];
-            }
-        });
-        return dates
-    };
-
-
-    const updateTimePeriod = function (data) {
-        $.map(data['timePeriod'], function (obj) {
-            obj.id = obj.id || obj.value;
-            obj.text = obj.text || obj.item;
-        });
-        $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data['timePeriod']})
-    };
-
-
-    $DAY_FILTER.change(function () {
-        let dates = getDates();
-        dates = [dates[0][0], dates[dates.length - 1].pop()];
-        $.ajax(Urls["localinfo:timePeriod"](), {
-            method: "GET",
-            data: {"dates": dates},
-            success: function (e) {
-                updateTimePeriod(e);
-            },
-            error: function (e) {
-                console.log(e);
-                let status = {
-                    message: e.responseJSON.error,
-                    title: "Error",
-                    type: "error"
-                };
-                showMessage(status);
-            },
-        });
-    });
-
-
-    $DAY_FILTER.trigger("change");
 
     /* It saves last parameters sent to server */
     var paramsBackup = {};
@@ -267,8 +275,6 @@ function FilterManager(opts) {
         let textOptions = [...$MULTI_STOP_FILTER[0].selectedOptions].map(e => e.innerText);
         window.localStorage.setItem(urlKey + "multiStopFilter/text", JSON.stringify(textOptions));
     });
-
-
 
 
     /* BUTTON ACTION */
