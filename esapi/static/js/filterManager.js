@@ -119,6 +119,7 @@ function FilterManager(opts) {
         $DAY_FILTER.parent().text("Día:").append($DAY_FILTER);
     }
 
+
     $DAY_FILTER.click(function (e) {
         $DATE_RANGE_MODAL.modal('show');
     });
@@ -139,9 +140,29 @@ function FilterManager(opts) {
         window.localStorage.setItem("metricFilter", $METRIC_FILTER.val());
     });
 
-    const updateTimePeriod = function (data) {
-        console.log(data);
+    /* GET DATES */
+    const getDates = function () {
+        let dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
+        dates = groupByDates(dates);
+        dates = dates.map(function (date_range) {
+            if (date_range.length === 1) {
+                return [date_range[0][0]]
+            } else {
+                return [date_range[0][0], date_range[date_range.length - 1][0]];
+            }
+        });
+        return dates
     };
+
+
+    const updateTimePeriod = function (data) {
+        $.map(data['timePeriod'], function (obj) {
+            obj.id = obj.id || obj.value;
+            obj.text = obj.text || obj.item;
+        });
+        $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data['timePeriod']})
+    };
+
 
     $DAY_FILTER.change(function () {
         let dates = getDates();
@@ -163,6 +184,9 @@ function FilterManager(opts) {
             },
         });
     });
+
+
+    $DAY_FILTER.trigger("change");
 
     /* It saves last parameters sent to server */
     var paramsBackup = {};
@@ -245,19 +269,6 @@ function FilterManager(opts) {
     });
 
 
-    /* GET DATES */
-    const getDates = function () {
-        let dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
-        dates = groupByDates(dates);
-        dates = dates.map(function (date_range) {
-            if (date_range.length === 1) {
-                return [date_range[0][0]]
-            } else {
-                return [date_range[0][0], date_range[date_range.length - 1][0]];
-            }
-        });
-        return dates
-    };
 
 
     /* BUTTON ACTION */
