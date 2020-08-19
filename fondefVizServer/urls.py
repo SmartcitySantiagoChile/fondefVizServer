@@ -18,10 +18,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.decorators import login_required
 from django.views.generic.base import RedirectView
-
-from localinfo.views import FaqImgUploader, FaqHTML, OPDictionaryCsvUploader, TimePeriod
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
