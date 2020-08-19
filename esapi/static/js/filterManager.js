@@ -94,12 +94,13 @@ function FilterManager(opts) {
 
 
     const updateTimePeriod = function (data) {
-        $.map(data['timePeriod'], function (obj) {
-            obj.id = obj.id || obj.value;
-            obj.text = obj.text || obj.item;
+        console.log(data.timePeriod);
+        $.map(data.timePeriod, function (obj) {
+            obj.id = obj.value;
+            obj.text = obj.item;
         });
         $PERIOD_FILTER.html("");
-        $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data['timePeriod']});
+        $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data.timePeriod});
     };
 
     const getTimePeriod = function () {
