@@ -1,6 +1,5 @@
 "use strict";
 $(document).ready(function () {
-
     function MapShapeApp() {
         var _self = this;
         var mapOpts = {
@@ -173,26 +172,31 @@ $(document).ready(function () {
         };
 
         this.addTableInfo = function (data) {
-            let $TABLE = $('#shape_info');
-            let thead = $TABLE.find("thead").find("tr");
-            thead.empty();
-            let head = ["Periodo Transantiago", "Inicio de periodo", "Fin de periodo", "Frecuencia", "Capacidad", "Distancia", "Velocidad"];
-            let headRow = head.map(e => "<th>" + e + "</th>").join("");
-            thead.append(headRow);
-            let tbody = $TABLE.find("tbody");
-            tbody.empty();
-            let keys = Object.keys(data[0]);
-            data.forEach(e => {
-                    let tr = $("<tr></tr>");
-                    tbody.append(tr);
-                    let tds = keys.map(f => {
-                        let value = e[f];
-                        value = (typeof (value) === "number" && value % 1 !== 0) ? value.toFixed(3) : value;
-                        return "<td>" + value + "</td>";
-                    });
-                    tr.append(tds);
-                }
-            );
+            console.log(data);
+            let $TABLE = $('#shapeDetail');
+            $TABLE.DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
+                    decimal: ",",
+                    thousands: "."
+                },
+                paging: false,
+                scrollY: 400,
+                scrollX: false,
+                searching: false,
+                data: data,
+                order: [],
+                columns: [
+                    {title: "Periodo Transantiago", data: "timePeriod", searchable: false},
+                    {title: "Inicio de periodo", data: "startPeriodTime", searchable: false},
+                    {title: "Fin de periodo", data: "endPeriodTime", searchable: false},
+                    {title: "Frecuencia", data: "frecuency", searchable: false},
+                    {title: "Capacidad", data: "capacity", searchable: false},
+                    {title: "Distancia", data: "distance", searchable: false},
+                    {title: "Velocidad", data: "speed", searchable: false},
+                ]
+            });
+            console.log($TABLE);
         };
 
         this.refreshInfoButton = function () {
@@ -211,9 +215,13 @@ $(document).ready(function () {
                             showMessage(data.status);
                             return;
                         }
-                        _self.addTableInfo(data.data);
-                        $("#shape_info").modal("show");
-
+                        $INFO_BUTTON.blur();
+                        let $INFOMODAL = $("#shape_info");
+                        $INFOMODAL.modal("show");
+                        $INFOMODAL.on('shown.bs.modal', function () {
+                            $INFOMODAL.trigger('focus');
+                            _self.addTableInfo(data.data);
+                        })
                     });
                 }
             );
@@ -267,5 +275,11 @@ $(document).ready(function () {
 
     var mapShapeApp = new MapShapeApp();
     mapShapeApp.loadBaseData();
+    var elements = document.querySelectorAll(".leaflet-control a");
+    for (var i = 0; i < elements.length; ++i) {
+        elements[i].setAttribute("tabindex", "-1");
+    }
+    document.activeElement.blur();
+
 })
 ;
