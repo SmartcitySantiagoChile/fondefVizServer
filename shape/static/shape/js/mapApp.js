@@ -4,11 +4,15 @@ $(document).ready(function () {
         var _self = this;
         var mapOpts = {
             mapId: $(".right_col")[0],
-            maxZoom: 18
+            maxZoom: 18,
+            zoomControl: false
         };
         var app = new MapApp(mapOpts);
         var mapInstance = app.getMapInstance();
 
+        /*let zoom = L.control.zoom({position: "topright"});
+        zoom.addTo(mapInstance);
+        */
         var addRouteControl = L.control({position: "topleft"});
         addRouteControl.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
