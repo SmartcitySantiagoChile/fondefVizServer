@@ -72,7 +72,6 @@ function MapApp(opts) {
             };
         }
     };
-    console.log(opts);
     var getDataZoneById = opts.getDataZoneById || null;
     var getZoneValue = opts.getZoneValue || null;
     var getZoneColor = opts.getZoneColor || null;

@@ -10,9 +10,6 @@ $(document).ready(function () {
         var app = new MapApp(mapOpts);
         var mapInstance = app.getMapInstance();
 
-        /*let zoom = L.control.zoom({position: "topright"});
-        zoom.addTo(mapInstance);
-        */
         var addRouteControl = L.control({position: "topleft"});
         addRouteControl.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
@@ -155,13 +152,14 @@ $(document).ready(function () {
             });
         };
 
-        this.refreshVisibilityButton = function () {
-            var $VISIBILITY_BUTTON = $(".selectorRow .visibility");
+        this.refreshVisibilityRoutesButton = function () {
+            var $VISIBILITY_BUTTON = $(".selectorRow .visibility-routes");
             $VISIBILITY_BUTTON.off("click");
             $VISIBILITY_BUTTON.click(function () {
                 var button = $(this);
                 var span = button.find("span");
                 var layerId = button.parent().data("id");
+                console.log(layers[layerId]);
 
                 if (span.hasClass("glyphicon-eye-open")) {
                     button.removeClass("btn-success").addClass("btn-warning");
@@ -216,7 +214,6 @@ $(document).ready(function () {
                     {title: "Velocidad", data: "speed", searchable: false},
                 ]
             });
-            console.log($TABLE);
         };
 
         this.refreshInfoButton = function () {
@@ -255,14 +252,15 @@ $(document).ready(function () {
                 '<select class="form-control input-sm userRoute"><option value="" disabled selected>Ruta Usuario</option>' + userRouteList + '</select>' +
                 '<select class="form-control input-sm route"><option value="" disabled selected>Ruta Transantiago</option></select>' +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
-                '<button class="btn btn-success btn-sm visibility" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '<div/>';
             $ROW_CONTAINER.append(row);
             _self.refreshControlEvents();
             _self.refrehRemoveButton();
             _self.refreshColorPickerButton();
-            _self.refreshVisibilityButton();
+            _self.refreshVisibilityRoutesButton();
             _self.refreshInfoButton();
 
             layers[newId] = new L.FeatureGroup([]);
