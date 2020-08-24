@@ -12,7 +12,7 @@ from testhelper.helper import TestHelper
 
 
 class ResumeDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -94,7 +94,7 @@ class ResumeDataTest(TestHelper):
 
 
 class MapDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -147,7 +147,7 @@ class MapDataTest(TestHelper):
 
 
 class AvailableDaysTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -176,7 +176,7 @@ class AvailableDaysTest(TestHelper):
 
 
 class LargeTravelDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -232,7 +232,7 @@ class LargeTravelDataTest(TestHelper):
 
 
 class FromToMapDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -320,7 +320,7 @@ class FromToMapDataTest(TestHelper):
 
 
 class StrategiesDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -420,7 +420,7 @@ class StrategiesDataTest(TestHelper):
 
 
 class TransfersDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()

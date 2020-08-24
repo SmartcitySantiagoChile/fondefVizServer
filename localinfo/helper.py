@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-
+from datetime import date as dt
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
+from django.db.models import CharField, Value
+from django.db.models.functions import Concat
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo, CustomRoute, FAQ, OPDictionary
+    CalendarInfo, FAQ, OPDictionary, TimePeriodDate
 
 
 def _list_parser(list):
@@ -38,11 +40,13 @@ def get_operator_list_for_select_input(filter=None, to_dict=False):
     return parser(queryset)
 
 
-def get_timeperiod_list_for_select_input(to_dict=False):
+def get_timeperiod_list_for_select_input(to_dict=False, filter_id=1):
     parser = _list_parser
     if to_dict:
         parser = _dict_parser
-    return parser(TimePeriod.objects.values_list('esId', 'authorityPeriodName'))
+    return parser(TimePeriod.objects.filter(date_id=filter_id).values_list('esId').annotate(
+        name=Concat('authorityPeriodName', Value(' ('), 'initialTime', Value('-'), 'endTime', Value(')'),
+                    output_field=CharField())))
 
 
 def get_halfhour_list_for_select_input(to_dict=False, format='longName'):
@@ -106,20 +110,45 @@ def search_faq(searchText):
     return grouped
 
 
-def get_custom_routes_dict():
-    routes_dict = {}
-    for definition in CustomRoute.objects.all():
-        definition = definition.__dict__
-        routes_dict.update({definition['auth_route_code']: definition['custom_route_code']})
-    return routes_dict
-
-
 def get_op_route(auth_route_code):
+    """
+    :param auth_route_code:
+    :return: op_route_code matched with auth_route_code
+    """
     try:
         res = OPDictionary.objects.get(auth_route_code=auth_route_code).op_route_code
     except OPDictionary.DoesNotExist:
         return None
     return res
+
+
+def get_op_routes_dict():
+    """
+    :return: dict {auth_route_code: route_type}
+    """
+    routes_dict = {}
+    for auth_route_code, route_type in OPDictionary.objects.values_list('auth_route_code', 'route_type'):
+        routes_dict.update({auth_route_code: route_type})
+    return routes_dict
+
+
+def get_valid_time_period_date(date_list):
+    """
+    :param date_list:
+    :return: (valid | not_valid, period_date_id)
+    """
+    valid_dates = TimePeriodDate.objects.values('date', 'id')
+    period_date_valid = ''
+    first_date = dt.fromisoformat(date_list[0])
+    last_date = dt.fromisoformat(date_list[-1])
+    for valid_date in valid_dates:
+        if first_date < valid_date['date'] <= last_date:
+            return False, ''
+        else:
+            if first_date >= valid_date['date']:
+                period_date_valid = valid_date['id']
+    return True, period_date_valid
+
 
 class PermissionBuilder(object):
 

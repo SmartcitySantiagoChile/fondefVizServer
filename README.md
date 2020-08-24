@@ -312,6 +312,38 @@ de la aplicación:
 
 ![Perfil_de_Carga](readme_data/perfil_carga.png)
 
+### Docker
+Docker es una tecnología que permite trabajar en ambientes controlados, aislados del resto de librerías del sistema operativo y operan bajo una lógica sin estado (stateless).
+
+Para crear la imagen docker y ejecutarla se utilizan los siguientes comandos:
+
+Construir imagen:
+
+`docker-compose -f docker/docker-compose.yml build`
+
+Antes de ejecutar la imagen es necesario aumentar la memoria virtual para el servicio de elasticsearch:
+
+`sysctl -w vm.max_map_count=262144`
+
+
+Ejecutar:
+
+`docker-compose -f docker/docker-compose.yml up`
+
+Detener:
+
+`docker-compose -f docker/docker-compose.yml down`
+
+Para ejecutar los tests es necesario construir la imagen y luego ejecutarla usando el flag --abort-on-container-exit,
+esto con fin de evitar que siga ejecutándose el ambiente de pruebas posterior a la finalización de los tests.
+
+Construir la imagen:
+
+`docker-compose -f docker/docker-compose-test.yml build ` 
+
+Ejecutar tests:
+ 
+`docker-compose -f docker/docker-compose-test.yml up --abort-on-container-exit` 
 
 
 ### Opcionales
