@@ -144,7 +144,7 @@
       $("#csvForm").on("submit", function (e) {
               e.preventDefault();
               let formData = new FormData(document.getElementById("csvForm"));
-              $.ajax("{% url 'opdictionarycsvupload' %}", {
+              $.ajax("{% url 'localinfo:opdictionarycsvupload' %}", {
                   method: "POST",
                   data: formData,
                   cache: false,
