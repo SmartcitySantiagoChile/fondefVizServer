@@ -28,7 +28,7 @@ class AvailableDaysTest(TestHelper):
 
 
 class GlobalDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()

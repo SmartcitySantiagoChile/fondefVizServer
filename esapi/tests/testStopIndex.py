@@ -67,3 +67,9 @@ class ESStopIndexTest(TestCase):
         type(get_base_query).hits = mock.PropertyMock(return_value=hit)
         type(hit).hits = mock.PropertyMock(return_value=[])
         self.assertRaises(ESQueryStopInfoDoesNotExist, self.instance.get_stop_info, start_date, auth_stop_code)
+
+    @mock.patch('esapi.helper.basehelper.ElasticSearchHelper._get_available_days')
+    def test_get_available_days(self, _get_available_days):
+        _get_available_days.return_value = list()
+        result = self.instance.get_available_days()
+        self.assertListEqual(result, [])

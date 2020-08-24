@@ -58,7 +58,8 @@ class LoadManagerHTML(View):
         ]
         context = {
             'tables': tables,
-            'operation_program_tables': []
+            'operation_program_tables': [],
+            'data': ["profile", "speed", "general", "stopbyoute", "trip", "odbyroute", "paymentfactor", "bip"]
         }
 
         return render(request, template, context)
@@ -79,11 +80,17 @@ class LoadManagerOPHTML(View):
             {
                 'bubble_title': '', 'bubble_content': 'Archivo con secuencia de paradas por servicio',
                 'id': 'stopTable', 'title_icon': 'fa-map-marker', 'title': 'Secuencia de paradas'
+            },
+            {
+                'bubble_title': '', 'bubble_content': 'Archivo datos de programas de operación',
+                'id': 'opdataTable', 'title_icon': 'fa-bar-chart', 'title': 'Datos de programas de operación'
             }
+
         ]
         context = {
             'tables': [],
-            'operation_program_tables': operation_program_tables
+            'operation_program_tables': operation_program_tables,
+            'data': ["stop", "shape", "opdata"]
         }
 
         return render(request, template, context)
@@ -202,11 +209,10 @@ class GetLoadFileData(View):
 
     def get(self, request):
         """ expedition data """
-
+        filters = request.GET.getlist('filters[]', [])
         response = {
-            'routeDictFiles': FileManager().get_file_list()
+            'routeDictFiles': FileManager().get_file_list(filters)
         }
-
         return JsonResponse(response)
 
 

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 
-from django.shortcuts import render
-from django.views import View
-from django.template.loader import render_to_string
-from django.contrib.auth.mixins import PermissionRequiredMixin
-
-from localinfo.helper import get_timeperiod_list_for_select_input, get_day_type_list_for_select_input, \
-    get_halfhour_list_for_select_input
-
 import json
+
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.views import View
+
+from localinfo.helper import get_day_type_list_for_select_input, \
+    get_halfhour_list_for_select_input
 
 
 class FromToMapHTML(PermissionRequiredMixin, View):
@@ -19,7 +19,6 @@ class FromToMapHTML(PermissionRequiredMixin, View):
         context = {
             'data_filter': {
                 'day_types': get_day_type_list_for_select_input(),
-                'periods': get_timeperiod_list_for_select_input(),
                 'minutes': get_halfhour_list_for_select_input()
             },
             'mode_selectors': render_to_string('trip/from_to_mode_selectors.html'),
@@ -35,7 +34,6 @@ class LargeTripsHTML(PermissionRequiredMixin, View):
         context = {
             'data_filter': {
                 'day_types': get_day_type_list_for_select_input(),
-                'periods': get_timeperiod_list_for_select_input()
             },
             'selectors': render_to_string('trip/large_color_scale.html'),
             'stage_selectors': render_to_string('trip/large_stage_selectors.html')
@@ -61,7 +59,6 @@ class MapHTML(PermissionRequiredMixin, View):
         context = {
             'data_filter': {
                 'day_types': get_day_type_list_for_select_input(),
-                'periods': get_timeperiod_list_for_select_input()
             },
             'selectors': render_to_string('trip/map_selectors.html'),
             'sectors': json.dumps(sectors)
@@ -77,7 +74,6 @@ class TripStrategiesHTML(PermissionRequiredMixin, View):
         context = {
             'data_filter': {
                 'day_types': get_day_type_list_for_select_input(),
-                'periods': get_timeperiod_list_for_select_input(),
                 'minutes': get_halfhour_list_for_select_input()
             }
         }
@@ -91,7 +87,6 @@ class ResumeHTML(PermissionRequiredMixin, View):
         context = {
             'data_filter': {
                 'day_types': get_day_type_list_for_select_input(),
-                'periods': get_timeperiod_list_for_select_input()
             },
             'indicators': render_to_string('trip/resume_indicators.html'),
             'chart': render_to_string('trip/resume_chart.html'),

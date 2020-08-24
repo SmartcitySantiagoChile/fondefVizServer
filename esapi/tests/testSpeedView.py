@@ -67,7 +67,7 @@ class AvailableRoutesTest(TestHelper):
 
 
 class MatrixDataTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
@@ -321,9 +321,6 @@ class SpeedByRouteTest(TestHelper):
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
-
-
-
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_route_shape')
     @mock.patch('esapi.helper.speed.ESSpeedHelper.get_detail_ranking_data')
     @mock.patch('esapi.views.speed.check_operation_program')
@@ -382,7 +379,7 @@ class SpeedByRouteTest(TestHelper):
 
 
 class SpeedVariationTest(TestHelper):
-    fixtures = ['timeperiods', 'operators', 'daytypes']
+    fixtures = ['timeperioddates', 'timeperiods', 'operators', 'daytypes']
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()

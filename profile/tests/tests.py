@@ -1,34 +1,37 @@
+from django.apps import apps
 from django.test import TestCase
 
-# python stuf
-import json
+from profile.apps import ProfileConfig
+from testhelper.helper import TestHelper
 
-from .testHelper import TestHelper
-# Create your tests here.
 
-class TimePerStreetTestCase(TestCase):
-    """ test for views """
-    URL_PREFIX = '/profile/'
+class ProfileConfigTest(TestCase):
+
+      def test_apps(self):
+        self.assertEqual(ProfileConfig.name, 'profile')
+        self.assertEqual(apps.get_app_config('profile').name, 'profile')
+
+
+class ConnectionTest(TestHelper):
 
     def setUp(self):
-        """ case configuration """
-        self.testHelper = TestHelper(self)
+        self.client = self.create_logged_client_with_global_permission()
 
-    def testGetExpeditionData(self):
+    def test_site_expedition(self):
+        self.check_http_response(self.client, 'profile:expedition', 200)
 
-        url = 'getExpeditionData'
-        url = self.URL_PREFIX + url
-        response = self.testHelper.makeGetRequest(url, {})
+    def test_site_stop(self):
+        self.check_http_response(self.client, 'profile:stop', 200)
 
-        jsonResponse = json.loads(response.content)
-        
-        self.assertEqual(jsonResponse['status']['code'], 400)
-        self.assertEqual(jsonResponse['trips'], {})
+    def test_site_trajectory(self):
+        self.check_http_response(self.client, 'profile:trajectory', 200)
 
-    def testExpeditionView(self):
+    def test_site_transfers(self):
+        self.check_http_response(self.client, 'profile:transfers', 200)
 
-        url = 'expedition'
-        url = self.URL_PREFIX + url
-        response = self.testHelper.makeGetRequest(url)
+    def test_site_odmatrix(self):
+        self.check_http_response(self.client, 'profile:odmatrix', 200)
 
+    def test_site_manystops(self):
+        self.check_http_response(self.client, 'profile:manystops', 200)
 

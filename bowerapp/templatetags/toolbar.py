@@ -13,15 +13,13 @@ def toolbar(html_id, *args):
     :param args: pairs (value, label)
     :return:
     """
-
     buttons = []
-    for index in range(0, len(args), step=2):
+    for index in range(0, len(args), 2):
         value = args[index]
         label = args[index + 1]
         buttons.append("""
             <label class="btn btn-default"><input type="radio" name="groups" value="{}" checked="">{}</label>
         """.format(value, label))
-
     content = """
         <div id="{0}" class="btn-toolbar" role="toolbar" data-toggle="buttons">
             <div class="btn-group">

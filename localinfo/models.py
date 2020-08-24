@@ -8,6 +8,10 @@ from django.template.defaultfilters import truncatechars
 from django.utils.html import strip_tags
 
 
+class TimePeriodDate(models.Model):
+    date = models.DateField("Fecha ")
+
+
 class TimePeriod(models.Model):
     """ Time period with standard names """
 
@@ -25,6 +29,9 @@ class TimePeriod(models.Model):
 
     # End time for the period
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
+
+    # Date when the period is valid
+    date = models.ForeignKey(TimePeriodDate, on_delete=models.CASCADE, verbose_name="Fecha de validez")
 
     def __str__(self):
         return str(self.authorityPeriodName)
@@ -190,22 +197,15 @@ class FAQ(models.Model):
     short_answer.short_description = 'Respuesta'
 
 
-class CustomRoute(models.Model):
-    """"CustomRouteCode-AuthRouteCode dictionary """
-
-    auth_route_code = models.CharField("Código transantiago", max_length=20, unique=True)
-    custom_route_code = models.CharField("Código custom", max_length=30)
-
-    class Meta:
-        verbose_name = "diccionario de servicios"
-        verbose_name_plural = "diccionario de servicios"
-
-
 class OPDictionary(models.Model):
     """Services Operation dictionary"""
 
     auth_route_code = models.CharField("Código transantiago", max_length=30)
     op_route_code = models.CharField("Código de operación", max_length=30)
+    user_route_code = models.CharField("Código de usuario", max_length=30, null=True)
+    route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
+    created_at = models.DateTimeField("Fecha de creación", null=True)
+    updated_at = models.DateTimeField("Fecha de última modificación", null=True)
 
     class Meta:
         verbose_name = "diccionario PO "

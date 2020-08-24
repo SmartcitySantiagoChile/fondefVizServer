@@ -13,7 +13,7 @@ from esapi.helper.odbyroute import ESODByRouteHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import check_operation_program, get_dates_from_request
-from localinfo.helper import PermissionBuilder, get_calendar_info, get_custom_routes_dict
+from localinfo.helper import PermissionBuilder, get_calendar_info, get_op_routes_dict
 
 
 class AvailableDays(View):
@@ -40,7 +40,7 @@ class AvailableRoutes(View):
         response = {
             'availableRoutes': available_days,
             'operatorDict': op_dict,
-            'routesDict': get_custom_routes_dict()
+            'routesDict': get_op_routes_dict()
         }
 
         return JsonResponse(response)

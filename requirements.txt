@@ -22,3 +22,4 @@ ddtrace==0.29.0
 datadog==0.30.0
 fakeredis==1.4.0
 six==1.14.0
+gunicorn==20.0.4

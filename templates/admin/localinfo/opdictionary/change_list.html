@@ -55,7 +55,7 @@
       </div>
       <div class="x_content">
         <form name="csvForm" id="csvForm" method="post" enctype="multipart/form-data"
-              action="{% url 'opdictionarycsvupload' %}">{% csrf_token %}
+              action="{% url 'localinfo:opdictionarycsvupload' %}">{% csrf_token %}
           <div class="row">
             <div class="col-md-3 col-sm-12 col-xs-12">
               <div class="title_left">
@@ -144,7 +144,7 @@
       $("#csvForm").on("submit", function (e) {
               e.preventDefault();
               let formData = new FormData(document.getElementById("csvForm"));
-              $.ajax("{% url 'opdictionarycsvupload' %}", {
+              $.ajax("{% url 'localinfo:opdictionarycsvupload' %}", {
                   method: "POST",
                   data: formData,
                   cache: false,
