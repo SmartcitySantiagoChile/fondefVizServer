@@ -6,9 +6,7 @@ from testhelper.helper import TestHelper
 class AdminTests(TestHelper):
 
     def setUp(self):
-        self.client = self.create_logged_client_with_global_permission()
-        self.data = {
-        }
+        self.client = self.create_logged_client()
 
     def test_admin_auth_user_changelist(self):
         self.check_http_response(self.client, 'admin:auth_user_changelist', 200)
