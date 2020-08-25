@@ -47,9 +47,7 @@ class LocalInfoViewTest(TestHelper):
 
     def test_TimePeriod_error(self):
         self.data['dates[]'] = ['2017-01-01', '2020-07-01']
-        url = reverse('localinfo:timePeriod')
-        response = self.client.get(url, self.data)
-        self.assertEqual(400, response.status_code)
+        self.check_http_response(self.client, 'localinfo:timePeriod', 400, self.data)
 
     def test_TimePeriod(self):
         self.data['dates[]'] = ['2017-01-01', '2017-07-01']
@@ -86,3 +84,6 @@ class LocalInfoViewTest(TestHelper):
                                                {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]}
         self.assertEqual(expected_time_period, json.loads(response.content))
         self.assertEqual(200, response.status_code)
+
+    def test_faq(self):
+        self.check_http_response(self.client, 'localinfo:faq', 200)
