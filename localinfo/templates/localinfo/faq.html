@@ -108,7 +108,7 @@
               data-admin-utc-offset="{% now "Z" %}">
         <header style="background-color: #2a3f54" class="cd-header flex flex-column flex-center">
             <div class="text-component text-center">
-                <h1><a style="text-decoration: none; color: white" href="{% url "faq" %}"> ADATRAP: Preguntas
+                <h1><a style="text-decoration: none; color: white" href="{% url "localinfo:faq" %}"> ADATRAP: Preguntas
                     Frecuentes </a></h1>
             </div>
             <!--<p style="color: white">Esta sección contiene las preguntas frecuentes para las distintas visualizaciones de la aplicación.</p>
@@ -117,7 +117,7 @@
 
         <div class="topnav">
             <div class="search-container">
-                <form action="{% url "faq" %}">
+                <form action="{% url "localinfo:faq" %}">
                     <input type="text" placeholder="Buscar" name="search"
                     value = "{{ query |safe }}"
                     >
