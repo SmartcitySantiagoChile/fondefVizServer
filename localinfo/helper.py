@@ -40,11 +40,16 @@ def get_operator_list_for_select_input(filter=None, to_dict=False):
     return parser(queryset)
 
 
-def get_timeperiod_list_for_select_input(to_dict=False, filter_id=1):
+def get_timeperiod_list_for_select_input(to_dict=False, filter_id=None):
     parser = _list_parser
     if to_dict:
         parser = _dict_parser
-    return parser(TimePeriod.objects.filter(date_id=filter_id).values_list('esId').annotate(
+
+    queryset = TimePeriod.objects.all()
+    if filter_id is not None:
+        queryset = queryset.filter(date_id=filter_id)
+
+    return parser(queryset.values_list('esId').annotate(
         name=Concat('authorityPeriodName', Value(' ('), 'initialTime', Value('-'), 'endTime', Value(')'),
                     output_field=CharField())))
 
