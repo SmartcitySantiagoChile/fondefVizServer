@@ -301,7 +301,7 @@ class TestHelperUtils(TestCase):
 
     def test_get_valid_time_period_date(self):
         valid_dates_list_first = ['2017-01-01', '2018-01-01']
-        valid_dates_list_second = ['2020-06-28', '2020-07-01']
+        valid_dates_list_second = ['2020-06-27', '2020-07-01']
         invalid_dates_list = ['2017-01-01', '2020-07-01']
         answer_first = True, 1
         answer_second = True, 2
