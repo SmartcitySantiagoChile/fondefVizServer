@@ -14,10 +14,6 @@ class LoadBipByOperatorHTML(View):
         template = "bip/byOperator.html"
 
         context = {
-            'data_filter': {
-                'minutes': get_halfhour_list_for_select_input(),
-                'periods': get_timeperiod_list_for_select_input(),
-            },
             'tabs': {
                 'header': ['Gráfico', 'Mapa'],
                 'content': ['<div id="barChart" style="height:600px;"></div>',
