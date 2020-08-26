@@ -4,9 +4,6 @@
 from django.shortcuts import render
 from django.views.generic import View
 
-from localinfo.helper import get_halfhour_list_for_select_input, get_timeperiod_list_for_select_input, \
-    get_day_type_list_for_select_input
-
 
 class LoadBipByOperatorHTML(View):
 
