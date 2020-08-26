@@ -18,10 +18,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.decorators import login_required
 from django.views.generic.base import RedirectView
-
-from localinfo.views import FaqImgUploader, FaqHTML, OPDictionaryCsvUploader
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='profile/expedition', permanent=True), name="index"),
@@ -40,12 +37,8 @@ urlpatterns = [
     url(r'^user/login/$', auth_views.LoginView.as_view(), name='login'),
     url(r'^user/logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^bip/', include('bip.urls')),
-    url(r'^faqUpload/$', login_required(FaqImgUploader.as_view()), name='faqUpload'),
-    url(r'^faq/$', FaqHTML.as_view(), name='faq'),
     url(r'^consistencychecker/', include('consistencychecker.urls')),
-    url(r'^csvuploadOP/$', login_required(OPDictionaryCsvUploader.as_view()),
-        name='opdictionarycsvupload'),
-
+    url(r'^localinfo/', include('localinfo.urls')),
 ]
 
 if settings.DEBUG:

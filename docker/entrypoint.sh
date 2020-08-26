@@ -36,7 +36,7 @@ case "$1" in
       echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('$SU_DJANGO_USERNAME', 'a@b.com', '$SU_DJANGO_PASS') if not User.objects.filter(username='$SU_DJANGO_USERNAME').exists() else None;" | python manage.py shell
     fi
 
-    python manage.py loaddata datasource communes daytypes halfhours operators timeperiods transportmodes
+    python manage.py loaddata datasource communes daytypes halfhours operators timeperioddates timeperiods transportmodes
     python manage.py createindexes
 
 
