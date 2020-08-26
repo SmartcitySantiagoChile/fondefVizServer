@@ -30,8 +30,8 @@ $(document).ready(function () {
                 '<div class="form-group col">' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-default-white btn-sm" >Programa de Operación</button>' +
-                '<button class="btn btn-default-white btn-sm" >Servicio</button>' +
-                '<button class="btn btn-default-white btn-sm" >Servicio Sonda</button>' +
+                '<button class="btn btn-default-white btn-sm" >Ruta Usuario</button>' +
+                '<button class="btn btn-default-white btn-sm" >Ruta Transantiago</button>' +
                 '</div>' +
                 '</div>' +
                 '</div>' +
