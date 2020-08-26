@@ -17,7 +17,6 @@ class LoadBipByOperatorHTML(View):
             'data_filter': {
                 'minutes': get_halfhour_list_for_select_input(),
                 'periods': get_timeperiod_list_for_select_input(),
-                'day_types': get_day_type_list_for_select_input()
             },
             'tabs': {
                 'header': ['Gráfico', 'Mapa'],
