@@ -73,10 +73,26 @@
             line-height: 18px !important;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+
+        .btn-default-disabled {
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-default-white {
+            pointer-events: none;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .input-xs {
+            height: 22px;
+            padding: 2px 5px;
+            font-size: 12px;
+            line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
+            border-radius: 3px;
         }
     </style>
 {% endblock %}

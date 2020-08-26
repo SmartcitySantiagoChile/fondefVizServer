@@ -25,6 +25,16 @@ $(document).ready(function () {
         routeListControl.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
+                '<div class="form-inline">' +
+                '<div class="form-row">' +
+                '<div class="form-group col">' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-white btn-sm" >Programa de Operación</button>' +
+                '<button class="btn btn-default-white btn-sm" >Servicio</button>' +
+                '<button class="btn btn-default-white btn-sm" >Servicio Sonda</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
                 '<div id="routeListContainer" class="form-inline"</div>';
             L.DomEvent.disableClickPropagation(div);
             return div;
@@ -250,14 +260,9 @@ $(document).ready(function () {
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                '</div>' +
-                '<div class="form-group col">' +
-                '<label for="dateSelect">AAAAAAAA' +
-                '<select id="dateSelect" class="form-control input-sm date"><option class="input-sm" value="" disabled selected>Programa de Operación</option>' + dateList + '</select>' +
-                '</label>' +
-                '</div>' +
-                '<select class="form-control input-sm userRoute"><option value="" disabled selected>Ruta Usuario</option>' + userRouteList + '</select>' +
-                '<select class="form-control input-sm route"><option value="" disabled selected>Ruta Transantiago</option></select>' +
+                '<select id="dateSelect" class="form-control  date">' + dateList + '</select>' +
+                '<select class="form-control  userRoute"><option value="" disabled selected>Ruta Usuario</option>' + userRouteList + '</select>' +
+                '<select class="form-control  route"><option value="" disabled selected>Ruta Transantiago</option></select>' +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
