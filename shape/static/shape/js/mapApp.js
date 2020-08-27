@@ -219,10 +219,10 @@ $(document).ready(function () {
                     {title: "Periodo Transantiago", data: "timePeriod", searchable: false},
                     {title: "Inicio de periodo", data: "startPeriodTime", searchable: false},
                     {title: "Fin de periodo", data: "endPeriodTime", searchable: false},
-                    {title: "Frecuencia", data: "frecuency", searchable: false},
-                    {title: "Capacidad", data: "capacity", searchable: false},
-                    {title: "Distancia", data: "distance", searchable: false},
-                    {title: "Velocidad", data: "speed", searchable: false},
+                    {title: "Frecuencia [Bus/h]", data: "frecuency", searchable: false},
+                    {title: "Capacidad [Plazas/h]", data: "capacity", searchable: false},
+                    {title: "Distancia [km]", data: "distance", searchable: false},
+                    {title: "Velocidad [km/h]", data: "speed", searchable: false},
                 ]
             });
         };
