@@ -126,6 +126,7 @@ $(document).ready(function () {
                     modal.off("click", "button.btn-info");
                     modal.on("click", "button.btn-info", function () {
                         var layerId = removeButtonRef.parent().data("id");
+                        console.log(layerId);
                         mapInstance.removeLayer(layers[layerId]);
                         delete layers[layerId];
                         removeButtonRef.parent().remove();
@@ -257,8 +258,6 @@ $(document).ready(function () {
         this.addRow = function (dateList, userRouteList) {
             var newId = $ROW_CONTAINER.children().length + 1;
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
-                '<div class="form-row">' +
-                '<div class="form-group col">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 '<select id="dateSelect" class="form-control  date">' + dateList + '</select>' +
                 '<select class="form-control  userRoute"><option value="" disabled selected>Ruta Usuario</option>' + userRouteList + '</select>' +
@@ -267,7 +266,6 @@ $(document).ready(function () {
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
-                '</div>' +
                 '</div>';
             $ROW_CONTAINER.append(row);
             _self.refreshControlEvents();
