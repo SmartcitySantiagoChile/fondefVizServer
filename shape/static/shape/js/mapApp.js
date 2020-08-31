@@ -95,7 +95,6 @@ $(document).ready(function () {
                 if (userRoute !== null) {
                     let routeValues = _self.data[userRoute];
                     route.empty();
-                    route.append('<option value="" disabled selected> Ruta Transantiago </option>');
                     route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
                 }
             });
@@ -113,6 +112,10 @@ $(document).ready(function () {
                     sendData(this);
                 }
             });
+
+            $USER_ROUTE.trigger("change");
+            $DATE.trigger("change");
+
         };
 
         this.refrehRemoveButton = function () {
@@ -260,8 +263,8 @@ $(document).ready(function () {
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 '<select id="dateSelect" class="form-control  date">' + dateList + '</select>' +
-                '<select class="form-control  userRoute"><option value="" disabled selected>Ruta Usuario</option>' + userRouteList + '</select>' +
-                '<select class="form-control  route"><option value="" disabled selected>Ruta Transantiago</option></select>' +
+                '<select class="form-control  userRoute">' + userRouteList + '</select>' +
+                '<select class="form-control  route"></select>' +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
