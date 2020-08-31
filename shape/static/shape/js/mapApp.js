@@ -57,7 +57,13 @@ $(document).ready(function () {
 
         var layers = {};
 
-        this.refreshControlEvents = function () {
+
+        this.replaceSelected = function (id) {
+            let routeSelector = $(`div[data-id=${id.to}]`);
+            console.log(routeSelector);
+        };
+
+        this.refreshControlEvents = function (id) {
 
             //handle send data
             let sendData = e => {
@@ -112,6 +118,11 @@ $(document).ready(function () {
                     sendData(this);
                 }
             });
+
+            //adjust parameters
+            if (id > 1){
+             _self.replaceSelected(id);
+            }
 
             $USER_ROUTE.trigger("change");
             $DATE.trigger("change");
@@ -186,6 +197,7 @@ $(document).ready(function () {
                 }
             });
         };
+
 
         this.addTableInfo = function (data) {
             console.log(data);
@@ -271,7 +283,7 @@ $(document).ready(function () {
                 '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '</div>';
             $ROW_CONTAINER.append(row);
-            _self.refreshControlEvents();
+            _self.refreshControlEvents(newId);
             _self.refrehRemoveButton();
             _self.refreshColorPickerButton();
             _self.refreshVisibilityRoutesButton();
