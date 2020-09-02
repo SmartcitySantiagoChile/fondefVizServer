@@ -129,14 +129,14 @@ $(document).ready(function () {
 
             if (id > lastSelected.id) {
                 console.log(id);
-                let selector = $USER_ROUTE.closest(".selectorRow").first();
+                let selector = $USER_ROUTE.closest(".selectorRow").last();
+                console.log(selector);
                 console.log(JSON.parse(JSON.stringify(lastSelected)));
                 selector.find(".date").val(lastSelected.date);
                 selector.find(".userRoute").val(lastSelected.userRoute);
                 selector.find(".route").val(lastSelected.route);
             }
             $USER_ROUTE.trigger("change");
-            $DATE.trigger("change");
         };
 
         this.refrehRemoveButton = function () {
