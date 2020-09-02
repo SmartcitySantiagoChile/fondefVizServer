@@ -102,13 +102,15 @@ $(document).ready(function () {
             let $USER_ROUTE = $(".userRoute");
             $USER_ROUTE.off("change");
             $USER_ROUTE.change(function () {
-                let userRoute = $(this).closest(".selectorRow").find(".userRoute").first().val();
-                let route = $(this).closest(".selectorRow").find(".route");
+                let selector = $(this).closest(".selectorRow");
+                let userRoute = selector.find(".userRoute").first().val();
+                let route = selector.find(".route").first();
                 //update authroute list
-                if (userRoute !== null) {
-                    let routeValues = _self.data[userRoute];
-                    route.empty();
-                    route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
+                let routeValues = _self.data[userRoute];
+                route.empty();
+                route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
+                if (id === lastSelected.id + 1) {
+                    route.val(lastSelected.route);
                 }
                 sendData(this);
             });
@@ -128,10 +130,7 @@ $(document).ready(function () {
             });
 
             if (id > lastSelected.id) {
-                console.log(id);
                 let selector = $USER_ROUTE.closest(".selectorRow").last();
-                console.log(selector);
-                console.log(JSON.parse(JSON.stringify(lastSelected)));
                 selector.find(".date").val(lastSelected.date);
                 selector.find(".userRoute").val(lastSelected.userRoute);
                 selector.find(".route").val(lastSelected.route);
