@@ -9,6 +9,7 @@ $(document).ready(function () {
         };
         var app = new MapApp(mapOpts);
         var mapInstance = app.getMapInstance();
+        let lastSelected = {id: 1, date: "", userRoute: "", route: ""};
 
         var addRouteControl = L.control({position: "topleft"});
         addRouteControl.onAdd = function (map) {
@@ -58,21 +59,19 @@ $(document).ready(function () {
         var layers = {};
 
 
-        this.replaceSelected = function (id) {
-            let routeSelector = $(`div[data-id=${id.to}]`);
-            console.log(routeSelector);
-        };
-
         this.refreshControlEvents = function (id) {
 
             //handle send data
             let sendData = e => {
-                let layerId = $(e).closest(".selectorRow").data("id");
-                let route = $(e).closest(".selectorRow").find(".route").val();
+                let selector = $(e).closest(".selectorRow");
+                let layerId = selector.data("id");
+                let route = selector.find(".route").val();
+                let date = selector.find(".date").val();
                 let params = {
                     route: route,
-                    operationProgramDate: $(e).closest(".selectorRow").find(".date").val()
+                    operationProgramDate: date
                 };
+
                 $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
                     if (data.status) {
                         showMessage(data.status);
@@ -90,6 +89,14 @@ $(document).ready(function () {
                         route: route
                     });
                 });
+
+                // update last ID
+                if (layerId >= lastSelected.id) {
+                    lastSelected.id = layerId;
+                    lastSelected.date = date;
+                    lastSelected.userRoute = selector.find(".userRoute").val();
+                    lastSelected.route = route;
+                }
             };
 
             let $USER_ROUTE = $(".userRoute");
@@ -103,6 +110,7 @@ $(document).ready(function () {
                     route.empty();
                     route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
                 }
+                sendData(this);
             });
 
             let $ROUTE = $(".route");
@@ -119,14 +127,16 @@ $(document).ready(function () {
                 }
             });
 
-            //adjust parameters
-            if (id > 1){
-             _self.replaceSelected(id);
+            if (id > lastSelected.id) {
+                console.log(id);
+                let selector = $USER_ROUTE.closest(".selectorRow").first();
+                console.log(JSON.parse(JSON.stringify(lastSelected)));
+                selector.find(".date").val(lastSelected.date);
+                selector.find(".userRoute").val(lastSelected.userRoute);
+                selector.find(".route").val(lastSelected.route);
             }
-
             $USER_ROUTE.trigger("change");
             $DATE.trigger("change");
-
         };
 
         this.refrehRemoveButton = function () {
