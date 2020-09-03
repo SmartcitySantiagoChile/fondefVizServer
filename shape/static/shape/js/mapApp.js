@@ -97,13 +97,6 @@ $(document).ready(function () {
                         route: route
                     });
                 });
-
-                // update last ID
-                let allSelectors = $(".selectorRow");
-                let selectorIndex = allSelectors.index(selector);
-                if (layerId !== lastSelected.id && selectorIndex === allSelectors.length - 1) {
-                    _self.updateLastSelected(layerId);
-                }
             };
 
             // handle user route selector
@@ -122,8 +115,9 @@ $(document).ready(function () {
                 //set value
                 let allSelectors = $(".selectorRow");
                 let selectorIndex = allSelectors.index(selector);
-                if (selectorIndex === allSelectors.length - 1 && selectorIndex + 1 !== lastSelected.id) {
+                if ($(this).data("first") === true) {
                     route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
+                    $(this).data("first", false);
                 }
                 sendData(this);
             });
@@ -147,14 +141,13 @@ $(document).ready(function () {
             // handle clone selector
             let selector = $(".selectorRow");
             if (selector.length > 1) {
-                let lastSelected = selector.slice( -2, -1 );
+                let lastSelected = selector.slice(-2, -1);
                 console.log(lastSelected);
                 $DATE.val(lastSelected.find(".date").first().val());
                 $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
-                $USER_ROUTE.trigger("change");
-            } else {
-                $USER_ROUTE.trigger("change");
+                $USER_ROUTE.data("first", true);
             }
+            $USER_ROUTE.trigger("change");
         };
 
         this.refrehRemoveButton = function () {
@@ -168,10 +161,6 @@ $(document).ready(function () {
                     modal.off("click", "button.btn-info");
                     modal.on("click", "button.btn-info", function () {
                         var layerId = removeButtonRef.parent().data("id");
-                        if (layerId === lastSelected.id && layerId > 1) {
-                            alert(1);
-                            _self.updateLastSelected(layerId - 1);
-                        }
                         // update last selected
                         mapInstance.removeLayer(layers[layerId]);
                         delete layers[layerId];
