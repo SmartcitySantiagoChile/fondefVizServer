@@ -9,7 +9,6 @@ $(document).ready(function () {
         };
         var app = new MapApp(mapOpts);
         var mapInstance = app.getMapInstance();
-        let lastSelected = {id: 1, date: "", userRoute: "", route: ""};
 
         var addRouteControl = L.control({position: "topleft"});
         addRouteControl.onAdd = function (map) {
@@ -59,13 +58,6 @@ $(document).ready(function () {
         var layers = {};
 
         var selectorId = 1;
-
-        this.updateLastSelected = function (newId) {
-            lastSelected.id = newId;
-            lastSelected.date = $(`#dateSelect-${newId}`).val();
-            lastSelected.userRoute = $(`#userRouteSelect-${newId}`).val();
-            lastSelected.route = $(`#routeSelect-${newId}`).val();
-        };
 
         this.refreshControlEvents = function (id) {
 
@@ -142,7 +134,6 @@ $(document).ready(function () {
             let selector = $(".selectorRow");
             if (selector.length > 1) {
                 let lastSelected = selector.slice(-2, -1);
-                console.log(lastSelected);
                 $DATE.val(lastSelected.find(".date").first().val());
                 $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
                 $USER_ROUTE.data("first", true);
@@ -221,7 +212,6 @@ $(document).ready(function () {
 
 
         this.addTableInfo = function (data) {
-            console.log(data);
             let $TABLE = $('#shapeDetail');
             $TABLE.DataTable({
                 language: {
