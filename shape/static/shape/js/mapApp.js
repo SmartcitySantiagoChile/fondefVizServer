@@ -99,7 +99,8 @@ $(document).ready(function () {
                 }
             };
 
-            let $USER_ROUTE = $(".userRoute");
+            let $USER_ROUTE = $(`#userRouteSelect-${id}`);
+
             $USER_ROUTE.off("change");
             $USER_ROUTE.change(function () {
                 let selector = $(this).closest(".selectorRow");
@@ -115,13 +116,13 @@ $(document).ready(function () {
                 sendData(this);
             });
 
-            let $ROUTE = $(".route");
+            let $ROUTE = $(`#routeSelect-${id}`);
             $ROUTE.off("change");
             $ROUTE.change(function () {
                 sendData(this);
             });
 
-            let $DATE = $(".date");
+            let $DATE = $(`#dateSelect-${id}`);
             $DATE.off("change");
             $DATE.change(function () {
                 if ($ROUTE.val() != null) {
@@ -283,9 +284,9 @@ $(document).ready(function () {
             var newId = $ROW_CONTAINER.children().length + 1;
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                '<select id="dateSelect" class="form-control  date">' + dateList + '</select>' +
-                '<select class="form-control  userRoute">' + userRouteList + '</select>' +
-                '<select class="form-control  route"></select>' +
+                `<select id=dateSelect-${newId} class="form-control  date">` + dateList + '</select>' +
+                `<select id=userRouteSelect-${newId} class="form-control  userRoute">` + userRouteList + '</select>' +
+                `<select id=routeSelect-${newId} class="form-control  route"></select>` +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
