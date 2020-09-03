@@ -58,6 +58,14 @@ $(document).ready(function () {
 
         var layers = {};
 
+        var selectorId = 1;
+
+        this.updateLastSelected = function (newId) {
+            lastSelected.id = newId;
+            lastSelected.date = $(`#dateSelect-${newId}`).val();
+            lastSelected.userRoute = $(`#userRouteSelect-${newId}`).val();
+            lastSelected.route = $(`#routeSelect-${newId}`).val();
+        };
 
         this.refreshControlEvents = function (id) {
 
@@ -65,8 +73,8 @@ $(document).ready(function () {
             let sendData = e => {
                 let selector = $(e).closest(".selectorRow");
                 let layerId = selector.data("id");
-                let route = selector.find(".route").val();
-                let date = selector.find(".date").val();
+                let route = $(`#routeSelect-${layerId}`).val();
+                let date = $(`#dateSelect-${layerId}`).val();
                 let params = {
                     route: route,
                     operationProgramDate: date
@@ -91,37 +99,43 @@ $(document).ready(function () {
                 });
 
                 // update last ID
-                if (layerId >= lastSelected.id) {
-                    lastSelected.id = layerId;
-                    lastSelected.date = date;
-                    lastSelected.userRoute = selector.find(".userRoute").val();
-                    lastSelected.route = route;
+                let allSelectors = $(".selectorRow");
+                let selectorIndex = allSelectors.index(selector);
+                if (layerId !== lastSelected.id && selectorIndex === allSelectors.length - 1) {
+                    _self.updateLastSelected(layerId);
                 }
             };
 
+            // handle user route selector
             let $USER_ROUTE = $(`#userRouteSelect-${id}`);
-
             $USER_ROUTE.off("change");
             $USER_ROUTE.change(function () {
                 let selector = $(this).closest(".selectorRow");
                 let userRoute = selector.find(".userRoute").first().val();
                 let route = selector.find(".route").first();
+
                 //update authroute list
                 let routeValues = _self.data[userRoute];
                 route.empty();
                 route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
-                if (id === lastSelected.id + 1) {
-                    route.val(lastSelected.route);
+
+                //set value
+                let allSelectors = $(".selectorRow");
+                let selectorIndex = allSelectors.index(selector);
+                if (selectorIndex === allSelectors.length - 1 && selectorIndex + 1 !== lastSelected.id) {
+                    route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
                 }
                 sendData(this);
             });
 
+            // handle route selector
             let $ROUTE = $(`#routeSelect-${id}`);
             $ROUTE.off("change");
             $ROUTE.change(function () {
                 sendData(this);
             });
 
+            // handle date selector
             let $DATE = $(`#dateSelect-${id}`);
             $DATE.off("change");
             $DATE.change(function () {
@@ -130,13 +144,17 @@ $(document).ready(function () {
                 }
             });
 
-            if (id > lastSelected.id) {
-                let selector = $USER_ROUTE.closest(".selectorRow").last();
-                selector.find(".date").val(lastSelected.date);
-                selector.find(".userRoute").val(lastSelected.userRoute);
-                selector.find(".route").val(lastSelected.route);
+            // handle clone selector
+            let selector = $(".selectorRow");
+            if (selector.length > 1) {
+                let lastSelected = selector.slice( -2, -1 );
+                console.log(lastSelected);
+                $DATE.val(lastSelected.find(".date").first().val());
+                $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
+                $USER_ROUTE.trigger("change");
+            } else {
+                $USER_ROUTE.trigger("change");
             }
-            $USER_ROUTE.trigger("change");
         };
 
         this.refrehRemoveButton = function () {
@@ -150,7 +168,11 @@ $(document).ready(function () {
                     modal.off("click", "button.btn-info");
                     modal.on("click", "button.btn-info", function () {
                         var layerId = removeButtonRef.parent().data("id");
-                        console.log(layerId);
+                        if (layerId === lastSelected.id && layerId > 1) {
+                            alert(1);
+                            _self.updateLastSelected(layerId - 1);
+                        }
+                        // update last selected
                         mapInstance.removeLayer(layers[layerId]);
                         delete layers[layerId];
                         removeButtonRef.parent().remove();
@@ -281,7 +303,8 @@ $(document).ready(function () {
         };
 
         this.addRow = function (dateList, userRouteList) {
-            var newId = $ROW_CONTAINER.children().length + 1;
+            var newId = selectorId;
+            selectorId++;
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 `<select id=dateSelect-${newId} class="form-control  date">` + dateList + '</select>' +
