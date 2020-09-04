@@ -32,6 +32,7 @@ $(document).ready(function () {
                 '<button class="btn btn-default-white btn-sm" >Programa de Operación</button>' +
                 '<button class="btn btn-default-white btn-sm" >Ruta Usuario</button>' +
                 '<button class="btn btn-default-white btn-sm" >Ruta Transantiago</button>' +
+                '<button class="btn btn-default-white btn-sm" >Periodo</button>' +
                 '</div>' +
                 '</div>' +
                 '</div>' +
@@ -119,6 +120,15 @@ $(document).ready(function () {
             $ROUTE.off("change");
             $ROUTE.change(function () {
                 sendData(this);
+            });
+
+
+            let $PERIOD = $(`#periodSelect-${id}`);
+            $PERIOD.off("change");
+            $PERIOD.change(function () {
+                if ($ROUTE.val() != null) {
+                    sendData(this);
+                }
             });
 
             // handle date selector
@@ -289,6 +299,7 @@ $(document).ready(function () {
                 `<select id=dateSelect-${newId} class="form-control  date">` + dateList + '</select>' +
                 `<select id=userRouteSelect-${newId} class="form-control  userRoute">` + userRouteList + '</select>' +
                 `<select id=routeSelect-${newId} class="form-control  route"></select>` +
+                `<select id=periodSelect-${newId} class="form-control  period"></select>` +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +

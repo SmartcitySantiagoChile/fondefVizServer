@@ -6,7 +6,7 @@ from django.utils import timezone
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
@@ -362,3 +362,49 @@ class TestHelperUtils(TestCase):
         self.assertEqual(answer_first, get_valid_time_period_date(valid_dates_list_first))
         self.assertEqual(answer_second, get_valid_time_period_date(valid_dates_list_second))
         self.assertEqual(answer_invalid, get_valid_time_period_date(invalid_dates_list))
+
+    def test_get_get_periods_dict(self):
+        expected_answer = {1: {1: 'Pre nocturno (00:00:00-00:59:59)', 2: 'Nocturno (01:00:00-05:29:59)',
+                               3: 'Transición nocturno (05:30:00-06:29:59)', 4: 'Punta mañana (06:30:00-08:29:59)',
+                               5: 'Transición punta mañana (08:30:00-09:29:59)',
+                               6: 'Fuera de punta mañana (09:30:00-12:29:59)', 7: 'Punta mediodia (12:30:00-13:59:59)',
+                               8: 'Fuera de punta tarde (14:00:00-17:29:59)', 9: 'Punta tarde (17:30:00-20:29:59)',
+                               10: 'Transición punta tarde (20:30:00-21:29:59)',
+                               11: 'Fuera de punta nocturno (21:30:00-22:59:59)',
+                               12: 'Pre nocturno (23:00:00-23:59:59)', 13: 'Pre nocturno sábado (00:00:00-00:59:59)',
+                               14: 'Nocturno sábado (01:00:00-05:29:59)',
+                               15: 'Transición sábado mañana (05:30:00-06:29:59)',
+                               16: 'Punta mañana sábado (06:30:00-10:59:59)', 17: 'Mañana sábado (11:00:00-13:29:59)',
+                               18: 'Punta mediodia sábado (13:30:00-17:29:59)', 19: 'Tarde sábado (17:30:00-20:29:59)',
+                               20: 'Transición sábado nocturno (20:30:00-22:59:59)',
+                               21: 'Pre nocturno sábado (23:00:00-23:59:59)',
+                               22: 'Pre nocturno domingo (00:00:00-00:59:59)',
+                               23: 'Nocturno domingo (01:00:00-05:29:59)',
+                               24: 'Transición domingo mañana (05:30:00-09:29:59)',
+                               25: 'Mañana domingo (09:30:00-13:29:59)', 26: 'Mediodia domingo (13:30:00-17:29:59)',
+                               27: 'Tarde domingo (17:30:00-20:59:59)',
+                               28: 'Transición domingo nocturno (21:00:00-22:59:59)',
+                               29: 'Pre nocturno domingo (23:00:00-23:59:59)'},
+                           2: {30: 'Pre Nocturno (00:00:00-00:59:59)', 31: 'Nocturno (01:00:00-05:29:59)',
+                               32: 'Transición nocturno (05:30:00-06:29:59)', 33: 'Punta mañana (06:30:00-07:59:59)',
+                               34: 'Transición punta mañana (08:00:00-09:29:59)',
+                               35: 'Fuera de punta mañana (09:30:00-12:29:59)',
+                               36: 'Punta mediodía (12:30:00-13:59:59)', 37: 'Fuera de punta tarde (14:00:00-16:29:59)',
+                               38: 'Punta tarde 1 (16:30:00-18:29:59)', 39: 'Punta tarde 2 (18:30:00-20:29:59)',
+                               40: 'Fuera de punta nocturno (20:30:00-22:59:59)',
+                               41: 'Pre nocturno (23:00:00-23:59:59)', 42: 'Pre nocturno sábado (00:00:00-00:59:59)',
+                               43: 'Nocturno sábado (01:00:00-05:29:59)',
+                               44: 'Transición sábado mañana (05:30:00-06:29:59)',
+                               45: 'Punta mañana sábado (06:30:00-10:59:59)', 46: 'Mañana sábado (11:00:00-13:29:59)',
+                               47: 'Punta mediodia sábado (13:30:00-17:29:59)', 48: 'Tarde sábado (17:30:00-20:29:59)',
+                               49: 'Transición sábado nocturno (20:30:00-22:59:59)',
+                               50: 'Pre nocturno sábado (23:00:00-23:59:59)',
+                               51: 'Pre nocturno domingo (00:00:00-00:59:59)',
+                               52: 'Nocturno domingo (01:00:00-05:29:59)',
+                               53: 'Transición domingo mañana (05:30:00-09:29:59)',
+                               54: 'Mañana domingo (09:30:00-13:29:59)', 55: 'Mediodia domingo (13:30:00-17:29:59)',
+                               56: 'Tarde domingo (17:30:00-20:59:59)',
+                               57: 'Transición domingo nocturno (21:00:00-22:59:59)',
+                               58: 'Pre nocturno domingo (23:00:00-23:59:59)'}}
+
+        self.assertEqual(expected_answer, get_periods_dict())

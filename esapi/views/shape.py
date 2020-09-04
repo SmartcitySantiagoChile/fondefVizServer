@@ -10,7 +10,7 @@ from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQu
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.profile import ESProfileHelper
-from localinfo.helper import PermissionBuilder
+from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_timeperiod_list_for_select_input, get_periods_dict
 
 
 class GetRouteInfo(View):
@@ -50,6 +50,9 @@ class GetBaseInfo(View):
 
         dates = list(set(stop_dates + shape_dates))
         dates.sort(key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
+
+        period_dict = get_periods_dict()
+        periods = [{date: period_dict[get_valid_time_period_date([date])[1]]} for date in dates]
 
         stop_routes = es_stop_helper.get_route_list()
         shape_routes = es_shape_helper.get_route_list()
