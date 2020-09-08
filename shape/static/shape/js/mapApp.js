@@ -112,13 +112,18 @@ $(document).ready(function () {
                     route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
                     $(this).data("first", false);
                 }
-                sendData(this);
+                if ($PERIOD.val() != null) {
+                    sendData(this);
+                }
             });
 
             // handle route selector
             let $ROUTE = $(`#routeSelect-${id}`);
             $ROUTE.off("change");
             $ROUTE.change(function () {
+                if ($PERIOD.val() != null) {
+                    sendData(this);
+                }
                 sendData(this);
             });
 
@@ -135,6 +140,24 @@ $(document).ready(function () {
             let $DATE = $(`#dateSelect-${id}`);
             $DATE.off("change");
             $DATE.change(function () {
+                let selector = $(this).closest(".selectorRow");
+                let date = selector.find(".date").first().val();
+                let periods = selector.find(".period").first();
+
+                //update periods list
+                let periodValues = _self.periods[_self.dates_period_dict[date]];
+                periods.empty();
+                periods.append("<option value=0>Todos</option>");
+                periods.append(periodValues.map(e => `<option value=${e.value}>` + e.item + '</option>').join(""));
+
+                //set value
+                let allSelectors = $(".selectorRow");
+                let selectorIndex = allSelectors.index(selector);
+                if ($(this).data("first") === true) {
+                    periods.val(allSelectors.slice(selectorIndex - 1).find(".period").first().val());
+                    $(this).data("first", false);
+                }
+
                 if ($ROUTE.val() != null) {
                     sendData(this);
                 }
@@ -145,10 +168,14 @@ $(document).ready(function () {
             if (selector.length > 1) {
                 let lastSelected = selector.slice(-2, -1);
                 $DATE.val(lastSelected.find(".date").first().val());
+                $DATE.data("first", true);
                 $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
                 $USER_ROUTE.data("first", true);
+
             }
             $USER_ROUTE.trigger("change");
+            $DATE.trigger("change");
+
         };
 
         this.refrehRemoveButton = function () {
@@ -324,6 +351,8 @@ $(document).ready(function () {
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
                 _self.data = data.user_routes;
+                _self.dates_period_dict = data.dates_periods_dict;
+                _self.periods = data.periods;
                 let userRouteList = Object.keys(data.user_routes).map(e =>
                     "<option>" + e + "</option>"
                 ).join("");

@@ -162,7 +162,7 @@ def get_periods_dict():
     time_period_date_ids = TimePeriodDate.objects.all().values_list('id', flat=True)
     time_period_date_dict = {}
     for date_id in time_period_date_ids:
-        time_period_date_dict.update({date_id: get_timeperiod_list_for_select_input(to_dict=True, filter_id=date_id)})
+        time_period_date_dict.update({date_id: get_timeperiod_list_for_select_input(filter_id=date_id)})
     return time_period_date_dict
 
 

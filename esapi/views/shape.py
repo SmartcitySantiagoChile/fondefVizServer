@@ -52,7 +52,10 @@ class GetBaseInfo(View):
         dates.sort(key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
 
         periods = get_periods_dict()
-        dates_periods_dict = [{date: get_valid_time_period_date([date])[1]} for date in dates]
+
+        dates_periods_dict = {}
+        for date in dates:
+            dates_periods_dict[date] = get_valid_time_period_date([date])[1]
 
         stop_routes = es_stop_helper.get_route_list()
         shape_routes = es_shape_helper.get_route_list()
