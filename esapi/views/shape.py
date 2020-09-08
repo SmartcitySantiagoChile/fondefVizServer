@@ -51,8 +51,8 @@ class GetBaseInfo(View):
         dates = list(set(stop_dates + shape_dates))
         dates.sort(key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
 
-        period_dict = get_periods_dict()
-        periods = [{date: period_dict[get_valid_time_period_date([date])[1]]} for date in dates]
+        periods = get_periods_dict()
+        dates_periods_dict = [{date: get_valid_time_period_date([date])[1]} for date in dates]
 
         stop_routes = es_stop_helper.get_route_list()
         shape_routes = es_shape_helper.get_route_list()
@@ -70,7 +70,9 @@ class GetBaseInfo(View):
         response = {
             'dates': dates,
             'routes': routes,
-            'user_routes': user_routes
+            'user_routes': user_routes,
+            'dates_periods_dict': dates_periods_dict,
+            'periods': periods
         }
 
         return JsonResponse(response)
