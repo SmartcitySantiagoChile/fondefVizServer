@@ -121,20 +121,12 @@ $(document).ready(function () {
             let $ROUTE = $(`#routeSelect-${id}`);
             $ROUTE.off("change");
             $ROUTE.change(function () {
-                if ($PERIOD.val() != null) {
-                    sendData(this);
-                }
                 sendData(this);
             });
 
 
             let $PERIOD = $(`#periodSelect-${id}`);
             $PERIOD.off("change");
-            $PERIOD.change(function () {
-                if ($ROUTE.val() != null) {
-                    sendData(this);
-                }
-            });
 
             // handle date selector
             let $DATE = $(`#dateSelect-${id}`);
@@ -147,7 +139,6 @@ $(document).ready(function () {
                 //update periods list
                 let periodValues = _self.periods[_self.dates_period_dict[date]];
                 periods.empty();
-                periods.append("<option value=0>Todos</option>");
                 periods.append(periodValues.map(e => `<option value=${e.value}>` + e.item + '</option>').join(""));
 
                 //set value
@@ -296,6 +287,7 @@ $(document).ready(function () {
             $INFO_BUTTON.click(function () {
                     let route = $(this).closest(".selectorRow").find(".route").val();
                     let date = $(this).closest(".selectorRow").find(".date").val();
+                    let period = $(this).closest(".selectorRow").find(".period").val();
                     date = date !== null ? [[date]] : [[]];
                     let params = {
                         authRouteCode: route,
@@ -311,7 +303,8 @@ $(document).ready(function () {
                         $INFOMODAL.modal("show");
                         $INFOMODAL.on('shown.bs.modal', function () {
                             $INFOMODAL.trigger('focus');
-                            _self.addTableInfo(data.data);
+                            console.log(data.data);
+                            _self.addTableInfo([data.data[0]]);
                         })
                     });
                 }
@@ -326,10 +319,10 @@ $(document).ready(function () {
                 `<select id=dateSelect-${newId} class="form-control  date">` + dateList + '</select>' +
                 `<select id=userRouteSelect-${newId} class="form-control  userRoute">` + userRouteList + '</select>' +
                 `<select id=routeSelect-${newId} class="form-control  route"></select>` +
-                `<select id=periodSelect-${newId} class="form-control  period"></select>` +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
+                `<select id=periodSelect-${newId} class="form-control  period"></select>` +
                 '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '</div>';
             $ROW_CONTAINER.append(row);
