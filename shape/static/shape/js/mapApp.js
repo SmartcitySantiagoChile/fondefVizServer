@@ -29,10 +29,13 @@ $(document).ready(function () {
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                '<button class="btn btn-default-white btn-sm" >Programa de Operación</button>' +
-                '<button class="btn btn-default-white btn-sm" >Ruta Usuario</button>' +
-                '<button class="btn btn-default-white btn-sm" >Ruta Transantiago</button>' +
-                '<button class="btn btn-default-white btn-sm" >Periodo</button>' +
+                '<button class="btn btn-default-white btn-sm date" >Programa de Operación</button>' +
+                '<button class="btn btn-default-white btn-sm userRoute"" >Servicio</button>' +
+                '<button class="btn btn-default-white btn-sm route" >Servicio Sonda</button>' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-white btn-sm period" >Periodo</button>' +
                 '</div>' +
                 '</div>' +
                 '</div>' +
@@ -312,13 +315,13 @@ $(document).ready(function () {
             selectorId++;
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                `<select id=dateSelect-${newId} class="form-control  date">` + dateList + '</select>' +
-                `<select id=userRouteSelect-${newId} class="form-control  userRoute">` + userRouteList + '</select>' +
-                `<select id=routeSelect-${newId} class="form-control  route"></select>` +
+                `<select id=dateSelect-${newId} class="form-control date">` + dateList + '</select>' +
+                `<select id=userRouteSelect-${newId} class="form-control userRoute">` + userRouteList + '</select>' +
+                `<select id=routeSelect-${newId} class="form-control route"></select>` +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
-                `<select id=periodSelect-${newId} class="form-control  period"></select>` +
+                `<select id=periodSelect-${newId} class="form-control period"></select>` +
                 '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '</div>';
             $ROW_CONTAINER.append(row);
@@ -332,7 +335,7 @@ $(document).ready(function () {
             mapInstance.addLayer(layers[newId]);
 
 //            $ROW_CONTAINER.find(".form-control").last().change();
-            $(".form-control").select2();
+            $(".form-control").select2({width: 'element'});
         };
 
         this.loadBaseData = function () {

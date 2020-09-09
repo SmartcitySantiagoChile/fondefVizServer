@@ -76,3 +76,19 @@
 .leaflet-container a.btn-success{
     color: #ffffff;
 }
+
+.date{
+    width: 180px !important;
+}
+
+.userRoute{
+    width: 70px !important;
+}
+
+.route{
+    width: 120px !important;
+}
+
+.period{
+    width: 300px !important;
+}
