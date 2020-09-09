@@ -25,7 +25,7 @@ $(document).ready(function () {
         routeListControl.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
-                '<div class="form-inline">' +
+                '<div id="header" class="form-inline" style="display: none">' +
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
@@ -166,6 +166,8 @@ $(document).ready(function () {
                 $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
                 $USER_ROUTE.data("first", true);
 
+            } else{
+                $("#header").css('display', "block");
             }
             $USER_ROUTE.trigger("change");
             $DATE.trigger("change");
