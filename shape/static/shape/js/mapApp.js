@@ -249,6 +249,7 @@ $(document).ready(function () {
                 },
                 retrieve: true,
                 data: data,
+                orderable: false,
                 dom: 'Brt',
                 buttons: [
                     {
@@ -267,8 +268,8 @@ $(document).ready(function () {
                 ],
                 columns: [
                     {title: "Periodo Transantiago", data: "timePeriod", searchable: false},
-                    {title: "Inicio de periodo", data: "startPeriodTime", searchable: false},
-                    {title: "Fin de periodo", data: "endPeriodTime", searchable: false},
+                    {title: "Inicio", data: "startPeriodTime", searchable: false},
+                    {title: "Fin", data: "endPeriodTime", searchable: false},
                     {title: "Frecuencia [Bus/h]", data: "frecuency", searchable: false},
                     {title: "Capacidad [Plazas/h]", data: "capacity", searchable: false},
                     {title: "Distancia [km]", data: "distance", searchable: false},
