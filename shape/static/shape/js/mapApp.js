@@ -247,18 +247,14 @@ $(document).ready(function () {
                     decimal: ",",
                     thousands: "."
                 },
-                paging: false,
-                scrollY: 400,
-                scrollX: false,
-                searching: false,
+                retrieve: true,
                 data: data,
-                order: [],
-                dom: 'Bfrtip',
+                dom: 'Brt',
                 buttons: [
                     {
                         extend: "excelHtml5",
                         text: "Exportar a excel",
-                        className: "buttons-excel buttons-html5 btn btn-success",
+                        className: "buttons-excel buttons-html5 btn",
                         exportOptions: {
                             columns: [1, 2, 3, 4, 5, 6]
                         }
@@ -266,7 +262,7 @@ $(document).ready(function () {
                     {
                         extend: 'copy',
                         text: "Copiar datos",
-                        className: "buttons-excel buttons-html5 btn ",
+                        className: "buttons-excel buttons-html5 btn",
                     }
                 ],
                 columns: [
@@ -303,8 +299,7 @@ $(document).ready(function () {
                         $INFOMODAL.modal("show");
                         $INFOMODAL.on('shown.bs.modal', function () {
                             $INFOMODAL.trigger('focus');
-                            console.log(data.data);
-                            _self.addTableInfo([data.data[0]]);
+                            _self.addTableInfo([data.data[period]]);
                         })
                     });
                 }
