@@ -10,6 +10,7 @@
           href="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.css" %}">
     <link rel="stylesheet"
           href="{% static "components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" %}">
+
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
 
@@ -20,6 +21,8 @@
         <link href="{% static gentelella_static|add:"datatables.net-responsive-bs/css/responsive.bootstrap.min.css" %}"
               rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
+              rel="stylesheet">
+        <link href="{% static gentelella_static|add:"datatables.net-buttons-bs/css/buttons.bootstrap.min.css" %}"
               rel="stylesheet">
     {% endwith %}
 

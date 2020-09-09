@@ -255,7 +255,7 @@ $(document).ready(function () {
                     {
                         extend: "excelHtml5",
                         text: "Exportar a excel",
-                        className: "buttons-excel buttons-html5 btn",
+                        className: "buttons-excel buttons-html5 btn btn-success",
                         exportOptions: {
                             columns: [1, 2, 3, 4, 5, 6]
                         }
@@ -263,7 +263,7 @@ $(document).ready(function () {
                     {
                         extend: 'copy',
                         text: "Copiar datos",
-                        className: "buttons-excel buttons-html5 btn",
+                        className: "buttons-excel buttons-html5 btn btn-default",
                     }
                 ],
                 columns: [

@@ -72,3 +72,7 @@
     line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
     border-radius: 3px;
 }
+
+.leaflet-container a.btn-success{
+    color: #ffffff;
+}
