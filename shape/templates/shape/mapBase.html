@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block css %}
+     <link rel="stylesheet" href="{% static 'shape/css/mapBase.css' %}" >
+
     <!-- leaflet -->
     <link rel="stylesheet" href="{% static "components/leaflet/dist/leaflet.css" %}">
     <link rel="stylesheet"
@@ -20,82 +22,9 @@
         <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
               rel="stylesheet">
     {% endwith %}
-    <style>
-        .info {
-            padding: 6px 8px;
-            font: 12px/14px Arial, Helvetica, sans-serif;
-            background: white;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-        }
-
-        .info h4 {
-            margin: 0 0 5px;
-            color: #777;
-        }
-
-        .legend {
-            line-height: 18px;
-            color: #555;
-        }
-
-        .legend i {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 0.8;
-        }
-
-        .filterColor {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 1.0;
-        }
-
-        .nav_menu {
-            margin-bottom: 0;
-        }
-
-        .btn-sm, .leaflet-right .btn {
-            margin-bottom: 0;
-            margin-right: 0;
-        }
-
-        .select2-selection--single {
-            min-height: 18px !important;
-        }
-
-        .select2-selection--single .select2-selection__rendered {
-            line-height: 18px !important;
-        }
 
 
-        .btn-default-disabled {
-            pointer-events: none;
-            color: rgba(255, 255, 255, 0.2);
-            background-color: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
 
-        .btn-default-white {
-            pointer-events: none;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.2);
-            font: 14px/16px Arial, Helvetica, sans-serif;
-        }
-
-        .input-xs {
-            height: 22px;
-            padding: 2px 5px;
-            font-size: 12px;
-            line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
-            border-radius: 3px;
-        }
-    </style>
 {% endblock %}
 
 {% block content %}
@@ -106,24 +35,24 @@
 
 {% block js %}
     {% with "components/gentelella/vendors/" as gentelella_static %}
-        <script src="{% static gentelella_static|add:"iCheck/icheck.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"select2/dist/js/select2.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:'iCheck/icheck.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'select2/dist/js/select2.min.js' %}"></script>
 
-        <script src="{% static gentelella_static|add:"datatables.net/js/jquery.dataTables.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-responsive/js/dataTables.responsive.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-buttons/js/dataTables.buttons.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"jszip/dist/jszip.min.js" %}"></script>
-        <script src="{% static gentelella_static|add:"datatables.net-buttons/js/buttons.html5.min.js" %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net-fixedheader/js/dataTables.fixedHeader.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net-responsive-bs/js/responsive.bootstrap.js' %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net-scroller/js/dataTables.scroller.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'jszip/dist/jszip.min.js' %}"></script>
+        <script src="{% static gentelella_static|add:'datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
 
     {% endwith %}
-    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
-    <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
-    <script src="{% static "components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js" %}"></script>
-    <script src="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.js" %}"></script>
-    <script src="{% static "trip/js/map.js" %}"></script>
-    <script src="{% static "shape/js/mapApp.js" %}"></script>
+    <script src="{% static 'components/leaflet/dist/leaflet.js' %}"></script>
+    <script src="{% static 'components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js' %}"></script>
+    <script src="{% static 'components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
+    <script src="{% static 'components/BeautifyMarker/leaflet-beautify-marker-icon.js' %}"></script>
+    <script src="{% static 'trip/js/map.js' %}"></script>
+    <script src="{% static 'shape/js/mapApp.js' %}"></script>
 {% endblock %}
