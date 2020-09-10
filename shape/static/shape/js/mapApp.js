@@ -57,6 +57,10 @@ $(document).ready(function () {
             $("#helpModal").modal("show");
         });
 
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(mapInstance);
+
         var $ROW_CONTAINER = $("#routeListContainer");
 
         var layers = {};
@@ -166,7 +170,7 @@ $(document).ready(function () {
                 $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
                 $USER_ROUTE.data("first", true);
 
-            } else{
+            } else {
                 $("#header").css('display', "block");
             }
             $USER_ROUTE.trigger("change");
