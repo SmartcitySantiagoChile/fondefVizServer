@@ -67,23 +67,6 @@ $(document).ready(function () {
 
         var selectorId = 1;
 
-        this.disableFocus = function () {
-            for (const [key, value] of Object.entries(layers)) {
-                value.eachLayer(function (layer) {
-                    if (layer instanceof L.Marker) {
-                        layer.options.keyboard = false;
-                        console.log(layer);
-
-                    }
-                })
-            }
-
-            let elements = document.querySelectorAll(".leaflet-control a .leaflet-container");
-            for (let i = 0; i < elements.length; ++i) {
-                elements[i].setAttribute("tabindex", "-1");
-            }
-        };
-
         this.sendData = function (e) {
             let selector = $(e).closest(".selectorRow");
             let layerId = selector.data("id");
@@ -362,7 +345,6 @@ $(document).ready(function () {
                         let $INFOMODAL = $("#shape_info");
                         $INFOMODAL.modal("show");
                         $INFOMODAL.on('shown.bs.modal', function () {
-                            _self.disableFocus();
                             _self.addTableInfo([data.data[period]]);
                         })
                     });
@@ -424,10 +406,7 @@ $(document).ready(function () {
 
     var mapShapeApp = new MapShapeApp();
     mapShapeApp.loadBaseData();
-    var elements = document.querySelectorAll(".leaflet-control a");
-    for (var i = 0; i < elements.length; ++i) {
-        elements[i].setAttribute("tabindex", "-1");
-    }
+    $("#modalList").detach().appendTo($(".main_container")[0]);
     document.activeElement.blur();
 
 })

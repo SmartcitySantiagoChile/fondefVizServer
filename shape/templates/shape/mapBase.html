@@ -31,9 +31,11 @@
 {% endblock %}
 
 {% block content %}
+    <div id="modalList">
     {% include "help/modal/modal_shape.html" with show_ok_button=True modal_id="shape_info" modal_title="Datos sobre ruta" modal_body="" %}
     {% include "help/modal/modal.html" with show_ok_button=True modal_id="modal" modal_title="Eliminar ruta" modal_body="¿Está seguro que quiere eliminar la ruta?" %}
     {% include "help/modal/explanation/shape/map.html" with modal_id="helpModal" %}
+    </div>
 {% endblock %}
 
 {% block js %}
