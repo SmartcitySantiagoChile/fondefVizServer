@@ -232,20 +232,14 @@ $(document).ready(function () {
                 var button = $(this);
                 var span = button.find("span");
                 var layerId = button.parent().data("id");
-                console.log(layers[layerId]);
-
                 if (span.hasClass("glyphicon-eye-open")) {
                     button.removeClass("btn-success").addClass("btn-warning");
                     span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
                     layers[layerId].eachLayer(function (layer) {
                         if (layer instanceof L.Polyline) {
-                            layer.setStyle({opacity: 0});
+                            mapInstance.removeLayer(layer);
                         } else if (layer instanceof L.PolylineDecorator) {
-                            layer.options.patterns[0].symbol.options.pixelSize = 0;
-                            layer.options.patterns[0].symbol.options.pathOptions.stroke = false;
-                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 0;
-                            layer.setPatterns(layer.options.patterns);
-
+                            mapInstance.removeLayer(layer);
                         }
                     });
                 } else {
@@ -253,13 +247,9 @@ $(document).ready(function () {
                     span.removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
                     layers[layerId].eachLayer(function (layer) {
                         if (layer instanceof L.Polyline) {
-                            layer.setStyle({opacity: 1});
+                            mapInstance.addLayer(layer);
                         } else if (layer instanceof L.PolylineDecorator) {
-                            console.log(layer);
-                            layer.options.patterns[0].symbol.options.pixelSize = 10;
-                            layer.options.patterns[0].symbol.options.pathOptions.stroke = true;
-                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 1;
-                            layer.setPatterns(layer.options.patterns);
+                            mapInstance.addLayer(layer);
                         }
                     });
                 }
@@ -273,32 +263,21 @@ $(document).ready(function () {
                 var button = $(this);
                 var span = button.find("span");
                 var layerId = button.parent().data("id");
-                console.log(layers[layerId]);
-                console.log(button);
                 if (button.hasClass("btn-success")) {
                     button.removeClass("btn-success").addClass("btn-warning");
                     span.removeClass("fa-bus").addClass("fa-bus");
                     layers[layerId].eachLayer(function (layer) {
-                        if (layer instanceof L.Polyline) {
-                            layer.setStyle({opacity: 0});
-                        } else if (layer instanceof L.PolylineDecorator) {
-                            layer.options.patterns[0].symbol.options.pixelSize = 0;
-                            layer.options.patterns[0].symbol.options.pathOptions.stroke = false;
-                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 0;
+                        if (layer instanceof L.Marker) {
+                            mapInstance.removeLayer(layer);
                         }
                     });
                 } else {
                     button.removeClass("btn-warning").addClass("btn-success");
                     span.removeClass("fa-bus").addClass("fa-bus");
                     layers[layerId].eachLayer(function (layer) {
-                        if (layer instanceof L.Polyline) {
-                            layer.setStyle({opacity: 1});
-                        } else if (layer instanceof L.PolylineDecorator) {
-                            layer.options.patterns[0].symbol.options.pixelSize = 10;
-                            layer.options.patterns[0].symbol.options.pathOptions.stroke = true;
-                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 1;
+                        if (layer instanceof L.Marker) {
+                            mapInstance.addLayer(layer);
                         }
-                        console.log(mapInstance);
                     });
                 }
             });
