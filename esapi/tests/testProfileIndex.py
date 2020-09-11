@@ -169,16 +169,17 @@ class ESProfileIndexTest(TestCase):
         result = self.instance.get_base_profile_by_trajectory_data_query(dates, day_type, auth_route,
                                                                          period, half_hour,
                                                                          valid_operator_list)
-        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'506 00I'}},
-                                                  {'terms': {'dayType': [u'LABORAL']}},
+        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': '506 00I'}},
+                                                  {'terms': {'dayType': ['LABORAL']}},
                                                   {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
                                                   {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
-                'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-01-02||/d',
-                                        u'format': u'yyyy-MM-dd'}}}]}},
-                    '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
-                                u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
-                                u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
-                                u'busStation', u'path', u'stopDistanceFromPathStart', u'expeditionStopTime']}
+                'expeditionStartTime': {'gte': '2018-01-01||/d', 'lte': '2018-01-02||/d', 'format': 'yyyy-MM-dd',
+                                        'time_zone': '+00:00'}}}]}},
+                    '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
+                                'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
+                                'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
+                                'busStation', 'path', 'stopDistanceFromPathStart', 'expeditionStopTime', 'notValid']}
+
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 

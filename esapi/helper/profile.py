@@ -210,7 +210,7 @@ class ESProfileHelper(ElasticSearchHelper):
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
              'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'stopDistanceFromPathStart',
-             'expeditionStopTime'])
+             'expeditionStopTime', 'notValid'])
 
         return es_query
 
