@@ -276,11 +276,9 @@ class LoadProfileByTrajectoryData(View):
 
         day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
-        print(es_query)
         for hit in es_query.scan():
             expedition_id = '{0}-{1}'.format(hit.path, hit.expeditionDayId)
             if 'capacity' not in trips[expedition_id]['info']:
-                print(hit.to_dict())
                 trips[expedition_id]['info'] = {
                     'capacity': hit.busCapacity,
                     'licensePlate': hit.licensePlate,
