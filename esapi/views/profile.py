@@ -289,7 +289,7 @@ class LoadProfileByTrajectoryData(View):
                     'dayType': day_type_dict[hit.dayType],
                     'valid': not bool(hit.notValid)
                 }
-                if not bool(hit.notValid):
+                if bool(hit.notValid):
                     expedition_not_valid_number += 1
 
             if hit.busStation == 1 and hit.authStopCode not in bus_stations:
