@@ -67,37 +67,36 @@ $(document).ready(function () {
 
         var selectorId = 1;
 
-        this.refreshControlEvents = function (id) {
-
-            //handle send data
-            let sendData = e => {
-                let selector = $(e).closest(".selectorRow");
-                let layerId = selector.data("id");
-                let route = $(`#routeSelect-${layerId}`).val();
-                let date = $(`#dateSelect-${layerId}`).val();
-                let params = {
-                    route: route,
-                    operationProgramDate: date
-                };
-
-                $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
-                    if (data.status) {
-                        showMessage(data.status);
-                        if (!("points" in data)) {
-                            layers[layerId].clearLayers();
-                            return;
-                        }
-                    }
-                    // update map
-                    // clean featureGroup
-                    layers[layerId].clearLayers();
-                    let layer = layers[layerId];
-                    app.addPolyline(layer, data.points, {
-                        stops: data.stops,
-                        route: route
-                    });
-                });
+        this.sendData = function (e) {
+            let selector = $(e).closest(".selectorRow");
+            let layerId = selector.data("id");
+            let route = $(`#routeSelect-${layerId}`).val();
+            let date = $(`#dateSelect-${layerId}`).val();
+            let params = {
+                route: route,
+                operationProgramDate: date
             };
+
+            $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
+                if (data.status) {
+                    showMessage(data.status);
+                    if (!("points" in data)) {
+                        layers[layerId].clearLayers();
+                        return;
+                    }
+                }
+                // update map
+                // clean featureGroup
+                layers[layerId].clearLayers();
+                let layer = layers[layerId];
+                app.addPolyline(layer, data.points, {
+                    stops: data.stops,
+                    route: route
+                });
+            });
+        };
+
+        this.refreshControlEvents = function (id) {
 
             // handle user route selector
             let $USER_ROUTE = $(`#userRouteSelect-${id}`);
@@ -120,7 +119,7 @@ $(document).ready(function () {
                     $(this).data("first", false);
                 }
                 if ($PERIOD.val() != null) {
-                    sendData(this);
+                    _self.sendData(this);
                 }
             });
 
@@ -128,7 +127,7 @@ $(document).ready(function () {
             let $ROUTE = $(`#routeSelect-${id}`);
             $ROUTE.off("change");
             $ROUTE.change(function () {
-                sendData(this);
+                _self.sendData(this);
             });
 
 
@@ -157,7 +156,7 @@ $(document).ready(function () {
                 }
 
                 if ($ROUTE.val() != null) {
-                    sendData(this);
+                    _self.sendData(this);
                 }
             });
 
@@ -238,11 +237,69 @@ $(document).ready(function () {
                 if (span.hasClass("glyphicon-eye-open")) {
                     button.removeClass("btn-success").addClass("btn-warning");
                     span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
-                    mapInstance.removeLayer(layers[layerId]);
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Polyline) {
+                            layer.setStyle({opacity: 0});
+                        } else if (layer instanceof L.PolylineDecorator) {
+                            layer.options.patterns[0].symbol.options.pixelSize = 0;
+                            layer.options.patterns[0].symbol.options.pathOptions.stroke = false;
+                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 0;
+                            layer.setPatterns(layer.options.patterns);
+
+                        }
+                    });
                 } else {
                     button.removeClass("btn-warning").addClass("btn-success");
                     span.removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
-                    mapInstance.addLayer(layers[layerId]);
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Polyline) {
+                            layer.setStyle({opacity: 1});
+                        } else if (layer instanceof L.PolylineDecorator) {
+                            console.log(layer);
+                            layer.options.patterns[0].symbol.options.pixelSize = 10;
+                            layer.options.patterns[0].symbol.options.pathOptions.stroke = true;
+                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 1;
+                            layer.setPatterns(layer.options.patterns);
+                        }
+                    });
+                }
+            });
+        };
+
+        this.refreshVisibilityStopsButton = function () {
+            var $VISIBILITY_BUTTON = $(".selectorRow .visibility-stops");
+            $VISIBILITY_BUTTON.off("click");
+            $VISIBILITY_BUTTON.click(function () {
+                var button = $(this);
+                var span = button.find("span");
+                var layerId = button.parent().data("id");
+                console.log(layers[layerId]);
+                console.log(button);
+                if (button.hasClass("btn-success")) {
+                    button.removeClass("btn-success").addClass("btn-warning");
+                    span.removeClass("fa-bus").addClass("fa-bus");
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Polyline) {
+                            layer.setStyle({opacity: 0});
+                        } else if (layer instanceof L.PolylineDecorator) {
+                            layer.options.patterns[0].symbol.options.pixelSize = 0;
+                            layer.options.patterns[0].symbol.options.pathOptions.stroke = false;
+                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 0;
+                        }
+                    });
+                } else {
+                    button.removeClass("btn-warning").addClass("btn-success");
+                    span.removeClass("fa-bus").addClass("fa-bus");
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Polyline) {
+                            layer.setStyle({opacity: 1});
+                        } else if (layer instanceof L.PolylineDecorator) {
+                            layer.options.patterns[0].symbol.options.pixelSize = 10;
+                            layer.options.patterns[0].symbol.options.pathOptions.stroke = true;
+                            layer.options.patterns[0].symbol.options.pathOptions.fillOpacity = 1;
+                        }
+                        console.log(mapInstance);
+                    });
                 }
             });
         };
@@ -336,6 +393,7 @@ $(document).ready(function () {
             _self.refrehRemoveButton();
             _self.refreshColorPickerButton();
             _self.refreshVisibilityRoutesButton();
+            _self.refreshVisibilityStopsButton();
             _self.refreshInfoButton();
 
             layers[newId] = new L.FeatureGroup([]);
