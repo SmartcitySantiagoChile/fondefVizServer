@@ -246,8 +246,8 @@ class FileManager(object):
         return doc_number_by_file
 
     def get_file_list(self, index_filter=None):
-        upload_filter = index_filter.copy()
-        if 'stop' in upload_filter:
+        upload_filter = index_filter.copy() if index_filter else None
+        if upload_filter and 'stop' in upload_filter:
             upload_filter.remove('stop')
             upload_filter.append('stopbyroute')
         uploaded_files = self.get_document_number_by_file_from_elasticsearch(index_filter=upload_filter)
