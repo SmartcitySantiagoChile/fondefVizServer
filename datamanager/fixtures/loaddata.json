@@ -12,7 +12,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 3,
+    "pk": 2,
     "fields": {
       "fileName": "2019-10-12.shape",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -23,7 +23,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 4,
+    "pk": 3,
     "fields": {
       "fileName": "2018-03-01.opdata",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -34,7 +34,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 14,
+    "pk": 4,
     "fields": {
       "fileName": "2019-10-08.bip",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -45,7 +45,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 17,
+    "pk": 5,
     "fields": {
       "fileName": "2019-10-21.general",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -56,7 +56,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 24,
+    "pk": 6,
     "fields": {
       "fileName": "2019-10-21.trip",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -67,7 +67,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 27,
+    "pk": 7,
     "fields": {
       "fileName": "2019-10-27.speed",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -78,7 +78,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 86,
+    "pk": 8,
     "fields": {
       "fileName": "2019-08-05.profile",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -89,7 +89,7 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 95,
+    "pk": 9,
     "fields": {
       "fileName": "2019-10-17.paymentfactor",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
@@ -100,41 +100,13 @@
   },
   {
     "model": "datamanager.loadfile",
-    "pk": 96,
+    "pk": 10,
     "fields": {
       "fileName": "2019-10-17.odbyroute",
       "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
       "discoveredAt": "2020-09-14T14:38:15.434Z",
       "lines": 0,
       "lastModified": "2020-03-26T13:15:24.266Z"
-    }
-  },
-  {
-    "model": "datamanager.uploaderjobexecution",
-    "pk": 1,
-    "fields": {
-      "jobId": "12785578-a781-498c-8820-996be2351b7d",
-      "enqueueTimestamp": "2020-09-11T21:01:43.026Z",
-      "executionStart": "2020-09-11T21:01:43.056Z",
-      "executionEnd": null,
-      "status": "running",
-      "errorMessage": "",
-      "file": 1,
-      "wasDeletedAt": null
-    }
-  },
-  {
-    "model": "datamanager.uploaderjobexecution",
-    "pk": 2,
-    "fields": {
-      "jobId": "70bdecd1-767d-4755-8547-761ff27ce5cc",
-      "enqueueTimestamp": "2020-09-11T21:42:17.702Z",
-      "executionStart": "2020-09-11T21:42:17.726Z",
-      "executionEnd": "2020-09-11T21:42:24.533Z",
-      "status": "finished",
-      "errorMessage": "",
-      "file": 13,
-      "wasDeletedAt": null
     }
   }
 ]
