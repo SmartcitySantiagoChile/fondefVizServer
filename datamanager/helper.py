@@ -236,7 +236,6 @@ class FileManager(object):
                 file_name_list = [file_filter]
         else:
             file_name_list = None
-
         doc_number_by_file = {}
         for helper in helpers:
             files = helper.get_data_by_file(file_filter=file_name_list).execute().aggregations.files.buckets
