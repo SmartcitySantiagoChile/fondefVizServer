@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+import csv
 from datetime import date as dt
+from io import StringIO
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
+from django.utils import timezone
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
     CalendarInfo, FAQ, OPDictionary, TimePeriodDate
@@ -153,6 +156,32 @@ def get_valid_time_period_date(date_list):
             if first_date >= valid_date['date']:
                 period_date_valid = valid_date['id']
     return True, period_date_valid
+
+
+def upload_csv_op_dictionary(csv_file):
+    csvf = StringIO(csv_file.read().decode())
+    upload_time = timezone.now()
+    reader = csv.reader(csvf, delimiter=',')
+    to_update = []
+    to_create = []
+    for row in reader:
+        if row[1].strip():
+            try:
+                op_dict_obj = OPDictionary.objects.get(auth_route_code=row[0])
+                op_dict_obj.user_route_code = row[1]
+                op_dict_obj.op_route_code = row[2]
+                op_dict_obj.route_type = row[3]
+                op_dict_obj.updated_at = upload_time
+                to_update.append(op_dict_obj)
+
+            except OPDictionary.DoesNotExist:
+                to_create.append(OPDictionary(user_route_code=row[1], op_route_code=row[2],
+                                              route_type=row[3], created_at=upload_time,
+                                              updated_at=upload_time,
+                                              auth_route_code=row[0]))
+    OPDictionary.objects.bulk_create(to_create)
+    OPDictionary.objects.bulk_update(to_update,
+                                     ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
 
 
 class PermissionBuilder(object):
