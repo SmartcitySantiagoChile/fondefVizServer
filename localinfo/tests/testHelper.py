@@ -369,18 +369,18 @@ class TestHelperUtils(TestCase):
         file = os.path.join(self.path, 'diccionario_op_base.xlsx')
         self.assertTrue(upload_xlsx_op_dictionary(file))
         created_objects = list(
-            OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
-                                              'route_type'))
-        expected_dict = [{'id': 1, 'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
+            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
+                                              'route_type').order_by('auth_route_code'))
+        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
                           'route_type': '101I'},
-                         {'id': 2, 'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_cvd'},
-                         {'id': 3, 'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_fmisa'},
-                         {'id': 4, 'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
                           'route_type': '101R'},
-                         {'id': 5, 'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R_fmisa'}]
+                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_fmisa'},
+                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R_fmisa'},
+                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_cvd'}]
 
         self.assertEqual(expected_dict, created_objects)
 
@@ -390,19 +390,19 @@ class TestHelperUtils(TestCase):
         file = os.path.join(self.path, 'diccionario_op_base_2.xlsx')
         self.assertTrue(upload_xlsx_op_dictionary(file))
         created_objects = list(
-            OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
-                                              'route_type').order_by('id'))
-        expected_dict = [{'id': 1, 'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
+            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
+                                              'route_type').order_by('auth_route_code'))
+        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
                           'route_type': '101I'},
-                         {'id': 2, 'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_cvd'},
-                         {'id': 3, 'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_fmisa'},
-                         {'id': 4, 'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
                           'route_type': '101R'},
-                         {'id': 5, 'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_fmisa'},
+                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
                           'route_type': '101R_fmisa'},
-                         {'id': 6, 'auth_route_code': 'T558 00I', 'op_route_code': '558I', 'user_route_code': '118',
+                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_cvd'},
+                         {'auth_route_code': 'T558 00I', 'op_route_code': '558I', 'user_route_code': '118',
                           'route_type': '118I'}]
 
         self.assertEqual(expected_dict, created_objects)
