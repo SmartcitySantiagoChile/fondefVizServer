@@ -8,7 +8,8 @@ from django.utils import timezone
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, upload_csv_op_dictionary
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, upload_csv_op_dictionary, \
+    upload_xlsx_op_dictionary
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
@@ -366,30 +367,44 @@ class TestHelperUtils(TestCase):
         self.assertEqual(answer_second, get_valid_time_period_date(valid_dates_list_second))
         self.assertEqual(answer_invalid, get_valid_time_period_date(invalid_dates_list))
 
-    def test_upload_csv_op_dictionary(self):
-        with open(os.path.join(self.path, 'op_data.csv'), 'r') as file:
-            upload_csv_op_dictionary(file)
-            expected_dict = [
-                {'id': 1, 'auth_route_code': 'B01 OOI', 'op_route_code': 'B01I', 'user_route_code': 'B01',
-                 'route_type': 'Ida'},
-                {'id': 2, 'auth_route_code': 'B01 OOR', 'op_route_code': 'B01R', 'user_route_code': 'B01',
-                 'route_type': 'Vuelta'}]
-            created_objects = list(
-                OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
-                                                  'route_type'))
-            self.assertEqual(expected_dict, created_objects)
-        with open(os.path.join(self.path, 'op_data_2.csv'), 'r') as file:
-            upload_csv_op_dictionary(file)
-            expected_dict = [
-                {'id': 1, 'auth_route_code': 'B01 OOI', 'op_route_code': 'B01I', 'user_route_code': 'B01',
-                 'route_type': 'Ida'},
-                {'id': 2, 'auth_route_code': 'B01 OOR', 'op_route_code': 'B01R', 'user_route_code': 'B01',
-                 'route_type': 'Vuelta'},
-                {'id': 3, 'auth_route_code': 'T101I OOI', 'op_route_code': '101I', 'user_route_code': '1O1',
-                 'route_type': 'Ida'}]
+    def test_upload_xlsx_op_dictionary(self):
+        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
+        upload_xlsx_op_dictionary(file)
+        created_objects = list(
+            OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
+                                              'route_type'))
+        expected_dict = [{'id': 1, 'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I'},
+                         {'id': 2, 'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_cvd'},
+                         {'id': 3, 'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_fmisa'},
+                         {'id': 4, 'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R'},
+                         {'id': 5, 'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R_fmisa'}]
 
-            created_objects = list(
-                OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
-                                                  'route_type').order_by('id'))
-            self.assertEqual(expected_dict, created_objects)
+        self.assertEqual(expected_dict, created_objects)
 
+    def test_upload_xlsx_op_dictionary_update(self):
+        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
+        upload_xlsx_op_dictionary(file)
+        file = os.path.join(self.path, 'diccionario_op_base_2.xlsx')
+        upload_xlsx_op_dictionary(file)
+        created_objects = list(
+            OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
+                                              'route_type').order_by('id'))
+        expected_dict = [{'id': 1, 'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I'},
+                         {'id': 2, 'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_cvd'},
+                         {'id': 3, 'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_fmisa'},
+                         {'id': 4, 'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R'},
+                         {'id': 5, 'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R_fmisa'},
+                         {'id': 6, 'auth_route_code': 'T558 00I', 'op_route_code': '558I', 'user_route_code': '118',
+                          'route_type': '118I'}]
+
+        self.assertEqual(expected_dict, created_objects)

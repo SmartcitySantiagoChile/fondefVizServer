@@ -8,6 +8,8 @@ from django.contrib.postgres.search import SearchVector
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
+from openpyxl import load_workbook
+from openpyxl.cell.read_only import EmptyCell
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
     CalendarInfo, FAQ, OPDictionary, TimePeriodDate
@@ -156,31 +158,38 @@ def get_valid_time_period_date(date_list):
                 period_date_valid = valid_date['id']
     return True, period_date_valid
 
-
-def upload_csv_op_dictionary(csv_file):
+def upload_xlsx_op_dictionary(xlsx_file):
     upload_time = timezone.now()
-    reader = csv.reader(csv_file, delimiter=',')
     to_update = []
     to_create = []
-    for row in reader:
-        if row[1].strip():
+
+    wb = load_workbook(xlsx_file, read_only=True)
+    ws = wb.active
+    for row in ws.iter_rows(min_row=1, max_col=16, values_only=True):
+        if row[0] is None:
+            break
+        if row[4] == 'Vigente':
+            auth_route_code = str(row[9])
+            op_route_code = str(row[7]) + str(row[5])
+            user_route_code = row[6]
+            route_type = row[0]
             try:
-                op_dict_obj = OPDictionary.objects.get(auth_route_code=row[0])
-                op_dict_obj.user_route_code = row[1]
-                op_dict_obj.op_route_code = row[2]
-                op_dict_obj.route_type = row[3]
+                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code)
+                op_dict_obj.op_route_code = op_route_code
+                op_dict_obj.user_route_code = user_route_code
+                op_dict_obj.route_type = route_type
                 op_dict_obj.updated_at = upload_time
                 to_update.append(op_dict_obj)
 
             except OPDictionary.DoesNotExist:
-                to_create.append(OPDictionary(user_route_code=row[1], op_route_code=row[2],
-                                              route_type=row[3], created_at=upload_time,
+                to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
+                                              route_type=route_type, created_at=upload_time,
                                               updated_at=upload_time,
-                                              auth_route_code=row[0]))
+                                              auth_route_code=auth_route_code))
     OPDictionary.objects.bulk_create(to_create)
     OPDictionary.objects.bulk_update(to_update,
                                      ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
-
+    wb.close()
 
 class PermissionBuilder(object):
 
