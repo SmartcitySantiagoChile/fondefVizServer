@@ -1,15 +1,13 @@
 import os
 from datetime import datetime
 
-import pytz
 from django.test import TestCase
 from django.utils import timezone
 
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, upload_csv_op_dictionary, \
-    upload_xlsx_op_dictionary
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, upload_xlsx_op_dictionary
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
@@ -369,7 +367,7 @@ class TestHelperUtils(TestCase):
 
     def test_upload_xlsx_op_dictionary(self):
         file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        upload_xlsx_op_dictionary(file)
+        self.assertTrue(upload_xlsx_op_dictionary(file))
         created_objects = list(
             OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
                                               'route_type'))
@@ -388,9 +386,9 @@ class TestHelperUtils(TestCase):
 
     def test_upload_xlsx_op_dictionary_update(self):
         file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        upload_xlsx_op_dictionary(file)
+        self.assertTrue(upload_xlsx_op_dictionary(file))
         file = os.path.join(self.path, 'diccionario_op_base_2.xlsx')
-        upload_xlsx_op_dictionary(file)
+        self.assertTrue(upload_xlsx_op_dictionary(file))
         created_objects = list(
             OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
                                               'route_type').order_by('id'))
@@ -408,3 +406,7 @@ class TestHelperUtils(TestCase):
                           'route_type': '118I'}]
 
         self.assertEqual(expected_dict, created_objects)
+
+    def test_upload_xlsx_op_dictionary_error(self):
+        file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
+        self.assertFalse(upload_xlsx_op_dictionary(file))

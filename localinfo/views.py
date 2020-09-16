@@ -7,9 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
-    upload_csv_op_dictionary
-
+from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input
 
 class FaqImgUploader(View):
 

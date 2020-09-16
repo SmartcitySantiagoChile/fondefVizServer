@@ -190,6 +190,11 @@ def upload_xlsx_op_dictionary(xlsx_file):
     OPDictionary.objects.bulk_update(to_update,
                                      ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
     wb.close()
+    if not to_create and not to_update:
+        return False
+    else:
+        return True
+
 
 class PermissionBuilder(object):
 
