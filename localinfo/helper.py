@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import csv
 from datetime import date as dt
 
 from django.conf import settings
@@ -9,7 +8,6 @@ from django.db.models import CharField, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
 from openpyxl import load_workbook
-from openpyxl.cell.read_only import EmptyCell
 
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
     CalendarInfo, FAQ, OPDictionary, TimePeriodDate
@@ -157,6 +155,7 @@ def get_valid_time_period_date(date_list):
             if first_date >= valid_date['date']:
                 period_date_valid = valid_date['id']
     return True, period_date_valid
+
 
 def upload_xlsx_op_dictionary(xlsx_file):
     upload_time = timezone.now()

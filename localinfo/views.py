@@ -7,7 +7,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input
+from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
+    upload_xlsx_op_dictionary
+
 
 class FaqImgUploader(View):
 
@@ -40,13 +42,13 @@ class OPDictionaryUploader(View):
 
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
-
+        print(csv_file)
         if csv_file and csv_file.size != 0:
             try:
-                csv_file = StringIO(csv_file.read().decode())
-                upload_csv_op_dictionary(csv_file)
+                upload_xlsx_op_dictionary(csv_file)
                 return JsonResponse(data={"status": True})
-            except Exception:
+            except Exception as e:
+                print(e)
                 return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
 
         else:
