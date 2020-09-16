@@ -42,17 +42,18 @@ class OPDictionaryUploader(View):
 
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
-        print(csv_file)
         if csv_file and csv_file.size != 0:
             try:
-                upload_xlsx_op_dictionary(csv_file)
-                return JsonResponse(data={"status": True})
-            except Exception as e:
-                print(e)
+                res = upload_xlsx_op_dictionary(csv_file)
+                if res is True:
+                    return JsonResponse(data={"status": True})
+                else:
+                    return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
+            except Exception:
                 return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
 
         else:
-            return JsonResponse(data={"error": "No existe archivo."}, status=400)
+            return JsonResponse(data={"error": "No existe el archivo."}, status=400)
 
 
 class TimePeriod(View):
