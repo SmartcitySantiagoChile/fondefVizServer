@@ -1,3 +1,5 @@
+from io import StringIO
+
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -40,8 +42,10 @@ class OPDictionaryUploader(View):
 
     def post(self, request):
         csv_file = request.FILES.get('csvDictionary', False)
+
         if csv_file and csv_file.size != 0:
             try:
+                csv_file = StringIO(csv_file.read().decode())
                 upload_csv_op_dictionary(csv_file)
                 return JsonResponse(data={"status": True})
             except Exception:

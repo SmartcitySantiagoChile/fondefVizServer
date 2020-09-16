@@ -1,12 +1,14 @@
+import os
 from datetime import datetime
 
+import pytz
 from django.test import TestCase
 from django.utils import timezone
 
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, upload_csv_op_dictionary
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
@@ -14,6 +16,7 @@ class TestHelperUtils(TestCase):
     fixtures = ['daytypes', 'operators', 'timeperioddates', 'timeperiods', 'halfhours', 'communes', 'transportmodes']
 
     def setUp(self):
+        self.path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files')
         self.test_faq = FAQ(question='¿Es esta una pregunta de prueba?', answer='Siempre lo fue', category='route')
         self.test_faq.save()
 
@@ -362,3 +365,31 @@ class TestHelperUtils(TestCase):
         self.assertEqual(answer_first, get_valid_time_period_date(valid_dates_list_first))
         self.assertEqual(answer_second, get_valid_time_period_date(valid_dates_list_second))
         self.assertEqual(answer_invalid, get_valid_time_period_date(invalid_dates_list))
+
+    def test_upload_csv_op_dictionary(self):
+        with open(os.path.join(self.path, 'op_data.csv'), 'r') as file:
+            upload_csv_op_dictionary(file)
+            expected_dict = [
+                {'id': 1, 'auth_route_code': 'B01 OOI', 'op_route_code': 'B01I', 'user_route_code': 'B01',
+                 'route_type': 'Ida'},
+                {'id': 2, 'auth_route_code': 'B01 OOR', 'op_route_code': 'B01R', 'user_route_code': 'B01',
+                 'route_type': 'Vuelta'}]
+            created_objects = list(
+                OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
+                                                  'route_type'))
+            self.assertEqual(expected_dict, created_objects)
+        with open(os.path.join(self.path, 'op_data_2.csv'), 'r') as file:
+            upload_csv_op_dictionary(file)
+            expected_dict = [
+                {'id': 1, 'auth_route_code': 'B01 OOI', 'op_route_code': 'B01I', 'user_route_code': 'B01',
+                 'route_type': 'Ida'},
+                {'id': 2, 'auth_route_code': 'B01 OOR', 'op_route_code': 'B01R', 'user_route_code': 'B01',
+                 'route_type': 'Vuelta'},
+                {'id': 3, 'auth_route_code': 'T101I OOI', 'op_route_code': '101I', 'user_route_code': '1O1',
+                 'route_type': 'Ida'}]
+
+            created_objects = list(
+                OPDictionary.objects.all().values('id', 'auth_route_code', 'op_route_code', 'user_route_code',
+                                                  'route_type').order_by('id'))
+            self.assertEqual(expected_dict, created_objects)
+

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import csv
 from datetime import date as dt
-from io import StringIO
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -159,9 +158,8 @@ def get_valid_time_period_date(date_list):
 
 
 def upload_csv_op_dictionary(csv_file):
-    csvf = StringIO(csv_file.read().decode())
     upload_time = timezone.now()
-    reader = csv.reader(csvf, delimiter=',')
+    reader = csv.reader(csv_file, delimiter=',')
     to_update = []
     to_create = []
     for row in reader:
