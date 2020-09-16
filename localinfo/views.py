@@ -41,7 +41,7 @@ class FaqHTML(View):
 class OPDictionaryUploader(View):
 
     def post(self, request):
-        csv_file = request.FILES.get('csvDictionary', False)
+        csv_file = request.FILES.get('OPDictionary', False)
         if csv_file and csv_file.size != 0:
             try:
                 res = upload_xlsx_op_dictionary(csv_file)

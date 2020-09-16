@@ -22,33 +22,33 @@ class LocalInfoViewTest(TestHelper):
     def test_OPDictionaryUploader_post(self):
         with open(os.path.join(self.path, 'diccionario_op_base.xlsx'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.csv', 'csvDictionary': file})
+                                        {'name': 'file.xlsx', 'OPDictionary': file})
             self.assertEqual(200, response.status_code)
 
     def test_OPDictionaryUploader_post_file_2(self):
         with open(os.path.join(self.path, 'diccionario_op_base.xlsx'), 'rb') as file:
             self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.csv', 'csvDictionary': file})
+                                        {'name': 'file.xlsx', 'OPDictionary': file})
         with open(os.path.join(self.path, 'diccionario_op_base_2.xlsx'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.csv', 'csvDictionary': file})
+                                        {'name': 'file.xlsx', 'OPDictionary': file})
             self.assertEqual(200, response.status_code)
 
     def test_OPDictionaryUploader_post_file_error_empty(self):
         bad_response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.csv', 'csvDictionary': ''})
+                                        {'name': 'file.xlsx', 'OPDictionary': ''})
         self.assertEqual(400, bad_response.status_code)
 
     def test_OPDictionaryUploader_post_file_error_bad_file(self):
         with open(os.path.join(self.path, 'op_data.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.csv', 'csvDictionary': file})
+                                        {'name': 'file.xlsx', 'OPDictionary': file})
             self.assertEqual(400, response.status_code)
 
     def test_OPDictionaryUploader_post_file_error_wrong_format(self):
         with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.csv', 'csvDictionary': file})
+                                        {'name': 'file.xlsx', 'OPDictionary': file})
             self.assertEqual(400, response.status_code)
 
     def test_TimePeriod_error(self):

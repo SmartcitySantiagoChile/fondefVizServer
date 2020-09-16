@@ -51,16 +51,16 @@
   <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
       <div class="x_title">
-        Subir csv de diccionario de servicios
+        Subir diccionario de servicios
       </div>
       <div class="x_content">
-        <form name="csvForm" id="csvForm" method="post" enctype="multipart/form-data"
+        <form name="OPForm" id="OPForm" method="post" enctype="multipart/form-data"
               action="{% url 'localinfo:opdictionaryupload' %}">{% csrf_token %}
           <div class="row">
             <div class="col-md-3 col-sm-12 col-xs-12">
               <div class="title_left">
                 <div class="form-group">
-                  <input required type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
+                  <input required type="file" name="OPDictionary" class="form-control-file" id="OPDictionary">
                 </div>
               </div>
             </div>
@@ -141,9 +141,9 @@
 
 {% block extrajs %}
   <script>
-      $("#csvForm").on("submit", function (e) {
+      $("#OPForm").on("submit", function (e) {
               e.preventDefault();
-              let formData = new FormData(document.getElementById("csvForm"));
+              let formData = new FormData(document.getElementById("OPForm"));
               $.ajax("{% url 'localinfo:opdictionaryupload' %}", {
                   method: "POST",
                   data: formData,
