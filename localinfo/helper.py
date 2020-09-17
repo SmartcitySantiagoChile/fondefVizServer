@@ -179,8 +179,8 @@ def upload_xlsx_op_dictionary(xlsx_file):
             user_route_code = row[6]
             route_type = row[0]
             try:
-                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code)
-                op_dict_obj.op_route_code = op_route_code
+                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type)
+                op_dict_obj.auth_route_code=auth_route_code
                 op_dict_obj.user_route_code = user_route_code
                 op_dict_obj.route_type = route_type
                 op_dict_obj.updated_at = upload_time

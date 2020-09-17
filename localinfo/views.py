@@ -46,7 +46,8 @@ class OPDictionaryUploader(View):
                 return JsonResponse(data={"updated": res['updated'], "created": res['created']})
             except ValueError as e:
                 return JsonResponse(data={"error": str(e)}, status=400)
-            except Exception:
+            except Exception as e:
+                print(e)
                 return JsonResponse(data={"error": "Archivo en formato incorrecto"}, status=400)
 
         else:
