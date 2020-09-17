@@ -150,15 +150,17 @@
                   processData: false,
                   contentType: false,
                   success: function (e) {
-                      console.log(e.responseJSON.status);
+                      console.log(e);
+                      let created_message = e.created > 0 ? `Se han insertado ${e.created} registros. \n` : '';
+                      let updated_message = e.updated > 0 ? `Se han actualizado ${e.updated} registros.` : '';
+
                       let status = {
-                          message: "Los datos se han cargado correctamente",
+                          message: created_message + updated_message,
                           title: "Carga exitosa",
                           type: "success"
                       };
                       showMessage(status);
-                      //location.reload();
-
+                      setTimeout(function(){location.reload()}, 2000);
                   },
                   error: function (e) {
                       console.log(e);
