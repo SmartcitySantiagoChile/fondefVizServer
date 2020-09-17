@@ -150,13 +150,14 @@
                   processData: false,
                   contentType: false,
                   success: function (e) {
+                      console.log(e.responseJSON.status);
                       let status = {
                           message: "Los datos se han cargado correctamente",
                           title: "Carga exitosa",
                           type: "success"
                       };
                       showMessage(status);
-                      location.reload();
+                      //location.reload();
 
                   },
                   error: function (e) {

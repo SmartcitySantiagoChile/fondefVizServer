@@ -164,6 +164,12 @@ def upload_xlsx_op_dictionary(xlsx_file):
 
     wb = load_workbook(xlsx_file, read_only=True)
     ws = wb.active
+    key_indexes = [0, 5, 6, 7, 9]
+    first_row = [ws['A2:P2'][0][x] for x in key_indexes]
+    first_row_values = [cell.value for cell in first_row if cell.value is not None]
+
+    if len(first_row_values) < 5:
+        raise ValueError("Archivo con datos en blanco")
     for row in ws.iter_rows(min_row=1, max_col=16, values_only=True):
         if row[0] is None:
             break

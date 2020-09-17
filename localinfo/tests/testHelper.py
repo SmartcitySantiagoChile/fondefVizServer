@@ -412,5 +412,5 @@ class TestHelperUtils(TestCase):
 
     def test_upload_xlsx_op_dictionary_error(self):
         file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
-        expected_res = {"created": 0, "updated": 0}
-        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file))
+        with self.assertRaises(Exception):
+            upload_xlsx_op_dictionary(file)

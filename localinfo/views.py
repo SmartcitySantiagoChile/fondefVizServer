@@ -1,5 +1,3 @@
-from io import StringIO
-
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -45,15 +43,14 @@ class OPDictionaryUploader(View):
         if csv_file and csv_file.size != 0:
             try:
                 res = upload_xlsx_op_dictionary(csv_file)
-                if res is True:
-                    return JsonResponse(data={"status": True})
-                else:
-                    return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
+                return JsonResponse(data={"updated": res['updated'], "created": res['created']})
+            except ValueError as e:
+                return JsonResponse(data={"error": str(e)}, status=400)
             except Exception:
-                return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
+                return JsonResponse(data={"error": "Archivo en formato incorrecto"}, status=400)
 
         else:
-            return JsonResponse(data={"error": "No existe el archivo."}, status=400)
+            return JsonResponse(data={"error": "No existe el archivo"}, status=400)
 
 
 class TimePeriod(View):

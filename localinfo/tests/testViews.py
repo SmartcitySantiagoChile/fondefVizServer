@@ -35,21 +35,25 @@ class LocalInfoViewTest(TestHelper):
             self.assertEqual(200, response.status_code)
 
     def test_OPDictionaryUploader_post_file_error_empty(self):
-        bad_response = self.client.post(reverse('localinfo:opdictionaryupload'),
+        response = self.client.post(reverse('localinfo:opdictionaryupload'),
                                         {'name': 'file.xlsx', 'OPDictionary': ''})
-        self.assertEqual(400, bad_response.status_code)
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('No existe el archivo', json.loads(response.content)['error'])
 
     def test_OPDictionaryUploader_post_file_error_bad_file(self):
         with open(os.path.join(self.path, 'op_data.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
                                         {'name': 'file.xlsx', 'OPDictionary': file})
             self.assertEqual(400, response.status_code)
+            self.assertEqual('Archivo en formato incorrecto', json.loads(response.content)['error'])
 
     def test_OPDictionaryUploader_post_file_error_wrong_format(self):
         with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
                                         {'name': 'file.xlsx', 'OPDictionary': file})
             self.assertEqual(400, response.status_code)
+            self.assertEqual('Archivo con datos en blanco', json.loads(response.content)['error'])
+
 
     def test_TimePeriod_error(self):
         self.data['dates[]'] = ['2017-01-01', '2020-07-01']
