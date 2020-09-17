@@ -185,14 +185,12 @@ def upload_xlsx_op_dictionary(xlsx_file):
                                               route_type=route_type, created_at=upload_time,
                                               updated_at=upload_time,
                                               auth_route_code=auth_route_code))
+    wb.close()
     OPDictionary.objects.bulk_create(to_create)
     OPDictionary.objects.bulk_update(to_update,
                                      ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
-    wb.close()
-    if not to_create and not to_update:
-        return False
-    else:
-        return True
+
+    return {"created": len(to_create), "updated": len(to_update)}
 
 
 class PermissionBuilder(object):

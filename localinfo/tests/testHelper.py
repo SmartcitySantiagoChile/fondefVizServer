@@ -367,7 +367,8 @@ class TestHelperUtils(TestCase):
 
     def test_upload_xlsx_op_dictionary(self):
         file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        self.assertTrue(upload_xlsx_op_dictionary(file))
+        expected_res = {"created": 5, "updated": 0}
+        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file))
         created_objects = list(
             OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
                                               'route_type').order_by('auth_route_code'))
@@ -386,9 +387,11 @@ class TestHelperUtils(TestCase):
 
     def test_upload_xlsx_op_dictionary_update(self):
         file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        self.assertTrue(upload_xlsx_op_dictionary(file))
+        expected_res = {"created": 5, "updated": 0}
+        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file))
+        expected_res = {"created": 1, "updated": 2}
         file = os.path.join(self.path, 'diccionario_op_base_2.xlsx')
-        self.assertTrue(upload_xlsx_op_dictionary(file))
+        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file))
         created_objects = list(
             OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
                                               'route_type').order_by('auth_route_code'))
@@ -409,4 +412,5 @@ class TestHelperUtils(TestCase):
 
     def test_upload_xlsx_op_dictionary_error(self):
         file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
-        self.assertFalse(upload_xlsx_op_dictionary(file))
+        expected_res = {"created": 0, "updated": 0}
+        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file))
