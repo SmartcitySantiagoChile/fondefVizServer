@@ -7,8 +7,9 @@ from django.contrib.postgres.search import SearchVector
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
 
+from esapi.helper.opdata import ESOPDataHelper
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo, FAQ, OPDictionary, TimePeriodDate
+    CalendarInfo, FAQ, OPDictionary, TimePeriodDate, OPProgram
 
 
 def _list_parser(list):
@@ -153,6 +154,21 @@ def get_valid_time_period_date(date_list):
             if first_date >= valid_date['date']:
                 period_date_valid = valid_date['id']
     return True, period_date_valid
+
+
+def synchronize_op_program():
+    """
+    :return: info_dict
+    """
+    es_available_days = set(ESOPDataHelper().get_available_days())
+    db_available_days = {str(op_program) for op_program in OPProgram.objects.all()}
+    to_create = es_available_days - db_available_days
+    to_delete = db_available_days - es_available_days
+
+    OPProgram.objects.bulk_create([OPProgram(valid_from=day) for day in to_create])
+    OPProgram.objects.filter(valid_from__in=to_delete).delete()
+    return {'es_available_days': es_available_days, 'db_available_days': db_available_days, 'created': to_create,
+            'deleted': to_delete}
 
 
 class PermissionBuilder(object):

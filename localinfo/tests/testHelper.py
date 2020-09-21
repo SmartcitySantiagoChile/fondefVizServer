@@ -1,13 +1,14 @@
 from datetime import datetime
 
+import mock
 from django.test import TestCase
 from django.utils import timezone
 
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date
-from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, synchronize_op_program
+from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
 
 
 class TestHelperUtils(TestCase):
@@ -362,3 +363,54 @@ class TestHelperUtils(TestCase):
         self.assertEqual(answer_first, get_valid_time_period_date(valid_dates_list_first))
         self.assertEqual(answer_second, get_valid_time_period_date(valid_dates_list_second))
         self.assertEqual(answer_invalid, get_valid_time_period_date(invalid_dates_list))
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_empty_case(self, es_opdata_helper):
+        es_opdata_helper.return_value.get_available_days.return_value = []
+        expected_dict = {'es_available_days': set(), 'db_available_days': set(), 'created': set(), 'deleted': set()}
+        self.assertEqual(expected_dict, synchronize_op_program())
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_only_es_case(self, es_opdata_helper):
+        es_available_days = {'2019-01-01', '2020-01-01'}
+        es_opdata_helper.return_value.get_available_days.return_value = list(es_available_days)
+        expected_dict = {'es_available_days': es_available_days,
+                         'db_available_days': set(),
+                         'created': es_available_days,
+                         'deleted': set()
+                         }
+        self.assertEqual(expected_dict, synchronize_op_program())
+        for day in expected_dict['created']:
+            OPProgram.objects.get(valid_from=day)
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_only_db_case(self, es_opdata_helper):
+        es_opdata_helper.return_value.get_available_days.return_value = []
+        db_days = {'2020-01-01', '2019-01-01'}
+        for day in db_days:
+            OPProgram.objects.create(valid_from=day)
+        expected_dict = {'es_available_days': set(),
+                         'db_available_days': db_days,
+                         'created': set(),
+                         'deleted': db_days
+                         }
+        self.assertEqual(expected_dict, synchronize_op_program())
+        self.assertEqual(len(OPProgram.objects.all()), 0)
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_mix_case(self, es_opdata_helper):
+        es_available_days = {'2019-01-01', '2020-01-01', '2019-07-09'}
+        db_days = {'2020-01-01', '2019-01-01', '2021-01-01'}
+        es_opdata_helper.return_value.get_available_days.return_value = list(es_available_days)
+
+        for day in db_days:
+            OPProgram.objects.create(valid_from=day)
+
+        expected_dict = {'es_available_days': es_available_days,
+                         'db_available_days': db_days,
+                         'created': es_available_days - db_days,
+                         'deleted': db_days - es_available_days
+                         }
+        self.assertEqual(expected_dict, synchronize_op_program())
+        for day in expected_dict['created']:
+            OPProgram.objects.get(valid_from=day)
