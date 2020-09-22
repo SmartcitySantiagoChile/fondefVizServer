@@ -158,7 +158,8 @@ def get_valid_time_period_date(date_list):
     return True, period_date_valid
 
 
-def upload_xlsx_op_dictionary(xlsx_file):
+def upload_xlsx_op_dictionary(xlsx_file, op_program_id):
+    op_program = OPProgram.objects.get(id=op_program_id)
     upload_time = timezone.now()
     to_update = []
     to_create = []
@@ -180,8 +181,9 @@ def upload_xlsx_op_dictionary(xlsx_file):
             user_route_code = row[6]
             route_type = row[0]
             try:
-                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type)
-                op_dict_obj.auth_route_code=auth_route_code
+                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type,
+                                                       op_program=op_program)
+                op_dict_obj.auth_route_code = auth_route_code
                 op_dict_obj.user_route_code = user_route_code
                 op_dict_obj.route_type = route_type
                 op_dict_obj.updated_at = upload_time
@@ -191,7 +193,7 @@ def upload_xlsx_op_dictionary(xlsx_file):
                 to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
                                               route_type=route_type, created_at=upload_time,
                                               updated_at=upload_time,
-                                              auth_route_code=auth_route_code))
+                                              auth_route_code=auth_route_code, op_program=op_program))
     wb.close()
     OPDictionary.objects.bulk_create(to_create)
     OPDictionary.objects.bulk_update(to_update,
