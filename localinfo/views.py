@@ -7,6 +7,7 @@ from django.views.generic import View
 
 from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
     upload_xlsx_op_dictionary
+from localinfo.models import OPProgram
 
 
 class FaqImgUploader(View):
@@ -40,12 +41,15 @@ class OPDictionaryUploader(View):
 
     def post(self, request):
         csv_file = request.FILES.get('OPDictionary', False)
+        op_program_id = request.POST.get('opId', -1)
         if csv_file and csv_file.size != 0:
             try:
-                res = upload_xlsx_op_dictionary(csv_file)
+                res = upload_xlsx_op_dictionary(csv_file, op_program_id)
                 return JsonResponse(data={"updated": res['updated'], "created": res['created']})
             except ValueError as e:
                 return JsonResponse(data={"error": str(e)}, status=400)
+            except OPProgram.DoesNotExist:
+                return JsonResponse(data={"error": "Programa de operación no válido"}, status=400)
             except Exception:
                 return JsonResponse(data={"error": "Archivo en formato incorrecto"}, status=400)
 
