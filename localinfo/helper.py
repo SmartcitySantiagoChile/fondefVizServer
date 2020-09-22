@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
 from django.db.models import CharField, Value
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, Cast
 from django.utils import timezone
 from openpyxl import load_workbook
 
@@ -215,6 +215,13 @@ def synchronize_op_program():
     OPProgram.objects.filter(valid_from__in=to_delete).delete()
     return {'es_available_days': es_available_days, 'db_available_days': db_available_days, 'created': to_create,
             'deleted': to_delete}
+
+
+def get_opprogram_list_for_select_input(to_dict=False):
+    parser = _list_parser
+    if to_dict:
+        parser = _dict_parser
+    return parser(OPProgram.objects.values_list('id').annotate(valid_from=Cast('valid_from', output_field=CharField())))
 
 
 class PermissionBuilder(object):

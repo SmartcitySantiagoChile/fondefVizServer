@@ -8,7 +8,8 @@ from django.utils import timezone
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, synchronize_op_program, upload_xlsx_op_dictionary
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, synchronize_op_program, \
+    upload_xlsx_op_dictionary, get_opprogram_list_for_select_input
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
 
 
@@ -483,4 +484,9 @@ class TestHelperUtils(TestCase):
         file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
         with self.assertRaises(OPProgram.DoesNotExist):
             upload_xlsx_op_dictionary(file, -1)
+
+    def test_get_opprogram_list_for_select_input(self):
+        OPProgram.objects.create(valid_from='2020-01-01')
+        expected_list = [{'value': 1, 'item': '2020-01-01'}]
+        self.assertEqual(expected_list, get_opprogram_list_for_select_input())
 
