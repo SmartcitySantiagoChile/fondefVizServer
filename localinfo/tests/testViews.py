@@ -87,3 +87,21 @@ class LocalInfoViewTest(TestHelper):
 
     def test_faq(self):
         self.check_http_response(self.client, 'localinfo:faq', 200)
+
+    def test_faq_changelist(self):
+        self.check_http_response(self.client, 'admin:localinfo_faq_changelist', 200)
+
+    def test_opdictionary_changelist(self):
+        self.check_http_response(self.client, 'admin:localinfo_opdictionary_changelist', 200)
+
+    def test_calendarinfo_changelist(self):
+        self.check_http_response(self.client, 'admin:localinfo_calendarinfo_changelist', 200)
+
+    def test_daydescription_changelist(self):
+        self.check_http_response(self.client, 'admin:localinfo_daydescription_changelist', 200)
+
+    def test_halfhour_changelist(self):
+        self.check_http_response(self.client, 'admin:localinfo_halfhour_changelist', 200)
+
+    def test_operator_changelist(self):
+        self.check_http_response(self.client, 'admin:localinfo_operator_changelist', 200)
