@@ -125,3 +125,8 @@ class LocalInfoViewTest(TestHelper):
 
     def test_operator_changelist(self):
         self.check_http_response(self.client, 'admin:localinfo_operator_changelist', 200)
+
+    def test_oppgram_selector_list(self):
+        response = self.client.get(reverse('localinfo:opProgramList'))
+        self.assertEqual(200, response.status_code)
+        self.assertIsNotNone(json.loads(response.content)['opProgramList'])

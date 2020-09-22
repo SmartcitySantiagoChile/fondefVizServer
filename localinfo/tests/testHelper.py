@@ -486,7 +486,8 @@ class TestHelperUtils(TestCase):
             upload_xlsx_op_dictionary(file, -1)
 
     def test_get_opprogram_list_for_select_input(self):
-        OPProgram.objects.create(valid_from='2020-01-01')
-        expected_list = [{'value': 1, 'item': '2020-01-01'}]
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        expected_list = [{'value': op_program.id, 'item': '2020-01-01'}]
         self.assertEqual(expected_list, get_opprogram_list_for_select_input())
+
 

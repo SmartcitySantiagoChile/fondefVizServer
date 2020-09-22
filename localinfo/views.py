@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
-    upload_xlsx_op_dictionary
+    upload_xlsx_op_dictionary, synchronize_op_program, get_opprogram_list_for_select_input
 from localinfo.models import OPProgram
 
 
@@ -68,3 +68,10 @@ class TimePeriod(View):
         else:
             valid_period_time = get_timeperiod_list_for_select_input(filter_id=date_id)
             return JsonResponse(data={'timePeriod': valid_period_time})
+
+
+class OPProgramList(View):
+
+    def get(self, request):
+        synchronize_op_program()
+        return JsonResponse(data={'opProgramList': get_opprogram_list_for_select_input()})

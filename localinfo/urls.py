@@ -4,7 +4,7 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from localinfo.views import TimePeriod, OPDictionaryUploader, FaqImgUploader, FaqHTML
+from localinfo.views import TimePeriod, OPDictionaryUploader, FaqImgUploader, FaqHTML, OPProgramList
 
 app_name = 'localinfo'
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
         name='opdictionaryupload'),
     url(r'^faqUpload/$', login_required(FaqImgUploader.as_view()), name='faqUpload'),
     url(r'^faq/$', FaqHTML.as_view(), name='faq'),
+    url(r'^opProgramList/$', OPProgramList.as_view(), name='opProgramList')
 ]
