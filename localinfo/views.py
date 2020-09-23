@@ -42,19 +42,19 @@ class OPDictionaryUploader(View):
     def post(self, request):
         csv_file = request.FILES.get('OPDictionary', False)
         op_program_id = request.POST.get('opId', -1)
-        if csv_file and csv_file.size != 0:
-            try:
-                res = upload_xlsx_op_dictionary(csv_file, op_program_id)
-                return JsonResponse(data={"updated": res['updated'], "created": res['created']})
-            except ValueError as e:
-                return JsonResponse(data={"error": str(e)}, status=400)
-            except OPProgram.DoesNotExist:
-                return JsonResponse(data={"error": "Programa de operación no válido"}, status=400)
-            except Exception:
-                return JsonResponse(data={"error": "Archivo en formato incorrecto"}, status=400)
-
-        else:
+        if op_program_id == -1:
+            return JsonResponse(data={"error": "Seleccione un programa de operación"}, status=400)
+        if not csv_file or csv_file.size == 0:
             return JsonResponse(data={"error": "No existe el archivo"}, status=400)
+        try:
+            res = upload_xlsx_op_dictionary(csv_file, op_program_id)
+            return JsonResponse(data={"updated": res['updated'], "created": res['created']})
+        except ValueError as e:
+            return JsonResponse(data={"error": str(e)}, status=400)
+        except OPProgram.DoesNotExist:
+            return JsonResponse(data={"error": "Programa de operación no válido"}, status=400)
+        except Exception:
+            return JsonResponse(data={"error": "Archivo en formato incorrecto"}, status=400)
 
 
 class TimePeriod(View):
