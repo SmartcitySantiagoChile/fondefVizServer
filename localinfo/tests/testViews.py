@@ -35,10 +35,13 @@ class LocalInfoViewTest(TestHelper):
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
                                         {'name': 'file.xlsx', 'OPDictionary': file, 'opId': op_program.id})
             self.assertEqual(200, response.status_code)
+        op_program.delete()
 
     def test_OPDictionaryUploader_post_file_error_empty(self):
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+
         response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                    {'name': 'file.xlsx', 'OPDictionary': ''})
+                                    {'name': 'file.xlsx', 'OPDictionary': '', 'opId': op_program.id})
         self.assertEqual(400, response.status_code)
         self.assertEqual('No existe el archivo', json.loads(response.content)['error'])
 
@@ -58,10 +61,17 @@ class LocalInfoViewTest(TestHelper):
             self.assertEqual(400, response.status_code)
             self.assertEqual('Archivo con datos en blanco', json.loads(response.content)['error'])
 
-    def test_OPDictionaryUploader_post_file_error_bad_opId(self):
+    def test_OPDictionaryUploader_post_file_error_empty_opId(self):
         with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
                                         {'name': 'file.xlsx', 'OPDictionary': file})
+            self.assertEqual(400, response.status_code)
+            self.assertEqual('Seleccione un programa de operación', json.loads(response.content)['error'])
+
+    def test_OPDictionaryUploader_post_file_error_bad_opId(self):
+        with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
+            response = self.client.post(reverse('localinfo:opdictionaryupload'),
+                                        {'name': 'file.xlsx', 'OPDictionary': file,  'opId': 0})
             self.assertEqual(400, response.status_code)
             self.assertEqual('Programa de operación no válido', json.loads(response.content)['error'])
 
