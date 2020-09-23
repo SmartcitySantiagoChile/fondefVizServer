@@ -94,13 +94,9 @@ class FAQSAdmin(admin.ModelAdmin):
 
 
 class CustomOPDictionaryAdmin(admin.ModelAdmin):
-
-    def get_list_display(self, request):
-        synchronize_op_program()
-        return request
-
     actions = None
-    list_display = ('auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at')
+    list_display = (
+    'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at', 'op_program')
 
 
 admin.site.register(Operator, OperatorAdmin)
