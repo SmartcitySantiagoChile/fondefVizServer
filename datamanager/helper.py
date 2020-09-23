@@ -209,7 +209,7 @@ class FileManager(object):
     def get_document_number_by_file_from_elasticsearch(self, file_filter=None, index_filter=None):
         helpers_dict = {
             'stop': ESStopHelper(),
-            'stopbyoute': ESStopByRouteHelper(),
+            'stopbyroute': ESStopByRouteHelper(),
             'profile': ESProfileHelper(),
             'speed': ESSpeedHelper(),
             'trip': ESTripHelper(),
@@ -236,7 +236,6 @@ class FileManager(object):
                 file_name_list = [file_filter]
         else:
             file_name_list = None
-
         doc_number_by_file = {}
         for helper in helpers:
             files = helper.get_data_by_file(file_filter=file_name_list).execute().aggregations.files.buckets
@@ -246,7 +245,11 @@ class FileManager(object):
         return doc_number_by_file
 
     def get_file_list(self, index_filter=None):
-        uploaded_files = self.get_document_number_by_file_from_elasticsearch(index_filter=index_filter)
+        upload_filter = index_filter.copy() if index_filter else None
+        if upload_filter and 'stop' in upload_filter:
+            upload_filter.remove('stop')
+            upload_filter.append('stopbyroute')
+        uploaded_files = self.get_document_number_by_file_from_elasticsearch(index_filter=upload_filter)
         file_list = self._get_file_list(index_filter=index_filter)
         for key in file_list:
             for data_file in file_list[key]:
