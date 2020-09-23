@@ -54,16 +54,6 @@
     "pk": 6,
     "fields": {
       "path": "/home/cephei/elasticdata/",
-      "filePattern": "*.expedition",
-      "indexName": "expedition",
-      "timeStamp": "2019-08-10T19:02:10.838Z"
-    }
-  },
-  {
-    "model": "datamanager.datasourcepath",
-    "pk": 7,
-    "fields": {
-      "path": "/home/cephei/elasticdata/",
       "filePattern": "*.odbyroute",
       "indexName": "odbyroute",
       "timeStamp": "2019-08-10T19:02:10.838Z"
@@ -71,7 +61,7 @@
   },
   {
     "model": "datamanager.datasourcepath",
-    "pk": 8,
+    "pk": 7,
     "fields": {
       "path": "/home/cephei/elasticdata/",
       "filePattern": "*.general",
@@ -81,7 +71,7 @@
   },
   {
     "model": "datamanager.datasourcepath",
-    "pk": 9,
+    "pk": 8,
     "fields": {
       "path": "/home/cephei/elasticdata/",
       "filePattern": "*.paymentfactor",
@@ -91,7 +81,7 @@
   },
   {
     "model": "datamanager.datasourcepath",
-    "pk": 10,
+    "pk": 9,
     "fields": {
       "path": "/home/cephei/elasticdata/",
       "filePattern": "*.bip",
@@ -101,7 +91,7 @@
   },
   {
     "model": "datamanager.datasourcepath",
-    "pk": 11,
+    "pk": 10,
     "fields": {
       "path": "/home/cephei/elasticdata/",
       "filePattern": "*.opdata",
