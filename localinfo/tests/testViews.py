@@ -2,6 +2,7 @@
 import json
 import os
 
+import mock
 from django.urls import reverse
 
 from localinfo.models import OPProgram
@@ -136,7 +137,9 @@ class LocalInfoViewTest(TestHelper):
     def test_operator_changelist(self):
         self.check_http_response(self.client, 'admin:localinfo_operator_changelist', 200)
 
-    def test_oppgram_selector_list(self):
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_oppgram_selector_list(self, ESOPDataHelper):
+        ESOPDataHelper.return_value.get_available_days.return_value = {}
         response = self.client.get(reverse('localinfo:opProgramList'))
         self.assertEqual(200, response.status_code)
         self.assertIsNotNone(json.loads(response.content)['opProgramList'])
