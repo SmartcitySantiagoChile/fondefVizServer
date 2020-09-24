@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 from datetime import date as dt
 
 from django.conf import settings
@@ -134,9 +135,11 @@ def get_op_routes_dict():
     """
     :return: dict {auth_route_code: route_type}
     """
-    routes_dict = {}
-    for auth_route_code, route_type in OPDictionary.objects.values_list('auth_route_code', 'route_type'):
-        routes_dict.update({auth_route_code: route_type})
+    op_program_dict = get_opprogram_list_for_select_input(to_dict=True)
+    routes_dict = defaultdict(lambda: defaultdict(list))
+    for auth_route_code, route_type, op_program in OPDictionary.objects.values_list('auth_route_code', 'route_type',
+                                                                                    'op_program_id'):
+        routes_dict[op_program_dict[op_program]][auth_route_code].append(route_type)
     return routes_dict
 
 

@@ -23,15 +23,16 @@ class TestHelperUtils(TestCase):
 
 
     def test_get_custom_routes_dict(self):
-        dict = {'T101 00I': '101 Ida', 'T101 00R': '101 Regreso', 'T112 00I': '112 Ida'}
+        valid_from = '2020-01-01'
+        expected_dict = {valid_from: {'T101 00I': ['101 Ida'], 'T101 00R': ['101 Regreso'], 'T112 00I': ['112 Ida']}}
         time_at = timezone.now()
-        op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        for key in dict:
-            OPDictionary.objects.create(auth_route_code=key, route_type=dict[key],
+        op_program = OPProgram.objects.create(valid_from=valid_from)
+        for key in expected_dict[valid_from]:
+            OPDictionary.objects.create(auth_route_code=key, route_type=expected_dict[valid_from][key][0],
                                         op_route_code=key, user_route_code=key, created_at=time_at,
                                         updated_at=time_at, op_program=op_program)
         query = get_op_routes_dict()
-        self.assertEqual(dict, query)
+        self.assertEqual(expected_dict, query)
         op_program.delete()
 
     def test_get_op_route(self):
