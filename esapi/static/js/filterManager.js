@@ -92,9 +92,8 @@ function FilterManager(opts) {
         return dates
     };
 
-
+    /* UPDATE TIME PERIOD*/
     const updateTimePeriod = function (data) {
-        console.log(data.timePeriod);
         $.map(data.timePeriod, function (obj) {
             obj.id = obj.value;
             obj.text = obj.item;
@@ -103,6 +102,7 @@ function FilterManager(opts) {
         $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data.timePeriod});
     };
 
+    /*GET TIME PERIOD*/
     const getTimePeriod = function () {
         let dates = getDates();
         if (dates.length > 0) {
@@ -129,6 +129,26 @@ function FilterManager(opts) {
             $PERIOD_FILTER.html("");
             $PERIOD_FILTER.select2();
         }
+    };
+
+    /*GET OP_DICT BETWEEN DATES*/
+    const getOPDictBetweenDates = (dates, routesDict) => {
+        let firstDate = new Date(dates[0]);
+        let lastDate = new Date(dates.slice(-1).pop());
+        let routesDictKeys = Object.keys(routesDict).sort();
+        let periodDateValid = null;
+        for (const date of routesDictKeys){
+            let validDate = new Date(date);
+            if (firstDate < validDate && validDate <= lastDate) {
+                return null;
+            } else {
+                if (lastDate <= validDate) {
+                    periodDateValid = validDate;
+                }
+            }
+        }
+        periodDateValid =periodDateValid ? periodDateValid.toISOString().slice(0,10) : null ;
+        return routesDict[periodDateValid];
     };
 
 
@@ -200,6 +220,7 @@ function FilterManager(opts) {
 
     $DAY_FILTER.change(function () {
         getTimePeriod();
+        //TODO: actualizar aquí los valores de rutas
     });
 
     $DAY_FILTER.trigger("change");
@@ -474,7 +495,7 @@ function FilterManager(opts) {
         }
 
         var processRouteData = function (data) {
-            let routesDict = data.routesDict;
+            let dates = getDates();
             data.operatorDict = data.operatorDict.map(function (el) {
                 return {
                     id: el.value,
@@ -482,10 +503,14 @@ function FilterManager(opts) {
                 }
             });
             var updateAuthRouteList = function (operatorId, userRouteId) {
+
+                let dates = getDates();
+                let OpRoutesDict = getOPDictBetweenDates(dates, data.routesDict);
+
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
                 authRouteList.sort();
                 authRouteList = authRouteList.map(function (el) {
-                    let dictName = ((routesDict[el]) === undefined) ? "" : ` (${routesDict[el]})`;
+                    let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el]})`;
                     return {id: el, text: `${el}${dictName}`};
                 });
                 $AUTH_ROUTE_FILTER.empty();
