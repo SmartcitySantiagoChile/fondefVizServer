@@ -220,7 +220,6 @@ function FilterManager(opts) {
 
     $DAY_FILTER.change(function () {
         getTimePeriod();
-        //TODO: actualizar aquí los valores de rutas
     });
 
     $DAY_FILTER.trigger("change");
@@ -495,7 +494,6 @@ function FilterManager(opts) {
         }
 
         var processRouteData = function (data) {
-            let dates = getDates();
             data.operatorDict = data.operatorDict.map(function (el) {
                 return {
                     id: el.value,
@@ -510,7 +508,8 @@ function FilterManager(opts) {
                 var authRouteList = data.availableRoutes[operatorId][userRouteId];
                 authRouteList.sort();
                 authRouteList = authRouteList.map(function (el) {
-                    let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el]})`;
+
+                    let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el].join(" | ")})`;
                     return {id: el, text: `${el}${dictName}`};
                 });
                 $AUTH_ROUTE_FILTER.empty();
