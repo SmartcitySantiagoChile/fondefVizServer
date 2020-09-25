@@ -137,7 +137,7 @@ function FilterManager(opts) {
         let lastDate = new Date(dates.slice(-1).pop());
         let routesDictKeys = Object.keys(routesDict).sort();
         let periodDateValid = null;
-        for (const date of routesDictKeys){
+        for (const date of routesDictKeys) {
             let validDate = new Date(date);
             if (firstDate < validDate && validDate <= lastDate) {
                 return null;
@@ -147,8 +147,12 @@ function FilterManager(opts) {
                 }
             }
         }
-        periodDateValid =periodDateValid ? periodDateValid.toISOString().slice(0,10) : null ;
-        return routesDict[periodDateValid];
+        if (periodDateValid) {
+            periodDateValid = periodDateValid.toISOString().slice(0, 10);
+            return routesDict[periodDateValid];
+        }
+
+        return null;
     };
 
 
@@ -504,16 +508,24 @@ function FilterManager(opts) {
 
                 let dates = getDates();
                 let OpRoutesDict = getOPDictBetweenDates(dates, data.routesDict);
+                if (OpRoutesDict === null) {
+                    let status = {
+                        message: "Fechas seleccionadas pertenecen a más de un programa de operación",
+                        title: "Error",
+                        type: "error"
+                    };
+                    showMessage(status);
+                } else {
+                    var authRouteList = data.availableRoutes[operatorId][userRouteId];
+                    authRouteList.sort();
+                    authRouteList = authRouteList.map(function (el) {
 
-                var authRouteList = data.availableRoutes[operatorId][userRouteId];
-                authRouteList.sort();
-                authRouteList = authRouteList.map(function (el) {
-
-                    let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el].join(" | ")})`;
-                    return {id: el, text: `${el}${dictName}`};
-                });
-                $AUTH_ROUTE_FILTER.empty();
-                $AUTH_ROUTE_FILTER.select2({data: authRouteList});
+                        let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el].join(" | ")})`;
+                        return {id: el, text: `${el}${dictName}`};
+                    });
+                    $AUTH_ROUTE_FILTER.empty();
+                    $AUTH_ROUTE_FILTER.select2({data: authRouteList});
+                }
             };
             var updateUserRouteList = function (operatorId, isFirstTime) {
                 var userRouteList = [];
