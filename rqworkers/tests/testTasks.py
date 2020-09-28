@@ -111,6 +111,14 @@ class TaskTest(TestCase):
         job = self.queue.enqueue(export_data_job, "", '', job_id='d8c961e5-db5b-4033-a27f-6f2d30662548')
         self.assertTrue(job.is_finished)
 
+    @mock.patch('django.db.models.query.QuerySet.get')
+    def test_export_data_but_job_id_does_not_exist(self, exporter_job_execution):
+        exporter_job_execution.side_effect = [ExporterJobExecution.DoesNotExist, ExporterJobExecution.DoesNotExist]
+        job_id = 'd8c961e5-db5b-4033-a27f-6f2d30662548'
+        with self.assertRaisesMessage(
+                ValueError, 'job id "{0}" does not have a record in ExporterJobExecution model'.format(job_id)):
+            self.queue.enqueue(export_data_job, "", '', job_id=job_id)
+
     @mock.patch('rqworkers.tasks.download_file')
     @mock.patch('rqworkers.tasks.send_mail')
     def test_export_data_job_correct_with_STMP_error(self, send_mail, download_file):
