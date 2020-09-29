@@ -75,10 +75,14 @@ function FilterManager(opts) {
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MULTI_AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
+
+    /* Local Variables */
+
     let urlKey = window.location.pathname;
+    let operatorFilterData = {};
 
+    /* Local functions */
 
-    /* GET DATES */
     const getDates = function () {
         let dates = JSON.parse(window.localStorage.getItem(urlKey + "dayFilter")).sort();
         dates = groupByDates(dates);
@@ -92,7 +96,6 @@ function FilterManager(opts) {
         return dates
     };
 
-    /* UPDATE TIME PERIOD*/
     const updateTimePeriod = function (data) {
         $.map(data.timePeriod, function (obj) {
             obj.id = obj.value;
@@ -102,7 +105,6 @@ function FilterManager(opts) {
         $PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL, "data": data.timePeriod});
     };
 
-    /*GET TIME PERIOD*/
     const getTimePeriod = function () {
         let dates = getDates();
         if (dates.length > 0) {
@@ -131,8 +133,10 @@ function FilterManager(opts) {
         }
     };
 
-    /*GET OP_DICT BETWEEN DATES*/
     const getOPDictBetweenDates = (dates, routesDict) => {
+        if (dates.length === 0) {
+            return 0;
+        }
         let firstDate = new Date(dates[0]);
         let lastDate = new Date(dates.slice(-1).pop());
         let routesDictKeys = Object.keys(routesDict).sort();
@@ -157,6 +161,7 @@ function FilterManager(opts) {
 
 
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
+
     let localDayFilter = window.localStorage.getItem(urlKey + "dayFilter");
     if (localDayFilter !== null) {
         localDayFilter = JSON.parse(localDayFilter);
@@ -200,7 +205,6 @@ function FilterManager(opts) {
     if (singleDatePicker) {
         $DAY_FILTER.parent().text("Día:").append($DAY_FILTER);
     }
-
 
     $DAY_FILTER.click(function (e) {
         $DATE_RANGE_MODAL.modal('show');
@@ -484,118 +488,118 @@ function FilterManager(opts) {
 
     /* LOGIC TO MANAGE OPERATOR, USER ROUTE AND AUTHORITY ROUTE */
     if ($OPERATOR_FILTER.length) {
-        var localOperatorFilter = window.localStorage.getItem("operatorFilter");
+        let localOperatorFilter = window.localStorage.getItem(urlKey + "operatorFilter");
         if (localOperatorFilter) {
             localOperatorFilter = JSON.parse(localOperatorFilter);
         }
-        var localUserRouteFilter = window.localStorage.getItem("userRouteFilter");
+        let localUserRouteFilter = window.localStorage.getItem(urlKey + "userRouteFilter");
         if (localUserRouteFilter) {
             localUserRouteFilter = JSON.parse(localUserRouteFilter);
         }
-        var localAuthRouteFilter = window.localStorage.getItem("authRouteFilter");
+        let localAuthRouteFilter = window.localStorage.getItem(urlKey + "authRouteFilter");
         if (localAuthRouteFilter) {
             localAuthRouteFilter = JSON.parse(localAuthRouteFilter);
         }
 
-        var processRouteData = function (data) {
-            data.operatorDict = data.operatorDict.map(function (el) {
-                return {
-                    id: el.value,
-                    text: el.item
-                }
-            });
-            var updateAuthRouteList = function (operatorId, userRouteId) {
-
-                let dates = getDates();
-                let OpRoutesDict = getOPDictBetweenDates(dates, data.routesDict);
-                if (OpRoutesDict === null) {
-                    let status = {
-                        message: "Fechas seleccionadas pertenecen a más de un programa de operación",
-                        title: "Error",
-                        type: "error"
-                    };
-                    showMessage(status);
-                } else {
-                    var authRouteList = data.availableRoutes[operatorId][userRouteId];
-                    authRouteList.sort();
-                    authRouteList = authRouteList.map(function (el) {
-
-                        let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el].join(" | ")})`;
-                        return {id: el, text: `${el}${dictName}`};
-                    });
-                    $AUTH_ROUTE_FILTER.empty();
-                    $AUTH_ROUTE_FILTER.select2({data: authRouteList});
-                }
-            };
-            var updateUserRouteList = function (operatorId, isFirstTime) {
-                var userRouteList = [];
-                if (data.availableRoutes[operatorId] !== undefined) {
-                    userRouteList = Object.keys(data.availableRoutes[operatorId]);
-                }
-                userRouteList.sort();
-                userRouteList = userRouteList.map(function (el) {
-                    return {id: el, text: el};
-                });
+        const updateAuthRouteList = function (operatorId, userRouteId) {
+            let dates = getDates();
+            let OpRoutesDict = getOPDictBetweenDates(dates, operatorFilterData["routesDict"]);
+            if (OpRoutesDict === null) {
+                let status = {
+                    message: "Fechas seleccionadas pertenecen a más de un programa de operación",
+                    title: "Error",
+                    type: "error"
+                };
+                showMessage(status);
+            } else if (OpRoutesDict === 0) {
+                $AUTH_ROUTE_FILTER.empty();
+                $OPERATOR_FILTER.empty();
                 $USER_ROUTE_FILTER.empty();
-                if ($AUTH_ROUTE_FILTER.length) {
-                    $USER_ROUTE_FILTER.select2({data: userRouteList});
-                } else {
-                    $USER_ROUTE_FILTER.select2({data: userRouteList, allowClear: true, placeholder: PLACEHOLDER_ALL});
-                }
-                // call event to update auth route filter
-                var selectedItem = isFirstTime && localUserRouteFilter !== null ? localUserRouteFilter : $USER_ROUTE_FILTER.select2("data")[0];
-                $USER_ROUTE_FILTER.trigger({
-                    type: "select2:select",
-                    params: {data: selectedItem, isFirstTime: isFirstTime}
-                });
-            };
-            $USER_ROUTE_FILTER.on("select2:select", function (e) {
-                var selectedItem = e.params.data;
-                var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(data.availableRoutes)[0];
-                if (e.params.isFirstTime && localOperatorFilter !== null) {
-                    operatorId = localOperatorFilter.id;
-                }
-
-                if ($AUTH_ROUTE_FILTER.length) {
-                    updateAuthRouteList(operatorId, selectedItem.id);
-                }
-
-                if (!e.params.isFirstTime) {
-                    window.localStorage.setItem("operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
-                    window.localStorage.setItem("userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
-                    window.localStorage.setItem("authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
-                }
-            });
-            // if operator filter is visible
-            if ($OPERATOR_FILTER.length) {
-                $OPERATOR_FILTER.select2({data: data.operatorDict});
-                $OPERATOR_FILTER.on("select2:select", function (e) {
-                    var selectedItem = e.params.data;
-                    updateUserRouteList(selectedItem.id, e.params.isFirstTime);
-
-                    if (!e.params.isFirstTime) {
-                        window.localStorage.setItem("operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
-                        window.localStorage.setItem("userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
-                        window.localStorage.setItem("authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
-                    }
-                });
-                // call event to update user route filter
-                var selectedItem = localOperatorFilter !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
-                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
-                    type: "select2:select",
-                    params: {data: selectedItem, isFirstTime: true}
-                });
             } else {
-                var operatorId = Object.keys(data.availableRoutes)[0];
-                updateUserRouteList(operatorId, true);
+                let authRouteList = operatorFilterData["availableRoutes"][operatorId][userRouteId];
+                authRouteList.sort();
+                authRouteList = authRouteList.map(function (el) {
+
+                    let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el].join(" | ")})`;
+                    return {id: el, text: `${el}${dictName}`};
+                });
+                $AUTH_ROUTE_FILTER.empty();
+                $AUTH_ROUTE_FILTER.select2({data: authRouteList});
+            }
+        };
+
+        $AUTH_ROUTE_FILTER.on("select2:select", function (e) {
+            var selectedItem = e.params.data;
+            window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
+            window.localStorage.setItem(urlKey + "userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
+            window.localStorage.setItem(urlKey + "authRouteFilter", JSON.stringify({id: selectedItem.id}));
+        });
+
+        const updateUserRouteList = function (operatorId, isFirstTime) {
+            var userRouteList = [];
+            if (operatorFilterData["availableRoutes"][operatorId] !== undefined) {
+                userRouteList = Object.keys(operatorFilterData["availableRoutes"][operatorId]);
+            }
+            userRouteList.sort();
+            userRouteList = userRouteList.map(function (el) {
+                return {id: el, text: el};
+            });
+            $USER_ROUTE_FILTER.empty();
+            if ($AUTH_ROUTE_FILTER.length) {
+                $USER_ROUTE_FILTER.select2({data: userRouteList});
+            } else {
+                $USER_ROUTE_FILTER.select2({data: userRouteList, allowClear: true, placeholder: PLACEHOLDER_ALL});
+            }
+            // call event to update auth route filter
+            var selectedItem = isFirstTime && localUserRouteFilter !== null ? localUserRouteFilter : $USER_ROUTE_FILTER.select2("data")[0];
+            $USER_ROUTE_FILTER.trigger({
+                type: "select2:select",
+                params: {data: selectedItem, isFirstTime: isFirstTime}
+            });
+        };
+
+        $USER_ROUTE_FILTER.on("select2:select", function (e) {
+            var selectedItem = e.params.data;
+            var operatorId = $OPERATOR_FILTER.length ? $OPERATOR_FILTER.select2("data")[0].id : Object.keys(operatorFilterData["availableRoutes"])[0];
+            if (e.params.isFirstTime && localOperatorFilter !== null) {
+                operatorId = localOperatorFilter.id;
             }
 
-            $AUTH_ROUTE_FILTER.on("select2:select", function (e) {
-                var selectedItem = e.params.data;
-                window.localStorage.setItem("operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
-                window.localStorage.setItem("userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
-                window.localStorage.setItem("authRouteFilter", JSON.stringify({id: selectedItem.id}));
-            });
+            if ($AUTH_ROUTE_FILTER.length) {
+                updateAuthRouteList(operatorId, selectedItem.id);
+            }
+
+            window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
+            window.localStorage.setItem(urlKey + "userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
+            window.localStorage.setItem(urlKey + "authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
+
+        });
+
+
+        const processRouteData = function () {
+
+            // if operator filter is visible
+            if ($OPERATOR_FILTER.length) {
+                $OPERATOR_FILTER.select2({data: operatorFilterData["operatorDict"]});
+                $OPERATOR_FILTER.on("select2:select", function (e) {
+                    let selectedItem = e.params.data;
+                    updateUserRouteList(selectedItem.id);
+                    window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
+                    window.localStorage.setItem(urlKey + "userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
+                    window.localStorage.setItem(urlKey + "authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
+
+                });
+
+                // call event to update user route filter
+                let selectedItem = localOperatorFilter !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
+                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
+                    type: "select2:select",
+                    params: {data: selectedItem}
+                });
+            } else {
+                var operatorId = Object.keys(operatorFilterData["availableRoutes"])[0];
+                updateUserRouteList(operatorId);
+            }
 
             // ignore if local settings are nulls
             if (localOperatorFilter) {
@@ -604,11 +608,20 @@ function FilterManager(opts) {
                 $AUTH_ROUTE_FILTER.val(localAuthRouteFilter.id).trigger("change");
             }
         };
+
         $.getJSON(urlRouteData, function (data) {
             if (data.status) {
                 showMessage(data.status);
             } else {
-                processRouteData(data);
+                data.operatorDict = data.operatorDict.map(function (el) {
+                    return {
+                        id: el.value,
+                        text: el.item
+                    }
+                });
+                operatorFilterData = data;
+                processRouteData();
+
             }
         });
     }
