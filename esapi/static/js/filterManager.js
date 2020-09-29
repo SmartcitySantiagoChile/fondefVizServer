@@ -161,6 +161,45 @@ function FilterManager(opts) {
         return null;
     };
 
+    const getOperatorFilter = () => {
+        let validOpDict = getOPDictBetweenDates();
+        if (validOpDict === 0) {
+            $OPERATOR_FILTER.empty();
+            $USER_ROUTE_FILTER.empty();
+            $AUTH_ROUTE_FILTER.empty();
+        } else if (validOpDict === null) {
+            let status = {
+                message: "Fechas seleccionadas pertenecen a más de un programa de operación",
+                title: "Error",
+                type: "error"
+            };
+            showMessage(status);
+            $OPERATOR_FILTER.empty();
+            $USER_ROUTE_FILTER.empty();
+            $AUTH_ROUTE_FILTER.empty();
+        } else if (validOpDict !== 0) {
+            $OPERATOR_FILTER.select2({data: operatorFilterData["operatorDict"]});
+            let localOperatorFilter = window.localStorage.getItem(urlKey + "operatorFilter");
+            if (localOperatorFilter) {
+                localOperatorFilter = JSON.parse(localOperatorFilter);
+            }
+            let selectedItem = localOperatorFilter.id !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
+
+            if (getDates().length !== 0 && selectedItem.id !== null) {
+                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
+                    type: "select2:select",
+                    params: {data: selectedItem}
+                });
+            } else {
+                $OPERATOR_FILTER.empty();
+            }
+        }
+        window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
+        window.localStorage.setItem(urlKey + "userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
+        window.localStorage.setItem(urlKey + "authRouteFilter", JSON.stringify({id: $AUTH_ROUTE_FILTER.val()}));
+
+    };
+
 
     /* SET DEFAULT VALUES FOR SELECT INPUTS */
 
@@ -230,6 +269,9 @@ function FilterManager(opts) {
 
     $DAY_FILTER.change(function () {
         getTimePeriod();
+        if ($OPERATOR_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
+            getOperatorFilter();
+        }
     });
 
     $DAY_FILTER.trigger("change");
@@ -511,6 +553,9 @@ function FilterManager(opts) {
                     title: "Error",
                     type: "error"
                 };
+                $OPERATOR_FILTER.empty();
+                $USER_ROUTE_FILTER.empty();
+                $AUTH_ROUTE_FILTER.empty();
                 showMessage(status);
             } else if (OpRoutesDict === 0) {
                 $AUTH_ROUTE_FILTER.empty();
@@ -592,11 +637,16 @@ function FilterManager(opts) {
                 });
 
                 // call event to update user route filter
-                let selectedItem = localOperatorFilter !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
-                $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
-                    type: "select2:select",
-                    params: {data: selectedItem}
-                });
+                let selectedItem = localOperatorFilter.id !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
+                if (getDates().length !== 0 && selectedItem.id !== null) {
+                    $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
+                        type: "select2:select",
+                        params: {data: selectedItem}
+                    });
+                } else {
+                    $OPERATOR_FILTER.empty();
+                }
+
             } else {
                 var operatorId = Object.keys(operatorFilterData["availableRoutes"])[0];
                 updateUserRouteList(operatorId);
