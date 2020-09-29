@@ -133,10 +133,12 @@ function FilterManager(opts) {
         }
     };
 
-    const getOPDictBetweenDates = (dates, routesDict) => {
+    const getOPDictBetweenDates = () => {
+        let dates = getDates();
         if (dates.length === 0) {
             return 0;
         }
+        let routesDict = operatorFilterData["routesDict"];
         let firstDate = new Date(dates[0]);
         let lastDate = new Date(dates.slice(-1).pop());
         let routesDictKeys = Object.keys(routesDict).sort();
@@ -502,8 +504,7 @@ function FilterManager(opts) {
         }
 
         const updateAuthRouteList = function (operatorId, userRouteId) {
-            let dates = getDates();
-            let OpRoutesDict = getOPDictBetweenDates(dates, operatorFilterData["routesDict"]);
+            let OpRoutesDict = getOPDictBetweenDates();
             if (OpRoutesDict === null) {
                 let status = {
                     message: "Fechas seleccionadas pertenecen a más de un programa de operación",
