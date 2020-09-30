@@ -95,6 +95,7 @@ class FAQSAdmin(admin.ModelAdmin):
 
 class CustomOPDictionaryAdmin(admin.ModelAdmin):
     actions = None
+    search_fields = ['auth_route_code']
     list_display = (
         'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at', 'op_program')
 
