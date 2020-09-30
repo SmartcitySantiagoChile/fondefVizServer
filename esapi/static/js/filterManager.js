@@ -587,7 +587,6 @@ function FilterManager(opts) {
                 $AUTH_ROUTE_FILTER.empty();
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
                 if (lastValue !== null) {
-                    console.log(1);
                     $AUTH_ROUTE_FILTER.val(lastValue.id);
                     $AUTH_ROUTE_FILTER.trigger("change");
                 }
