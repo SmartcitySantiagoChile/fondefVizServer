@@ -551,6 +551,11 @@ function FilterManager(opts) {
         }
 
         const updateAuthRouteList = function () {
+            let lastValue = null;
+            let localAuthRouteFilter = window.localStorage.getItem(urlKey + "authRouteFilter");
+            if (localAuthRouteFilter) {
+                localAuthRouteFilter = JSON.parse(localAuthRouteFilter);
+            }
             let operatorId = $OPERATOR_FILTER.val();
             let userRouteId = $USER_ROUTE_FILTER.val();
             let OpRoutesDict = getOPDictBetweenDates();
@@ -571,13 +576,21 @@ function FilterManager(opts) {
             } else {
                 let authRouteList = operatorFilterData["availableRoutes"][operatorId][userRouteId];
                 authRouteList.sort();
+                if (authRouteList.includes(localAuthRouteFilter.id)) {
+                    lastValue = localAuthRouteFilter;
+                }
                 authRouteList = authRouteList.map(function (el) {
-
                     let dictName = ((OpRoutesDict[el]) === undefined) ? "" : ` (${OpRoutesDict[el].join(" | ")})`;
                     return {id: el, text: `${el}${dictName}`};
                 });
+
                 $AUTH_ROUTE_FILTER.empty();
                 $AUTH_ROUTE_FILTER.select2({data: authRouteList});
+                if (lastValue !== null) {
+                    console.log(1);
+                    $AUTH_ROUTE_FILTER.val(lastValue.id);
+                    $AUTH_ROUTE_FILTER.trigger("change");
+                }
             }
         };
 
@@ -599,7 +612,7 @@ function FilterManager(opts) {
                 userRouteList = Object.keys(operatorFilterData["availableRoutes"][operatorId]);
             }
             let lastValue = null;
-            if(userRouteList.includes(localUserRouteFilter.id)){
+            if (userRouteList.includes(localUserRouteFilter.id)) {
                 lastValue = localUserRouteFilter;
             }
             userRouteList.sort();
@@ -615,10 +628,9 @@ function FilterManager(opts) {
 
             // call event to update auth route filter
             var selectedItem = localUserRouteFilter.id !== null ? localUserRouteFilter : $USER_ROUTE_FILTER.select2("data")[0];
-            if (lastValue != null){
+            if (lastValue != null) {
                 selectedItem = lastValue;
                 $USER_ROUTE_FILTER.val(lastValue.id);
-                $USER_ROUTE_FILTER.trigger("change");
             }
             $USER_ROUTE_FILTER.trigger({
                 type: "select2:select",
