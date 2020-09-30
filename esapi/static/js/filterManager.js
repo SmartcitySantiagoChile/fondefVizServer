@@ -595,8 +595,6 @@ function FilterManager(opts) {
 
         $AUTH_ROUTE_FILTER.on("select2:select", function (e) {
             let selectedItem = e.params.data;
-            window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
-            window.localStorage.setItem(urlKey + "userRouteFilter", JSON.stringify({id: $USER_ROUTE_FILTER.val()}));
             window.localStorage.setItem(urlKey + "authRouteFilter", JSON.stringify({id: selectedItem.id}));
         });
 
@@ -629,7 +627,9 @@ function FilterManager(opts) {
             var selectedItem = localUserRouteFilter.id !== null ? localUserRouteFilter : $USER_ROUTE_FILTER.select2("data")[0];
             if (lastValue != null) {
                 selectedItem = lastValue;
+                console.log(selectedItem);
                 $USER_ROUTE_FILTER.val(lastValue.id);
+                $USER_ROUTE_FILTER.trigger("change");
             }
             $USER_ROUTE_FILTER.trigger({
                 type: "select2:select",
