@@ -10,7 +10,7 @@ from django.db import transaction, IntegrityError
 from django.utils.translation import gettext_lazy as _
 
 from localinfo.forms import DayDescriptionForm, FAQForm
-from localinfo.helper import PermissionBuilder, synchronize_op_program
+from localinfo.helper import PermissionBuilder
 from localinfo.models import Operator, HalfHour, DayDescription, CalendarInfo, FAQ, OPDictionary
 
 admin.site.unregister(Group)
@@ -96,7 +96,7 @@ class FAQSAdmin(admin.ModelAdmin):
 class CustomOPDictionaryAdmin(admin.ModelAdmin):
     actions = None
     list_display = (
-    'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at', 'op_program')
+        'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at', 'op_program')
 
 
 admin.site.register(Operator, OperatorAdmin)
