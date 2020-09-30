@@ -1,12 +1,19 @@
+import os
 from datetime import datetime
 
+import mock
 from django.test import TestCase
 from django.utils import timezone
 
 from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _dict_parser, \
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
-    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict
+    get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict, synchronize_op_program, \
+    upload_xlsx_op_dictionary, get_opprogram_list_for_select_input
+
+from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
+
+
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
@@ -14,25 +21,33 @@ class TestHelperUtils(TestCase):
     fixtures = ['daytypes', 'operators', 'timeperioddates', 'timeperiods', 'halfhours', 'communes', 'transportmodes']
 
     def setUp(self):
+        self.path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files')
         self.test_faq = FAQ(question='¿Es esta una pregunta de prueba?', answer='Siempre lo fue', category='route')
         self.test_faq.save()
 
+
     def test_get_custom_routes_dict(self):
-        dict = {'T101 00I': '101 Ida', 'T101 00R': '101 Regreso', 'T112 00I': '112 Ida'}
+        valid_from = '2020-01-01'
+        expected_dict = {valid_from: {'T101 00I': ['101 Ida'], 'T101 00R': ['101 Regreso'], 'T112 00I': ['112 Ida']}}
         time_at = timezone.now()
-        for key in dict:
-            OPDictionary.objects.create(auth_route_code=key, route_type=dict[key],
+        op_program = OPProgram.objects.create(valid_from=valid_from)
+        for key in expected_dict[valid_from]:
+            OPDictionary.objects.create(auth_route_code=key, route_type=expected_dict[valid_from][key][0],
                                         op_route_code=key, user_route_code=key, created_at=time_at,
-                                        updated_at=time_at)
+                                        updated_at=time_at, op_program=op_program)
         query = get_op_routes_dict()
-        self.assertEqual(dict, query)
+        self.assertEqual(expected_dict, query)
+        op_program.delete()
 
     def test_get_op_route(self):
         auth_code = 'T101 00I'
         op_code = '101I'
-        OPDictionary.objects.create(auth_route_code=auth_code, op_route_code=op_code)
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        OPDictionary.objects.create(auth_route_code=auth_code, op_route_code=op_code, op_program=op_program)
         query = get_op_route(auth_code)
         self.assertEqual(op_code, query)
+        op_program.delete()
+
 
     def test_get_op_route_wrong_code(self):
         self.assertIsNone(get_op_route('T0000'))
@@ -362,6 +377,125 @@ class TestHelperUtils(TestCase):
         self.assertEqual(answer_first, get_valid_time_period_date(valid_dates_list_first))
         self.assertEqual(answer_second, get_valid_time_period_date(valid_dates_list_second))
         self.assertEqual(answer_invalid, get_valid_time_period_date(invalid_dates_list))
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_empty_case(self, es_opdata_helper):
+        es_opdata_helper.return_value.get_available_days.return_value = []
+        expected_dict = {'es_available_days': set(), 'db_available_days': set(), 'created': set(), 'deleted': set()}
+        self.assertEqual(expected_dict, synchronize_op_program())
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_only_es_case(self, es_opdata_helper):
+        es_available_days = {'2019-01-01', '2020-01-01'}
+        es_opdata_helper.return_value.get_available_days.return_value = list(es_available_days)
+        expected_dict = {'es_available_days': es_available_days,
+                         'db_available_days': set(),
+                         'created': es_available_days,
+                         'deleted': set()
+                         }
+        self.assertEqual(expected_dict, synchronize_op_program())
+        for day in expected_dict['created']:
+            OPProgram.objects.get(valid_from=day)
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_only_db_case(self, es_opdata_helper):
+        es_opdata_helper.return_value.get_available_days.return_value = []
+        db_days = {'2020-01-01', '2019-01-01'}
+        for day in db_days:
+            OPProgram.objects.create(valid_from=day)
+        expected_dict = {'es_available_days': set(),
+                         'db_available_days': db_days,
+                         'created': set(),
+                         'deleted': db_days
+                         }
+        self.assertEqual(expected_dict, synchronize_op_program())
+        self.assertEqual(len(OPProgram.objects.all()), 0)
+
+    @mock.patch('localinfo.helper.ESOPDataHelper')
+    def test_synchronize_op_program_mix_case(self, es_opdata_helper):
+        es_available_days = {'2019-01-01', '2020-01-01', '2019-07-09'}
+        db_days = {'2020-01-01', '2019-01-01', '2021-01-01'}
+        es_opdata_helper.return_value.get_available_days.return_value = list(es_available_days)
+
+        for day in db_days:
+            OPProgram.objects.create(valid_from=day)
+
+        expected_dict = {'es_available_days': es_available_days,
+                         'db_available_days': db_days,
+                         'created': es_available_days - db_days,
+                         'deleted': db_days - es_available_days
+                         }
+        self.assertEqual(expected_dict, synchronize_op_program())
+        for day in expected_dict['created']:
+            OPProgram.objects.get(valid_from=day)
+
+    def test_upload_xlsx_op_dictionary(self):
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
+        expected_res = {"created": 5, "updated": 0}
+        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
+        created_objects = list(
+            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
+                                              'route_type').order_by('auth_route_code'))
+        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I'},
+                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R'},
+                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_fmisa'},
+                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R_fmisa'},
+                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_cvd'}]
+
+        self.assertEqual(expected_dict, created_objects)
+        op_program.delete()
+
+    def test_upload_xlsx_op_dictionary_update(self):
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
+        expected_res = {"created": 5, "updated": 0}
+        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
+        expected_res = {"created": 1, "updated": 2}
+        file = os.path.join(self.path, 'diccionario_op_base_2.xlsx')
+        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
+        created_objects = list(
+            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
+                                              'route_type').order_by('auth_route_code'))
+        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I'},
+                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R'},
+                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_fmisa'},
+                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
+                          'route_type': '101R_fmisa'},
+                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
+                          'route_type': '101I_cvd'},
+                         {'auth_route_code': 'T558 00I', 'op_route_code': '558I', 'user_route_code': '118',
+                          'route_type': '118I'}]
+
+        self.assertEqual(expected_dict, created_objects)
+        op_program.delete()
+
+    def test_upload_xlsx_op_dictionary_error(self):
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
+        with self.assertRaises(ValueError):
+            upload_xlsx_op_dictionary(file, op_program.id)
+        op_program.delete()
+
+    def test_upload_xlsx_op_dictionary_wrong_op(self):
+        file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
+        with self.assertRaises(OPProgram.DoesNotExist):
+            upload_xlsx_op_dictionary(file, -1)
+
+    def test_get_opprogram_list_for_select_input(self):
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        expected_list = [{'value': op_program.id, 'item': '2020-01-01'}]
+        self.assertEqual(expected_list, get_opprogram_list_for_select_input())
+
+
 
     def test_get_get_periods_dict(self):
         expected_answer = {1: [{'value': 1, 'item': 'Pre nocturno (00:00:00-00:59:59)'},

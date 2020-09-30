@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 from datetime import date as dt
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
 from django.db.models import CharField, Value
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, Cast
+from django.utils import timezone
+from openpyxl import load_workbook
 
+from esapi.helper.opdata import ESOPDataHelper
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
-    CalendarInfo, FAQ, OPDictionary, TimePeriodDate
+    CalendarInfo, FAQ, OPDictionary, TimePeriodDate, OPProgram
 
 
 def _list_parser(list):
@@ -131,9 +135,11 @@ def get_op_routes_dict():
     """
     :return: dict {auth_route_code: route_type}
     """
-    routes_dict = {}
-    for auth_route_code, route_type in OPDictionary.objects.values_list('auth_route_code', 'route_type'):
-        routes_dict.update({auth_route_code: route_type})
+    op_program_dict = get_opprogram_list_for_select_input(to_dict=True)
+    routes_dict = defaultdict(lambda: defaultdict(list))
+    for auth_route_code, route_type, op_program in OPDictionary.objects.values_list('auth_route_code', 'route_type',
+                                                                                    'op_program_id'):
+        routes_dict[op_program_dict[op_program]][auth_route_code].append(route_type)
     return routes_dict
 
 
@@ -153,6 +159,72 @@ def get_valid_time_period_date(date_list):
             if first_date >= valid_date['date']:
                 period_date_valid = valid_date['id']
     return True, period_date_valid
+
+
+def upload_xlsx_op_dictionary(xlsx_file, op_program_id):
+    op_program = OPProgram.objects.get(id=op_program_id)
+    upload_time = timezone.now()
+    to_update = []
+    to_create = []
+
+    wb = load_workbook(xlsx_file, read_only=True)
+    ws = wb.active
+    key_indexes = [0, 5, 6, 7, 9]
+    first_row = [ws['A2:P2'][0][x] for x in key_indexes]
+    first_row_values = [cell.value for cell in first_row if cell.value is not None]
+
+    if len(first_row_values) < 5:
+        raise ValueError("Archivo con datos en blanco")
+    for row in ws.iter_rows(min_row=1, max_col=16, values_only=True):
+        if row[0] is None:
+            break
+        if row[4] == 'Vigente':
+            auth_route_code = str(row[9])
+            op_route_code = str(row[7]) + str(row[5])
+            user_route_code = row[6]
+            route_type = row[0]
+            try:
+                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type,
+                                                       op_program=op_program)
+                op_dict_obj.auth_route_code = auth_route_code
+                op_dict_obj.user_route_code = user_route_code
+                op_dict_obj.route_type = route_type
+                op_dict_obj.updated_at = upload_time
+                to_update.append(op_dict_obj)
+
+            except OPDictionary.DoesNotExist:
+                to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
+                                              route_type=route_type, created_at=upload_time,
+                                              updated_at=upload_time,
+                                              auth_route_code=auth_route_code, op_program=op_program))
+    wb.close()
+    OPDictionary.objects.bulk_create(to_create)
+    OPDictionary.objects.bulk_update(to_update,
+                                     ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
+
+    return {"created": len(to_create), "updated": len(to_update)}
+
+
+def synchronize_op_program():
+    """
+    :return: info_dict
+    """
+    es_available_days = set(ESOPDataHelper().get_available_days())
+    db_available_days = {str(op_program) for op_program in OPProgram.objects.all()}
+    to_create = es_available_days - db_available_days
+    to_delete = db_available_days - es_available_days
+
+    OPProgram.objects.bulk_create([OPProgram(valid_from=day) for day in to_create])
+    OPProgram.objects.filter(valid_from__in=to_delete).delete()
+    return {'es_available_days': es_available_days, 'db_available_days': db_available_days, 'created': to_create,
+            'deleted': to_delete}
+
+
+def get_opprogram_list_for_select_input(to_dict=False):
+    parser = _list_parser
+    if to_dict:
+        parser = _dict_parser
+    return parser(OPProgram.objects.values_list('id').annotate(valid_from=Cast('valid_from', output_field=CharField())))
 
 
 def get_periods_dict():

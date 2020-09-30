@@ -1,16 +1,13 @@
-import csv
-from io import StringIO
-
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input
-from localinfo.models import OPDictionary
+from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
+    upload_xlsx_op_dictionary, synchronize_op_program, get_opprogram_list_for_select_input
+from localinfo.models import OPProgram
 
 
 class FaqImgUploader(View):
@@ -40,40 +37,24 @@ class FaqHTML(View):
         return render(request, template, faqs)
 
 
-class OPDictionaryCsvUploader(View):
+class OPDictionaryUploader(View):
 
     def post(self, request):
-        csv_file = request.FILES.get('csvDictionary', False)
-        if csv_file and csv_file.size != 0:
-            try:
-                csvf = StringIO(csv_file.read().decode())
-                upload_time = timezone.now()
-                reader = csv.reader(csvf, delimiter=',')
-                to_update = []
-                to_create = []
-                for row in reader:
-                    if row[1].strip():
-                        try:
-                            op_dict_obj = OPDictionary.objects.get(auth_route_code=row[0])
-                            op_dict_obj.user_route_code = row[1]
-                            op_dict_obj.op_route_code = row[2]
-                            op_dict_obj.route_type = row[3]
-                            op_dict_obj.updated_at = upload_time
-                            to_update.append(op_dict_obj)
-                        except OPDictionary.DoesNotExist:
-                            to_create.append(OPDictionary(user_route_code=row[1], op_route_code=row[2],
-                                                          route_type=row[3], created_at=upload_time,
-                                                          updated_at=upload_time,
-                                                          auth_route_code=row[0]))
-                OPDictionary.objects.bulk_create(to_create)
-                OPDictionary.objects.bulk_update(to_update,
-                                                 ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
-                return JsonResponse(data={"status": True})
-            except Exception:
-                return JsonResponse(data={"error": "El archivo tiene problemas en su formato."}, status=400)
-
-        else:
-            return JsonResponse(data={"error": "No existe archivo."}, status=400)
+        csv_file = request.FILES.get('OPDictionary', False)
+        op_program_id = request.POST.get('opId', -1)
+        if op_program_id == -1:
+            return JsonResponse(data={"error": "Seleccione un programa de operación"}, status=400)
+        if not csv_file or csv_file.size == 0:
+            return JsonResponse(data={"error": "No existe el archivo"}, status=400)
+        try:
+            res = upload_xlsx_op_dictionary(csv_file, op_program_id)
+            return JsonResponse(data={"updated": res['updated'], "created": res['created']})
+        except ValueError as e:
+            return JsonResponse(data={"error": str(e)}, status=400)
+        except OPProgram.DoesNotExist:
+            return JsonResponse(data={"error": "Programa de operación no válido"}, status=400)
+        except Exception:
+            return JsonResponse(data={"error": "Archivo en formato incorrecto"}, status=400)
 
 
 class TimePeriod(View):
@@ -87,3 +68,10 @@ class TimePeriod(View):
         else:
             valid_period_time = get_timeperiod_list_for_select_input(filter_id=date_id)
             return JsonResponse(data={'timePeriod': valid_period_time})
+
+
+class OPProgramList(View):
+
+    def get(self, request):
+        synchronize_op_program()
+        return JsonResponse(data={'opProgramList': get_opprogram_list_for_select_input()})

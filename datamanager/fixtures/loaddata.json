@@ -1,0 +1,112 @@
+[
+    {
+    "model": "datamanager.loadfile",
+    "pk": 1,
+    "fields": {
+      "fileName": "2020-01-01.stop",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-11T20:57:58.369Z",
+      "lines": 917,
+      "lastModified": "2019-11-29T16:09:36Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 2,
+    "fields": {
+      "fileName": "2019-10-12.shape",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-11T21:15:36.632Z",
+      "lines": 1427,
+      "lastModified": "2020-03-27T20:59:26.831Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 3,
+    "fields": {
+      "fileName": "2018-03-01.opdata",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-11T21:16:12.567Z",
+      "lines": 778,
+      "lastModified": "2020-06-18T22:17:15.518Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 4,
+    "fields": {
+      "fileName": "2019-10-08.bip",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-14T13:54:38.822Z",
+      "lines": 5892312,
+      "lastModified": "2020-03-25T15:25:56.761Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 5,
+    "fields": {
+      "fileName": "2019-10-21.general",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-14T13:54:38.849Z",
+      "lines": 1,
+      "lastModified": "2020-03-17T15:32:10.927Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 6,
+    "fields": {
+      "fileName": "2019-10-21.trip",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-14T13:54:38.901Z",
+      "lines": 3091226,
+      "lastModified": "2020-03-26T14:08:24.904Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 7,
+    "fields": {
+      "fileName": "2019-10-27.speed",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-14T13:54:38.921Z",
+      "lines": 834843,
+      "lastModified": "2020-03-26T16:20:50.473Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 8,
+    "fields": {
+      "fileName": "2019-08-05.profile",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-14T13:54:39.339Z",
+      "lines": 3747960,
+      "lastModified": "2020-05-12T17:11:15.074Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 9,
+    "fields": {
+      "fileName": "2019-10-17.paymentfactor",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-14T13:57:41.911Z",
+      "lines": 240,
+      "lastModified": "2020-03-25T15:07:59.485Z"
+    }
+  },
+  {
+    "model": "datamanager.loadfile",
+    "pk": 10,
+    "fields": {
+      "fileName": "2019-10-17.odbyroute",
+      "dataSourcePath": "/home/bastianleaf/Documents/Trabajo/datos",
+      "discoveredAt": "2020-09-14T14:38:15.434Z",
+      "lines": 0,
+      "lastModified": "2020-03-26T13:15:24.266Z"
+    }
+  }
+]

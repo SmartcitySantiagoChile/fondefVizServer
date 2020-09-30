@@ -197,6 +197,18 @@ class FAQ(models.Model):
     short_answer.short_description = 'Respuesta'
 
 
+class OPProgram(models.Model):
+    """Operation program"""
+    valid_from = models.DateField('Fecha de validez')
+
+    class Meta:
+        verbose_name = "programa de operación"
+        verbose_name_plural = "programas de operación"
+
+    def __str__(self):
+        return str(self.valid_from)
+
+
 class OPDictionary(models.Model):
     """Services Operation dictionary"""
 
@@ -206,6 +218,7 @@ class OPDictionary(models.Model):
     route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
     created_at = models.DateTimeField("Fecha de creación", null=True)
     updated_at = models.DateTimeField("Fecha de última modificación", null=True)
+    op_program = models.ForeignKey(OPProgram, on_delete=models.CASCADE, verbose_name="Programa de operación")
 
     class Meta:
         verbose_name = "diccionario PO "

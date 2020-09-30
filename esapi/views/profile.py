@@ -287,9 +287,9 @@ class LoadProfileByTrajectoryData(View):
                     'timeTripInit': hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
                     'timeTripEnd': hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
                     'dayType': day_type_dict[hit.dayType],
-                    'valid': bool(hit.isValid)
+                    'valid': not bool(hit.notValid)
                 }
-                if not hit.isValid:
+                if bool(hit.notValid):
                     expedition_not_valid_number += 1
 
             if hit.busStation == 1 and hit.authStopCode not in bus_stations:
