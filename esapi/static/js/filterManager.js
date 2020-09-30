@@ -220,12 +220,10 @@ function FilterManager(opts) {
             $MULTI_AUTH_ROUTE_FILTER.val({"id": null});
             window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
         } else if (validOpDict !== 0) {
-            //$MULTI_AUTH_ROUTE_FILTER.select2({data: operatorFilterData["data"]});
             let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "operatorFilter");
             if (localMultiAuthRouteFilter) {
                 localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
             }
-            console.log(1);
 
             if (getDates().length !== 0 && localMultiAuthRouteFilter !== null) {
                 $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter.id).trigger("change");
@@ -769,7 +767,6 @@ function FilterManager(opts) {
             if ($MULTI_AUTH_ROUTE_FILTER.length) {
                 $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});
                 $MULTI_AUTH_ROUTE_FILTER.on("select2:select", function (e) {
-                    console.log(e);
                     window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
                 });
                 // call event to update user route filter
