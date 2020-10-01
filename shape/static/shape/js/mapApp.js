@@ -284,7 +284,7 @@ $(document).ready(function () {
         };
 
 
-        this.addTableInfo = function (data) {
+        this.addTableInfo = function () {
             let $TABLE = $('#shapeDetail');
             $TABLE.DataTable({
                 language: {
@@ -293,7 +293,6 @@ $(document).ready(function () {
                     thousands: "."
                 },
                 retrieve: true,
-                data: data,
                 orderable: false,
                 dom: 'Brt',
                 buttons: [
@@ -345,7 +344,9 @@ $(document).ready(function () {
                         let $INFOMODAL = $("#shape_info");
                         $INFOMODAL.modal("show");
                         $INFOMODAL.on('shown.bs.modal', function () {
-                            _self.addTableInfo([data.data[period]]);
+                            let $TABLE = $('#shapeDetail').DataTable();
+                            $TABLE.clear().rows.add([data.data[period]]).draw();
+                            $(this).off('shown.bs.modal');
                         })
                     });
                 }
@@ -400,8 +401,9 @@ $(document).ready(function () {
                     _self.addRow(dateList, userRouteList);
                 });
             });
-        };
 
+            _self.addTableInfo()
+        };
     }
 
     var mapShapeApp = new MapShapeApp();
