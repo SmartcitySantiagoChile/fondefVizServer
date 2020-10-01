@@ -73,22 +73,26 @@
     border-radius: 3px;
 }
 
-.leaflet-container a.btn-success{
+.leaflet-container a.btn-success {
     color: #ffffff;
 }
 
-.date{
+.date {
     width: 180px !important;
 }
 
-.userRoute{
+.userRoute {
     width: 70px !important;
 }
 
-.route{
+.route {
     width: 120px !important;
 }
 
-.period{
+.period {
     width: 300px !important;
+}
+
+.modal-lg {
+    width: 1200px; !important;
 }
