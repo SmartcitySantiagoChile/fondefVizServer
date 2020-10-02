@@ -105,12 +105,21 @@ $(document).ready(function () {
                 let selector = $(this).closest(".selectorRow");
                 let userRoute = selector.find(".userRoute").first().val();
                 let route = selector.find(".route").first();
+                let date = selector.find(".date").first().val();
 
                 //update authroute list
                 let routeValues = _self.data[userRoute];
                 route.empty();
-                route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
-
+                route.select2({
+                    data: routeValues.map(e => {
+                        let text = _self.op_routes_dict[date][e] || e;
+                        text = text === e ? e : `${text} (${e})`;
+                        return {
+                            id: e,
+                            text: text
+                        }
+                    })
+                });
                 //set value
                 let allSelectors = $(".selectorRow");
                 let selectorIndex = allSelectors.index(selector);
@@ -388,6 +397,7 @@ $(document).ready(function () {
                 // data for selectors
                 _self.data = data.user_routes;
                 _self.dates_period_dict = data.dates_periods_dict;
+                _self.op_routes_dict = data.op_routes_dict;
                 _self.periods = data.periods;
                 let userRouteList = Object.keys(data.user_routes).map(e =>
                     "<option>" + e + "</option>"
