@@ -148,7 +148,7 @@ function FilterManager(opts) {
             if (firstDate < validDate && validDate <= lastDate) {
                 return null;
             } else {
-                if (lastDate <= validDate) {
+                if (firstDate >= validDate) {
                     periodDateValid = validDate;
                 }
             }
