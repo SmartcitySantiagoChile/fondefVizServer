@@ -71,7 +71,7 @@ class GetBaseInfo(View):
         for key in available_routes:
             for value in available_routes[key]:
                 user_routes[value] = available_routes[key][value]
-        op_routes_dict = get_op_routes_dict()
+        op_routes_dict = get_op_routes_dict(key='auth_route_code', answer='op_route_code')
         response = {
             'dates': dates,
             'routes': routes,
