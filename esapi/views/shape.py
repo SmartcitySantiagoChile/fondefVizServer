@@ -10,7 +10,8 @@ from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQu
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.profile import ESProfileHelper
-from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_timeperiod_list_for_select_input, get_periods_dict
+from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
+    get_periods_dict, get_op_routes_dict
 
 
 class GetRouteInfo(View):
@@ -70,12 +71,14 @@ class GetBaseInfo(View):
         for key in available_routes:
             for value in available_routes[key]:
                 user_routes[value] = available_routes[key][value]
+        op_routes_dict = get_op_routes_dict(key='auth_route_code', answer='op_route_code')
         response = {
             'dates': dates,
             'routes': routes,
             'user_routes': user_routes,
             'dates_periods_dict': dates_periods_dict,
-            'periods': periods
+            'periods': periods,
+            'op_routes_dict': op_routes_dict
         }
 
         return JsonResponse(response)
