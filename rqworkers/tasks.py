@@ -20,9 +20,10 @@ from rq import get_current_job
 from dataDownloader.downloadData import download_file
 from dataUploader.loadData import upload_file
 from datamanager.models import UploaderJobExecution, ExporterJobExecution
+from esapi.helper.opdata import ESOPDataHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.helper.opdata import ESOPDataHelper
+
 
 @job('data_uploader')
 def upload_file_job(path_to_file, index_name_list):
@@ -64,13 +65,17 @@ def upload_exception_handler(job_instance, exc_type, exc_value, exc_tb):
 @job('data_exporter')
 def export_data_job(es_query_dict, downloader):
     job_instance = get_current_job()
-    # wait until ExporterJobExecution instance exists
-    while True:
+    job_execution_obj = None
+    # wait until ExporterJobExecution instance exists, first time 1 sec , second time 5 seconds, after that raise error
+    wait_time_list = [1, 5]
+    for wait_time in wait_time_list:
         try:
             job_execution_obj = ExporterJobExecution.objects.get(jobId=job_instance.id)
-            break
         except ExporterJobExecution.DoesNotExist:
-            time.sleep(1)
+            time.sleep(wait_time)
+
+    if job_execution_obj is None:
+        raise ValueError('job id "{0}" does not have a record in ExporterJobExecution model'.format(job_instance.id))
 
     job_execution_obj.status = ExporterJobExecution.RUNNING
     job_execution_obj.executionStart = timezone.now()
@@ -159,7 +164,8 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
 
     i = 0
     with get_file_object(file_path) as f:
-        if data_source_code in [ESShapeHelper().index_name, ESStopByRouteHelper().index_name, ESOPDataHelper().index_name]:
+        if data_source_code in [ESShapeHelper().index_name, ESStopByRouteHelper().index_name,
+                                ESOPDataHelper().index_name]:
             for group_id, __ in groupby(f, lambda row: row.decode().split(str('|'))[0]):
                 # lines with hyphen on first column are bad lines and must not be considered
                 if group_id != str('-'):
