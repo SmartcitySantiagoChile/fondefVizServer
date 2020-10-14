@@ -1,11 +1,11 @@
 "use strict";
 $(document).ready(function () {
-
     function MapShapeApp() {
         var _self = this;
         var mapOpts = {
             mapId: $(".right_col")[0],
-            maxZoom: 18
+            maxZoom: 18,
+            zoomControl: false
         };
         var app = new MapApp(mapOpts);
         var mapInstance = app.getMapInstance();
@@ -25,6 +25,20 @@ $(document).ready(function () {
         routeListControl.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
+                '<div id="header" class="form-inline" style="display: none">' +
+                '<div class="form-row">' +
+                '<div class="form-group col">' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-white btn-sm date" >Programa de Operación</button>' +
+                '<button class="btn btn-default-white btn-sm userRoute"" >Servicio</button>' +
+                '<button class="btn btn-default-white btn-sm route" >Servicio Sonda</button>' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-default-white btn-sm period" >Periodo</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
                 '<div id="routeListContainer" class="form-inline"</div>';
             L.DomEvent.disableClickPropagation(div);
             return div;
@@ -43,66 +57,124 @@ $(document).ready(function () {
             $("#helpModal").modal("show");
         });
 
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(mapInstance);
+
         var $ROW_CONTAINER = $("#routeListContainer");
 
         var layers = {};
 
-        this.refreshControlEvents = function () {
+        var selectorId = 1;
 
-            //handle send data
-            let sendData = e => {
-                let layerId = $(e).closest(".selectorRow").data("id");
-                let route = $(e).closest(".selectorRow").find(".route").val();
-                let params = {
-                    route: route,
-                    operationProgramDate: $(e).closest(".selectorRow").find(".date").val()
-                };
-                $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
-                    if (data.status) {
-                        showMessage(data.status);
-                        if (!("points" in data)) {
-                            layers[layerId].clearLayers();
-                            return;
-                        }
-                    }
-                    // update map
-                    // clean featureGroup
-                    layers[layerId].clearLayers();
-                    let layer = layers[layerId];
-                    app.addPolyline(layer, data.points, {
-                        stops: data.stops,
-                        route: route
-                    });
-                });
+        this.sendData = function (e) {
+            let selector = $(e).closest(".selectorRow");
+            let layerId = selector.data("id");
+            let route = $(`#routeSelect-${layerId}`).val();
+            let date = $(`#dateSelect-${layerId}`).val();
+            let params = {
+                route: route,
+                operationProgramDate: date
             };
 
-            let $USER_ROUTE = $(".userRoute");
+            $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
+                if (data.status) {
+                    showMessage(data.status);
+                    if (!("points" in data)) {
+                        layers[layerId].clearLayers();
+                        return;
+                    }
+                }
+                // update map
+                // clean featureGroup
+                layers[layerId].clearLayers();
+                let layer = layers[layerId];
+                app.addPolyline(layer, data.points, {
+                    stops: data.stops,
+                    route: route
+                });
+            });
+        };
+
+        this.refreshControlEvents = function (id) {
+
+            // handle user route selector
+            let $USER_ROUTE = $(`#userRouteSelect-${id}`);
             $USER_ROUTE.off("change");
             $USER_ROUTE.change(function () {
-                let userRoute = $(this).closest(".selectorRow").find(".userRoute").first().val();
-                let route = $(this).closest(".selectorRow").find(".route");
+                let selector = $(this).closest(".selectorRow");
+                let userRoute = selector.find(".userRoute").first().val();
+                let route = selector.find(".route").first();
+
                 //update authroute list
-                if (userRoute !== null) {
-                    let routeValues = _self.data[userRoute];
-                    route.empty();
-                    route.append('<option value="" disabled selected> Ruta Transantiago </option>');
-                    route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
+                let routeValues = _self.data[userRoute];
+                route.empty();
+                route.append(routeValues.map(e => '<option>' + e + '</option>').join(""));
+
+                //set value
+                let allSelectors = $(".selectorRow");
+                let selectorIndex = allSelectors.index(selector);
+                if ($(this).data("first") === true) {
+                    route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
+                    $(this).data("first", false);
+                }
+                if ($PERIOD.val() != null) {
+                    _self.sendData(this);
                 }
             });
 
-            let $ROUTE = $(".route");
+            // handle route selector
+            let $ROUTE = $(`#routeSelect-${id}`);
             $ROUTE.off("change");
             $ROUTE.change(function () {
-                sendData(this);
+                _self.sendData(this);
             });
 
-            let $DATE = $(".date");
+
+            let $PERIOD = $(`#periodSelect-${id}`);
+            $PERIOD.off("change");
+
+            // handle date selector
+            let $DATE = $(`#dateSelect-${id}`);
             $DATE.off("change");
             $DATE.change(function () {
+                let selector = $(this).closest(".selectorRow");
+                let date = selector.find(".date").first().val();
+                let periods = selector.find(".period").first();
+
+                //update periods list
+                let periodValues = _self.periods[_self.dates_period_dict[date]];
+                periods.empty();
+                periods.append(periodValues.map(e => `<option value=${e.value}>` + e.item + '</option>').join(""));
+
+                //set value
+                let allSelectors = $(".selectorRow");
+                let selectorIndex = allSelectors.index(selector);
+                if ($(this).data("first") === true) {
+                    periods.val(allSelectors.slice(selectorIndex - 1).find(".period").first().val());
+                    $(this).data("first", false);
+                }
+
                 if ($ROUTE.val() != null) {
-                    sendData(this);
+                    _self.sendData(this);
                 }
             });
+
+            // handle clone selector
+            let selector = $(".selectorRow");
+            if (selector.length > 1) {
+                let lastSelected = selector.slice(-2, -1);
+                $DATE.val(lastSelected.find(".date").first().val());
+                $DATE.data("first", true);
+                $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
+                $USER_ROUTE.data("first", true);
+
+            } else {
+                $("#header").css('display', "block");
+            }
+            $USER_ROUTE.trigger("change");
+            $DATE.trigger("change");
+
         };
 
         this.refrehRemoveButton = function () {
@@ -116,6 +188,7 @@ $(document).ready(function () {
                     modal.off("click", "button.btn-info");
                     modal.on("click", "button.btn-info", function () {
                         var layerId = removeButtonRef.parent().data("id");
+                        // update last selected
                         mapInstance.removeLayer(layers[layerId]);
                         delete layers[layerId];
                         removeButtonRef.parent().remove();
@@ -152,47 +225,102 @@ $(document).ready(function () {
             });
         };
 
-        this.refreshVisibilityButton = function () {
-            var $VISIBILITY_BUTTON = $(".selectorRow .visibility");
+        this.refreshVisibilityRoutesButton = function () {
+            var $VISIBILITY_BUTTON = $(".selectorRow .visibility-routes");
             $VISIBILITY_BUTTON.off("click");
             $VISIBILITY_BUTTON.click(function () {
                 var button = $(this);
                 var span = button.find("span");
                 var layerId = button.parent().data("id");
-
                 if (span.hasClass("glyphicon-eye-open")) {
                     button.removeClass("btn-success").addClass("btn-warning");
                     span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
-                    mapInstance.removeLayer(layers[layerId]);
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Polyline) {
+                            mapInstance.removeLayer(layer);
+                        } else if (layer instanceof L.PolylineDecorator) {
+                            mapInstance.removeLayer(layer);
+                        }
+                    });
                 } else {
                     button.removeClass("btn-warning").addClass("btn-success");
                     span.removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
-                    mapInstance.addLayer(layers[layerId]);
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Polyline) {
+                            mapInstance.addLayer(layer);
+                        } else if (layer instanceof L.PolylineDecorator) {
+                            mapInstance.addLayer(layer);
+                        }
+                    });
                 }
             });
         };
 
-        this.addTableInfo = function (data) {
-            let $TABLE = $('#shape_info');
-            let thead = $TABLE.find("thead").find("tr");
-            thead.empty();
-            let head = ["Periodo Transantiago", "Inicio de periodo", "Fin de periodo", "Frecuencia", "Capacidad", "Distancia", "Velocidad"];
-            let headRow = head.map(e => "<th>" + e + "</th>").join("");
-            thead.append(headRow);
-            let tbody = $TABLE.find("tbody");
-            tbody.empty();
-            let keys = Object.keys(data[0]);
-            data.forEach(e => {
-                    let tr = $("<tr></tr>");
-                    tbody.append(tr);
-                    let tds = keys.map(f => {
-                        let value = e[f];
-                        value = (typeof (value) === "number" && value % 1 !== 0) ? value.toFixed(3) : value;
-                        return "<td>" + value + "</td>";
+        this.refreshVisibilityStopsButton = function () {
+            var $VISIBILITY_BUTTON = $(".selectorRow .visibility-stops");
+            $VISIBILITY_BUTTON.off("click");
+            $VISIBILITY_BUTTON.click(function () {
+                var button = $(this);
+                var span = button.find("span");
+                var layerId = button.parent().data("id");
+                if (button.hasClass("btn-success")) {
+                    button.removeClass("btn-success").addClass("btn-warning");
+                    span.removeClass("fa-bus").addClass("fa-bus");
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            mapInstance.removeLayer(layer);
+                        }
                     });
-                    tr.append(tds);
+                } else {
+                    button.removeClass("btn-warning").addClass("btn-success");
+                    span.removeClass("fa-bus").addClass("fa-bus");
+                    layers[layerId].eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            mapInstance.addLayer(layer);
+                        }
+                    });
                 }
-            );
+            });
+        };
+
+
+        this.addTableInfo = function () {
+            let $TABLE = $('#shapeDetail');
+            $TABLE.DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
+                    decimal: ",",
+                    thousands: "."
+                },
+                retrieve: true,
+                orderable: false,
+                dom: 'Brt',
+                buttons: [
+                    {
+                        extend: "excelHtml5",
+                        text: "Exportar a excel",
+                        title: 'datos_de_ruta',
+                        className: "buttons-excel buttons-html5 btn btn-success",
+                        exportOptions: {
+                            columns: [1, 2, 3, 4, 5, 6]
+                        }
+                    },
+                    {
+                        extend: 'copy',
+                        text: "Copiar datos",
+                        className: "buttons-excel buttons-html5 btn btn-default",
+                    }
+                ],
+                columns: [
+                    {title: "Periodo Transantiago", data: "timePeriod", searchable: false},
+                    {title: "Inicio", data: "startPeriodTime", searchable: false},
+                    {title: "Fin", data: "endPeriodTime", searchable: false},
+                    {title: "Frecuencia [Bus/h]", data: "frecuency", searchable: false},
+                    {title: "Capacidad [Plazas/h]", data: "capacity", searchable: false},
+                    {title: "Distancia [km]", data: "distance", searchable: false},
+                    {title: "Velocidad [km/h]", data: "speed", searchable: false},
+                ]
+            });
         };
 
         this.refreshInfoButton = function () {
@@ -201,6 +329,7 @@ $(document).ready(function () {
             $INFO_BUTTON.click(function () {
                     let route = $(this).closest(".selectorRow").find(".route").val();
                     let date = $(this).closest(".selectorRow").find(".date").val();
+                    let period = $(this).closest(".selectorRow").find(".period").val();
                     date = date !== null ? [[date]] : [[]];
                     let params = {
                         authRouteCode: route,
@@ -211,37 +340,46 @@ $(document).ready(function () {
                             showMessage(data.status);
                             return;
                         }
-                        _self.addTableInfo(data.data);
-                        $("#shape_info").modal("show");
-
+                        $INFO_BUTTON.blur();
+                        let $INFOMODAL = $("#shape_info");
+                        $INFOMODAL.modal("show");
+                        $INFOMODAL.on('shown.bs.modal', function () {
+                            let $TABLE = $('#shapeDetail').DataTable();
+                            $TABLE.clear().rows.add([data.data[period]]).draw();
+                            $(this).off('shown.bs.modal');
+                        })
                     });
                 }
             );
         };
 
         this.addRow = function (dateList, userRouteList) {
-            var newId = $ROW_CONTAINER.children().length + 1;
+            var newId = selectorId;
+            selectorId++;
             var row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                '<select class="form-control input-sm date"><option value="" disabled selected>Programa de Operación</option>' + dateList + '</select>' +
-                '<select class="form-control input-sm userRoute"><option value="" disabled selected>Ruta Usuario</option>' + userRouteList + '</select>' +
-                '<select class="form-control input-sm route"><option value="" disabled selected>Ruta Transantiago</option></select>' +
+                `<select id=dateSelect-${newId} class="form-control date">` + dateList + '</select>' +
+                `<select id=userRouteSelect-${newId} class="form-control userRoute">` + userRouteList + '</select>' +
+                `<select id=routeSelect-${newId} class="form-control route"></select>` +
                 '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
-                '<button class="btn btn-success btn-sm visibility" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
+                '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
+                `<select id=periodSelect-${newId} class="form-control period"></select>` +
                 '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
-                '<div/>';
+                '</div>';
             $ROW_CONTAINER.append(row);
-            _self.refreshControlEvents();
+            _self.refreshControlEvents(newId);
             _self.refrehRemoveButton();
             _self.refreshColorPickerButton();
-            _self.refreshVisibilityButton();
+            _self.refreshVisibilityRoutesButton();
+            _self.refreshVisibilityStopsButton();
             _self.refreshInfoButton();
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
 
 //            $ROW_CONTAINER.find(".form-control").last().change();
-            $(".form-control").select2();
+            $(".form-control").select2({width: 'element'});
         };
 
         this.loadBaseData = function () {
@@ -249,6 +387,8 @@ $(document).ready(function () {
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
                 _self.data = data.user_routes;
+                _self.dates_period_dict = data.dates_periods_dict;
+                _self.periods = data.periods;
                 let userRouteList = Object.keys(data.user_routes).map(e =>
                     "<option>" + e + "</option>"
                 ).join("");
@@ -261,11 +401,15 @@ $(document).ready(function () {
                     _self.addRow(dateList, userRouteList);
                 });
             });
-        };
 
+            _self.addTableInfo()
+        };
     }
 
     var mapShapeApp = new MapShapeApp();
     mapShapeApp.loadBaseData();
+    $("#modalList").detach().appendTo($(".main_container")[0]);
+    document.activeElement.blur();
+
 })
 ;

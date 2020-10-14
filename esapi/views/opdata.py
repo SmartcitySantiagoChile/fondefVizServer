@@ -20,13 +20,16 @@ class OPDataByAuthRouteCode(View):
         return super(OPDataByAuthRouteCode, self).dispatch(request, *args, **kwargs)
 
     def transform_data(self, query):
-        time_period_dict = get_timeperiod_list_for_select_input(True)
+        time_period_dict = get_timeperiod_list_for_select_input(to_dict=True)
         for hit in query.execute():
             res = list(map(lambda x: x.to_dict(), list(hit.dayType)))
             res = sorted(res, key=lambda x: x['timePeriod'])
+            dict_res = {}
             for data_dict in res:
+                time_period_id = data_dict['timePeriod']
                 data_dict['timePeriod'] = time_period_dict[data_dict['timePeriod']]
-            return res
+                dict_res[time_period_id] = data_dict
+            return dict_res
 
     def process_request(self, request, params, export_data=False):
         response = {}
