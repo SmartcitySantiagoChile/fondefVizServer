@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 from django.http import JsonResponse
 from django.views import View
 
 from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
+from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
-from esapi.helper.profile import ESProfileHelper
-from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
-    get_periods_dict, get_op_routes_dict
+from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_periods_dict, get_op_routes_dict
 
 
 class GetRouteInfo(View):
@@ -65,7 +64,8 @@ class GetBaseInfo(View):
 
         es_helper = ESProfileHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_routes, op_dict = es_helper.get_available_routes(valid_operator_list)
+        available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date="2019-06-07",
+                                                                   end_date="2019-09-08")
         user_routes = defaultdict(list)
         for key in available_routes:
             for value in available_routes[key]:
@@ -82,8 +82,35 @@ class GetBaseInfo(View):
 
         return JsonResponse(response)
 
+
 class GetUserRoutesByOP(View):
 
     def get(self, request):
-        op_program = request.GET.get("op_program", '')
+        end_date = '2050-12-31'
+        es_shape_helper = ESShapeHelper()
+        es_stop_helper = ESStopByRouteHelper()
+        stop_dates = es_stop_helper.get_available_days()
+        shape_dates = es_shape_helper.get_available_days()
+        dates = list(set(stop_dates + shape_dates))
+        dates.sort(key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
 
+        start_date = request.GET.get("op_program", '')
+        index = dates.index(start_date)
+        if index < len(dates) - 1:
+            end_date = dates[index + 1]
+            end_date = date.fromisoformat(end_date) - timedelta(days=1)
+            end_date = end_date.isoformat()
+
+        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        es_helper = ESProfileHelper()
+
+        available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date=start_date,
+                                                                   end_date=end_date)
+        user_routes = defaultdict(list)
+        for key in available_routes:
+            for value in available_routes[key]:
+                user_routes[value].extend(available_routes[key][value])
+        response = {
+            'user_routes': user_routes,
+        }
+        return JsonResponse(response)

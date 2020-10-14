@@ -76,12 +76,15 @@ class ESProfileHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
             raise ESQueryOperatorParameterDoesNotExist()
-
         if start_date and end_date:
-            es_query = self.get_base_query().filter('range', startDate={
-                'gte': start_date,
-                'lte': end_date,
-                'format': 'yyyy-MM-dd'
+            es_query = es_query.filter('range', expeditionStartTime={
+                'gte': '{0} 00:00:00'.format(start_date),
+                'format': 'yyyy-MM-dd HH:mm:ss'
+            })
+
+            es_query = es_query.filter('range', expeditionEndTime={
+                'lte': '{0} 00:00:00'.format(end_date),
+                'format': 'yyyy-MM-dd HH:mm:ss'
             })
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
@@ -100,7 +103,6 @@ class ESProfileHelper(ElasticSearchHelper):
             user_route = data['additionalInfo']['hits']['hits'][0]['_source']['userRoute']
 
             result[operator_id][user_route].append(auth_route)
-
         return result, operator_list
 
     def get_base_profile_by_expedition_data_query(self, dates, day_type, auth_route, period, half_hour,

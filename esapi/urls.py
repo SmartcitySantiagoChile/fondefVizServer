@@ -10,7 +10,7 @@ from esapi.views.paymentfactor import AvailableDays as PFAD, PaymentFactorData
 from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
     LoadProfileByExpeditionData, LoadProfileByTrajectoryData, BoardingAndAlightingAverageByStops
 from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
-from esapi.views.shape import GetBaseInfo, GetRouteInfo
+from esapi.views.shape import GetBaseInfo, GetRouteInfo, GetUserRoutesByOP
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
 from esapi.views.stop import MatchedStopData
@@ -66,6 +66,7 @@ urlpatterns = [
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
     url(r'^shape/base/$', login_required(GetBaseInfo.as_view()), name='shapeBase'),
     url(r'^shape/route/$', login_required(GetRouteInfo.as_view()), name='shapeRoute'),
+    url(r'^shape/userRoutes/$', login_required(GetUserRoutesByOP.as_view()), name='shapeUserRoutes'),
 
     # paymentfactor index
     url(r'^paymentfactor/availableDays/$', login_required(PFAD.as_view()), name='availablePaymentfactorDays'),
