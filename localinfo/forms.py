@@ -1,6 +1,5 @@
 from django.forms import ModelForm
-from django.forms.widgets import TextInput, HiddenInput
-from django.template.loader import get_template
+from django.forms.widgets import TextInput
 
 from localinfo.models import DayDescription, FAQ
 

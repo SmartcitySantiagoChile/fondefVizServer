@@ -72,7 +72,6 @@ function MapApp(opts) {
             };
         }
     };
-
     var getDataZoneById = opts.getDataZoneById || null;
     var getZoneValue = opts.getZoneValue || null;
     var getZoneColor = opts.getZoneColor || null;
@@ -92,7 +91,7 @@ function MapApp(opts) {
     var defaultZoneStyle = opts.defaultZoneStyle || _self.styles.zoneWithoutData;
     var defaultOverZoneStyle = opts.defaultOverZoneStyle || _self.styles.zoneOnHover;
     var doubleClickZoom = opts.doubleClickZoom || false;
-
+    var zoomControl = opts.zoomControl === undefined ? true : opts.zoomControl;
     var tileLayerURL = {
         "light": "https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}",
         "dark": "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}"
@@ -102,7 +101,8 @@ function MapApp(opts) {
     /* map options */
     var accessToken = "pk.eyJ1IjoiY2VwaGVpIiwiYSI6ImNrMzA0MHlvMjBsbmEzaHIzd24xNGV0NW0ifQ.5yTsjnoXTZ5ihlNbtf8cbw";
     var map = L.map(mapId, {
-        doubleClickZoom: doubleClickZoom
+        doubleClickZoom: doubleClickZoom,
+        zoomControl: zoomControl
     }).setView(mapStartLocation, minZoom);
     L.tileLayer(tileLayer, {
         attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
