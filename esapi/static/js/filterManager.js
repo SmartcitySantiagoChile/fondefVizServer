@@ -190,6 +190,8 @@ function FilterManager(opts) {
             let localOperatorFilter = window.localStorage.getItem(urlKey + "operatorFilter");
             if (localOperatorFilter) {
                 localOperatorFilter = JSON.parse(localOperatorFilter);
+            } else {
+                localOperatorFilter = {"id": null};
             }
             let selectedItem = localOperatorFilter.id !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
 
@@ -572,14 +574,20 @@ function FilterManager(opts) {
         let localOperatorFilter = window.localStorage.getItem(urlKey + "operatorFilter");
         if (localOperatorFilter) {
             localOperatorFilter = JSON.parse(localOperatorFilter);
+        } else {
+            localOperatorFilter = {"id": null};
         }
         let localUserRouteFilter = window.localStorage.getItem(urlKey + "userRouteFilter");
         if (localUserRouteFilter) {
             localUserRouteFilter = JSON.parse(localUserRouteFilter);
+        } else {
+            localUserRouteFilter = {"id": null}
         }
         let localAuthRouteFilter = window.localStorage.getItem(urlKey + "authRouteFilter");
         if (localAuthRouteFilter) {
             localAuthRouteFilter = JSON.parse(localAuthRouteFilter);
+        } else {
+            localAuthRouteFilter = {"id": null}
         }
 
         const updateAuthRouteList = function () {
@@ -587,6 +595,8 @@ function FilterManager(opts) {
             let localAuthRouteFilter = window.localStorage.getItem(urlKey + "authRouteFilter");
             if (localAuthRouteFilter) {
                 localAuthRouteFilter = JSON.parse(localAuthRouteFilter);
+            } else {
+                localAuthRouteFilter = {"id": null};
             }
             let operatorId = $OPERATOR_FILTER.val();
             let userRouteId = $USER_ROUTE_FILTER.val();
@@ -635,7 +645,10 @@ function FilterManager(opts) {
             let localUserRouteFilter = window.localStorage.getItem(urlKey + "userRouteFilter");
             if (localUserRouteFilter) {
                 localUserRouteFilter = JSON.parse(localUserRouteFilter);
+            } else {
+                localUserRouteFilter = {"id": null};
             }
+
             let userRouteList = [];
             if (operatorFilterData["availableRoutes"][operatorId] !== undefined) {
                 userRouteList = Object.keys(operatorFilterData["availableRoutes"][operatorId]);
