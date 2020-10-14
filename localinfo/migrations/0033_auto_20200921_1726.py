@@ -22,10 +22,4 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'programas de operación',
             },
         ),
-        migrations.AddField(
-            model_name='opdictionary',
-            name='op_program',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='localinfo.opprogram', verbose_name='Programa de operación'),
-            preserve_default=False,
-        ),
     ]
