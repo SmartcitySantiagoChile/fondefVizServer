@@ -68,7 +68,7 @@ class ESProfileHelper(ElasticSearchHelper):
     def get_available_days(self, valid_operator_list):
         return self._get_available_days('expeditionStartTime', valid_operator_list)
 
-    def get_available_routes(self, valid_operator_list):
+    def get_available_routes(self, valid_operator_list, start_date=None, end_date=None):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
@@ -77,6 +77,12 @@ class ESProfileHelper(ElasticSearchHelper):
         else:
             raise ESQueryOperatorParameterDoesNotExist()
 
+        if start_date and end_date:
+            es_query = self.get_base_query().filter('range', startDate={
+                'gte': start_date,
+                'lte': end_date,
+                'format': 'yyyy-MM-dd'
+            })
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
 

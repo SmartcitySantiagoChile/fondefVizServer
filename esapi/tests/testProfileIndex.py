@@ -86,6 +86,35 @@ class ESProfileIndexTest(TestCase):
         self.assertDictEqual(result, {'1': {'506': ['506 00I']}})
         self.assertListEqual(operator_list, [1, 2])
 
+    @mock.patch('esapi.helper.profile.get_operator_list_for_select_input')
+    @mock.patch('esapi.helper.profile.ESProfileHelper.get_base_query')
+    def test_get_available_routes_with_start_and_end_date(self, get_base_query, get_operator_list_for_select_input):
+        hit = mock.Mock()
+        hit.to_dict.return_value = {
+            'key': '506 00I',
+            'additionalInfo': {
+                'hits': {
+                    'hits': [{'_source': {
+                        'operator': '1',
+                        'userRoute': '506'
+                    }}]
+                }
+            }
+        }
+        get_base_query.return_value = get_base_query
+        get_base_query.__getitem__.return_value = get_base_query
+        get_base_query.source.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.execute.return_value = get_base_query
+        type(get_base_query).aggregations = mock.PropertyMock(return_value=get_base_query)
+        type(get_base_query).route = mock.PropertyMock(return_value=get_base_query)
+        type(get_base_query).buckets = mock.PropertyMock(return_value=[hit])
+        get_operator_list_for_select_input.return_value = [1, 2]
+        result, operator_list = self.instance.get_available_routes(valid_operator_list=[1, 2, 3],
+                                                                   start_date="2020-01-01", end_date="2020-03-01")
+        self.assertDictEqual(result, {'1': {'506': ['506 00I']}})
+        self.assertListEqual(operator_list, [1, 2])
+
     def test_get_base_profile_by_expedition_data_query(self):
         dates = [[""]]
         day_type = ['LABORAL']
