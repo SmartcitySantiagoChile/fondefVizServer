@@ -108,7 +108,7 @@ $(document).ready(function () {
                 let date = selector.find(".date").first().val();
 
                 //update authroute list
-                let routeValues = _self.data[userRoute];
+                let routeValues = _self.data[date][userRoute];
                 route.empty();
                 route.select2({
                     data: routeValues.map(e => {
@@ -150,6 +150,26 @@ $(document).ready(function () {
                 let selector = $(this).closest(".selectorRow");
                 let date = selector.find(".date").first().val();
                 let periods = selector.find(".period").first();
+                let userRoutes = selector.find(".userRoute").first();
+
+                let params = {
+                    "op_program": date
+                };
+                //get user_routes
+                $.getJSON(Urls["esapi:shapeUserRoutes"](), params, function (data) {
+                    userRoutes.empty();
+                    _self.data[date] = data.user_routes;
+
+                    userRoutes.select2({
+                        data: Object.keys(_self.data[date]).map(e => {
+                            return {
+                                id: e,
+                                text: e
+                            }
+                        })
+                    });
+                    userRoutes.trigger("change");
+                });
 
                 //update periods list
                 let periodValues = _self.periods[_self.dates_period_dict[date]];
@@ -395,7 +415,8 @@ $(document).ready(function () {
 
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
-                _self.data = data.user_routes;
+                _self.data = {};
+                _self.data[data.dates[data.dates.length - 1]] = data.user_routes;
                 _self.dates_period_dict = data.dates_periods_dict;
                 _self.op_routes_dict = data.op_routes_dict;
                 _self.periods = data.periods;

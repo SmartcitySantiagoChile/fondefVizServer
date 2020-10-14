@@ -41,6 +41,8 @@ class GetBaseInfo(View):
 
     def get(self, request):
         # retrieve route list and available days
+        end_date = '2050-12-31'
+
         es_shape_helper = ESShapeHelper()
         es_stop_helper = ESStopByRouteHelper()
 
@@ -64,8 +66,9 @@ class GetBaseInfo(View):
 
         es_helper = ESProfileHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date="2019-06-07",
-                                                                   end_date="2019-09-08")
+        available_routes, op_dict = es_helper.get_available_routes(valid_operator_list,
+                                                                   start_date=dates[len(dates) - 1],
+                                                                   end_date=end_date)
         user_routes = defaultdict(list)
         for key in available_routes:
             for value in available_routes[key]:
