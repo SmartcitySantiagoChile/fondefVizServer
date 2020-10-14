@@ -131,15 +131,15 @@ def get_op_route(auth_route_code):
     return res
 
 
-def get_op_routes_dict():
+def get_op_routes_dict(key='auth_route_code', answer='route_type'):
     """
-    :return: dict {auth_route_code: route_type}
+    :return: dict {key: answer}
     """
     op_program_dict = get_opprogram_list_for_select_input(to_dict=True)
     routes_dict = defaultdict(lambda: defaultdict(list))
-    for auth_route_code, route_type, op_program in OPDictionary.objects.values_list('auth_route_code', 'route_type',
-                                                                                    'op_program_id'):
-        routes_dict[op_program_dict[op_program]][auth_route_code].append(route_type)
+    for op_key, op_answer, op_program in OPDictionary.objects.values_list(key, answer,
+                                                                          'op_program_id'):
+        routes_dict[op_program_dict[op_program]][op_key].append(op_answer)
     return routes_dict
 
 
