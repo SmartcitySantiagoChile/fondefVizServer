@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-
+from collections import defaultdict
 from datetime import datetime
 
 from django.http import JsonResponse
@@ -67,10 +66,10 @@ class GetBaseInfo(View):
         es_helper = ESProfileHelper()
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
         available_routes, op_dict = es_helper.get_available_routes(valid_operator_list)
-        user_routes = {}
+        user_routes = defaultdict(list)
         for key in available_routes:
             for value in available_routes[key]:
-                user_routes[value] = available_routes[key][value]
+                user_routes[value].extend(available_routes[key][value])
         op_routes_dict = get_op_routes_dict(key='auth_route_code', answer='op_route_code')
         response = {
             'dates': dates,
