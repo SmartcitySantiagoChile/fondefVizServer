@@ -374,7 +374,16 @@ $(document).ready(function () {
                         $INFOMODAL.modal("show");
                         $INFOMODAL.on('shown.bs.modal', function () {
                             let $TABLE = $('#shapeDetail').DataTable();
-                            $TABLE.clear().rows.add([data.data[period]]).draw();
+                            $TABLE.clear();
+                            if (period === 0) {
+                                data.data.forEach(function (e) {
+                                        $TABLE.rows.add(e)
+                                    }
+                                )
+                            } else {
+                                $TABLE.rows.add([data.data[period]]);
+                            }
+                            $TABLE.draw();
                             $(this).off('shown.bs.modal');
                         })
                     });

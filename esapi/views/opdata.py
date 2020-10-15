@@ -39,7 +39,7 @@ class OPDataByAuthRouteCode(View):
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
 
-            code = get_op_route(auth_code)
+            code = get_op_route(auth_code, dates[0][0])
             if not code:
                 raise ESQueryAuthRouteCodeTranslateDoesNotExist(auth_code)
 
