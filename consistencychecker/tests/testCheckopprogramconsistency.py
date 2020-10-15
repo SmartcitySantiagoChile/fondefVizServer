@@ -5,6 +5,7 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from esapi.errors import ESQueryStopListDoesNotExist, ESQueryRouteParameterDoesNotExist
+from localinfo.models import OPProgram
 
 
 class CheckopprogramconsistencyTest(TestCase):
@@ -31,6 +32,7 @@ class CheckopprogramconsistencyTest(TestCase):
     @mock.patch('consistencychecker.management.commands.checkopprogramconsistency.ESStopByRouteHelper')
     def test_command_output_missing_authcode_in_stop(self, stopbyroute_helper, stop_helper, shape_helper,
                                                      opdata_helper):
+        self.op_program = OPProgram.objects.create(valid_from='2020-05-03')
         shape_helper.return_value.get_available_days.return_value = ['2020-05-03']
         opdata_helper.return_value.get_available_days.return_value = ['2020-05-03']
         stop_helper.return_value.get_available_days.return_value = ['2020-05-03']
@@ -52,6 +54,7 @@ class CheckopprogramconsistencyTest(TestCase):
     def test_command_output_missing_authcode_in_opdata(self, stopbyroute_helper, stop_helper, shape_helper,
                                                        opdata_helper,
                                                        helper):
+        self.op_program = OPProgram.objects.create(valid_from='2020-05-03')
         shape_helper.return_value.get_available_days.return_value = ['2020-05-03']
         opdata_helper.return_value.get_available_days.return_value = ['2020-05-03']
         stop_helper.return_value.get_available_days.return_value = ['2020-05-03']

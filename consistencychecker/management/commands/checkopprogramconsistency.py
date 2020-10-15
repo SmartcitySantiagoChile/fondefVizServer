@@ -58,7 +58,7 @@ class Command(BaseCommand):
                 except ESQueryStopListDoesNotExist:
                     dates[date]['stop']['missing'].append(auth_route_code)
 
-                op_route_code = helper.get_op_route(auth_route_code)
+                op_route_code = helper.get_op_route(auth_route_code, date)
                 try:
                     data_list = opdata_helper.get_route_info(op_route_code, [[date]])
                 except ESQueryRouteParameterDoesNotExist:
