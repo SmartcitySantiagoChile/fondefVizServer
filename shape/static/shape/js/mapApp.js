@@ -325,6 +325,7 @@ $(document).ready(function () {
                 pageLength: 30,
                 retrieve: true,
                 orderable: false,
+                order: [],
                 dom: 'Brt',
                 buttons: [
                     {
@@ -377,10 +378,8 @@ $(document).ready(function () {
                         $INFOMODAL.on('shown.bs.modal', function () {
                             let $TABLE = $('#shapeDetail').DataTable();
                             $TABLE.clear();
-                            console.log(period);
                             if (period === "0") {
-                                for (const [key, value] of Object.entries(data.data)) {
-                                    console.log(value);
+                                for (const value of Object.values(data.data)) {
                                     $TABLE.rows.add([value]);
                                 }
                             } else {
