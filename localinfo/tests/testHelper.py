@@ -10,11 +10,7 @@ from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _di
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
     get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict, synchronize_op_program, \
     upload_xlsx_op_dictionary, get_opprogram_list_for_select_input
-
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
-
-
-from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ
 
 
 class TestHelperUtils(TestCase):
@@ -24,7 +20,6 @@ class TestHelperUtils(TestCase):
         self.path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files')
         self.test_faq = FAQ(question='¿Es esta una pregunta de prueba?', answer='Siempre lo fue', category='route')
         self.test_faq.save()
-
 
     def test_get_custom_routes_dict(self):
         valid_from = '2020-01-01'
@@ -47,7 +42,6 @@ class TestHelperUtils(TestCase):
         query = get_op_route(auth_code)
         self.assertEqual(op_code, query)
         op_program.delete()
-
 
     def test_get_op_route_wrong_code(self):
         self.assertIsNone(get_op_route('T0000'))
@@ -494,8 +488,6 @@ class TestHelperUtils(TestCase):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
         expected_list = [{'value': op_program.id, 'item': '2020-01-01'}]
         self.assertEqual(expected_list, get_opprogram_list_for_select_input())
-
-
 
     def test_get_get_periods_dict(self):
         expected_answer = {1: [{'value': 1, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
