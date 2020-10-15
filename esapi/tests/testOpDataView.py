@@ -35,7 +35,7 @@ class OPDataByAuthRouteCode(TestHelper):
         self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
     def test_wrong_auth_code(self):
-        self.data['dates'] = '[["2020-03-05"]]'
+        self.data['dates'] = '[["2020-01-01"]]'
         self.data['authRouteCode'] = '100000'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
@@ -47,7 +47,7 @@ class OPDataByAuthRouteCode(TestHelper):
         helper.get_route_info.return_value = helper
         unsorted_dict = [AttrDict({'timePeriod': 2}), AttrDict({'timePeriod': 1})]
         helper.execute.return_value = [AttrDict({'dayType': AttrList(unsorted_dict)})]
-        self.data['dates'] = '[["2020-03-05"]]'
+        self.data['dates'] = '[["2020-01-01"]]'
         self.data['authRouteCode'] = 'T101 00I'
         response = self.client.get(self.url, self.data)
         expected_dict = '{"1": {"timePeriod": "Pre nocturno (00:00:00-00:59:59)"}, "2": {"timePeriod": "Nocturno (01:00:00-05:29:59)"}}'

@@ -37,14 +37,20 @@ class TestHelperUtils(TestCase):
     def test_get_op_route(self):
         auth_code = 'T101 00I'
         op_code = '101I'
-        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        date = '2020-01-01'
+        op_program = OPProgram.objects.create(valid_from=date)
         OPDictionary.objects.create(auth_route_code=auth_code, op_route_code=op_code, op_program=op_program)
-        query = get_op_route(auth_code)
+        query = get_op_route(auth_code, date)
         self.assertEqual(op_code, query)
         op_program.delete()
 
     def test_get_op_route_wrong_code(self):
-        self.assertIsNone(get_op_route('T0000'))
+        auth_code = 'T101 00I'
+        op_code = '101I'
+        date = '2020-01-01'
+        op_program = OPProgram.objects.create(valid_from=date)
+        OPDictionary.objects.create(auth_route_code=auth_code, op_route_code=op_code, op_program=op_program)
+        self.assertIsNone(get_op_route('T0000', '2020-01-01'))
 
     def test__list_parser(self):
         test_list = [[1, 2], [3, 4]]

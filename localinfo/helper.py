@@ -119,13 +119,14 @@ def search_faq(searchText):
     return grouped
 
 
-def get_op_route(auth_route_code):
+def get_op_route(auth_route_code, date):
     """
     :param auth_route_code:
     :return: op_route_code matched with auth_route_code
     """
+    op_program_id = OPProgram.objects.get(valid_from=date)
     try:
-        res = OPDictionary.objects.get(auth_route_code=auth_route_code).op_route_code
+        res = OPDictionary.objects.get(auth_route_code=auth_route_code, op_program=op_program_id).op_route_code
     except OPDictionary.DoesNotExist:
         return None
     return res
