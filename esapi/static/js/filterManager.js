@@ -135,7 +135,6 @@ function FilterManager(opts) {
 
     const getOPDictBetweenDates = () => {
         let dates = getDates();
-        console.log(dates);
         if (dates.length === 0) {
             return 0;
         }
