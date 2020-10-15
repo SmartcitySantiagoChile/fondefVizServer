@@ -135,12 +135,14 @@ function FilterManager(opts) {
 
     const getOPDictBetweenDates = () => {
         let dates = getDates();
+        console.log(dates);
         if (dates.length === 0) {
             return 0;
         }
         let routesDict = operatorFilterData["routesDict"];
-        let firstDate = new Date(dates[0]);
-        let lastDate = new Date(dates.slice(-1).pop());
+        let firstDate = new Date(dates[0][0]);
+        let lastIndex = dates.length - 1;
+        let lastDate = new Date(dates[lastIndex][dates[lastIndex].length - 1]);
         let routesDictKeys = Object.keys(routesDict).sort();
         let periodDateValid = null;
         for (const date of routesDictKeys) {
