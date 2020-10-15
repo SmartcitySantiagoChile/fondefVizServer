@@ -174,6 +174,7 @@ $(document).ready(function () {
                 //update periods list
                 let periodValues = _self.periods[_self.dates_period_dict[date]];
                 periods.empty();
+                periods.append("<option value=0>Todos</option>");
                 periods.append(periodValues.map(e => `<option value=${e.value}>` + e.item + '</option>').join(""));
 
                 //set value
@@ -321,6 +322,7 @@ $(document).ready(function () {
                     decimal: ",",
                     thousands: "."
                 },
+                pageLength: 30,
                 retrieve: true,
                 orderable: false,
                 dom: 'Brt',
@@ -375,11 +377,12 @@ $(document).ready(function () {
                         $INFOMODAL.on('shown.bs.modal', function () {
                             let $TABLE = $('#shapeDetail').DataTable();
                             $TABLE.clear();
-                            if (period === 0) {
-                                data.data.forEach(function (e) {
-                                        $TABLE.rows.add(e)
-                                    }
-                                )
+                            console.log(period);
+                            if (period === "0") {
+                                for (const [key, value] of Object.entries(data.data)) {
+                                    console.log(value);
+                                    $TABLE.rows.add([value]);
+                                }
                             } else {
                                 $TABLE.rows.add([data.data[period]]);
                             }
