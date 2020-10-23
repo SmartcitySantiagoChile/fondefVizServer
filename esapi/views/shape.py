@@ -34,6 +34,8 @@ class GetRouteInfo(View):
                 'stops']
         except FondefVizError as e:
             response['status'] = e.get_status_response()
+            response['status']['title'] = 'Advertencia'
+            response['status']['type'] = 'warning'
         return JsonResponse(response)
 
 
