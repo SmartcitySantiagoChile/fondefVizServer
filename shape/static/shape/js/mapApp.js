@@ -1,5 +1,21 @@
 "use strict";
 $(document).ready(function () {
+    let reA = /[^a-zA-Z]/g;
+    let reN = /[^0-9]/g;
+
+    const sortAlphaNum = (a, b) => {
+        let aA = a.replace(reA, "");
+        let bA = b.replace(reA, "");
+        if (aA === bA) {
+            let aN = parseInt(a.replace(reN, ""), 10);
+            let bN = parseInt(b.replace(reN, ""), 10);
+            return aN === bN ? 0 : aN > bN ? 1 : -1;
+        } else {
+            return aA > bA ? 1 : -1;
+        }
+    };
+
+
     function MapShapeApp() {
         var _self = this;
         var mapOpts = {
@@ -159,9 +175,9 @@ $(document).ready(function () {
                 $.getJSON(Urls["esapi:shapeUserRoutes"](), params, function (data) {
                     userRoutes.empty();
                     _self.data[date] = data.user_routes;
-
+                    let dataList = Object.keys(_self.data[date]).sort(sortAlphaNum);
                     userRoutes.select2({
-                        data: Object.keys(_self.data[date]).map(e => {
+                        data: dataList.map(e => {
                             return {
                                 id: e,
                                 text: e
@@ -431,7 +447,9 @@ $(document).ready(function () {
                 _self.dates_period_dict = data.dates_periods_dict;
                 _self.op_routes_dict = data.op_routes_dict;
                 _self.periods = data.periods;
-                let userRouteList = Object.keys(data.user_routes).map(e =>
+                let userRouteList = (Object.keys(data.user_routes).sort(sortAlphaNum));
+                console.log(userRouteList);
+                userRouteList = userRouteList.map(e =>
                     "<option>" + e + "</option>"
                 ).join("");
                 let dateList = data.dates.reverse().map(function (el) {
