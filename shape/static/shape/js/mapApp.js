@@ -80,12 +80,14 @@ $(document).ready(function () {
             return div
         };
         timePeriodControl.addTo(mapInstance);
+
         $("#timePeriodButton").click(function () {
             let routeSelector = $("#routeListContainer");
             let periodInfoList = [];
             let requestList = [];
             routeSelector.children().each(function (index, el) {
                 let route = $(el).closest(".selectorRow").find(".route").val();
+                let routeText = $(el).closest(".selectorRow").find(".route").val(); // TODO: get text
                 let userRoute = $(el).closest(".selectorRow").find(".userRoute").val();
                 let date = $(el).closest(".selectorRow").find(".date").val();
                 date = date !== null ? [[date]] : [[]];
@@ -100,9 +102,9 @@ $(document).ready(function () {
                         } else {
                             console.log(data["data"]);
                             Object.entries(data["data"]).forEach(([key, value]) => {
-                                value["authRoute"] = route;
+                                value["authRoute"] = routeText;
                                 value["userRoute"] = userRoute;
-                                value["date"] = date[0];
+                                value["date"] = date[0][0];
                                 value["periodId"] = key;
                                 periodInfoList.push(value);
                             });
