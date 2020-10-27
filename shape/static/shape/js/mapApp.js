@@ -73,9 +73,56 @@ $(document).ready(function () {
             $("#helpModal").modal("show");
         });
 
+        let timePeriodControl = L.control({position: "topright"});
+        timePeriodControl.onAdd = function () {
+            let div = L.DomUtil.create("div", "info timePeriod");
+            div.innerHTML += '<button id="timePeriodButton" class="btn btn-default" ><span class="glyphicon glyphicon-time" aria-hidden="true"></span></button>';
+            return div
+        };
+        timePeriodControl.addTo(mapInstance);
+        $("#timePeriodButton").click(function () {
+            let routeSelector = $("#routeListContainer");
+            let periodInfoList = [];
+            let requestList = [];
+            routeSelector.children().each(function (index, el) {
+                let route = $(el).closest(".selectorRow").find(".route").val();
+                let userRoute = $(el).closest(".selectorRow").find(".userRoute").val();
+                let date = $(el).closest(".selectorRow").find(".date").val();
+                date = date !== null ? [[date]] : [[]];
+                let params = {
+                    authRouteCode: route,
+                    dates: JSON.stringify(date)
+                };
+                requestList.push(
+                    $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
+                        if (data.status) {
+                            showMessage(data.status);
+                        } else {
+                            console.log(data["data"]);
+                            Object.entries(data["data"]).forEach(([key, value]) => {
+                                value["authRoute"] = route;
+                                value["userRoute"] = userRoute;
+                                value["date"] = date[0];
+                                value["periodId"] = key;
+                                periodInfoList.push(value);
+                            });
+                        }
+                    })
+                );
+            });
+            $.when(...requestList).then(
+                function () {
+                    console.log(periodInfoList);
+                }
+            );
+            //$("#helpModal").modal("show");
+        });
+
+
         L.control.zoom({
             position: 'topright'
         }).addTo(mapInstance);
+
 
         var $ROW_CONTAINER = $("#routeListContainer");
 
