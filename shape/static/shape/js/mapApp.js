@@ -109,6 +109,12 @@ $(document).ready(function () {
                     stops: data.stops,
                     route: route
                 });
+
+                // update color
+                let $COLOR_BUTTON = $(`#colorSelect-${layerId}`);
+                let color = $COLOR_BUTTON.css("color");
+                updateLayerColor(color, layerId);
+
             });
         };
 
@@ -244,29 +250,33 @@ $(document).ready(function () {
             });
         };
 
+        const updateLayerColor = (color, layerId) => {
+            layers[layerId].eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    var iconOpts = layer.options.icon.options;
+                    iconOpts.borderColor = color;
+                    iconOpts.textColor = color;
+                    var newIcon = L.BeautifyIcon.icon(iconOpts);
+                    layer.setIcon(newIcon);
+                    // console.log("bus stop");
+                } else if (layer instanceof L.Polyline) {
+                    // console.log("polyline");
+                    layer.setStyle({color: color});
+                } else if (layer instanceof L.PolylineDecorator) {
+                    // console.log("polylinedecorator");
+                    layer.setStyle({color: color});
+                    layer.options.patterns[0].symbol.options.pathOptions.color = color;
+                }
+            });
+        };
+
         this.refreshColorPickerButton = function () {
             var $COLOR_BUTTON = $(".selectorRow .btn-default");
             $COLOR_BUTTON.off("changeColor");
             $COLOR_BUTTON.colorpicker({format: "rgb"}).on("changeColor", function (e) {
                 var color = e.color.toString("rgba");
                 var layerId = $(this).parent().data("id");
-                layers[layerId].eachLayer(function (layer) {
-                    if (layer instanceof L.Marker) {
-                        var iconOpts = layer.options.icon.options;
-                        iconOpts.borderColor = color;
-                        iconOpts.textColor = color;
-                        var newIcon = L.BeautifyIcon.icon(iconOpts);
-                        layer.setIcon(newIcon);
-                        // console.log("bus stop");
-                    } else if (layer instanceof L.Polyline) {
-                        // console.log("polyline");
-                        layer.setStyle({color: color});
-                    } else if (layer instanceof L.PolylineDecorator) {
-                        // console.log("polylinedecorator");
-                        layer.setStyle({color: color});
-                        layer.options.patterns[0].symbol.options.pathOptions.color = color;
-                    }
-                });
+                updateLayerColor(color, layerId);
                 $(this).css("color", color);
             });
         };
@@ -417,7 +427,7 @@ $(document).ready(function () {
                 `<select id=dateSelect-${newId} class="form-control date">` + dateList + '</select>' +
                 `<select id=userRouteSelect-${newId} class="form-control userRoute">` + userRouteList + '</select>' +
                 `<select id=routeSelect-${newId} class="form-control route"></select>` +
-                '<button class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>' +
+                `<button id=colorSelect-${newId} class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
                 `<select id=periodSelect-${newId} class="form-control period"></select>` +
@@ -448,7 +458,6 @@ $(document).ready(function () {
                 _self.op_routes_dict = data.op_routes_dict;
                 _self.periods = data.periods;
                 let userRouteList = (Object.keys(data.user_routes).sort(sortAlphaNum));
-                console.log(userRouteList);
                 userRouteList = userRouteList.map(e =>
                     "<option>" + e + "</option>"
                 ).join("");
