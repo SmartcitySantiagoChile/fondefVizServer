@@ -87,7 +87,7 @@ $(document).ready(function () {
             let requestList = [];
             routeSelector.children().each(function (index, el) {
                 let route = $(el).closest(".selectorRow").find(".route").val();
-                let routeText = $(el).closest(".selectorRow").find(".route").val(); // TODO: get text
+                let routeText = $(el).closest(".selectorRow").find(".route option:selected").text();
                 let userRoute = $(el).closest(".selectorRow").find(".userRoute").val();
                 let date = $(el).closest(".selectorRow").find(".date").val();
                 date = date !== null ? [[date]] : [[]];
@@ -114,7 +114,17 @@ $(document).ready(function () {
             });
             $.when(...requestList).then(
                 function () {
-                    console.log(periodInfoList);
+                    let $INFOMODAL = $("#shape_info");
+                    $INFOMODAL.modal("show");
+                    $INFOMODAL.on('shown.bs.modal', function () {
+                        let $TABLE = $('#shapeDetail').DataTable();
+                        $TABLE.clear();
+                        for (const value of Object.values(periodInfoList)) {
+                            $TABLE.rows.add([value]);
+                        }
+                        $TABLE.draw();
+                        $(this).off('shown.bs.modal');
+                    });
                 }
             );
             //$("#helpModal").modal("show");
@@ -419,6 +429,9 @@ $(document).ready(function () {
                     }
                 ],
                 columns: [
+                    {title: "Programa de Operación", data: "date", searchable: true},
+                    {title: "Servicio Usuario", data: "userRoute", searchable: true},
+                    {title: "Servicio Sonda", data: "authRoute", searchable: true},
                     {title: "Periodo Transantiago", data: "timePeriod", searchable: false},
                     {title: "Inicio", data: "startPeriodTime", searchable: false},
                     {title: "Fin", data: "endPeriodTime", searchable: false},
