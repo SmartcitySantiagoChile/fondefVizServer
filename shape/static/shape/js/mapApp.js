@@ -127,7 +127,6 @@ $(document).ready(function () {
                     });
                 }
             );
-            //$("#helpModal").modal("show");
         });
 
 
@@ -402,16 +401,20 @@ $(document).ready(function () {
         this.addTableInfo = function () {
             let $TABLE = $('#shapeDetail');
             $TABLE.DataTable({
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
                     decimal: ",",
                     thousands: "."
                 },
-                pageLength: 30,
+
+                pageLength: 28,
+                paging: true,
                 retrieve: true,
                 orderable: false,
+                searching: true,
                 order: [],
-                dom: 'Brt',
+                dom: 'fBriptpi',
                 buttons: [
                     {
                         extend: "excelHtml5",
@@ -419,7 +422,7 @@ $(document).ready(function () {
                         title: 'datos_de_ruta',
                         className: "buttons-excel buttons-html5 btn btn-success",
                         exportOptions: {
-                            columns: [1, 2, 3, 4, 5, 6]
+                            columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
                         }
                     },
                     {
@@ -439,7 +442,8 @@ $(document).ready(function () {
                     {title: "Capacidad [Plazas/h]", data: "capacity", searchable: false},
                     {title: "Distancia [km]", data: "distance", searchable: false},
                     {title: "Velocidad [km/h]", data: "speed", searchable: false},
-                ]
+                ],
+
             });
         };
 
@@ -501,7 +505,7 @@ $(document).ready(function () {
             _self.refreshColorPickerButton();
             _self.refreshVisibilityRoutesButton();
             _self.refreshVisibilityStopsButton();
-            _self.refreshInfoButton();
+            //_self.refreshInfoButton();
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
