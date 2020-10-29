@@ -201,9 +201,8 @@ $(document).ready(function () {
                     route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
                     $(this).data("first", false);
                 }
-                if ($PERIOD.val() != null) {
-                    _self.sendData(this);
-                }
+                _self.sendData(this);
+
             });
 
             // handle route selector
@@ -214,16 +213,12 @@ $(document).ready(function () {
             });
 
 
-            let $PERIOD = $(`#periodSelect-${id}`);
-            $PERIOD.off("change");
-
             // handle date selector
             let $DATE = $(`#dateSelect-${id}`);
             $DATE.off("change");
             $DATE.change(function () {
                 let selector = $(this).closest(".selectorRow");
                 let date = selector.find(".date").first().val();
-                let periods = selector.find(".period").first();
                 let userRoutes = selector.find(".userRoute").first();
 
                 let params = {
@@ -245,17 +240,8 @@ $(document).ready(function () {
                     userRoutes.trigger("change");
                 });
 
-                //update periods list
-                let periodValues = _self.periods[_self.dates_period_dict[date]];
-                periods.empty();
-                periods.append("<option value=0>Todos</option>");
-                periods.append(periodValues.map(e => `<option value=${e.value}>` + e.item + '</option>').join(""));
-
                 //set value
-                let allSelectors = $(".selectorRow");
-                let selectorIndex = allSelectors.index(selector);
                 if ($(this).data("first") === true) {
-                    periods.val(allSelectors.slice(selectorIndex - 1).find(".period").first().val());
                     $(this).data("first", false);
                 }
 
@@ -277,7 +263,7 @@ $(document).ready(function () {
                 $("#header").css('display', "block");
             }
             $USER_ROUTE.trigger("change");
-            $DATE.trigger("change");
+            //$DATE.trigger("change");
 
         };
 
@@ -404,9 +390,8 @@ $(document).ready(function () {
                 pageLength: 28,
                 paging: true,
                 retrieve: true,
-                orderable: false,
                 searching: true,
-                order: [],
+                order: [[0, "asc"], [1, "asc"] , [2, "asc"]],
                 dom: 'Bfri<"periodSelector">ptpi',
                 buttons: [
                     {
