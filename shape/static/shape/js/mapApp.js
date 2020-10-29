@@ -51,7 +51,6 @@ $(document).ready(function () {
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                '<button class="btn btn-default-white btn-sm period" >Periodo</button>' +
                 '</div>' +
                 '</div>' +
                 '</div>' +
@@ -100,7 +99,6 @@ $(document).ready(function () {
                         if (data.status) {
                             showMessage(data.status);
                         } else {
-                            console.log(data["data"]);
                             Object.entries(data["data"]).forEach(([key, value]) => {
                                 value["authRoute"] = routeText;
                                 value["userRoute"] = userRoute;
@@ -401,7 +399,6 @@ $(document).ready(function () {
         this.addTableInfo = function () {
             let $TABLE = $('#shapeDetail');
             $TABLE.DataTable({
-                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
                     decimal: ",",
@@ -414,7 +411,7 @@ $(document).ready(function () {
                 orderable: false,
                 searching: true,
                 order: [],
-                dom: 'fBriptpi',
+                dom: 'Bfri<"periodSelector">ptpi',
                 buttons: [
                     {
                         extend: "excelHtml5",
@@ -435,7 +432,7 @@ $(document).ready(function () {
                     {title: "Programa de Operación", data: "date", searchable: true},
                     {title: "Servicio Usuario", data: "userRoute", searchable: true},
                     {title: "Servicio Sonda", data: "authRoute", searchable: true},
-                    {title: "Periodo Transantiago", data: "timePeriod", searchable: false},
+                    {title: "Periodo Transantiago", data: "timePeriod", searchable: true},
                     {title: "Inicio", data: "startPeriodTime", searchable: false},
                     {title: "Fin", data: "endPeriodTime", searchable: false},
                     {title: "Frecuencia [Bus/h]", data: "frecuency", searchable: false},
@@ -443,46 +440,27 @@ $(document).ready(function () {
                     {title: "Distancia [km]", data: "distance", searchable: false},
                     {title: "Velocidad [km/h]", data: "speed", searchable: false},
                 ],
+                createdRow: function () {
+                    this.api().columns([3]).every(function () {
+                        let column = this;
+                        let select =$('<select style="width: 400px;"><option value="">Todos los periodos transantiago</option></select>')
+                            .appendTo($(".periodSelector").empty())
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
 
-            });
-        };
-
-        this.refreshInfoButton = function () {
-            let $INFO_BUTTON = $(".selectorRow .showInfo");
-            $INFO_BUTTON.off("click");
-            $INFO_BUTTON.click(function () {
-                    let route = $(this).closest(".selectorRow").find(".route").val();
-                    let date = $(this).closest(".selectorRow").find(".date").val();
-                    let period = $(this).closest(".selectorRow").find(".period").val();
-                    date = date !== null ? [[date]] : [[]];
-                    let params = {
-                        authRouteCode: route,
-                        dates: JSON.stringify(date)
-                    };
-                    $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
-                        if (data.status) {
-                            showMessage(data.status);
-                            return;
-                        }
-                        $INFO_BUTTON.blur();
-                        let $INFOMODAL = $("#shape_info");
-                        $INFOMODAL.modal("show");
-                        $INFOMODAL.on('shown.bs.modal', function () {
-                            let $TABLE = $('#shapeDetail').DataTable();
-                            $TABLE.clear();
-                            if (period === "0") {
-                                for (const value of Object.values(data.data)) {
-                                    $TABLE.rows.add([value]);
-                                }
-                            } else {
-                                $TABLE.rows.add([data.data[period]]);
-                            }
-                            $TABLE.draw();
-                            $(this).off('shown.bs.modal');
-                        })
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+                        select.select2({width: 'element'});
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
                     });
                 }
-            );
+            });
         };
 
         this.addRow = function (dateList, userRouteList) {
@@ -496,7 +474,6 @@ $(document).ready(function () {
                 `<button id=colorSelect-${newId} class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
-                `<select id=periodSelect-${newId} class="form-control period"></select>` +
                 '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '</div>';
             $ROW_CONTAINER.append(row);
@@ -505,7 +482,6 @@ $(document).ready(function () {
             _self.refreshColorPickerButton();
             _self.refreshVisibilityRoutesButton();
             _self.refreshVisibilityStopsButton();
-            //_self.refreshInfoButton();
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
