@@ -144,7 +144,6 @@ $(document).ready(function () {
                 route: route,
                 operationProgramDate: date
             };
-
             $.getJSON(Urls["esapi:shapeRoute"](), params, function (data) {
                 if (data.status) {
                     showMessage(data.status);
@@ -243,10 +242,6 @@ $(document).ready(function () {
                 //set value
                 if ($(this).data("first") === true) {
                     $(this).data("first", false);
-                }
-
-                if ($ROUTE.val() != null) {
-                    _self.sendData(this);
                 }
             });
 
