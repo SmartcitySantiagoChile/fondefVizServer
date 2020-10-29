@@ -481,8 +481,10 @@ $(document).ready(function () {
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
 
-//            $ROW_CONTAINER.find(".form-control").last().change();
-            $(".form-control").select2({width: 'element'});
+            //$ROW_CONTAINER.find(".form-control").last().change();
+            $(`#dateSelect-${newId}`).select2({width: 'element'});
+            $(`#userRouteSelect-${newId}`).select2({width: 'element'});
+            $(`#routeSelect-${newId}`).select2({width: 'element'});
         };
 
         this.loadBaseData = function () {
