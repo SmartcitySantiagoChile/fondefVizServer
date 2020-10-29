@@ -90,5 +90,10 @@
 }
 
 .modal-lg {
-    width: 1600px; !important;
+    width: 1600px;
+!important;
+}
+
+#timePeriodButton {
+    float:right;
 }

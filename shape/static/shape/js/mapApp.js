@@ -41,7 +41,10 @@ $(document).ready(function () {
         routeListControl.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
-                '<div id="header" class="form-inline" style="display: none">' +
+                '<div id="header" style="display: none">' +
+                '<div class="form-inline" >' +
+                '<button id="timePeriodButton" class="btn btn-default" ><span class="glyphicon glyphicon-time" aria-hidden="true"></span></button>' + '</div>' +
+                '<div class="form-inline" >' +
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
@@ -51,6 +54,7 @@ $(document).ready(function () {
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+                '</div>' +
                 '</div>' +
                 '</div>' +
                 '</div>' +
@@ -71,14 +75,6 @@ $(document).ready(function () {
         $("#helpButton").click(function () {
             $("#helpModal").modal("show");
         });
-
-        let timePeriodControl = L.control({position: "topright"});
-        timePeriodControl.onAdd = function () {
-            let div = L.DomUtil.create("div", "info timePeriod");
-            div.innerHTML += '<button id="timePeriodButton" class="btn btn-default" ><span class="glyphicon glyphicon-time" aria-hidden="true"></span></button>';
-            return div
-        };
-        timePeriodControl.addTo(mapInstance);
 
         $("#timePeriodButton").click(function () {
             let routeSelector = $("#routeListContainer");
@@ -443,7 +439,7 @@ $(document).ready(function () {
                 createdRow: function () {
                     this.api().columns([3]).every(function () {
                         let column = this;
-                        let select =$('<select style="width: 400px;"><option value="">Todos los periodos transantiago</option></select>')
+                        let select = $('<select style="width: 400px;"><option value="">Todos los periodos transantiago</option></select>')
                             .appendTo($(".periodSelector").empty())
                             .on('change', function () {
                                 var val = $.fn.dataTable.util.escapeRegex(
@@ -474,7 +470,6 @@ $(document).ready(function () {
                 `<button id=colorSelect-${newId} class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 '<button class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>' +
                 '<button class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>' +
-                '<button class="btn btn-success btn-sm showInfo" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' +
                 '</div>';
             $ROW_CONTAINER.append(row);
             _self.refreshControlEvents(newId);
