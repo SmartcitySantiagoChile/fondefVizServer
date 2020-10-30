@@ -409,7 +409,12 @@ $(document).ready(function () {
                     {title: "Programa de Operación", data: "date", searchable: true},
                     {title: "Servicio Usuario", data: "userRoute", searchable: true},
                     {title: "Servicio Sonda", data: "authRoute", searchable: true},
-                    {title: "Periodo Transantiago", data: "timePeriod", searchable: true},
+                    {
+                        title: "Periodo Transantiago", data: "timePeriod", searchable: true,
+                        render: function (data) {
+                            return data.replace(/ *\([^)]*\) */g, "");
+                        }
+                    },
                     {title: "Inicio", data: "startPeriodTime", searchable: false},
                     {title: "Fin", data: "endPeriodTime", searchable: false},
                     {title: "Frecuencia [Bus/h]", data: "frecuency", searchable: false},
@@ -439,7 +444,7 @@ $(document).ready(function () {
                         })
                         ;
                         column.data().unique().sort().each(function (d, j) {
-                            select.append('<option value="' + d + '">' + d + '</option>')
+                            select.append('<option value="' + d.replace(/ *\([^)]*\) */g, "") + '">' + d + '</option>')
                         });
                     });
                 }
