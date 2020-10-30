@@ -185,7 +185,8 @@ $(document).ready(function () {
                 route.empty();
                 route.select2({
                     data: routeValues.map(e => {
-                        let text = _self.op_routes_dict[date][e] || e;
+                        let date_dict = _self.op_routes_dict[date] || {};
+                        let text = date_dict[e] || e;
                         text = text === e ? e : `${text} (${e})`;
                         return {
                             id: e,
@@ -386,8 +387,8 @@ $(document).ready(function () {
                 paging: true,
                 retrieve: true,
                 searching: true,
-                order: [[0, "asc"], [1, "asc"] , [2, "asc"]],
-                dom: 'Bfri<"periodSelector">ptpi',
+                order: [[0, "asc"], [1, "asc"], [2, "asc"]],
+                dom: 'Bfr<"periodSelector">iptpi',
                 buttons: [
                     {
                         extend: "excelHtml5",
@@ -419,18 +420,24 @@ $(document).ready(function () {
                 createdRow: function () {
                     this.api().columns([3]).every(function () {
                         let column = this;
-                        let select = $('<select style="width: 400px;"><option value="">Todos los periodos transantiago</option></select>')
+                        let select = $('<select id="periodTimeSelector" multiple="multiple" style="width: 400px; height: 60px"></select>')
                             .appendTo($(".periodSelector").empty())
                             .on('change', function () {
-                                var val = $.fn.dataTable.util.escapeRegex(
-                                    $(this).val()
-                                );
-
+                                let selectedValues = $(this).val() || [];
+                                let regexValues = selectedValues.map(e => $.fn.dataTable.util.escapeRegex(e));
+                                regexValues = regexValues.map(e => `^${e}$`);
+                                let query = regexValues.join("|");
                                 column
-                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .search(query, true, false)
                                     .draw();
                             });
-                        select.select2({width: 'element'});
+                        select.select2({
+                            width: 'element',
+                            height: 'element',
+                            placeholder: " Filtrar según periodo transantiago",
+
+                        })
+                        ;
                         column.data().unique().sort().each(function (d, j) {
                             select.append('<option value="' + d + '">' + d + '</option>')
                         });
