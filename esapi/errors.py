@@ -163,7 +163,9 @@ class ESQueryStopListDoesNotExist(FondefVizError):
 
     def __init__(self):
         message = 'No existe secuencia de paradas para el servicio'
-        super(ESQueryStopListDoesNotExist, self).__init__(414, message)
+        title = "Advertencia"
+        message_type = 'warning'
+        super(ESQueryStopListDoesNotExist, self).__init__(414, message, title, message_type)
 
 
 class ESQueryShapeDoesNotExist(FondefVizError):
@@ -171,7 +173,9 @@ class ESQueryShapeDoesNotExist(FondefVizError):
 
     def __init__(self):
         message = 'No existe la geometría para el servicio'
-        super(ESQueryShapeDoesNotExist, self).__init__(415, message)
+        title = "Advertencia"
+        message_type = 'warning'
+        super(ESQueryShapeDoesNotExist, self).__init__(415, message, title, message_type)
 
 
 class ESQueryDateParametersDoesNotExist(FondefVizError):
