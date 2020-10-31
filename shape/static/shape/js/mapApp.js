@@ -322,14 +322,8 @@ $(document).ready(function () {
             });
         };
 
-        this.refreshVisibilityRoutesButton = function () {
-            var $VISIBILITY_BUTTON = $(".selectorRow .visibility-routes");
-            $VISIBILITY_BUTTON.off("click");
-            $VISIBILITY_BUTTON.click(function () {
-                var button = $(this);
-                var span = button.find("span");
-                var layerId = button.parent().data("id");
-                if (span.hasClass("glyphicon-eye-open")) {
+        const updateLayerRoutes = (update, layerId, button, span) => {
+            if (update) {
                     button.removeClass("btn-success").addClass("btn-warning");
                     span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
                     layers[layerId].eachLayer(function (layer) {
@@ -350,6 +344,18 @@ $(document).ready(function () {
                         }
                     });
                 }
+        };
+
+        this.refreshVisibilityRoutesButton = function () {
+            var $VISIBILITY_BUTTON = $(".selectorRow .visibility-routes");
+            $VISIBILITY_BUTTON.off("click");
+            $VISIBILITY_BUTTON.click(function () {
+                var button = $(this);
+                var span = button.find("span");
+                var layerId = button.parent().data("id");
+                let openEye = span.hasClass("glyphicon-eye-open");
+                updateLayerRoutes(openEye, layerId, button, span);
+
             });
         };
 
