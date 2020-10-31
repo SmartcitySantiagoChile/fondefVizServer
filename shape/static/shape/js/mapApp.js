@@ -43,7 +43,7 @@ $(document).ready(function () {
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="header" style="display: none">' +
                 '<div class="form-inline" >' +
-                '<button id="timePeriodButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>' + '</div>' +
+                '<button id="timePeriodButton" class="btn btn-default" ><span class="fa fa-bus" aria-hidden="true"> Ver información operacional </span></button>' + '</div>' +
                 '<div class="form-inline" >' +
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
@@ -80,6 +80,8 @@ $(document).ready(function () {
             let routeSelector = $("#routeListContainer");
             let periodInfoList = [];
             let requestList = [];
+            let uniqueInfoSet = new Set();
+
             routeSelector.children().each(function (index, el) {
                 let route = $(el).closest(".selectorRow").find(".route").val();
                 let routeText = $(el).closest(".selectorRow").find(".route option:selected").text();
@@ -90,21 +92,25 @@ $(document).ready(function () {
                     authRouteCode: route,
                     dates: JSON.stringify(date)
                 };
-                requestList.push(
-                    $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
-                        if (data.status) {
-                            showMessage(data.status);
-                        } else {
-                            Object.entries(data["data"]).forEach(([key, value]) => {
-                                value["authRoute"] = routeText;
-                                value["userRoute"] = userRoute;
-                                value["date"] = date[0][0];
-                                value["periodId"] = key;
-                                periodInfoList.push(value);
-                            });
-                        }
-                    })
-                );
+                let info = date[0][0] + route;
+                if (!uniqueInfoSet.has(info)) {
+                    uniqueInfoSet.add(info);
+                    requestList.push(
+                        $.getJSON(Urls["esapi:opdataAuthRoute"](), params, function (data) {
+                            if (data.status) {
+                                showMessage(data.status);
+                            } else {
+                                Object.entries(data["data"]).forEach(([key, value]) => {
+                                    value["authRoute"] = routeText;
+                                    value["userRoute"] = userRoute;
+                                    value["date"] = date[0][0];
+                                    value["periodId"] = key;
+                                    periodInfoList.push(value);
+                                });
+                            }
+                        })
+                    );
+                }
             });
             $.when(...requestList).then(
                 function () {
@@ -113,6 +119,7 @@ $(document).ready(function () {
                     $INFOMODAL.on('shown.bs.modal', function () {
                         let $TABLE = $('#shapeDetail').DataTable();
                         $TABLE.clear();
+                        console.log(periodInfoList);
                         for (const value of Object.values(periodInfoList)) {
                             $TABLE.rows.add([value]);
                         }
