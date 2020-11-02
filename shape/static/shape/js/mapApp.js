@@ -273,9 +273,19 @@ $(document).ready(function () {
                 $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
                 $USER_ROUTE.data("first", true);
 
+                let color = lastSelected.find(".glyphicon-tint").css("color");
+                $(`#colorSelect-${id}`).css("color", color);
+                console.log(color);
+                let routesButton = lastSelected.find(".visibility-routes").find("span");
+                $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
+                let stopButton = lastSelected.find(".visibility-stops");
+                $(`#visibilityStops-${id}`).removeClass().addClass(stopButton.attr("class"));
+
+
             } else {
                 $("#header").css('display', "block");
-            }
+            }$scope.$broadcast('', );
+            
             $USER_ROUTE.trigger("change");
             //$DATE.trigger("change");
 
@@ -398,7 +408,7 @@ $(document).ready(function () {
                 let span = button.find("span");
                 let layerId = button.parent().data("id");
                 let active = button.hasClass("btn-success");
-                updateStopRoutes(active,layerId, button, span);
+                updateStopRoutes(active, layerId, button, span);
             });
         };
 
@@ -490,7 +500,7 @@ $(document).ready(function () {
                 `<select id=dateSelect-${newId} class="form-control date">` + dateList + '</select>' +
                 `<select id=userRouteSelect-${newId} class="form-control userRoute">` + userRouteList + '</select>' +
                 `<select id=routeSelect-${newId} class="form-control route"></select>` +
-                `<button id=colorSelect-${newId} class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
+                `<button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 `<button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>` +
                 `<button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>` +
                 '</div>';
