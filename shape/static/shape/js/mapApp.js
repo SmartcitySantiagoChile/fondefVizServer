@@ -119,7 +119,6 @@ $(document).ready(function () {
                     $INFOMODAL.on('shown.bs.modal', function () {
                         let $TABLE = $('#shapeDetail').DataTable();
                         $TABLE.clear();
-                        console.log(periodInfoList);
                         for (const value of Object.values(periodInfoList)) {
                             $TABLE.rows.add([value]);
                         }
@@ -324,26 +323,26 @@ $(document).ready(function () {
 
         const updateLayerRoutes = (update, layerId, button, span) => {
             if (update) {
-                    button.removeClass("btn-success").addClass("btn-warning");
-                    span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
-                    layers[layerId].eachLayer(function (layer) {
-                        if (layer instanceof L.Polyline) {
-                            mapInstance.removeLayer(layer);
-                        } else if (layer instanceof L.PolylineDecorator) {
-                            mapInstance.removeLayer(layer);
-                        }
-                    });
-                } else {
-                    button.removeClass("btn-warning").addClass("btn-success");
-                    span.removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
-                    layers[layerId].eachLayer(function (layer) {
-                        if (layer instanceof L.Polyline) {
-                            mapInstance.addLayer(layer);
-                        } else if (layer instanceof L.PolylineDecorator) {
-                            mapInstance.addLayer(layer);
-                        }
-                    });
-                }
+                button.removeClass("btn-success").addClass("btn-warning");
+                span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
+                layers[layerId].eachLayer(function (layer) {
+                    if (layer instanceof L.Polyline) {
+                        mapInstance.removeLayer(layer);
+                    } else if (layer instanceof L.PolylineDecorator) {
+                        mapInstance.removeLayer(layer);
+                    }
+                });
+            } else {
+                button.removeClass("btn-warning").addClass("btn-success");
+                span.removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
+                layers[layerId].eachLayer(function (layer) {
+                    if (layer instanceof L.Polyline) {
+                        mapInstance.addLayer(layer);
+                    } else if (layer instanceof L.PolylineDecorator) {
+                        mapInstance.addLayer(layer);
+                    }
+                });
+            }
         };
 
         this.refreshVisibilityRoutesButton = function () {
@@ -454,10 +453,12 @@ $(document).ready(function () {
                             height: 'element',
                             placeholder: " Filtrar según periodo transantiago",
 
-                        })
-                        ;
-                        column.data().unique().sort().each(function (d, j) {
-                            select.append('<option value="' + d.replace(/ *\([^)]*\) */g, "") + '">' + d + '</option>')
+                        });
+                        let selectorValues = [];
+                        column.data().each(e => selectorValues.push(e.replace(/ *\([^)]*\) */g, "")));
+                        selectorValues = new Set(selectorValues);
+                        selectorValues.forEach(function (d, j) {
+                            select.append('<option value="' + d.replace(/ *\([^)]*\) */g, "") + '">' + d.replace(/ *\([^)]*\) */g, "") + '</option>')
                         });
                     });
                 }
