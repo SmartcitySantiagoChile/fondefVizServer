@@ -284,7 +284,7 @@ $(document).ready(function () {
 
             } else {
                 $("#header").css('display', "block");
-            }$scope.$broadcast('', );
+            }
             
             $USER_ROUTE.trigger("change");
             //$DATE.trigger("change");
