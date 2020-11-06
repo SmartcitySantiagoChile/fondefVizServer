@@ -353,7 +353,7 @@
     "fields": {
       "dayType": "Laboral",
       "esId": "30",
-      "authorityPeriodName": "Pre Nocturno",
+      "authorityPeriodName": "Pre nocturno",
       "initialTime": "00:00:00",
       "endTime": "00:59:59 ",
       "date_id": 2
