@@ -139,10 +139,11 @@ function FilterManager(opts) {
             return 0;
         }
         let routesDict = operatorFilterData["routesDict"];
+        let opProgramDates = operatorFilterData["opProgramDates"];
         let firstDate = new Date(dates[0][0]);
         let lastIndex = dates.length - 1;
         let lastDate = new Date(dates[lastIndex][dates[lastIndex].length - 1]);
-        let routesDictKeys = Object.keys(routesDict).sort();
+        let routesDictKeys = Object.values(opProgramDates).sort();
         let periodDateValid = null;
         for (const date of routesDictKeys) {
             let validDate = new Date(date);
@@ -156,7 +157,8 @@ function FilterManager(opts) {
         }
         if (periodDateValid) {
             periodDateValid = periodDateValid.toISOString().slice(0, 10);
-            return routesDict[periodDateValid];
+            let response = routesDict[periodDateValid];
+            return response ? response : {};
         }
 
         return null;
