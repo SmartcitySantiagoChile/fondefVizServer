@@ -53,7 +53,8 @@ class AvailableRoutesTest(TestHelper):
                 }
             },
             'operatorDict': [],
-            'routesDict': {}
+            'routesDict': {},
+            'opProgramDates': {}
         }
         self.assertJSONEqual(response.content, expected)
 

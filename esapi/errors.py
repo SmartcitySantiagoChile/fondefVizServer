@@ -163,7 +163,9 @@ class ESQueryStopListDoesNotExist(FondefVizError):
 
     def __init__(self):
         message = 'No existe secuencia de paradas para el servicio'
-        super(ESQueryStopListDoesNotExist, self).__init__(414, message)
+        title = "Advertencia"
+        message_type = 'warning'
+        super(ESQueryStopListDoesNotExist, self).__init__(414, message, title, message_type)
 
 
 class ESQueryShapeDoesNotExist(FondefVizError):
@@ -171,7 +173,9 @@ class ESQueryShapeDoesNotExist(FondefVizError):
 
     def __init__(self):
         message = 'No existe la geometría para el servicio'
-        super(ESQueryShapeDoesNotExist, self).__init__(415, message)
+        title = "Advertencia"
+        message_type = 'warning'
+        super(ESQueryShapeDoesNotExist, self).__init__(415, message, title, message_type)
 
 
 class ESQueryDateParametersDoesNotExist(FondefVizError):
@@ -212,3 +216,13 @@ class ESQueryAuthRouteCodeTranslateDoesNotExist(FondefVizError):
     def __init__(self, limit_number):
         message = 'El código de ruta {0} no existe en el diccionario de PO.'.format(limit_number)
         super(ESQueryAuthRouteCodeTranslateDoesNotExist, self).__init__(420, message)
+
+
+class ESQueryResultEmptyRoute(FondefVizError):
+    """ It raises when user send an auth route code that does not get results """
+
+    def __init__(self, route):
+        message = 'La consulta por el servicio {0} no arrojó resultados'.format(route)
+        title = 'Información'
+        message_type = 'info'
+        super(ESQueryResultEmptyRoute, self).__init__(403, message, title, message_type)
