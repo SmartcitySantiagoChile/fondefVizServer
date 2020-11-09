@@ -190,6 +190,7 @@ function FilterManager(opts) {
 
         } else if (validOpDict !== 0) {
             $OPERATOR_FILTER.select2({data: operatorFilterData["operatorDict"]});
+            console.log(operatorFilterData);
             let localOperatorFilter = window.localStorage.getItem(urlKey + "operatorFilter");
             if (localOperatorFilter) {
                 localOperatorFilter = JSON.parse(localOperatorFilter);
@@ -235,6 +236,32 @@ function FilterManager(opts) {
 
             }
         }
+    };
+
+    const updateOperatorFilterData = function () {
+        let dates = getDates();
+        let startDate = dates[0][0];
+        let lastIndex = dates.length - 1;
+        let endDate = dates[lastIndex][dates[lastIndex].length - 1];
+        let params = {
+            "start_date": startDate,
+            "end_date": endDate
+        };
+        $.getJSON(urlRouteData, params, function (data) {
+            if (data.status) {
+                showMessage(data.status);
+            } else {
+                data.operatorDict = data.operatorDict.map(function (el) {
+                    return {
+                        id: el.value,
+                        text: el.item
+                    }
+                });
+                operatorFilterData = data;
+            }
+        });
+        console.log(operatorFilterData);
+
     };
 
 
@@ -306,6 +333,7 @@ function FilterManager(opts) {
 
     $DAY_FILTER.change(function () {
         getTimePeriod();
+        //updateOperatorFilterData();
         if ($OPERATOR_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
             getOperatorFilter();
         }
@@ -618,7 +646,11 @@ function FilterManager(opts) {
                 $AUTH_ROUTE_FILTER.empty();
                 $OPERATOR_FILTER.empty();
                 $USER_ROUTE_FILTER.empty();
+            }else if (userRouteId === null){
+                $AUTH_ROUTE_FILTER.empty();
+                $USER_ROUTE_FILTER.empty();
             } else {
+                console.log(operatorFilterData["availableRoutes"]);
                 let authRouteList = operatorFilterData["availableRoutes"][operatorId][userRouteId];
                 authRouteList.sort();
                 if (authRouteList.includes(localAuthRouteFilter.id)) {

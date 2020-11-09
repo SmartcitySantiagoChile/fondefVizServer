@@ -131,10 +131,12 @@ class AvailableRoutes(View):
     def get(self, request):
 
         response = {}
+        start_date = request.GET.get("start_date", None)
+        end_date = request.GET.get("end_date", None)
         try:
             es_helper = ESProfileHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-            available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
+            available_days, op_dict = es_helper.get_available_routes(valid_operator_list, start_date, end_date)
             response['availableRoutes'] = available_days
             response['operatorDict'] = op_dict
             response['routesDict'] = get_op_routes_dict()
