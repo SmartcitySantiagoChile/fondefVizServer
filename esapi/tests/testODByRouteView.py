@@ -52,7 +52,8 @@ class AvailableRoutesTest(TestHelper):
                     '506': [self.available_route]
                 }
             },
-            'operatorDict': []
+            'operatorDict': [],
+            'opProgramDates': {}
         }
         self.assertJSONEqual(response.content, expected)
 
