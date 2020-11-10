@@ -86,7 +86,6 @@ class ESProfileHelper(ElasticSearchHelper):
                 'lte': '{0} 23:59:59'.format(end_date),
                 'format': 'yyyy-MM-dd HH:mm:ss'
             })
-        print(es_query.to_dict())
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
 
