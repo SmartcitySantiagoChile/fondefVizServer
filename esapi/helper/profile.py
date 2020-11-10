@@ -83,9 +83,10 @@ class ESProfileHelper(ElasticSearchHelper):
             })
 
             es_query = es_query.filter('range', expeditionEndTime={
-                'lte': '{0} 00:00:00'.format(end_date),
+                'lte': '{0} 23:59:59'.format(end_date),
                 'format': 'yyyy-MM-dd HH:mm:ss'
             })
+        print(es_query.to_dict())
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
 
