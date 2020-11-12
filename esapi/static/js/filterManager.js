@@ -37,6 +37,7 @@ function FilterManager(opts) {
         afterCall = opts.afterCallData;
     }
 
+
     /* VARIABLE DEFINITIONS */
 
     var $DAY_FILTER = $("#dayFilter");
@@ -224,19 +225,29 @@ function FilterManager(opts) {
             $MULTI_AUTH_ROUTE_FILTER.val({"id": null});
             window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
         } else if (validOpDict !== 0) {
-            let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "operatorFilter");
+            operatorFilterData["availableRoutes"] = operatorFilterData["availableRoutes"].map(function (el) {
+                let dictName = ((validOpDict[el.item]) === undefined) ? "" : ` (${validOpDict[el.item].join(" | ")})`;
+                return {
+                    id: el.item,
+                    text: `${el.item}${dictName}`
+                }
+            });
+            $MULTI_AUTH_ROUTE_FILTER.select2({data: operatorFilterData["availableRoutes"]});
+            let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
             if (localMultiAuthRouteFilter) {
                 localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
             }
-
             if (getDates().length !== 0 && localMultiAuthRouteFilter !== null) {
-                $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter.id).trigger("change");
-
+                let data = operatorFilterData["availableRoutes"].map(e => e.id);
+                if (localMultiAuthRouteFilter.id.every(v => data.includes(v))) {
+                    $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter.id).trigger("change");
+                }
             }
+
         }
     };
 
-    const updateOperatorFilterData = function () {
+    const updateOperatorFilterData = () => {
         let dates = getDates();
         if (dates.length !== 0) {
             let startDate = dates[0][0];
@@ -260,17 +271,35 @@ function FilterManager(opts) {
                     if ($OPERATOR_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
                         getOperatorFilter();
                     }
-
-                    if ($MULTI_AUTH_ROUTE_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
-                        getMultiAuthFilter();
-                    }
                 }
             });
         } else {
             if ($OPERATOR_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
                 getOperatorFilter();
             }
+        }
+    };
 
+    const updateMultiAuthFilter = () => {
+        let dates = getDates();
+        if (dates.length !== 0) {
+            let startDate = dates[0][0];
+            let lastIndex = dates.length - 1;
+            let endDate = dates[lastIndex][dates[lastIndex].length - 1];
+            let params = {
+                "start_date": startDate,
+                "end_date": endDate
+            };
+            $.getJSON(urlMultiRouteData, params, function (data) {
+                if (data.status) {
+                    showMessage(data.status);
+                } else {
+                    operatorFilterData = data;
+                    getMultiAuthFilter();
+                }
+
+            });
+        } else {
             if ($MULTI_AUTH_ROUTE_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
                 getMultiAuthFilter();
             }
@@ -350,6 +379,7 @@ function FilterManager(opts) {
         $AUTH_ROUTE_FILTER.empty();
         getTimePeriod();
         updateOperatorFilterData();
+        updateMultiAuthFilter();
     });
 
     $DAY_FILTER.trigger("change");
@@ -751,52 +781,52 @@ function FilterManager(opts) {
             window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
         });
 
-        const processMultiRouteData = function (data) {
-            let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
-            if (localMultiAuthRouteFilter) {
-                localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
-            }
-            let OpRoutesDict = getOPDictBetweenDates();
-            if (OpRoutesDict === null) {
-                let status = {
-                    message: "Fechas seleccionadas pertenecen a más de un programa de operación",
-                    title: "Error",
-                    type: "error"
-                };
-                $MULTI_AUTH_ROUTE_FILTER.empty();
-                showMessage(status);
-            } else if (OpRoutesDict === 0) {
-                $MULTI_AUTH_ROUTE_FILTER.empty();
-            } else {
-                data.data = data.data.map(function (el) {
-                    let dictName = ((OpRoutesDict[el.item]) === undefined) ? "" : ` (${OpRoutesDict[el.item].join(" | ")})`;
-                    return {id: el.item, text: `${el.item}${dictName}`};
-                });
-            }
+        /* const processMultiRouteData = function (data) {
+             let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
+             if (localMultiAuthRouteFilter) {
+                 localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
+             }
+             let OpRoutesDict = getOPDictBetweenDates();
+             if (OpRoutesDict === null) {
+                 let status = {
+                     message: "Fechas seleccionadas pertenecen a más de un programa de operación",
+                     title: "Error",
+                     type: "error"
+                 };
+                 $MULTI_AUTH_ROUTE_FILTER.empty();
+                 showMessage(status);
+             } else if (OpRoutesDict === 0) {
+                 $MULTI_AUTH_ROUTE_FILTER.empty();
+             } else {
+                 data.data = data.data.map(function (el) {
+                     let dictName = ((OpRoutesDict[el.item]) === undefined) ? "" : ` (${OpRoutesDict[el.item].join(" | ")})`;
+                     return {id: el.item, text: `${el.item}${dictName}`};
+                 });
+             }
 
 
-            if ($MULTI_AUTH_ROUTE_FILTER.length) {
-                $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});
-                $MULTI_AUTH_ROUTE_FILTER.on("select2:select", function (e) {
-                    window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
-                });
-                // call event to update user route filter
-                var selectedItem = localMultiAuthRouteFilter !== null ? localMultiAuthRouteFilter : $MULTI_AUTH_ROUTE_FILTER.select2("data")[0];
-                $MULTI_AUTH_ROUTE_FILTER.val(selectedItem).trigger("change").trigger({
-                    type: "select2:select",
-                    params: {data: selectedItem}
-                });
-            }
+             if ($MULTI_AUTH_ROUTE_FILTER.length) {
+                 $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});
+                 $MULTI_AUTH_ROUTE_FILTER.on("select2:select", function (e) {
+                     window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
+                 });
+                 // call event to update user route filter
+                 var selectedItem = localMultiAuthRouteFilter !== null ? localMultiAuthRouteFilter : $MULTI_AUTH_ROUTE_FILTER.select2("data")[0];
+                 $MULTI_AUTH_ROUTE_FILTER.val(selectedItem).trigger("change").trigger({
+                     type: "select2:select",
+                     params: {data: selectedItem}
+                 });
+             }
 
 
-        };
+         };
+         */
 
         $.getJSON(urlMultiRouteData, function (data) {
             if (data.status) {
                 showMessage(data.status);
             } else {
-                operatorFilterData = data;
-                processMultiRouteData(data);
+                //operatorFilterData = data;
             }
         });
     }
