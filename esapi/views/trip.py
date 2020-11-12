@@ -15,7 +15,7 @@ from esapi.helper.stop import ESStopHelper
 from esapi.helper.trip import ESTripHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request
-from localinfo.helper import get_calendar_info, get_op_routes_dict
+from localinfo.helper import get_calendar_info, get_op_routes_dict, get_opprogram_list_for_select_input
 
 
 class ResumeData(PermissionRequiredMixin, View):
@@ -413,15 +413,21 @@ class MultiRouteData(View):
         if len(res) == 0:
             raise ESQueryResultEmpty()
         return {
-            'data': res
+            'availableRoutes': res
         }
 
     def process_request(self, request, params, export_data=False):
         es_helper = ESProfileHelper()
+        start_date = params.get("start_date", None)
+        end_date = params.get("end_date", None)
+        response = {}
         try:
-            es_query = es_helper.get_all_auth_routes()
+
+            es_query = es_helper.get_all_auth_routes(start_date, end_date)
             response = self.process_data(es_query)
             response['routesDict'] = get_op_routes_dict()
+            response['opProgramDates'] = get_opprogram_list_for_select_input(to_dict=True)
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
