@@ -82,7 +82,7 @@ class ESProfileHelper(ElasticSearchHelper):
                 'format': 'yyyy-MM-dd HH:mm:ss'
             })
 
-            es_query = es_query.filter('range', expeditionEndTime={
+            es_query = es_query.filter('range', expeditionStartTime={
                 'lte': '{0} 23:59:59'.format(end_date),
                 'format': 'yyyy-MM-dd HH:mm:ss'
             })
