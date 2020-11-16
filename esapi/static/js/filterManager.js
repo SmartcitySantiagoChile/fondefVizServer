@@ -780,55 +780,6 @@ function FilterManager(opts) {
         $MULTI_AUTH_ROUTE_FILTER.change(function () {
             window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
         });
-
-        /* const processMultiRouteData = function (data) {
-             let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
-             if (localMultiAuthRouteFilter) {
-                 localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
-             }
-             let OpRoutesDict = getOPDictBetweenDates();
-             if (OpRoutesDict === null) {
-                 let status = {
-                     message: "Fechas seleccionadas pertenecen a más de un programa de operación",
-                     title: "Error",
-                     type: "error"
-                 };
-                 $MULTI_AUTH_ROUTE_FILTER.empty();
-                 showMessage(status);
-             } else if (OpRoutesDict === 0) {
-                 $MULTI_AUTH_ROUTE_FILTER.empty();
-             } else {
-                 data.data = data.data.map(function (el) {
-                     let dictName = ((OpRoutesDict[el.item]) === undefined) ? "" : ` (${OpRoutesDict[el.item].join(" | ")})`;
-                     return {id: el.item, text: `${el.item}${dictName}`};
-                 });
-             }
-
-
-             if ($MULTI_AUTH_ROUTE_FILTER.length) {
-                 $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});
-                 $MULTI_AUTH_ROUTE_FILTER.on("select2:select", function (e) {
-                     window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
-                 });
-                 // call event to update user route filter
-                 var selectedItem = localMultiAuthRouteFilter !== null ? localMultiAuthRouteFilter : $MULTI_AUTH_ROUTE_FILTER.select2("data")[0];
-                 $MULTI_AUTH_ROUTE_FILTER.val(selectedItem).trigger("change").trigger({
-                     type: "select2:select",
-                     params: {data: selectedItem}
-                 });
-             }
-
-
-         };
-         */
-
-        $.getJSON(urlMultiRouteData, function (data) {
-            if (data.status) {
-                showMessage(data.status);
-            } else {
-                //operatorFilterData = data;
-            }
-        });
     }
 
 
