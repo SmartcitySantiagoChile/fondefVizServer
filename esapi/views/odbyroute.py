@@ -35,16 +35,24 @@ class AvailableDays(View):
 class AvailableRoutes(View):
 
     def get(self, request):
-        es_helper = ESODByRouteHelper()
-        valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_days, op_dict = es_helper.get_available_routes(valid_operator_id_list)
-        response = {
-            'availableRoutes': available_days,
-            'operatorDict': op_dict,
-            'routesDict': get_op_routes_dict(),
-            'opProgramDates': get_opprogram_list_for_select_input(to_dict=True)
+        response = {}
+        start_date = request.GET.get("start_date", None)
+        end_date = request.GET.get("end_date", None)
+        try:
+            es_helper = ESODByRouteHelper()
+            valid_operator_id_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+            available_routes, op_dict = es_helper.get_available_routes(valid_operator_id_list, start_date, end_date)
+            available_operators = available_routes.keys()
+            op_dict = [operator_dict for operator_dict in op_dict if operator_dict["value"] in available_operators]
+            response = {
+                'availableRoutes': available_routes,
+                'operatorDict': op_dict,
+                'routesDict': get_op_routes_dict(),
+                'opProgramDates': get_opprogram_list_for_select_input(to_dict=True)
 
-        }
+            }
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
 
         return JsonResponse(response)
 

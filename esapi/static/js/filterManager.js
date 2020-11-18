@@ -37,6 +37,7 @@ function FilterManager(opts) {
         afterCall = opts.afterCallData;
     }
 
+
     /* VARIABLE DEFINITIONS */
 
     var $DAY_FILTER = $("#dayFilter");
@@ -166,8 +167,8 @@ function FilterManager(opts) {
 
     const getOperatorFilter = () => {
         let validOpDict = getOPDictBetweenDates();
+        $OPERATOR_FILTER.empty();
         if (validOpDict === 0) {
-            $OPERATOR_FILTER.empty();
             $USER_ROUTE_FILTER.empty();
             $AUTH_ROUTE_FILTER.empty();
             window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
@@ -181,7 +182,6 @@ function FilterManager(opts) {
                 type: "error"
             };
             showMessage(status);
-            $OPERATOR_FILTER.empty();
             $USER_ROUTE_FILTER.empty();
             $AUTH_ROUTE_FILTER.empty();
             window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
@@ -225,14 +225,83 @@ function FilterManager(opts) {
             $MULTI_AUTH_ROUTE_FILTER.val({"id": null});
             window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
         } else if (validOpDict !== 0) {
-            let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "operatorFilter");
+            operatorFilterData["availableRoutes"] = operatorFilterData["availableRoutes"].map(function (el) {
+                let dictName = ((validOpDict[el.item]) === undefined) ? "" : ` (${validOpDict[el.item].join(" | ")})`;
+                return {
+                    id: el.item,
+                    text: `${el.item}${dictName}`
+                }
+            });
+            $MULTI_AUTH_ROUTE_FILTER.select2({data: operatorFilterData["availableRoutes"]});
+            let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
             if (localMultiAuthRouteFilter) {
                 localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
             }
-
             if (getDates().length !== 0 && localMultiAuthRouteFilter !== null) {
-                $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter.id).trigger("change");
+                let data = operatorFilterData["availableRoutes"].map(e => e.id);
+                if (localMultiAuthRouteFilter.id.every(v => data.includes(v))) {
+                    $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter.id).trigger("change");
+                }
+            }
 
+        }
+    };
+
+    const updateOperatorFilterData = () => {
+        let dates = getDates();
+        if (dates.length !== 0) {
+            let startDate = dates[0][0];
+            let lastIndex = dates.length - 1;
+            let endDate = dates[lastIndex][dates[lastIndex].length - 1];
+            let params = {
+                "start_date": startDate,
+                "end_date": endDate
+            };
+            $.getJSON(urlRouteData, params, function (data) {
+                if (data.status) {
+                    showMessage(data.status);
+                } else {
+                    data.operatorDict = data.operatorDict.map(function (el) {
+                        return {
+                            id: el.value,
+                            text: el.item
+                        }
+                    });
+                    operatorFilterData = data;
+                    if ($OPERATOR_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
+                        getOperatorFilter();
+                    }
+                }
+            });
+        } else {
+            if ($OPERATOR_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
+                getOperatorFilter();
+            }
+        }
+    };
+
+    const updateMultiAuthFilter = () => {
+        let dates = getDates();
+        if (dates.length !== 0) {
+            let startDate = dates[0][0];
+            let lastIndex = dates.length - 1;
+            let endDate = dates[lastIndex][dates[lastIndex].length - 1];
+            let params = {
+                "start_date": startDate,
+                "end_date": endDate
+            };
+            $.getJSON(urlMultiRouteData, params, function (data) {
+                if (data.status) {
+                    showMessage(data.status);
+                } else {
+                    operatorFilterData = data;
+                    getMultiAuthFilter();
+                }
+
+            });
+        } else {
+            if ($MULTI_AUTH_ROUTE_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
+                getMultiAuthFilter();
             }
         }
     };
@@ -305,15 +374,12 @@ function FilterManager(opts) {
     });
 
     $DAY_FILTER.change(function () {
+        $OPERATOR_FILTER.empty();
+        $USER_ROUTE_FILTER.empty();
+        $AUTH_ROUTE_FILTER.empty();
         getTimePeriod();
-        if ($OPERATOR_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
-            getOperatorFilter();
-        }
-
-        if ($MULTI_AUTH_ROUTE_FILTER.length && !$.isEmptyObject(operatorFilterData)) {
-            getMultiAuthFilter();
-        }
-
+        updateOperatorFilterData();
+        updateMultiAuthFilter();
     });
 
     $DAY_FILTER.trigger("change");
@@ -593,6 +659,11 @@ function FilterManager(opts) {
             localAuthRouteFilter = {"id": null}
         }
 
+        $OPERATOR_FILTER.on("select2:select", function (e) {
+            window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
+            updateUserRouteList();
+        });
+
         const updateAuthRouteList = function () {
             let lastValue = null;
             let localAuthRouteFilter = window.localStorage.getItem(urlKey + "authRouteFilter");
@@ -617,6 +688,9 @@ function FilterManager(opts) {
             } else if (OpRoutesDict === 0) {
                 $AUTH_ROUTE_FILTER.empty();
                 $OPERATOR_FILTER.empty();
+                $USER_ROUTE_FILTER.empty();
+            } else if (userRouteId === null) {
+                $AUTH_ROUTE_FILTER.empty();
                 $USER_ROUTE_FILTER.empty();
             } else {
                 let authRouteList = operatorFilterData["availableRoutes"][operatorId][userRouteId];
@@ -692,55 +766,6 @@ function FilterManager(opts) {
                 updateAuthRouteList(selectedItem.id);
             }
         });
-
-
-        const processRouteData = function () {
-
-            // if operator filter is visible
-            if ($OPERATOR_FILTER.length) {
-                $OPERATOR_FILTER.select2({data: operatorFilterData["operatorDict"]});
-                $OPERATOR_FILTER.on("select2:select", function (e) {
-                    window.localStorage.setItem(urlKey + "operatorFilter", JSON.stringify({id: $OPERATOR_FILTER.val()}));
-                    updateUserRouteList();
-                });
-
-                // call event to update user route filter
-                let selectedItem = localOperatorFilter.id !== null ? localOperatorFilter : $OPERATOR_FILTER.select2("data")[0];
-                if (getDates().length !== 0 && selectedItem.id !== null) {
-                    $OPERATOR_FILTER.val(selectedItem.id).trigger("change").trigger({
-                        type: "select2:select",
-                        params: {data: selectedItem}
-                    });
-                } else {
-                    $OPERATOR_FILTER.empty();
-                }
-
-            } else {
-                updateUserRouteList();
-            }
-
-            // ignore if local settings are nulls
-            if (localOperatorFilter) {
-                $OPERATOR_FILTER.val(localOperatorFilter.id).trigger("change");
-                $USER_ROUTE_FILTER.val(localUserRouteFilter.id).trigger("change");
-                $AUTH_ROUTE_FILTER.val(localAuthRouteFilter.id).trigger("change");
-            }
-        };
-
-        $.getJSON(urlRouteData, function (data) {
-            if (data.status) {
-                showMessage(data.status);
-            } else {
-                data.operatorDict = data.operatorDict.map(function (el) {
-                    return {
-                        id: el.value,
-                        text: el.item
-                    }
-                });
-                operatorFilterData = data;
-                processRouteData();
-            }
-        });
     }
 
     if ($MULTI_AUTH_ROUTE_FILTER.length) {
@@ -754,55 +779,6 @@ function FilterManager(opts) {
         $MULTI_AUTH_ROUTE_FILTER.trigger("change");
         $MULTI_AUTH_ROUTE_FILTER.change(function () {
             window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
-        });
-
-        const processMultiRouteData = function (data) {
-            let localMultiAuthRouteFilter = window.localStorage.getItem(urlKey + "multiAuthRouteFilter");
-            if (localMultiAuthRouteFilter) {
-                localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
-            }
-            let OpRoutesDict = getOPDictBetweenDates();
-            if (OpRoutesDict === null) {
-                let status = {
-                    message: "Fechas seleccionadas pertenecen a más de un programa de operación",
-                    title: "Error",
-                    type: "error"
-                };
-                $MULTI_AUTH_ROUTE_FILTER.empty();
-                showMessage(status);
-            } else if (OpRoutesDict === 0) {
-                $MULTI_AUTH_ROUTE_FILTER.empty();
-            } else {
-                data.data = data.data.map(function (el) {
-                    let dictName = ((OpRoutesDict[el.item]) === undefined) ? "" : ` (${OpRoutesDict[el.item].join(" | ")})`;
-                    return {id: el.item, text: `${el.item}${dictName}`};
-                });
-            }
-
-
-            if ($MULTI_AUTH_ROUTE_FILTER.length) {
-                $MULTI_AUTH_ROUTE_FILTER.select2({data: data.data});
-                $MULTI_AUTH_ROUTE_FILTER.on("select2:select", function (e) {
-                    window.localStorage.setItem(urlKey + "multiAuthRouteFilter", JSON.stringify({id: $MULTI_AUTH_ROUTE_FILTER.val()}));
-                });
-                // call event to update user route filter
-                var selectedItem = localMultiAuthRouteFilter !== null ? localMultiAuthRouteFilter : $MULTI_AUTH_ROUTE_FILTER.select2("data")[0];
-                $MULTI_AUTH_ROUTE_FILTER.val(selectedItem).trigger("change").trigger({
-                    type: "select2:select",
-                    params: {data: selectedItem}
-                });
-            }
-
-
-        };
-
-        $.getJSON(urlMultiRouteData, function (data) {
-            if (data.status) {
-                showMessage(data.status);
-            } else {
-                operatorFilterData = data;
-                processMultiRouteData(data);
-            }
         });
     }
 
