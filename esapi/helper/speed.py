@@ -22,9 +22,11 @@ class ESSpeedHelper(ElasticSearchHelper):
     def get_available_days(self, valid_operator_list):
         return self._get_available_days('date', valid_operator_list)
 
-    def get_available_routes(self, valid_operator_list):
+    def get_available_routes(self, valid_operator_list, start_date=None, end_date=None):
         """
         This is used in data filter panel
+        :param start_date: intial date filter
+        :param end_date: last date filter
         :param valid_operator_list: operators which user can ask
         :return: dicts with available routes for user
         """
@@ -36,6 +38,12 @@ class ESSpeedHelper(ElasticSearchHelper):
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
             raise ESQueryOperatorParameterDoesNotExist()
+        if start_date and end_date:
+            es_query = es_query.filter('range', date={
+                'gte': '{0} 00:00:00'.format(start_date),
+                'lte': '{0} 23:59:59'.format(end_date),
+                'format': 'yyyy-MM-dd HH:mm:ss'
+            })
 
         aggs = A('terms', field="authRouteCode", size=5000)
         es_query.aggs.bucket('route', aggs)

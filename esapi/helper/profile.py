@@ -82,8 +82,8 @@ class ESProfileHelper(ElasticSearchHelper):
                 'format': 'yyyy-MM-dd HH:mm:ss'
             })
 
-            es_query = es_query.filter('range', expeditionEndTime={
-                'lte': '{0} 00:00:00'.format(end_date),
+            es_query = es_query.filter('range', expeditionStartTime={
+                'lte': '{0} 23:59:59'.format(end_date),
                 'format': 'yyyy-MM-dd HH:mm:ss'
             })
         aggs = A('terms', field="route", size=5000)
@@ -291,9 +291,19 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('tripsCount', 'value_count', field='expandedAlighting')
         return es_query
 
-    def get_all_auth_routes(self):
+    def get_all_auth_routes(self, start_date=None, end_date=None):
         es_query = self.get_base_query()
         es_query = es_query[:0]
+        if start_date and end_date:
+            es_query = es_query.filter('range', expeditionStartTime={
+                'gte': '{0} 00:00:00'.format(start_date),
+                'format': 'yyyy-MM-dd HH:mm:ss'
+            })
+
+            es_query = es_query.filter('range', expeditionEndTime={
+                'lte': '{0} 23:59:59'.format(end_date),
+                'format': 'yyyy-MM-dd HH:mm:ss'
+            })
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
         return es_query
