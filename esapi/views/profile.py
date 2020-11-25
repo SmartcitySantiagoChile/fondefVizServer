@@ -18,7 +18,7 @@ from esapi.messages import ExporterDataHasBeenEnqueuedMessage, ExpeditionsHaveBe
 from esapi.utils import check_operation_program
 from esapi.utils import get_dates_from_request
 from localinfo.helper import PermissionBuilder, get_day_type_list_for_select_input, get_timeperiod_list_for_select_input \
-    , get_calendar_info, get_op_routes_dict
+    , get_calendar_info, get_op_routes_dict, get_opprogram_list_for_select_input
 
 
 class LoadProfileByStopData(View):
@@ -131,13 +131,18 @@ class AvailableRoutes(View):
     def get(self, request):
 
         response = {}
+        start_date = request.GET.get("start_date", None)
+        end_date = request.GET.get("end_date", None)
         try:
             es_helper = ESProfileHelper()
             valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-            available_days, op_dict = es_helper.get_available_routes(valid_operator_list)
-            response['availableRoutes'] = available_days
+            available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date, end_date)
+            available_operators = available_routes.keys()
+            op_dict = [operator_dict for operator_dict in op_dict if operator_dict["value"] in available_operators]
+            response['availableRoutes'] = available_routes
             response['operatorDict'] = op_dict
             response['routesDict'] = get_op_routes_dict()
+            response['opProgramDates'] = get_opprogram_list_for_select_input(to_dict=True)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -287,9 +292,9 @@ class LoadProfileByTrajectoryData(View):
                     'timeTripInit': hit.expeditionStartTime.replace('T', ' ').replace('.000Z', ''),
                     'timeTripEnd': hit.expeditionEndTime.replace('T', ' ').replace('.000Z', ''),
                     'dayType': day_type_dict[hit.dayType],
-                    'valid': bool(hit.isValid)
+                    'valid': not bool(hit.notValid)
                 }
-                if not hit.isValid:
+                if bool(hit.notValid):
                     expedition_not_valid_number += 1
 
             if hit.busStation == 1 and hit.authStopCode not in bus_stations:

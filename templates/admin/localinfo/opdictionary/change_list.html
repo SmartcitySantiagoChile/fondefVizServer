@@ -2,176 +2,224 @@
 {% load i18n admin_urls static admin_list %}
 
 {% block extrastyle %}
-  {{ block.super }}
-  <!--<link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />-->
-  {% if cl.formset %}
-    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>
-  {% endif %}
-  {% if cl.formset or action_form %}
-    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-  {% endif %}
-  {{ media.css }}
-  {% if not actions_on_top and not actions_on_bottom %}
-    <style>
-      #changelist table thead th:first-child {
+{{ block.super }}
+   {% with "components/gentelella/vendors/" as gentelella_static %}
+        <link href="{% static gentelella_static|add:"select2/dist/css/select2.min.css" %}" rel="stylesheet">
+   {% endwith %}
+<!--<link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />-->
+{% if cl.formset %}
+<link rel="stylesheet" type="text/css" href="{% static " admin/css/forms.css" %}"/>
+{% endif %}
+{% if cl.formset or action_form %}
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+{% endif %}
+{{ media.css }}
+{% if not actions_on_top and not actions_on_bottom %}
+<style>
+    #changelist table thead th:first-child {
         width: inherit
-      }
-    </style>
-  {% endif %}
-  <style>
+    }
+</style>
+{% endif %}
+<style>
     .fa.fa-sort:after {
-      position: absolute;
-      content: "/";
-      color: red;
-      font-weight: 700;
-      font-size: 1.7em;
-      left: 0px;
-      top: -5px;
+        position: absolute;
+        content: "/";
+        color: red;
+        font-weight: 700;
+        font-size: 1.7em;
+        left: 0px;
+        top: -5px;
     }
 
     .sortremove {
-      display: none;
+        display: none;
     }
 
     .sortable:hover a {
-      display: inline;
+        display: inline;
     }
-  </style>
+</style>
 {% endblock %}
 
 {% block extrahead %}
-    {% block title %} Diccionario de OP {% endblock %}
-  {{ block.super }}
-  {{ media.js }}
+{{ block.super }}
+{{ media.js }}
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
 
 {% block content %}
-  <div class="col-md-12 col-sm-12 col-xs-12">
+<div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
-      <div class="x_title">
-        Subir csv de diccionario de servicios
-      </div>
-      <div class="x_content">
-        <form name="csvForm" id="csvForm" method="post" enctype="multipart/form-data"
-              action="{% url 'localinfo:opdictionarycsvupload' %}">{% csrf_token %}
-          <div class="row">
-            <div class="col-md-3 col-sm-12 col-xs-12">
-              <div class="title_left">
-                <div class="form-group">
-                  <input required type="file" name="csvDictionary" class="form-control-file" id="csvDictionary">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-12 col-xs-12">
-              <button type="submit" class="btn btn-primary btn-sm ">Subir diccionario</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-12 col-sm-12 col-xs-12">
-    <div class="x_panel">
-      <div class="x_title">
-        <h2></h2>
-        {% block object-tools %}
-          <ul class="nav navbar-right panel_toolbox">
-            {% block object-tools-items %}
-              {% if has_add_permission %}
-                <li>
-                  {% url cl.opts|admin_urlname:'add' as add_url %}
-                  <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink" style="color:#2A3F54">
-                    <i class="fa fa-plus fa-lg"></i> {% blocktrans with cl.opts.verbose_name as name %}Add
-                    {{ name }}{% endblocktrans %}
-                  </a>
-                </li>
-              {% endif %}
-            {% endblock %}
-          </ul>
-        {% endblock %}
-        <div class="clearfix"></div>
-      </div>
-
-      <div class="x_content">
-
-        <div class="row">
-          <div class="col-md-6 col-sm-12 col-xs-12">
-            <div class="title_left">
-              {% if action_form and actions_on_top and cl.show_admin_actions %}
-                {% admin_actions %}
-              {% endif %}
-            </div>
-          </div>
-          <div class="col-md-6 col-sm-12 col-xs-12">
-            {% block search %}{% search_form cl %}{% endblock %}
-          </div>
+        <div class="x_title">
+            Subir diccionario de servicios
         </div>
-        {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
-        {% if cl.formset.errors %}
-          <div class="alert alert-danger alert-dismissible fade in" role="alert">
-            {% if cl.formset.total_error_count == 1 %}
-              {% trans "Please correct the error below." %}
-            {% else %}
-              {% trans "Please correct the errors below." %}
-            {% endif %}
-          </div>
-          {{ cl.formset.non_form_errors }}
-        {% endif %}
-
-        <form id="changelist-form" method="post"{% if cl.formset.is_multipart %}
-              enctype="multipart/form-data"{% endif %} novalidate>{% csrf_token %}
-          {% if cl.formset %}
-            <div>{{ cl.formset.management_form }}</div>
-          {% endif %}
-
-          {% block result_list %}
-            {% result_list cl %}
-            {% if action_form and actions_on_bottom and cl.show_admin_actions %}
-              {% admin_actions %}
-            {% endif %}
-          {% endblock %}
-          {% block pagination %}{% pagination cl %}{% endblock %}
-        </form>
-      </div>
+        <div class="x_content">
+            <form name="OPForm" id="OPForm" method="post" enctype="multipart/form-data"
+                  action="{% url 'localinfo:opdictionaryupload' %}">{% csrf_token %}
+                <div class="row">
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <select  name="opId" id="OPSelector" class="form-control input-sm date">
+                            <option value="" disabled selected>Programa de Operación</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                            <div class="form-group">
+                               <input required type="file" name="OPDictionary" class="form-control-file"
+                                       id="OPDictionary">
+                            </div>
+                    </div>
+                    <div class="col-md-1 col-sm-1 col-xs-1">
+                        <button type="submit" class="btn btn-success">Subir diccionario</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
+</div>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2></h2>
+            {% block object-tools %}
+            <ul class="nav navbar-right panel_toolbox">
+                {% block object-tools-items %}
+                {% if has_add_permission %}
+                <li>
+                    {% url cl.opts|admin_urlname:'add' as add_url %}
+                    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink"
+                       style="color:#2A3F54">
+                        <i class="fa fa-plus fa-lg"></i> {% blocktrans with cl.opts.verbose_name as name %}Add
+                        {{ name }}{% endblocktrans %}
+                    </a>
+                </li>
+                {% endif %}
+                {% endblock %}
+            </ul>
+            {% endblock %}
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="x_content">
+
+            <div class="row">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="title_left">
+                        {% if action_form and actions_on_top and cl.show_admin_actions %}
+                        {% admin_actions %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    {% block search %}{% search_form cl %}{% endblock %}
+                </div>
+            </div>
+            {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
+            {% if cl.formset.errors %}
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                {% if cl.formset.total_error_count == 1 %}
+                {% trans "Please correct the error below." %}
+                {% else %}
+                {% trans "Please correct the errors below." %}
+                {% endif %}
+            </div>
+            {{ cl.formset.non_form_errors }}
+            {% endif %}
+
+            <form id="changelist-form" method="post" {% if cl.formset.is_multipart %}
+                  enctype="multipart/form-data" {% endif %} novalidate>{% csrf_token %}
+                {% if cl.formset %}
+                <div>{{ cl.formset.management_form }}</div>
+                {% endif %}
+
+                {% block result_list %}
+                {% result_list cl %}
+                {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+                {% admin_actions %}
+                {% endif %}
+                {% endblock %}
+                {% block pagination %}{% pagination cl %}{% endblock %}
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extrajs %}
-  <script>
-      $("#csvForm").on("submit", function (e) {
-              e.preventDefault();
-              let formData = new FormData(document.getElementById("csvForm"));
-              $.ajax("{% url 'localinfo:opdictionarycsvupload' %}", {
-                  method: "POST",
-                  data: formData,
-                  cache: false,
-                  processData: false,
-                  contentType: false,
-                  success: function (e) {
-                      let status = {
-                          message: "Los datos se han cargado correctamente",
-                          title: "Carga exitosa",
-                          type: "success"
-                      };
-                      showMessage(status);
-                      location.reload();
+    {% with "components/gentelella/vendors/" as gentelella_static %}
+        <script src="{% static gentelella_static|add:'select2/dist/js/select2.min.js' %}"></script>
+    {% endwith %}
+<script>
+    $("#OPForm").on("submit", function (e) {
+            e.preventDefault();
+            let formData = new FormData(document.getElementById("OPForm"));
+            $.ajax("{% url 'localinfo:opdictionaryupload' %}", {
+                method: "POST",
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (e) {
+                    console.log(e);
+                    let created_message = e.created > 0 ? `Se han insertado ${e.created} registros. \n` : '';
+                    let updated_message = e.updated > 0 ? `Se han actualizado ${e.updated} registros.` : '';
 
-                  },
-                  error: function (e) {
-                      console.log(e);
-                      let status = {
-                          message: e.responseJSON.error,
-                          title: "Carga fallida",
-                          type: "error"
-                      };
-                      showMessage(status);
-                  },
-              });
-          }
-      )
-  </script>
+                    let status = {
+                        message: created_message + updated_message,
+                        title: "Carga exitosa",
+                        type: "success"
+                    };
+                    showMessage(status);
+                    setTimeout(function () {
+                        location.reload()
+                    }, 2000);
+                },
+                error: function (e) {
+                    console.log(e);
+                    let status = {
+                        message: e.responseJSON.error,
+                        title: "Carga fallida",
+                        type: "error"
+                    };
+                    showMessage(status);
+                },
+            });
+        }
+    );
+    const getOPProgramSelector = () => {
+        $.ajax("{% url 'localinfo:opProgramList' %}", {
+            method: "GET",
+            success: function (e) {
+                setOpProgramSelector(e['opProgramList']);
+            },
+            error: function (e) {
+                console.log(e);
+                let status = {
+                    message: "Problema de consistencia en los programas de operación, contacte al administrador.",
+                    title: "Sincronización fallida",
+                    type: "error"
+                };
+                showMessage(status);
+            },
+        });
+    };
+
+    const setOpProgramSelector = data => {
+        data.forEach(e => {
+                e.id = e.value;
+                e.text = e.item;
+                });
+        $("#OPSelector").select2({
+            data: data,
+            placeholder: "Programa de Operación",
+
+        });
+    };
+
+    $(document).ready(() => {
+        getOPProgramSelector();
+    });
+</script>
 
 {% endblock %}

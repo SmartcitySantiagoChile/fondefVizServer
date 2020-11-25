@@ -674,7 +674,6 @@ $(document).ready(function () {
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
 
         if (dataSource.status && (dataSource.status.code !== 252 && dataSource.status.code !== 253)) {
             return;

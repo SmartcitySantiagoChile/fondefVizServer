@@ -86,6 +86,35 @@ class ESProfileIndexTest(TestCase):
         self.assertDictEqual(result, {'1': {'506': ['506 00I']}})
         self.assertListEqual(operator_list, [1, 2])
 
+    @mock.patch('esapi.helper.profile.get_operator_list_for_select_input')
+    @mock.patch('esapi.helper.profile.ESProfileHelper.get_base_query')
+    def test_get_available_routes_with_start_and_end_date(self, get_base_query, get_operator_list_for_select_input):
+        hit = mock.Mock()
+        hit.to_dict.return_value = {
+            'key': '506 00I',
+            'additionalInfo': {
+                'hits': {
+                    'hits': [{'_source': {
+                        'operator': '1',
+                        'userRoute': '506'
+                    }}]
+                }
+            }
+        }
+        get_base_query.return_value = get_base_query
+        get_base_query.__getitem__.return_value = get_base_query
+        get_base_query.source.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.execute.return_value = get_base_query
+        type(get_base_query).aggregations = mock.PropertyMock(return_value=get_base_query)
+        type(get_base_query).route = mock.PropertyMock(return_value=get_base_query)
+        type(get_base_query).buckets = mock.PropertyMock(return_value=[hit])
+        get_operator_list_for_select_input.return_value = [1, 2]
+        result, operator_list = self.instance.get_available_routes(valid_operator_list=[1, 2, 3],
+                                                                   start_date="2020-01-01", end_date="2020-03-01")
+        self.assertDictEqual(result, {'1': {'506': ['506 00I']}})
+        self.assertListEqual(operator_list, [1, 2])
+
     def test_get_base_profile_by_expedition_data_query(self):
         dates = [[""]]
         day_type = ['LABORAL']
@@ -169,16 +198,17 @@ class ESProfileIndexTest(TestCase):
         result = self.instance.get_base_profile_by_trajectory_data_query(dates, day_type, auth_route,
                                                                          period, half_hour,
                                                                          valid_operator_list)
-        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'506 00I'}},
-                                                  {'terms': {'dayType': [u'LABORAL']}},
+        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': '506 00I'}},
+                                                  {'terms': {'dayType': ['LABORAL']}},
                                                   {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
                                                   {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
-                'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-01-02||/d',
-                                        u'format': u'yyyy-MM-dd'}}}]}},
-                    '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
-                                u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
-                                u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
-                                u'busStation', u'path', u'stopDistanceFromPathStart', u'expeditionStopTime']}
+                'expeditionStartTime': {'gte': '2018-01-01||/d', 'lte': '2018-01-02||/d', 'format': 'yyyy-MM-dd',
+                                        'time_zone': '+00:00'}}}]}},
+                    '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
+                                'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
+                                'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
+                                'busStation', 'path', 'stopDistanceFromPathStart', 'expeditionStopTime', 'notValid']}
+
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
