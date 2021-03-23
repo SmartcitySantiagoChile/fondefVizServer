@@ -24,6 +24,7 @@ class ESProfileHelper(ElasticSearchHelper):
                                  valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -72,6 +73,7 @@ class ESProfileHelper(ElasticSearchHelper):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -108,7 +110,7 @@ class ESProfileHelper(ElasticSearchHelper):
     def get_base_profile_by_expedition_data_query(self, dates, day_type, auth_route, period, half_hour,
                                                   valid_operator_list, show_only_valid_expeditions=True):
         es_query = self.get_base_query()
-
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -178,7 +180,7 @@ class ESProfileHelper(ElasticSearchHelper):
     def get_base_profile_by_trajectory_data_query(self, dates, day_type, auth_route, period, half_hour,
                                                   valid_operator_list):
         es_query = self.get_base_query()
-
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -238,7 +240,7 @@ class ESProfileHelper(ElasticSearchHelper):
                                           valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
-
+        es_query = es_query.filter('term', fulfillment="C")
         if not dates or not isinstance(dates[0], list) or not dates[0]:
             raise ESQueryDateRangeParametersDoesNotExist()
 
