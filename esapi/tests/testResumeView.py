@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import mock
+from unittest import mock
 from django.urls import reverse
 
 from testhelper.helper import TestHelper

@@ -1,6 +1,6 @@
 from unittest import TestCase
 import awsbackup.aws as aws
-import mock
+from unittest import mock
 import datetime
 from botocore.exceptions import ClientError
 
