@@ -33,18 +33,20 @@ class ESProfileIndexTest(TestCase):
         dates = [['2018-01-01', '2018-01-02']]
         result = self.instance.get_profile_by_stop_data(dates, day_type, stop_code, period, half_hour,
                                                         valid_operator_list)
-        expected = {'query': {'bool': {
-            'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
-                       {'terms': {'dayType': [u'LABORAL']}},
-                       {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {
-                           'range': {'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
-                                                             u'lte': u'2018-01-02||/d', u'format': u'yyyy-MM-dd'}}}],
-            'must': [{'term': {u'authStopCode.raw': u'PA433'}}]}},
-            '_source': [u'busCapacity', u'expeditionStopTime', u'licensePlate', u'route', u'expeditionDayId',
-                        u'userStopName', u'expandedAlighting', u'expandedBoarding', u'fulfillment',
-                        u'stopDistanceFromPathStart', u'expeditionStartTime', u'expeditionEndTime',
-                        u'authStopCode', u'userStopCode', u'timePeriodInStartTime', u'dayType',
-                        u'timePeriodInStopTime', u'loadProfile', u'busStation', u'path']}
+        expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
+                                                  {'terms': {'dayType': ['LABORAL']}},
+                                                  {'terms': {'timePeriodInStopTime': [1, 2, 3]}},
+                                                  {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {'range': {
+                'expeditionStartTime': {'gte': '2018-01-01||/d', 'lte': '2018-01-02||/d', 'format': 'yyyy-MM-dd',
+                                        'time_zone': '+00:00'}}}], 'must': [{'term': {'authStopCode.raw': 'PA433'}}]}},
+                    '_source': ['busCapacity', 'expeditionStopTime', 'licensePlate', 'route', 'expeditionDayId',
+                                'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
+                                'stopDistanceFromPathStart', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode',
+                                'userStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
+                                'loadProfile', 'busStation', 'path', 'expandedEvasionBoarding',
+                                'expandedEvasionAlighting', 'expandedBoardingPlusExpandedEvasionBoarding',
+                                'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+                                'boardingWithAlighting']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -145,7 +147,11 @@ class ESProfileIndexTest(TestCase):
                     '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
                                 u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
                                 u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
-                                u'busStation', u'path', u'notValid']}
+                                u'busStation', u'path', u'notValid', u'expandedEvasionBoarding',
+                                u'expandedEvasionAlighting',
+                                u'expandedBoardingPlusExpandedEvasionBoarding',
+                                u'expandedAlightingPlusExpandedEvasionAlighting', u'loadProfileWithEvasion',
+                                u'boardingWithAlighting']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -154,29 +160,39 @@ class ESProfileIndexTest(TestCase):
         dates = [['2018-01-01', '2018-02-01']]
         result = self.instance.get_profile_by_expedition_data(dates, ['LABORAL'], 'route', [1, 2, 3],
                                                               [1, 2, 3], [1, 2, 3])
-        expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
-                                                  {'term': {'route': u'route'}},
-                                                  {'terms': {'dayType': [u'LABORAL']}},
-                                                  {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
-                                                  {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
-                'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                                        u'format': u'yyyy-MM-dd'}}}, {'term': {'notValid': 0}}]}},
-                    '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
-                                u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
-                                u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
-                                u'busStation', u'path', u'notValid'], 'from': 0, 'aggs': {
-                u'stop': {'filter': {'term': {'busStation': 1}},
-                          'aggs': {u'station': {'terms': {'field': u'authStopCode.raw', 'size': 500}}}},
-                u'stops': {'terms': {'field': u'authStopCode.raw', 'size': 500},
-                           'aggs': {u'expandedBoarding': {'avg': {'field': u'expandedBoarding'}},
-                                    u'expandedAlighting': {'avg': {'field': u'expandedAlighting'}},
-                                    u'loadProfile': {'avg': {'field': u'loadProfile'}},
-                                    u'sumBusCapacity': {'sum': {'field': u'busCapacity'}},
-                                    u'maxLoadProfile': {'max': {'field': u'loadProfile'}},
-                                    u'sumLoadProfile': {'sum': {'field': u'loadProfile'}}, u'busSaturation': {
-                                   'bucket_script': {'buckets_path': {u'd': u'sumLoadProfile', u't': u'sumBusCapacity'},
-                                                     'script': u'params.d / params.t'}}, u'pathDistance': {
-                                   'top_hits': {'size': 1, '_source': [u'stopDistanceFromPathStart']}}}}}, 'size': 0}
+        expected = {'query': {'bool': {
+            'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}}, {'term': {'route': 'route'}},
+                       {'terms': {'dayType': ['LABORAL']}}, {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
+                       {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
+                    'expeditionStartTime': {'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d', 'format': 'yyyy-MM-dd',
+                                            'time_zone': '+00:00'}}}, {'term': {'notValid': 0}}]}}, 'aggs': {
+            'stops': {'terms': {'field': 'authStopCode.raw', 'size': 500},
+                      'aggs': {'expandedAlighting': {'avg': {'field': 'expandedAlighting'}},
+                               'expandedBoarding': {'avg': {'field': 'expandedBoarding'}},
+                               'loadProfile': {'avg': {'field': 'loadProfile'}},
+                               'maxLoadProfile': {'max': {'field': 'loadProfile'}},
+                               'sumLoadProfile': {'sum': {'field': 'loadProfile'}},
+                               'sumBusCapacity': {'sum': {'field': 'busCapacity'}}, 'busSaturation': {
+                              'bucket_script': {'script': 'params.d / params.t',
+                                                'buckets_path': {'d': 'sumLoadProfile', 't': 'sumBusCapacity'}}},
+                               'pathDistance': {'top_hits': {'size': 1, '_source': ['stopDistanceFromPathStart']}},
+                               'expandedEvasionBoarding': {'avg': {'field': 'expandedEvasionBoarding'}},
+                               'expandedEvasionAlighting': {'avg': {'field': 'expandedEvasionAlighting'}},
+                               'expandedBoardingPlusExpandedEvasionBoarding': {
+                                   'avg': {'field': 'expandedBoardingPlusExpandedEvasionBoarding'}},
+                               'expandedAlightingPlusExpandedEvasionAlighting': {
+                                   'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
+                               'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
+                               'boardingWithAlighting': {'avg': {'field': 'boardingWithAlighting'}}}},
+            'stop': {'filter': {'term': {'busStation': 1}},
+                     'aggs': {'station': {'terms': {'field': 'authStopCode.raw', 'size': 500}}}}}, 'from': 0, 'size': 0,
+            '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
+                        'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
+                        'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
+                        'busStation', 'path', 'notValid', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
+                        'expandedBoardingPlusExpandedEvasionBoarding',
+                        'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+                        'boardingWithAlighting']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -202,8 +218,7 @@ class ESProfileIndexTest(TestCase):
                                                                          period, half_hour,
                                                                          valid_operator_list)
         expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
-                                                  {'term': {'route': '506 00I'}},
-                                                  {'terms': {'dayType': ['LABORAL']}},
+                                                  {'term': {'route': '506 00I'}}, {'terms': {'dayType': ['LABORAL']}},
                                                   {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
                                                   {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
                 'expeditionStartTime': {'gte': '2018-01-01||/d', 'lte': '2018-01-02||/d', 'format': 'yyyy-MM-dd',
@@ -211,7 +226,11 @@ class ESProfileIndexTest(TestCase):
                     '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
                                 'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
                                 'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
-                                'busStation', 'path', 'stopDistanceFromPathStart', 'expeditionStopTime', 'notValid']}
+                                'busStation', 'path', 'stopDistanceFromPathStart', 'expeditionStopTime', 'notValid',
+                                'expandedEvasionBoarding', 'expandedEvasionAlighting',
+                                'expandedBoardingPlusExpandedEvasionBoarding',
+                                'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+                                'boardingWithAlighting']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -246,32 +265,39 @@ class ESProfileIndexTest(TestCase):
         stop_code = 'PA433'
         result = self.instance.get_profile_by_multiple_stop_data(dates, day_type, stop_code, period, half_hour,
                                                                  valid_operator_list)
-        expected = {'query': {'bool': {
-            'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
-                       {'terms': {'dayType': [u'LABORAL']}},
-                       {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {
-                           'range': {'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
-                                                             u'lte': u'2018-01-02||/d', u'format': u'yyyy-MM-dd'}}}],
-            'must': [{'terms': {u'authStopCode.raw': u'PA433'}}]}},
-            'from': 0, 'aggs': {u'stops': {'terms': {'field': u'authStopCode.raw', 'size': 1000},
-                                           'aggs': {u'sumExpandedAlighting': {'sum': {'field': u'expandedAlighting'}},
-                                                    u'expandedAlighting': {'avg': {'field': u'expandedAlighting'}},
-                                                    u'tripsCount': {'value_count': {'field': u'expandedAlighting'}},
-                                                    u'loadProfile': {'avg': {'field': u'loadProfile'}},
-                                                    u'expandedBoarding': {'avg': {'field': u'expandedBoarding'}},
-                                                    u'userStopName': {
-                                                        'top_hits': {'size': 1, '_source': [u'userStopName']}},
-                                                    u'maxLoadProfile': {'max': {'field': u'loadProfile'}},
-                                                    u'sumLoadProfile': {'sum': {'field': u'loadProfile'}},
-                                                    u'sumBusCapacity': {'sum': {'field': u'busCapacity'}},
-                                                    u'busSaturation': {'bucket_script': {
-                                                        'buckets_path': {u'd': u'sumLoadProfile',
-                                                                         u't': u'sumBusCapacity'},
-                                                        'script': u'params.d / params.t'}},
-                                                    u'sumExpandedBoarding': {'sum': {'field': u'expandedBoarding'}},
-                                                    u'userStopCode': {
-                                                        'top_hits': {'size': 1, '_source': [u'userStopCode']}},
-                                                    u'busCapacity': {'avg': {'field': u'busCapacity'}}}}}, 'size': 0}
+        expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
+                                                  {'terms': {'dayType': ['LABORAL']}},
+                                                  {'terms': {'timePeriodInStopTime': [1, 2, 3]}},
+                                                  {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {'range': {
+                'expeditionStartTime': {'gte': '2018-01-01||/d', 'lte': '2018-01-02||/d', 'format': 'yyyy-MM-dd',
+                                        'time_zone': '+00:00'}}}], 'must': [{'terms': {'authStopCode.raw': 'PA433'}}]}},
+                    'aggs': {'stops': {'terms': {'field': 'authStopCode.raw', 'size': 1000},
+                                       'aggs': {'expandedAlighting': {'avg': {'field': 'expandedAlighting'}},
+                                                'expandedBoarding': {'avg': {'field': 'expandedBoarding'}},
+                                                'sumExpandedAlighting': {'sum': {'field': 'expandedAlighting'}},
+                                                'sumExpandedBoarding': {'sum': {'field': 'expandedBoarding'}},
+                                                'loadProfile': {'avg': {'field': 'loadProfile'}},
+                                                'maxLoadProfile': {'max': {'field': 'loadProfile'}},
+                                                'sumLoadProfile': {'sum': {'field': 'loadProfile'}},
+                                                'sumBusCapacity': {'sum': {'field': 'busCapacity'}}, 'busSaturation': {
+                                               'bucket_script': {'script': 'params.d / params.t',
+                                                                 'buckets_path': {'d': 'sumLoadProfile',
+                                                                                  't': 'sumBusCapacity'}}},
+                                                'userStopCode': {'top_hits': {'size': 1, '_source': ['userStopCode']}},
+                                                'userStopName': {'top_hits': {'size': 1, '_source': ['userStopName']}},
+                                                'busCapacity': {'avg': {'field': 'busCapacity'}},
+                                                'tripsCount': {'value_count': {'field': 'expandedAlighting'}},
+                                                'expandedEvasionBoarding': {
+                                                    'avg': {'field': 'expandedEvasionBoarding'}},
+                                                'expandedEvasionAlighting': {
+                                                    'avg': {'field': 'expandedEvasionAlighting'}},
+                                                'expandedBoardingPlusExpandedEvasionBoarding': {
+                                                    'avg': {'field': 'expandedBoardingPlusExpandedEvasionBoarding'}},
+                                                'expandedAlightingPlusExpandedEvasionAlighting': {
+                                                    'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
+                                                'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
+                                                'boardingWithAlighting': {'avg': {'field': 'boardingWithAlighting'}}}}},
+                    'from': 0, 'size': 0}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
