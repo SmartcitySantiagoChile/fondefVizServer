@@ -62,7 +62,11 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
                                     'stopDistanceFromPathStart', 'expeditionStartTime',
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                    'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path'])
+                                    'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path',
+                                    'expandedEvasionBoarding', 'expandedEvasionAlighting',
+                                    'expandedBoardingPlusExpandedEvasionBoarding',
+                                    'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+                                    'boardingWithAlighting'])
 
         return es_query
 
@@ -152,7 +156,11 @@ class ESProfileHelper(ElasticSearchHelper):
         es_query = es_query.source(
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
-             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid'])
+             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid', 'expandedEvasionBoarding',
+             'expandedEvasionAlighting',
+             'expandedBoardingPlusExpandedEvasionBoarding',
+             'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+             'boardingWithAlighting'])
 
         return es_query
 
@@ -170,7 +178,13 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('sumBusCapacity', 'sum', field='busCapacity'). \
             metric('busSaturation', 'bucket_script', script='params.d / params.t',
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
-            metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart'])
+            metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart']). \
+            metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
+            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
+            metric('boardingWithAlighting', 'avg', field='boardingWithAlighting')
 
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
@@ -220,7 +234,11 @@ class ESProfileHelper(ElasticSearchHelper):
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
              'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'stopDistanceFromPathStart',
-             'expeditionStopTime', 'notValid'])
+             'expeditionStopTime', 'notValid', 'expandedEvasionBoarding',
+             'expandedEvasionAlighting',
+             'expandedBoardingPlusExpandedEvasionBoarding',
+             'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+             'boardingWithAlighting'])
 
         return es_query
 
@@ -290,7 +308,13 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('userStopCode', 'top_hits', size=1, _source=['userStopCode']). \
             metric('userStopName', 'top_hits', size=1, _source=['userStopName']). \
             metric('busCapacity', 'avg', field='busCapacity'). \
-            metric('tripsCount', 'value_count', field='expandedAlighting')
+            metric('tripsCount', 'value_count', field='expandedAlighting'). \
+            metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
+            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
+            metric('boardingWithAlighting', 'avg', field='boardingWithAlighting')
         return es_query
 
     def get_all_auth_routes(self, start_date=None, end_date=None):
