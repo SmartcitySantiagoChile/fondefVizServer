@@ -222,6 +222,13 @@ class LoadProfileByExpeditionTest(TestHelper):
         type(hit).expeditionDayId = mock.PropertyMock(return_value=152)
         type(hit).path = mock.PropertyMock(return_value='path')
         type(hit).notValid = mock.PropertyMock(return_value=1)
+        type(hit).expandedEvasionBoarding = mock.PropertyMock(return_value=0)
+        type(hit).expandedEvasionAlighting = mock.PropertyMock(return_value=0)
+        type(hit).expandedBoardingPlusExpandedEvasionBoarding = mock.PropertyMock(return_value=0)
+        type(hit).expandedAlightingPlusExpandedEvasionAlighting = mock.PropertyMock(return_value=0)
+        type(hit).loadProfileWithEvasion = mock.PropertyMock(return_value=0)
+        type(hit).boardingWithAlighting= mock.PropertyMock(return_value=0)
+
         es_query_instance.scan.return_value = [hit]
         data = {
             'dates': '[["2018-01-01"]]',
@@ -236,6 +243,7 @@ class LoadProfileByExpeditionTest(TestHelper):
         response = self.client.get(self.url, data)
         self.assertContains(response, 'status')
         status = json.dumps(json.loads(response.content)['status'])
+        print(status)
         self.assertJSONEqual(status, expected)
 
     @mock.patch('esapi.helper.profile.ESProfileHelper.get_available_days_between_dates')
