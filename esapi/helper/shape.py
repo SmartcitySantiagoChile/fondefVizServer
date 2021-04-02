@@ -108,3 +108,26 @@ class ESShapeHelper(ElasticSearchHelper):
         es_query = es_query.filter('term', startDate=date)
         es_query = es_query.update_from_dict({"size": 5000})
         return es_query
+
+    def convert_shape_to_speed_csv_format(self, shape, auth_route):
+        """
+        Convert shape format dict list to a csv format
+        :param shape: shape dict list
+        :param auth_route: auth route
+        :return: list (lists)
+        """
+        res = []
+        counter = 1
+        first_value = shape[0]
+        first_row = [auth_route, counter, first_value['latitude'], first_value['longitude']]
+        res.append(first_row)
+        for segment in shape[1:]:
+            row = [auth_route, counter, segment['latitude'], segment['longitude']]
+            if segment['segmentStart'] == 1:
+                res.append([row])
+                counter += 1
+                row = [auth_route, counter, segment['latitude'], segment['longitude']]
+                res.append(row)
+            else:
+                res.append(row)
+        return res
