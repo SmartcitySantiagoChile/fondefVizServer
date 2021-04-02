@@ -685,7 +685,47 @@ $(document).ready(function () {
             _barChart.setOption(options, {
                 notMerge: true
             });
+            hideEvasion();
+            addSwitch();
+
         };
+
+        const addSwitch = function () {
+            let evasionSwitch = "<input id='evasionSwitch'  type='checkbox'  class='modes_checkbox' data-switchery='true'> Mostrar datos con evasión ";
+            $("#barChart").prepend(evasionSwitch);
+            let evasionJquerySwitch = $("#evasionSwitch");
+            evasionJquerySwitch.each(function (index, html) {
+                new Switchery(html, {
+                    size: 'small',
+                    color: 'rgb(38, 185, 154)'
+                });
+            });
+            let switcherySwitch = $(".switchery");
+            switcherySwitch.on("click", () => {
+                if (evasionJquerySwitch.is(":checked")) {
+                    showEvasion();
+                    evasionJquerySwitch.prop('checked', true);
+
+                } else {
+                    evasionJquerySwitch.prop('checked', false);
+                    hideEvasion();
+                }
+            });
+        };
+
+        const hideEvasion = () => applyToEvasion('legendUnSelect');
+
+        const showEvasion = () => applyToEvasion('legendSelect');
+
+        const applyToEvasion = type => {
+            let labels = ["Subidas evadidas", "Bajadas evadidas", "Carga promedio con evasión", "Carga máxima con evasión", "Porcentaje ocupación con evasión"]
+            labels.map(e => {
+                _barChart.dispatchAction({
+                    type: type,
+                    name: e
+                })
+            })
+        }
 
         var _updateGlobalStats = function (expeditionNumber) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
