@@ -130,4 +130,7 @@ class ESShapeHelper(ElasticSearchHelper):
                 res.append(row)
             else:
                 res.append(row)
+        last_segment = shape[len(shape) - 1]
+        if last_segment['segmentStart'] == 1:
+            res.append([auth_route, counter, segment['latitude'], segment['longitude']])
         return res
