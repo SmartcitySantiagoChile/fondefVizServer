@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import gzip
 import io
 import os
@@ -11,6 +8,7 @@ import zipfile
 from itertools import groupby
 from smtplib import SMTPException
 
+from datauploader.loadData import upload_file
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -18,7 +16,6 @@ from django_rq import job
 from rq import get_current_job
 
 from dataDownloader.downloadData import download_file
-from dataUploader.loadData import upload_file
 from datamanager.models import UploaderJobExecution, ExporterJobExecution
 from esapi.helper.opdata import ESOPDataHelper
 from esapi.helper.shape import ESShapeHelper
