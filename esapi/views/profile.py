@@ -201,9 +201,8 @@ class LoadProfileByExpeditionData(View):
             ]
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 
-            if len(list(trips.keys())) == 0:
-                raise ESQueryResultEmpty()
-
+        if len(list(trips.keys())) == 0:
+            raise ESQueryResultEmpty()
         return trips, bus_stations, expedition_not_valid_number
 
     def process_request(self, request, params, export_data=False):
