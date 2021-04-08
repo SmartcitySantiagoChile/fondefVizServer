@@ -16,7 +16,7 @@ from dataDownloader.csvhelper.bip import BipData
 from dataDownloader.csvhelper.odbyroute import OdByRouteData
 from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
-from dataDownloader.csvhelper.speed import SpeedData
+from dataDownloader.csvhelper.speed import SpeedData, SpeedDataWithFormattedShape
 from dataDownloader.csvhelper.trip import TripData
 from dataDownloader.errors import UnrecognizedDownloaderNameError
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
@@ -70,7 +70,7 @@ class ExporterManager(object):
         # Search instance
         self.es_query = es_query
 
-    def export_data(self, downloader, user):
+    def export_data(self, downloader, user, extra_data=None):
         with transaction.atomic():
             # check if exist job associate to file obj
             human_readable_query = str(self.es_query.to_dict()).replace('u\'', '"').replace('\'', '"')
@@ -89,7 +89,7 @@ class ExporterManager(object):
                 downloader_instance = ProfileDataByStop(self.es_query.to_dict())
                 file_type = ExporterJobExecution.PROFILE
             elif downloader == csv_helper.SPEED_MATRIX_DATA:
-                downloader_instance = SpeedData(self.es_query.to_dict())
+                downloader_instance = SpeedDataWithFormattedShape(self.es_query.to_dict(), extra_data)
                 file_type = ExporterJobExecution.SPEED
             elif downloader == csv_helper.TRIP_DATA:
                 downloader_instance = TripData(self.es_query.to_dict())

@@ -56,10 +56,11 @@ class SpeedDataWithShapeAndRoute(object):
 class SpeedData(object):
     """ Class that build speed csv """
 
-    def __init__(self, es_query, es_client=None):
+    def __init__(self, es_query, es_client=None, extra_data=None):
         self.es_query = es_query
         self.es_client = settings.ES_CLIENT if es_client is None else es_client
         self.speed_file = SpeedCSVHelper(self.es_client, self.es_query)
+        self.extra_data = extra_data
 
     def get_filters(self):
         return self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_WEB)
@@ -73,3 +74,27 @@ class SpeedData(object):
         data_filter = self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_FILE)
         explanation = self.speed_file.get_field_explanation()
         zip_manager.build_readme(template, "\r\n".join(files_description), data_filter, explanation)
+
+
+class SpeedDataWithFormattedShape(object):
+    """ Class that build speed csv with formatted shape """
+
+    def __init__(self, es_query, es_client=None, extra_data=None):
+        self.es_query = es_query
+        self.es_client = settings.ES_CLIENT if es_client is None else es_client
+        self.speed_file = SpeedCSVHelper(self.es_client, self.es_query)
+        self.extra_data = extra_data
+
+    def get_filters(self):
+        return self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_WEB)
+
+    def build_file(self, file_path):
+        zip_manager = ZipManager(file_path)
+        self.speed_file.download(zip_manager)
+
+        template = 'speed.readme'
+        files_description = [self.speed_file.get_fil  e_description(), shape_file.get_file_description(),
+                             stop_file.get_file_description()]
+        data_filter = self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_FILE)
+        explanation = self.speed_file.get_field_explanation()
+        zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)

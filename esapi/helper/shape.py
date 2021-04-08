@@ -118,6 +118,8 @@ class ESShapeHelper(ElasticSearchHelper):
         """
         res = []
         counter = 1
+        header = ['auth_route', 'id', 'section', 'longitud']
+        res.append(header)
         first_value = shape[0]
         first_row = [auth_route, counter, first_value['latitude'], first_value['longitude']]
         res.append(first_row)
@@ -132,5 +134,5 @@ class ESShapeHelper(ElasticSearchHelper):
                 res.append(row)
         last_segment = shape[len(shape) - 1]
         if last_segment['segmentStart'] == 1:
-            res.append([auth_route, counter, segment['latitude'], segment['longitude']])
+            res.append([auth_route, counter, last_segment['latitude'], last_segment['longitude']])
         return res
