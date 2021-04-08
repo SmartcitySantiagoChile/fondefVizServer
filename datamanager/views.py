@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-
+from datauploader.errors import IndexNotEmptyError
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -10,7 +8,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from rq.exceptions import NoSuchJobError
 
-from dataUploader.errors import IndexNotEmptyError
 from datamanager.errors import IndexWithDocumentError, BadFormatDocumentError, ThereIsNotActiveJobError
 from datamanager.helper import UploaderManager, FileManager
 from datamanager.messages import JobEnqueued, DataDeletedSuccessfully, JobCanceledSuccessfully, DataIsDeleting
@@ -94,6 +91,7 @@ class LoadManagerOPHTML(View):
         }
 
         return render(request, template, context)
+
 
 class UploadData(View):
     """ Load data to elastic search """
