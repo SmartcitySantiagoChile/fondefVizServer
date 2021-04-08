@@ -153,7 +153,7 @@ $(document).ready(function () {
                     _yAxisData.expandedEvasionAlighting[stopIndex] += trip.yAxisData.expandedEvasionAlighting[stopIndex];
                     _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] += trip.yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex];
                     _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] += trip.yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex];
-                    _yAxisData.maxLoadWithEvasion[stopIndex] = Math.max(_yAxisData.maxLoadWithEvasion[stopIndex], trip.yAxisData.loadProfileWithEvasion[stopIndex]);
+                    _yAxisData.maxLoadWithEvasion[stopIndex] = Math.max(_yAxisData.maxLoadWithEvasion[stopIndex], _yAxisData.maxLoad[stopIndex], trip.yAxisData.loadProfileWithEvasion[stopIndex]);
 
                     capacityByStop[stopIndex] += trip.busCapacity;
                     counterByStop[stopIndex]++;
@@ -163,15 +163,15 @@ $(document).ready(function () {
             for (let stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                 _yAxisData.expandedAlighting[stopIndex] = _yAxisData.expandedAlighting[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedBoarding[stopIndex] = _yAxisData.expandedBoarding[stopIndex] / counterByStop[stopIndex];
-                _yAxisData.saturationRate.push((_yAxisData.loadProfile[stopIndex] / capacityByStop[stopIndex]) * 100);
+                let saturationRate = (_yAxisData.loadProfile[stopIndex] / capacityByStop[stopIndex]) * 100;
+                _yAxisData.saturationRate.push(saturationRate);
                 _yAxisData.loadProfile[stopIndex] = _yAxisData.loadProfile[stopIndex] / counterByStop[stopIndex];
-                _yAxisData.loadProfileWithEvasion[stopIndex] = _yAxisData.loadProfileWithEvasion[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.loadProfileWithEvasion[stopIndex] = _yAxisData.loadProfile[stopIndex] + _yAxisData.loadProfileWithEvasion[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedEvasionBoarding[stopIndex] = _yAxisData.expandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedEvasionAlighting[stopIndex] = _yAxisData.expandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] = _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] = _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
-                _yAxisData.saturationRateWithEvasion.push((_yAxisData.loadProfileWithEvasion[stopIndex] / capacityByStop[stopIndex]) * 100);
-
+                _yAxisData.saturationRateWithEvasion.push(saturationRate + (_yAxisData.loadProfileWithEvasion[stopIndex] / capacityByStop[stopIndex]) * 100);
             }
         };
 
@@ -691,7 +691,7 @@ $(document).ready(function () {
             if (!evasionSwitch.length) {
                 addSwitch();
             } else {
-                if (evasionSwitch.is(":checked")){
+                if (evasionSwitch.is(":checked")) {
                     evasionSwitch.trigger('click');
                 }
             }
