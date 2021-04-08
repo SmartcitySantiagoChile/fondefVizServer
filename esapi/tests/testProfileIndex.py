@@ -183,7 +183,7 @@ class ESProfileIndexTest(TestCase):
                                'expandedAlightingPlusExpandedEvasionAlighting': {
                                    'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
                                'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
-                               'boardingWithAlighting': {'avg': {'field': 'boardingWithAlighting'}}}},
+                               'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}}}},
             'stop': {'filter': {'term': {'busStation': 1}},
                      'aggs': {'station': {'terms': {'field': 'authStopCode.raw', 'size': 500}}}}}, 'from': 0, 'size': 0,
             '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
@@ -296,7 +296,7 @@ class ESProfileIndexTest(TestCase):
                                                 'expandedAlightingPlusExpandedEvasionAlighting': {
                                                     'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
                                                 'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
-                                                'boardingWithAlighting': {'avg': {'field': 'boardingWithAlighting'}}}}},
+                                                'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}}}}},
                     'from': 0, 'size': 0}
 
         self.assertIsInstance(result, Search)

@@ -184,7 +184,7 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
             metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
-            metric('boardingWithAlighting', 'avg', field='boardingWithAlighting')
+            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
 
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
@@ -314,7 +314,7 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
             metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
-            metric('boardingWithAlighting', 'avg', field='boardingWithAlighting')
+            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
         return es_query
 
     def get_all_auth_routes(self, start_date=None, end_date=None):
