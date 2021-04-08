@@ -91,10 +91,10 @@ class SpeedDataWithFormattedShape(object):
     def build_file(self, file_path):
         zip_manager = ZipManager(file_path)
         self.speed_file.download(zip_manager)
-
-        template = 'speed.readme'
-        files_description = [self.speed_file.get_fil  e_description(), shape_file.get_file_description(),
-                             stop_file.get_file_description()]
-        data_filter = self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_FILE)
-        explanation = self.speed_file.get_field_explanation()
-        zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
+        #
+        # template = 'speed.readme'
+        # files_description = [self.speed_file.get_file_description(), shape_file.get_file_description(),
+        #                      stop_file.get_file_description()]
+        # data_filter = self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_FILE)
+        # explanation = self.speed_file.get_field_explanation()
+        # zip_manager.build_readme(help_file_title, "".join(files_description), data_filter, explanation)
