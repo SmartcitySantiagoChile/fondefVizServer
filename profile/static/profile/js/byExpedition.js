@@ -159,7 +159,6 @@ $(document).ready(function () {
                     counterByStop[stopIndex]++;
                 }
             });
-
             // it calculates average
             for (let stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                 _yAxisData.expandedAlighting[stopIndex] = _yAxisData.expandedAlighting[stopIndex] / counterByStop[stopIndex];
@@ -688,10 +687,14 @@ $(document).ready(function () {
                 notMerge: true
             });
             hideEvasion();
-            if (!$("#evasionSwitch").length){
+            let evasionSwitch = $("#evasionSwitch");
+            if (!evasionSwitch.length) {
                 addSwitch();
+            } else {
+                if (evasionSwitch.is(":checked")){
+                    evasionSwitch.trigger('click');
+                }
             }
-
         };
 
         const addSwitch = function () {
