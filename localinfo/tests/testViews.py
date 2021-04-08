@@ -2,7 +2,7 @@
 import json
 import os
 
-import mock
+from unittest import mock
 from django.urls import reverse
 
 from localinfo.models import OPProgram

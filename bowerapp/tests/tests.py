@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import mock
+from unittest import mock
 from django.apps import apps
 from django.template import Context, Template
 from django.test import SimpleTestCase

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 
 from django.conf import settings
@@ -41,8 +38,7 @@ class Command(BaseCommand):
         ]
 
         def get_mapping_file(helper):
-            current_dir = os.path.dirname(__file__)
-            path_to_mapping_files = os.path.join(current_dir, '..', '..', '..', 'dataUploader', 'mappings')
+            path_to_mapping_files = os.path.join(settings.BASE_DIR, 'dataUploader', 'datauploader', 'mappings')
             mapping_file = os.path.join(path_to_mapping_files, '{0}-template.json'.format(helper.index_name))
             return mapping_file
 

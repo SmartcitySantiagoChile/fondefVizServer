@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import mock
+from unittest import mock
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -34,7 +34,8 @@ class ESProfileIndexTest(TestCase):
         result = self.instance.get_profile_by_stop_data(dates, day_type, stop_code, period, half_hour,
                                                         valid_operator_list)
         expected = {'query': {'bool': {
-            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'terms': {'dayType': [u'LABORAL']}},
+            'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
+                       {'terms': {'dayType': [u'LABORAL']}},
                        {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {
                            'range': {'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
                                                              u'lte': u'2018-01-02||/d', u'format': u'yyyy-MM-dd'}}}],
@@ -134,7 +135,8 @@ class ESProfileIndexTest(TestCase):
         result = self.instance.get_base_profile_by_expedition_data_query(dates, day_type, auth_route,
                                                                          period, half_hour,
                                                                          valid_operator_list)
-        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'506 00I'}},
+        expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
+                                                  {'term': {'route': u'506 00I'}},
                                                   {'terms': {'dayType': [u'LABORAL']}},
                                                   {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
                                                   {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
@@ -152,7 +154,8 @@ class ESProfileIndexTest(TestCase):
         dates = [['2018-01-01', '2018-02-01']]
         result = self.instance.get_profile_by_expedition_data(dates, ['LABORAL'], 'route', [1, 2, 3],
                                                               [1, 2, 3], [1, 2, 3])
-        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': u'route'}},
+        expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
+                                                  {'term': {'route': u'route'}},
                                                   {'terms': {'dayType': [u'LABORAL']}},
                                                   {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
                                                   {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
@@ -198,7 +201,8 @@ class ESProfileIndexTest(TestCase):
         result = self.instance.get_base_profile_by_trajectory_data_query(dates, day_type, auth_route,
                                                                          period, half_hour,
                                                                          valid_operator_list)
-        expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'route': '506 00I'}},
+        expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
+                                                  {'term': {'route': '506 00I'}},
                                                   {'terms': {'dayType': ['LABORAL']}},
                                                   {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
                                                   {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
@@ -243,7 +247,8 @@ class ESProfileIndexTest(TestCase):
         result = self.instance.get_profile_by_multiple_stop_data(dates, day_type, stop_code, period, half_hour,
                                                                  valid_operator_list)
         expected = {'query': {'bool': {
-            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'terms': {'dayType': [u'LABORAL']}},
+            'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
+                       {'terms': {'dayType': [u'LABORAL']}},
                        {'terms': {'timePeriodInStopTime': [1, 2, 3]}}, {'terms': {'halfHourInStopTime': [1, 2, 3]}}, {
                            'range': {'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
                                                              u'lte': u'2018-01-02||/d', u'format': u'yyyy-MM-dd'}}}],

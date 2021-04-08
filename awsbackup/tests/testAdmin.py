@@ -1,6 +1,6 @@
 import datetime
 
-import mock
+from unittest import mock
 from django.apps import apps
 from django.contrib.admin import AdminSite
 from django.contrib.auth.models import User

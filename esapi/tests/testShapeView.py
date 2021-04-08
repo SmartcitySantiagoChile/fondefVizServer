@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import json
 
-import mock
+from unittest import mock
 from django.urls import reverse
 from mock import patch
 
