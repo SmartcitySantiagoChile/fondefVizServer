@@ -527,6 +527,7 @@ $(document).ready(function () {
             var options = {
                 legend: {
                     data: yAxisDataName,
+                    width: "80%"
                 },
                 xAxis: [{
                     type: "category",
@@ -616,6 +617,7 @@ $(document).ready(function () {
                     }
                 },
                 grid: {
+                    top: "100px",
                     left: "37px",
                     right: "45px",
                     bottom: maxLabelLength * 5.5 + 20 + "px"
@@ -686,7 +688,9 @@ $(document).ready(function () {
                 notMerge: true
             });
             hideEvasion();
-            addSwitch();
+            if (!$("#evasionSwitch").length){
+                addSwitch();
+            }
 
         };
 
