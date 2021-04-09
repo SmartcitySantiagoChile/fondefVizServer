@@ -57,11 +57,10 @@ class SpeedDataWithShapeAndRoute(object):
 class SpeedData(object):
     """ Class that build speed csv """
 
-    def __init__(self, es_query, es_client=None, extra_data=None):
+    def __init__(self, es_query, es_client=None):
         self.es_query = es_query
         self.es_client = settings.ES_CLIENT if es_client is None else es_client
         self.speed_file = SpeedCSVHelper(self.es_client, self.es_query)
-        self.extra_data = extra_data
 
     def get_filters(self):
         return self.speed_file.get_filter_criteria(SpeedCSVHelper.FORMATTER_FOR_WEB)
