@@ -928,10 +928,10 @@ class FormattedShapeCSVHelper(CSVHelper):
             {'es_name': '', 'csv_name': 'Longitud', 'definition': 'Longitud'}]
 
     def get_data_file_name(self):
-        return 'Geometría_servicio.csv'
+        return 'Geometría_servicio_por_tramos.csv'
 
     def get_file_description(self):
-        description = 'Geometría del servicio.'
+        description = 'Geometría del servicio dividida por tramos de 500 metros. '
         return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
 
     def get_iterator(self, kwargs):
