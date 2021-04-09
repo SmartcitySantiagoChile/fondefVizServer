@@ -7,7 +7,7 @@ from unittest import mock
 from django.urls import reverse
 
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, \
-    ESQueryStopParameterDoesNotExist, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
+    ESQueryStopParameterDoesNotExist, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, FondefVizError
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
 
@@ -222,6 +222,13 @@ class LoadProfileByExpeditionTest(TestHelper):
         type(hit).expeditionDayId = mock.PropertyMock(return_value=152)
         type(hit).path = mock.PropertyMock(return_value='path')
         type(hit).notValid = mock.PropertyMock(return_value=1)
+        type(hit).expandedEvasionBoarding = mock.PropertyMock(return_value=0)
+        type(hit).expandedEvasionAlighting = mock.PropertyMock(return_value=0)
+        type(hit).expandedBoardingPlusExpandedEvasionBoarding = mock.PropertyMock(return_value=0)
+        type(hit).expandedAlightingPlusExpandedEvasionAlighting = mock.PropertyMock(return_value=0)
+        type(hit).loadProfileWithEvasion = mock.PropertyMock(return_value=0)
+        type(hit).boardingWithAlighting = mock.PropertyMock(return_value=0)
+
         es_query_instance.scan.return_value = [hit]
         data = {
             'dates': '[["2018-01-01"]]',
@@ -254,12 +261,12 @@ class LoadProfileByExpeditionTest(TestHelper):
         es_query_instance.filter.return_value = es_query_instance
         es_query_instance.query.return_value = es_query_instance
         es_query_instance.source.return_value = es_query_instance
-        es_query_instance.scan.return_value = []
+        es_query_instance.scan = mock.Mock(side_effect=ESQueryResultEmpty)
         data = {
-            'dates': '[["2018-01-01"]]',
-            'dayType[]': ['LABORAL'],
-            'period[]': [0, 1, 2],
-            'halfHour[]': [0, 1, 2],
+            'dates': '[["2019-01-01"]]',
+            'dayType[]': ['SABADO'],
+            'period[]': [],
+            'halfHour[]': [],
             'authRoute': '506 00I'
         }
         response = self.client.get(self.url, data)

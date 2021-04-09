@@ -112,10 +112,9 @@ class ESShapeIndexTest(TestCase):
         get_base_query.execute.return_value = get_base_query
         hit = mock.Mock()
         type(get_base_query).hits = mock.PropertyMock(return_value=hit)
-        type(hit).hits = get_base_query
-        get_base_query.to_dict.return_value = [{'_source': {'points': [1]}}]
+        type(hit).hits = mock.PropertyMock(return_value=[{'_source': [1, 2, 3]}])
         result = self.instance.get_route_shape(auth_route_code, dates)
-        self.assertListEqual(result, [{'_source': {'points': [1]}}])
+        self.assertListEqual(result, [1, 2, 3])
 
     @mock.patch('esapi.helper.shape.ESShapeHelper.get_base_query')
     def test_get_route_shape_out_of_index(self, get_base_query):
