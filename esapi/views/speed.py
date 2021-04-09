@@ -92,11 +92,9 @@ class MatrixData(View):
             es_speed_helper = ESSpeedHelper()
 
             if export_data:
-                shape = es_shape_helper.get_route_shape(auth_route, dates)['points']
-                csv_shape = es_shape_helper.convert_shape_to_speed_csv_format(shape, auth_route)
                 es_query = es_speed_helper.get_base_speed_data_query(auth_route, day_type, dates,
                                                                      valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user, csv_shape)
+                ExporterManager(es_query).export_data(csv_helper.SPEED_MATRIX_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 shape = es_shape_helper.get_route_shape(auth_route, dates)['points']

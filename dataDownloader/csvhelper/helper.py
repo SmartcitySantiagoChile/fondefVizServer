@@ -90,6 +90,7 @@ class CSVHelper:
         return es_query.scan()
 
     def download(self, zip_file_obj, **kwargs):
+        print("download")
         tmp_file_name = str(uuid.uuid4())
         try:
             with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
@@ -909,3 +910,55 @@ class BipCSVHelper(CSVHelper):
             formatted_row.append(value)
 
         return formatted_row
+
+
+class FormattedShapeCSVHelper(CSVHelper):
+    """ Class that represents a formated shape downloader. """
+
+    def __init__(self, es_client):
+        self.es_shape_helper = ESShapeHelper()
+        CSVHelper.__init__(self, es_client, "", self.es_shape_helper.index_name)
+
+    def get_column_dict(self):
+        """ this class uses this just to build csv header """
+        return [
+            {'es_name': 'route', 'csv_name': 'Servicio_transantiago', 'definition': 'Código transantiago del servicio'},
+            {'es_name': '', 'csv_name': 'Id_segmento', 'definition': 'Id de segmento 500m'},
+            {'es_name': '', 'csv_name': 'Latitud', 'definition': 'Latitud'},
+            {'es_name': '', 'csv_name': 'Longitud', 'definition': 'Longitud'}]
+
+    def get_data_file_name(self):
+        return 'Geometría_servicio.csv'
+
+    def get_file_description(self):
+        description = 'Geometría del servicio.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def get_iterator(self, kwargs):
+        routes = kwargs['routes']
+        start_date = kwargs['start_date']
+        end_date = kwargs['end_date']
+
+        return [self.es_shape_helper.get_route_shape(route, [[start_date, end_date]]) for route in routes]
+
+    def row_parser(self, row):
+        rows = []
+        counter = 1
+        route = row['authRouteCode']
+        points = row['points']
+
+        rows.append([route, counter, points[0]['latitude'], points[0]['longitude']])
+        for point in points[1:]:
+            row = [route, counter, point['latitude'], point['longitude']]
+            if point['segmentStart'] == 1:
+                rows.append(row)
+                counter += 1
+                row = [route, counter, point['latitude'], point['longitude']]
+                rows.append(row)
+            else:
+                rows.append(row)
+        last_segment = points[len(points) - 1]
+        if last_segment['segmentStart'] == 1:
+            rows.append([route, counter, last_segment['latitude'], last_segment['longitude']])
+
+        return rows
