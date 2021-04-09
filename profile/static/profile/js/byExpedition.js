@@ -13,7 +13,7 @@ $(document).ready(function () {
         this.dayType = dayType;
         this.yAxisData = yAxisData;
         this.valid = valid;
-        this.visible = valid===undefined?true:valid;
+        this.visible = valid === undefined ? true : valid;
     }
 
     /*
@@ -109,25 +109,38 @@ $(document).ready(function () {
                 expandedBoarding: [],
                 loadProfile: [],
                 saturationRate: [],
-                maxLoad: []
+                valueIsNull: [],
+                maxLoad: [],
+                loadProfileWithEvasion: [],
+                expandedEvasionBoarding: [],
+                expandedEvasionAlighting: [],
+                expandedBoardingPlusExpandedEvasionBoarding: [],
+                expandedAlightingPlusExpandedEvasionAlighting: [],
+                maxLoadWithEvasion: [],
+                saturationRateWithEvasion: []
             };
-
             for (var i = 0; i < xAxisLength; i++) {
                 _yAxisData.expandedBoarding.push(0);
                 _yAxisData.expandedAlighting.push(0);
                 _yAxisData.loadProfile.push(0);
                 _yAxisData.maxLoad.push(0);
+                _yAxisData.loadProfileWithEvasion.push(0);
+                _yAxisData.expandedEvasionBoarding.push(0);
+                _yAxisData.expandedEvasionAlighting.push(0);
+                _yAxisData.expandedBoardingPlusExpandedEvasionBoarding.push(0);
+                _yAxisData.expandedAlightingPlusExpandedEvasionAlighting.push(0);
+                _yAxisData.maxLoadWithEvasion.push(0);
+
 
                 capacityByStop.push(0);
                 counterByStop.push(0);
             }
-
             _trips.forEach(function (trip) {
                 if (!trip.visible) {
                     return;
                 }
 
-                for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
+                for (let stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                     if (trip.yAxisData.valueIsNull[stopIndex]) {
                         continue;
                     }
@@ -135,20 +148,34 @@ $(document).ready(function () {
                     _yAxisData.expandedBoarding[stopIndex] += trip.yAxisData.expandedBoarding[stopIndex];
                     _yAxisData.loadProfile[stopIndex] += trip.yAxisData.loadProfile[stopIndex];
                     _yAxisData.maxLoad[stopIndex] = Math.max(_yAxisData.maxLoad[stopIndex], trip.yAxisData.loadProfile[stopIndex]);
+                    _yAxisData.loadProfileWithEvasion[stopIndex] += trip.yAxisData.loadProfileWithEvasion[stopIndex];
+                    _yAxisData.expandedEvasionBoarding[stopIndex] += trip.yAxisData.expandedEvasionBoarding[stopIndex];
+                    _yAxisData.expandedEvasionAlighting[stopIndex] += trip.yAxisData.expandedEvasionAlighting[stopIndex];
+                    _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] += trip.yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex];
+                    _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] += trip.yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex];
+                    _yAxisData.maxLoadWithEvasion[stopIndex] = Math.max(_yAxisData.maxLoadWithEvasion[stopIndex], _yAxisData.maxLoad[stopIndex], trip.yAxisData.loadProfileWithEvasion[stopIndex]);
 
                     capacityByStop[stopIndex] += trip.busCapacity;
                     counterByStop[stopIndex]++;
                 }
             });
-
             // it calculates average
-            for (var stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
+            for (let stopIndex = 0; stopIndex < xAxisLength; stopIndex++) {
                 _yAxisData.expandedAlighting[stopIndex] = _yAxisData.expandedAlighting[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedBoarding[stopIndex] = _yAxisData.expandedBoarding[stopIndex] / counterByStop[stopIndex];
-                _yAxisData.saturationRate.push((_yAxisData.loadProfile[stopIndex] / capacityByStop[stopIndex]) * 100);
+                let saturationRate = (_yAxisData.loadProfile[stopIndex] / capacityByStop[stopIndex]) * 100;
+                _yAxisData.saturationRate.push(saturationRate);
                 _yAxisData.loadProfile[stopIndex] = _yAxisData.loadProfile[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.loadProfileWithEvasion[stopIndex] = _yAxisData.loadProfile[stopIndex] + _yAxisData.loadProfileWithEvasion[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.expandedEvasionBoarding[stopIndex] = _yAxisData.expandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.expandedEvasionAlighting[stopIndex] = _yAxisData.expandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] = _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] = _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
+                _yAxisData.saturationRateWithEvasion.push(saturationRate + (_yAxisData.loadProfileWithEvasion[stopIndex] / capacityByStop[stopIndex]) * 100);
             }
         };
+
+
         this.getDatatableData = function () {
             var values = [];
             var max = 0;
@@ -272,9 +299,10 @@ $(document).ready(function () {
                 {title: "Hora de inicio", data: "timeTripInit", searchable: true},
                 {title: "Hora de fin", data: "timeTripEnd", searchable: true},
                 {title: "Tipo de día", data: "dayType", searchable: true},
-                {title: "Válida", data: "valid", searchable: true,
+                {
+                    title: "Válida", data: "valid", searchable: true,
                     render: function (data) {
-                        return data?"Válida":"No válida";
+                        return data ? "Válida" : "No válida";
                     }
                 }
             ],
@@ -359,7 +387,7 @@ $(document).ready(function () {
             stops.forEach(function (stop, i) {
                 var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
                 var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
-                var radius = loadProfile/maxLoadProfile * 300;
+                var radius = loadProfile / maxLoadProfile * 300;
                 if (radius <= 0 || isNaN(radius)) {
                     radius = 1;
                 }
@@ -374,7 +402,7 @@ $(document).ready(function () {
             _mappApp.addPolyline(_routeLayer, shape, {
                 route: $("#authRouteFilter").val(),
                 stops: stops,
-                additonalStopInfo: function(stopPosition) {
+                additonalStopInfo: function (stopPosition) {
                     var loadProfile = yAxisData[stopPosition];
                     if (loadProfile !== null) {
                         loadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
@@ -445,26 +473,32 @@ $(document).ready(function () {
             })
         };
 
-        var _updateBarChart = function () {
-            var yAxisData = _dataManager.yAxisData();
-            var xAxisData = _dataManager.xAxisData();
+        const _updateBarChart = function () {
+            let yAxisData = _dataManager.yAxisData();
+            let xAxisData = _dataManager.xAxisData();
 
             // get out, get in, load profile, percentage ocupation
-            var yAxisDataName = ["Subidas", "Bajadas", "Carga promedio", "Carga máxima", "Porcentaje ocupación"];
-            var yAxisIndex = [0, 0, 0, 0, 1];
-            var yChartType = ["bar", "bar", "line", "line", "line"];
-            var dataName = ["expandedBoarding", "expandedAlighting", "loadProfile", "maxLoad", "saturationRate"];
-            var colors = [
+            let yAxisDataName = ["Subidas", "Bajadas", "Carga promedio", "Carga máxima", "Porcentaje ocupación", "Subidas evadidas", "Bajadas evadidas", "Carga promedio con evasión", "Carga máxima con evasión", "Porcentaje ocupación con evasión"];
+            let yAxisIndex = [0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+            let yChartType = ["bar", "bar", "line", "line", "line", "bar", "bar", "line", "line", "line"];
+            let stack = ["Subidas", "Bajadas", null, null, null, "Subidas", "Bajadas", null, null, null];
+            let dataName = ["expandedBoarding", "expandedAlighting", "loadProfile", "maxLoad", "saturationRate", "expandedEvasionBoarding", "expandedEvasionAlighting", "loadProfileWithEvasion", "maxLoadWithEvasion", "saturationRateWithEvasion"];
+            let colors = [
                 {itemStyle: {normal: {color: "#BD4845"}}},
                 {itemStyle: {normal: {color: "#477BBA"}}},
                 {itemStyle: {normal: {color: "#1cd68c"}}},
                 {itemStyle: {normal: {color: "#4cd600"}}},
-                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#EA8E4D"}}}
+                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#EA8E4D"}}},
+                {itemStyle: {normal: {color: "#EBA08B"}}},
+                {itemStyle: {normal: {color: "#7BE8E2"}}},
+                {itemStyle: {normal: {color: "#A349A4"}}},
+                {itemStyle: {normal: {color: "#22B14C"}}},
+                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FF7F27"}}}
             ];
 
-            var series = [];
-            for (var index = 0; index < yAxisIndex.length; index++) {
-                var serie = {
+            let series = [];
+            for (let index = 0; index < yAxisIndex.length; index++) {
+                let serie = {
                     name: yAxisDataName[index],
                     type: yChartType[index],
                     data: yAxisData[dataName[index]],
@@ -472,10 +506,12 @@ $(document).ready(function () {
                     yAxisIndex: yAxisIndex[index],
                     smooth: true
                 };
+                if (stack[index] != null) {
+                    serie["stack"] = stack[index];
+                }
                 $.extend(serie, colors[index]);
                 series.push(serie);
             }
-
             var maxLabelLength = 0;
             var xData = xAxisData.map(function (attr) {
                 var label = attr.order + " " + attr.stopName;
@@ -489,7 +525,8 @@ $(document).ready(function () {
             var route = $("#authRouteFilter").val();
             var options = {
                 legend: {
-                    data: yAxisDataName
+                    data: yAxisDataName,
+                    width: "80%"
                 },
                 xAxis: [{
                     type: "category",
@@ -564,7 +601,7 @@ $(document).ready(function () {
                                 var ball = el.marker;
                                 var name = el.seriesName;
                                 var value = Number(el.value.toFixed(2)).toLocaleString();
-                                if (el.seriesIndex === 4) {
+                                if (el.seriesIndex === 4 || el.seriesIndex === 9) {
                                     value = value + " %";
                                 }
                                 info.push(ball + name + ": " + value);
@@ -579,6 +616,7 @@ $(document).ready(function () {
                     }
                 },
                 grid: {
+                    top: "100px",
                     left: "37px",
                     right: "45px",
                     bottom: maxLabelLength * 5.5 + 20 + "px"
@@ -648,7 +686,53 @@ $(document).ready(function () {
             _barChart.setOption(options, {
                 notMerge: true
             });
+            hideEvasion();
+            let evasionSwitch = $("#evasionSwitch");
+            if (!evasionSwitch.length) {
+                addSwitch();
+            } else {
+                if (evasionSwitch.is(":checked")) {
+                    evasionSwitch.trigger('click');
+                }
+            }
         };
+
+        const addSwitch = function () {
+            let evasionSwitch = "<input id='evasionSwitch'  type='checkbox'  class='modes_checkbox' data-switchery='true'> Mostrar datos con evasión ";
+            $("#barChart").prepend(evasionSwitch);
+            let evasionJquerySwitch = $("#evasionSwitch");
+            evasionJquerySwitch.each(function (index, html) {
+                new Switchery(html, {
+                    size: 'small',
+                    color: 'rgb(38, 185, 154)'
+                });
+            });
+            let switcherySwitch = $(".switchery");
+            switcherySwitch.on("click", () => {
+                if (evasionJquerySwitch.is(":checked")) {
+                    showEvasion();
+                    evasionJquerySwitch.prop('checked', true);
+
+                } else {
+                    evasionJquerySwitch.prop('checked', false);
+                    hideEvasion();
+                }
+            });
+        };
+
+        const hideEvasion = () => applyToEvasion('legendUnSelect');
+
+        const showEvasion = () => applyToEvasion('legendSelect');
+
+        const applyToEvasion = type => {
+            let labels = ["Subidas evadidas", "Bajadas evadidas", "Carga promedio con evasión", "Carga máxima con evasión", "Porcentaje ocupación con evasión"]
+            labels.map(e => {
+                _barChart.dispatchAction({
+                    type: type,
+                    name: e
+                })
+            })
+        }
 
         var _updateGlobalStats = function (expeditionNumber) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
@@ -674,31 +758,37 @@ $(document).ready(function () {
     }
 
     function processData(dataSource, app) {
-
         if (dataSource.status && (dataSource.status.code !== 252 && dataSource.status.code !== 253)) {
             return;
         }
 
-        var trips = dataSource.trips;
-        var stops = dataSource.stops;
-        var busStations = dataSource.busStations;
-        var shape = dataSource.shape;
-
-        var dataManager = new DataManager();
+        let trips = dataSource.trips;
+        let stops = dataSource.stops;
+        let busStations = dataSource.busStations;
+        let shape = dataSource.shape;
+        let dataManager = new DataManager();
         dataManager.shape(shape);
-
         if (dataSource.groupedTrips) {
             busStations = dataSource.groupedTrips.aggregations.stop.station.buckets.map(function (el) {
                 return el.key;
             });
-            var yAxisDataResult = {
+            let yAxisDataResult = {
                 expandedAlighting: [],
                 expandedBoarding: [],
                 loadProfile: [],
                 saturationRate: [],
-                maxLoad: []
+                maxLoad: [],
+                loadProfileWithEvasion: [],
+                expandedEvasionBoarding: [],
+                expandedEvasionAlighting: [],
+                expandedBoardingPlusExpandedEvasionBoarding: [],
+                expandedAlightingPlusExpandedEvasionAlighting: [],
+                saturationRateWithEvasion: [],
+                maxLoadWithEvasion: [],
+
             };
-            var groupedStops = {};
+
+            let groupedStops = {};
             dataSource.groupedTrips.aggregations.stops.buckets.forEach(function (el) {
                 groupedStops[el.key] = {
                     expandedBoarding: el.expandedBoarding.value,
@@ -710,30 +800,43 @@ $(document).ready(function () {
                     maxLoadProfile: el.maxLoadProfile.value
                 }
             });
-
-            var expeditionNumber = 0;
+            let expeditionNumber = 0;
             stops.forEach(function (stop) {
-                var item = groupedStops[stop.authStopCode];
-                var itemIsNull = item === undefined;
+                let item = groupedStops[stop.authStopCode];
+                let itemIsNull = item === undefined;
 
-                var expandedAlighting = itemIsNull ? null : item.expandedAlighting;
-                var expandedBoarding = itemIsNull ? null : item.expandedBoarding;
-                var loadProfile = itemIsNull ? null : item.loadProfile;
-                var saturationRate = itemIsNull ? null : item.busSaturation * 100;
-                var maxLoadProfile = itemIsNull ? null : item.maxLoadProfile;
+                let expandedAlighting = itemIsNull ? null : item.expandedAlighting;
+                let expandedBoarding = itemIsNull ? null : item.expandedBoarding;
+                let loadProfile = itemIsNull ? null : item.loadProfile;
+                let saturationRate = itemIsNull ? null : item.busSaturation * 100;
+                let maxLoadProfile = itemIsNull ? null : item.maxLoadProfile;
+                let loadProfileWithEvasion = itemIsNull ? null : item.loadProfileWithEvasion;
+                let expandedEvasionBoarding = itemIsNull ? null : item.expandedEvasionBoarding;
+                let expandedEvasionAlighting = itemIsNull ? null : item.expandedEvasionAlighting;
+                let expandedBoardingPlusExpandedEvasionBoarding = itemIsNull ? null : item.expandedBoardingPlusExpandedEvasionBoarding;
+                let expandedAlightingPlusExpandedEvasionAlighting = itemIsNull ? null : item.expandedAlightingPlusExpandedEvasionAlighting;
+                let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
 
                 yAxisDataResult.expandedAlighting.push(expandedAlighting);
                 yAxisDataResult.expandedBoarding.push(expandedBoarding);
                 yAxisDataResult.loadProfile.push(loadProfile);
                 yAxisDataResult.saturationRate.push(saturationRate);
                 yAxisDataResult.maxLoad.push(maxLoadProfile);
+                yAxisData.loadProfileWithEvasion.push(loadProfileWithEvasion);
+                yAxisData.expandedEvasionBoarding.push(expandedEvasionBoarding);
+                yAxisData.expandedEvasionAlighting.push(expandedEvasionAlighting);
+                yAxisData.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
+                yAxisData.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
+                yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
 
-                var expNumber = itemIsNull ? 0 : item.expeditionNumber;
+                let expNumber = itemIsNull ? 0 : item.expeditionNumber;
                 expeditionNumber = Math.max(expNumber, expeditionNumber);
+
+
             });
 
             dataManager.yAxisData(yAxisDataResult);
-            var tripGroupXAxisData = stops.map(function (stop) {
+            let tripGroupXAxisData = stops.map(function (stop) {
                 stop.busStation = busStations.indexOf(stop.authStopCode) >= 0;
                 return stop;
             });
@@ -742,48 +845,67 @@ $(document).ready(function () {
             app.updateCharts(expeditionNumber);
             app.updateDatatable();
         } else {
-            for (var expeditionId in trips) {
-                var trip = trips[expeditionId];
+            for (let expeditionId in trips) {
+                let trip = trips[expeditionId];
 
                 // trip info
-                var capacity = trip.info[0];
-                var licensePlate = trip.info[1];
-                var route = trip.info[2];
-                var authTimePeriod = trip.info[3];
-                var timeTripInit = trip.info[4];
-                var timeTripEnd = trip.info[5];
-                var dayType = trip.info[6];
-                var valid = trip.info[7];
+                let capacity = trip.info[0];
+                let licensePlate = trip.info[1];
+                let route = trip.info[2];
+                let authTimePeriod = trip.info[3];
+                let timeTripInit = trip.info[4];
+                let timeTripEnd = trip.info[5];
+                let dayType = trip.info[6];
+                let valid = trip.info[7];
 
-                var yAxisData = {
+                let yAxisData = {
                     expandedAlighting: [],
                     expandedBoarding: [],
                     loadProfile: [],
                     saturationRate: [],
-                    valueIsNull: []
+                    valueIsNull: [],
+                    loadProfileWithEvasion: [],
+                    expandedEvasionBoarding: [],
+                    expandedEvasionAlighting: [],
+                    expandedBoardingPlusExpandedEvasionBoarding: [],
+                    expandedAlightingPlusExpandedEvasionAlighting: [],
+                    saturationRateWithEvasion: [],
                 };
 
                 stops.forEach(function (stop) {
-                    var item = trip.stops[stop.authStopCode];
-                    var itemIsNull = item === undefined;
+                    let item = trip.stops[stop.authStopCode];
+                    let itemIsNull = item === undefined;
 
-                    var expandedAlighting = itemIsNull ? null : item[2];
-                    var expandedBoarding = itemIsNull ? null : item[1];
-                    var loadProfile = itemIsNull ? null : item[0];
-                    var saturationRate = itemIsNull ? null : loadProfile / capacity * 100;
+                    let expandedAlighting = itemIsNull ? null : item[2];
+                    let expandedBoarding = itemIsNull ? null : item[1];
+                    let loadProfile = itemIsNull ? null : item[0];
+                    let saturationRate = itemIsNull ? null : loadProfile / capacity * 100;
+                    let loadProfileWithEvasion = itemIsNull ? null : item[3];
+                    let expandedEvasionBoarding = itemIsNull ? null : item[4];
+                    let expandedEvasionAlighting = itemIsNull ? null : item[5];
+                    let expandedBoardingPlusExpandedEvasionBoarding = itemIsNull ? null : item[6];
+                    let expandedAlightingPlusExpandedEvasionAlighting = itemIsNull ? null : item[7];
+                    let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
 
                     yAxisData.expandedAlighting.push(expandedAlighting);
                     yAxisData.expandedBoarding.push(expandedBoarding);
                     yAxisData.loadProfile.push(loadProfile);
                     yAxisData.saturationRate.push(saturationRate);
                     yAxisData.valueIsNull.push(itemIsNull)
+                    yAxisData.loadProfileWithEvasion.push(loadProfileWithEvasion);
+                    yAxisData.expandedEvasionBoarding.push(expandedEvasionBoarding);
+                    yAxisData.expandedEvasionAlighting.push(expandedEvasionAlighting);
+                    yAxisData.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
+                    yAxisData.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
+                    yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
+
                 });
 
                 trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit,
                     timeTripEnd, authTimePeriod, dayType, yAxisData, valid);
                 dataManager.addTrip(trip);
             }
-            var tripXAxisData = stops.map(function (stop) {
+            let tripXAxisData = stops.map(function (stop) {
                 stop.busStation = busStations.indexOf(stop.authStopCode) >= 0;
                 return stop;
             });
@@ -805,7 +927,7 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data, status) {
-            if (status){
+            if (status) {
                 processData(data, app);
             }
             app.hideLoadingAnimationCharts();

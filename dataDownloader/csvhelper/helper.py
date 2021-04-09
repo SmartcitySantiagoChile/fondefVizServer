@@ -341,7 +341,20 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'halfHourInStopTime', 'csv_name': 'Media_hora_en_parada',
              'definition': 'Indica el período de media hora que la expedición pasó por la parada (ejemplo: 16:00:00)'},
             {'es_name': 'notValid', 'csv_name': 'Expedición_inválida',
-             'definition': 'indica si la expedición contiene alguno de los siguientes problemas -> porcentaje de paraderos con carga menor a -1 es superior al 1% o porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%'}
+             'definition': 'Indica si la expedición contiene alguno de los siguientes problemas -> porcentaje de paraderos con carga menor a -1 es superior al 1% o porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%'},
+            {'es_name': 'expandedEvasionBoarding', 'csv_name': 'Subidas_evadidas',
+             'definition': 'Número de personas que subieron al bus y no pagaron su pasaje.'},
+            {'es_name': 'expandedEvasionAlighting', 'csv_name': 'Bajadas_evadidas',
+             'definition': 'Número de personas que bajaron del bus en la parada y no pagaron su pasaje.'
+             },
+            {'es_name': 'expandedBoardingPlusExpandedEvasionBoarding', 'csv_name': 'Subidas_corregidas',
+             'definition': 'Número total de personas que subieron al bus incluyendo quienes no pagaron su pasaje.'},
+            {'es_name': 'expandedAlightingPlusExpandedEvasionAlighting', 'csv_name': 'Bajadas_corregidas',
+             'definition': 'Número total de personas que bajaron del bus en la parada incluyendo quienes no pagaron su pasaje.'},
+            {'es_name': 'loadProfileWithEvasion', 'csv_name': 'Carga_corregida',
+             'definition': 'Número de personas arriba del bus al llegar a la parada incluyendo quienes no pagaron su pasaje.'},
+            {'es_name': 'boardingWithAlighting', 'csv_name': 'Subidas_con_bajada',
+             'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP'}
         ]
 
     def get_data_file_name(self):
