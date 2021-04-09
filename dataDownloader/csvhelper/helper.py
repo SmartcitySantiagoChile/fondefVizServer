@@ -90,7 +90,6 @@ class CSVHelper:
         return es_query.scan()
 
     def download(self, zip_file_obj, **kwargs):
-        print("download")
         tmp_file_name = str(uuid.uuid4())
         try:
             with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
