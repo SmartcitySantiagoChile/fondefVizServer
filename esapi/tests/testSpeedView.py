@@ -158,7 +158,6 @@ class MatrixDataTest(TestHelper):
         self.data['authRoute'] = '506 00I'
         response = self.client.post(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        print(status)
         self.assertJSONEqual(status, ExporterDataHasBeenEnqueuedMessage().get_status_response())
 
 
