@@ -19,6 +19,7 @@ class Command(BaseCommand):
         for key in file_dict.keys():
             for file in file_dict[key]:
                 date = file['name'].split(".")[0]
+                self.check_time_period_consistency(file)
                 date_info = {key: {'lines': file['lines'], 'docNumber': file['docNumber']}}
                 date_dict[date].update(date_info)
         for date in date_dict.keys():
@@ -32,3 +33,7 @@ class Command(BaseCommand):
             create = Consistency.objects.create(**params)
             self.stdout.write(str(create.date) + " created.")
         self.stdout.write("All metrics recalculated.")
+
+    def check_time_period_consistency(self, file):
+        print(file)
+
