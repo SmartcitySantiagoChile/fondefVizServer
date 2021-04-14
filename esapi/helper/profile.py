@@ -6,6 +6,7 @@ from datetime import datetime
 from functools import reduce
 
 from elasticsearch_dsl import A, Q
+from elasticsearch_dsl.aggs import Composite
 
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
@@ -345,6 +346,6 @@ class ESProfileHelper(ElasticSearchHelper):
         """
         es_query = self.get_base_query()
         es_query = es_query[:0]
-        aggs = A('terms', field="timePeriodInStartTime", size=5000)
-        es_query.aggs.bucket('timePeriodInStartTime', aggs)
+        es_query.aggs.bucket('time_periods_per_file', 'terms', field='path',) \
+            .bucket('time_periods', 'terms', field='timePeriodInStartTime')
         return es_query
