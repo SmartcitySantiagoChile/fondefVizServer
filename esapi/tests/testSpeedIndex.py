@@ -305,7 +305,7 @@ class ESSpeedIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_all_time_periods(self):
-        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path'}, 'aggs': {
+        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path', 'size': 5000}, 'aggs': {
             'time_periods': {'terms': {'field': 'periodId'}}}}}, 'from': 0, 'size': 0}
         result = self.instance.get_all_time_periods().to_dict()
         self.assertEqual(expected_query, result)
