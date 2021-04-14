@@ -228,7 +228,8 @@ class ESSpeedIndexTest(TestCase):
         period = 1
         day_type = ['LABORAL']
         valid_operator_list = []
-        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_detail_ranking_data_query, route,
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_detail_ranking_data_query,
+                          route,
                           dates, period, day_type, valid_operator_list)
         dates = [['2018-01-01', '2018-02-01']]
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_detail_ranking_data_query, route,
@@ -302,3 +303,9 @@ class ESSpeedIndexTest(TestCase):
                              u'time': {'sum': {'field': u'totalTime'}}}}}}}}}, 'size': 0}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
+
+    def test_get_all_time_periods(self):
+        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path'}, 'aggs': {
+            'time_periods': {'terms': {'field': 'periodId'}}}}}, 'from': 0, 'size': 0}
+        result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)

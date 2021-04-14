@@ -300,3 +300,14 @@ class ESSpeedHelper(ElasticSearchHelper):
         es_query.aggs.bucket('routes', aggs0).bucket('periods', aggs1).bucket('days', aggs2)
 
         return es_query
+
+    def get_all_time_periods(self):
+        """
+        Make a query that get all time periods in profile index
+        Returns: ES query
+        """
+        es_query = self.get_base_query()
+        es_query = es_query[:0]
+        es_query.aggs.bucket('time_periods_per_file', 'terms', field='path',) \
+            .bucket('time_periods', 'terms', field='periodId')
+        return es_query
