@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -306,3 +307,11 @@ class ESProfileIndexTest(TestCase):
         expected = {'from': 0, 'aggs': {u'route': {'terms': {'field': u'route', 'size': 5000}}}, 'size': 0}
         result = self.instance.get_all_auth_routes().to_dict()
         self.assertDictEqual(result, expected)
+
+    def test_get_all_time_periods(self):
+        expected_query = {
+            'aggs': {'timePeriodInStartTime': {'terms': {'field': 'timePeriodInStartTime', 'size': 5000}}}, 'from': 0,
+            'size': 0}
+
+        result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)
