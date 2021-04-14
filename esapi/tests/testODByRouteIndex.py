@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -163,3 +164,9 @@ class ESODByRouteIndexTest(TestCase):
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryResultEmpty, self.instance.get_od_data, auth_route_code, time_periods, day_type,
                           dates, valid_operator_list)
+
+    def test_get_all_time_periods(self):
+        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path'}, 'aggs': {
+            'time_periods': {'terms': {'field': 'timePeriodInStopTime'}}}}}, 'from': 0, 'size': 0}
+        result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)

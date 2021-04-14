@@ -303,7 +303,7 @@ class ESSpeedHelper(ElasticSearchHelper):
 
     def get_all_time_periods(self):
         """
-        Make a query that get all time periods in profile index
+        Make a query that get all time periods in index
         Returns: ES query
         """
         es_query = self.get_base_query()
