@@ -684,3 +684,7 @@ class ESTripIndexTest(TestCase):
                             u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
+
+    def test_get_all_time_periods(self):
+        expected_query = result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)
