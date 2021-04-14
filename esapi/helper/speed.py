@@ -308,6 +308,6 @@ class ESSpeedHelper(ElasticSearchHelper):
         """
         es_query = self.get_base_query()
         es_query = es_query[:0]
-        es_query.aggs.bucket('time_periods_per_file', 'terms', field='path',) \
+        es_query.aggs.bucket('time_periods_per_file', 'terms', field='path', size=5000) \
             .bucket('time_periods', 'terms', field='periodId')
         return es_query

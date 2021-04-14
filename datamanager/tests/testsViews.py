@@ -25,3 +25,5 @@ class ConnectionTest(TestHelper):
 
     def test_data_jobHistoryByUser(self):
         self.check_http_response(self.client, 'datamanager:jobHistoryByUser', 200)
+
+    # TODO: add get_time_period_list_by_file_from_elasticsearch test
