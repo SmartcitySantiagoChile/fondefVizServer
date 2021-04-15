@@ -17,3 +17,4 @@ class Consistency(models.Model):
     paymentfactor_index = models.IntegerField()
     general_file = models.IntegerField()
     general_index = models.IntegerField()
+    authority_period_version = models.CharField()
