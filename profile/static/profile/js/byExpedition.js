@@ -289,7 +289,7 @@ $(document).ready(function () {
                     }
                 },
                 {
-                    title: "Perfil de carga", data: "sparkLoadProfile", searchable: false,
+                    title: "Perfil de carga sin evasión", data: "sparkLoadProfile", searchable: false,
                     render: function (data, type, row) {
                         return $("<i>").addClass("spark").append(data.join(","))[0].outerHTML;
                     }
