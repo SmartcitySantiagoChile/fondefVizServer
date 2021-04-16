@@ -30,7 +30,6 @@ class Command(BaseCommand):
         for key in file_dict.keys():
             for file in file_dict[key]:
                 # get file info
-                file_path = os.path.join(file['path'], file['name'])
                 date = file['name'].split(".")[0]
                 index = file['name'].split(".")[1]
 
