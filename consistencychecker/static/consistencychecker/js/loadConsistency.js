@@ -79,6 +79,7 @@ $(document).ready(function () {
         this.updateTables = function () {
             $.get(Urls["consistencychecker:getConsistencyData"](), function (data) {
                 var dictFiles = JSON.parse(data.response);
+                console.log(dictFiles);
                 var files = dictFiles.map(e => {
                     let row = e.fields;
                     let date = new Date(row.date);
@@ -95,7 +96,7 @@ $(document).ready(function () {
                     {
                         title: 'Día de la semana',
                         data: 'day'
-                    }
+                    },
                 ];
 
 
@@ -113,6 +114,10 @@ $(document).ready(function () {
                         }
                     )
                 }
+                columns.push(                    {
+                    title: 'Versión de Periodo TS',
+                    data: 'authority_period_version'
+                })
                 var opts = $.extend({data: files, columns: columns}, _datatableOpts);
                 $("#fechas-id").DataTable(opts);
 
