@@ -19,39 +19,46 @@ class TestFileManager(TestHelper):
         expected = {
             'stop': [
                 {'name': '2020-01-01.stop',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 11, 20, 57, 58, 369000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2019, 11, 29, 16, 9, 36, tzinfo=pytz.utc), 'lines': 917, 'id': 1, 'lastExecution': None}],
             'shape': [
                 {'name': '2019-10-12.shape',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 11, 21, 15, 36, 632000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 27, 20, 59, 26, 831000, tzinfo=pytz.utc), 'lines': 1427, 'id': 2, 'lastExecution': None}],
             'opdata': [
                 {'name': '2018-03-01.opdata',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(
                      2020, 9, 11, 21, 16, 12,
                      567000, tzinfo=pytz.utc), 'lastModified': datetime.datetime(
                     2020, 6, 18, 22, 17, 15, 518000, tzinfo=pytz.utc), 'lines': 778, 'id': 3, 'lastExecution': None}],
             'bip': [
                 {'name': '2019-10-08.bip',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 822000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 25, 15, 25, 56, 761000, tzinfo=pytz.utc), 'lines': 5892312, 'id': 4,
                  'lastExecution': None}],
             'general': [
                 {'name': '2019-10-21.general',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 849000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 17, 15, 32, 10, 927000, tzinfo=pytz.utc), 'lines': 1, 'id': 5, 'lastExecution': None}],
             'trip': [
                 {'name': '2019-10-21.trip',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 901000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 26, 14, 8, 24, 904000, tzinfo=pytz.utc), 'lines': 3091226, 'id': 6,
                  'lastExecution': None}],
             'speed': [
                 {'name': '2019-10-27.speed',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(
                      2020, 9, 14, 13, 54,
                      38, 921000, tzinfo=pytz.utc), 'lastModified': datetime.datetime(
@@ -59,17 +66,20 @@ class TestFileManager(TestHelper):
                  'lastExecution': None}],
             'profile': [
                 {'name': '2019-08-05.profile',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 39, 339000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 5, 12, 17, 11, 15, 74000, tzinfo=pytz.utc), 'lines': 3747960, 'id': 8,
                  'lastExecution': None}],
             'paymentfactor': [
                 {'name': '2019-10-17.paymentfactor',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 57, 41, 911000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 25, 15, 7, 59, 485000, tzinfo=pytz.utc), 'lines': 240, 'id': 9, 'lastExecution': None}],
             'odbyroute': [
                 {'name': '2019-10-17.odbyroute',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 14, 38, 15, 434000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 26, 13, 15, 24, 266000, tzinfo=pytz.utc), 'lines': 0, 'id': 10, 'lastExecution': None}]}
@@ -78,6 +88,7 @@ class TestFileManager(TestHelper):
 
         filter_bip_expected = {'bip': [
             {'name': '2019-10-08.bip',
+             'path': "/home/bastianleaf/Documents/Trabajo/datos",
              'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 822000, tzinfo=pytz.utc),
              'lastModified': datetime.datetime(
                  2020, 3, 25, 15, 25, 56, 761000, tzinfo=pytz.utc), 'lines': 5892312, 'id': 4, 'lastExecution': None}]}
