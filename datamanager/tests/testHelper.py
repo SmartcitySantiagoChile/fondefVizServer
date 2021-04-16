@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+import datetime
+from unittest import mock
+
 import pytz
 
-from testhelper.helper import TestHelper
 from datamanager.helper import FileManager
-from unittest import mock
-import datetime
+from testhelper.helper import TestHelper
 
 
 class TestFileManager(TestHelper):
@@ -127,18 +128,21 @@ class TestFileManager(TestHelper):
         expected = {
             'stop': [
                 {'name': '2020-01-01.stop',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 11, 20, 57, 58, 369000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2019, 11, 29, 16, 9, 36, tzinfo=pytz.utc), 'lines': 917, 'id': 1, 'lastExecution': None,
                  'docNumber': 0}],
             'shape': [
                 {'name': '2019-10-12.shape',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 11, 21, 15, 36, 632000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 27, 20, 59, 26, 831000, tzinfo=pytz.utc), 'lines': 1427, 'id': 2, 'lastExecution': None,
                  'docNumber': 0}],
             'opdata': [
                 {'name': '2018-03-01.opdata',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(
                      2020, 9, 11, 21, 16, 12,
                      567000, tzinfo=pytz.utc), 'lastModified': datetime.datetime(
@@ -146,24 +150,28 @@ class TestFileManager(TestHelper):
                  'docNumber': 0}],
             'bip': [
                 {'name': '2019-10-08.bip',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 822000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 25, 15, 25, 56, 761000, tzinfo=pytz.utc), 'lines': 5892312, 'id': 4,
                  'lastExecution': None, 'docNumber': 0}],
             'general': [
                 {'name': '2019-10-21.general',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 849000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 17, 15, 32, 10, 927000, tzinfo=pytz.utc), 'lines': 1, 'id': 5, 'lastExecution': None,
                  'docNumber': 0}],
             'trip': [
                 {'name': '2019-10-21.trip',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 901000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 26, 14, 8, 24, 904000, tzinfo=pytz.utc), 'lines': 3091226, 'id': 6,
                  'lastExecution': None, 'docNumber': 0}],
             'speed': [
                 {'name': '2019-10-27.speed',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(
                      2020, 9, 14, 13, 54,
                      38, 921000, tzinfo=pytz.utc), 'lastModified': datetime.datetime(
@@ -171,18 +179,21 @@ class TestFileManager(TestHelper):
                  'lastExecution': None, 'docNumber': 0}],
             'profile': [
                 {'name': '2019-08-05.profile',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 39, 339000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 5, 12, 17, 11, 15, 74000, tzinfo=pytz.utc), 'lines': 3747960, 'id': 8,
                  'lastExecution': None, 'docNumber': 0}],
             'paymentfactor': [
                 {'name': '2019-10-17.paymentfactor',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 13, 57, 41, 911000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 25, 15, 7, 59, 485000, tzinfo=pytz.utc), 'lines': 240, 'id': 9, 'lastExecution': None,
                  'docNumber': 0}],
             'odbyroute': [
                 {'name': '2019-10-17.odbyroute',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 14, 14, 38, 15, 434000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2020, 3, 26, 13, 15, 24, 266000, tzinfo=pytz.utc), 'lines': 0, 'id': 10, 'lastExecution': None,
@@ -193,8 +204,37 @@ class TestFileManager(TestHelper):
         stop_expected = {
             'stop': [
                 {'name': '2020-01-01.stop',
+                 'path': "/home/bastianleaf/Documents/Trabajo/datos",
                  'discoveredAt': datetime.datetime(2020, 9, 11, 20, 57, 58, 369000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2019, 11, 29, 16, 9, 36, tzinfo=pytz.utc), 'lines': 917, 'id': 1, 'lastExecution': None,
-                 'docNumber': 0}]}
+                 'docNumber': 0}
+            ]
+        }
         self.assertEqual(stop_expected, self.file_manager.get_file_list(index_filter=['stop']))
+
+    @mock.patch('datamanager.helper.ESODByRouteHelper')
+    @mock.patch('datamanager.helper.ESSpeedHelper')
+    @mock.patch('datamanager.helper.ESTripHelper')
+    @mock.patch('datamanager.helper.ESProfileHelper')
+    def test_get_time_period_list_by_file_from_elasticsearch(self, profile, trip, speed, odbyroute):
+        expected = {"01-01-2020":
+                        {"profile": [1, 2, 3, 4, 5, 6, 7]}
+                    }
+        file_list = [{
+            "key": "01-01-2020.profile",
+            "time_periods": {
+                "buckets":
+                    [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 4}, {"key": 5}, {"key": 6}, {"key": 7}]
+            }
+        }]
+        to_dict = {"time_periods_per_file": {"buckets": file_list}}
+        aggregations = mock.MagicMock(to_dict=mock.MagicMock(return_value=to_dict))
+        execute = mock.MagicMock(aggregations=aggregations)
+        get_all_time_periods = mock.MagicMock(execute=mock.MagicMock(return_value=execute))
+        profile.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
+        trip.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
+        speed.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
+        odbyroute.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
+
+        self.assertEqual(expected, self.file_manager.get_time_period_list_by_file_from_elasticsearch())
