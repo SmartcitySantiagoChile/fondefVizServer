@@ -6,7 +6,7 @@ psycopg2-binary==2.8.6
 django-js-reverse==0.9.1
 django-rq==2.4.1
 rq==1.8.0
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
 django-debug-panel==0.8.3
 python-decouple==3.4
 django-crontab==0.7.1
