@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 import json
 
-import mock
+from unittest import mock
 from django.urls import reverse
-from mock import patch
+from unittest.mock import patch
 
 from esapi.errors import ESQueryStopPatternTooShort
 from testhelper.helper import TestHelper

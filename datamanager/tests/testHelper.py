@@ -3,7 +3,7 @@ import pytz
 
 from testhelper.helper import TestHelper
 from datamanager.helper import FileManager
-import mock
+from unittest import mock
 import datetime
 
 

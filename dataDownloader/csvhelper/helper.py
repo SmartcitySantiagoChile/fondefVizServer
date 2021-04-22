@@ -309,7 +309,8 @@ class ProfileCSVHelper(CSVHelper):
              'definition': 'Fecha y hora de inicio de la expedición'},
             {'es_name': 'expeditionEndTime', 'csv_name': 'Hora_fin_expedición',
              'definition': 'Fecha y hora de fin de la expedición'},
-            {'es_name': 'fulfillment', 'csv_name': 'Cumplimiento', 'definition': ''},
+            {'es_name': 'fulfillment', 'csv_name': 'Cumplimiento',
+             'definition': 'La expedición cumple la condición de cruzar por los puntos de control de inicio y fin de ruta indicado en el reporte 1.96'},
             {'es_name': 'expeditionStopOrder', 'csv_name': 'Secuencia_parada',
              'definition': 'Posición de la parada dentro de la secuencia de paradas asociada al servicio'},
             {'es_name': 'expeditionDayId', 'csv_name': 'Identificador_expedición_día',
@@ -317,9 +318,9 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'stopDistanceFromPathStart', 'csv_name': 'Distancia_parada_desde_inicio_ruta',
              'definition': 'Distancia en metros entre el inicio de la ruta del servicio y la parada, considera la geometría de la ruta (no es euclidiana)'},
             {'es_name': 'expandedBoarding', 'csv_name': 'Subidas_expandidas',
-             'definition': 'Número de personas que subieron al bus en la parada'},
+             'definition': 'Número de personas que subieron al bus en la parada, la expansión se realiza por período-servicio-sentido'},
             {'es_name': 'expandedAlighting', 'csv_name': 'Bajadas_expandidas',
-             'definition': 'Número de personas que bajaron del bus en la parada'},
+             'definition': 'Número de personas que bajaron del bus en la parada, la expansión se realiza por período-servicio-sentido'},
             {'es_name': 'loadProfile', 'csv_name': 'Perfil_carga_al_llegar',
              'definition': 'Número de personas arriba del bus al llegar a la parada'},
             {'es_name': 'busCapacity', 'csv_name': 'Capacidad_bus',
@@ -329,7 +330,7 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'timePeriodInStartTime', 'csv_name': 'Periodo_transantiago_inicio_expedicion',
              'definition': 'Período transantiago en que inició la expedición'},
             {'es_name': 'timePeriodInStopTime', 'csv_name': 'Periodo_transantiago_parada_expedición',
-             'definition': 'Período transantiago en que finalizó la expedición'},
+             'definition': 'Período transantiago en que el bus cruza la parada'},
             {'es_name': 'dayType', 'csv_name': 'Tipo_dia',
              'definition': 'Tipo de día considerado por adatrap al momento de realizar el procesamiento de los datos'},
             {'es_name': 'busStation', 'csv_name': 'Zona_paga',
@@ -341,7 +342,20 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'halfHourInStopTime', 'csv_name': 'Media_hora_en_parada',
              'definition': 'Indica el período de media hora que la expedición pasó por la parada (ejemplo: 16:00:00)'},
             {'es_name': 'notValid', 'csv_name': 'Expedición_inválida',
-             'definition': 'indica si la expedición contiene alguno de los siguientes problemas -> porcentaje de paraderos con carga menor a -1 es superior al 1% o porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%'}
+             'definition': 'Indica si la expedición contiene alguno de los siguientes problemas -> porcentaje de paraderos con carga menor a -1 es superior al 1% o porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%'},
+            {'es_name': 'expandedEvasionBoarding', 'csv_name': 'Subidas_evadidas',
+             'definition': 'Número de personas que subieron al bus y no pagaron su pasaje.'},
+            {'es_name': 'expandedEvasionAlighting', 'csv_name': 'Bajadas_evadidas',
+             'definition': 'Número de personas que bajaron del bus en la parada y no pagaron su pasaje.'
+             },
+            {'es_name': 'expandedBoardingPlusExpandedEvasionBoarding', 'csv_name': 'Subidas_corregidas',
+             'definition': 'Número total de personas que subieron al bus incluyendo quienes no pagaron su pasaje.'},
+            {'es_name': 'expandedAlightingPlusExpandedEvasionAlighting', 'csv_name': 'Bajadas_corregidas',
+             'definition': 'Número total de personas que bajaron del bus en la parada incluyendo quienes no pagaron su pasaje.'},
+            {'es_name': 'loadProfileWithEvasion', 'csv_name': 'Carga_corregida',
+             'definition': 'Número de personas arriba del bus al llegar a la parada incluyendo quienes no pagaron su pasaje.'},
+            {'es_name': 'boardingWithAlighting', 'csv_name': 'Subidas_con_bajada',
+             'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP'}
         ]
 
     def get_data_file_name(self):

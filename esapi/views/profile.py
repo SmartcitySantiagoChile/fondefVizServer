@@ -188,17 +188,21 @@ class LoadProfileByExpeditionData(View):
             if hit.busStation == 1 and hit.authStopCode not in bus_stations:
                 bus_stations.append(hit.authStopCode)
 
-            # loadProfile, expandedGetIn, expandedGetOut
+            # loadProfile, expandedBoarding, expandedAlighting
             stop = [
                 self.clean_data(hit.loadProfile),
                 self.clean_data(hit.expandedBoarding),
                 self.clean_data(hit.expandedAlighting),
+                self.clean_data(hit.loadProfileWithEvasion),
+                self.clean_data(hit.expandedEvasionBoarding),
+                self.clean_data(hit.expandedEvasionAlighting),
+                self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
+                self.clean_data(hit.expandedAlightingPlusExpandedEvasionAlighting)
             ]
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 
         if len(list(trips.keys())) == 0:
             raise ESQueryResultEmpty()
-
         return trips, bus_stations, expedition_not_valid_number
 
     def process_request(self, request, params, export_data=False):

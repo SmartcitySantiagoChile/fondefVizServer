@@ -24,6 +24,7 @@ class ESProfileHelper(ElasticSearchHelper):
                                  valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -61,7 +62,11 @@ class ESProfileHelper(ElasticSearchHelper):
                                     'userStopName', 'expandedAlighting', 'expandedBoarding', 'fulfillment',
                                     'stopDistanceFromPathStart', 'expeditionStartTime',
                                     'expeditionEndTime', 'authStopCode', 'userStopCode', 'timePeriodInStartTime',
-                                    'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path'])
+                                    'dayType', 'timePeriodInStopTime', 'loadProfile', 'busStation', 'path',
+                                    'expandedEvasionBoarding', 'expandedEvasionAlighting',
+                                    'expandedBoardingPlusExpandedEvasionBoarding',
+                                    'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+                                    'boardingWithAlighting'])
 
         return es_query
 
@@ -72,6 +77,7 @@ class ESProfileHelper(ElasticSearchHelper):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query = es_query.source([])
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -108,7 +114,7 @@ class ESProfileHelper(ElasticSearchHelper):
     def get_base_profile_by_expedition_data_query(self, dates, day_type, auth_route, period, half_hour,
                                                   valid_operator_list, show_only_valid_expeditions=True):
         es_query = self.get_base_query()
-
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -150,7 +156,11 @@ class ESProfileHelper(ElasticSearchHelper):
         es_query = es_query.source(
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
-             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid'])
+             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid', 'expandedEvasionBoarding',
+             'expandedEvasionAlighting',
+             'expandedBoardingPlusExpandedEvasionBoarding',
+             'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+             'boardingWithAlighting'])
 
         return es_query
 
@@ -168,7 +178,13 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('sumBusCapacity', 'sum', field='busCapacity'). \
             metric('busSaturation', 'bucket_script', script='params.d / params.t',
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
-            metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart'])
+            metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart']). \
+            metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
+            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
+            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
 
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
@@ -178,7 +194,7 @@ class ESProfileHelper(ElasticSearchHelper):
     def get_base_profile_by_trajectory_data_query(self, dates, day_type, auth_route, period, half_hour,
                                                   valid_operator_list):
         es_query = self.get_base_query()
-
+        es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
             es_query = es_query.filter('terms', operator=valid_operator_list)
         else:
@@ -218,7 +234,11 @@ class ESProfileHelper(ElasticSearchHelper):
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
              'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'stopDistanceFromPathStart',
-             'expeditionStopTime', 'notValid'])
+             'expeditionStopTime', 'notValid', 'expandedEvasionBoarding',
+             'expandedEvasionAlighting',
+             'expandedBoardingPlusExpandedEvasionBoarding',
+             'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+             'boardingWithAlighting'])
 
         return es_query
 
@@ -238,7 +258,7 @@ class ESProfileHelper(ElasticSearchHelper):
                                           valid_operator_list):
         """ return iterator to process load profile by stop """
         es_query = self.get_base_query()
-
+        es_query = es_query.filter('term', fulfillment="C")
         if not dates or not isinstance(dates[0], list) or not dates[0]:
             raise ESQueryDateRangeParametersDoesNotExist()
 
@@ -288,7 +308,13 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('userStopCode', 'top_hits', size=1, _source=['userStopCode']). \
             metric('userStopName', 'top_hits', size=1, _source=['userStopName']). \
             metric('busCapacity', 'avg', field='busCapacity'). \
-            metric('tripsCount', 'value_count', field='expandedAlighting')
+            metric('tripsCount', 'value_count', field='expandedAlighting'). \
+            metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
+            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
+            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
         return es_query
 
     def get_all_auth_routes(self, start_date=None, end_date=None):
