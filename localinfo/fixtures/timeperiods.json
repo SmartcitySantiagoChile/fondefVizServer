@@ -694,5 +694,352 @@
       "endTime": "23:59:59 ",
       "date_id": 2
     }
+  },{
+    "model": "localinfo.timeperiod",
+    "pk": 59,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "1",
+      "authorityPeriodName": "Pre nocturno",
+      "initialTime": "00:00:00",
+      "endTime": "00:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 60,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "2",
+      "authorityPeriodName": "Nocturno",
+      "initialTime": "01:00:00",
+      "endTime": "05:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 61,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "3",
+      "authorityPeriodName": "Transición nocturno",
+      "initialTime": "05:30:00",
+      "endTime": "06:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 62,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "4",
+      "authorityPeriodName": "Punta mañana",
+      "initialTime": "06:30:00",
+      "endTime": "08:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 63,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "5",
+      "authorityPeriodName": "Transición punta mañana",
+      "initialTime": "08:30:00",
+      "endTime": "09:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 64,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "6",
+      "authorityPeriodName": "Fuera de punta mañana",
+      "initialTime": "09:30:00",
+      "endTime": "12:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 65,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "7",
+      "authorityPeriodName": "Punta mediodia",
+      "initialTime": "12:30:00",
+      "endTime": "13:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 66,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "8",
+      "authorityPeriodName": "Fuera de punta tarde",
+      "initialTime": "14:00:00",
+      "endTime": "17:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 67,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "9",
+      "authorityPeriodName": "Punta tarde",
+      "initialTime": "17:30:00",
+      "endTime": "20:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 68,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "10",
+      "authorityPeriodName": "Transición punta tarde",
+      "initialTime": "20:30:00",
+      "endTime": "21:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 69,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "11",
+      "authorityPeriodName": "Fuera de punta nocturno",
+      "initialTime": "21:30:00",
+      "endTime": "22:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 70,
+    "fields": {
+      "dayType": "Laboral",
+      "esId": "12",
+      "authorityPeriodName": "Pre nocturno",
+      "initialTime": "23:00:00",
+      "endTime": "23:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 71,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "13",
+      "authorityPeriodName": "Pre nocturno sábado",
+      "initialTime": "00:00:00",
+      "endTime": "00:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 72,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "14",
+      "authorityPeriodName": "Nocturno sábado",
+      "initialTime": "01:00:00",
+      "endTime": "05:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 73,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "15",
+      "authorityPeriodName": "Transición sábado mañana",
+      "initialTime": "05:30:00",
+      "endTime": "06:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 74,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "16",
+      "authorityPeriodName": "Punta mañana sábado",
+      "initialTime": "06:30:00",
+      "endTime": "10:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 75,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "17",
+      "authorityPeriodName": "Mañana sábado",
+      "initialTime": "11:00:00",
+      "endTime": "13:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 76,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "18",
+      "authorityPeriodName": "Punta mediodia sábado",
+      "initialTime": "13:30:00",
+      "endTime": "17:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 77,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "19",
+      "authorityPeriodName": "Tarde sábado",
+      "initialTime": "17:30:00",
+      "endTime": "20:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 78,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "20",
+      "authorityPeriodName": "Transición sábado nocturno",
+      "initialTime": "20:30:00",
+      "endTime": "22:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 79,
+    "fields": {
+      "dayType": "Sábado",
+      "esId": "21",
+      "authorityPeriodName": "Pre nocturno sábado",
+      "initialTime": "23:00:00",
+      "endTime": "23:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 80,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "22",
+      "authorityPeriodName": "Pre nocturno domingo",
+      "initialTime": "00:00:00",
+      "endTime": "00:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 81,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "23",
+      "authorityPeriodName": "Nocturno domingo",
+      "initialTime": "01:00:00",
+      "endTime": "05:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 82,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "24",
+      "authorityPeriodName": "Transición domingo mañana",
+      "initialTime": "05:30:00",
+      "endTime": "09:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 83,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "25",
+      "authorityPeriodName": "Mañana domingo",
+      "initialTime": "09:30:00",
+      "endTime": "13:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 84,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "26",
+      "authorityPeriodName": "Mediodia domingo",
+      "initialTime": "13:30:00",
+      "endTime": "17:29:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 85,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "27",
+      "authorityPeriodName": "Tarde domingo",
+      "initialTime": "17:30:00",
+      "endTime": "20:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 86,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "28",
+      "authorityPeriodName": "Transición domingo nocturno",
+      "initialTime": "21:00:00",
+      "endTime": "22:59:59",
+      "date_id": 3
+    }
+  },
+  {
+    "model": "localinfo.timeperiod",
+    "pk": 87,
+    "fields": {
+      "dayType": "Domingo",
+      "esId": "29",
+      "authorityPeriodName": "Pre nocturno domingo",
+      "initialTime": "23:00:00",
+      "endTime": "23:59:59 ",
+      "date_id": 3
+    }
   }
 ]
