@@ -114,7 +114,6 @@ class MatrixData(View):
                                 break
                         route_segment_by_hour.append([interval, speed, n_obs, distance, time])
                     response['matrix'].append(route_segment_by_hour)
-
                 response['route'] = {
                     'name': auth_route,
                     'points': route_points,
