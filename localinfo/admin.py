@@ -45,7 +45,7 @@ class OperatorAdmin(admin.ModelAdmin):
 
 class HalfHourAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ('authorityPeriodName', 'name', 'shortName', 'longName')
+    list_display = ('name', 'shortName', 'longName')
     list_display_links = None
 
     def has_add_permission(self, request):
