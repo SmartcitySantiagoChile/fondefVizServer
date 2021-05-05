@@ -225,7 +225,7 @@ def get_opprogram_list_for_select_input(to_dict=False):
     parser = _list_parser
     if to_dict:
         parser = _dict_parser
-    return parser(OPProgram.objects.values_list('id').annotate(valid_from=Cast('valid_from', output_field=CharField())))
+    return parser(OPProgram.objects.values_list('id').order_by("valid_from").annotate(valid_from=Cast('valid_from', output_field=CharField())))
 
 
 def get_periods_dict():
