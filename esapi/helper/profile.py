@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 from collections import defaultdict
 from datetime import datetime
 from functools import reduce
 
 from elasticsearch_dsl import A, Q
-from elasticsearch_dsl.aggs import Composite
 
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryDateRangeParametersDoesNotExist, \
     ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist
