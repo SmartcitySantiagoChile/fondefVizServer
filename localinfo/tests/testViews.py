@@ -83,35 +83,39 @@ class LocalInfoViewTest(TestHelper):
         self.data['dates[]'] = ['2017-01-01', '2017-07-01']
         url = reverse('localinfo:timePeriod')
         response = self.client.get(url, self.data)
-        expected_time_period = {'timePeriod': [{'value': 1, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
-                                               {'value': 2, 'item': 'Nocturno (01:00:00-05:29:59)'},
-                                               {'value': 3, 'item': 'Transición nocturno (05:30:00-06:29:59)'},
-                                               {'value': 4, 'item': 'Punta mañana (06:30:00-08:29:59)'},
-                                               {'value': 5, 'item': 'Transición punta mañana (08:30:00-09:29:59)'},
-                                               {'value': 6, 'item': 'Fuera de punta mañana (09:30:00-12:29:59)'},
-                                               {'value': 7, 'item': 'Punta mediodia (12:30:00-13:59:59)'},
-                                               {'value': 8, 'item': 'Fuera de punta tarde (14:00:00-17:29:59)'},
-                                               {'value': 9, 'item': 'Punta tarde (17:30:00-20:29:59)'},
-                                               {'value': 10, 'item': 'Transición punta tarde (20:30:00-21:29:59)'},
-                                               {'value': 11, 'item': 'Fuera de punta nocturno (21:30:00-22:59:59)'},
-                                               {'value': 12, 'item': 'Pre nocturno (23:00:00-23:59:59)'},
-                                               {'value': 13, 'item': 'Pre nocturno sábado (00:00:00-00:59:59)'},
-                                               {'value': 14, 'item': 'Nocturno sábado (01:00:00-05:29:59)'},
-                                               {'value': 15, 'item': 'Transición sábado mañana (05:30:00-06:29:59)'},
-                                               {'value': 16, 'item': 'Punta mañana sábado (06:30:00-10:59:59)'},
-                                               {'value': 17, 'item': 'Mañana sábado (11:00:00-13:29:59)'},
-                                               {'value': 18, 'item': 'Punta mediodia sábado (13:30:00-17:29:59)'},
-                                               {'value': 19, 'item': 'Tarde sábado (17:30:00-20:29:59)'},
-                                               {'value': 20, 'item': 'Transición sábado nocturno (20:30:00-22:59:59)'},
-                                               {'value': 21, 'item': 'Pre nocturno sábado (23:00:00-23:59:59)'},
-                                               {'value': 22, 'item': 'Pre nocturno domingo (00:00:00-00:59:59)'},
-                                               {'value': 23, 'item': 'Nocturno domingo (01:00:00-05:29:59)'},
-                                               {'value': 24, 'item': 'Transición domingo mañana (05:30:00-09:29:59)'},
-                                               {'value': 25, 'item': 'Mañana domingo (09:30:00-13:29:59)'},
-                                               {'value': 26, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
-                                               {'value': 27, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
-                                               {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
-                                               {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]}
+        expected_time_period = {
+            'timePeriod': [
+                {'value': 1, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
+                {'value': 2, 'item': 'Nocturno (01:00:00-05:29:59)'},
+                {'value': 3, 'item': 'Transición nocturno (05:30:00-06:29:59)'},
+                {'value': 4, 'item': 'Punta mañana (06:30:00-08:29:59)'},
+                {'value': 5, 'item': 'Transición punta mañana (08:30:00-09:29:59)'},
+                {'value': 6, 'item': 'Fuera de punta mañana (09:30:00-12:29:59)'},
+                {'value': 7, 'item': 'Punta mediodia (12:30:00-13:59:59)'},
+                {'value': 8, 'item': 'Fuera de punta tarde (14:00:00-17:29:59)'},
+                {'value': 9, 'item': 'Punta tarde (17:30:00-20:29:59)'},
+                {'value': 10, 'item': 'Transición punta tarde (20:30:00-21:29:59)'},
+                {'value': 11, 'item': 'Fuera de punta nocturno (21:30:00-22:59:59)'},
+                {'value': 12, 'item': 'Pre nocturno (23:00:00-23:59:59)'},
+                {'value': 13, 'item': 'Pre nocturno sábado (00:00:00-00:59:59)'},
+                {'value': 14, 'item': 'Nocturno sábado (01:00:00-05:29:59)'},
+                {'value': 15, 'item': 'Transición sábado mañana (05:30:00-06:29:59)'},
+                {'value': 16, 'item': 'Punta mañana sábado (06:30:00-10:59:59)'},
+                {'value': 17, 'item': 'Mañana sábado (11:00:00-13:29:59)'},
+                {'value': 18, 'item': 'Punta mediodia sábado (13:30:00-17:29:59)'},
+                {'value': 19, 'item': 'Tarde sábado (17:30:00-20:29:59)'},
+                {'value': 20, 'item': 'Transición sábado nocturno (20:30:00-22:59:59)'},
+                {'value': 21, 'item': 'Pre nocturno sábado (23:00:00-23:59:59)'},
+                {'value': 22, 'item': 'Pre nocturno domingo (00:00:00-00:59:59)'},
+                {'value': 23, 'item': 'Nocturno domingo (01:00:00-05:29:59)'},
+                {'value': 24, 'item': 'Transición domingo mañana (05:30:00-09:29:59)'},
+                {'value': 25, 'item': 'Mañana domingo (09:30:00-13:29:59)'},
+                {'value': 26, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
+                {'value': 27, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
+                {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
+                {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}
+            ]
+        }
         self.assertEqual(expected_time_period, json.loads(response.content))
         self.assertEqual(200, response.status_code)
 
