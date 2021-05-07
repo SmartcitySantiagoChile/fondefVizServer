@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -229,14 +230,12 @@ class ESSpeedIndexTest(TestCase):
         day_type = ['LABORAL']
         valid_operator_list = []
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_detail_ranking_data_query,
-                          route,
-                          dates, period, day_type, valid_operator_list)
+                          route, dates, period, day_type, valid_operator_list)
         dates = [['2018-01-01', '2018-02-01']]
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_detail_ranking_data_query, route,
                           dates, period, day_type, valid_operator_list)
         valid_operator_list = [1, 2, 3]
-        result = self.instance.get_base_detail_ranking_data_query(route, dates, period, day_type,
-                                                                  valid_operator_list)
+        result = self.instance.get_base_detail_ranking_data_query(route, dates, period, day_type, valid_operator_list)
         expected = {'query': {'bool': {
             'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'route'}},
                        {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-02-01', u'format': u'yyyy-MM-dd'}}},
