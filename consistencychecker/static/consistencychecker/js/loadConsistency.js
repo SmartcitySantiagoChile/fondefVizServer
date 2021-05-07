@@ -113,7 +113,7 @@ $(document).ready(function () {
                         }
                     )
                 }
-                columns.push(                    {
+                columns.push({
                     title: 'Versión de Periodo TS',
                     data: 'authority_period_version'
                 })
