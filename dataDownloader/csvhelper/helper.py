@@ -309,7 +309,8 @@ class ProfileCSVHelper(CSVHelper):
              'definition': 'Fecha y hora de inicio de la expedición'},
             {'es_name': 'expeditionEndTime', 'csv_name': 'Hora_fin_expedición',
              'definition': 'Fecha y hora de fin de la expedición'},
-            {'es_name': 'fulfillment', 'csv_name': 'Cumplimiento', 'definition': ''},
+            {'es_name': 'fulfillment', 'csv_name': 'Cumplimiento',
+             'definition': 'La expedición cumple la condición de cruzar por los puntos de control de inicio y fin de ruta indicado en el reporte 1.96'},
             {'es_name': 'expeditionStopOrder', 'csv_name': 'Secuencia_parada',
              'definition': 'Posición de la parada dentro de la secuencia de paradas asociada al servicio'},
             {'es_name': 'expeditionDayId', 'csv_name': 'Identificador_expedición_día',
@@ -317,9 +318,9 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'stopDistanceFromPathStart', 'csv_name': 'Distancia_parada_desde_inicio_ruta',
              'definition': 'Distancia en metros entre el inicio de la ruta del servicio y la parada, considera la geometría de la ruta (no es euclidiana)'},
             {'es_name': 'expandedBoarding', 'csv_name': 'Subidas_expandidas',
-             'definition': 'Número de personas que subieron al bus en la parada'},
+             'definition': 'Número de personas que subieron al bus en la parada, la expansión se realiza por período-servicio-sentido'},
             {'es_name': 'expandedAlighting', 'csv_name': 'Bajadas_expandidas',
-             'definition': 'Número de personas que bajaron del bus en la parada'},
+             'definition': 'Número de personas que bajaron del bus en la parada, la expansión se realiza por período-servicio-sentido'},
             {'es_name': 'loadProfile', 'csv_name': 'Perfil_carga_al_llegar',
              'definition': 'Número de personas arriba del bus al llegar a la parada'},
             {'es_name': 'busCapacity', 'csv_name': 'Capacidad_bus',
@@ -329,7 +330,7 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'timePeriodInStartTime', 'csv_name': 'Periodo_transantiago_inicio_expedicion',
              'definition': 'Período transantiago en que inició la expedición'},
             {'es_name': 'timePeriodInStopTime', 'csv_name': 'Periodo_transantiago_parada_expedición',
-             'definition': 'Período transantiago en que finalizó la expedición'},
+             'definition': 'Período transantiago en que el bus cruza la parada'},
             {'es_name': 'dayType', 'csv_name': 'Tipo_dia',
              'definition': 'Tipo de día considerado por adatrap al momento de realizar el procesamiento de los datos'},
             {'es_name': 'busStation', 'csv_name': 'Zona_paga',
@@ -909,3 +910,55 @@ class BipCSVHelper(CSVHelper):
             formatted_row.append(value)
 
         return formatted_row
+
+
+class FormattedShapeCSVHelper(CSVHelper):
+    """ Class that represents a formated shape downloader. """
+
+    def __init__(self, es_client):
+        self.es_shape_helper = ESShapeHelper()
+        CSVHelper.__init__(self, es_client, "", self.es_shape_helper.index_name)
+
+    def get_column_dict(self):
+        """ this class uses this just to build csv header """
+        return [
+            {'es_name': 'route', 'csv_name': 'Servicio_transantiago', 'definition': 'Código transantiago del servicio'},
+            {'es_name': '', 'csv_name': 'Id_segmento', 'definition': 'Id de segmento 500m'},
+            {'es_name': '', 'csv_name': 'Latitud', 'definition': 'Latitud'},
+            {'es_name': '', 'csv_name': 'Longitud', 'definition': 'Longitud'}]
+
+    def get_data_file_name(self):
+        return 'Geometría_servicio_por_tramos.csv'
+
+    def get_file_description(self):
+        description = 'Geometría del servicio dividida por tramos de 500 metros. '
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def get_iterator(self, kwargs):
+        routes = kwargs['routes']
+        start_date = kwargs['start_date']
+        end_date = kwargs['end_date']
+
+        return [self.es_shape_helper.get_route_shape(route, [[start_date, end_date]]) for route in routes]
+
+    def row_parser(self, row):
+        rows = []
+        counter = 1
+        route = row['authRouteCode']
+        points = row['points']
+
+        rows.append([route, counter, points[0]['latitude'], points[0]['longitude']])
+        for point in points[1:]:
+            row = [route, counter, point['latitude'], point['longitude']]
+            if point['segmentStart'] == 1:
+                rows.append(row)
+                counter += 1
+                row = [route, counter, point['latitude'], point['longitude']]
+                rows.append(row)
+            else:
+                rows.append(row)
+        last_segment = points[len(points) - 1]
+        if last_segment['segmentStart'] == 1:
+            rows.append([route, counter, last_segment['latitude'], last_segment['longitude']])
+
+        return rows

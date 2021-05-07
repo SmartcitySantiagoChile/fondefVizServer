@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 import json
 import os
-
 from unittest import mock
+
 from django.urls import reverse
 
 from localinfo.models import OPProgram
@@ -72,7 +71,7 @@ class LocalInfoViewTest(TestHelper):
     def test_OPDictionaryUploader_post_file_error_bad_opId(self):
         with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.xlsx', 'OPDictionary': file,  'opId': 0})
+                                        {'name': 'file.xlsx', 'OPDictionary': file, 'opId': 0})
             self.assertEqual(400, response.status_code)
             self.assertEqual('Programa de operación no válido', json.loads(response.content)['error'])
 
