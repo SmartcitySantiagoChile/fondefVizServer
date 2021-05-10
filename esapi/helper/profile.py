@@ -160,7 +160,7 @@ class ESProfileHelper(ElasticSearchHelper):
              'expandedEvasionAlighting',
              'expandedBoardingPlusExpandedEvasionBoarding',
              'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting'])
+             'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod'])
 
         return es_query
 
@@ -180,9 +180,11 @@ class ESProfileHelper(ElasticSearchHelper):
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
             metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart']). \
             metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
-            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
-            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
-            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('expandedEvasionAlighting', 'avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg',
+                   field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg',
+                   field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
             metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
 
@@ -310,9 +312,11 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('busCapacity', 'avg', field='busCapacity'). \
             metric('tripsCount', 'value_count', field='expandedAlighting'). \
             metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
-            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
-            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
-            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('expandedEvasionAlighting', 'avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg',
+                   field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg',
+                   field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
             metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
         return es_query
