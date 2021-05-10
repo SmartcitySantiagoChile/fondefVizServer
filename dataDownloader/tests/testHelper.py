@@ -99,7 +99,8 @@ class TestProfileCSVHelper(TestCase):
                     {'es_name': 'expandedEvasionBoarding', 'csv_name': 'Subidas_evadidas',
                      'definition': 'Número de personas que subieron al bus y no pagaron su pasaje.'},
                     {'es_name': 'expandedEvasionAlighting', 'csv_name': 'Bajadas_evadidas',
-                     'definition': 'Número de personas que bajaron del bus en la parada y no pagaron su pasaje.'},
+                     'definition': 'Número de personas que bajaron del bus en la parada y no pagaron su pasaje.'
+                     },
                     {'es_name': 'expandedBoardingPlusExpandedEvasionBoarding', 'csv_name': 'Subidas_corregidas',
                      'definition': 'Número total de personas que subieron al bus incluyendo quienes no pagaron su pasaje.'},
                     {'es_name': 'expandedAlightingPlusExpandedEvasionAlighting', 'csv_name': 'Bajadas_corregidas',
@@ -107,8 +108,14 @@ class TestProfileCSVHelper(TestCase):
                     {'es_name': 'loadProfileWithEvasion', 'csv_name': 'Carga_corregida',
                      'definition': 'Número de personas arriba del bus al llegar a la parada incluyendo quienes no pagaron su pasaje.'},
                     {'es_name': 'boardingWithAlighting', 'csv_name': 'Subidas_con_bajada',
-                     'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP'}]
-
+                     'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP.'},
+                    {'es_name': 'evasionPercent', 'csv_name': '%evasión',
+                     'definition': 'Porcentaje de evasión aplicado a las transacciones de la parada-expedición.'},
+                    {'es_name': 'evasionType', 'csv_name': 'tipo_evasion',
+                     'definition': 'puedes ser tres casos: 0, 1, 2, -1. El primero (0) indica que se usó una evasión a nivel de zonificación 777, el segundo valor (1) indica que se usó un valor de evasión a nivel de parada, y el tercer valor (2) indica que no se encontró un valor para el calculo de evasión. Existe un cuarto valor (-1) que indica que hubo un error con la información de evasión.'},
+                    {'es_name': 'uniformDistributionMethod', 'csv_name': 'uniforme',
+                     'definition': 'método de distribución uniforme para casos donde no es posible estimar bajada, "0" indica que se usó una distribución uniforme y el valor "1" significa que no se usó distribución uniforme.'}
+                    ]
         self.assertEqual(expected, self.csv_helper.get_column_dict())
 
     def test_get_file_description(self):
