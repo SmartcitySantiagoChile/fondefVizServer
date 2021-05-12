@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -151,7 +149,8 @@ class ESProfileIndexTest(TestCase):
                                 u'expandedEvasionAlighting',
                                 u'expandedBoardingPlusExpandedEvasionBoarding',
                                 u'expandedAlightingPlusExpandedEvasionAlighting', u'loadProfileWithEvasion',
-                                u'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod']}
+                                u'boardingWithAlighting', 'evasionPercent', 'evasionPercent',
+                                'uniformDistributionMethod']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
