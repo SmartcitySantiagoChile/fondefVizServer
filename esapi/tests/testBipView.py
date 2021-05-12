@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
-
 from unittest import mock
+
 from django.urls import reverse
 
 from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
@@ -75,18 +72,18 @@ class LoadBipTransactionByOperatorData(TestHelper):
     @mock.patch('esapi.views.bip.BipTransactionByOperatorData.transform_es_answer')
     @mock.patch('esapi.helper.bip.ESBipHelper.get_bip_by_operator_data')
     def test_exec_elasticsearch_query_with_result(self, operator_data, data):
-        operators_data = [{u'item': u'Alsacia', u'value': 1}, {u'item': u'Su Bus', u'value': 2},
-                          {u'item': u'Buses Vule', u'value': 3}, {u'item': u'Express', u'value': 4},
-                          {u'item': u'Buses Metropolitana', u'value': 5}, {u'item': u'Red Bus Urbano', u'value': 6},
-                          {u'item': u'STP Santiago', u'value': 7}, {u'item': u'Metro', u'value': 8},
-                          {u'item': u'Metrotren', u'value': 9}]
-        histogram = [{u'operators': {
-            u'buckets': [{u'key': 8, u'doc_count': 2828267}, {u'key': 5, u'doc_count': 644126},
-                         {u'key': 3, u'doc_count': 625541}, {u'key': 4, u'doc_count': 621139},
-                         {u'key': 2, u'doc_count': 464614}, {u'key': 6, u'doc_count': 349488},
-                         {u'key': 7, u'doc_count': 275174}, {u'key': 9, u'doc_count': 83963}],
-            u'sum_other_doc_count': 0, u'doc_count_error_upper_bound': 0}, u'key_as_string': u'2019-10-07 00:00:00',
-            u'key': 1570406400000, u'doc_count': 5892312}]
+        operators_data = [{'item': 'Alsacia', 'value': 1}, {'item': 'Su Bus', 'value': 2},
+                          {'item': 'Buses Vule', 'value': 3}, {'item': 'Express', 'value': 4},
+                          {'item': 'Buses Metropolitana', 'value': 5}, {'item': 'Red Bus Urbano', 'value': 6},
+                          {'item': 'STP Santiago', 'value': 7}, {'item': 'Metro', 'value': 8},
+                          {'item': 'Metrotren', 'value': 9}]
+        histogram = [{'operators': {
+            'buckets': [{'key': 8, 'doc_count': 2828267}, {'key': 5, 'doc_count': 644126},
+                        {'key': 3, 'doc_count': 625541}, {'key': 4, 'doc_count': 621139},
+                        {'key': 2, 'doc_count': 464614}, {'key': 6, 'doc_count': 349488},
+                        {'key': 7, 'doc_count': 275174}, {'key': 9, 'doc_count': 83963}],
+            'sum_other_doc_count': 0, 'doc_count_error_upper_bound': 0}, 'key_as_string': '2019-10-07 00:00:00',
+            'key': 1570406400000, 'doc_count': 5892312}]
 
         operator_data.return_value = ['', operators_data]
         data.return_value = histogram
@@ -104,6 +101,6 @@ class LoadBipTransactionByOperatorData(TestHelper):
                         {"key": 2, "doc_count": 464614}, {"key": 6, "doc_count": 349488},
                         {"key": 7, "doc_count": 275174}, {"key": 9, "doc_count": 83963}],
             "doc_count_error_upper_bound": 0, "sum_other_doc_count": 0}, "key_as_string": "2019-10-07 00:00:00",
-                                                                                "key": 1570406400000,
-                                                                                "doc_count": 5892312}]}
+            "key": 1570406400000,
+            "doc_count": 5892312}]}
         self.assertDictEqual(json.loads(response.content), expected)

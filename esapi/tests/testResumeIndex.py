@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -26,7 +24,7 @@ class ESResumeIndexTest(TestCase):
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_data, dates, metrics)
         dates = [['2018-01-01', '2018-02-01']]
         expected = {'query': {'bool': {'filter': [{'range': {
-            'date': {'time_zone': '+00:00', 'gte': u'2018-01-01||/d', 'lte': u'2018-02-01||/d',
+            'date': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
                      'format': 'yyyy-MM-dd'}}}]}},
             '_source': ['date', 'transactionWithoutRoute', 'transactionWithRoute', 'transactionNumber',
                         'transactionOnTrainNumber', 'transactionOnMetroNumber', 'transactionOnBusNumber',
