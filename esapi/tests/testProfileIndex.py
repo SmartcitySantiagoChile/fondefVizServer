@@ -151,7 +151,7 @@ class ESProfileIndexTest(TestCase):
                                 u'expandedEvasionAlighting',
                                 u'expandedBoardingPlusExpandedEvasionBoarding',
                                 u'expandedAlightingPlusExpandedEvasionAlighting', u'loadProfileWithEvasion',
-                                u'boardingWithAlighting']}
+                                u'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -192,7 +192,7 @@ class ESProfileIndexTest(TestCase):
                         'busStation', 'path', 'notValid', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
                         'expandedBoardingPlusExpandedEvasionBoarding',
                         'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                        'boardingWithAlighting']}
+                        'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
