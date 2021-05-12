@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from rq.worker import Worker
 from rq.job import Job
 from django_rq.queues import DjangoRQ
