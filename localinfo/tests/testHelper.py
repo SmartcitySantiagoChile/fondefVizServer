@@ -178,7 +178,7 @@ class TestHelperUtils(TestCase):
                                   {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
                                   {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]
 
-        self.assertEqual(expected_list_period_1, get_timeperiod_list_for_select_input())
+        self.assertListEqual(expected_list_period_1, get_timeperiod_list_for_select_input())
 
         expected_dict_period_1 = {1: 'Pre nocturno (00:00:00-00:59:59)', 2: 'Nocturno (01:00:00-05:29:59)',
                                   3: 'Transición nocturno (05:30:00-06:29:59)', 4: 'Punta mañana (06:30:00-08:29:59)',
@@ -614,4 +614,4 @@ class TestHelperUtils(TestCase):
                                {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}],
                            }
 
-        self.assertEqual(expected_answer, get_periods_dict())
+        self.assertDictEqual(expected_answer, get_periods_dict())

@@ -112,7 +112,7 @@ class LocalInfoViewTest(TestHelper):
                                                {'value': 27, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
                                                {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
                                                {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]}
-        self.assertEqual(expected_time_period, json.loads(response.content))
+        self.assertDictEqual(expected_time_period, json.loads(response.content))
         self.assertEqual(200, response.status_code)
 
     def test_faq(self):
