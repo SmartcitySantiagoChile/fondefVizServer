@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
+import os
 
-
-from django.db import models
-from django.db.models import Prefetch
-from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
-
-import os
+from django.db import models
+from django.db.models import Prefetch
+from django.utils import timezone
 
 
 class DataSourcePath(models.Model):
@@ -142,7 +139,7 @@ class ExporterJobExecution(JobExecution):
     # elasticsearch query used to generate file rows
     query = models.TextField('Consulta a elasticsearch', null=False)
     # user who creates job
-    user = models.ForeignKey(User, verbose_name='Usuario',  on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='Usuario', on_delete=models.CASCADE)
     # True if it was seen for first time
     seen = models.BooleanField(default=False)
     # indicate which data has been downloaded
