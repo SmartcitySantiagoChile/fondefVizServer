@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.contrib import admin
 from django.utils import timezone
 from django.utils.html import mark_safe
