@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
 from bip.views import LoadBipByOperatorHTML
+
 app_name = 'bip'
 urlpatterns = [
     # html

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from functools import reduce
 
 from elasticsearch_dsl import Q
@@ -107,4 +104,3 @@ class ESShapeHelper(ElasticSearchHelper):
         es_query = es_query.filter('term', startDate=date)
         es_query = es_query.update_from_dict({"size": 5000})
         return es_query
-

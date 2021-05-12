@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
-
 from unittest import mock
+
 from django.urls import reverse
 
 from esapi.errors import ESQueryRouteParameterDoesNotExist, ESQueryOperatorParameterDoesNotExist, \
-    ESQueryStopParameterDoesNotExist, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist, FondefVizError
+    ESQueryStopParameterDoesNotExist, ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
 
