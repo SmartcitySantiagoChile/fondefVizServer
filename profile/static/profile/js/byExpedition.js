@@ -483,16 +483,17 @@ $(document).ready(function () {
             let stack = ["Subidas", "Bajadas", null, null, null, "Subidas", "Bajadas", null, null, null];
             let dataName = ["expandedBoarding", "expandedAlighting", "loadProfile", "maxLoad", "saturationRate", "expandedEvasionBoarding", "expandedEvasionAlighting", "loadProfileWithEvasion", "maxLoadWithEvasion", "saturationRateWithEvasion"];
             let colors = [
-                {itemStyle: {normal: {color: "#BD4845"}}},
-                {itemStyle: {normal: {color: "#477BBA"}}},
-                {itemStyle: {normal: {color: "#1cd68c"}}},
-                {itemStyle: {normal: {color: "#4cd600"}}},
-                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#EA8E4D"}}},
-                {itemStyle: {normal: {color: "#EBA08B"}}},
-                {itemStyle: {normal: {color: "#7BE8E2"}}},
-                {itemStyle: {normal: {color: "#A349A4"}}},
-                {itemStyle: {normal: {color: "#22B14C"}}},
-                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FF7F27"}}}
+                {itemStyle: {normal: {color: "#2C69B0"}}},
+                {itemStyle: {normal: {color: "#F02720"}}},
+                {itemStyle: {normal: {color: "#4AA96C"}}},
+                {itemStyle: {normal: {color: "#610F95"}}},
+                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FFB037"}}},
+                {itemStyle: {normal: {color: "#6BA3D6"}}},
+                {itemStyle: {normal: {color: "#EA6B73"}}},
+                {itemStyle: {normal: {color: "#9FE6A0"}}},
+                {itemStyle: {normal: {color: "#B845C4"}}},
+                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FFE268"}}}
+
             ];
 
             let series = [];
