@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
-
 from unittest import mock
+
 from django.urls import reverse
 
 from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
@@ -104,6 +101,6 @@ class LoadBipTransactionByOperatorData(TestHelper):
                         {"key": 2, "doc_count": 464614}, {"key": 6, "doc_count": 349488},
                         {"key": 7, "doc_count": 275174}, {"key": 9, "doc_count": 83963}],
             "doc_count_error_upper_bound": 0, "sum_other_doc_count": 0}, "key_as_string": "2019-10-07 00:00:00",
-                                                                                "key": 1570406400000,
-                                                                                "doc_count": 5892312}]}
+            "key": 1570406400000,
+            "doc_count": 5892312}]}
         self.assertDictEqual(json.loads(response.content), expected)

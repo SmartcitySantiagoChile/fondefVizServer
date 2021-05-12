@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
+
 from django.test import TestCase, override_settings
 from elasticsearch.exceptions import ConnectionTimeout
 from elasticsearch_dsl import Search
