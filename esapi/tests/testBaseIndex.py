@@ -102,7 +102,7 @@ class BaseIndexTest(TestCase):
         result = self.instance.get_histogram_query(field, interval, date_format, time_zone)
         expected = {
             'from': 0,
-            'aggs': {'unique': {'date_histogram': {'field': 'field', 'interval': 'day', 'time_zone': u'timezone',
+            'aggs': {'unique': {'date_histogram': {'field': 'field', 'interval': 'day', 'time_zone': 'timezone',
                                                    'format': 'yyyy-MM-dd'}}},
             'size': 0
         }
@@ -134,7 +134,7 @@ class BaseIndexTest(TestCase):
     def test_get_data_by_file(self):
         file_filter = 'file_filter'
         result = self.instance.get_data_by_file(file_filter)
-        expected = {'query': {'bool': {'filter': [{'terms': {'path': u'file_filter'}}]}}, 'from': 0,
+        expected = {'query': {'bool': {'filter': [{'terms': {'path': 'file_filter'}}]}}, 'from': 0,
                     'aggs': {'files': {'terms': {'field': 'path', 'size': 5000}}}, 'size': 0}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
