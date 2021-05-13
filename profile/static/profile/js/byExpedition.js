@@ -650,7 +650,7 @@ $(document).ready(function () {
                                 var series = opt.series;
 
                                 var textarea = document.createElement('textarea');
-                                textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;';
+                                textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;white-space: pre;';
                                 textarea.readOnly = "true";
 
                                 var header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
