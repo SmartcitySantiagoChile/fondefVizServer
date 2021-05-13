@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
 
 from django.test import TestCase
@@ -71,9 +68,9 @@ class ESSpeedIndexTest(TestCase):
         result = self.instance.get_base_speed_data_query(auth_route, day_type, dates,
                                                          valid_operator_list)
         expected = {'query': {'bool': {
-            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'506 00I'}},
-                       {'terms': {'dayType': [u'LABORAL']}},
-                       {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-01-02', u'format': u'yyyy-MM-dd'}}}]}}}
+            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': '506 00I'}},
+                       {'terms': {'dayType': ['LABORAL']}},
+                       {'range': {'date': {'gte': '2018-01-01', 'lte': '2018-01-02', 'format': 'yyyy-MM-dd'}}}]}}}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -142,12 +139,12 @@ class ESSpeedIndexTest(TestCase):
         result = self.instance.get_base_ranking_data_query(dates, hour_period_from, hour_period_to,
                                                            day_type, valid_operator_list, route_list)
         expected = {'query': {'bool': {'filter': [{'terms': {'operator': [1, 2, 3]}}, {
-            'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-01-01', u'format': u'yyyy-MM-dd'}}},
-                                                  {'range': {'periodId': {u'gte': u'', u'lte': u''}}},
+            'range': {'date': {'gte': '2018-01-01', 'lte': '2018-01-01', 'format': 'yyyy-MM-dd'}}},
+                                                  {'range': {'periodId': {'gte': '', 'lte': ''}}},
                                                   {'bool': {'must_not': [{'term': {'section': 0}}]}},
                                                   {'bool': {'must_not': [{'term': {'isEndSection': 1}}]}},
                                                   {'terms': {'authRouteCode': [1, 2, 3]}},
-                                                  {'terms': {'dayType': [u'LABORAL']}}]}}}
+                                                  {'terms': {'dayType': ['LABORAL']}}]}}}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
@@ -183,13 +180,13 @@ class ESSpeedIndexTest(TestCase):
         result = self.instance.get_ranking_data(dates, hour_period_from, hour_period_to, day_type,
                                                 valid_operator_list)
         expected = [{
-            u'n_obs': 5,
-            u'distance': 5,
-            u'route': u'1',
-            u'period': 3,
-            u'time': 5,
-            u'speed': 5,
-            u'section': 2
+            'n_obs': 5,
+            'distance': 5,
+            'route': '1',
+            'period': 3,
+            'time': 5,
+            'speed': 5,
+            'section': 2
         }]
         self.assertListEqual(result, expected)
 
@@ -230,16 +227,18 @@ class ESSpeedIndexTest(TestCase):
         day_type = ['LABORAL']
         valid_operator_list = []
         self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_base_detail_ranking_data_query,
-                          route, dates, period, day_type, valid_operator_list)
+                          route,
+                          dates, period, day_type, valid_operator_list)
         dates = [['2018-01-01', '2018-02-01']]
         self.assertRaises(ESQueryOperatorParameterDoesNotExist, self.instance.get_base_detail_ranking_data_query, route,
                           dates, period, day_type, valid_operator_list)
         valid_operator_list = [1, 2, 3]
-        result = self.instance.get_base_detail_ranking_data_query(route, dates, period, day_type, valid_operator_list)
+        result = self.instance.get_base_detail_ranking_data_query(route, dates, period, day_type,
+                                                                  valid_operator_list)
         expected = {'query': {'bool': {
-            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'route'}},
-                       {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-02-01', u'format': u'yyyy-MM-dd'}}},
-                       {'term': {'periodId': 1}}, {'terms': {'dayType': [u'LABORAL']}}]}}}
+            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': 'route'}},
+                       {'range': {'date': {'gte': '2018-01-01', 'lte': '2018-02-01', 'format': 'yyyy-MM-dd'}}},
+                       {'term': {'periodId': 1}}, {'terms': {'dayType': ['LABORAL']}}]}}}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
@@ -247,18 +246,18 @@ class ESSpeedIndexTest(TestCase):
         result = self.instance.get_detail_ranking_data('route', [['2018-01-01', '2018-02-01']],
                                                        1, ['LABORAL'], [1, 2, 3])
         expected = {'query': {'bool': {
-            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': u'route'}},
-                       {'range': {'date': {u'gte': u'2018-01-01', u'lte': u'2018-02-01', u'format': u'yyyy-MM-dd'}}},
-                       {'term': {'periodId': 1}}, {'terms': {'dayType': [u'LABORAL']}}]}}, 'from': 0, 'aggs': {
-            u'sections': {'terms': {'field': u'section', 'size': 200}, 'aggs': {u'n_obs': {'sum': {'field': u'nObs'}},
-                                                                                u'distance': {
-                                                                                    'sum': {'field': u'totalDistance'}},
-                                                                                u'speed': {'bucket_script': {
-                                                                                    'buckets_path': {u'd': u'distance',
-                                                                                                     u't': u'time'},
-                                                                                    'script': u'params.d / params.t'}},
-                                                                                u'time': {
-                                                                                    'sum': {'field': u'totalTime'}}}}},
+            'filter': [{'terms': {'operator': [1, 2, 3]}}, {'term': {'authRouteCode': 'route'}},
+                       {'range': {'date': {'gte': '2018-01-01', 'lte': '2018-02-01', 'format': 'yyyy-MM-dd'}}},
+                       {'term': {'periodId': 1}}, {'terms': {'dayType': ['LABORAL']}}]}}, 'from': 0, 'aggs': {
+            'sections': {'terms': {'field': 'section', 'size': 200}, 'aggs': {'n_obs': {'sum': {'field': 'nObs'}},
+                                                                              'distance': {
+                                                                                  'sum': {'field': 'totalDistance'}},
+                                                                              'speed': {'bucket_script': {
+                                                                                  'buckets_path': {'d': 'distance',
+                                                                                                   't': 'time'},
+                                                                                  'script': 'params.d / params.t'}},
+                                                                              'time': {
+                                                                                  'sum': {'field': 'totalTime'}}}}},
             'size': 0}
 
         self.assertIsInstance(result, Search)
@@ -276,10 +275,10 @@ class ESSpeedIndexTest(TestCase):
         result = self.instance.get_base_variation_speed_query(dates[0][0], dates[0][-1], day_type, user_route, operator,
                                                               valid_operator_list)
         expected = {'query': {'bool': {'filter': [{'range': {
-            'date': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                     u'format': u'yyyy-MM-dd'}}}, {'term': {'operator': u'operator'}},
-            {'term': {'userRouteCode': u'route'}},
-            {'terms': {'dayType': [u'LABORAL']}}]}}}
+            'date': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                     'format': 'yyyy-MM-dd'}}}, {'term': {'operator': 'operator'}},
+            {'term': {'userRouteCode': 'route'}},
+            {'terms': {'dayType': ['LABORAL']}}]}}}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -288,23 +287,17 @@ class ESSpeedIndexTest(TestCase):
         result = self.instance.get_speed_variation_data('2018-01-01', '2018-02-01', ['LABORAL'], 'route', 1,
                                                         [1, 2, 3])
         expected = {'query': {'bool': {'filter': [{'range': {
-            'date': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                     u'format': u'yyyy-MM-dd'}}}, {'term': {'operator': 1}}, {'term': {'userRouteCode': u'route'}},
-            {'terms': {'dayType': [u'LABORAL']}}]}}, 'from': 0, 'aggs': {
-            u'routes': {'terms': {'field': u'authRouteCode', 'size': 2000}, 'aggs': {
-                u'periods': {'terms': {'field': u'periodId', 'size': 50}, 'aggs': {u'days': {
-                    'range': {'ranges': [{u'to': u'2018-02-01'}, {u'from': u'2018-02-01'}], 'field': u'date',
-                              'format': u'yyyy-MM-dd'},
-                    'aggs': {u'n_obs': {'sum': {'field': u'nObs'}}, u'distance': {'sum': {'field': u'totalDistance'}},
-                             u'stats': {'extended_stats': {'field': u'speed'}}, u'speed': {
-                            'bucket_script': {'buckets_path': {u'd': u'distance', u't': u'time'},
-                                              'script': u'params.d / params.t * 3.6'}},
-                             u'time': {'sum': {'field': u'totalTime'}}}}}}}}}, 'size': 0}
+            'date': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                     'format': 'yyyy-MM-dd'}}}, {'term': {'operator': 1}}, {'term': {'userRouteCode': 'route'}},
+            {'terms': {'dayType': ['LABORAL']}}]}}, 'from': 0, 'aggs': {
+            'routes': {'terms': {'field': 'authRouteCode', 'size': 2000}, 'aggs': {
+                'periods': {'terms': {'field': 'periodId', 'size': 50}, 'aggs': {'days': {
+                    'range': {'ranges': [{'to': '2018-02-01'}, {'from': '2018-02-01'}], 'field': 'date',
+                              'format': 'yyyy-MM-dd'},
+                    'aggs': {'n_obs': {'sum': {'field': 'nObs'}}, 'distance': {'sum': {'field': 'totalDistance'}},
+                             'stats': {'extended_stats': {'field': 'speed'}}, 'speed': {
+                            'bucket_script': {'buckets_path': {'d': 'distance', 't': 'time'},
+                                              'script': 'params.d / params.t * 3.6'}},
+                             'time': {'sum': {'field': 'totalTime'}}}}}}}}}, 'size': 0}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
-
-    def test_get_all_time_periods(self):
-        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path', 'size': 5000}, 'aggs': {
-            'time_periods': {'terms': {'field': 'periodId'}}}}}, 'from': 0, 'size': 0}
-        result = self.instance.get_all_time_periods().to_dict()
-        self.assertEqual(expected_query, result)

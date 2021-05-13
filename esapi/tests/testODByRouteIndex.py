@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
 
 from django.test import TestCase
@@ -75,11 +72,11 @@ class ESODByRouteIndexTest(TestCase):
                         {'bool':
                              {'filter':
                                   [{'terms': {'operator': [1, 2, 3]}},
-                                   {'term': {'authRouteCode': u'route'}},
+                                   {'term': {'authRouteCode': 'route'}},
                                    {'terms': {'timePeriodInStopTime': [1, 2]}},
-                                   {'terms': {'dayType': [u'LABORAL']}},
-                                   {'range': {'date': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
-                                                       u'lte': u'2018-02-01||/d', u'format': u'yyyy-MM-dd'}}}]}}}
+                                   {'terms': {'dayType': ['LABORAL']}},
+                                   {'range': {'date': {'time_zone': '+00:00', 'gte': '2018-01-01||/d',
+                                                       'lte': '2018-02-01||/d', 'format': 'yyyy-MM-dd'}}}]}}}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from rqworkers.killClass import KillWorker
 
 

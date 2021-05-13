@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
-
 from unittest import mock
+
 from django.urls import reverse
 
 from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
@@ -76,11 +73,11 @@ class PaymentFactorDataTest(TestHelper):
     @mock.patch('esapi.helper.paymentfactor.ESPaymentFactorHelper.get_data')
     def test_exec_elasticsearch_query_with_result(self, operator_data, data):
         operator_data.return_value = ''
-        data.return_value = {u'rows': [
-            {'total': 4686.0, 'operator_id': 1, 'factor_by_date': [(1561939200000, 0.0)], 'assignation': u'VISITANTE',
+        data.return_value = {'rows': [
+            {'total': 4686.0, 'operator_id': 1, 'factor_by_date': [(1561939200000, 0.0)], 'assignation': 'VISITANTE',
              'factor_average': 0.0, 'sum': 0.0, 'neutral': 4686.0,
-             'bus_station_name': u'Parada 2 / (M) Estaci\xf3n Central', 'day_type': u'Laboral', 'operator': u'Alsacia',
-             'bus_station_id': u'365', 'subtraction': 0.0},
+             'bus_station_name': 'Parada 2 / (M) Estaci\xf3n Central', 'day_type': 'Laboral', 'operator': 'Alsacia',
+             'bus_station_id': '365', 'subtraction': 0.0},
         ]}
 
         data = {

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import json
 
 from esapi.errors import FondefVizError, ESQueryOperationProgramError, ESQueryDateRangeParametersDoesNotExist

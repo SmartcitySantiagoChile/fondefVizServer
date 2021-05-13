@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 def format_date(date):
     """
     transform format string yyyy-MM-dd to dd-MM-yyy

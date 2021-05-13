@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
-
 from unittest import mock
-from django.urls import reverse
 from unittest.mock import patch
+
+from django.urls import reverse
 
 from esapi.errors import ESQueryStopPatternTooShort
 from testhelper.helper import TestHelper

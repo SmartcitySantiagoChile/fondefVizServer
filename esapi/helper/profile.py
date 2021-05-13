@@ -157,7 +157,7 @@ class ESProfileHelper(ElasticSearchHelper):
              'expandedEvasionAlighting',
              'expandedBoardingPlusExpandedEvasionBoarding',
              'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting'])
+             'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod'])
 
         return es_query
 

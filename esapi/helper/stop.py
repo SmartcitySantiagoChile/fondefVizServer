@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 from elasticsearch_dsl import Search, A
 from elasticsearch_dsl.query import Match
 
 from esapi.errors import ESQueryStopParameterDoesNotExist, ESQueryStopInfoDoesNotExist, \
-    ESQueryDateRangeParametersDoesNotExist, ESQueryDateParametersDoesNotExist
+    ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 

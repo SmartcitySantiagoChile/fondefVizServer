@@ -164,13 +164,14 @@ $(document).ready(function () {
                 _yAxisData.expandedBoarding[stopIndex] = _yAxisData.expandedBoarding[stopIndex] / counterByStop[stopIndex];
                 let saturationRate = (_yAxisData.loadProfile[stopIndex] / capacityByStop[stopIndex]) * 100;
                 _yAxisData.saturationRate.push(saturationRate);
+                let saturationRateWithEvasion = (_yAxisData.loadProfileWithEvasion[stopIndex] / capacityByStop[stopIndex]) * 100;
+                _yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
                 _yAxisData.loadProfile[stopIndex] = _yAxisData.loadProfile[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.loadProfileWithEvasion[stopIndex] = _yAxisData.loadProfileWithEvasion[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedEvasionBoarding[stopIndex] = _yAxisData.expandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedEvasionAlighting[stopIndex] = _yAxisData.expandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] = _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] = _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
-                _yAxisData.saturationRateWithEvasion.push(saturationRate + (_yAxisData.loadProfileWithEvasion[stopIndex] / capacityByStop[stopIndex]) * 100);
             }
         };
 
@@ -476,23 +477,40 @@ $(document).ready(function () {
             let yAxisData = _dataManager.yAxisData();
             let xAxisData = _dataManager.xAxisData();
 
-            // get out, get in, load profile, percentage ocupation
-            let yAxisDataName = ["Subidas", "Bajadas", "Carga promedio", "Carga máxima", "Porcentaje ocupación", "Subidas evadidas", "Bajadas evadidas", "Carga promedio con evasión", "Carga máxima con evasión", "Porcentaje ocupación con evasión"];
-            let yAxisIndex = [0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-            let yChartType = ["bar", "bar", "line", "line", "line", "bar", "bar", "line", "line", "line"];
-            let stack = ["Subidas", "Bajadas", null, null, null, "Subidas", "Bajadas", null, null, null];
-            let dataName = ["expandedBoarding", "expandedAlighting", "loadProfile", "maxLoad", "saturationRate", "expandedEvasionBoarding", "expandedEvasionAlighting", "loadProfileWithEvasion", "maxLoadWithEvasion", "saturationRateWithEvasion"];
+            // get out, get in, load profile, percentage occupation
+            let yAxisDataName = [
+                "Subidas", "Subidas evadidas",
+                "Bajadas", "Bajadas evadidas",
+                "Carga prom.", "Carga prom. con evasión",
+                "Carga máx.", "Carga máx. con evasión",
+                "% ocupación", "% ocupación con evasión"];
+            let yAxisIndex = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1];
+            let yChartType = [
+                "bar", "bar",
+                "bar", "bar",
+                "line", "line",
+                "line", "line",
+                "line", "line"];
+            let stack = [
+                "Subidas", "Subidas",
+                "Bajadas", "Bajadas",
+                null, null,
+                null, null,
+                null, null
+            ];
+            let dataName = [
+                "expandedBoarding", "expandedEvasionBoarding",
+                "expandedAlighting", "expandedEvasionAlighting",
+                "loadProfile", "loadProfileWithEvasion",
+                "maxLoad", "maxLoadWithEvasion",
+                "saturationRate", "saturationRateWithEvasion"];
             let colors = [
-                {itemStyle: {normal: {color: "#BD4845"}}},
-                {itemStyle: {normal: {color: "#477BBA"}}},
-                {itemStyle: {normal: {color: "#1cd68c"}}},
-                {itemStyle: {normal: {color: "#4cd600"}}},
-                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#EA8E4D"}}},
-                {itemStyle: {normal: {color: "#EBA08B"}}},
-                {itemStyle: {normal: {color: "#7BE8E2"}}},
-                {itemStyle: {normal: {color: "#A349A4"}}},
-                {itemStyle: {normal: {color: "#22B14C"}}},
-                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FF7F27"}}}
+                {itemStyle: {normal: {color: "#2C69B0"}}}, {itemStyle: {normal: {color: "#6BA3D6"}}},
+                {itemStyle: {normal: {color: "#F02720"}}}, {itemStyle: {normal: {color: "#EA6B73"}}},
+                {itemStyle: {normal: {color: "#4AA96C"}}}, {itemStyle: {normal: {color: "#9FE6A0"}}},
+                {itemStyle: {normal: {color: "#610F95"}}}, {itemStyle: {normal: {color: "#B845C4"}}},
+                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FFB037"}}},
+                {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FFE268"}}}
             ];
 
             let series = [];
@@ -525,7 +543,17 @@ $(document).ready(function () {
             var options = {
                 legend: {
                     data: yAxisDataName,
-                    width: "80%"
+                    height: 40,
+                    orient: 'vertical',
+                    formatter: '{styleA|{name}}',
+                    textStyle: {
+                        rich: {
+                            styleA: {
+                                width: 130,
+                                lineHeight: 0
+                            }
+                        }
+                    }
                 },
                 xAxis: [{
                     type: "category",
@@ -600,7 +628,7 @@ $(document).ready(function () {
                                 var ball = el.marker;
                                 var name = el.seriesName;
                                 var value = Number(el.value.toFixed(2)).toLocaleString();
-                                if (el.seriesIndex === 4 || el.seriesIndex === 9) {
+                                if (el.seriesIndex === 8 || el.seriesIndex === 9) {
                                     value = value + " %";
                                 }
                                 info.push(ball + name + ": " + value);
@@ -640,7 +668,7 @@ $(document).ready(function () {
                                 var series = opt.series;
 
                                 var textarea = document.createElement('textarea');
-                                textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;';
+                                textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;white-space: pre;';
                                 textarea.readOnly = "true";
 
                                 var header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
@@ -724,7 +752,7 @@ $(document).ready(function () {
         const showEvasion = () => applyToEvasion('legendSelect');
 
         const applyToEvasion = type => {
-            let labels = ["Subidas evadidas", "Bajadas evadidas", "Carga promedio con evasión", "Carga máxima con evasión", "Porcentaje ocupación con evasión"]
+            let labels = ["Subidas evadidas", "Bajadas evadidas", "Carga prom. con evasión", "Carga máx. con evasión", "% ocupación con evasión"]
             labels.map(e => {
                 _barChart.dispatchAction({
                     type: type,
