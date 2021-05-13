@@ -157,7 +157,7 @@ class ESProfileHelper(ElasticSearchHelper):
              'expandedEvasionAlighting',
              'expandedBoardingPlusExpandedEvasionBoarding',
              'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod'])
+             'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod'])
 
         return es_query
 
@@ -183,7 +183,8 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg',
                    field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
-            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
+            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting'). \
+            metric('boarding', 'sum', field='boarding')
 
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
