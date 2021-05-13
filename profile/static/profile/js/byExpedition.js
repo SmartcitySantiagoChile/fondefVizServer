@@ -477,7 +477,7 @@ $(document).ready(function () {
             let xAxisData = _dataManager.xAxisData();
 
             // get out, get in, load profile, percentage ocupation
-            let yAxisDataName = ["Subidas", "Bajadas", "Carga promedio", "Carga máxima", "Porcentaje ocupación", "Subidas evadidas", "Bajadas evadidas", "Carga promedio con evasión", "Carga máxima con evasión", "Porcentaje ocupación con evasión"];
+            let yAxisDataName = ["Subidas", "Bajadas", "Carga prom.", "Carga máx.", "% ocupación", "Subidas evadidas", "Bajadas evadidas", "Carga prom. con evasión", "Carga máx. con evasión", "% ocupación con evasión"];
             let yAxisIndex = [0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
             let yChartType = ["bar", "bar", "line", "line", "line", "bar", "bar", "line", "line", "line"];
             let stack = ["Subidas", "Bajadas", null, null, null, "Subidas", "Bajadas", null, null, null];
@@ -526,7 +526,16 @@ $(document).ready(function () {
             var options = {
                 legend: {
                     data: yAxisDataName,
-                    width: "80%"
+                    width: 850,
+                    formatter: '{styleA|{name}}',
+                    textStyle: {
+                        rich: {
+                            styleA: {
+                                width: 130,
+                                lineHeight: 0
+                            }
+                        }
+                    }
                 },
                 xAxis: [{
                     type: "category",
@@ -725,7 +734,7 @@ $(document).ready(function () {
         const showEvasion = () => applyToEvasion('legendSelect');
 
         const applyToEvasion = type => {
-            let labels = ["Subidas evadidas", "Bajadas evadidas", "Carga promedio con evasión", "Carga máxima con evasión", "Porcentaje ocupación con evasión"]
+            let labels = ["Subidas evadidas", "Bajadas evadidas", "Carga prom. con evasión", "Carga máx. con evasión", "% ocupación con evasión"]
             labels.map(e => {
                 _barChart.dispatchAction({
                     type: type,
