@@ -2,7 +2,6 @@ $(document).ready(function () {
     "use strict";
 
     function DataManagerApp() {
-        var _self = this;
         var indexNames = ["Profile", "Speed", "Bip", "Odbyroute", "Trip", "Paymentfactor", "General"];
         var lowerIndexNames = indexNames.map(e => e.toLowerCase());
 
@@ -34,10 +33,8 @@ $(document).ready(function () {
             }
         };
 
-
         var addColorToRow = function (data, row) {
             $(row).removeClass("danger warning success");
-
             lowerIndexNames.forEach((index_name, index_position) => {
                 let diff = (data[index_name + "_file"] / data[index_name + "_index"]);
                 if (diff === 1) {
@@ -46,14 +43,12 @@ $(document).ready(function () {
                             'border-color': '#c3e6cb', 'color': '#155724'
                         }
                     );
-
                 } else if (diff > 1) {
                     $(row).find(`td:eq(${index_position + 2})`).css({
                             'background-color': '#f8d7da',
                             'border-color': '#f5c6cb', 'color': '#721c24'
                         }
                     );
-
                 } else {
                     $(row).find(`td:eq(${index_position + 2})`).css({
                             'background-color': '#fff3cd',
@@ -61,9 +56,7 @@ $(document).ready(function () {
                         }
                     );
                 }
-
             });
-
         };
 
         const daysDict = {
@@ -79,7 +72,6 @@ $(document).ready(function () {
         this.updateTables = function () {
             $.get(Urls["consistencychecker:getConsistencyData"](), function (data) {
                 var dictFiles = JSON.parse(data.response);
-                console.log(dictFiles);
                 var files = dictFiles.map(e => {
                     let row = e.fields;
                     let date = new Date(row.date);
@@ -99,7 +91,6 @@ $(document).ready(function () {
                     },
                 ];
 
-
                 for (let index in lowerIndexNames) {
                     let lower_index = lowerIndexNames[index].toLowerCase();
                     columns.push(
@@ -114,17 +105,14 @@ $(document).ready(function () {
                         }
                     )
                 }
-                columns.push(                    {
+                columns.push({
                     title: 'Versión de Periodo TS',
                     data: 'authority_period_version'
                 })
                 var opts = $.extend({data: files, columns: columns}, _datatableOpts);
                 $("#fechas-id").DataTable(opts);
-
             });
         };
-
-
     }
 
     // load filters

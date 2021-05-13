@@ -99,7 +99,7 @@ function MapApp(opts) {
     tileLayer = tileLayerURL[tileLayer];
 
     /* map options */
-    var accessToken = "pk.eyJ1IjoiY2VwaGVpIiwiYSI6ImNrMzA0MHlvMjBsbmEzaHIzd24xNGV0NW0ifQ.5yTsjnoXTZ5ihlNbtf8cbw";
+    var accessToken = "pk.eyJ1IjoiYWRhdHJhcCIsImEiOiJja29hdnk4aXYwM3lsMzJuMnhnNW1xb2RlIn0.Fvn0zCbCeXAjMYmDeEqMmw";
     var map = L.map(mapId, {
         doubleClickZoom: doubleClickZoom,
         zoomControl: zoomControl
