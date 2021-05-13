@@ -1,9 +1,12 @@
+import csv
+import io
 from collections import defaultdict
 from datetime import date as dt
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat, Cast
 from django.utils import timezone
@@ -161,46 +164,46 @@ def get_valid_time_period_date(date_list):
     return True, period_date_valid
 
 
-def upload_xlsx_op_dictionary(xlsx_file, op_program_id):
+def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str) -> dict:
+    """
+    Upload csv op dictionary to local database
+    Args:
+        csv_file: csv op dictionary InMemoryUploadedFile
+        op_program_id: op program id
+    """
+    csv_file = io.StringIO(csv_file.read().decode('utf-8'))
     op_program = OPProgram.objects.get(id=op_program_id)
     upload_time = timezone.now()
     to_update = []
     to_create = []
-
-    wb = load_workbook(xlsx_file, read_only=True)
-    ws = wb.active
-    key_indexes = [0, 5, 6, 7, 9]
-    first_row = [ws['A2:P2'][0][x] for x in key_indexes]
-    first_row_values = [cell.value for cell in first_row if cell.value is not None]
-
-    if len(first_row_values) < 5:
+    csv_reader = csv.reader(csv_file, delimiter=";")
+    if not csv_reader:
         raise ValueError("Archivo con datos en blanco")
-    for row in ws.iter_rows(min_row=1, max_col=16, values_only=True):
-        if row[0] is None:
-            break
-        if row[4] == 'Vigente':
-            auth_route_code = str(row[9])
-            op_route_code = str(row[7]) + str(row[5])
-            user_route_code = row[6]
-            route_type = row[0]
-            try:
-                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type,
-                                                       op_program=op_program)
-                op_dict_obj.auth_route_code = auth_route_code
-                op_dict_obj.user_route_code = user_route_code
-                op_dict_obj.route_type = route_type
-                op_dict_obj.updated_at = upload_time
-                to_update.append(op_dict_obj)
+    # skip header
+    next(csv_reader)
+    for row in csv_reader:
+        auth_route_code = str(row[11])
+        op_route_code = str(row[9]) + str(row[7])
+        user_route_code = row[8]
+        route_type = row[1]
+        try:
+            op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type,
+                                                   op_program=op_program)
+            op_dict_obj.auth_route_code = auth_route_code
+            op_dict_obj.user_route_code = user_route_code
+            op_dict_obj.route_type = route_type
+            op_dict_obj.updated_at = upload_time
+            to_update.append(op_dict_obj)
 
-            except OPDictionary.DoesNotExist:
-                to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
-                                              route_type=route_type, created_at=upload_time,
-                                              updated_at=upload_time,
-                                              auth_route_code=auth_route_code, op_program=op_program))
-    wb.close()
+        except OPDictionary.DoesNotExist:
+            to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
+                                          route_type=route_type, created_at=upload_time,
+                                          updated_at=upload_time,
+                                          auth_route_code=auth_route_code, op_program=op_program))
     OPDictionary.objects.bulk_create(to_create)
     OPDictionary.objects.bulk_update(to_update,
                                      ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
+
 
     return {"created": len(to_create), "updated": len(to_update)}
 

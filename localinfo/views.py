@@ -4,9 +4,10 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from io import StringIO
 
 from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
-    upload_xlsx_op_dictionary, synchronize_op_program, get_opprogram_list_for_select_input
+    synchronize_op_program, get_opprogram_list_for_select_input, upload_csv_op_dictionary
 from localinfo.models import OPProgram
 
 
@@ -47,13 +48,14 @@ class OPDictionaryUploader(View):
         if not csv_file or csv_file.size == 0:
             return JsonResponse(data={"error": "No existe el archivo"}, status=400)
         try:
-            res = upload_xlsx_op_dictionary(csv_file, op_program_id)
+            res = upload_csv_op_dictionary(csv_file, op_program_id)
             return JsonResponse(data={"updated": res['updated'], "created": res['created']})
         except ValueError as e:
             return JsonResponse(data={"error": str(e)}, status=400)
         except OPProgram.DoesNotExist:
             return JsonResponse(data={"error": "Programa de operación no válido"}, status=400)
-        except Exception:
+        except Exception as e:
+            print(f"Error : {e}")
             return JsonResponse(data={"error": "Archivo en formato incorrecto"}, status=400)
 
 

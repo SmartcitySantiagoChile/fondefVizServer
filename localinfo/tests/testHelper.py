@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from unittest import mock
 
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.test import TestCase
 from django.utils import timezone
 
@@ -9,7 +10,7 @@ from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _di
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
     get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict, synchronize_op_program, \
-    upload_xlsx_op_dictionary, get_opprogram_list_for_select_input
+    get_opprogram_list_for_select_input, upload_csv_op_dictionary
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
 
 
@@ -458,66 +459,74 @@ class TestHelperUtils(TestCase):
         for day in expected_dict['created']:
             OPProgram.objects.get(valid_from=day)
 
-    def test_upload_xlsx_op_dictionary(self):
-        op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        expected_res = {"created": 5, "updated": 0}
-        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
+    def test_upload_csv_op_dictionary(self):
+        op_program = OPProgram.objects.create(valid_from='2020-11-28')
+        file = os.path.join(self.path, 'diccionario_op_base.csv')
+        opened_file = open(file, 'rb')
+        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base.csv', 'text',
+                                           opened_file.__sizeof__(), None)
+        expected_res = {"created": 7, "updated": 0}
+        self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
+        opened_file.close()
+
+    def test_upload_csv_op_dictionary_update(self):
+        op_program = OPProgram.objects.create(valid_from='2020-11-28')
+        file = os.path.join(self.path, 'diccionario_op_base.csv')
+        opened_file = open(file, 'rb')
+        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base.csv', 'text',
+                                           opened_file.__sizeof__(), None)
+
+        expected_res = {"created": 7, "updated": 0}
+        self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
+        expected_res = {"created": 0, "updated": 7}
+        opened_file.close()
+
+        file = os.path.join(self.path, 'diccionario_op_base_2.csv')
+        opened_file = open(file, 'rb')
+        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base_2.csv', 'text',
+                                           opened_file.__sizeof__(), None)
+        self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
         created_objects = list(
             OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
                                               'route_type').order_by('auth_route_code'))
-        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I'},
-                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R'},
-                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_fmisa'},
-                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R_fmisa'},
-                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_cvd'}]
+        expected_dict = [{'auth_route_code': 'B80 C2 00I', 'op_route_code': 'B80yI', 'user_route_code': '410',
+                          'route_type': '410yI'},
+                         {'auth_route_code': 'B82 00I', 'op_route_code': 'B82I', 'user_route_code': '120',
+                          'route_type': '120I'},
+                         {'auth_route_code': 'B82 00R', 'op_route_code': 'B82R', 'user_route_code': '120',
+                          'route_type': '120R'},
+                         {'auth_route_code': 'T319 00I', 'op_route_code': '319I', 'user_route_code': '119',
+                          'route_type': '119I'},
+                         {'auth_route_code': 'T319 00R', 'op_route_code': '319R', 'user_route_code': '119',
+                          'route_type': '119R'},
+                         {'auth_route_code': 'T327 00I', 'op_route_code': '327I', 'user_route_code': '126',
+                          'route_type': '126I'},
+                         {'auth_route_code': 'T327 01I', 'op_route_code': '327I', 'user_route_code': '126',
+                          'route_type': '126IPM'}]
 
         self.assertEqual(expected_dict, created_objects)
         op_program.delete()
+        opened_file.close()
 
-    def test_upload_xlsx_op_dictionary_update(self):
+    def test_upload_csv_op_dictionary_error(self):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        expected_res = {"created": 5, "updated": 0}
-        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
-        expected_res = {"created": 1, "updated": 2}
-        file = os.path.join(self.path, 'diccionario_op_base_2.xlsx')
-        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
-        created_objects = list(
-            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
-                                              'route_type').order_by('auth_route_code'))
-        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I'},
-                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R'},
-                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_fmisa'},
-                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R_fmisa'},
-                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_cvd'},
-                         {'auth_route_code': 'T558 00I', 'op_route_code': '558I', 'user_route_code': '118',
-                          'route_type': '118I'}]
+        file = os.path.join(self.path, 'diccionario_op_base_error.csv')
+        opened_file = open(file, 'rb')
+        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base_error.csv', 'text',
+                                           opened_file.__sizeof__(), None)
 
-        self.assertEqual(expected_dict, created_objects)
+        with self.assertRaises(IndexError):
+            upload_csv_op_dictionary(django_file, op_program.id)
         op_program.delete()
 
-    def test_upload_xlsx_op_dictionary_error(self):
-        op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
-        with self.assertRaises(ValueError):
-            upload_xlsx_op_dictionary(file, op_program.id)
-        op_program.delete()
+    def test_upload_csv_op_dictionary_wrong_op(self):
+        file = os.path.join(self.path, 'diccionario_op_base_error.csv')
+        opened_file = open(file, 'rb')
+        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base_error.csv', 'text',
+                                           opened_file.__sizeof__(), None)
 
-    def test_upload_xlsx_op_dictionary_wrong_op(self):
-        file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
         with self.assertRaises(OPProgram.DoesNotExist):
-            upload_xlsx_op_dictionary(file, -1)
+            upload_csv_op_dictionary(django_file, -1)
 
     def test_get_opprogram_list_for_select_input(self):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
