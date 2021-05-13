@@ -476,24 +476,40 @@ $(document).ready(function () {
             let yAxisData = _dataManager.yAxisData();
             let xAxisData = _dataManager.xAxisData();
 
-            // get out, get in, load profile, percentage ocupation
-            let yAxisDataName = ["Subidas", "Bajadas", "Carga prom.", "Carga máx.", "% ocupación", "Subidas evadidas", "Bajadas evadidas", "Carga prom. con evasión", "Carga máx. con evasión", "% ocupación con evasión"];
-            let yAxisIndex = [0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-            let yChartType = ["bar", "bar", "line", "line", "line", "bar", "bar", "line", "line", "line"];
-            let stack = ["Subidas", "Bajadas", null, null, null, "Subidas", "Bajadas", null, null, null];
-            let dataName = ["expandedBoarding", "expandedAlighting", "loadProfile", "maxLoad", "saturationRate", "expandedEvasionBoarding", "expandedEvasionAlighting", "loadProfileWithEvasion", "maxLoadWithEvasion", "saturationRateWithEvasion"];
+            // get out, get in, load profile, percentage occupation
+            let yAxisDataName = [
+                "Subidas", "Subidas evadidas",
+                "Bajadas", "Bajadas evadidas",
+                "Carga prom.", "Carga prom. con evasión",
+                "Carga máx.", "Carga máx. con evasión",
+                "% ocupación", "% ocupación con evasión"];
+            let yAxisIndex = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1];
+            let yChartType = [
+                "bar", "bar",
+                "bar", "bar",
+                "line", "line",
+                "line", "line",
+                "line", "line"];
+            let stack = [
+                "Subidas", "Subidas",
+                "Bajadas", "Bajadas",
+                null, null,
+                null, null,
+                null, null
+            ];
+            let dataName = [
+                "expandedBoarding", "expandedEvasionBoarding",
+                "expandedAlighting", "expandedEvasionAlighting",
+                "loadProfile", "loadProfileWithEvasion",
+                "maxLoad", "maxLoadWithEvasion",
+                "saturationRate", "saturationRateWithEvasion"];
             let colors = [
-                {itemStyle: {normal: {color: "#2C69B0"}}},
-                {itemStyle: {normal: {color: "#F02720"}}},
-                {itemStyle: {normal: {color: "#4AA96C"}}},
-                {itemStyle: {normal: {color: "#610F95"}}},
+                {itemStyle: {normal: {color: "#2C69B0"}}}, {itemStyle: {normal: {color: "#6BA3D6"}}},
+                {itemStyle: {normal: {color: "#F02720"}}}, {itemStyle: {normal: {color: "#EA6B73"}}},
+                {itemStyle: {normal: {color: "#4AA96C"}}}, {itemStyle: {normal: {color: "#9FE6A0"}}},
+                {itemStyle: {normal: {color: "#610F95"}}}, {itemStyle: {normal: {color: "#B845C4"}}},
                 {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FFB037"}}},
-                {itemStyle: {normal: {color: "#6BA3D6"}}},
-                {itemStyle: {normal: {color: "#EA6B73"}}},
-                {itemStyle: {normal: {color: "#9FE6A0"}}},
-                {itemStyle: {normal: {color: "#B845C4"}}},
                 {lineStyle: {normal: {type: "dashed"}}, itemStyle: {normal: {color: "#FFE268"}}}
-
             ];
 
             let series = [];
@@ -526,7 +542,8 @@ $(document).ready(function () {
             var options = {
                 legend: {
                     data: yAxisDataName,
-                    width: 850,
+                    height: 40,
+                    orient: 'vertical',
                     formatter: '{styleA|{name}}',
                     textStyle: {
                         rich: {
