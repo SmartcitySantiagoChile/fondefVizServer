@@ -178,7 +178,7 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
     if file_name_extension == ".gz":
         csv_file = gzip.open(csv_file)
     elif file_name_extension == ".zip":
-        zip_file_obj = zipfile.ZipFile(file_name_extension)
+        zip_file_obj = zipfile.ZipFile(csv_file)
         file_name = zip_file_obj.namelist()[0]
         csv_file = zip_file_obj.open(file_name, 'r')
     csv_file = io.StringIO(csv_file.read().decode('utf-8'))
