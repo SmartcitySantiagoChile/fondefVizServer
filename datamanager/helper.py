@@ -256,3 +256,38 @@ class FileManager(object):
                 data_file['docNumber'] = uploaded_files[data_file['name']] if data_file['name'] in uploaded_files else 0
 
         return file_list
+
+    def get_time_period_list_by_file_from_elasticsearch(self, index_filter=None):
+        """
+        Get a dict with time_period list per file
+        Args:
+            index_filter: index to filter query
+        Returns:
+            dict
+        """
+        helpers_dict = {
+            'profile': ESProfileHelper(),
+            'speed': ESSpeedHelper(),
+            'odbyroute': ESODByRouteHelper(),
+            'trip': ESTripHelper()
+        }
+
+        if index_filter is not None:
+            helpers = []
+            for index in index_filter:
+                if index in helpers_dict:
+                    helpers.append(helpers_dict[index])
+        else:
+            helpers = list(helpers_dict.values())
+
+        time_period_by_date_dict = defaultdict(lambda: defaultdict(list))
+        for helper in helpers:
+            file_list = helper.get_all_time_periods().execute().aggregations.to_dict()["time_periods_per_file"][
+                "buckets"]
+            for file in file_list:
+                file_name = file['key']
+                date, index = file_name.split('.')[:2]
+                time_period_list = [time_period["key"] for time_period in file["time_periods"]["buckets"]]
+                time_period_list.sort()
+                time_period_by_date_dict[date][index] = time_period_list
+        return time_period_by_date_dict
