@@ -56,7 +56,7 @@ class LoadFile(models.Model):
 
         file_dict = {
             'name': self.fileName,
-            'path': self.dataSourcePath,
+            #'path': self.dataSourcePath,
             'discoveredAt': self.discoveredAt,
             'lastModified': self.lastModified,
             'lines': self.lines,
