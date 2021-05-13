@@ -164,13 +164,14 @@ $(document).ready(function () {
                 _yAxisData.expandedBoarding[stopIndex] = _yAxisData.expandedBoarding[stopIndex] / counterByStop[stopIndex];
                 let saturationRate = (_yAxisData.loadProfile[stopIndex] / capacityByStop[stopIndex]) * 100;
                 _yAxisData.saturationRate.push(saturationRate);
+                let saturationRateWithEvasion = (_yAxisData.loadProfileWithEvasion[stopIndex] / capacityByStop[stopIndex]) * 100;
+                _yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
                 _yAxisData.loadProfile[stopIndex] = _yAxisData.loadProfile[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.loadProfileWithEvasion[stopIndex] = _yAxisData.loadProfileWithEvasion[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedEvasionBoarding[stopIndex] = _yAxisData.expandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedEvasionAlighting[stopIndex] = _yAxisData.expandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] = _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] = _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
-                _yAxisData.saturationRateWithEvasion.push(saturationRate + (_yAxisData.loadProfileWithEvasion[stopIndex] / capacityByStop[stopIndex]) * 100);
             }
         };
 
@@ -627,7 +628,7 @@ $(document).ready(function () {
                                 var ball = el.marker;
                                 var name = el.seriesName;
                                 var value = Number(el.value.toFixed(2)).toLocaleString();
-                                if (el.seriesIndex === 4 || el.seriesIndex === 9) {
+                                if (el.seriesIndex === 8 || el.seriesIndex === 9) {
                                     value = value + " %";
                                 }
                                 info.push(ball + name + ": " + value);
