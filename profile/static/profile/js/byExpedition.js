@@ -627,7 +627,7 @@ $(document).ready(function () {
                                 var ball = el.marker;
                                 var name = el.seriesName;
                                 var value = Number(el.value.toFixed(2)).toLocaleString();
-                                if (el.seriesIndex === 4 || el.seriesIndex === 9) {
+                                if (el.seriesIndex === 8 || el.seriesIndex === 9) {
                                     value = value + " %";
                                 }
                                 info.push(ball + name + ": " + value);
