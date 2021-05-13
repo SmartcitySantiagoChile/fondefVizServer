@@ -1,5 +1,8 @@
 import csv
+import gzip
 import io
+import os
+import zipfile
 from collections import defaultdict
 from datetime import date as dt
 
@@ -171,6 +174,13 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
         csv_file: csv op dictionary InMemoryUploadedFile
         op_program_id: op program id
     """
+    file_name_extension = os.path.splitext(csv_file.name)[1]
+    if file_name_extension == ".gz":
+        csv_file = gzip.open(csv_file)
+    elif file_name_extension == ".zip":
+        zip_file_obj = zipfile.ZipFile(file_name_extension)
+        file_name = zip_file_obj.namelist()[0]
+        csv_file = zip_file_obj.open(file_name, 'r')
     csv_file = io.StringIO(csv_file.read().decode('utf-8'))
     op_program = OPProgram.objects.get(id=op_program_id)
     upload_time = timezone.now()
@@ -203,7 +213,6 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
     OPDictionary.objects.bulk_create(to_create)
     OPDictionary.objects.bulk_update(to_update,
                                      ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
-
 
     return {"created": len(to_create), "updated": len(to_update)}
 

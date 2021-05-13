@@ -460,14 +460,22 @@ class TestHelperUtils(TestCase):
             OPProgram.objects.get(valid_from=day)
 
     def test_upload_csv_op_dictionary(self):
-        op_program = OPProgram.objects.create(valid_from='2020-11-28')
-        file = os.path.join(self.path, 'diccionario_op_base.csv')
-        opened_file = open(file, 'rb')
-        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base.csv', 'text',
-                                           opened_file.__sizeof__(), None)
-        expected_res = {"created": 7, "updated": 0}
-        self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
-        opened_file.close()
+        file_names = ['diccionario_op_base.csv', 'diccionario_op_base.csv.gz', 'diccionario_op_base.zip']
+
+        def create_op_program_and_upload(name):
+            op_program = OPProgram.objects.create(valid_from='2020-11-28')
+            file = os.path.join(self.path, name)
+            opened_file = open(file, 'rb')
+            django_file = InMemoryUploadedFile(opened_file, None, name, 'text',
+                                               opened_file.__sizeof__(), None)
+            expected_res = {"created": 7, "updated": 0}
+            self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
+            opened_file.close()
+            op_program.delete()
+
+        for file_name in file_names:
+            create_op_program_and_upload(file_name)
+
 
     def test_upload_csv_op_dictionary_update(self):
         op_program = OPProgram.objects.create(valid_from='2020-11-28')
