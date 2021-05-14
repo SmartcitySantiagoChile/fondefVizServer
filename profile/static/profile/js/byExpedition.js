@@ -159,8 +159,8 @@ $(document).ready(function () {
 
                     capacityByStop[stopIndex] += trip.busCapacity;
                     counterByStop[stopIndex]++;
-                    boardingTotal += trip.boarding;
-                    boardingWithAlightingTotal += trip.boardingWithAlighting;
+                    boardingTotal += trip.yAxisData.boarding[stopIndex];
+                    boardingWithAlightingTotal += trip.yAxisData.boardingWithAlighting[stopIndex];
                 }
             });
             // it calculates average
@@ -772,7 +772,7 @@ $(document).ready(function () {
             boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage;
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
-            $("#boardingWithAlightingPercentage").html(boardingWithAlightingPercentage + ' %');
+            $("#boardingWithAlightingPercentage").html(boardingWithAlightingPercentage);
         };
 
         this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage) {
