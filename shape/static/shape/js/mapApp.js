@@ -424,7 +424,7 @@ $(document).ready(function () {
         const updateUserStopRoutes = (active, layerId, button, span) => {
             if (active) {
                 button.removeClass("btn-success").addClass("btn-warning");
-                span.removeClass("fa-bus").addClass("fa-bus");
+                span.removeClass("glyphicon-user").addClass("glyphicon-user");
                 layers[layerId].eachLayer(function (layer) {
                     if (layer instanceof L.Marker) {
                         let isBus = layer.options.icon.options["icon"] || null;
@@ -435,7 +435,7 @@ $(document).ready(function () {
                 });
             } else {
                 button.removeClass("btn-warning").addClass("btn-success");
-                span.removeClass("fa-bus").addClass("fa-bus");
+                span.removeClass("glyphicon-user").addClass("glyphicon-user");
                 layers[layerId].eachLayer(function (layer) {
                     if (layer instanceof L.Marker) {
                         let isBus = layer.options.icon.options["icon"] || null;
@@ -451,7 +451,6 @@ $(document).ready(function () {
             let $VISIBILITY_BUTTON = $(".selectorRow .visibility-user-stops");
             $VISIBILITY_BUTTON.off("click");
             $VISIBILITY_BUTTON.click(function () {
-                console.log(1);
                 let button = $(this);
                 let span = button.find("span");
                 let layerId = button.parent().data("id");

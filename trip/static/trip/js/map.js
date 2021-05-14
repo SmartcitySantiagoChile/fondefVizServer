@@ -449,17 +449,15 @@ function MapApp(opts) {
     };
 
     this.addUserStopInfo = function (layer, stopInfo, opts) {
-        var flyTo = opts.flyTo || false;
-        var route = opts.route || null;
-        var additonalStopInfo = opts.additonalStopInfo || "";
+        let flyTo = opts.flyTo || false;
 
-        var latLng = L.latLng(stopInfo.latitude, stopInfo.longitude);
-        var marker = L.marker(latLng, {
+        let latLng = L.latLng(stopInfo.latitude, stopInfo.longitude);
+        let marker = L.marker(latLng, {
             icon: new L.DivIcon({
-                className: 'my-div-icon',
-                html: 'PI991    '
+                className: 'user-stop-code-info',
+                html: stopInfo.userStopCode
             }),
-            zIndexOffset: -1000 // send stops below other layers
+            zIndexOffset: 100 // send stops below other layers
         });
         layer.addLayer(marker);
         if (flyTo) {
@@ -479,10 +477,6 @@ function MapApp(opts) {
                 borderColor: "black",
                 textColor: "black"
             }),
-            /*icon: new L.DivIcon({
-                className: 'my-div-icon',
-                html: 'PI991    '
-            }),*/
             zIndexOffset: -1000 // send stops below other layers
         });
         var popUpDescription = "<p>";
