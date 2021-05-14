@@ -20,20 +20,20 @@ class LocalInfoViewTest(TestHelper):
 
     def test_OPDictionaryUploader_post(self):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        with open(os.path.join(self.path, 'diccionario_op_base.xlsx'), 'rb') as file:
+        with open(os.path.join(self.path, 'diccionario_op_base.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.xlsx', 'OPDictionary': file, 'opId': op_program.id})
+                                        {'name': 'file.csv', 'OPDictionary': file, 'opId': op_program.id})
             self.assertEqual(200, response.status_code)
         op_program.delete()
 
     def test_OPDictionaryUploader_post_file_2(self):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        with open(os.path.join(self.path, 'diccionario_op_base.xlsx'), 'rb') as file:
+        with open(os.path.join(self.path, 'diccionario_op_base.csv'), 'rb') as file:
             self.client.post(reverse('localinfo:opdictionaryupload'),
-                             {'name': 'file.xlsx', 'OPDictionary': file, 'opId': op_program.id})
-        with open(os.path.join(self.path, 'diccionario_op_base_2.xlsx'), 'rb') as file:
+                             {'name': 'file.csv', 'OPDictionary': file, 'opId': op_program.id})
+        with open(os.path.join(self.path, 'diccionario_op_base_2.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.xlsx', 'OPDictionary': file, 'opId': op_program.id})
+                                        {'name': 'file.csv', 'OPDictionary': file, 'opId': op_program.id})
             self.assertEqual(200, response.status_code)
         op_program.delete()
 
@@ -41,7 +41,7 @@ class LocalInfoViewTest(TestHelper):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
 
         response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                    {'name': 'file.xlsx', 'OPDictionary': '', 'opId': op_program.id})
+                                    {'name': 'file.csv', 'OPDictionary': '', 'opId': op_program.id})
         self.assertEqual(400, response.status_code)
         self.assertEqual('No existe el archivo', json.loads(response.content)['error'])
 
@@ -49,29 +49,29 @@ class LocalInfoViewTest(TestHelper):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
         with open(os.path.join(self.path, 'op_data.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.xlsx', 'OPDictionary': file, 'opId': op_program.id})
+                                        {'name': 'file.csv', 'OPDictionary': file, 'opId': op_program.id})
             self.assertEqual(400, response.status_code)
             self.assertEqual('Archivo en formato incorrecto', json.loads(response.content)['error'])
 
     def test_OPDictionaryUploader_post_file_error_wrong_format(self):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
+        with open(os.path.join(self.path, 'diccionario_op_base_error.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.xlsx', 'OPDictionary': file, 'opId': op_program.id})
+                                        {'name': 'file.csv', 'OPDictionary': file, 'opId': op_program.id})
             self.assertEqual(400, response.status_code)
-            self.assertEqual('Archivo con datos en blanco', json.loads(response.content)['error'])
+            self.assertEqual('Archivo en formato incorrecto', json.loads(response.content)['error'])
 
     def test_OPDictionaryUploader_post_file_error_empty_opId(self):
-        with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
+        with open(os.path.join(self.path, 'diccionario_op_base_error.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.xlsx', 'OPDictionary': file})
+                                        {'name': 'file.csv', 'OPDictionary': file})
             self.assertEqual(400, response.status_code)
             self.assertEqual('Seleccione un programa de operación', json.loads(response.content)['error'])
 
     def test_OPDictionaryUploader_post_file_error_bad_opId(self):
-        with open(os.path.join(self.path, 'diccionario_op_base_error.xlsx'), 'rb') as file:
+        with open(os.path.join(self.path, 'diccionario_op_base_error.csv'), 'rb') as file:
             response = self.client.post(reverse('localinfo:opdictionaryupload'),
-                                        {'name': 'file.xlsx', 'OPDictionary': file, 'opId': 0})
+                                        {'name': 'file.csv', 'OPDictionary': file, 'opId': 0})
             self.assertEqual(400, response.status_code)
             self.assertEqual('Programa de operación no válido', json.loads(response.content)['error'])
 
