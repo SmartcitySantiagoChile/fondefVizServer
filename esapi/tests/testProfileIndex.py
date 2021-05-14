@@ -149,7 +149,7 @@ class ESProfileIndexTest(TestCase):
                                 'expandedEvasionAlighting',
                                 'expandedBoardingPlusExpandedEvasionBoarding',
                                 'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                                'boardingWithAlighting', 'evasionPercent', 'evasionPercent',
+                                'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
                                 'uniformDistributionMethod']}
 
         self.assertIsInstance(result, Search)
@@ -182,7 +182,8 @@ class ESProfileIndexTest(TestCase):
                                'expandedAlightingPlusExpandedEvasionAlighting': {
                                    'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
                                'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
-                               'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}}}},
+                               'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}},
+                               'boarding': {'sum': {'field': 'boarding'}}}},
             'stop': {'filter': {'term': {'busStation': 1}},
                      'aggs': {'station': {'terms': {'field': 'authStopCode.raw', 'size': 500}}}}}, 'from': 0, 'size': 0,
             '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
@@ -191,7 +192,8 @@ class ESProfileIndexTest(TestCase):
                         'busStation', 'path', 'notValid', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
                         'expandedBoardingPlusExpandedEvasionBoarding',
                         'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                        'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod']}
+                        'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
+                        'uniformDistributionMethod']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
