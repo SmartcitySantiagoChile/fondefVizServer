@@ -179,7 +179,7 @@ $(document).ready(function () {
                 _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] = _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
             }
 
-            _boardingWithAlightingPercentage = boardingWithAlightingTotal / boardingTotal * 100;
+            this._boardingWithAlightingPercentage = boardingWithAlightingTotal / boardingTotal * 100;
         };
 
         this.getDatatableData = function () {
@@ -772,7 +772,7 @@ $(document).ready(function () {
             boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage;
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
-            $("#boardingWithAlightingPercentage").html(boardingWithAlightingPercentage);
+            $("#boardingWithAlightingPercentage").html(Number(boardingWithAlightingPercentage.toFixed(2)).toLocaleString());
         };
 
         this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage) {
