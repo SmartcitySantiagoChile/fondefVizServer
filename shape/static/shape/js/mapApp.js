@@ -123,6 +123,7 @@ $(document).ready(function () {
                             $TABLE.rows.add([value]);
                         }
                         $TABLE.draw();
+                        $TABLE.columns.adjust();
                         $(this).off('shown.bs.modal');
                     });
                 }
