@@ -166,6 +166,8 @@ $(document).ready(function () {
                     stops: data.stops,
                     route: route
                 });
+                console.log(data.stops);
+                console.log(route);
 
                 // update color
                 let $COLOR_BUTTON = $(`#colorSelect-${layerId}`);
@@ -275,7 +277,6 @@ $(document).ready(function () {
 
                 let color = lastSelected.find(".glyphicon-tint").css("color");
                 $(`#colorSelect-${id}`).css("color", color);
-                console.log(color);
                 let routesButton = lastSelected.find(".visibility-routes").find("span");
                 $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
                 let stopButton = lastSelected.find(".visibility-stops");
@@ -386,7 +387,10 @@ $(document).ready(function () {
                 span.removeClass("fa-bus").addClass("fa-bus");
                 layers[layerId].eachLayer(function (layer) {
                     if (layer instanceof L.Marker) {
-                        mapInstance.removeLayer(layer);
+                        let isBus = layer.options.icon.options["icon"] || null;
+                        if (isBus){
+                            mapInstance.removeLayer(layer);
+                        }
                     }
                 });
             } else {
@@ -394,7 +398,10 @@ $(document).ready(function () {
                 span.removeClass("fa-bus").addClass("fa-bus");
                 layers[layerId].eachLayer(function (layer) {
                     if (layer instanceof L.Marker) {
-                        mapInstance.addLayer(layer);
+                        let isBus = layer.options.icon.options["icon"] || null;
+                        if (isBus){
+                            mapInstance.addLayer(layer);
+                        }
                     }
                 });
             }
@@ -503,6 +510,7 @@ $(document).ready(function () {
                 `<button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 `<button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>` +
                 `<button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>` +
+                `<button id=visibilityUserStops-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>` +
                 '</div>';
             $ROW_CONTAINER.append(row);
             _self.refreshControlEvents(newId);

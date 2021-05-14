@@ -79,13 +79,19 @@ function MapApp(opts) {
     var maxZoom = opts.maxZoom || 15;
     var minZoom = opts.minZoom || 8;
     var maxBounds = opts.maxBounds || L.latLngBounds(L.latLng(-33.697721, -70.942223), L.latLng(-33.178138, -70.357465));
-    var showMetroStations= opts.showMetroStations===undefined?true:opts.showMetroStations;
-    var showMacroZones = opts.showMacroZones===undefined?true:opts.showMacroZones;
+    var showMetroStations = opts.showMetroStations === undefined ? true : opts.showMetroStations;
+    var showMacroZones = opts.showMacroZones === undefined ? true : opts.showMacroZones;
     var tileLayer = opts.tileLayer || "light";
     var mapStartLocation = opts.startLocation || L.latLng(-33.459229, -70.645348);
-    var onClickZone = opts.onClickZone || function (e) { _self.zoomToZoneEvent(e); };
-    var onMouseoutZone = opts.onMouseoutZone || function (e) { _self.defaultOnMouseoutZone(e); };
-    var onMouseinZone = opts.onMouseinZone || function (e) { _self.defaultOnMouseinZone(e); };
+    var onClickZone = opts.onClickZone || function (e) {
+        _self.zoomToZoneEvent(e);
+    };
+    var onMouseoutZone = opts.onMouseoutZone || function (e) {
+        _self.defaultOnMouseoutZone(e);
+    };
+    var onMouseinZone = opts.onMouseinZone || function (e) {
+        _self.defaultOnMouseinZone(e);
+    };
     var hideMapLegend = opts.hideMapLegend || false;
     var hideZoneLegend = opts.hideZoneLegend || false;
     var defaultZoneStyle = opts.defaultZoneStyle || _self.styles.zoneWithoutData;
@@ -339,7 +345,7 @@ function MapApp(opts) {
                             mouseout: function (e) {
                                 onMouseoutZone.call(_self, e);
                             },
-                            click: function(e){
+                            click: function (e) {
                                 onClickZone.call(_self, e);
                             }
                         });
@@ -397,10 +403,10 @@ function MapApp(opts) {
         }
 
         var shapesToLoad = [loadZoneGeoJSON()];
-        if (showMetroStations){
+        if (showMetroStations) {
             shapesToLoad.push(loadSubwayGeoJSON());
         }
-        if(showMacroZones){
+        if (showMacroZones) {
             shapesToLoad.push(loadDistrictGeoJSON());
         }
 
@@ -416,11 +422,11 @@ function MapApp(opts) {
                 var controlMapping = {
                     "Zonas 777": zoneLayer
                 };
-                if (showMetroStations){
+                if (showMetroStations) {
                     controlMapping["Estaciones de Metro"] = subwayLayer;
                     subwayLayer.addTo(map);
                 }
-                if (showMacroZones){
+                if (showMacroZones) {
                     controlMapping["Comunas"] = districtLayer;
                     districtLayer.addTo(map);
                 }
@@ -442,7 +448,25 @@ function MapApp(opts) {
             });
     };
 
-    this.addStop = function(layer, stopInfo, opts){
+    this.addUserStopInfo = function (layer, stopInfo, opts) {
+        var flyTo = opts.flyTo || false;
+        var route = opts.route || null;
+        var additonalStopInfo = opts.additonalStopInfo || "";
+
+        var latLng = L.latLng(stopInfo.latitude, stopInfo.longitude);
+        var marker = L.marker(latLng, {
+            icon: new L.DivIcon({
+                className: 'my-div-icon',
+                html: 'PI991    '
+            }),
+            zIndexOffset: -1000 // send stops below other layers
+        });
+        layer.addLayer(marker);
+        if (flyTo) {
+            map.flyTo(latLng);
+        }
+    }
+    this.addStop = function (layer, stopInfo, opts) {
         var flyTo = opts.flyTo || false;
         var route = opts.route || null;
         var additonalStopInfo = opts.additonalStopInfo || "";
@@ -455,6 +479,10 @@ function MapApp(opts) {
                 borderColor: "black",
                 textColor: "black"
             }),
+            /*icon: new L.DivIcon({
+                className: 'my-div-icon',
+                html: 'PI991    '
+            }),*/
             zIndexOffset: -1000 // send stops below other layers
         });
         var popUpDescription = "<p>";
@@ -476,12 +504,19 @@ function MapApp(opts) {
     this.addPolyline = function (layer, points, opts) {
         var stops = opts.stops || [];
         var route = opts.route || null;
-        var additonalStopInfo = opts.additonalStopInfo || function () { return ""; };
+        var additonalStopInfo = opts.additonalStopInfo || function () {
+            return "";
+        };
         var drawSense = opts.drawSense || true;
 
         // markers
         stops.forEach(function (stop, i) {
             _self.addStop(layer, stop, {
+                route: route,
+                additonalStopInfo: additonalStopInfo(i)
+            });
+            console.log(stop);
+            _self.addUserStopInfo(layer, stop, {
                 route: route,
                 additonalStopInfo: additonalStopInfo(i)
             });
@@ -518,7 +553,7 @@ function MapApp(opts) {
         _self.fitBound();
     };
 
-    this.fitBound = function() {
+    this.fitBound = function () {
         var bound = null;
         map.eachLayer(function (mapLayer) {
             if (!(mapLayer instanceof L.FeatureGroup)) {
