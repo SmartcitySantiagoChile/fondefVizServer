@@ -275,7 +275,6 @@ $(document).ready(function () {
 
                 let color = lastSelected.find(".glyphicon-tint").css("color");
                 $(`#colorSelect-${id}`).css("color", color);
-                console.log(color);
                 let routesButton = lastSelected.find(".visibility-routes").find("span");
                 $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
                 let stopButton = lastSelected.find(".visibility-stops");
@@ -421,7 +420,8 @@ $(document).ready(function () {
                     decimal: ",",
                     thousands: "."
                 },
-
+                scrollX: true,
+                responsive: true,
                 pageLength: 28,
                 paging: true,
                 retrieve: true,
