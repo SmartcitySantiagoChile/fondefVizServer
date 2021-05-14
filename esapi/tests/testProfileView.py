@@ -225,6 +225,7 @@ class LoadProfileByExpeditionTest(TestHelper):
         type(hit).expandedAlightingPlusExpandedEvasionAlighting = mock.PropertyMock(return_value=0)
         type(hit).loadProfileWithEvasion = mock.PropertyMock(return_value=0)
         type(hit).boardingWithAlighting = mock.PropertyMock(return_value=0)
+        type(hit).boarding = mock.PropertyMock(return_value=0)
 
         es_query_instance.scan.return_value = [hit]
         data = {
