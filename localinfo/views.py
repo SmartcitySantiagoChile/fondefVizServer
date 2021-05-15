@@ -48,7 +48,7 @@ class OPDictionaryUploader(View):
             return JsonResponse(data={"error": "No existe el archivo"}, status=400)
         try:
             res = upload_csv_op_dictionary(csv_file, op_program_id)
-            return JsonResponse(data={"updated": res['updated'], "created": res['created']})
+            return JsonResponse(data={"created": res['created']})
         except ValueError as e:
             return JsonResponse(data={"error": str(e)}, status=400)
         except OPProgram.DoesNotExist:
