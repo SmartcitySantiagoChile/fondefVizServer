@@ -21,8 +21,7 @@ class OPDataByAuthRouteCode(TestHelper):
         route_type = '101 Ida'
         self.op_dictionary = OPDictionary.objects.create(auth_route_code=auth_code, route_type=route_type,
                                                          op_route_code=op_route_code, user_route_code=auth_code,
-                                                         created_at=time_at,
-                                                         updated_at=time_at, op_program=self.op_program)
+                                                         created_at=time_at, op_program=self.op_program)
         self.client = self.create_logged_client_with_global_permission()
         self.url = reverse('esapi:opdataAuthRoute')
         self.data = {}
