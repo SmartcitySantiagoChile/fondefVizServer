@@ -183,6 +183,7 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg',
                    field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
+            metric('maxLoadProfileWithEvasion', 'max', field='loadProfileWithEvasion'). \
             metric('sumLoadProfileWithEvasion', 'sum', field='loadProfileWithEvasion'). \
             metric('busSaturationWithEvasion', 'bucket_script', script='params.d / params.t',
                    buckets_path={'d': 'sumLoadProfileWithEvasion', 't': 'sumBusCapacity'}). \
