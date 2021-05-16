@@ -832,14 +832,14 @@ $(document).ready(function () {
                     distOnPath: el.pathDistance.hits.hits[0]._source.stopDistanceFromPathStart,
                     expeditionNumber: el.doc_count,
                     maxLoadProfile: el.maxLoadProfile.value,
-                    loadProfileWithEvasion: el.loadProfileWithEvasion,
-                    expandedEvasionBoarding: el.expandedEvasionBoarding,
-                    expandedEvasionAlighting: el.expandedEvasionAlighting,
-                    expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding,
-                    expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting,
-                    busSaturationWithEvasion: el.busSaturationWithEvasion,
-                    boarding: el.boarding,
-                    boardingWithAlighting: el.boardingWithAlighting
+                    loadProfileWithEvasion: el.loadProfileWithEvasion.value,
+                    expandedEvasionBoarding: el.expandedEvasionBoarding.value,
+                    expandedEvasionAlighting: el.expandedEvasionAlighting.value,
+                    expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding.value,
+                    expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting.value,
+                    busSaturationWithEvasion: el.busSaturationWithEvasion.value,
+                    boarding: el.boarding.value,
+                    boardingWithAlighting: el.boardingWithAlighting.value
                 }
             });
             let expeditionNumber = 0;
