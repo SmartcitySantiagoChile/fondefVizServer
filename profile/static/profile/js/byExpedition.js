@@ -833,6 +833,7 @@ $(document).ready(function () {
                     expeditionNumber: el.doc_count,
                     maxLoadProfile: el.maxLoadProfile.value,
                     loadProfileWithEvasion: el.loadProfileWithEvasion.value,
+                    maxLoadProfileWithEvasion: el.maxLoadProfileWithEvasion.value,
                     expandedEvasionBoarding: el.expandedEvasionBoarding.value,
                     expandedEvasionAlighting: el.expandedEvasionAlighting.value,
                     expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding.value,
@@ -855,6 +856,7 @@ $(document).ready(function () {
                 let saturationRate = itemIsNull ? null : item.busSaturation * 100;
                 let maxLoadProfile = itemIsNull ? null : item.maxLoadProfile;
                 let loadProfileWithEvasion = itemIsNull ? null : item.loadProfileWithEvasion;
+                let maxLoadProfileWithEvasion = itemIsNull ? null : item.maxLoadProfileWithEvasion;
                 let expandedEvasionBoarding = itemIsNull ? null : item.expandedEvasionBoarding;
                 let expandedEvasionAlighting = itemIsNull ? null : item.expandedEvasionAlighting;
                 let expandedBoardingPlusExpandedEvasionBoarding = itemIsNull ? null : item.expandedBoardingPlusExpandedEvasionBoarding;
@@ -868,6 +870,7 @@ $(document).ready(function () {
                 yAxisDataResult.loadProfile.push(loadProfile);
                 yAxisDataResult.saturationRate.push(saturationRate);
                 yAxisDataResult.maxLoad.push(maxLoadProfile);
+                yAxisDataResult.maxLoadWithEvasion.push(maxLoadProfileWithEvasion);
                 yAxisDataResult.loadProfileWithEvasion.push(loadProfileWithEvasion);
                 yAxisDataResult.expandedEvasionBoarding.push(expandedEvasionBoarding);
                 yAxisDataResult.expandedEvasionAlighting.push(expandedEvasionAlighting);
