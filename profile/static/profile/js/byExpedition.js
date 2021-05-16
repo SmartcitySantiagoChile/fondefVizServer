@@ -831,7 +831,15 @@ $(document).ready(function () {
                     busSaturation: el.busSaturation.value,
                     distOnPath: el.pathDistance.hits.hits[0]._source.stopDistanceFromPathStart,
                     expeditionNumber: el.doc_count,
-                    maxLoadProfile: el.maxLoadProfile.value
+                    maxLoadProfile: el.maxLoadProfile.value,
+                    loadProfileWithEvasion: el.loadProfileWithEvasion,
+                    expandedEvasionBoarding: el.expandedEvasionBoarding,
+                    expandedEvasionAlighting: el.expandedEvasionAlighting,
+                    expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding,
+                    expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting,
+                    busSaturationWithEvasion: el.busSaturationWithEvasion,
+                    boarding: el.boarding,
+                    boardingWithAlighting: el.boardingWithAlighting
                 }
             });
             let expeditionNumber = 0;
