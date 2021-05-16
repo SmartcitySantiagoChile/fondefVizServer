@@ -851,7 +851,7 @@ $(document).ready(function () {
                 let expandedEvasionAlighting = itemIsNull ? null : item.expandedEvasionAlighting;
                 let expandedBoardingPlusExpandedEvasionBoarding = itemIsNull ? null : item.expandedBoardingPlusExpandedEvasionBoarding;
                 let expandedAlightingPlusExpandedEvasionAlighting = itemIsNull ? null : item.expandedAlightingPlusExpandedEvasionAlighting;
-                let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
+                let saturationRateWithEvasion = itemIsNull ? null : item.busSaturationWithEvasion * 100;
                 let boarding = itemIsNull ? null : item.boarding;
                 let boardingWithAlighting = itemIsNull ? null : item.boardingWithAlighting;
 

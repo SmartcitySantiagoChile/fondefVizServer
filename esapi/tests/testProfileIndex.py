@@ -182,6 +182,11 @@ class ESProfileIndexTest(TestCase):
                                'expandedAlightingPlusExpandedEvasionAlighting': {
                                    'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
                                'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
+                               'sumLoadProfileWithEvasion': {'sum': {'field': 'loadProfileWithEvasion'}},
+                               'busSaturationWithEvasion': {
+                                   'bucket_script': {'script': 'params.d / params.t',
+                                                     'buckets_path': {'d': 'sumLoadProfileWithEvasion',
+                                                                      't': 'sumBusCapacity'}}},
                                'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}},
                                'boarding': {'sum': {'field': 'boarding'}}}},
             'stop': {'filter': {'term': {'busStation': 1}},
