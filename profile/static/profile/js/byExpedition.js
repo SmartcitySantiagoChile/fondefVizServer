@@ -860,12 +860,12 @@ $(document).ready(function () {
                 yAxisDataResult.loadProfile.push(loadProfile);
                 yAxisDataResult.saturationRate.push(saturationRate);
                 yAxisDataResult.maxLoad.push(maxLoadProfile);
-                yAxisData.loadProfileWithEvasion.push(loadProfileWithEvasion);
-                yAxisData.expandedEvasionBoarding.push(expandedEvasionBoarding);
-                yAxisData.expandedEvasionAlighting.push(expandedEvasionAlighting);
-                yAxisData.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
-                yAxisData.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
-                yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
+                yAxisDataResult.loadProfileWithEvasion.push(loadProfileWithEvasion);
+                yAxisDataResult.expandedEvasionBoarding.push(expandedEvasionBoarding);
+                yAxisDataResult.expandedEvasionAlighting.push(expandedEvasionAlighting);
+                yAxisDataResult.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
+                yAxisDataResult.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
+                yAxisDataResult.saturationRateWithEvasion.push(saturationRateWithEvasion);
 
                 let expNumber = itemIsNull ? 0 : item.expeditionNumber;
                 expeditionNumber = Math.max(expNumber, expeditionNumber);
