@@ -166,8 +166,6 @@ $(document).ready(function () {
                     stops: data.stops,
                     route: route
                 });
-                console.log(data.stops);
-                console.log(route);
 
                 // update color
                 let $COLOR_BUTTON = $(`#colorSelect-${layerId}`);
