@@ -188,7 +188,6 @@ $(document).ready(function () {
         };
 
         this.refreshControlEvents = function (id) {
-
             // handle user route selector
             let $USER_ROUTE = $(`#userRouteSelect-${id}`);
             $USER_ROUTE.off("change");
@@ -198,8 +197,8 @@ $(document).ready(function () {
                 let route = selector.find(".route").first();
                 let date = selector.find(".date").first().val();
 
-                //update authroute list
-                let routeValues = _self.data[date][userRoute];
+                //update auth route list
+                let routeValues = _self.data[date][userRoute] || [];
                 route.empty();
                 route.select2({
                     data: routeValues.map(e => {
@@ -551,6 +550,4 @@ $(document).ready(function () {
     mapShapeApp.loadBaseData();
     $("#modalList").detach().appendTo($(".main_container")[0]);
     document.activeElement.blur();
-
-})
-;
+});
