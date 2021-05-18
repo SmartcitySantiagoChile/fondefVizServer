@@ -467,7 +467,7 @@ function MapApp(opts) {
     this.addStop = function (layer, stopInfo, opts) {
         var flyTo = opts.flyTo || false;
         var route = opts.route || null;
-        var additonalStopInfo = opts.additonalStopInfo || "";
+        var additionalStopInfo = opts.additionalStopInfo || "";
 
         var latLng = L.latLng(stopInfo.latitude, stopInfo.longitude);
         var marker = L.marker(latLng, {
@@ -487,7 +487,7 @@ function MapApp(opts) {
         popUpDescription += " Código transantiago: <b>" + stopInfo.authStopCode + "</b><br />";
         popUpDescription += " Código usuario: <b>" + stopInfo.userStopCode + "</b><br />";
         popUpDescription += " Posición en la ruta: <b>" + (stopInfo.order + 1) + "</b><br />";
-        popUpDescription += additonalStopInfo;
+        popUpDescription += additionalStopInfo;
         marker.bindPopup(popUpDescription + "</p>");
         layer.addLayer(marker);
         if (flyTo) {
@@ -498,7 +498,7 @@ function MapApp(opts) {
     this.addPolyline = function (layer, points, opts) {
         var stops = opts.stops || [];
         var route = opts.route || null;
-        var additonalStopInfo = opts.additonalStopInfo || function () {
+        var additionalStopInfo = opts.additionalStopInfo || function () {
             return "";
         };
         var drawSense = opts.drawSense || true;
@@ -507,11 +507,11 @@ function MapApp(opts) {
         stops.forEach(function (stop, i) {
             _self.addStop(layer, stop, {
                 route: route,
-                additonalStopInfo: additonalStopInfo(i)
+                additionalStopInfo: additionalStopInfo(i)
             });
             _self.addUserStopInfo(layer, stop, {
                 route: route,
-                additonalStopInfo: additonalStopInfo(i)
+                additionalStopInfo: additionalStopInfo(i)
             });
         });
         // polyline
