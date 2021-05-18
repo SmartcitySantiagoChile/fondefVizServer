@@ -769,7 +769,7 @@ $(document).ready(function () {
 
         var _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
-            boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage;
+            boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage || 0;
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
             $("#boardingWithAlightingPercentage").html(Number(boardingWithAlightingPercentage.toFixed(2)).toLocaleString());
@@ -831,7 +831,16 @@ $(document).ready(function () {
                     busSaturation: el.busSaturation.value,
                     distOnPath: el.pathDistance.hits.hits[0]._source.stopDistanceFromPathStart,
                     expeditionNumber: el.doc_count,
-                    maxLoadProfile: el.maxLoadProfile.value
+                    maxLoadProfile: el.maxLoadProfile.value,
+                    loadProfileWithEvasion: el.loadProfileWithEvasion.value,
+                    maxLoadProfileWithEvasion: el.maxLoadProfileWithEvasion.value,
+                    expandedEvasionBoarding: el.expandedEvasionBoarding.value,
+                    expandedEvasionAlighting: el.expandedEvasionAlighting.value,
+                    expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding.value,
+                    expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting.value,
+                    busSaturationWithEvasion: el.busSaturationWithEvasion.value,
+                    boarding: el.boarding.value,
+                    boardingWithAlighting: el.boardingWithAlighting.value
                 }
             });
             let expeditionNumber = 0;
@@ -847,11 +856,12 @@ $(document).ready(function () {
                 let saturationRate = itemIsNull ? null : item.busSaturation * 100;
                 let maxLoadProfile = itemIsNull ? null : item.maxLoadProfile;
                 let loadProfileWithEvasion = itemIsNull ? null : item.loadProfileWithEvasion;
+                let maxLoadProfileWithEvasion = itemIsNull ? null : item.maxLoadProfileWithEvasion;
                 let expandedEvasionBoarding = itemIsNull ? null : item.expandedEvasionBoarding;
                 let expandedEvasionAlighting = itemIsNull ? null : item.expandedEvasionAlighting;
                 let expandedBoardingPlusExpandedEvasionBoarding = itemIsNull ? null : item.expandedBoardingPlusExpandedEvasionBoarding;
                 let expandedAlightingPlusExpandedEvasionAlighting = itemIsNull ? null : item.expandedAlightingPlusExpandedEvasionAlighting;
-                let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
+                let saturationRateWithEvasion = itemIsNull ? null : item.busSaturationWithEvasion * 100;
                 let boarding = itemIsNull ? null : item.boarding;
                 let boardingWithAlighting = itemIsNull ? null : item.boardingWithAlighting;
 
@@ -860,12 +870,13 @@ $(document).ready(function () {
                 yAxisDataResult.loadProfile.push(loadProfile);
                 yAxisDataResult.saturationRate.push(saturationRate);
                 yAxisDataResult.maxLoad.push(maxLoadProfile);
-                yAxisData.loadProfileWithEvasion.push(loadProfileWithEvasion);
-                yAxisData.expandedEvasionBoarding.push(expandedEvasionBoarding);
-                yAxisData.expandedEvasionAlighting.push(expandedEvasionAlighting);
-                yAxisData.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
-                yAxisData.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
-                yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
+                yAxisDataResult.maxLoadWithEvasion.push(maxLoadProfileWithEvasion);
+                yAxisDataResult.loadProfileWithEvasion.push(loadProfileWithEvasion);
+                yAxisDataResult.expandedEvasionBoarding.push(expandedEvasionBoarding);
+                yAxisDataResult.expandedEvasionAlighting.push(expandedEvasionAlighting);
+                yAxisDataResult.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
+                yAxisDataResult.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
+                yAxisDataResult.saturationRateWithEvasion.push(saturationRateWithEvasion);
 
                 let expNumber = itemIsNull ? 0 : item.expeditionNumber;
                 expeditionNumber = Math.max(expNumber, expeditionNumber);

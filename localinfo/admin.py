@@ -94,7 +94,7 @@ class CustomOPDictionaryAdmin(admin.ModelAdmin):
     actions = None
     search_fields = ['auth_route_code', 'user_route_code', 'op_route_code', 'route_type']
     list_display = (
-        'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at', 'op_program')
+        'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'op_program')
 
 
 admin.site.register(Operator, OperatorAdmin)

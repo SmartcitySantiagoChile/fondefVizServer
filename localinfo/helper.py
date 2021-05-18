@@ -10,10 +10,10 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import transaction
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat, Cast
 from django.utils import timezone
-from openpyxl import load_workbook
 
 from esapi.helper.opdata import ESOPDataHelper
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
@@ -182,9 +182,9 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
         file_name = zip_file_obj.namelist()[0]
         csv_file = zip_file_obj.open(file_name, 'r')
     csv_file = io.StringIO(csv_file.read().decode('utf-8'))
-    op_program = OPProgram.objects.get(id=op_program_id)
+    OPProgram.objects.get(id=op_program_id)
     upload_time = timezone.now()
-    to_update = []
+
     to_create = []
     csv_reader = csv.reader(csv_file, delimiter=";")
     if not csv_reader:
@@ -196,25 +196,17 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
         op_route_code = str(row[9]) + str(row[7])
         user_route_code = row[8]
         route_type = row[1]
-        try:
-            op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type,
-                                                   op_program=op_program)
-            op_dict_obj.auth_route_code = auth_route_code
-            op_dict_obj.user_route_code = user_route_code
-            op_dict_obj.route_type = route_type
-            op_dict_obj.updated_at = upload_time
-            to_update.append(op_dict_obj)
 
-        except OPDictionary.DoesNotExist:
-            to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
-                                          route_type=route_type, created_at=upload_time,
-                                          updated_at=upload_time,
-                                          auth_route_code=auth_route_code, op_program=op_program))
-    OPDictionary.objects.bulk_create(to_create)
-    OPDictionary.objects.bulk_update(to_update,
-                                     ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
+        if auth_route_code == '' or op_route_code == '' or user_route_code == '' or route_type == '':
+            continue
+        to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
+                                      route_type=route_type, auth_route_code=auth_route_code,
+                                      created_at=upload_time, op_program_id=op_program_id))
+    with transaction.atomic():
+        OPDictionary.objects.filter(op_program_id=op_program_id).delete()
+        OPDictionary.objects.bulk_create(to_create)
 
-    return {"created": len(to_create), "updated": len(to_update)}
+    return {"created": len(to_create)}
 
 
 def synchronize_op_program():

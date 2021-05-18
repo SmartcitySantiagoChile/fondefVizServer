@@ -43,7 +43,7 @@ $(document).ready(function () {
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="header" style="display: none">' +
                 '<div class="form-inline" >' +
-                '<button id="timePeriodButton" class="btn btn-default btn-sm" ><span class="fa fa-bus" aria-hidden="true"> Ver información operacional </span></button>' + '</div>' +
+                '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"> Ver información operacional </span></button>' + '</div>' +
                 '<div class="form-inline" >' +
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
@@ -123,6 +123,7 @@ $(document).ready(function () {
                             $TABLE.rows.add([value]);
                         }
                         $TABLE.draw();
+                        $TABLE.columns.adjust();
                         $(this).off('shown.bs.modal');
                     });
                 }
@@ -188,7 +189,6 @@ $(document).ready(function () {
         };
 
         this.refreshControlEvents = function (id) {
-
             // handle user route selector
             let $USER_ROUTE = $(`#userRouteSelect-${id}`);
             $USER_ROUTE.off("change");
@@ -198,8 +198,8 @@ $(document).ready(function () {
                 let route = selector.find(".route").first();
                 let date = selector.find(".date").first().val();
 
-                //update authroute list
-                let routeValues = _self.data[date][userRoute];
+                //update auth route list
+                let routeValues = _self.data[date][userRoute] || [];
                 route.empty();
                 route.select2({
                     data: routeValues.map(e => {
@@ -465,7 +465,8 @@ $(document).ready(function () {
                     decimal: ",",
                     thousands: "."
                 },
-
+                scrollX: true,
+                responsive: true,
                 pageLength: 28,
                 paging: true,
                 retrieve: true,
@@ -597,6 +598,4 @@ $(document).ready(function () {
     mapShapeApp.loadBaseData();
     $("#modalList").detach().appendTo($(".main_container")[0]);
     document.activeElement.blur();
-
-})
-;
+});

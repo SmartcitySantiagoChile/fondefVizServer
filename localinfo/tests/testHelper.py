@@ -30,7 +30,7 @@ class TestHelperUtils(TestCase):
         for key in expected_dict[valid_from]:
             OPDictionary.objects.create(auth_route_code=key, route_type=expected_dict[valid_from][key][0],
                                         op_route_code=key, user_route_code=key, created_at=time_at,
-                                        updated_at=time_at, op_program=op_program)
+                                        op_program=op_program)
         query = get_op_routes_dict()
         self.assertEqual(expected_dict, query)
         op_program.delete()
@@ -468,53 +468,13 @@ class TestHelperUtils(TestCase):
             opened_file = open(file, 'rb')
             django_file = InMemoryUploadedFile(opened_file, None, name, 'text',
                                                opened_file.__sizeof__(), None)
-            expected_res = {"created": 7, "updated": 0}
+            expected_res = {"created": 7}
             self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
             opened_file.close()
             op_program.delete()
 
         for file_name in file_names:
             create_op_program_and_upload(file_name)
-
-
-    def test_upload_csv_op_dictionary_update(self):
-        op_program = OPProgram.objects.create(valid_from='2020-11-28')
-        file = os.path.join(self.path, 'diccionario_op_base.csv')
-        opened_file = open(file, 'rb')
-        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base.csv', 'text',
-                                           opened_file.__sizeof__(), None)
-
-        expected_res = {"created": 7, "updated": 0}
-        self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
-        expected_res = {"created": 0, "updated": 7}
-        opened_file.close()
-
-        file = os.path.join(self.path, 'diccionario_op_base_2.csv')
-        opened_file = open(file, 'rb')
-        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base_2.csv', 'text',
-                                           opened_file.__sizeof__(), None)
-        self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
-        created_objects = list(
-            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
-                                              'route_type').order_by('auth_route_code'))
-        expected_dict = [{'auth_route_code': 'B80 C2 00I', 'op_route_code': 'B80yI', 'user_route_code': '410',
-                          'route_type': '410yI'},
-                         {'auth_route_code': 'B82 00I', 'op_route_code': 'B82I', 'user_route_code': '120',
-                          'route_type': '120I'},
-                         {'auth_route_code': 'B82 00R', 'op_route_code': 'B82R', 'user_route_code': '120',
-                          'route_type': '120R'},
-                         {'auth_route_code': 'T319 00I', 'op_route_code': '319I', 'user_route_code': '119',
-                          'route_type': '119I'},
-                         {'auth_route_code': 'T319 00R', 'op_route_code': '319R', 'user_route_code': '119',
-                          'route_type': '119R'},
-                         {'auth_route_code': 'T327 00I', 'op_route_code': '327I', 'user_route_code': '126',
-                          'route_type': '126I'},
-                         {'auth_route_code': 'T327 01I', 'op_route_code': '327I', 'user_route_code': '126',
-                          'route_type': '126IPM'}]
-
-        self.assertEqual(expected_dict, created_objects)
-        op_program.delete()
-        opened_file.close()
 
     def test_upload_csv_op_dictionary_error(self):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
