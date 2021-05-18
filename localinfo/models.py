@@ -194,7 +194,6 @@ class OPDictionary(models.Model):
     user_route_code = models.CharField("Código de usuario", max_length=30, null=True)
     route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
     created_at = models.DateTimeField("Fecha de creación", null=True)
-    updated_at = models.DateTimeField("Fecha de última modificación", null=True)
     op_program = models.ForeignKey(OPProgram, on_delete=models.CASCADE, verbose_name="Programa de operación")
 
     class Meta:

@@ -149,7 +149,7 @@ class ESProfileIndexTest(TestCase):
                                 'expandedEvasionAlighting',
                                 'expandedBoardingPlusExpandedEvasionBoarding',
                                 'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                                'boardingWithAlighting', 'evasionPercent', 'evasionPercent',
+                                'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
                                 'uniformDistributionMethod']}
 
         self.assertIsInstance(result, Search)
@@ -182,7 +182,14 @@ class ESProfileIndexTest(TestCase):
                                'expandedAlightingPlusExpandedEvasionAlighting': {
                                    'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
                                'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
-                               'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}}}},
+                               'maxLoadProfileWithEvasion': {'max': {'field': 'loadProfileWithEvasion'}},
+                               'sumLoadProfileWithEvasion': {'sum': {'field': 'loadProfileWithEvasion'}},
+                               'busSaturationWithEvasion': {
+                                   'bucket_script': {'script': 'params.d / params.t',
+                                                     'buckets_path': {'d': 'sumLoadProfileWithEvasion',
+                                                                      't': 'sumBusCapacity'}}},
+                               'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}},
+                               'boarding': {'sum': {'field': 'boarding'}}}},
             'stop': {'filter': {'term': {'busStation': 1}},
                      'aggs': {'station': {'terms': {'field': 'authStopCode.raw', 'size': 500}}}}}, 'from': 0, 'size': 0,
             '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
@@ -191,7 +198,8 @@ class ESProfileIndexTest(TestCase):
                         'busStation', 'path', 'notValid', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
                         'expandedBoardingPlusExpandedEvasionBoarding',
                         'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                        'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod']}
+                        'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
+                        'uniformDistributionMethod']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -305,3 +313,9 @@ class ESProfileIndexTest(TestCase):
         expected = {'from': 0, 'aggs': {'route': {'terms': {'field': 'route', 'size': 5000}}}, 'size': 0}
         result = self.instance.get_all_auth_routes().to_dict()
         self.assertDictEqual(result, expected)
+
+    def test_get_all_time_periods(self):
+        expected_query = {"aggs": {"time_periods_per_file": {"terms": {"field": "path", 'size': 5000}, "aggs": {
+            "time_periods": {"terms": {"field": "timePeriodInStartTime"}}}}}, "from": 0, "size": 0}
+        result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)

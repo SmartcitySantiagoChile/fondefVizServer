@@ -29,6 +29,7 @@ $(document).ready(function () {
         // trips to show in profile view
         var _visibleTrips = 0;
         var _shape = [];
+        var _boardingWithAlightingPercentage = 0;
 
         this.trips = function (trips) {
             if (trips === undefined) {
@@ -103,6 +104,8 @@ $(document).ready(function () {
             var xAxisLength = _xAxisData.length;
             var counterByStop = [];
             var capacityByStop = [];
+            var boardingTotal = 0;
+            var boardingWithAlightingTotal = 0;
 
             _yAxisData = {
                 expandedAlighting: [],
@@ -156,6 +159,8 @@ $(document).ready(function () {
 
                     capacityByStop[stopIndex] += trip.busCapacity;
                     counterByStop[stopIndex]++;
+                    boardingTotal += trip.yAxisData.boarding[stopIndex];
+                    boardingWithAlightingTotal += trip.yAxisData.boardingWithAlighting[stopIndex];
                 }
             });
             // it calculates average
@@ -173,8 +178,9 @@ $(document).ready(function () {
                 _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] = _yAxisData.expandedBoardingPlusExpandedEvasionBoarding[stopIndex] / counterByStop[stopIndex];
                 _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] = _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
             }
-        };
 
+            this._boardingWithAlightingPercentage = boardingWithAlightingTotal / boardingTotal * 100;
+        };
 
         this.getDatatableData = function () {
             var values = [];
@@ -761,15 +767,17 @@ $(document).ready(function () {
             })
         }
 
-        var _updateGlobalStats = function (expeditionNumber) {
+        var _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
+            boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage || 0;
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
+            $("#boardingWithAlightingPercentage").html(Number(boardingWithAlightingPercentage.toFixed(2)).toLocaleString());
         };
 
-        this.updateCharts = function (expeditionNumber) {
+        this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage) {
             _updateBarChart();
-            _updateGlobalStats(expeditionNumber);
+            _updateGlobalStats(expeditionNumber, boardingWithAlightingPercentage);
             _updateMap();
         };
         this.updateDatatable = function () {
@@ -823,10 +831,21 @@ $(document).ready(function () {
                     busSaturation: el.busSaturation.value,
                     distOnPath: el.pathDistance.hits.hits[0]._source.stopDistanceFromPathStart,
                     expeditionNumber: el.doc_count,
-                    maxLoadProfile: el.maxLoadProfile.value
+                    maxLoadProfile: el.maxLoadProfile.value,
+                    loadProfileWithEvasion: el.loadProfileWithEvasion.value,
+                    maxLoadProfileWithEvasion: el.maxLoadProfileWithEvasion.value,
+                    expandedEvasionBoarding: el.expandedEvasionBoarding.value,
+                    expandedEvasionAlighting: el.expandedEvasionAlighting.value,
+                    expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding.value,
+                    expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting.value,
+                    busSaturationWithEvasion: el.busSaturationWithEvasion.value,
+                    boarding: el.boarding.value,
+                    boardingWithAlighting: el.boardingWithAlighting.value
                 }
             });
             let expeditionNumber = 0;
+            let boardingTotal = 0;
+            let boardingWithAlightingTotal = 0;
             stops.forEach(function (stop) {
                 let item = groupedStops[stop.authStopCode];
                 let itemIsNull = item === undefined;
@@ -837,27 +856,34 @@ $(document).ready(function () {
                 let saturationRate = itemIsNull ? null : item.busSaturation * 100;
                 let maxLoadProfile = itemIsNull ? null : item.maxLoadProfile;
                 let loadProfileWithEvasion = itemIsNull ? null : item.loadProfileWithEvasion;
+                let maxLoadProfileWithEvasion = itemIsNull ? null : item.maxLoadProfileWithEvasion;
                 let expandedEvasionBoarding = itemIsNull ? null : item.expandedEvasionBoarding;
                 let expandedEvasionAlighting = itemIsNull ? null : item.expandedEvasionAlighting;
                 let expandedBoardingPlusExpandedEvasionBoarding = itemIsNull ? null : item.expandedBoardingPlusExpandedEvasionBoarding;
                 let expandedAlightingPlusExpandedEvasionAlighting = itemIsNull ? null : item.expandedAlightingPlusExpandedEvasionAlighting;
-                let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
+                let saturationRateWithEvasion = itemIsNull ? null : item.busSaturationWithEvasion * 100;
+                let boarding = itemIsNull ? null : item.boarding;
+                let boardingWithAlighting = itemIsNull ? null : item.boardingWithAlighting;
 
                 yAxisDataResult.expandedAlighting.push(expandedAlighting);
                 yAxisDataResult.expandedBoarding.push(expandedBoarding);
                 yAxisDataResult.loadProfile.push(loadProfile);
                 yAxisDataResult.saturationRate.push(saturationRate);
                 yAxisDataResult.maxLoad.push(maxLoadProfile);
-                yAxisData.loadProfileWithEvasion.push(loadProfileWithEvasion);
-                yAxisData.expandedEvasionBoarding.push(expandedEvasionBoarding);
-                yAxisData.expandedEvasionAlighting.push(expandedEvasionAlighting);
-                yAxisData.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
-                yAxisData.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
-                yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
+                yAxisDataResult.maxLoadWithEvasion.push(maxLoadProfileWithEvasion);
+                yAxisDataResult.loadProfileWithEvasion.push(loadProfileWithEvasion);
+                yAxisDataResult.expandedEvasionBoarding.push(expandedEvasionBoarding);
+                yAxisDataResult.expandedEvasionAlighting.push(expandedEvasionAlighting);
+                yAxisDataResult.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
+                yAxisDataResult.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
+                yAxisDataResult.saturationRateWithEvasion.push(saturationRateWithEvasion);
 
                 let expNumber = itemIsNull ? 0 : item.expeditionNumber;
                 expeditionNumber = Math.max(expNumber, expeditionNumber);
+                boardingTotal += boarding;
+                boardingWithAlightingTotal += boardingWithAlighting;
             });
+            let boardingWithAlightingPercentage = boardingWithAlightingTotal / boardingTotal * 100;
 
             dataManager.yAxisData(yAxisDataResult);
             let tripGroupXAxisData = stops.map(function (stop) {
@@ -866,7 +892,7 @@ $(document).ready(function () {
             });
             dataManager.xAxisData(tripGroupXAxisData);
             app.dataManager(dataManager);
-            app.updateCharts(expeditionNumber);
+            app.updateCharts(expeditionNumber, boardingWithAlightingPercentage);
             app.updateDatatable();
         } else {
             for (let expeditionId in trips) {
@@ -894,6 +920,8 @@ $(document).ready(function () {
                     expandedBoardingPlusExpandedEvasionBoarding: [],
                     expandedAlightingPlusExpandedEvasionAlighting: [],
                     saturationRateWithEvasion: [],
+                    boarding: [],
+                    boardingWithAlighting: []
                 };
 
                 stops.forEach(function (stop) {
@@ -910,6 +938,8 @@ $(document).ready(function () {
                     let expandedBoardingPlusExpandedEvasionBoarding = itemIsNull ? null : item[6];
                     let expandedAlightingPlusExpandedEvasionAlighting = itemIsNull ? null : item[7];
                     let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
+                    let boarding = itemIsNull ? null : item[8];
+                    let boardingWithAlighting = itemIsNull ? null : item[9];
 
                     yAxisData.expandedAlighting.push(expandedAlighting);
                     yAxisData.expandedBoarding.push(expandedBoarding);
@@ -922,7 +952,8 @@ $(document).ready(function () {
                     yAxisData.expandedBoardingPlusExpandedEvasionBoarding.push(expandedBoardingPlusExpandedEvasionBoarding);
                     yAxisData.expandedAlightingPlusExpandedEvasionAlighting.push(expandedAlightingPlusExpandedEvasionAlighting);
                     yAxisData.saturationRateWithEvasion.push(saturationRateWithEvasion);
-
+                    yAxisData.boarding.push(boarding);
+                    yAxisData.boardingWithAlighting.push(boardingWithAlighting);
                 });
 
                 trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit,

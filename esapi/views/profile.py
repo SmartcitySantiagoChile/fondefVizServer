@@ -197,7 +197,9 @@ class LoadProfileByExpeditionData(View):
                 self.clean_data(hit.expandedEvasionBoarding),
                 self.clean_data(hit.expandedEvasionAlighting),
                 self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
-                self.clean_data(hit.expandedAlightingPlusExpandedEvasionAlighting)
+                self.clean_data(hit.expandedAlightingPlusExpandedEvasionAlighting),
+                self.clean_data(hit.boarding),
+                self.clean_data(hit.boardingWithAlighting)
             ]
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 

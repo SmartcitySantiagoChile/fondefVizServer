@@ -157,7 +157,7 @@ class ESProfileHelper(ElasticSearchHelper):
              'expandedEvasionAlighting',
              'expandedBoardingPlusExpandedEvasionBoarding',
              'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod'])
+             'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod'])
 
         return es_query
 
@@ -183,7 +183,12 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg',
                    field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
-            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
+            metric('maxLoadProfileWithEvasion', 'max', field='loadProfileWithEvasion'). \
+            metric('sumLoadProfileWithEvasion', 'sum', field='loadProfileWithEvasion'). \
+            metric('busSaturationWithEvasion', 'bucket_script', script='params.d / params.t',
+                   buckets_path={'d': 'sumLoadProfileWithEvasion', 't': 'sumBusCapacity'}). \
+            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting'). \
+            metric('boarding', 'sum', field='boarding')
 
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
@@ -333,4 +338,15 @@ class ESProfileHelper(ElasticSearchHelper):
             })
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
+        return es_query
+
+    def get_all_time_periods(self):
+        """
+        Make a query that get all time periods in profile index
+        Returns: ES query
+        """
+        es_query = self.get_base_query()
+        es_query = es_query[:0]
+        es_query.aggs.bucket('time_periods_per_file', 'terms', field='path', size=5000) \
+            .bucket('time_periods', 'terms', field='timePeriodInStartTime')
         return es_query
