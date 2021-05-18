@@ -279,12 +279,14 @@ $(document).ready(function () {
                 $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
                 let stopButton = lastSelected.find(".visibility-stops");
                 $(`#visibilityStops-${id}`).removeClass().addClass(stopButton.attr("class"));
+                let userStopButton = lastSelected.find(".visibility-user-stops");
+                $(`#visibilityUserStops-${id}`).removeClass().addClass(userStopButton.attr("class"));
 
 
             } else {
                 $("#header").css('display', "block");
             }
-            
+
             $USER_ROUTE.trigger("change");
             //$DATE.trigger("change");
 
@@ -385,7 +387,10 @@ $(document).ready(function () {
                 span.removeClass("fa-bus").addClass("fa-bus");
                 layers[layerId].eachLayer(function (layer) {
                     if (layer instanceof L.Marker) {
-                        mapInstance.removeLayer(layer);
+                        let isBus = layer.options.icon.options["icon"] || null;
+                        if (isBus) {
+                            mapInstance.removeLayer(layer);
+                        }
                     }
                 });
             } else {
@@ -393,7 +398,10 @@ $(document).ready(function () {
                 span.removeClass("fa-bus").addClass("fa-bus");
                 layers[layerId].eachLayer(function (layer) {
                     if (layer instanceof L.Marker) {
-                        mapInstance.addLayer(layer);
+                        let isBus = layer.options.icon.options["icon"] || null;
+                        if (isBus) {
+                            mapInstance.addLayer(layer);
+                        }
                     }
                 });
             }
@@ -411,6 +419,43 @@ $(document).ready(function () {
             });
         };
 
+        const updateUserStopRoutes = (active, layerId, button, span) => {
+            if (active) {
+                button.removeClass("btn-success").addClass("btn-warning");
+                span.removeClass("glyphicon-user").addClass("glyphicon-user");
+                layers[layerId].eachLayer(function (layer) {
+                    if (layer instanceof L.Marker) {
+                        let isBus = layer.options.icon.options["icon"] || null;
+                        if (!isBus) {
+                            mapInstance.removeLayer(layer);
+                        }
+                    }
+                });
+            } else {
+                button.removeClass("btn-warning").addClass("btn-success");
+                span.removeClass("glyphicon-user").addClass("glyphicon-user");
+                layers[layerId].eachLayer(function (layer) {
+                    if (layer instanceof L.Marker) {
+                        let isBus = layer.options.icon.options["icon"] || null;
+                        if (!isBus) {
+                            mapInstance.addLayer(layer);
+                        }
+                    }
+                });
+            }
+        };
+
+        this.refreshVisibilityUserStopsButton = function () {
+            let $VISIBILITY_BUTTON = $(".selectorRow .visibility-user-stops");
+            $VISIBILITY_BUTTON.off("click");
+            $VISIBILITY_BUTTON.click(function () {
+                let button = $(this);
+                let span = button.find("span");
+                let layerId = button.parent().data("id");
+                let active = button.hasClass("btn-success");
+                updateUserStopRoutes(active, layerId, button, span);
+            });
+        };
 
         this.addTableInfo = function () {
             let $TABLE = $('#shapeDetail');
@@ -503,6 +548,7 @@ $(document).ready(function () {
                 `<button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 `<button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>` +
                 `<button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>` +
+                `<button id=visibilityUserStops-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>` +
                 '</div>';
             $ROW_CONTAINER.append(row);
             _self.refreshControlEvents(newId);
@@ -510,6 +556,7 @@ $(document).ready(function () {
             _self.refreshColorPickerButton();
             _self.refreshVisibilityRoutesButton();
             _self.refreshVisibilityStopsButton();
+            _self.refreshVisibilityUserStopsButton();
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
