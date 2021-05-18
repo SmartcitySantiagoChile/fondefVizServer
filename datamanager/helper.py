@@ -267,7 +267,6 @@ class FileManager(object):
         """
         helpers_dict = {
             'profile': ESProfileHelper(),
-            'speed': ESSpeedHelper(),
             'odbyroute': ESODByRouteHelper(),
             'trip': ESTripHelper()
         }

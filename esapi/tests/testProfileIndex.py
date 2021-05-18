@@ -315,7 +315,9 @@ class ESProfileIndexTest(TestCase):
         self.assertDictEqual(result, expected)
 
     def test_get_all_time_periods(self):
-        expected_query = {"aggs": {"time_periods_per_file": {"terms": {"field": "path", 'size': 5000}, "aggs": {
-            "time_periods": {"terms": {"field": "timePeriodInStartTime"}}}}}, "from": 0, "size": 0}
+        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path', 'size': 5000}, 'aggs': {
+            'time_periods_0': {'terms': {'field': 'timePeriodInStartTime'},
+                               'aggs': {'time_periods_1': {'terms': {'field': 'timePeriodInStopTime'}}}}}}}, 'from': 0,
+                          'size': 0}
         result = self.instance.get_all_time_periods().to_dict()
         self.assertEqual(expected_query, result)
