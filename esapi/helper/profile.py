@@ -348,6 +348,6 @@ class ESProfileHelper(ElasticSearchHelper):
         es_query = self.get_base_query()
         es_query = es_query[:0]
         es_query_bucket = es_query.aggs.bucket('time_periods_per_file', 'terms', field='path', size=5000)
-        es_query_bucket.bucket('time_periods', 'terms', field='timePeriodInStartTime')
-        es_query_bucket.bucket('time_periods', 'terms', field='timePeriodInStopTime')
+        es_query_bucket.bucket('time_periods_0', 'terms', field='timePeriodInStartTime')
+        es_query_bucket.bucket('time_periods_1', 'terms', field='timePeriodInStopTime')
         return es_query
