@@ -88,12 +88,9 @@
 .route {
     width: 180px !important;
 }
-
 .modal-lg {
-    width: 1600px;
-!important;
+    width: 80%;
 }
-
 #timePeriodButton {
     float: right;
 }

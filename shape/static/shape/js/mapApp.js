@@ -43,7 +43,7 @@ $(document).ready(function () {
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="header" style="display: none">' +
                 '<div class="form-inline" >' +
-                '<button id="timePeriodButton" class="btn btn-default btn-sm" ><span class="fa fa-bus" aria-hidden="true"> Ver información operacional </span></button>' + '</div>' +
+                '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"> Ver información operacional </span></button>' + '</div>' +
                 '<div class="form-inline" >' +
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
@@ -123,6 +123,7 @@ $(document).ready(function () {
                             $TABLE.rows.add([value]);
                         }
                         $TABLE.draw();
+                        $TABLE.columns.adjust();
                         $(this).off('shown.bs.modal');
                     });
                 }
@@ -274,7 +275,6 @@ $(document).ready(function () {
 
                 let color = lastSelected.find(".glyphicon-tint").css("color");
                 $(`#colorSelect-${id}`).css("color", color);
-                console.log(color);
                 let routesButton = lastSelected.find(".visibility-routes").find("span");
                 $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
                 let stopButton = lastSelected.find(".visibility-stops");
@@ -420,7 +420,8 @@ $(document).ready(function () {
                     decimal: ",",
                     thousands: "."
                 },
-
+                scrollX: true,
+                responsive: true,
                 pageLength: 28,
                 paging: true,
                 retrieve: true,
