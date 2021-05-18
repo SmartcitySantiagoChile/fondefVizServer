@@ -509,7 +509,6 @@ function MapApp(opts) {
                 route: route,
                 additonalStopInfo: additonalStopInfo(i)
             });
-            console.log(stop);
             _self.addUserStopInfo(layer, stop, {
                 route: route,
                 additonalStopInfo: additonalStopInfo(i)
