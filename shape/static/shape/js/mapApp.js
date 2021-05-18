@@ -43,7 +43,7 @@ $(document).ready(function () {
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="header" style="display: none">' +
                 '<div class="form-inline" >' +
-                '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"> Ver información operacional </span></button>' + '</div>' +
+                '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"></span> Ver información operacional</button>' + '</div>' +
                 '<div class="form-inline" >' +
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
