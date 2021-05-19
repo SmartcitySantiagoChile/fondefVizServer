@@ -230,7 +230,6 @@ $(document).ready(function () {
                 _self.sendData(this);
             });
 
-
             // handle date selector
             let $DATE = $(`#dateSelect-${id}`);
             $DATE.off("change");
@@ -568,15 +567,15 @@ $(document).ready(function () {
         };
 
         this.loadBaseData = function () {
-
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
+                let currentDate = data.dates[data.dates.length - 1]
                 _self.data = {};
-                _self.data[data.dates[data.dates.length - 1]] = data.user_routes;
+                _self.data[currentDate] = data.op_routes_dict[currentDate];
                 _self.dates_period_dict = data.dates_periods_dict;
                 _self.op_routes_dict = data.op_routes_dict;
                 _self.periods = data.periods;
-                let userRouteList = (Object.keys(data.user_routes).sort(sortAlphaNum));
+                let userRouteList = (Object.keys(data.op_routes_dict[currentDate]).sort(sortAlphaNum));
                 userRouteList = userRouteList.map(e =>
                     "<option>" + e + "</option>"
                 ).join("");
@@ -594,7 +593,7 @@ $(document).ready(function () {
         };
     }
 
-    var mapShapeApp = new MapShapeApp();
+    let mapShapeApp = new MapShapeApp();
     mapShapeApp.loadBaseData();
     $("#modalList").detach().appendTo($(".main_container")[0]);
     document.activeElement.blur();
