@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collections import defaultdict
 from datetime import datetime, date, timedelta
 
@@ -9,7 +8,8 @@ from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQu
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
-from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_periods_dict, get_op_routes_dict
+from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_periods_dict
+from localinfo.models import OPProgram, OPDictionary
 
 
 class GetRouteInfo(View):
@@ -40,46 +40,24 @@ class GetRouteInfo(View):
 class GetBaseInfo(View):
 
     def get(self, request):
-        # retrieve route list and available days
-        end_date = '2050-12-31'
-
-        es_shape_helper = ESShapeHelper()
-        es_stop_helper = ESStopByRouteHelper()
-
-        stop_dates = es_stop_helper.get_available_days()
-        shape_dates = es_shape_helper.get_available_days()
-
-        dates = list(set(stop_dates + shape_dates))
-        dates.sort(key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
-
-        periods = get_periods_dict()
+        op_dates = list(map(lambda x: x.strftime('%Y-%m-%d'), OPProgram.objects.values_list('valid_from', flat=True)))
+        op_dates_dict = {date_id: date_obj.strftime('%Y-%m-%d') for date_id, date_obj in
+                         OPProgram.objects.values_list('id', 'valid_from')}
+        authority_periods = get_periods_dict()
 
         dates_periods_dict = {}
-        for date in dates:
-            dates_periods_dict[date] = get_valid_time_period_date([date])[1]
+        for op_date in op_dates:
+            dates_periods_dict[op_date] = get_valid_time_period_date([op_date])[1]
 
-        stop_routes = es_stop_helper.get_route_list()
-        shape_routes = es_shape_helper.get_route_list()
+        op_routes_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: dict)))
+        for op_dict_obj in OPDictionary.objects.order_by('op_program_id', 'user_route_code', 'auth_route_code'). \
+                values_list('op_program_id', 'user_route_code', 'auth_route_code', 'op_route_code'):
+            op_routes_dict[op_dates_dict[op_dict_obj[0]]][op_dict_obj[1]][op_dict_obj[2]] = op_dict_obj[3]
 
-        routes = list(set(stop_routes + shape_routes))
-        routes.sort()
-
-        es_helper = ESProfileHelper()
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        available_routes, op_dict = es_helper.get_available_routes(valid_operator_list,
-                                                                   start_date=dates[len(dates) - 1],
-                                                                   end_date=end_date)
-        user_routes = defaultdict(list)
-        for key in available_routes:
-            for value in available_routes[key]:
-                user_routes[value].extend(available_routes[key][value])
-        op_routes_dict = get_op_routes_dict(key='auth_route_code', answer='op_route_code')
         response = {
-            'dates': dates,
-            'routes': routes,
-            'user_routes': user_routes,
+            'dates': op_dates,
             'dates_periods_dict': dates_periods_dict,
-            'periods': periods,
+            'periods': authority_periods,
             'op_routes_dict': op_routes_dict
         }
 
