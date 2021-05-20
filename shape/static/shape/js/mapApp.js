@@ -195,7 +195,7 @@ $(document).ready(function () {
 
                 //update auth route list
                 let routeValues = [];
-                if (self.op_routes_dict.hasOwnProperty(date) && self.op_routes_dict[date].hasOwnProperty(userRoute)) {
+                if (_self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(userRoute)) {
                     routeValues = _self.op_routes_dict[date][userRoute];
                 }
                 route.empty();
