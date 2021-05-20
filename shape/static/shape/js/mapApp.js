@@ -198,9 +198,9 @@ $(document).ready(function () {
                 let routeValues = _self.data[date][userRoute] || [];
                 route.empty();
                 route.select2({
-                    data: Object.keys(routeValues).map(e => {
-                        let authRouteCode = routeValues[e];
-                        let text = `${e} (${authRouteCode})`;
+                    data: Object.keys(routeValues).map(authRouteCode => {
+                        let opRouteCode = routeValues[e];
+                        let text = `${authRouteCode} (${opRouteCode})`;
                         return {
                             id: authRouteCode,
                             text: text
