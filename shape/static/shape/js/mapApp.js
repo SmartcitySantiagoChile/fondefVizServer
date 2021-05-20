@@ -194,7 +194,10 @@ $(document).ready(function () {
                 let date = selector.find(".date").first().val();
 
                 //update auth route list
-                let routeValues = _self.op_routes_dict[date][userRoute] || [];
+                let routeValues = [];
+                if (self.op_routes_dict.hasOwnProperty(date) && self.op_routes_dict[date].hasOwnProperty(userRoute)) {
+                    routeValues = _self.op_routes_dict[date][userRoute];
+                }
                 route.empty();
                 route.select2({
                     data: Object.keys(routeValues).map(authRouteCode => {
@@ -233,7 +236,8 @@ $(document).ready(function () {
                 let userRoutes = selector.find(".userRoute").first();
 
                 userRoutes.empty();
-                let dataList = Object.keys(_self.op_routes_dict[date]).sort(sortAlphaNum);
+                let userRouteDict = _self.op_routes_dict.hasOwnProperty(date)?_self.op_routes_dict[date]:[];
+                let dataList = Object.keys(userRouteDict).sort(sortAlphaNum);
                 userRoutes.select2({
                     data: dataList.map(e => {
                         return {
