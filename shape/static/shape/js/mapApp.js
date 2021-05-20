@@ -203,6 +203,7 @@ $(document).ready(function () {
                         let text = `${authRouteCode} (${opRouteCode})`;
                         return {
                             id: authRouteCode,
+                            opRouteCode: opRouteCode,
                             text: text
                         }
                     })
