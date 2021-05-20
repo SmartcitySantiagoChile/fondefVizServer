@@ -130,7 +130,6 @@ $(document).ready(function () {
             );
         });
 
-
         L.control.zoom({
             position: 'topright'
         }).addTo(mapInstance);
@@ -234,7 +233,7 @@ $(document).ready(function () {
                 let userRoutes = selector.find(".userRoute").first();
 
                 userRoutes.empty();
-                let dataList = Object.keys(_self.data[date]).sort(sortAlphaNum);
+                let dataList = Object.keys(_self.op_routes_dict[date]).sort(sortAlphaNum);
                 userRoutes.select2({
                     data: dataList.map(e => {
                         return {
@@ -525,12 +524,12 @@ $(document).ready(function () {
         };
 
         this.addRow = function (dateList, userRouteList) {
-            var newId = selectorId;
+            let newId = selectorId;
             selectorId++;
-            var row = '<div class="selectorRow" data-id="' + newId + '">' +
+            let row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                `<select id=dateSelect-${newId} class="form-control date">` + dateList + '</select>' +
-                `<select id=userRouteSelect-${newId} class="form-control userRoute">` + userRouteList + '</select>' +
+                `<select id=dateSelect-${newId} class="form-control date"></select>` +
+                `<select id=userRouteSelect-${newId} class="form-control userRoute"></select>` +
                 `<select id=routeSelect-${newId} class="form-control route"></select>` +
                 `<button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 `<button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>` +
@@ -548,28 +547,21 @@ $(document).ready(function () {
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
 
-            //$ROW_CONTAINER.find(".form-control").last().change();
-            $(`#dateSelect-${newId}`).select2({width: 'element'});
-            $(`#userRouteSelect-${newId}`).select2({width: 'element'});
+            $(`#dateSelect-${newId}`).select2({width: 'element', data: dateList});
+            $(`#userRouteSelect-${newId}`).select2({width: 'element', data: userRouteList});
             $(`#routeSelect-${newId}`).select2({width: 'element'});
         };
 
         this.loadBaseData = function () {
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
-                let currentDate = data.dates[data.dates.length - 1]
-                _self.data = {};
-                _self.data[currentDate] = data.op_routes_dict[currentDate];
+                let currentDate = data.dates[0]
                 _self.dates_period_dict = data.dates_periods_dict;
                 _self.op_routes_dict = data.op_routes_dict;
                 _self.periods = data.periods;
                 let userRouteList = (Object.keys(data.op_routes_dict[currentDate]).sort(sortAlphaNum));
-                userRouteList = userRouteList.map(e =>
-                    "<option>" + e + "</option>"
-                ).join("");
-                let dateList = data.dates.reverse().map(function (el) {
-                    return "<option>" + el + "</option>";
-                }).join("");
+                userRouteList = userRouteList.map(e => ({id: e,text: e}));
+                let dateList = data.dates.map(e => ({id: e,text: e}));
 
                 // activate add button when data exist
                 $("#addRouteButton").click(function () {
