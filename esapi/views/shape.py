@@ -40,7 +40,8 @@ class GetRouteInfo(View):
 class GetBaseInfo(View):
 
     def get(self, request):
-        op_dates = list(map(lambda x: x.strftime('%Y-%m-%d'), OPProgram.objects.values_list('valid_from', flat=True)))
+        op_dates = list(map(lambda x: x.strftime('%Y-%m-%d'),
+                            OPProgram.objects.order_by('-valid_from').values_list('valid_from', flat=True)))
         op_dates_dict = {date_id: date_obj.strftime('%Y-%m-%d') for date_id, date_obj in
                          OPProgram.objects.values_list('id', 'valid_from')}
         authority_periods = get_periods_dict()
