@@ -135,12 +135,9 @@ $(document).ready(function () {
             position: 'topright'
         }).addTo(mapInstance);
 
-
-        var $ROW_CONTAINER = $("#routeListContainer");
-
-        var layers = {};
-
-        var selectorId = 1;
+        let $ROW_CONTAINER = $("#routeListContainer");
+        let layers = {};
+        let selectorId = 1;
 
         this.sendData = function (e) {
             let selector = $(e).closest(".selectorRow");
@@ -184,7 +181,6 @@ $(document).ready(function () {
                 let stopSpan = stopButton.find("span");
                 let stopActive = stopButton.hasClass("btn-success");
                 updateStopRoutes(!stopActive, layerId, stopButton, stopSpan);
-
             });
         };
 
@@ -202,12 +198,11 @@ $(document).ready(function () {
                 let routeValues = _self.data[date][userRoute] || [];
                 route.empty();
                 route.select2({
-                    data: routeValues.map(e => {
-                        let date_dict = _self.op_routes_dict[date] || {};
-                        let text = date_dict[e] || e;
-                        text = text === e ? e : `${text} (${e})`;
+                    data: Object.keys(routeValues).map(e => {
+                        let authRouteCode = routeValues[e];
+                        let text = `${e} (${authRouteCode})`;
                         return {
-                            id: e,
+                            id: authRouteCode,
                             text: text
                         }
                     })
@@ -220,7 +215,6 @@ $(document).ready(function () {
                     $(this).data("first", false);
                 }
                 _self.sendData(this);
-
             });
 
             // handle route selector
