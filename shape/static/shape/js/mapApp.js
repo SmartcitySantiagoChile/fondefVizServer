@@ -194,7 +194,7 @@ $(document).ready(function () {
                 let date = selector.find(".date").first().val();
 
                 //update auth route list
-                let routeValues = _self.data[date][userRoute] || [];
+                let routeValues = _self.op_routes_dict[date][userRoute] || [];
                 route.empty();
                 route.select2({
                     data: Object.keys(routeValues).map(authRouteCode => {
@@ -537,6 +537,10 @@ $(document).ready(function () {
                 `<button id=visibilityUserStops-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>` +
                 '</div>';
             $ROW_CONTAINER.append(row);
+            $(`#dateSelect-${newId}`).select2({width: 'element', data: dateList});
+            $(`#userRouteSelect-${newId}`).select2({width: 'element', data: userRouteList});
+            $(`#routeSelect-${newId}`).select2({width: 'element'});
+
             _self.refreshControlEvents(newId);
             _self.refreshRemoveButton();
             _self.refreshColorPickerButton();
@@ -546,10 +550,6 @@ $(document).ready(function () {
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
-
-            $(`#dateSelect-${newId}`).select2({width: 'element', data: dateList});
-            $(`#userRouteSelect-${newId}`).select2({width: 'element', data: userRouteList});
-            $(`#routeSelect-${newId}`).select2({width: 'element'});
         };
 
         this.loadBaseData = function () {
