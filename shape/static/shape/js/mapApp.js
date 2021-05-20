@@ -199,7 +199,7 @@ $(document).ready(function () {
                 route.empty();
                 route.select2({
                     data: Object.keys(routeValues).map(authRouteCode => {
-                        let opRouteCode = routeValues[e];
+                        let opRouteCode = routeValues[authRouteCode];
                         let text = `${authRouteCode} (${opRouteCode})`;
                         return {
                             id: authRouteCode,
