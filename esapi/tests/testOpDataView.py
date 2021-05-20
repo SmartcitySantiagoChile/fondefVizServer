@@ -5,12 +5,12 @@ from django.urls import reverse
 from django.utils import timezone
 from elasticsearch_dsl import AttrList, AttrDict
 
-from esapi.errors import ESQueryDateParametersDoesNotExist
+from esapi.errors import ESQueryDateParametersDoesNotExist, ESQueryResultEmptyRoute
 from localinfo.models import OPDictionary, OPProgram
 from testhelper.helper import TestHelper
 
 
-class OPDataByAuthRouteCode(TestHelper):
+class OPDataByOPRouteCode(TestHelper):
     fixtures = ['timeperioddates', 'timeperiods']
 
     def setUp(self):
@@ -39,7 +39,7 @@ class OPDataByAuthRouteCode(TestHelper):
         self.data['opRouteCode'] = '100000'
         response = self.client.get(self.url, self.data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ('100000').get_status_response())
+        self.assertJSONEqual(status, ESQueryResultEmptyRoute('100000').get_status_response())
         helper.assert_called_once()
 
     @mock.patch('esapi.views.opdata.ESOPDataHelper')
