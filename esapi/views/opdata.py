@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
-
-
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError, ESQueryAuthRouteCodeTranslateDoesNotExist, \
-    ESQueryResultEmptyRoute
+from esapi.errors import ESQueryDateParametersDoesNotExist, FondefVizError, ESQueryResultEmptyRoute
 from esapi.helper.opdata import ESOPDataHelper
 from esapi.utils import get_dates_from_request
-from localinfo.helper import get_op_route, get_timeperiod_list_for_select_input
+from localinfo.helper import get_timeperiod_list_for_select_input
 
 
 class OPDataByAuthRouteCode(View):
@@ -34,20 +30,16 @@ class OPDataByAuthRouteCode(View):
     def process_request(self, request, params, export_data=False):
         response = {}
         dates = get_dates_from_request(request, export_data)
-        auth_code = request.GET['authRouteCode']
+        op_route_code = request.GET['opRouteCode']
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
 
-            code = get_op_route(auth_code, dates[0][0])
-            if not code:
-                raise ESQueryAuthRouteCodeTranslateDoesNotExist(auth_code)
-
             es_helper = ESOPDataHelper()
-            es_query = es_helper.get_route_info(code, dates)
+            es_query = es_helper.get_route_info(op_route_code, dates)
             data = self.transform_data(es_query)
             if not data:
-                raise ESQueryResultEmptyRoute(auth_code)
+                raise ESQueryResultEmptyRoute(op_route_code)
             response = {
                 'data': data,
             }
