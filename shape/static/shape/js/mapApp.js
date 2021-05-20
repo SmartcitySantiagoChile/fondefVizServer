@@ -17,18 +17,18 @@ $(document).ready(function () {
 
 
     function MapShapeApp() {
-        var _self = this;
-        var mapOpts = {
+        let _self = this;
+        let mapOpts = {
             mapId: $(".right_col")[0],
             maxZoom: 18,
             zoomControl: false
         };
-        var app = new MapApp(mapOpts);
-        var mapInstance = app.getMapInstance();
+        let app = new MapApp(mapOpts);
+        let mapInstance = app.getMapInstance();
 
-        var addRouteControl = L.control({position: "topleft"});
+        let addRouteControl = L.control({position: "topleft"});
         addRouteControl.onAdd = function (map) {
-            var div = L.DomUtil.create("div", "info legend");
+            let div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<button id="addRouteButton" class="btn btn-default btn-sm" >' +
                 '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta' +
                 '</button>';
@@ -37,9 +37,9 @@ $(document).ready(function () {
         };
         addRouteControl.addTo(mapInstance);
 
-        var routeListControl = L.control({position: "topleft"});
+        let routeListControl = L.control({position: "topleft"});
         routeListControl.onAdd = function (map) {
-            var div = L.DomUtil.create("div", "info legend");
+            let div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="header" style="display: none">' +
                 '<div class="form-inline" >' +
@@ -64,9 +64,9 @@ $(document).ready(function () {
         };
         routeListControl.addTo(mapInstance);
 
-        var helpControl = L.control({position: "topright"});
+        let helpControl = L.control({position: "topright"});
         helpControl.onAdd = function (map) {
-            var div = L.DomUtil.create("div", "info legend");
+            let div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>';
             L.DomEvent.disableClickPropagation(div);
             return div;
@@ -83,13 +83,13 @@ $(document).ready(function () {
             let uniqueInfoSet = new Set();
 
             routeSelector.children().each(function (index, el) {
-                let route = $(el).closest(".selectorRow").find(".route").val();
                 let routeText = $(el).closest(".selectorRow").find(".route option:selected").text();
+                let route = routeText.substring(routeText.indexOf("(") + 1, routeText.indexOf(")"))
                 let userRoute = $(el).closest(".selectorRow").find(".userRoute").val();
                 let date = $(el).closest(".selectorRow").find(".date").val();
                 date = date !== null ? [[date]] : [[]];
                 let params = {
-                    authRouteCode: route,
+                    opRouteCode: route,
                     dates: JSON.stringify(date)
                 };
                 let info = date[0][0] + route;
@@ -271,28 +271,25 @@ $(document).ready(function () {
                 $(`#visibilityStops-${id}`).removeClass().addClass(stopButton.attr("class"));
                 let userStopButton = lastSelected.find(".visibility-user-stops");
                 $(`#visibilityUserStops-${id}`).removeClass().addClass(userStopButton.attr("class"));
-
-
             } else {
                 $("#header").css('display', "block");
             }
 
             $USER_ROUTE.trigger("change");
             //$DATE.trigger("change");
-
         };
 
         this.refreshRemoveButton = function () {
-            var $REMOVE_BUTTON = $(".btn-danger");
-            var modal = $("#modal");
+            let $REMOVE_BUTTON = $(".btn-danger");
+            let modal = $("#modal");
             $REMOVE_BUTTON.off("click");
             $REMOVE_BUTTON.click(function () {
-                var removeButtonRef = $(this);
+                let removeButtonRef = $(this);
                 modal.off("show.bs.modal");
                 modal.on("show.bs.modal", function () {
                     modal.off("click", "button.btn-info");
                     modal.on("click", "button.btn-info", function () {
-                        var layerId = removeButtonRef.parent().data("id");
+                        let layerId = removeButtonRef.parent().data("id");
                         // update last selected
                         mapInstance.removeLayer(layers[layerId]);
                         delete layers[layerId];
@@ -306,10 +303,10 @@ $(document).ready(function () {
         const updateLayerColor = (color, layerId) => {
             layers[layerId].eachLayer(function (layer) {
                 if (layer instanceof L.Marker) {
-                    var iconOpts = layer.options.icon.options;
+                    let iconOpts = layer.options.icon.options;
                     iconOpts.borderColor = color;
                     iconOpts.textColor = color;
-                    var newIcon = L.BeautifyIcon.icon(iconOpts);
+                    let newIcon = L.BeautifyIcon.icon(iconOpts);
                     layer.setIcon(newIcon);
                     // console.log("bus stop");
                 } else if (layer instanceof L.Polyline) {
@@ -324,11 +321,11 @@ $(document).ready(function () {
         };
 
         this.refreshColorPickerButton = function () {
-            var $COLOR_BUTTON = $(".selectorRow .btn-default");
+            let $COLOR_BUTTON = $(".selectorRow .btn-default");
             $COLOR_BUTTON.off("changeColor");
             $COLOR_BUTTON.colorpicker({format: "rgb"}).on("changeColor", function (e) {
-                var color = e.color.toString("rgba");
-                var layerId = $(this).parent().data("id");
+                let color = e.color.toString("rgba");
+                let layerId = $(this).parent().data("id");
                 updateLayerColor(color, layerId);
                 $(this).css("color", color);
             });
