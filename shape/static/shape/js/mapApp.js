@@ -233,24 +233,17 @@ $(document).ready(function () {
                 let date = selector.find(".date").first().val();
                 let userRoutes = selector.find(".userRoute").first();
 
-                let params = {
-                    "op_program": date
-                };
-                //get user_routes
-                $.getJSON(Urls["esapi:shapeUserRoutes"](), params, function (data) {
-                    userRoutes.empty();
-                    _self.data[date] = data.user_routes;
-                    let dataList = Object.keys(_self.data[date]).sort(sortAlphaNum);
-                    userRoutes.select2({
-                        data: dataList.map(e => {
-                            return {
-                                id: e,
-                                text: e
-                            }
-                        })
-                    });
-                    userRoutes.trigger("change");
+                userRoutes.empty();
+                let dataList = Object.keys(_self.data[date]).sort(sortAlphaNum);
+                userRoutes.select2({
+                    data: dataList.map(e => {
+                        return {
+                            id: e,
+                            text: e
+                        }
+                    })
                 });
+                userRoutes.trigger("change");
 
                 //set value
                 if ($(this).data("first") === true) {
