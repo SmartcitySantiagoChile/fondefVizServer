@@ -186,7 +186,6 @@ $(document).ready(function () {
         this.refreshControlEvents = function (id) {
             // handle user route selector
             let $USER_ROUTE = $(`#userRouteSelect-${id}`);
-            $USER_ROUTE.off("change");
             $USER_ROUTE.change(function () {
                 let selector = $(this).closest(".selectorRow");
                 let userRoute = selector.find(".userRoute").first().val();
@@ -222,14 +221,12 @@ $(document).ready(function () {
 
             // handle route selector
             let $ROUTE = $(`#routeSelect-${id}`);
-            $ROUTE.off("change");
             $ROUTE.change(function () {
                 _self.sendData(this);
             });
 
             // handle date selector
             let $DATE = $(`#dateSelect-${id}`);
-            $DATE.off("change");
             $DATE.change(function () {
                 let selector = $(this).closest(".selectorRow");
                 let date = selector.find(".date").first().val();
@@ -570,7 +567,7 @@ $(document).ready(function () {
                 });
             });
 
-            _self.addTableInfo()
+            _self.addTableInfo();
         };
     }
 
