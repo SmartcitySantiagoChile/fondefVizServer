@@ -57,11 +57,12 @@ class Command(BaseCommand):
                 aux = dict()
                 aux['{0}_file'.format(index_name)] = date_dict[date][index_name]['lines']
                 aux['{0}_index'.format(index_name)] = date_dict[date][index_name]['docNumber']
-                valid_time_period_id = get_valid_time_period_date([date])[1]
-                authority_period_version.add(valid_time_period_id)
-                es_time_period_list = timeperiod_files_dict[date][index_name]
-                correct_time_period_ids = check_period_list_id(es_time_period_list)
-                authority_period_index_version = authority_period_index_version.union(set(correct_time_period_ids))
+                if index_name in ["profile", "trip", "odbyroute"]:
+                    valid_time_period_id = get_valid_time_period_date([date])[1]
+                    authority_period_version.add(valid_time_period_id)
+                    es_time_period_list = timeperiod_files_dict[date][index_name]
+                    correct_time_period_ids = check_period_list_id(es_time_period_list)
+                    authority_period_index_version = authority_period_index_version.union(set(correct_time_period_ids))
                 params.update(aux)
             aux = dict()
             aux["authority_period_version"] = authority_period_version.pop()
