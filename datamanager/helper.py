@@ -289,8 +289,12 @@ class FileManager(object):
                 # skip 2 keys
                 time_period_list = set()
                 for i in range(len(file.keys()) - 2):
+
                     time_period_list_aux = set(
                         time_period["key"] for time_period in file[f"time_periods_{i}"]["buckets"])
                     time_period_list = time_period_list.union(time_period_list_aux)
+                if -1 in time_period_list:
+                    time_period_list.discard(-1)
                 time_period_by_date_dict[date][index] = list(time_period_list)
+
         return time_period_by_date_dict
