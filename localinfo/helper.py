@@ -252,6 +252,8 @@ def check_period_list_id(period_time_list: list) -> list:
     Returns: period time list ids
 
     """
+    if not period_time_list:
+        return []
     time_period_dict = get_periods_dict()
     res = []
     for key in time_period_dict.keys():

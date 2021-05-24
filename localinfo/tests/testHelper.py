@@ -602,3 +602,5 @@ class TestHelperUtils(TestCase):
         self.assertEqual(multiple_period_id, check_period_list_id(multiple_period_list))
         null_period_list = [420]
         self.assertEqual([], check_period_list_id(null_period_list))
+        none_period_list = []
+        self.assertEqual([], check_period_list_id(none_period_list))
