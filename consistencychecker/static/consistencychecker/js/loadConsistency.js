@@ -57,6 +57,36 @@ $(document).ready(function () {
                     );
                 }
             });
+            let authorityIndexId = JSON.parse(data['authority_period_index_version']);
+            if (authorityIndexId.length === 1) {
+                let diffAuthorityPeriodId = data['authority_period_version'] === authorityIndexId[0].toString();
+                if (diffAuthorityPeriodId) {
+                    $(row).find(`td:eq(9)`).css({
+                        'background-color': '#d4edda',
+                        'border-color': '#c3e6cb', 'color': '#155724'
+                        }
+                    );
+                } else {
+                    $(row).find(`td:eq(9)`).css({
+                        'background-color': '#fff3cd',
+                        'border-color': '#ffeeba', 'color': '#856404'
+                        }
+                    );
+                }
+
+            } else if (authorityIndexId.length === 0) {
+                $(row).find(`td:eq(9)`).css({
+                        'background-color': '#f8d7da',
+                        'border-color': '#f5c6cb', 'color': '#721c24'
+                    }
+                );
+            } else {
+                $(row).find(`td:eq(9)`).css({
+                        'background-color': '#fff3cd',
+                        'border-color': '#ffeeba', 'color': '#856404'
+                    }
+                );
+            }
         };
 
         const daysDict = {
@@ -106,7 +136,16 @@ $(document).ready(function () {
                 }
                 columns.push({
                     title: 'Versión de Periodo TS',
-                    data: 'authority_period_version'
+                    data: null,
+                    render: function (data) {
+                        let authorityIndexId = JSON.parse(data['authority_period_index_version']);
+                        if (authorityIndexId.length === 1) {
+                            authorityIndexId = authorityIndexId[0];
+                        } else if (authorityIndexId.length === 0) {
+                            authorityIndexId = -1
+                        }
+                        return data['authority_period_version'] + "/" + authorityIndexId;
+                    }
                 })
                 var opts = $.extend({data: files, columns: columns}, _datatableOpts);
                 $("#fechas-id").DataTable(opts);
