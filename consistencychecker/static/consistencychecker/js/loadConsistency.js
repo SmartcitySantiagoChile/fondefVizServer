@@ -79,7 +79,6 @@ $(document).ready(function () {
                     row['day'] = daysDict[date.getDay()];
                     return row;
                 });
-
                 let columns = [
                     {
                         title: 'Fecha',

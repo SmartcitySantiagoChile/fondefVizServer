@@ -201,19 +201,23 @@ class TestFileManager(TestHelper):
         self.assertEqual(stop_expected, self.file_manager.get_file_list(index_filter=['stop']))
 
     @mock.patch('datamanager.helper.ESODByRouteHelper')
-    @mock.patch('datamanager.helper.ESSpeedHelper')
     @mock.patch('datamanager.helper.ESTripHelper')
     @mock.patch('datamanager.helper.ESProfileHelper')
-    def test_get_time_period_list_by_file_from_elasticsearch(self, profile, trip, speed, odbyroute):
+    def test_get_time_period_list_by_file_from_elasticsearch(self, profile, trip, odbyroute):
         expected = {"01-01-2020":
-                        {"profile": [1, 2, 3, 4, 5, 6, 7]}
+                        {"profile": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}
                     }
         file_list = [{
             "key": "01-01-2020.profile",
-            "time_periods": {
+            "time_periods_0": {
                 "buckets":
                     [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 4}, {"key": 5}, {"key": 6}, {"key": 7}]
-            }
+            },
+            "time_periods_1": {
+                "buckets":
+                    [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 11}, {"key": 10}, {"key": 9}, {"key": 8}]
+            },
+            "dead_key": {}
         }]
         to_dict = {"time_periods_per_file": {"buckets": file_list}}
         aggregations = mock.MagicMock(to_dict=mock.MagicMock(return_value=to_dict))
@@ -221,7 +225,5 @@ class TestFileManager(TestHelper):
         get_all_time_periods = mock.MagicMock(execute=mock.MagicMock(return_value=execute))
         profile.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
         trip.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
-        speed.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
         odbyroute.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
-
         self.assertEqual(expected, self.file_manager.get_time_period_list_by_file_from_elasticsearch())
