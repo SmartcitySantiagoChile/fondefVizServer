@@ -17,18 +17,18 @@ $(document).ready(function () {
 
 
     function MapShapeApp() {
-        var _self = this;
-        var mapOpts = {
+        let _self = this;
+        let mapOpts = {
             mapId: $(".right_col")[0],
             maxZoom: 18,
             zoomControl: false
         };
-        var app = new MapApp(mapOpts);
-        var mapInstance = app.getMapInstance();
+        let app = new MapApp(mapOpts);
+        let mapInstance = app.getMapInstance();
 
-        var addRouteControl = L.control({position: "topleft"});
+        let addRouteControl = L.control({position: "topleft"});
         addRouteControl.onAdd = function (map) {
-            var div = L.DomUtil.create("div", "info legend");
+            let div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<button id="addRouteButton" class="btn btn-default btn-sm" >' +
                 '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta' +
                 '</button>';
@@ -37,13 +37,13 @@ $(document).ready(function () {
         };
         addRouteControl.addTo(mapInstance);
 
-        var routeListControl = L.control({position: "topleft"});
+        let routeListControl = L.control({position: "topleft"});
         routeListControl.onAdd = function (map) {
-            var div = L.DomUtil.create("div", "info legend");
+            let div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<h4>Rutas en mapa</h4>' +
                 '<div id="header" style="display: none">' +
                 '<div class="form-inline" >' +
-                '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"> Ver información operacional </span></button>' + '</div>' +
+                '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"></span> Ver información operacional</button>' + '</div>' +
                 '<div class="form-inline" >' +
                 '<div class="form-row">' +
                 '<div class="form-group col">' +
@@ -64,9 +64,9 @@ $(document).ready(function () {
         };
         routeListControl.addTo(mapInstance);
 
-        var helpControl = L.control({position: "topright"});
+        let helpControl = L.control({position: "topright"});
         helpControl.onAdd = function (map) {
-            var div = L.DomUtil.create("div", "info legend");
+            let div = L.DomUtil.create("div", "info legend");
             div.innerHTML += '<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>';
             L.DomEvent.disableClickPropagation(div);
             return div;
@@ -83,13 +83,13 @@ $(document).ready(function () {
             let uniqueInfoSet = new Set();
 
             routeSelector.children().each(function (index, el) {
-                let route = $(el).closest(".selectorRow").find(".route").val();
                 let routeText = $(el).closest(".selectorRow").find(".route option:selected").text();
+                let route = routeText.substring(routeText.indexOf("(") + 1, routeText.indexOf(")"))
                 let userRoute = $(el).closest(".selectorRow").find(".userRoute").val();
                 let date = $(el).closest(".selectorRow").find(".date").val();
                 date = date !== null ? [[date]] : [[]];
                 let params = {
-                    authRouteCode: route,
+                    opRouteCode: route,
                     dates: JSON.stringify(date)
                 };
                 let info = date[0][0] + route;
@@ -130,17 +130,13 @@ $(document).ready(function () {
             );
         });
 
-
         L.control.zoom({
             position: 'topright'
         }).addTo(mapInstance);
 
-
-        var $ROW_CONTAINER = $("#routeListContainer");
-
-        var layers = {};
-
-        var selectorId = 1;
+        let $ROW_CONTAINER = $("#routeListContainer");
+        let layers = {};
+        let selectorId = 1;
 
         this.sendData = function (e) {
             let selector = $(e).closest(".selectorRow");
@@ -184,14 +180,12 @@ $(document).ready(function () {
                 let stopSpan = stopButton.find("span");
                 let stopActive = stopButton.hasClass("btn-success");
                 updateStopRoutes(!stopActive, layerId, stopButton, stopSpan);
-
             });
         };
 
         this.refreshControlEvents = function (id) {
             // handle user route selector
             let $USER_ROUTE = $(`#userRouteSelect-${id}`);
-            $USER_ROUTE.off("change");
             $USER_ROUTE.change(function () {
                 let selector = $(this).closest(".selectorRow");
                 let userRoute = selector.find(".userRoute").first().val();
@@ -199,15 +193,18 @@ $(document).ready(function () {
                 let date = selector.find(".date").first().val();
 
                 //update auth route list
-                let routeValues = _self.data[date][userRoute] || [];
+                let routeValues = [];
+                if (_self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(userRoute)) {
+                    routeValues = _self.op_routes_dict[date][userRoute];
+                }
                 route.empty();
                 route.select2({
-                    data: routeValues.map(e => {
-                        let date_dict = _self.op_routes_dict[date] || {};
-                        let text = date_dict[e] || e;
-                        text = text === e ? e : `${text} (${e})`;
+                    data: Object.keys(routeValues).map(authRouteCode => {
+                        let opRouteCode = routeValues[authRouteCode];
+                        let text = `${authRouteCode} (${opRouteCode})`;
                         return {
-                            id: e,
+                            id: authRouteCode,
+                            opRouteCode: opRouteCode,
                             text: text
                         }
                     })
@@ -220,43 +217,33 @@ $(document).ready(function () {
                     $(this).data("first", false);
                 }
                 _self.sendData(this);
-
             });
 
             // handle route selector
             let $ROUTE = $(`#routeSelect-${id}`);
-            $ROUTE.off("change");
             $ROUTE.change(function () {
                 _self.sendData(this);
             });
 
-
             // handle date selector
             let $DATE = $(`#dateSelect-${id}`);
-            $DATE.off("change");
             $DATE.change(function () {
                 let selector = $(this).closest(".selectorRow");
                 let date = selector.find(".date").first().val();
                 let userRoutes = selector.find(".userRoute").first();
 
-                let params = {
-                    "op_program": date
-                };
-                //get user_routes
-                $.getJSON(Urls["esapi:shapeUserRoutes"](), params, function (data) {
-                    userRoutes.empty();
-                    _self.data[date] = data.user_routes;
-                    let dataList = Object.keys(_self.data[date]).sort(sortAlphaNum);
-                    userRoutes.select2({
-                        data: dataList.map(e => {
-                            return {
-                                id: e,
-                                text: e
-                            }
-                        })
-                    });
-                    userRoutes.trigger("change");
+                userRoutes.empty();
+                let userRouteDict = _self.op_routes_dict.hasOwnProperty(date)?_self.op_routes_dict[date]:[];
+                let dataList = Object.keys(userRouteDict).sort(sortAlphaNum);
+                userRoutes.select2({
+                    data: dataList.map(e => {
+                        return {
+                            id: e,
+                            text: e
+                        }
+                    })
                 });
+                userRoutes.trigger("change");
 
                 //set value
                 if ($(this).data("first") === true) {
@@ -281,28 +268,25 @@ $(document).ready(function () {
                 $(`#visibilityStops-${id}`).removeClass().addClass(stopButton.attr("class"));
                 let userStopButton = lastSelected.find(".visibility-user-stops");
                 $(`#visibilityUserStops-${id}`).removeClass().addClass(userStopButton.attr("class"));
-
-
             } else {
                 $("#header").css('display', "block");
             }
 
             $USER_ROUTE.trigger("change");
             //$DATE.trigger("change");
-
         };
 
         this.refreshRemoveButton = function () {
-            var $REMOVE_BUTTON = $(".btn-danger");
-            var modal = $("#modal");
+            let $REMOVE_BUTTON = $(".btn-danger");
+            let modal = $("#modal");
             $REMOVE_BUTTON.off("click");
             $REMOVE_BUTTON.click(function () {
-                var removeButtonRef = $(this);
+                let removeButtonRef = $(this);
                 modal.off("show.bs.modal");
                 modal.on("show.bs.modal", function () {
                     modal.off("click", "button.btn-info");
                     modal.on("click", "button.btn-info", function () {
-                        var layerId = removeButtonRef.parent().data("id");
+                        let layerId = removeButtonRef.parent().data("id");
                         // update last selected
                         mapInstance.removeLayer(layers[layerId]);
                         delete layers[layerId];
@@ -316,10 +300,10 @@ $(document).ready(function () {
         const updateLayerColor = (color, layerId) => {
             layers[layerId].eachLayer(function (layer) {
                 if (layer instanceof L.Marker) {
-                    var iconOpts = layer.options.icon.options;
+                    let iconOpts = layer.options.icon.options;
                     iconOpts.borderColor = color;
                     iconOpts.textColor = color;
-                    var newIcon = L.BeautifyIcon.icon(iconOpts);
+                    let newIcon = L.BeautifyIcon.icon(iconOpts);
                     layer.setIcon(newIcon);
                     // console.log("bus stop");
                 } else if (layer instanceof L.Polyline) {
@@ -334,11 +318,11 @@ $(document).ready(function () {
         };
 
         this.refreshColorPickerButton = function () {
-            var $COLOR_BUTTON = $(".selectorRow .btn-default");
+            let $COLOR_BUTTON = $(".selectorRow .btn-default");
             $COLOR_BUTTON.off("changeColor");
             $COLOR_BUTTON.colorpicker({format: "rgb"}).on("changeColor", function (e) {
-                var color = e.color.toString("rgba");
-                var layerId = $(this).parent().data("id");
+                let color = e.color.toString("rgba");
+                let layerId = $(this).parent().data("id");
                 updateLayerColor(color, layerId);
                 $(this).css("color", color);
             });
@@ -538,12 +522,12 @@ $(document).ready(function () {
         };
 
         this.addRow = function (dateList, userRouteList) {
-            var newId = selectorId;
+            let newId = selectorId;
             selectorId++;
-            var row = '<div class="selectorRow" data-id="' + newId + '">' +
+            let row = '<div class="selectorRow" data-id="' + newId + '">' +
                 '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-                `<select id=dateSelect-${newId} class="form-control date">` + dateList + '</select>' +
-                `<select id=userRouteSelect-${newId} class="form-control userRoute">` + userRouteList + '</select>' +
+                `<select id=dateSelect-${newId} class="form-control date"></select>` +
+                `<select id=userRouteSelect-${newId} class="form-control userRoute"></select>` +
                 `<select id=routeSelect-${newId} class="form-control route"></select>` +
                 `<button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
                 `<button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>` +
@@ -551,6 +535,10 @@ $(document).ready(function () {
                 `<button id=visibilityUserStops-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>` +
                 '</div>';
             $ROW_CONTAINER.append(row);
+            $(`#dateSelect-${newId}`).select2({width: 'element', data: dateList});
+            $(`#userRouteSelect-${newId}`).select2({width: 'element', data: userRouteList});
+            $(`#routeSelect-${newId}`).select2({width: 'element'});
+
             _self.refreshControlEvents(newId);
             _self.refreshRemoveButton();
             _self.refreshColorPickerButton();
@@ -560,29 +548,18 @@ $(document).ready(function () {
 
             layers[newId] = new L.FeatureGroup([]);
             mapInstance.addLayer(layers[newId]);
-
-            //$ROW_CONTAINER.find(".form-control").last().change();
-            $(`#dateSelect-${newId}`).select2({width: 'element'});
-            $(`#userRouteSelect-${newId}`).select2({width: 'element'});
-            $(`#routeSelect-${newId}`).select2({width: 'element'});
         };
 
         this.loadBaseData = function () {
-
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
-                _self.data = {};
-                _self.data[data.dates[data.dates.length - 1]] = data.user_routes;
+                let currentDate = data.dates[0]
                 _self.dates_period_dict = data.dates_periods_dict;
                 _self.op_routes_dict = data.op_routes_dict;
                 _self.periods = data.periods;
-                let userRouteList = (Object.keys(data.user_routes).sort(sortAlphaNum));
-                userRouteList = userRouteList.map(e =>
-                    "<option>" + e + "</option>"
-                ).join("");
-                let dateList = data.dates.reverse().map(function (el) {
-                    return "<option>" + el + "</option>";
-                }).join("");
+                let userRouteList = (Object.keys(data.op_routes_dict[currentDate]).sort(sortAlphaNum));
+                userRouteList = userRouteList.map(e => ({id: e,text: e}));
+                let dateList = data.dates.map(e => ({id: e,text: e}));
 
                 // activate add button when data exist
                 $("#addRouteButton").click(function () {
@@ -590,11 +567,11 @@ $(document).ready(function () {
                 });
             });
 
-            _self.addTableInfo()
+            _self.addTableInfo();
         };
     }
 
-    var mapShapeApp = new MapShapeApp();
+    let mapShapeApp = new MapShapeApp();
     mapShapeApp.loadBaseData();
     $("#modalList").detach().appendTo($(".main_container")[0]);
     document.activeElement.blur();
