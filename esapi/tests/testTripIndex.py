@@ -685,6 +685,11 @@ class ESTripIndexTest(TestCase):
 
     def test_get_all_time_periods(self):
         expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path', 'size': 5000}, 'aggs': {
-            'time_periods': {'terms': {'field': 'periodo_subida'}}}}}, 'from': 0, 'size': 0}
+            'time_periods_0': {'terms': {'field': 'periodo_subida'}},
+            'time_periods_1': {'terms': {'field': 'periodo_bajada'}},
+            'time_periods_2': {'terms': {'field': 'periodo_bajada_1'}},
+            'time_periods_3': {'terms': {'field': 'periodo_bajada_2'}},
+            'time_periods_4': {'terms': {'field': 'periodo_bajada_3'}},
+            'time_periods_5': {'terms': {'field': 'periodo_bajada_4'}}}}}, 'from': 0, 'size': 0}
         result = self.instance.get_all_time_periods().to_dict()
         self.assertEqual(expected_query, result)

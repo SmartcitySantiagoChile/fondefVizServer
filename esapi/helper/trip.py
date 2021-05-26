@@ -539,6 +539,11 @@ class ESTripHelper(ElasticSearchHelper):
         """
         es_query = self.get_base_query()
         es_query = es_query[:0]
-        es_query.aggs.bucket('time_periods_per_file', 'terms', field='path', size=5000) \
-            .bucket('time_periods', 'terms', field='periodo_subida')
+        es_query_bucket = es_query.aggs.bucket('time_periods_per_file', 'terms', field='path', size=5000)
+        es_query_bucket.bucket('time_periods_0', 'terms', field='periodo_subida')
+        es_query_bucket.bucket('time_periods_1', 'terms', field='periodo_bajada')
+        es_query_bucket.bucket('time_periods_2', 'terms', field='periodo_bajada_1')
+        es_query_bucket.bucket('time_periods_3', 'terms', field='periodo_bajada_2')
+        es_query_bucket.bucket('time_periods_4', 'terms', field='periodo_bajada_3')
+        es_query_bucket.bucket('time_periods_5', 'terms', field='periodo_bajada_4')
         return es_query

@@ -243,6 +243,27 @@ def get_periods_dict():
     return time_period_date_dict
 
 
+def check_period_list_id(period_time_list: list) -> list:
+    """
+    Check period time ids of period time list
+    Args:
+        period_time_list: period time list
+
+    Returns: period time list ids
+
+    """
+    if not period_time_list:
+        return []
+    time_period_dict = get_periods_dict()
+    res = []
+    for key in time_period_dict.keys():
+        time_period_dict[key] = [period_dict["value"] for period_dict in time_period_dict[key]]
+    for key, value in time_period_dict.items():
+        if set(period_time_list).issubset(value):
+            res.append(key)
+    return res
+
+
 class PermissionBuilder(object):
 
     def __init__(self):
