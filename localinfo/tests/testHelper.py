@@ -10,7 +10,7 @@ from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _di
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
     get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict, synchronize_op_program, \
-    get_opprogram_list_for_select_input, upload_csv_op_dictionary
+    get_opprogram_list_for_select_input, upload_csv_op_dictionary, check_period_list_id
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
 
 
@@ -592,3 +592,15 @@ class TestHelperUtils(TestCase):
                            }
 
         self.assertDictEqual(expected_answer, get_periods_dict())
+
+    def test_check_period_list_id(self):
+        correct_period_list = [33, 34, 35, 36, 37, 38, 39]
+        correct_period_id = [2]
+        self.assertEqual(correct_period_id, check_period_list_id(correct_period_list))
+        multiple_period_list = [3, 4, 5, 6, 7, 8, 9]
+        multiple_period_id = [1, 3]
+        self.assertEqual(multiple_period_id, check_period_list_id(multiple_period_list))
+        null_period_list = [420]
+        self.assertEqual([], check_period_list_id(null_period_list))
+        none_period_list = []
+        self.assertEqual([], check_period_list_id(none_period_list))

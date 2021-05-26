@@ -12,7 +12,8 @@ class BuildconsistencymetricsTest(TestCase):
     @mock.patch('datamanager.helper.FileManager.get_file_list')
     @mock.patch('datamanager.helper.FileManager.get_time_period_list_by_file_from_elasticsearch')
     def test_command_output(self, get_time_period_list, get_file_list, create):
-        get_time_period_list.return_value = {'2020-04-20':{'profile': [1,2,3,4]}}
+        get_time_period_list.return_value = {'2020-04-20':{'profile': [1,2,3,4], "odbyroute": [1,2,3,4], "trip": [1,2,3,4]}}
+
         get_file_list.return_value = {"key": [{
             "name": "2020-04-20.profile",
             "lines": 1,
