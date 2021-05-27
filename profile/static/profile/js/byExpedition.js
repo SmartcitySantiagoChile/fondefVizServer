@@ -773,7 +773,7 @@ $(document).ready(function () {
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
             $("#boardingWithAlightingPercentage").html(Number(boardingWithAlightingPercentage.toFixed(2)).toLocaleString());
-            // add cu metric
+            $("#utilizationCoefficient").html(Number(utilizationCoefficient.toFixed(2)).toLocaleString());
         };
 
         this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {

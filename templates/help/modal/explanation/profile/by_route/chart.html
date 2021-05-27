@@ -5,9 +5,20 @@
 {% block body %}
     <p>Este panel muestra un gráfico con varios puntos de información. El título del gráfico es “Perfil de carga para n
         expediciones” donde n corresponde al número de expediciones que cumplen con los filtros seleccionados por el
-        usuario. El eje horizontal muestra los paraderos en orden de aparición en la ruta del servicio. El eje vertical
-        izquierdo muestra el número de pasajeros y el eje vertical derecho muestra el porcentaje de ocupación de 0% a
-        100%.
+        usuario.
+    </p>
+    <p>
+        El coeficiente de utilización representa el porcentaje de utilización de la oferta en promedio a lo largo de
+        toda la ruta. Se calcula dividiendo el total de pasajeros-kilómetro por el total de plazas-kilómetro. Ambos
+        totales se obtienen sobre todas las expediciones consideradas en el perfil. Conceptualmente, los
+        pasajeros-kilómetro corresponden a la suma de la distancia viajada por cada pasajero, mientras que las
+        plazas-kilómetro de cada expedición corresponden a la multiplicación de las plazas del bus por la longitud de la
+        ruta.
+    </p>
+    <p>
+        El eje horizontal del gráfico muestra los paraderos en orden de aparición en la ruta del servicio. El eje
+        vertical izquierdo muestra el número de pasajeros y el eje vertical derecho muestra el porcentaje de ocupación
+        de 0% a 100%.
     </p>
     <p> El gráfico muestra subidas por paradero como una barra roja. Las bajadas aparecen por paradero como una barra
         azul. La carga promedio aparece como una línea celeste. La carga máxima aparece como una línea verde. El
