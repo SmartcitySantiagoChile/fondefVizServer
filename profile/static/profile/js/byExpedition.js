@@ -2,7 +2,7 @@
 $(document).ready(function () {
     // define logic to manipulate data
     function Trip(expeditionDayId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, authTimePeriod, dayType,
-                  yAxisData, valid) {
+                  yAxisData, valid, passengerWithEvasionPerKmSection, capacityPerKmSection) {
         this.expeditionId = expeditionDayId;
         this.route = route;
         this.licensePlate = licensePlate;
@@ -14,6 +14,8 @@ $(document).ready(function () {
         this.yAxisData = yAxisData;
         this.valid = valid;
         this.visible = valid === undefined ? true : valid;
+        this.passengerWithEvasionPerKmSection = passengerWithEvasionPerKmSection;
+        this.capacityPerKmSection = capacityPerKmSection;
     }
 
     /*
@@ -21,15 +23,16 @@ $(document).ready(function () {
      */
     function DataManager() {
         // trips
-        var _trips = [];
+        let _trips = [];
         // stops
-        var _xAxisData = null;
+        let _xAxisData = null;
         // y average data
-        var _yAxisData = null;
+        let _yAxisData = null;
         // trips to show in profile view
-        var _visibleTrips = 0;
-        var _shape = [];
-        var _boardingWithAlightingPercentage = 0;
+        let _visibleTrips = 0;
+        let _shape = [];
+        let _boardingWithAlightingPercentage = 0;
+        let _utilizationCoefficient = 0;
 
         this.trips = function (trips) {
             if (trips === undefined) {
@@ -101,11 +104,13 @@ $(document).ready(function () {
         };
         this.calculateAverage = function () {
             // erase previous visible data
-            var xAxisLength = _xAxisData.length;
-            var counterByStop = [];
-            var capacityByStop = [];
-            var boardingTotal = 0;
-            var boardingWithAlightingTotal = 0;
+            let xAxisLength = _xAxisData.length;
+            let counterByStop = [];
+            let capacityByStop = [];
+            let boardingTotal = 0;
+            let boardingWithAlightingTotal = 0;
+            let passengerWithEvasionPerKmSectionTotal = 0;
+            let capacityPerKmSectionTotal = 0;
 
             _yAxisData = {
                 expandedAlighting: [],
@@ -161,6 +166,8 @@ $(document).ready(function () {
                     counterByStop[stopIndex]++;
                     boardingTotal += trip.yAxisData.boarding[stopIndex];
                     boardingWithAlightingTotal += trip.yAxisData.boardingWithAlighting[stopIndex];
+                    passengerWithEvasionPerKmSectionTotal += trip.passengerWithEvasionPerKmSection;
+                    capacityPerKmSectionTotal += trip.capacityPerKmSection;
                 }
             });
             // it calculates average
@@ -179,6 +186,7 @@ $(document).ready(function () {
                 _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] = _yAxisData.expandedAlightingPlusExpandedEvasionAlighting[stopIndex] / counterByStop[stopIndex];
             }
 
+            this._utilizationCoefficient = passengerWithEvasionPerKmSectionTotal / capacityPerKmSectionTotal;
             this._boardingWithAlightingPercentage = boardingWithAlightingTotal / boardingTotal * 100;
         };
 
@@ -770,6 +778,7 @@ $(document).ready(function () {
         var _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
             boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage || 0;
+            utilizationCoefficient = utilizationCoefficient || _dataManager._utilizationCoefficient;
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
             $("#boardingWithAlightingPercentage").html(Number(boardingWithAlightingPercentage.toFixed(2)).toLocaleString());
@@ -917,6 +926,8 @@ $(document).ready(function () {
                 let timeTripEnd = trip.info[5];
                 let dayType = trip.info[6];
                 let valid = trip.info[7];
+                let passengerWithEvasionPerKmSection = trip.info[8];
+                let capacityPerKmSection = trip.info[9];
 
                 let yAxisData = {
                     expandedAlighting: [],
@@ -966,8 +977,8 @@ $(document).ready(function () {
                     yAxisData.boardingWithAlighting.push(boardingWithAlighting);
                 });
 
-                trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit,
-                    timeTripEnd, authTimePeriod, dayType, yAxisData, valid);
+                trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, authTimePeriod,
+                  dayType, yAxisData, valid, passengerWithEvasionPerKmSection, capacityPerKmSection);
                 dataManager.addTrip(trip);
             }
             let tripXAxisData = stops.map(function (stop) {
