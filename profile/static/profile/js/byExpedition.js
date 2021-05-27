@@ -2,7 +2,7 @@
 $(document).ready(function () {
     // define logic to manipulate data
     function Trip(expeditionDayId, route, licensePlate, busCapacity, timeTripInit, timeTripEnd, authTimePeriod, dayType,
-                  yAxisData, valid, passengerWithEvasionPerKmSection, capacityPerKmSection) {
+                  yAxisData, valid, passengerWithEvasionPerKmSectionSum, capacityPerKmSectionSum) {
         this.expeditionId = expeditionDayId;
         this.route = route;
         this.licensePlate = licensePlate;
@@ -14,8 +14,8 @@ $(document).ready(function () {
         this.yAxisData = yAxisData;
         this.valid = valid;
         this.visible = valid === undefined ? true : valid;
-        this.passengerWithEvasionPerKmSection = passengerWithEvasionPerKmSection;
-        this.capacityPerKmSection = capacityPerKmSection;
+        this.passengerWithEvasionPerKmSectionSum = passengerWithEvasionPerKmSectionSum;
+        this.capacityPerKmSectionSum = capacityPerKmSectionSum;
     }
 
     /*
@@ -166,8 +166,8 @@ $(document).ready(function () {
                     counterByStop[stopIndex]++;
                     boardingTotal += trip.yAxisData.boarding[stopIndex];
                     boardingWithAlightingTotal += trip.yAxisData.boardingWithAlighting[stopIndex];
-                    passengerWithEvasionPerKmSectionTotal += trip.passengerWithEvasionPerKmSection;
-                    capacityPerKmSectionTotal += trip.capacityPerKmSection;
+                    passengerWithEvasionPerKmSectionTotal += trip.passengerWithEvasionPerKmSectionSum;
+                    capacityPerKmSectionTotal += trip.capacityPerKmSectionSum;
                 }
             });
             // it calculates average
@@ -926,8 +926,6 @@ $(document).ready(function () {
                 let timeTripEnd = trip.info[5];
                 let dayType = trip.info[6];
                 let valid = trip.info[7];
-                let passengerWithEvasionPerKmSection = trip.info[8];
-                let capacityPerKmSection = trip.info[9];
 
                 let yAxisData = {
                     expandedAlighting: [],
@@ -945,6 +943,8 @@ $(document).ready(function () {
                     boardingWithAlighting: []
                 };
 
+                let passengerWithEvasionPerKmSectionSum = 0;
+                let capacityPerKmSectionSum = 0;
                 stops.forEach(function (stop) {
                     let item = trip.stops[stop.authStopCode];
                     let itemIsNull = item === undefined;
@@ -961,6 +961,11 @@ $(document).ready(function () {
                     let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
                     let boarding = itemIsNull ? null : item[8];
                     let boardingWithAlighting = itemIsNull ? null : item[9];
+                    let passengerWithEvasionPerKmSection = item[10];
+                    let capacityPerKmSection = item[11];
+
+                    passengerWithEvasionPerKmSectionSum += passengerWithEvasionPerKmSection
+                    capacityPerKmSectionSum += capacityPerKmSection
 
                     yAxisData.expandedAlighting.push(expandedAlighting);
                     yAxisData.expandedBoarding.push(expandedBoarding);
@@ -978,7 +983,7 @@ $(document).ready(function () {
                 });
 
                 trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, authTimePeriod,
-                  dayType, yAxisData, valid, passengerWithEvasionPerKmSection, capacityPerKmSection);
+                  dayType, yAxisData, valid, passengerWithEvasionPerKmSectionSum, capacityPerKmSectionSum);
                 dataManager.addTrip(trip);
             }
             let tripXAxisData = stops.map(function (stop) {
