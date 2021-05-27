@@ -157,7 +157,8 @@ class ESProfileHelper(ElasticSearchHelper):
              'expandedEvasionAlighting',
              'expandedBoardingPlusExpandedEvasionBoarding',
              'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod'])
+             'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod',
+             'passengerWithEvasionPerKmSection', 'capacityPerKmSection'])
 
         return es_query
 
@@ -188,7 +189,9 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('busSaturationWithEvasion', 'bucket_script', script='params.d / params.t',
                    buckets_path={'d': 'sumLoadProfileWithEvasion', 't': 'sumBusCapacity'}). \
             metric('boardingWithAlighting', 'sum', field='boardingWithAlighting'). \
-            metric('boarding', 'sum', field='boarding')
+            metric('boarding', 'sum', field='boarding'). \
+            metric('passengerWithEvasionPerKmSection', 'sum', field='passengerWithEvasionPerKmSection'). \
+            metric('capacityPerKmSection', 'sum', field='capacityPerKmSection')
 
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
@@ -238,11 +241,9 @@ class ESProfileHelper(ElasticSearchHelper):
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
              'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'stopDistanceFromPathStart',
-             'expeditionStopTime', 'notValid', 'expandedEvasionBoarding',
-             'expandedEvasionAlighting',
-             'expandedBoardingPlusExpandedEvasionBoarding',
-             'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting'])
+             'expeditionStopTime', 'notValid', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
+             'expandedBoardingPlusExpandedEvasionBoarding', 'expandedAlightingPlusExpandedEvasionAlighting',
+             'loadProfileWithEvasion', 'boardingWithAlighting'])
 
         return es_query
 
