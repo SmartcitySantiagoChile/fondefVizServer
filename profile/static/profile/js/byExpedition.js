@@ -869,6 +869,8 @@ $(document).ready(function () {
                 let saturationRateWithEvasion = itemIsNull ? null : item.busSaturationWithEvasion * 100;
                 let boarding = itemIsNull ? null : item.boarding;
                 let boardingWithAlighting = itemIsNull ? null : item.boardingWithAlighting;
+                let passengerWithEvasionPerKmSection = itemIsNull ? 0 : item.passengerWithEvasionPerKmSection;
+                let capacityPerKmSection = itemIsNull ? 0 : item.capacityPerKmSection;
 
                 yAxisDataResult.expandedAlighting.push(expandedAlighting);
                 yAxisDataResult.expandedBoarding.push(expandedBoarding);
@@ -887,8 +889,8 @@ $(document).ready(function () {
                 expeditionNumber = Math.max(expNumber, expeditionNumber);
                 boardingTotal += boarding;
                 boardingWithAlightingTotal += boardingWithAlighting;
-                passengerWithEvasionPerKmSectionTotal += item.passengerWithEvasionPerKmSection
-                capacityPerKmSectionTotal += item.capacityPerKmSection
+                passengerWithEvasionPerKmSectionTotal += passengerWithEvasionPerKmSection;
+                capacityPerKmSectionTotal += capacityPerKmSection;
             });
             let boardingWithAlightingPercentage = boardingWithAlightingTotal / boardingTotal * 100;
             let utilizationCoefficient = passengerWithEvasionPerKmSectionTotal / capacityPerKmSectionTotal;
