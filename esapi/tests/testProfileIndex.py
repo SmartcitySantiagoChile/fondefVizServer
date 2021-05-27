@@ -150,7 +150,8 @@ class ESProfileIndexTest(TestCase):
                                 'expandedBoardingPlusExpandedEvasionBoarding',
                                 'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
                                 'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
-                                'uniformDistributionMethod']}
+                                'uniformDistributionMethod', 'passengerWithEvasionPerKmSection',
+                                'capacityPerKmSection']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -189,7 +190,10 @@ class ESProfileIndexTest(TestCase):
                                                      'buckets_path': {'d': 'sumLoadProfileWithEvasion',
                                                                       't': 'sumBusCapacity'}}},
                                'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}},
-                               'boarding': {'sum': {'field': 'boarding'}}}},
+                               'boarding': {'sum': {'field': 'boarding'}},
+                               'passengerWithEvasionPerKmSection': {
+                                   'sum': {'field': 'passengerWithEvasionPerKmSection'}},
+                               'capacityPerKmSection': {'sum': {'field': 'capacityPerKmSection'}}}},
             'stop': {'filter': {'term': {'busStation': 1}},
                      'aggs': {'station': {'terms': {'field': 'authStopCode.raw', 'size': 500}}}}}, 'from': 0, 'size': 0,
             '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
@@ -199,7 +203,7 @@ class ESProfileIndexTest(TestCase):
                         'expandedBoardingPlusExpandedEvasionBoarding',
                         'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
                         'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
-                        'uniformDistributionMethod']}
+                        'uniformDistributionMethod', 'passengerWithEvasionPerKmSection', 'capacityPerKmSection']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)

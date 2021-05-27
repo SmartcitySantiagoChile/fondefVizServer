@@ -357,7 +357,13 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'evasionType', 'csv_name': 'tipo_evasion',
              'definition': 'puedes ser tres casos: 0, 1, 2, -1. El primero (0) indica que se usó una evasión a nivel de zonificación 777, el segundo valor (1) indica que se usó un valor de evasión a nivel de parada, y el tercer valor (2) indica que no se encontró un valor para el calculo de evasión. Existe un cuarto valor (-1) que indica que hubo un error con la información de evasión.'},
             {'es_name': 'uniformDistributionMethod', 'csv_name': 'uniforme',
-             'definition': 'método de distribución uniforme para casos donde no es posible estimar bajada, "0" indica que se usó una distribución uniforme y el valor "1" significa que no se usó distribución uniforme.'}
+             'definition': 'método de distribución uniforme para casos donde no es posible estimar bajada, "0" indica que se usó una distribución uniforme y el valor "1" significa que no se usó distribución uniforme.'},
+            {'es_name': 'passengerPerKmSection', 'csv_name': 'Pax-km_tramo',
+             'definition': 'Carga X distancia entre parada anterior y la del registro'},
+            {'es_name': 'passengerWithEvasionPerKmSection', 'csv_name': 'Pax-km_corregido_tramo',
+             'definition': 'Carga corregida X distancia entre parada anterior y la del registro'},
+            {'es_name': 'capacityPerKmSection', 'csv_name': 'Plazas-km_tramo',
+             'definition': 'Plazas de bus X distancia entre parada anterior y la del registro'},
         ]
 
     def get_data_file_name(self):
