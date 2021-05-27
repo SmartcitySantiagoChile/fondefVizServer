@@ -767,17 +767,18 @@ $(document).ready(function () {
             })
         }
 
-        var _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage) {
+        var _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
             boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage || 0;
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
             $("#boardingWithAlightingPercentage").html(Number(boardingWithAlightingPercentage.toFixed(2)).toLocaleString());
+            // add cu metric
         };
 
-        this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage) {
+        this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
             _updateBarChart();
-            _updateGlobalStats(expeditionNumber, boardingWithAlightingPercentage);
+            _updateGlobalStats(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
             _updateMap();
         };
         this.updateDatatable = function () {
@@ -840,12 +841,16 @@ $(document).ready(function () {
                     expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting.value,
                     busSaturationWithEvasion: el.busSaturationWithEvasion.value,
                     boarding: el.boarding.value,
-                    boardingWithAlighting: el.boardingWithAlighting.value
+                    boardingWithAlighting: el.boardingWithAlighting.value,
+                    passengerWithEvasionPerKmSection: el.passengerWithEvasionPerKmSection.value,
+                    capacityPerKmSection: el.capacityPerKmSection.value
                 }
             });
             let expeditionNumber = 0;
             let boardingTotal = 0;
             let boardingWithAlightingTotal = 0;
+            let passengerWithEvasionPerKmSectionTotal = 0;
+            let capacityPerKmSectionTotal = 0;
             stops.forEach(function (stop) {
                 let item = groupedStops[stop.authStopCode];
                 let itemIsNull = item === undefined;
@@ -882,8 +887,11 @@ $(document).ready(function () {
                 expeditionNumber = Math.max(expNumber, expeditionNumber);
                 boardingTotal += boarding;
                 boardingWithAlightingTotal += boardingWithAlighting;
+                passengerWithEvasionPerKmSectionTotal += item.passengerWithEvasionPerKmSection
+                capacityPerKmSectionTotal += item.capacityPerKmSection
             });
             let boardingWithAlightingPercentage = boardingWithAlightingTotal / boardingTotal * 100;
+            let utilizationCoefficient = passengerWithEvasionPerKmSectionTotal / capacityPerKmSectionTotal;
 
             dataManager.yAxisData(yAxisDataResult);
             let tripGroupXAxisData = stops.map(function (stop) {
@@ -892,7 +900,7 @@ $(document).ready(function () {
             });
             dataManager.xAxisData(tripGroupXAxisData);
             app.dataManager(dataManager);
-            app.updateCharts(expeditionNumber, boardingWithAlightingPercentage);
+            app.updateCharts(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
             app.updateDatatable();
         } else {
             for (let expeditionId in trips) {
