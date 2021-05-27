@@ -961,8 +961,8 @@ $(document).ready(function () {
                     let saturationRateWithEvasion = itemIsNull ? null : loadProfileWithEvasion / capacity * 100;
                     let boarding = itemIsNull ? null : item[8];
                     let boardingWithAlighting = itemIsNull ? null : item[9];
-                    let passengerWithEvasionPerKmSection = item[10];
-                    let capacityPerKmSection = item[11];
+                    let passengerWithEvasionPerKmSection = itemIsNull ? 0 : item[10];
+                    let capacityPerKmSection = itemIsNull ? 0 : item[11];
 
                     passengerWithEvasionPerKmSectionSum += passengerWithEvasionPerKmSection
                     capacityPerKmSectionSum += capacityPerKmSection
