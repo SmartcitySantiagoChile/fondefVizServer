@@ -24,7 +24,7 @@
 
     <div class="row">
         {% tabs tabs.header tabs.content as profile_tabs %}
-        {% panel "fa-bar-chart" "Perfil de carga <small>con <a href='' data-toggle='tooltip' data-placement='top' title='Subidas bip! con estimación de bajada / Total de subidas bip!'><strong id='expeditionNumber'>-</strong> expediciones y <strong id='boardingWithAlightingPercentage'>-</strong> % de estimación de bajada</a>. El coeficiente de utilización (pax-km / plazas-km) considerando la carga corregida por evasión es de <strong id='utilizationCoefficient'>-</strong></small>" profile_tabs info_target_id="chartHelp" as panel4 %}
+        {% panel "fa-bar-chart" "Perfil de carga" profile_tabs info_target_id="chartHelp" as panel4 %}
         {% columns 12 12 12 panel4 %}
     </div>
 
