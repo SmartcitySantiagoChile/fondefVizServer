@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.contrib import admin
 from django.utils.safestring import SafeString
 from django.utils.safestring import mark_safe
@@ -66,11 +63,13 @@ class ExporterJobExecutionAdmin(admin.ModelAdmin):
         if bool(obj.file):
             return SafeString('<a href="{0}">Descargar</a>'.format(obj.file.url))
         return SafeString('<a class="disabled" href="#">No hay archivo</a>')
+
     get_file_link.allow_tags = True
     get_file_link.short_description = 'Descargar archivo'
 
     def scaped_filters(self, obj):
         return mark_safe(obj.filters)
+
     scaped_filters.short_description = 'Filtros'
 
     def has_add_permission(self, request):

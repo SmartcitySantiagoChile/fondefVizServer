@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 from django import template
 from django.utils.html import format_html
 
 register = template.Library()
 
+
 @register.simple_tag
 def inline_select(label, input_id, optionList, multiple=False):
-
     options = []
     for option in optionList:
         if isinstance(option, dict):
