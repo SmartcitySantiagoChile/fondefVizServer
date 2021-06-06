@@ -485,7 +485,7 @@ $(document).ready(function () {
                     },
                     {title: "Inicio", data: "startPeriodTime", searchable: false},
                     {title: "Fin", data: "endPeriodTime", searchable: false},
-                    {title: "Frecuencia [Bus/h]", data: "frecuency", searchable: false},
+                    {title: "Frecuencia [Bus/h]", data: "frequency", searchable: false},
                     {title: "Capacidad [Plazas/h]", data: "capacity", searchable: false},
                     {title: "Distancia [km]", data: "distance", searchable: false},
                     {title: "Velocidad [km/h]", data: "speed", searchable: false},
