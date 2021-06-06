@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 from functools import reduce
 
 from elasticsearch_dsl import Q
 
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryOperationProgramDoesNotExist, \
-    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist, ESQueryDateParametersDoesNotExist
+    ESQueryThereIsMoreThanOneOperationProgram, ESQueryRouteParameterDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
