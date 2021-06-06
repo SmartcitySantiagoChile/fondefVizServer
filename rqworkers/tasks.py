@@ -163,7 +163,11 @@ def count_line_of_file_job(file_obj, data_source_code, file_path):
     with get_file_object(file_path) as f:
         if data_source_code in [ESShapeHelper().index_name, ESStopByRouteHelper().index_name,
                                 ESOPDataHelper().index_name]:
-            for group_id, __ in groupby(f, lambda row: row.decode().split(str('|'))[0]):
+            if data_source_code in [ESShapeHelper().index_name, ESStopByRouteHelper().index_name]:
+                column_id = 0
+            elif data_source_code == ESOPDataHelper().index_name:
+                column_id = 4
+            for group_id, __ in groupby(f, lambda row: row.decode().split(str('|'))[column_id]):
                 # lines with hyphen on first column are bad lines and must not be considered
                 if group_id != str('-'):
                     i += 1

@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
+import os
 
 from django.utils import timezone
 
 from datamanager.models import ExporterJobExecution
-
-import os
 
 
 def delete_old_file_job():

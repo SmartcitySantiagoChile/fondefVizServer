@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from testhelper.helper import TestHelper
 
 

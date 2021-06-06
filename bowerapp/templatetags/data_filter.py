@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-
-
 from django import template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from bowerapp.templatetags.inline_select import inline_select
-from bowerapp.templatetags.inline_input import inline_input
 from bowerapp.templatetags.columns import columns
+from bowerapp.templatetags.inline_input import inline_input
+from bowerapp.templatetags.inline_select import inline_select
 from bowerapp.templatetags.panel import panel
 from bowerapp.templatetags.update_button import update_button
 
@@ -129,7 +126,8 @@ def data_filter(data_filter,
         html_buttons += html_export_button
 
     html_button_column = columns(12, 12, 12, html_buttons)
-    panel_body += '<div class = "row">' + columns(12,12,12, '<div class="ln_solid"></div>') + '</div>' + html_button_column
+    panel_body += '<div class = "row">' + columns(12, 12, 12,
+                                                  '<div class="ln_solid"></div>') + '</div>' + html_button_column
 
     panel_icon = 'fa-filter'
     panel_title = 'Filtro'
