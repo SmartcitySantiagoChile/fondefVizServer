@@ -18,7 +18,7 @@ class LoadProfileByExpeditionHTML(View):
                         <tr>
                             <th class="text-center">N° de expediciones</th>
                             <th class="text-center">% de estimación de bajada</th>
-                            <th class="text-center">Coeficiente de utilización del perfil con evasión (pax-km/plazas-km)</th>
+                            <th class="text-center">CU del perfil con evasión (pax-km/plazas-km)</th>
                         </tr>
                     </thead>
                     <tbody>
