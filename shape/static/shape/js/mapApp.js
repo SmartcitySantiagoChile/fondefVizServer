@@ -451,7 +451,7 @@ $(document).ready(function () {
                 },
                 scrollX: true,
                 responsive: true,
-                pageLength: 28,
+                pageLength: 15,
                 paging: true,
                 retrieve: true,
                 searching: true,
