@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import argparse
 import json
 import os
@@ -19,7 +16,7 @@ from elasticsearch import Elasticsearch
 
 from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
 from dataDownloader.csvhelper.odbyroute import OdByRouteData
-from dataDownloader.csvhelper.speed import SpeedData
+from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
 from dataDownloader.csvhelper.trip import TripData
 from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from dataDownloader.csvhelper.bip import BipData
@@ -40,7 +37,7 @@ def download_file(es_instance, query, downloader, zip_file_path):
     elif downloader == csv_helper.PROFILE_BY_STOP_DATA:
         data_to_download = ProfileDataByStop(query, es_instance)
     elif downloader == csv_helper.SPEED_MATRIX_DATA:
-        data_to_download = SpeedData(query, es_instance)
+        data_to_download = SpeedDataWithFormattedShape(query, es_instance)
     elif downloader == csv_helper.TRIP_DATA:
         data_to_download = TripData(query, es_instance)
     elif downloader == csv_helper.PAYMENT_FACTOR_DATA:

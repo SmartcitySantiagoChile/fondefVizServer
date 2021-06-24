@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -19,35 +17,35 @@ class ESTripIndexTest(TestCase):
     def test__build_histogram_query(self):
         base_es_query = Search()
         result = self.instance._build_histogram_query(base_es_query)
-        expected = {'aggs': {u'distancia_ruta': {'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                                                          u'total': {'cumulative_sum': {'buckets_path': u'bin'}}},
-                                                 'histogram': {'field': u'distancia_ruta', 'interval': u'5000',
-                                                               'min_doc_count': 0,
-                                                               'extended_bounds': {u'max': 30000, u'min': 0}}},
-                             u'n_etapas': {
-                                 'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                                          u'total': {'cumulative_sum': {'buckets_path': u'bin'}}},
-                                 'histogram': {'field': u'n_etapas', 'interval': u'1', 'min_doc_count': 0,
-                                               'extended_bounds': {u'max': 5, u'min': 1}}}, u'distancia_eucl': {
-                'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                         u'total': {'cumulative_sum': {'buckets_path': u'bin'}}},
-                'histogram': {'field': u'distancia_eucl', 'interval': u'5000', 'min_doc_count': 0,
-                              'extended_bounds': {u'max': 30000, u'min': 0}}}, u'tviaje': {
-                'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                         u'total': {'cumulative_sum': {'buckets_path': u'bin'}}},
-                'histogram': {'field': u'tviaje', 'interval': u'15', 'min_doc_count': 0,
-                              'extended_bounds': {u'max': 120, u'min': 0}}}}}
+        expected = {'aggs': {'distancia_ruta': {'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                                                         'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
+                                                'histogram': {'field': 'distancia_ruta', 'interval': '5000',
+                                                              'min_doc_count': 0,
+                                                              'extended_bounds': {'max': 30000, 'min': 0}}},
+                             'n_etapas': {
+                                 'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                                          'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
+                                 'histogram': {'field': 'n_etapas', 'interval': '1', 'min_doc_count': 0,
+                                               'extended_bounds': {'max': 5, 'min': 1}}}, 'distancia_eucl': {
+                'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                         'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
+                'histogram': {'field': 'distancia_eucl', 'interval': '5000', 'min_doc_count': 0,
+                              'extended_bounds': {'max': 30000, 'min': 0}}}, 'tviaje': {
+                'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                         'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
+                'histogram': {'field': 'tviaje', 'interval': '15', 'min_doc_count': 0,
+                              'extended_bounds': {'max': 120, 'min': 0}}}}}
         self.assertDictEqual(result.to_dict(), expected)
 
     def test__build_indicators_query(self):
         base_es_query = Search()
         result = self.instance._build_indicators_query(base_es_query)
-        expected = {'aggs': {u'viajes': {'sum': {'field': u'factor_expansion'}},
-                             u'distancia_ruta': {'stats': {'field': u'distancia_ruta'}},
-                             u'tviaje': {'stats': {'field': u'tviaje'}},
-                             u'distancia_eucl': {'stats': {'field': u'distancia_eucl'}},
-                             u'n_etapas': {'stats': {'field': u'n_etapas'}},
-                             u'documentos': {'value_count': {'field': u'n_etapas'}}}}
+        expected = {'aggs': {'viajes': {'sum': {'field': 'factor_expansion'}},
+                             'distancia_ruta': {'stats': {'field': 'distancia_ruta'}},
+                             'tviaje': {'stats': {'field': 'tviaje'}},
+                             'distancia_eucl': {'stats': {'field': 'distancia_eucl'}},
+                             'n_etapas': {'stats': {'field': 'n_etapas'}},
+                             'documentos': {'value_count': {'field': 'n_etapas'}}}}
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_base_resume_data_query(self):
@@ -62,13 +60,13 @@ class ESTripIndexTest(TestCase):
         result = self.instance.get_base_resume_data_query(dates, day_types, periods, origin_zones,
                                                           destination_zones)
         expected = {'query': {'bool': {'filter': [
-            {'terms': {'tipodia': [u'LABORAL']}},
+            {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'zona_subida': [1, 2, 3]}},
             {'terms': {'zona_bajada': [3, 2, 1]}},
             {'range': {
-                'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                                  u'format': u'yyyy-MM-dd'}}},
+                'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                                  'format': 'yyyy-MM-dd'}}},
         ]}}}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -83,37 +81,37 @@ class ESTripIndexTest(TestCase):
         mock_method.return_value = Search()
         hist_query, ind_query = self.instance.get_resume_data(dates, day_types, periods, origin_zones,
                                                               destination_zones)
-        expected1 = {'from': 0, 'aggs': {u'distancia_ruta': {'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                                                                      u'total': {
-                                                                          'cumulative_sum': {'buckets_path': u'bin'}}},
-                                                             'histogram': {'field': u'distancia_ruta',
-                                                                           'interval': u'5000', 'min_doc_count': 0,
-                                                                           'extended_bounds': {u'max': 30000,
-                                                                                               u'min': 0}}},
-                                         u'n_etapas': {'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                                                                u'total': {'cumulative_sum': {'buckets_path': u'bin'}}},
-                                                       'histogram': {'field': u'n_etapas', 'interval': u'1',
-                                                                     'min_doc_count': 0,
-                                                                     'extended_bounds': {u'max': 5, u'min': 1}}},
-                                         u'distancia_eucl': {'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                                                                      u'total': {
-                                                                          'cumulative_sum': {'buckets_path': u'bin'}}},
-                                                             'histogram': {'field': u'distancia_eucl',
-                                                                           'interval': u'5000', 'min_doc_count': 0,
-                                                                           'extended_bounds': {u'max': 30000,
-                                                                                               u'min': 0}}},
-                                         u'tviaje': {'aggs': {u'bin': {'sum': {'field': u'factor_expansion'}},
-                                                              u'total': {'cumulative_sum': {'buckets_path': u'bin'}}},
-                                                     'histogram': {'field': u'tviaje', 'interval': u'15',
-                                                                   'min_doc_count': 0,
-                                                                   'extended_bounds': {u'max': 120, u'min': 0}}}},
+        expected1 = {'from': 0, 'aggs': {'distancia_ruta': {'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                                                                     'total': {
+                                                                         'cumulative_sum': {'buckets_path': 'bin'}}},
+                                                            'histogram': {'field': 'distancia_ruta',
+                                                                          'interval': '5000', 'min_doc_count': 0,
+                                                                          'extended_bounds': {'max': 30000,
+                                                                                              'min': 0}}},
+                                         'n_etapas': {'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                                                               'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
+                                                      'histogram': {'field': 'n_etapas', 'interval': '1',
+                                                                    'min_doc_count': 0,
+                                                                    'extended_bounds': {'max': 5, 'min': 1}}},
+                                         'distancia_eucl': {'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                                                                     'total': {
+                                                                         'cumulative_sum': {'buckets_path': 'bin'}}},
+                                                            'histogram': {'field': 'distancia_eucl',
+                                                                          'interval': '5000', 'min_doc_count': 0,
+                                                                          'extended_bounds': {'max': 30000,
+                                                                                              'min': 0}}},
+                                         'tviaje': {'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
+                                                             'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
+                                                    'histogram': {'field': 'tviaje', 'interval': '15',
+                                                                  'min_doc_count': 0,
+                                                                  'extended_bounds': {'max': 120, 'min': 0}}}},
                      'size': 0}
-        expected2 = {'from': 0, 'aggs': {u'viajes': {'sum': {'field': u'factor_expansion'}},
-                                         u'distancia_ruta': {'stats': {'field': u'distancia_ruta'}},
-                                         u'tviaje': {'stats': {'field': u'tviaje'}},
-                                         u'distancia_eucl': {'stats': {'field': u'distancia_eucl'}},
-                                         u'n_etapas': {'stats': {'field': u'n_etapas'}},
-                                         u'documentos': {'value_count': {'field': u'n_etapas'}}}, 'size': 0}
+        expected2 = {'from': 0, 'aggs': {'viajes': {'sum': {'field': 'factor_expansion'}},
+                                         'distancia_ruta': {'stats': {'field': 'distancia_ruta'}},
+                                         'tviaje': {'stats': {'field': 'tviaje'}},
+                                         'distancia_eucl': {'stats': {'field': 'distancia_eucl'}},
+                                         'n_etapas': {'stats': {'field': 'n_etapas'}},
+                                         'documentos': {'value_count': {'field': 'n_etapas'}}}, 'size': 0}
 
         self.assertIsInstance(hist_query, Search)
         self.assertDictEqual(hist_query.to_dict(), expected1)
@@ -136,13 +134,13 @@ class ESTripIndexTest(TestCase):
         dates = [["2018-01-01", "2018-02-01"]]
         result = self.instance.get_base_map_data_query(dates, day_types, periods, sectors)
         expected = {'query': {'bool': {'filter': [
-            {'terms': {'tipodia': [u'LABORAL']}},
+            {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'range': {
-                'tiempo_subida': {u'time_zone': u'+00:00',
-                                  u'gte': u'2018-01-01||/d',
-                                  u'lte': u'2018-02-01||/d',
-                                  u'format': u'yyyy-MM-dd'}}}
+                'tiempo_subida': {'time_zone': '+00:00',
+                                  'gte': '2018-01-01||/d',
+                                  'lte': '2018-02-01||/d',
+                                  'format': 'yyyy-MM-dd'}}}
 
         ]}}}
         self.assertDictEqual(result.to_dict(), expected)
@@ -154,22 +152,22 @@ class ESTripIndexTest(TestCase):
         sectors = {'key1': 'value'}
         result = self.instance.get_map_data(dates, day_types, periods, sectors)
         expected = {'query': {'bool': {'filter': [
-            {'terms': {'tipodia': [u'LABORAL']}},
+            {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'range': {
-                'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                                  u'format': u'yyyy-MM-dd'}}},
+                'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                                  'format': 'yyyy-MM-dd'}}},
         ]}},
             'from': 0, 'aggs': {
-                u'key1': {'filter': {'terms': {'zona_bajada': u'value'}},
-                          'aggs': {
-                              u'by_zone': {'terms': {'field': u'zona_subida', 'size': 1000},
-                                           'aggs': {u'distancia_ruta': {'avg': {'field': u'distancia_ruta'}},
-                                                    u'n_etapas': {'avg': {'field': u'n_etapas'}},
-                                                    u'expansion_factor': {'sum': {'field': u'factor_expansion'}},
-                                                    u'distancia_eucl': {'avg': {'field': u'distancia_eucl'}},
-                                                    u'tviaje': {'avg': {'field': u'tviaje'}}}}}},
-                u'sum_expansion_factor': {'sum': {'field': u'factor_expansion'}}}, 'size': 0}
+                'key1': {'filter': {'terms': {'zona_bajada': 'value'}},
+                         'aggs': {
+                             'by_zone': {'terms': {'field': 'zona_subida', 'size': 1000},
+                                         'aggs': {'distancia_ruta': {'avg': {'field': 'distancia_ruta'}},
+                                                  'n_etapas': {'avg': {'field': 'n_etapas'}},
+                                                  'expansion_factor': {'sum': {'field': 'factor_expansion'}},
+                                                  'distancia_eucl': {'avg': {'field': 'distancia_eucl'}},
+                                                  'tviaje': {'avg': {'field': 'tviaje'}}}}}},
+                'sum_expansion_factor': {'sum': {'field': 'factor_expansion'}}}, 'size': 0}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
 
@@ -182,11 +180,11 @@ class ESTripIndexTest(TestCase):
                           dates, day_types, periods, n_etapas)
         dates = [['2018-01-01', '2018-02-01']]
         expected = {'query': {'bool': {'filter': [{'range': {
-            'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                              u'format': u'yyyy-MM-dd'}}}, {'terms': {'tipodia': [u'LABORAL']}},
+            'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                              'format': 'yyyy-MM-dd'}}}, {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}}], 'minimum_should_match': 1,
             'should': [{'terms': {'n_etapas': [1, 2, 3, 4]}},
-                       {'range': {'n_etapas': {u'gte': 5}}}]}}}
+                       {'range': {'n_etapas': {'gte': 5}}}]}}}
 
         result = self.instance.get_base_large_travel_data_query(dates, day_types, periods, n_etapas)
         self.assertIsInstance(result, Search)
@@ -204,8 +202,8 @@ class ESTripIndexTest(TestCase):
                           day_types, periods, n_etapas)
         n_etapas = [1, 2, 3, 4]
         expected = {'query': {'bool': {'filter': [{'range': {
-            'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                              u'format': u'yyyy-MM-dd'}}}, {'terms': {'tipodia': [u'LABORAL']}},
+            'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                              'format': 'yyyy-MM-dd'}}}, {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'n_etapas': [1, 2, 3, 4]}}]}}}
 
@@ -222,17 +220,17 @@ class ESTripIndexTest(TestCase):
         result = self.instance.get_large_travel_data(dates, day_types, periods, n_etapas,
                                                      origin_or_destination)
         expected = {'query': {'bool': {'filter': [{'range': {
-            'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                              u'format': u'yyyy-MM-dd'}}}, {'terms': {'tipodia': [u'LABORAL']}},
+            'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                              'format': 'yyyy-MM-dd'}}}, {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'n_etapas': [1, 2, 3, 4]}}]}}, 'from': 0,
-            'aggs': {u'sum_expansion_factor': {'sum': {'field': u'factor_expansion'}},
-                     u'by_zone': {'terms': {'field': u'zona_bajada', 'size': 1000},
-                                  'aggs': {u'distancia_ruta': {'avg': {'field': u'distancia_ruta'}},
-                                           u'n_etapas': {'avg': {'field': u'n_etapas'}},
-                                           u'expansion_factor': {'sum': {'field': u'factor_expansion'}},
-                                           u'distancia_eucl': {'avg': {'field': u'distancia_eucl'}},
-                                           u'tviaje': {'avg': {'field': u'tviaje'}}}}}, 'size': 0}
+            'aggs': {'sum_expansion_factor': {'sum': {'field': 'factor_expansion'}},
+                     'by_zone': {'terms': {'field': 'zona_bajada', 'size': 1000},
+                                 'aggs': {'distancia_ruta': {'avg': {'field': 'distancia_ruta'}},
+                                          'n_etapas': {'avg': {'field': 'n_etapas'}},
+                                          'expansion_factor': {'sum': {'field': 'factor_expansion'}},
+                                          'distancia_eucl': {'avg': {'field': 'distancia_eucl'}},
+                                          'tviaje': {'avg': {'field': 'tviaje'}}}}}, 'size': 0}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -254,21 +252,21 @@ class ESTripIndexTest(TestCase):
         result = self.instance.get_base_from_to_map_data_query(dates, day_types, periods, minutes,
                                                                stages, modes, origin_zones, destination_zones, routes)
         expected = {'query': {'bool': {'filter': [{'bool': {'should': [
-            {'range': {'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                         u'format': u'yyyy-MM-dd'}}},
-            {'range': {'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                         u'format': u'yyyy-MM-dd'}}}]}},
-            {'terms': {'tipodia': [u'LABORAL']}},
+            {'range': {'tiempo_subida': {'time_zone': '+00:00', 'gte': '2||/d', 'lte': '1||/d',
+                                         'format': 'yyyy-MM-dd'}}},
+            {'range': {'tiempo_subida': {'time_zone': '+00:00', 'gte': '2||/d', 'lte': '1||/d',
+                                         'format': 'yyyy-MM-dd'}}}]}},
+            {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'mediahora_subida': [1, 2, 3]}},
             {'terms': {'n_etapas': [4, 3, 2, 1]}},
-            {'terms': {'modos': u'modes'}},
+            {'terms': {'modos': 'modes'}},
             {'terms': {'zona_subida': [1, 2, 3]}},
             {'terms': {'zona_bajada': [3, 2, 1]}},
-            {'bool': {'should': [{'terms': {u'srv_4': u'authRoutes[]'}},
-                                 {'terms': {u'srv_3': u'authRoutes[]'}},
-                                 {'terms': {u'srv_2': u'authRoutes[]'}},
-                                 {'terms': {u'srv_1': u'authRoutes[]'}}]
+            {'bool': {'should': [{'terms': {'srv_4': 'authRoutes[]'}},
+                                 {'terms': {'srv_3': 'authRoutes[]'}},
+                                 {'terms': {'srv_2': 'authRoutes[]'}},
+                                 {'terms': {'srv_1': 'authRoutes[]'}}]
                       }}]}}}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -289,47 +287,47 @@ class ESTripIndexTest(TestCase):
         expected1 = {'query': {'bool': {'filter': [
             {'bool':
                  {'should':
-                      [{'range': {'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                                    u'format': u'yyyy-MM-dd'}}},
-                       {'range': {'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                                    u'format': u'yyyy-MM-dd'}}}]
+                      [{'range': {'tiempo_subida': {'time_zone': '+00:00', 'gte': '2||/d', 'lte': '1||/d',
+                                                    'format': 'yyyy-MM-dd'}}},
+                       {'range': {'tiempo_subida': {'time_zone': '+00:00', 'gte': '2||/d', 'lte': '1||/d',
+                                                    'format': 'yyyy-MM-dd'}}}]
                   }},
-            {'terms': {'tipodia': [u'LABORAL']}},
+            {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'mediahora_subida': [1, 2, 3]}},
             {'terms': {'n_etapas': [4, 3, 2, 1]}},
-            {'terms': {'modos': u'modes'}},
+            {'terms': {'modos': 'modes'}},
             {'terms': {'zona_subida': [1, 2, 3]}},
             {'terms': {'zona_bajada': [3, 2, 1]}}]}}, 'from': 0,
-            'aggs': {u'expansion_factor': {'sum': {'field': u'factor_expansion'}},
-                     u'by_zone': {'terms': {'field': u'zona_subida', 'size': 1000},
-                                  'aggs': {u'distancia_ruta': {'avg': {'field': u'distancia_ruta'}},
-                                           u'n_etapas': {'avg': {'field': u'n_etapas'}},
-                                           u'expansion_factor': {'sum': {'field': u'factor_expansion'}},
-                                           u'distancia_eucl': {'avg': {'field': u'distancia_eucl'}},
-                                           u'tviaje': {'avg': {'field': u'tviaje'}}}}}, 'size': 0}
+            'aggs': {'expansion_factor': {'sum': {'field': 'factor_expansion'}},
+                     'by_zone': {'terms': {'field': 'zona_subida', 'size': 1000},
+                                 'aggs': {'distancia_ruta': {'avg': {'field': 'distancia_ruta'}},
+                                          'n_etapas': {'avg': {'field': 'n_etapas'}},
+                                          'expansion_factor': {'sum': {'field': 'factor_expansion'}},
+                                          'distancia_eucl': {'avg': {'field': 'distancia_eucl'}},
+                                          'tviaje': {'avg': {'field': 'tviaje'}}}}}, 'size': 0}
 
         expected2 = {'query': {'bool': {'filter': [
             {'bool':
                  {'should':
-                      [{'range': {'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                                    u'format': u'yyyy-MM-dd'}}},
-                       {'range': {'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2||/d', u'lte': u'1||/d',
-                                                    u'format': u'yyyy-MM-dd'}}}]
+                      [{'range': {'tiempo_subida': {'time_zone': '+00:00', 'gte': '2||/d', 'lte': '1||/d',
+                                                    'format': 'yyyy-MM-dd'}}},
+                       {'range': {'tiempo_subida': {'time_zone': '+00:00', 'gte': '2||/d', 'lte': '1||/d',
+                                                    'format': 'yyyy-MM-dd'}}}]
                   }},
-            {'terms': {'tipodia': [u'LABORAL']}},
+            {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'mediahora_subida': [1, 2, 3]}},
             {'terms': {'n_etapas': [4, 3, 2, 1]}},
-            {'terms': {'modos': u'modes'}},
+            {'terms': {'modos': 'modes'}},
             {'terms': {'zona_subida': [1, 2, 3]}},
             {'terms': {'zona_bajada': [3, 2, 1]}}]}}, 'from': 0, 'aggs': {
-            u'by_zone': {'terms': {'field': u'zona_bajada', 'size': 1000},
-                         'aggs': {u'distancia_ruta': {'avg': {'field': u'distancia_ruta'}},
-                                  u'n_etapas': {'avg': {'field': u'n_etapas'}},
-                                  u'expansion_factor': {'sum': {'field': u'factor_expansion'}},
-                                  u'distancia_eucl': {'avg': {'field': u'distancia_eucl'}},
-                                  u'tviaje': {'avg': {'field': u'tviaje'}}}}}, 'size': 0}
+            'by_zone': {'terms': {'field': 'zona_bajada', 'size': 1000},
+                        'aggs': {'distancia_ruta': {'avg': {'field': 'distancia_ruta'}},
+                                 'n_etapas': {'avg': {'field': 'n_etapas'}},
+                                 'expansion_factor': {'sum': {'field': 'factor_expansion'}},
+                                 'distancia_eucl': {'avg': {'field': 'distancia_eucl'}},
+                                 'tviaje': {'avg': {'field': 'tviaje'}}}}}, 'size': 0}
         self.assertDictEqual(result1.to_dict(), expected1)
         self.assertDictEqual(result2.to_dict(), expected2)
 
@@ -361,15 +359,15 @@ class ESTripIndexTest(TestCase):
                                                               origin_zones, destination_zones, routes)
 
         expected = {'query': {'bool': {'filter': [{'range': {
-            'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                              u'format': u'yyyy-MM-dd'}}}, {'terms': {'tipodia': [u'LABORAL']}},
+            'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                              'format': 'yyyy-MM-dd'}}}, {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'mediahora_subida': [1, 2, 3]}},
             {'terms': {'zona_subida': [1, 2, 3]}},
             {'terms': {'zona_bajada': [3, 2, 1]}},
-            {'bool': {'should': [{'terms': {'srv_1': [u'a', u'b', u'c']}}, {'terms': {'srv_2': [u'a', u'b', u'c']}},
-                                 {'terms': {'srv_3': [u'a', u'b', u'c']}},
-                                 {'terms': {'srv_4': [u'a', u'b', u'c']}}
+            {'bool': {'should': [{'terms': {'srv_1': ['a', 'b', 'c']}}, {'terms': {'srv_2': ['a', 'b', 'c']}},
+                                 {'terms': {'srv_3': ['a', 'b', 'c']}},
+                                 {'terms': {'srv_4': ['a', 'b', 'c']}}
                                  ]}}]}}}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -385,176 +383,176 @@ class ESTripIndexTest(TestCase):
         result = self.instance.get_strategies_data(dates, day_types, periods, minutes,
                                                    origin_zones, destination_zones, routes)
         expected = {'query': {'bool': {'filter': [{'range': {
-            'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                              u'format': u'yyyy-MM-dd'}}}, {'terms': {'tipodia': [u'LABORAL']}},
+            'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                              'format': 'yyyy-MM-dd'}}}, {'terms': {'tipodia': ['LABORAL']}},
             {'terms': {'periodo_subida': [1, 2, 3]}},
             {'terms': {'mediahora_subida': [1, 2, 3]}},
             {'terms': {'zona_subida': [1, 2, 3]}},
             {'terms': {'zona_bajada': [3, 2, 1]}}]}}, 'from': 0, 'aggs': {
-            u'a': {'filter': {'bool': {u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}]}}, 'aggs': {
-                u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'second': {'terms': {'field': u'srv_2', 'size': 2000}, 'aggs': {
-                            u'third': {'terms': {'field': u'srv_3', 'size': 2000}, 'aggs': {
-                                u'fourth': {'terms': {'field': u'srv_4', 'size': 2000}, 'aggs': {
-                                    u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}},
-            u'c': {'filter': {'bool': {u'filter': [{'terms': {u'tipo_transporte_3': [2, 4]}}]}}, 'aggs': {
-                u'first': {'terms': {'field': u'srv_1', 'size': 2000}, 'aggs': {
-                    u'second': {'terms': {'field': u'srv_2', 'size': 2000}, 'aggs': {
-                        u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                            u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000}, 'aggs': {
-                                u'fourth': {'terms': {'field': u'srv_4', 'size': 2000}, 'aggs': {
-                                    u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}},
-            u'b': {'filter': {'bool': {u'filter': [{'terms': {u'tipo_transporte_2': [2, 4]}}]}}, 'aggs': {
-                u'first': {'terms': {'field': u'srv_1', 'size': 2000}, 'aggs': {
-                    u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                        u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                            u'third': {'terms': {'field': u'srv_3', 'size': 2000}, 'aggs': {
-                                u'fourth': {'terms': {'field': u'srv_4', 'size': 2000}, 'aggs': {
-                                    u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}, u'e': {
+            'a': {'filter': {'bool': {'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}]}}, 'aggs': {
+                'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'second': {'terms': {'field': 'srv_2', 'size': 2000}, 'aggs': {
+                            'third': {'terms': {'field': 'srv_3', 'size': 2000}, 'aggs': {
+                                'fourth': {'terms': {'field': 'srv_4', 'size': 2000}, 'aggs': {
+                                    'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}},
+            'c': {'filter': {'bool': {'filter': [{'terms': {'tipo_transporte_3': [2, 4]}}]}}, 'aggs': {
+                'first': {'terms': {'field': 'srv_1', 'size': 2000}, 'aggs': {
+                    'second': {'terms': {'field': 'srv_2', 'size': 2000}, 'aggs': {
+                        'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                            'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000}, 'aggs': {
+                                'fourth': {'terms': {'field': 'srv_4', 'size': 2000}, 'aggs': {
+                                    'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}},
+            'b': {'filter': {'bool': {'filter': [{'terms': {'tipo_transporte_2': [2, 4]}}]}}, 'aggs': {
+                'first': {'terms': {'field': 'srv_1', 'size': 2000}, 'aggs': {
+                    'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                        'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                            'third': {'terms': {'field': 'srv_3', 'size': 2000}, 'aggs': {
+                                'fourth': {'terms': {'field': 'srv_4', 'size': 2000}, 'aggs': {
+                                    'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}, 'e': {
                 'filter': {'bool': {
-                    u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_2': [2, 4]}}]}},
-                'aggs': {u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                            u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                                u'third': {'terms': {'field': u'srv_3', 'size': 2000}, 'aggs': {
-                                    u'fourth': {'terms': {'field': u'srv_4', 'size': 2000}, 'aggs': {
-                                        u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}},
-            u'd': {'filter': {'bool': {u'filter': [{'terms': {u'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
-                u'first': {'terms': {'field': u'srv_1', 'size': 2000}, 'aggs': {
-                    u'second': {'terms': {'field': u'srv_2', 'size': 2000}, 'aggs': {
-                        u'third': {'terms': {'field': u'srv_3', 'size': 2000}, 'aggs': {
-                            u'start_station_4': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                                u'end_station_4': {'terms': {'field': u'parada_bajada_4', 'size': 5000}, 'aggs': {
-                                    u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}, u'g': {
+                    'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}}]}},
+                'aggs': {'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                            'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                                'third': {'terms': {'field': 'srv_3', 'size': 2000}, 'aggs': {
+                                    'fourth': {'terms': {'field': 'srv_4', 'size': 2000}, 'aggs': {
+                                        'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}},
+            'd': {'filter': {'bool': {'filter': [{'terms': {'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
+                'first': {'terms': {'field': 'srv_1', 'size': 2000}, 'aggs': {
+                    'second': {'terms': {'field': 'srv_2', 'size': 2000}, 'aggs': {
+                        'third': {'terms': {'field': 'srv_3', 'size': 2000}, 'aggs': {
+                            'start_station_4': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                                'end_station_4': {'terms': {'field': 'parada_bajada_4', 'size': 5000}, 'aggs': {
+                                    'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}, 'g': {
                 'filter': {'bool': {
-                    u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_4': [2, 4]}}]}},
-                'aggs': {u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'second': {'terms': {'field': u'srv_2', 'size': 2000}, 'aggs': {
-                            u'third': {'terms': {'field': u'srv_3', 'size': 2000}, 'aggs': {
-                                u'start_station_4': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                                    u'end_station_4': {'terms': {'field': u'parada_bajada_4', 'size': 5000}, 'aggs': {
-                                        u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}},
-            u'f': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_3': [2, 4]}}]}},
-                'aggs': {u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'second': {'terms': {'field': u'srv_2', 'size': 2000}, 'aggs': {
-                            u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                                u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000}, 'aggs': {
-                                    u'fourth': {'terms': {'field': u'srv_4', 'size': 2000}, 'aggs': {
-                                        u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}},
-            u'strategies_without_metro_or_metrotren': {'filter': {'bool': {u'must_not': [{'bool': {
-                u'should': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_2': [2, 4]}},
-                            {'terms': {u'tipo_transporte_3': [2, 4]}}, {'terms': {u'tipo_transporte_4': [2, 4]}}]}}]}},
-                'aggs': {u'first': {'terms': {'field': u'srv_1', 'size': 2000},
-                                    'aggs': {u'second': {
-                                        'terms': {'field': u'srv_2',
-                                                  'size': 2000}, 'aggs': {
-                                            u'third': {
-                                                'terms': {'field': u'srv_3',
-                                                          'size': 2000},
-                                                'aggs': {u'fourth': {
-                                                    'terms': {'field': u'srv_4',
-                                                              'size': 2000},
-                                                    'aggs': {
-                                                        u'expansion_factor': {
-                                                            'sum': {
-                                                                'field': u'factor_expansion'}}}}}}}}}}}},
-            u'h': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_2': [2, 4]}}, {'terms': {u'tipo_transporte_3': [2, 4]}}]}},
-                'aggs': {u'first': {'terms': {'field': u'srv_1', 'size': 2000}, 'aggs': {
-                    u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                        u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                            u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                                u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000}, 'aggs': {
-                                    u'fourth': {'terms': {'field': u'srv_4', 'size': 2000}, 'aggs': {
-                                        u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}},
-            u'k': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_2': [2, 4]}},
-                            {'terms': {u'tipo_transporte_3': [2, 4]}}]}}, 'aggs': {
-                u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                            u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                                u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                                    u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000}, 'aggs': {
-                                        u'fourth': {'terms': {'field': u'srv_4', 'size': 2000}, 'aggs': {
-                                            u'expansion_factor': {
-                                                'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}}}}, u'j': {
+                    'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}},
+                'aggs': {'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'second': {'terms': {'field': 'srv_2', 'size': 2000}, 'aggs': {
+                            'third': {'terms': {'field': 'srv_3', 'size': 2000}, 'aggs': {
+                                'start_station_4': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                                    'end_station_4': {'terms': {'field': 'parada_bajada_4', 'size': 5000}, 'aggs': {
+                                        'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}},
+            'f': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_3': [2, 4]}}]}},
+                'aggs': {'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'second': {'terms': {'field': 'srv_2', 'size': 2000}, 'aggs': {
+                            'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                                'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000}, 'aggs': {
+                                    'fourth': {'terms': {'field': 'srv_4', 'size': 2000}, 'aggs': {
+                                        'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}},
+            'strategies_without_metro_or_metrotren': {'filter': {'bool': {'must_not': [{'bool': {
+                'should': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}},
+                           {'terms': {'tipo_transporte_3': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}}]}},
+                'aggs': {'first': {'terms': {'field': 'srv_1', 'size': 2000},
+                                   'aggs': {'second': {
+                                       'terms': {'field': 'srv_2',
+                                                 'size': 2000}, 'aggs': {
+                                           'third': {
+                                               'terms': {'field': 'srv_3',
+                                                         'size': 2000},
+                                               'aggs': {'fourth': {
+                                                   'terms': {'field': 'srv_4',
+                                                             'size': 2000},
+                                                   'aggs': {
+                                                       'expansion_factor': {
+                                                           'sum': {
+                                                               'field': 'factor_expansion'}}}}}}}}}}}},
+            'h': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_2': [2, 4]}}, {'terms': {'tipo_transporte_3': [2, 4]}}]}},
+                'aggs': {'first': {'terms': {'field': 'srv_1', 'size': 2000}, 'aggs': {
+                    'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                        'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                            'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                                'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000}, 'aggs': {
+                                    'fourth': {'terms': {'field': 'srv_4', 'size': 2000}, 'aggs': {
+                                        'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}},
+            'k': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}},
+                           {'terms': {'tipo_transporte_3': [2, 4]}}]}}, 'aggs': {
+                'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                            'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                                'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                                    'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000}, 'aggs': {
+                                        'fourth': {'terms': {'field': 'srv_4', 'size': 2000}, 'aggs': {
+                                            'expansion_factor': {
+                                                'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}}}}, 'j': {
                 'filter': {'bool': {
-                    u'filter': [{'terms': {u'tipo_transporte_3': [2, 4]}}, {'terms': {u'tipo_transporte_4': [2, 4]}}]}},
-                'aggs': {u'first': {'terms': {'field': u'srv_1', 'size': 2000}, 'aggs': {
-                    u'second': {'terms': {'field': u'srv_2', 'size': 2000}, 'aggs': {
-                        u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                            u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000}, 'aggs': {
-                                u'start_station_4': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                                    u'end_station_4': {'terms': {'field': u'parada_bajada_4', 'size': 5000}, 'aggs': {
-                                        u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}},
-            u'm': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_3': [2, 4]}},
-                            {'terms': {u'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
-                u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'second': {'terms': {'field': u'srv_2', 'size': 2000}, 'aggs': {
-                            u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                                u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000}, 'aggs': {
-                                    u'start_station_4': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                                        u'end_station_4': {'terms': {'field': u'parada_bajada_4', 'size': 5000},
-                                                           'aggs': {u'expansion_factor': {
-                                                               'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}}}},
-            u'l': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_2': [2, 4]}},
-                            {'terms': {u'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
-                u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                            u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                                u'third': {'terms': {'field': u'srv_3', 'size': 2000}, 'aggs': {
-                                    u'start_station_4': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                                        u'end_station_4': {'terms': {'field': u'parada_bajada_4', 'size': 5000},
-                                                           'aggs': {u'expansion_factor': {
-                                                               'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}}}},
-            u'o': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_1': [2, 4]}}, {'terms': {u'tipo_transporte_2': [2, 4]}},
-                            {'terms': {u'tipo_transporte_3': [2, 4]}}, {'terms': {u'tipo_transporte_4': [2, 4]}}]}},
-                'aggs': {u'start_station_1': {'terms': {'field': u'parada_subida_1', 'size': 5000}, 'aggs': {
-                    u'end_station_1': {'terms': {'field': u'parada_bajada_1', 'size': 5000}, 'aggs': {
-                        u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                            u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                                u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                                    u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000},
-                                                       'aggs': {u'start_station_4': {
-                                                           'terms': {'field': u'parada_subida_4', 'size': 5000},
-                                                           'aggs': {u'end_station_4': {
-                                                               'terms': {'field': u'parada_bajada_4', 'size': 5000},
-                                                               'aggs': {u'expansion_factor': {'sum': {
-                                                                   'field': u'factor_expansion'}}}}}}}}}}}}}}}}}}}},
-            u'n': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_2': [2, 4]}}, {'terms': {u'tipo_transporte_3': [2, 4]}},
-                            {'terms': {u'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
-                u'first': {'terms': {'field': u'srv_1', 'size': 2000}, 'aggs': {
-                    u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                        u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                            u'start_station_3': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                                u'end_station_3': {'terms': {'field': u'parada_bajada_3', 'size': 5000}, 'aggs': {
-                                    u'start_station_4': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                                        u'end_station_4': {'terms': {'field': u'parada_bajada_4', 'size': 5000},
-                                                           'aggs': {u'expansion_factor': {
-                                                               'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}}}},
-            u'i': {'filter': {'bool': {
-                u'filter': [{'terms': {u'tipo_transporte_2': [2, 4]}}, {'terms': {u'tipo_transporte_4': [2, 4]}}]}},
-                'aggs': {u'first': {'terms': {'field': u'srv_1', 'size': 2000}, 'aggs': {
-                    u'start_station_2': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                        u'end_station_2': {'terms': {'field': u'parada_bajada_2', 'size': 5000}, 'aggs': {
-                            u'third': {'terms': {'field': u'srv_3', 'size': 2000}, 'aggs': {
-                                u'start_station_4': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                                    u'end_station_4': {'terms': {'field': u'parada_bajada_4', 'size': 5000},
-                                                       'aggs': {u'expansion_factor': {
-                                                           'sum': {'field': u'factor_expansion'}}}}}}}}}}}}}}}},
-            u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}, 'size': 0}
+                    'filter': [{'terms': {'tipo_transporte_3': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}},
+                'aggs': {'first': {'terms': {'field': 'srv_1', 'size': 2000}, 'aggs': {
+                    'second': {'terms': {'field': 'srv_2', 'size': 2000}, 'aggs': {
+                        'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                            'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000}, 'aggs': {
+                                'start_station_4': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                                    'end_station_4': {'terms': {'field': 'parada_bajada_4', 'size': 5000}, 'aggs': {
+                                        'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}},
+            'm': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_3': [2, 4]}},
+                           {'terms': {'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
+                'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'second': {'terms': {'field': 'srv_2', 'size': 2000}, 'aggs': {
+                            'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                                'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000}, 'aggs': {
+                                    'start_station_4': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                                        'end_station_4': {'terms': {'field': 'parada_bajada_4', 'size': 5000},
+                                                          'aggs': {'expansion_factor': {
+                                                              'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}}}},
+            'l': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}},
+                           {'terms': {'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
+                'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                            'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                                'third': {'terms': {'field': 'srv_3', 'size': 2000}, 'aggs': {
+                                    'start_station_4': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                                        'end_station_4': {'terms': {'field': 'parada_bajada_4', 'size': 5000},
+                                                          'aggs': {'expansion_factor': {
+                                                              'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}}}},
+            'o': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_1': [2, 4]}}, {'terms': {'tipo_transporte_2': [2, 4]}},
+                           {'terms': {'tipo_transporte_3': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}},
+                'aggs': {'start_station_1': {'terms': {'field': 'parada_subida_1', 'size': 5000}, 'aggs': {
+                    'end_station_1': {'terms': {'field': 'parada_bajada_1', 'size': 5000}, 'aggs': {
+                        'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                            'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                                'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                                    'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000},
+                                                      'aggs': {'start_station_4': {
+                                                          'terms': {'field': 'parada_subida_4', 'size': 5000},
+                                                          'aggs': {'end_station_4': {
+                                                              'terms': {'field': 'parada_bajada_4', 'size': 5000},
+                                                              'aggs': {'expansion_factor': {'sum': {
+                                                                  'field': 'factor_expansion'}}}}}}}}}}}}}}}}}}}},
+            'n': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_2': [2, 4]}}, {'terms': {'tipo_transporte_3': [2, 4]}},
+                           {'terms': {'tipo_transporte_4': [2, 4]}}]}}, 'aggs': {
+                'first': {'terms': {'field': 'srv_1', 'size': 2000}, 'aggs': {
+                    'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                        'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                            'start_station_3': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                                'end_station_3': {'terms': {'field': 'parada_bajada_3', 'size': 5000}, 'aggs': {
+                                    'start_station_4': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                                        'end_station_4': {'terms': {'field': 'parada_bajada_4', 'size': 5000},
+                                                          'aggs': {'expansion_factor': {
+                                                              'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}}}},
+            'i': {'filter': {'bool': {
+                'filter': [{'terms': {'tipo_transporte_2': [2, 4]}}, {'terms': {'tipo_transporte_4': [2, 4]}}]}},
+                'aggs': {'first': {'terms': {'field': 'srv_1', 'size': 2000}, 'aggs': {
+                    'start_station_2': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                        'end_station_2': {'terms': {'field': 'parada_bajada_2', 'size': 5000}, 'aggs': {
+                            'third': {'terms': {'field': 'srv_3', 'size': 2000}, 'aggs': {
+                                'start_station_4': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                                    'end_station_4': {'terms': {'field': 'parada_bajada_4', 'size': 5000},
+                                                      'aggs': {'expansion_factor': {
+                                                          'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}}},
+            'expansion_factor': {'sum': {'field': 'factor_expansion'}}}, 'size': 0}
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_base_transfers_data_query(self):
@@ -572,12 +570,12 @@ class ESTripIndexTest(TestCase):
         result = self.instance.get_base_transfers_data_query(dates, auth_stop_code, day_types, periods,
                                                              half_hours)
         expected = {'query': {'bool': {'filter': [{'range': {
-            'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                              u'format': u'yyyy-MM-dd'}}}, {'bool': {
-            'should': [{'term': {'parada_bajada_1': u'auth_stop_code'}},
-                       {'term': {'parada_bajada_2': u'auth_stop_code'}},
-                       {'term': {'parada_bajada_3': u'auth_stop_code'}},
-                       {'term': {'parada_bajada_4': u'auth_stop_code'}}]}}, {'terms': {'tipodia': [u'LABORAL']}}, {
+            'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                              'format': 'yyyy-MM-dd'}}}, {'bool': {
+            'should': [{'term': {'parada_bajada_1': 'auth_stop_code'}},
+                       {'term': {'parada_bajada_2': 'auth_stop_code'}},
+                       {'term': {'parada_bajada_3': 'auth_stop_code'}},
+                       {'term': {'parada_bajada_4': 'auth_stop_code'}}]}}, {'terms': {'tipodia': ['LABORAL']}}, {
             'bool': {'should': [{'terms': {'periodo_bajada_1': [1, 2, 3]}},
                                 {'terms': {'periodo_bajada_2': [1, 2, 3]}},
                                 {'terms': {'periodo_bajada_3': [1, 2, 3]}},
@@ -599,12 +597,12 @@ class ESTripIndexTest(TestCase):
         half_hours = [1, 2, 3]
         result = self.instance.get_transfers_data(dates, auth_stop_code, day_types, periods, half_hours)
         expected = {'query': {'bool': {'filter': [{'range': {
-            'tiempo_subida': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-02-01||/d',
-                              u'format': u'yyyy-MM-dd'}}}, {'bool': {
-            'should': [{'term': {'parada_bajada_1': u'auth_stop_code'}},
-                       {'term': {'parada_bajada_2': u'auth_stop_code'}},
-                       {'term': {'parada_bajada_3': u'auth_stop_code'}},
-                       {'term': {'parada_bajada_4': u'auth_stop_code'}}]}}, {'terms': {'tipodia': [u'LABORAL']}}, {
+            'tiempo_subida': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-02-01||/d',
+                              'format': 'yyyy-MM-dd'}}}, {'bool': {
+            'should': [{'term': {'parada_bajada_1': 'auth_stop_code'}},
+                       {'term': {'parada_bajada_2': 'auth_stop_code'}},
+                       {'term': {'parada_bajada_3': 'auth_stop_code'}},
+                       {'term': {'parada_bajada_4': 'auth_stop_code'}}]}}, {'terms': {'tipodia': ['LABORAL']}}, {
             'bool': {'should': [{'terms': {'periodo_bajada_1': [1, 2, 3]}},
                                 {'terms': {'periodo_bajada_2': [1, 2, 3]}},
                                 {'terms': {'periodo_bajada_3': [1, 2, 3]}},
@@ -614,73 +612,84 @@ class ESTripIndexTest(TestCase):
                                  {'terms': {'mediahora_bajada_3': [1, 2, 3]}}, {
                                      'terms': {
                                          'mediahora_bajada_4': [1, 2, 3]}}]}}]}},
-            'aggs': {u'second_transfer': {'filter': {'bool': {
-                u'must': [{'term': {u'parada_bajada_2': u'auth_stop_code'}},
-                          {'range': {u'n_etapas': {u'gt': 2}}}]}}, 'aggs': {
-                u'route_from': {'terms': {'field': u'srv_2', 'size': 5000}, 'aggs': {
-                    u'route_to': {'terms': {'field': u'srv_3', 'size': 5000},
-                                  'aggs': {u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'third_transfer_to_subway': {'filter': {'bool': {
-                    u'must': [{'term': {u'parada_bajada_3': u'auth_stop_code'}},
-                              {'range': {u'n_etapas': {u'gt': 3}}}, {'term': {u'tipo_transporte_4': 2}},
-                              {'term': {u'tipo_transporte_4': 4}}]}}, 'aggs': {
-                    u'route_from': {'terms': {'field': u'srv_3', 'size': 5000}, 'aggs': {
-                        u'route_to': {'terms': {'field': u'parada_subida_4', 'size': 5000}, 'aggs': {
-                            u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'first_transfer': {'filter': {'bool': {u'must': [{'term': {
-                    u'parada_bajada_1': u'auth_stop_code'}},
-                    {'range': {u'n_etapas': {u'gt': 1}}}]}},
-                    'aggs': {u'route_from': {'terms': {'field': u'srv_1', 'size': 5000},
-                                             'aggs': {u'route_to': {
-                                                 'terms': {'field': u'srv_2',
-                                                           'size': 5000}, 'aggs': {
-                                                     u'expansion_factor': {'sum': {
-                                                         'field': u'factor_expansion'}}}}}}}},
-                u'second_transfer_to_subway': {'filter': {'bool': {
-                    u'must': [{'term': {u'parada_bajada_2': u'auth_stop_code'}},
-                              {'range': {u'n_etapas': {u'gt': 2}}}, {'term': {u'tipo_transporte_3': 2}},
-                              {'term': {u'tipo_transporte_3': 4}}]}}, 'aggs': {
-                    u'route_from': {'terms': {'field': u'srv_2', 'size': 5000}, 'aggs': {
-                        u'route_to': {'terms': {'field': u'parada_subida_3', 'size': 5000}, 'aggs': {
-                            u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'fourth_transfer_is_end': {'filter': {'bool': {
-                    u'must': [{'term': {u'parada_bajada_4': u'auth_stop_code'}},
-                              {'term': {u'n_etapas': 4}}]}}, 'aggs': {
-                    u'route_from': {'terms': {'field': u'srv_4', 'size': 5000}, 'aggs': {
-                        u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}},
-                u'first_transfer_is_end': {'filter': {'bool': {
-                    u'must': [{'term': {u'parada_bajada_1': u'auth_stop_code'}},
-                              {'term': {u'n_etapas': 1}}]}}, 'aggs': {
-                    u'route_from': {'terms': {'field': u'srv_1', 'size': 5000}, 'aggs': {
-                        u'route_to': {'terms': {'field': u'srv_2', 'size': 5000}, 'aggs': {
-                            u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'third_transfer_is_end': {'filter': {'bool': {
-                    u'must': [{'term': {u'parada_bajada_3': u'auth_stop_code'}},
-                              {'term': {u'n_etapas': 3}}]}}, 'aggs': {
-                    u'route_from': {'terms': {'field': u'srv_3', 'size': 5000}, 'aggs': {
-                        u'route_to': {'terms': {'field': u'srv_4', 'size': 5000}, 'aggs': {
-                            u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'third_transfer': {'filter': {'bool': {u'must': [{'term': {
-                    u'parada_bajada_3': u'auth_stop_code'}},
-                    {'range': {u'n_etapas': {u'gt': 3}}}]}},
-                    'aggs': {u'route_from': {'terms': {'field': u'srv_3', 'size': 5000},
-                                             'aggs': {u'route_to': {
-                                                 'terms': {'field': u'srv_4',
-                                                           'size': 5000}, 'aggs': {
-                                                     u'expansion_factor': {'sum': {
-                                                         'field': u'factor_expansion'}}}}}}}},
-                u'second_transfer_is_end': {'filter': {'bool': {
-                    u'must': [{'term': {u'parada_bajada_2': u'auth_stop_code'}},
-                              {'term': {u'n_etapas': 2}}]}}, 'aggs': {
-                    u'route_from': {'terms': {'field': u'srv_2', 'size': 5000}, 'aggs': {
-                        u'route_to': {'terms': {'field': u'srv_3', 'size': 5000}, 'aggs': {
-                            u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}},
-                u'first_transfer_to_subway': {'filter': {'bool': {
-                    u'must': [{'term': {u'parada_bajada_1': u'auth_stop_code'}},
-                              {'range': {u'n_etapas': {u'gt': 1}}}, {'term': {u'tipo_transporte_2': 2}},
-                              {'term': {u'tipo_transporte_2': 4}}]}}, 'aggs': {
-                    u'route_from': {'terms': {'field': u'srv_1', 'size': 5000}, 'aggs': {
-                        u'route_to': {'terms': {'field': u'parada_subida_2', 'size': 5000}, 'aggs': {
-                            u'expansion_factor': {'sum': {'field': u'factor_expansion'}}}}}}}}}}
+            'aggs': {'second_transfer': {'filter': {'bool': {
+                'must': [{'term': {'parada_bajada_2': 'auth_stop_code'}},
+                         {'range': {'n_etapas': {'gt': 2}}}]}}, 'aggs': {
+                'route_from': {'terms': {'field': 'srv_2', 'size': 5000}, 'aggs': {
+                    'route_to': {'terms': {'field': 'srv_3', 'size': 5000},
+                                 'aggs': {'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}},
+                'third_transfer_to_subway': {'filter': {'bool': {
+                    'must': [{'term': {'parada_bajada_3': 'auth_stop_code'}},
+                             {'range': {'n_etapas': {'gt': 3}}}, {'term': {'tipo_transporte_4': 2}},
+                             {'term': {'tipo_transporte_4': 4}}]}}, 'aggs': {
+                    'route_from': {'terms': {'field': 'srv_3', 'size': 5000}, 'aggs': {
+                        'route_to': {'terms': {'field': 'parada_subida_4', 'size': 5000}, 'aggs': {
+                            'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}},
+                'first_transfer': {'filter': {'bool': {'must': [{'term': {
+                    'parada_bajada_1': 'auth_stop_code'}},
+                    {'range': {'n_etapas': {'gt': 1}}}]}},
+                    'aggs': {'route_from': {'terms': {'field': 'srv_1', 'size': 5000},
+                                            'aggs': {'route_to': {
+                                                'terms': {'field': 'srv_2',
+                                                          'size': 5000}, 'aggs': {
+                                                    'expansion_factor': {'sum': {
+                                                        'field': 'factor_expansion'}}}}}}}},
+                'second_transfer_to_subway': {'filter': {'bool': {
+                    'must': [{'term': {'parada_bajada_2': 'auth_stop_code'}},
+                             {'range': {'n_etapas': {'gt': 2}}}, {'term': {'tipo_transporte_3': 2}},
+                             {'term': {'tipo_transporte_3': 4}}]}}, 'aggs': {
+                    'route_from': {'terms': {'field': 'srv_2', 'size': 5000}, 'aggs': {
+                        'route_to': {'terms': {'field': 'parada_subida_3', 'size': 5000}, 'aggs': {
+                            'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}},
+                'fourth_transfer_is_end': {'filter': {'bool': {
+                    'must': [{'term': {'parada_bajada_4': 'auth_stop_code'}},
+                             {'term': {'n_etapas': 4}}]}}, 'aggs': {
+                    'route_from': {'terms': {'field': 'srv_4', 'size': 5000}, 'aggs': {
+                        'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}},
+                'first_transfer_is_end': {'filter': {'bool': {
+                    'must': [{'term': {'parada_bajada_1': 'auth_stop_code'}},
+                             {'term': {'n_etapas': 1}}]}}, 'aggs': {
+                    'route_from': {'terms': {'field': 'srv_1', 'size': 5000}, 'aggs': {
+                        'route_to': {'terms': {'field': 'srv_2', 'size': 5000}, 'aggs': {
+                            'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}},
+                'third_transfer_is_end': {'filter': {'bool': {
+                    'must': [{'term': {'parada_bajada_3': 'auth_stop_code'}},
+                             {'term': {'n_etapas': 3}}]}}, 'aggs': {
+                    'route_from': {'terms': {'field': 'srv_3', 'size': 5000}, 'aggs': {
+                        'route_to': {'terms': {'field': 'srv_4', 'size': 5000}, 'aggs': {
+                            'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}},
+                'third_transfer': {'filter': {'bool': {'must': [{'term': {
+                    'parada_bajada_3': 'auth_stop_code'}},
+                    {'range': {'n_etapas': {'gt': 3}}}]}},
+                    'aggs': {'route_from': {'terms': {'field': 'srv_3', 'size': 5000},
+                                            'aggs': {'route_to': {
+                                                'terms': {'field': 'srv_4',
+                                                          'size': 5000}, 'aggs': {
+                                                    'expansion_factor': {'sum': {
+                                                        'field': 'factor_expansion'}}}}}}}},
+                'second_transfer_is_end': {'filter': {'bool': {
+                    'must': [{'term': {'parada_bajada_2': 'auth_stop_code'}},
+                             {'term': {'n_etapas': 2}}]}}, 'aggs': {
+                    'route_from': {'terms': {'field': 'srv_2', 'size': 5000}, 'aggs': {
+                        'route_to': {'terms': {'field': 'srv_3', 'size': 5000}, 'aggs': {
+                            'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}},
+                'first_transfer_to_subway': {'filter': {'bool': {
+                    'must': [{'term': {'parada_bajada_1': 'auth_stop_code'}},
+                             {'range': {'n_etapas': {'gt': 1}}}, {'term': {'tipo_transporte_2': 2}},
+                             {'term': {'tipo_transporte_2': 4}}]}}, 'aggs': {
+                    'route_from': {'terms': {'field': 'srv_1', 'size': 5000}, 'aggs': {
+                        'route_to': {'terms': {'field': 'parada_subida_2', 'size': 5000}, 'aggs': {
+                            'expansion_factor': {'sum': {'field': 'factor_expansion'}}}}}}}}}}
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
+
+    def test_get_all_time_periods(self):
+        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path', 'size': 5000}, 'aggs': {
+            'time_periods_0': {'terms': {'field': 'periodo_subida'}},
+            'time_periods_1': {'terms': {'field': 'periodo_bajada'}},
+            'time_periods_2': {'terms': {'field': 'periodo_bajada_1'}},
+            'time_periods_3': {'terms': {'field': 'periodo_bajada_2'}},
+            'time_periods_4': {'terms': {'field': 'periodo_bajada_3'}},
+            'time_periods_5': {'terms': {'field': 'periodo_bajada_4'}}}}}, 'from': 0, 'size': 0}
+        result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)

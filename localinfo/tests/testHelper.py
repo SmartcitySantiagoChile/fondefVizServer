@@ -1,7 +1,8 @@
 import os
 from datetime import datetime
-
 from unittest import mock
+
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.test import TestCase
 from django.utils import timezone
 
@@ -9,7 +10,7 @@ from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _di
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
     get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict, synchronize_op_program, \
-    upload_xlsx_op_dictionary, get_opprogram_list_for_select_input
+    get_opprogram_list_for_select_input, upload_csv_op_dictionary, check_period_list_id
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
 
 
@@ -29,7 +30,7 @@ class TestHelperUtils(TestCase):
         for key in expected_dict[valid_from]:
             OPDictionary.objects.create(auth_route_code=key, route_type=expected_dict[valid_from][key][0],
                                         op_route_code=key, user_route_code=key, created_at=time_at,
-                                        updated_at=time_at, op_program=op_program)
+                                        op_program=op_program)
         query = get_op_routes_dict()
         self.assertEqual(expected_dict, query)
         op_program.delete()
@@ -147,9 +148,38 @@ class TestHelperUtils(TestCase):
                                   {'value': 55, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
                                   {'value': 56, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
                                   {'value': 57, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
-                                  {'value': 58, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]
+                                  {'value': 58, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'},
+                                  {'value': 1, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
+                                  {'value': 2, 'item': 'Nocturno (01:00:00-05:29:59)'},
+                                  {'value': 3, 'item': 'Transición nocturno (05:30:00-06:29:59)'},
+                                  {'value': 4, 'item': 'Punta mañana (06:30:00-08:29:59)'},
+                                  {'value': 5, 'item': 'Transición punta mañana (08:30:00-09:29:59)'},
+                                  {'value': 6, 'item': 'Fuera de punta mañana (09:30:00-12:29:59)'},
+                                  {'value': 7, 'item': 'Punta mediodia (12:30:00-13:59:59)'},
+                                  {'value': 8, 'item': 'Fuera de punta tarde (14:00:00-17:29:59)'},
+                                  {'value': 9, 'item': 'Punta tarde (17:30:00-20:29:59)'},
+                                  {'value': 10, 'item': 'Transición punta tarde (20:30:00-21:29:59)'},
+                                  {'value': 11, 'item': 'Fuera de punta nocturno (21:30:00-22:59:59)'},
+                                  {'value': 12, 'item': 'Pre nocturno (23:00:00-23:59:59)'},
+                                  {'value': 13, 'item': 'Pre nocturno sábado (00:00:00-00:59:59)'},
+                                  {'value': 14, 'item': 'Nocturno sábado (01:00:00-05:29:59)'},
+                                  {'value': 15, 'item': 'Transición sábado mañana (05:30:00-06:29:59)'},
+                                  {'value': 16, 'item': 'Punta mañana sábado (06:30:00-10:59:59)'},
+                                  {'value': 17, 'item': 'Mañana sábado (11:00:00-13:29:59)'},
+                                  {'value': 18, 'item': 'Punta mediodia sábado (13:30:00-17:29:59)'},
+                                  {'value': 19, 'item': 'Tarde sábado (17:30:00-20:29:59)'},
+                                  {'value': 20, 'item': 'Transición sábado nocturno (20:30:00-22:59:59)'},
+                                  {'value': 21, 'item': 'Pre nocturno sábado (23:00:00-23:59:59)'},
+                                  {'value': 22, 'item': 'Pre nocturno domingo (00:00:00-00:59:59)'},
+                                  {'value': 23, 'item': 'Nocturno domingo (01:00:00-05:29:59)'},
+                                  {'value': 24, 'item': 'Transición domingo mañana (05:30:00-09:29:59)'},
+                                  {'value': 25, 'item': 'Mañana domingo (09:30:00-13:29:59)'},
+                                  {'value': 26, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
+                                  {'value': 27, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
+                                  {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
+                                  {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]
 
-        self.assertEqual(expected_list_period_1, get_timeperiod_list_for_select_input())
+        self.assertListEqual(expected_list_period_1, get_timeperiod_list_for_select_input())
 
         expected_dict_period_1 = {1: 'Pre nocturno (00:00:00-00:59:59)', 2: 'Nocturno (01:00:00-05:29:59)',
                                   3: 'Transición nocturno (05:30:00-06:29:59)', 4: 'Punta mañana (06:30:00-08:29:59)',
@@ -429,66 +459,42 @@ class TestHelperUtils(TestCase):
         for day in expected_dict['created']:
             OPProgram.objects.get(valid_from=day)
 
-    def test_upload_xlsx_op_dictionary(self):
-        op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        expected_res = {"created": 5, "updated": 0}
-        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
-        created_objects = list(
-            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
-                                              'route_type').order_by('auth_route_code'))
-        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I'},
-                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R'},
-                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_fmisa'},
-                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R_fmisa'},
-                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_cvd'}]
+    def test_upload_csv_op_dictionary(self):
+        file_names = ['diccionario_op_base.csv', 'diccionario_op_base.csv.gz', 'diccionario_op_base.zip']
 
-        self.assertEqual(expected_dict, created_objects)
+        def create_op_program_and_upload(name):
+            op_program = OPProgram.objects.create(valid_from='2020-11-28')
+            file = os.path.join(self.path, name)
+            opened_file = open(file, 'rb')
+            django_file = InMemoryUploadedFile(opened_file, None, name, 'text',
+                                               opened_file.__sizeof__(), None)
+            expected_res = {"created": 7}
+            self.assertEqual(expected_res, upload_csv_op_dictionary(django_file, op_program.id))
+            opened_file.close()
+            op_program.delete()
+
+        for file_name in file_names:
+            create_op_program_and_upload(file_name)
+
+    def test_upload_csv_op_dictionary_error(self):
+        op_program = OPProgram.objects.create(valid_from='2020-01-01')
+        file = os.path.join(self.path, 'diccionario_op_base_error.csv')
+        opened_file = open(file, 'rb')
+        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base_error.csv', 'text',
+                                           opened_file.__sizeof__(), None)
+
+        with self.assertRaises(IndexError):
+            upload_csv_op_dictionary(django_file, op_program.id)
         op_program.delete()
 
-    def test_upload_xlsx_op_dictionary_update(self):
-        op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        file = os.path.join(self.path, 'diccionario_op_base.xlsx')
-        expected_res = {"created": 5, "updated": 0}
-        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
-        expected_res = {"created": 1, "updated": 2}
-        file = os.path.join(self.path, 'diccionario_op_base_2.xlsx')
-        self.assertEqual(expected_res, upload_xlsx_op_dictionary(file, op_program.id))
-        created_objects = list(
-            OPDictionary.objects.all().values('auth_route_code', 'op_route_code', 'user_route_code',
-                                              'route_type').order_by('auth_route_code'))
-        expected_dict = [{'auth_route_code': 'F41 00I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I'},
-                         {'auth_route_code': 'F41 00R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R'},
-                         {'auth_route_code': 'F41 06I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_fmisa'},
-                         {'auth_route_code': 'F41 06R', 'op_route_code': 'F41R', 'user_route_code': '101',
-                          'route_type': '101R_fmisa'},
-                         {'auth_route_code': 'F41 08I', 'op_route_code': 'F41I', 'user_route_code': '101',
-                          'route_type': '101I_cvd'},
-                         {'auth_route_code': 'T558 00I', 'op_route_code': '558I', 'user_route_code': '118',
-                          'route_type': '118I'}]
+    def test_upload_csv_op_dictionary_wrong_op(self):
+        file = os.path.join(self.path, 'diccionario_op_base_error.csv')
+        opened_file = open(file, 'rb')
+        django_file = InMemoryUploadedFile(opened_file, None, 'diccionario_op_base_error.csv', 'text',
+                                           opened_file.__sizeof__(), None)
 
-        self.assertEqual(expected_dict, created_objects)
-        op_program.delete()
-
-    def test_upload_xlsx_op_dictionary_error(self):
-        op_program = OPProgram.objects.create(valid_from='2020-01-01')
-        file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
-        with self.assertRaises(ValueError):
-            upload_xlsx_op_dictionary(file, op_program.id)
-        op_program.delete()
-
-    def test_upload_xlsx_op_dictionary_wrong_op(self):
-        file = os.path.join(self.path, 'diccionario_op_base_error.xlsx')
         with self.assertRaises(OPProgram.DoesNotExist):
-            upload_xlsx_op_dictionary(file, -1)
+            upload_csv_op_dictionary(django_file, -1)
 
     def test_get_opprogram_list_for_select_input(self):
         op_program = OPProgram.objects.create(valid_from='2020-01-01')
@@ -553,6 +559,48 @@ class TestHelperUtils(TestCase):
                                {'value': 55, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
                                {'value': 56, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
                                {'value': 57, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
-                               {'value': 58, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]}
+                               {'value': 58, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}],
+                           3: [{'value': 1, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
+                               {'value': 2, 'item': 'Nocturno (01:00:00-05:29:59)'},
+                               {'value': 3, 'item': 'Transición nocturno (05:30:00-06:29:59)'},
+                               {'value': 4, 'item': 'Punta mañana (06:30:00-08:29:59)'},
+                               {'value': 5, 'item': 'Transición punta mañana (08:30:00-09:29:59)'},
+                               {'value': 6, 'item': 'Fuera de punta mañana (09:30:00-12:29:59)'},
+                               {'value': 7, 'item': 'Punta mediodia (12:30:00-13:59:59)'},
+                               {'value': 8, 'item': 'Fuera de punta tarde (14:00:00-17:29:59)'},
+                               {'value': 9, 'item': 'Punta tarde (17:30:00-20:29:59)'},
+                               {'value': 10, 'item': 'Transición punta tarde (20:30:00-21:29:59)'},
+                               {'value': 11, 'item': 'Fuera de punta nocturno (21:30:00-22:59:59)'},
+                               {'value': 12, 'item': 'Pre nocturno (23:00:00-23:59:59)'},
+                               {'value': 13, 'item': 'Pre nocturno sábado (00:00:00-00:59:59)'},
+                               {'value': 14, 'item': 'Nocturno sábado (01:00:00-05:29:59)'},
+                               {'value': 15, 'item': 'Transición sábado mañana (05:30:00-06:29:59)'},
+                               {'value': 16, 'item': 'Punta mañana sábado (06:30:00-10:59:59)'},
+                               {'value': 17, 'item': 'Mañana sábado (11:00:00-13:29:59)'},
+                               {'value': 18, 'item': 'Punta mediodia sábado (13:30:00-17:29:59)'},
+                               {'value': 19, 'item': 'Tarde sábado (17:30:00-20:29:59)'},
+                               {'value': 20, 'item': 'Transición sábado nocturno (20:30:00-22:59:59)'},
+                               {'value': 21, 'item': 'Pre nocturno sábado (23:00:00-23:59:59)'},
+                               {'value': 22, 'item': 'Pre nocturno domingo (00:00:00-00:59:59)'},
+                               {'value': 23, 'item': 'Nocturno domingo (01:00:00-05:29:59)'},
+                               {'value': 24, 'item': 'Transición domingo mañana (05:30:00-09:29:59)'},
+                               {'value': 25, 'item': 'Mañana domingo (09:30:00-13:29:59)'},
+                               {'value': 26, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
+                               {'value': 27, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
+                               {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
+                               {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}],
+                           }
 
-        self.assertEqual(expected_answer, get_periods_dict())
+        self.assertDictEqual(expected_answer, get_periods_dict())
+
+    def test_check_period_list_id(self):
+        correct_period_list = [33, 34, 35, 36, 37, 38, 39]
+        correct_period_id = [2]
+        self.assertEqual(correct_period_id, check_period_list_id(correct_period_list))
+        multiple_period_list = [3, 4, 5, 6, 7, 8, 9]
+        multiple_period_id = [1, 3]
+        self.assertEqual(multiple_period_id, check_period_list_id(multiple_period_list))
+        null_period_list = [420]
+        self.assertEqual([], check_period_list_id(null_period_list))
+        none_period_list = []
+        self.assertEqual([], check_period_list_id(none_period_list))

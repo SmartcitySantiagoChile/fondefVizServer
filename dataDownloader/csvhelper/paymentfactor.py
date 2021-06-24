@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.conf import settings
 
 from dataDownloader.csvhelper.helper import ZipManager, PaymentFactorCSVHelper
@@ -26,4 +23,3 @@ class PaymentFactorData(object):
         files_description = [self.bus_station_dist_file.get_file_description()]
         explanation = self.bus_station_dist_file.get_field_explanation()
         zip_manager.build_readme(help_file_title, "\r\n".join(files_description), data_filter, explanation)
-

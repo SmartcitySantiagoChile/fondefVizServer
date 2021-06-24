@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator

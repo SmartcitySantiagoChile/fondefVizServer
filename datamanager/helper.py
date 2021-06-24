@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 from collections import defaultdict
 
@@ -16,7 +13,7 @@ from dataDownloader.csvhelper.bip import BipData
 from dataDownloader.csvhelper.odbyroute import OdByRouteData
 from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
-from dataDownloader.csvhelper.speed import SpeedData
+from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
 from dataDownloader.csvhelper.trip import TripData
 from dataDownloader.errors import UnrecognizedDownloaderNameError
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
@@ -89,7 +86,7 @@ class ExporterManager(object):
                 downloader_instance = ProfileDataByStop(self.es_query.to_dict())
                 file_type = ExporterJobExecution.PROFILE
             elif downloader == csv_helper.SPEED_MATRIX_DATA:
-                downloader_instance = SpeedData(self.es_query.to_dict())
+                downloader_instance = SpeedDataWithFormattedShape(self.es_query.to_dict())
                 file_type = ExporterJobExecution.SPEED
             elif downloader == csv_helper.TRIP_DATA:
                 downloader_instance = TripData(self.es_query.to_dict())
@@ -256,3 +253,44 @@ class FileManager(object):
                 data_file['docNumber'] = uploaded_files[data_file['name']] if data_file['name'] in uploaded_files else 0
 
         return file_list
+
+    def get_time_period_list_by_file_from_elasticsearch(self, index_filter=None):
+        """
+        Get a dict with time_period list per file
+        Args:
+            index_filter: index to filter query
+        Returns:
+            dict
+        """
+        helpers_dict = {
+            'profile': ESProfileHelper(),
+            'odbyroute': ESODByRouteHelper(),
+            'trip': ESTripHelper()
+        }
+
+        if index_filter is not None:
+            helpers = []
+            for index in index_filter:
+                if index in helpers_dict:
+                    helpers.append(helpers_dict[index])
+        else:
+            helpers = list(helpers_dict.values())
+
+        time_period_by_date_dict = defaultdict(lambda: defaultdict(list))
+        for helper in helpers:
+            file_list = helper.get_all_time_periods().execute().aggregations.to_dict()["time_periods_per_file"][
+                "buckets"]
+            for file in file_list:
+                file_name = file['key']
+                date, index = file_name.split('.')[:2]
+                # skip 2 keys
+                time_period_list = set()
+                for i in range(len(file.keys()) - 2):
+                    time_period_list_aux = set(
+                        time_period["key"] for time_period in file[f"time_periods_{i}"]["buckets"])
+                    time_period_list = time_period_list.union(time_period_list_aux)
+                if -1 in time_period_list:
+                    time_period_list.discard(-1)
+                time_period_by_date_dict[date][index] = list(time_period_list)
+
+        return time_period_by_date_dict

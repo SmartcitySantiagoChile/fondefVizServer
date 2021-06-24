@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.shortcuts import render
 from django.views.generic import View
 
@@ -13,6 +10,29 @@ class LoadProfileByExpeditionHTML(View):
     def get(self, request):
         template = "profile/byExpedition.html"
 
+        indicator_table = '''
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <table id="{0}" class="table table-striped table-bordered dt-responsive table-condensed nowrap">
+                    <thead>
+                        <tr>
+                            <th class="text-center">N° de expediciones</th>
+                            <th class="text-center">% de estimación de bajada</th>
+                            <th class="text-center">CU del perfil con evasión (pax-km/plazas-km)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center"><strong id='expeditionNumber'>-</strong></td>
+                            <td class="text-center"><strong id='boardingWithAlightingPercentage'>-</strong></td>
+                            <td class="text-center"><strong id='utilizationCoefficient'>-</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        '''
+
         context = {
             'data_filter': {
                 'minutes': get_halfhour_list_for_select_input(),
@@ -21,7 +41,7 @@ class LoadProfileByExpeditionHTML(View):
             },
             'tabs': {
                 'header': ['Gráfico', 'Mapa'],
-                'content': ['<div id="barChart" style="height:600px;"></div>',
+                'content': [indicator_table + '<div id="barChart" style="height:600px;"></div>',
                             '<div id="mapid" style="height: 500px;min-height: 500px"></div>']
             }
         }
@@ -102,4 +122,3 @@ class LoadProfileByManyStopsHTML(View):
         }
 
         return render(request, template, context)
-

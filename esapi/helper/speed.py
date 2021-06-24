@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from collections import defaultdict
 from functools import reduce
 
@@ -300,3 +297,4 @@ class ESSpeedHelper(ElasticSearchHelper):
         es_query.aggs.bucket('routes', aggs0).bucket('periods', aggs1).bucket('days', aggs2)
 
         return es_query
+

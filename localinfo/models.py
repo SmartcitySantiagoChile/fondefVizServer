@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -14,22 +11,16 @@ class TimePeriodDate(models.Model):
 
 class TimePeriod(models.Model):
     """ Time period with standard names """
-
     # Type of day: Working day, Saturday, Sunday
     dayType = models.CharField(max_length=8)
-
     # Id which is used on Elastic Search database
     esId = models.IntegerField()
-
     # Period standard name
     authorityPeriodName = models.CharField(max_length=30)
-
     # Initial time for the period
     initialTime = models.TimeField(auto_now=False, auto_now_add=False)
-
     # End time for the period
     endTime = models.TimeField(auto_now=False, auto_now_add=False)
-
     # Date when the period is valid
     date = models.ForeignKey(TimePeriodDate, on_delete=models.CASCADE, verbose_name="Fecha de validez")
 
@@ -39,13 +30,10 @@ class TimePeriod(models.Model):
 
 class Commune(models.Model):
     """ Standard commune data """
-
     # Id which is used on Elastic Search database
     esId = models.IntegerField()
-
     # Commune name on adatrap
     name = models.CharField(max_length=50)
-
     # Commune name, pretty version
     prettyName = models.CharField(max_length=50)
 
@@ -55,20 +43,14 @@ class Commune(models.Model):
 
 class HalfHour(models.Model):
     """ Represents day time ranges by half hours """
-
     # Id which is used on Elastic Search database
     esId = models.IntegerField("Identificador")
-
     # Full half hour representation: HH:MM:00
     name = models.CharField("Nombre", max_length=10)
-
     # Abbr half hour representation: HH:MM
     shortName = models.CharField("Nombre corto", max_length=10)
-
     # full description: [HH:MM-HH:MM)
     longName = models.CharField("Nombre largo", max_length=20)
-
-    authorityPeriodName = models.CharField("Período Transantiago", max_length=50)
 
     def __str__(self):
         return str(self.shortName)
@@ -116,7 +98,6 @@ class GlobalPermissionManager(models.Manager):
 
 class GlobalPermission(Permission):
     """A global permission, not attached to a model"""
-
     objects = GlobalPermissionManager()
 
     class Meta:
@@ -134,7 +115,6 @@ class GlobalPermission(Permission):
 
 class DayDescription(models.Model):
     """color and description for days"""
-
     color = models.CharField(max_length=7)
     description = models.CharField("Descripción", max_length=250)
 
@@ -148,7 +128,6 @@ class DayDescription(models.Model):
 
 class CalendarInfo(models.Model):
     """"Calendar's daydescription information"""
-
     date = models.DateField("Fecha", unique=True)
     day_description = models.ForeignKey(DayDescription, on_delete=models.CASCADE, verbose_name="Descripción de día")
 
@@ -159,7 +138,6 @@ class CalendarInfo(models.Model):
 
 class FAQ(models.Model):
     """Frequently asked questions"""
-
     question = models.TextField("Pregunta")
     answer = models.TextField("Respuesta")
 
@@ -211,13 +189,11 @@ class OPProgram(models.Model):
 
 class OPDictionary(models.Model):
     """Services Operation dictionary"""
-
     auth_route_code = models.CharField("Código transantiago", max_length=30)
     op_route_code = models.CharField("Código de operación", max_length=30)
     user_route_code = models.CharField("Código de usuario", max_length=30, null=True)
     route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
     created_at = models.DateTimeField("Fecha de creación", null=True)
-    updated_at = models.DateTimeField("Fecha de última modificación", null=True)
     op_program = models.ForeignKey(OPProgram, on_delete=models.CASCADE, verbose_name="Programa de operación")
 
     class Meta:

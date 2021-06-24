@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from esapi.errors import FondefVizError
 
 

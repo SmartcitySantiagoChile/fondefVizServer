@@ -291,6 +291,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 DATADOG_TRACE = {
     'DEFAULT_SERVICE': config('DATADOG_SERVICE_NAME'),
     'DEFAULT_DATABASE_PREFIX': config('DATADOG_DB_PREFIX'),

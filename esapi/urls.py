@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
-
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
 from esapi.views.bip import AvailableDays as BAD, BipTransactionByOperatorData
 from esapi.views.odbyroute import AvailableDays as ODAD, AvailableRoutes as ODAR, ODMatrixData
+from esapi.views.opdata import OPDataByAuthRouteCode as ODBAR
 from esapi.views.paymentfactor import AvailableDays as PFAD, PaymentFactorData
 from esapi.views.profile import LoadProfileByStopData, AvailableDays, AvailableRoutes, \
     LoadProfileByExpeditionData, LoadProfileByTrajectoryData, BoardingAndAlightingAverageByStops
@@ -16,7 +14,6 @@ from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, Matr
 from esapi.views.stop import MatchedStopData
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
     TransfersData, MultiRouteData
-from esapi.views.opdata import OPDataByAuthRouteCode as ODBAR
 
 app_name = 'esapi'
 urlpatterns = [

@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+import datetime
+from unittest import mock
+
 import pytz
 
-from testhelper.helper import TestHelper
 from datamanager.helper import FileManager
-from unittest import mock
-import datetime
+from testhelper.helper import TestHelper
 
 
 class TestFileManager(TestHelper):
@@ -80,7 +80,6 @@ class TestFileManager(TestHelper):
              'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 822000, tzinfo=pytz.utc),
              'lastModified': datetime.datetime(
                  2020, 3, 25, 15, 25, 56, 761000, tzinfo=pytz.utc), 'lines': 5892312, 'id': 4, 'lastExecution': None}]}
-
         self.assertEqual(filter_bip_expected, self.file_manager._get_file_list(index_filter=['bip']))
 
     @mock.patch('datamanager.helper.ESBipHelper')
@@ -187,7 +186,6 @@ class TestFileManager(TestHelper):
                  'lastModified': datetime.datetime(
                      2020, 3, 26, 13, 15, 24, 266000, tzinfo=pytz.utc), 'lines': 0, 'id': 10, 'lastExecution': None,
                  'docNumber': 0}]}
-
         self.assertEqual(expected, self.file_manager.get_file_list())
 
         stop_expected = {
@@ -196,5 +194,35 @@ class TestFileManager(TestHelper):
                  'discoveredAt': datetime.datetime(2020, 9, 11, 20, 57, 58, 369000, tzinfo=pytz.utc),
                  'lastModified': datetime.datetime(
                      2019, 11, 29, 16, 9, 36, tzinfo=pytz.utc), 'lines': 917, 'id': 1, 'lastExecution': None,
-                 'docNumber': 0}]}
+                 'docNumber': 0}
+            ]
+        }
         self.assertEqual(stop_expected, self.file_manager.get_file_list(index_filter=['stop']))
+
+    @mock.patch('datamanager.helper.ESODByRouteHelper')
+    @mock.patch('datamanager.helper.ESTripHelper')
+    @mock.patch('datamanager.helper.ESProfileHelper')
+    def test_get_time_period_list_by_file_from_elasticsearch(self, profile, trip, odbyroute):
+        expected = {"01-01-2020":
+                        {"profile": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}
+                    }
+        file_list = [{
+            "key": "01-01-2020.profile",
+            "time_periods_0": {
+                "buckets":
+                    [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 4}, {"key": 5}, {"key": 6}, {"key": 7}]
+            },
+            "time_periods_1": {
+                "buckets":
+                    [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 11}, {"key": 10}, {"key": 9}, {"key": 8}]
+            },
+            "dead_key": {}
+        }]
+        to_dict = {"time_periods_per_file": {"buckets": file_list}}
+        aggregations = mock.MagicMock(to_dict=mock.MagicMock(return_value=to_dict))
+        execute = mock.MagicMock(aggregations=aggregations)
+        get_all_time_periods = mock.MagicMock(execute=mock.MagicMock(return_value=execute))
+        profile.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
+        trip.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
+        odbyroute.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
+        self.assertEqual(expected, self.file_manager.get_time_period_list_by_file_from_elasticsearch())

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django import template
 from django.utils.html import mark_safe
 
@@ -8,7 +6,6 @@ register = template.Library()
 
 @register.simple_tag
 def tabs(header_list, content_list):
-
     tab_children = ''
     for index, header in enumerate(header_list):
         tab_class = ''

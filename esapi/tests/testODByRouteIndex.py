@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -74,11 +72,11 @@ class ESODByRouteIndexTest(TestCase):
                         {'bool':
                              {'filter':
                                   [{'terms': {'operator': [1, 2, 3]}},
-                                   {'term': {'authRouteCode': u'route'}},
+                                   {'term': {'authRouteCode': 'route'}},
                                    {'terms': {'timePeriodInStopTime': [1, 2]}},
-                                   {'terms': {'dayType': [u'LABORAL']}},
-                                   {'range': {'date': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d',
-                                                       u'lte': u'2018-02-01||/d', u'format': u'yyyy-MM-dd'}}}]}}}
+                                   {'terms': {'dayType': ['LABORAL']}},
+                                   {'range': {'date': {'time_zone': '+00:00', 'gte': '2018-01-01||/d',
+                                                       'lte': '2018-02-01||/d', 'format': 'yyyy-MM-dd'}}}]}}}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -163,3 +161,9 @@ class ESODByRouteIndexTest(TestCase):
         valid_operator_list = [1, 2, 3]
         self.assertRaises(ESQueryResultEmpty, self.instance.get_od_data, auth_route_code, time_periods, day_type,
                           dates, valid_operator_list)
+
+    def test_get_all_time_periods(self):
+        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path', 'size': 5000}, 'aggs': {
+            'time_periods_0': {'terms': {'field': 'timePeriodInStopTime'}}}}}, 'from': 0, 'size': 0}
+        result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)

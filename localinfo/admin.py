@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth.admin import UserAdmin
@@ -45,7 +42,7 @@ class OperatorAdmin(admin.ModelAdmin):
 
 class HalfHourAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ('authorityPeriodName', 'name', 'shortName', 'longName')
+    list_display = ('name', 'shortName', 'longName')
     list_display_links = None
 
     def has_add_permission(self, request):
@@ -95,9 +92,9 @@ class FAQSAdmin(admin.ModelAdmin):
 
 class CustomOPDictionaryAdmin(admin.ModelAdmin):
     actions = None
-    search_fields = ['auth_route_code', 'user_route_code', 'op_route_code', 'route_type']
+    search_fields = ['auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'op_program__valid_from']
     list_display = (
-        'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'updated_at', 'op_program')
+        'auth_route_code', 'user_route_code', 'op_route_code', 'route_type', 'created_at', 'op_program')
 
 
 admin.site.register(Operator, OperatorAdmin)

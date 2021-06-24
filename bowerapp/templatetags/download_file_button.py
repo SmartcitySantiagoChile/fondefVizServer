@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django import template
 from django.urls import reverse
 from django.utils import timezone

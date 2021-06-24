@@ -24,13 +24,13 @@
 
     <div class="row">
         {% tabs tabs.header tabs.content as profile_tabs %}
-        {% panel "fa-bar-chart" "Perfil de carga <small>con <strong id='expeditionNumber'>N</strong> expediciones</small>" profile_tabs info_target_id="chartHelp" as panel4 %}
+        {% panel "fa-bar-chart" "Perfil de carga" profile_tabs info_target_id="chartHelp" as panel4 %}
         {% columns 12 12 12 panel4 %}
     </div>
 
     <div class="row">
         {% table "expeditionDetail" 7 as expeditionTable %}
-        {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">N</strong>)' expeditionTable info_target_id="tableHelp" as panel5 %}
+        {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">-</strong>)' expeditionTable info_target_id="tableHelp" as panel5 %}
         {% columns 12 12 12 panel5 %}
 
     </div>

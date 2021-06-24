@@ -1,14 +1,19 @@
-# -*- coding: utf-8 -*-
+import csv
+import gzip
+import io
+import os
+import zipfile
 from collections import defaultdict
 from datetime import date as dt
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import transaction
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat, Cast
 from django.utils import timezone
-from openpyxl import load_workbook
 
 from esapi.helper.opdata import ESOPDataHelper
 from localinfo.models import Operator, Commune, DayType, HalfHour, TimePeriod, TransportMode, GlobalPermission, \
@@ -162,48 +167,46 @@ def get_valid_time_period_date(date_list):
     return True, period_date_valid
 
 
-def upload_xlsx_op_dictionary(xlsx_file, op_program_id):
-    op_program = OPProgram.objects.get(id=op_program_id)
+def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str) -> dict:
+    """
+    Upload csv op dictionary to local database
+    Args:
+        csv_file: csv op dictionary InMemoryUploadedFile
+        op_program_id: op program id
+    """
+    file_name_extension = os.path.splitext(csv_file.name)[1]
+    if file_name_extension == ".gz":
+        csv_file = gzip.open(csv_file)
+    elif file_name_extension == ".zip":
+        zip_file_obj = zipfile.ZipFile(csv_file)
+        file_name = zip_file_obj.namelist()[0]
+        csv_file = zip_file_obj.open(file_name, 'r')
+    csv_file = io.StringIO(csv_file.read().decode('utf-8'))
+    OPProgram.objects.get(id=op_program_id)
     upload_time = timezone.now()
-    to_update = []
+
     to_create = []
-
-    wb = load_workbook(xlsx_file, read_only=True)
-    ws = wb.active
-    key_indexes = [0, 5, 6, 7, 9]
-    first_row = [ws['A2:P2'][0][x] for x in key_indexes]
-    first_row_values = [cell.value for cell in first_row if cell.value is not None]
-
-    if len(first_row_values) < 5:
+    csv_reader = csv.reader(csv_file, delimiter=";")
+    if not csv_reader:
         raise ValueError("Archivo con datos en blanco")
-    for row in ws.iter_rows(min_row=1, max_col=16, values_only=True):
-        if row[0] is None:
-            break
-        if row[4] == 'Vigente':
-            auth_route_code = str(row[9])
-            op_route_code = str(row[7]) + str(row[5])
-            user_route_code = row[6]
-            route_type = row[0]
-            try:
-                op_dict_obj = OPDictionary.objects.get(auth_route_code=auth_route_code, route_type=route_type,
-                                                       op_program=op_program)
-                op_dict_obj.auth_route_code = auth_route_code
-                op_dict_obj.user_route_code = user_route_code
-                op_dict_obj.route_type = route_type
-                op_dict_obj.updated_at = upload_time
-                to_update.append(op_dict_obj)
+    # skip header
+    next(csv_reader)
+    for row in csv_reader:
+        auth_route_code = str(row[11])
+        op_route_code = str(row[9]) + str(row[7])
+        user_route_code = row[8]
+        route_type = row[1]
 
-            except OPDictionary.DoesNotExist:
-                to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
-                                              route_type=route_type, created_at=upload_time,
-                                              updated_at=upload_time,
-                                              auth_route_code=auth_route_code, op_program=op_program))
-    wb.close()
-    OPDictionary.objects.bulk_create(to_create)
-    OPDictionary.objects.bulk_update(to_update,
-                                     ['user_route_code', 'op_route_code', 'route_type', 'updated_at'])
+        if auth_route_code == '' or op_route_code == '' or user_route_code == '' or route_type == '':
+            continue
+        to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
+                                      route_type=route_type, auth_route_code=auth_route_code,
+                                      created_at=upload_time, op_program_id=op_program_id))
+    with transaction.atomic():
+        OPDictionary.objects.filter(op_program_id=op_program_id).delete()
+        OPDictionary.objects.bulk_create(to_create)
 
-    return {"created": len(to_create), "updated": len(to_update)}
+    return {"created": len(to_create)}
 
 
 def synchronize_op_program():
@@ -225,7 +228,8 @@ def get_opprogram_list_for_select_input(to_dict=False):
     parser = _list_parser
     if to_dict:
         parser = _dict_parser
-    return parser(OPProgram.objects.values_list('id').annotate(valid_from=Cast('valid_from', output_field=CharField())))
+    return parser(OPProgram.objects.values_list('id').order_by("valid_from").annotate(
+        valid_from=Cast('valid_from', output_field=CharField())))
 
 
 def get_periods_dict():
@@ -237,6 +241,27 @@ def get_periods_dict():
     for date_id in time_period_date_ids:
         time_period_date_dict.update({date_id: get_timeperiod_list_for_select_input(filter_id=date_id)})
     return time_period_date_dict
+
+
+def check_period_list_id(period_time_list: list) -> list:
+    """
+    Check period time ids of period time list
+    Args:
+        period_time_list: period time list
+
+    Returns: period time list ids
+
+    """
+    if not period_time_list:
+        return []
+    time_period_dict = get_periods_dict()
+    res = []
+    for key in time_period_dict.keys():
+        time_period_dict[key] = [period_dict["value"] for period_dict in time_period_dict[key]]
+    for key, value in time_period_dict.items():
+        if set(period_time_list).issubset(value):
+            res.append(key)
+    return res
 
 
 class PermissionBuilder(object):

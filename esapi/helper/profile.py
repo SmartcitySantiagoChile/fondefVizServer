@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from collections import defaultdict
 from datetime import datetime
 from functools import reduce
@@ -160,7 +157,8 @@ class ESProfileHelper(ElasticSearchHelper):
              'expandedEvasionAlighting',
              'expandedBoardingPlusExpandedEvasionBoarding',
              'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting'])
+             'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod',
+             'passengerWithEvasionPerKmSection', 'capacityPerKmSection'])
 
         return es_query
 
@@ -180,11 +178,20 @@ class ESProfileHelper(ElasticSearchHelper):
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
             metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart']). \
             metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
-            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
-            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
-            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('expandedEvasionAlighting', 'avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg',
+                   field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg',
+                   field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
-            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
+            metric('maxLoadProfileWithEvasion', 'max', field='loadProfileWithEvasion'). \
+            metric('sumLoadProfileWithEvasion', 'sum', field='loadProfileWithEvasion'). \
+            metric('busSaturationWithEvasion', 'bucket_script', script='params.d / params.t',
+                   buckets_path={'d': 'sumLoadProfileWithEvasion', 't': 'sumBusCapacity'}). \
+            metric('boardingWithAlighting', 'sum', field='boardingWithAlighting'). \
+            metric('boarding', 'sum', field='boarding'). \
+            metric('passengerWithEvasionPerKmSection', 'sum', field='passengerWithEvasionPerKmSection'). \
+            metric('capacityPerKmSection', 'sum', field='capacityPerKmSection')
 
         # bus station list
         es_query.aggs.bucket('stop', A('filter', Q('term', busStation=1))). \
@@ -234,11 +241,9 @@ class ESProfileHelper(ElasticSearchHelper):
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
              'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'stopDistanceFromPathStart',
-             'expeditionStopTime', 'notValid', 'expandedEvasionBoarding',
-             'expandedEvasionAlighting',
-             'expandedBoardingPlusExpandedEvasionBoarding',
-             'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting'])
+             'expeditionStopTime', 'notValid', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
+             'expandedBoardingPlusExpandedEvasionBoarding', 'expandedAlightingPlusExpandedEvasionAlighting',
+             'loadProfileWithEvasion', 'boardingWithAlighting'])
 
         return es_query
 
@@ -310,9 +315,11 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('busCapacity', 'avg', field='busCapacity'). \
             metric('tripsCount', 'value_count', field='expandedAlighting'). \
             metric('expandedEvasionBoarding', 'avg', field='expandedEvasionBoarding'). \
-            metric('expandedEvasionAlighting','avg', field='expandedEvasionAlighting'). \
-            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg', field='expandedBoardingPlusExpandedEvasionBoarding'). \
-            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg', field='expandedAlightingPlusExpandedEvasionAlighting'). \
+            metric('expandedEvasionAlighting', 'avg', field='expandedEvasionAlighting'). \
+            metric('expandedBoardingPlusExpandedEvasionBoarding', 'avg',
+                   field='expandedBoardingPlusExpandedEvasionBoarding'). \
+            metric('expandedAlightingPlusExpandedEvasionAlighting', 'avg',
+                   field='expandedAlightingPlusExpandedEvasionAlighting'). \
             metric('loadProfileWithEvasion', 'avg', field='loadProfileWithEvasion'). \
             metric('boardingWithAlighting', 'sum', field='boardingWithAlighting')
         return es_query
@@ -332,4 +339,16 @@ class ESProfileHelper(ElasticSearchHelper):
             })
         aggs = A('terms', field="route", size=5000)
         es_query.aggs.bucket('route', aggs)
+        return es_query
+
+    def get_all_time_periods(self):
+        """
+        Make a query that get all time periods in profile index
+        Returns: ES query
+        """
+        es_query = self.get_base_query()
+        es_query = es_query[:0]
+        es_query_bucket = es_query.aggs.bucket('time_periods_per_file', 'terms', field='path', size=5000)
+        es_query_bucket.bucket('time_periods_0', 'terms', field='timePeriodInStartTime')
+        es_query_bucket.bucket('time_periods_1', 'terms', field='timePeriodInStopTime')
         return es_query

@@ -5,21 +5,25 @@
 {% block body %}
     <p>Este panel muestra un gráfico con varios puntos de información. El título del gráfico es “Perfil de carga para n
         expediciones” donde n corresponde al número de expediciones que cumplen con los filtros seleccionados por el
-        usuario. El eje horizontal muestra los paraderos en orden de aparición en la ruta del servicio. El eje vertical
-        izquierdo muestra el número de pasajeros y el eje vertical derecho muestra el porcentaje de ocupación de 0% a
-        100%.
-    </p>
-    <p> El gráfico muestra subidas por paradero como una barra roja. Las bajadas aparecen por paradero como una barra
-        azul. La carga promedio aparece como una línea celeste. La carga máxima aparece como una línea verde. El
-        porcentaje de ocupación aparece como una línea discontinua de color anaranjado.
-    </p>
-    <p> El usuario puede ver los datos por paradero posicionando el ratón en el gráfico sobre cualquier punto. Aparecerá
-        un cuadro gris con la orden numérica del paradero, su código de paradero de usuario y de Transantiago, y las
-        esquinas del paradero. Además, mostrará las subidas y bajadas (expandidas), las cargas promedio y máxima, y el
-        porcentaje de ocupación.
-    </p>
-    <p> Debajo del gráfico aparecen tres botones para guardar la imagen, ver los datos como texto, y cambiar el
-        porcentaje máximo del eje vertical derecho.
-    </p>
-
+        usuario.</p>
+    <p>El porcentaje de estimación de bajada representa el porcentaje de subidas a las cuales fue posible estimar el
+        lugar de bajada. Se calcula dividiendo el número de subidas con bajada estimada por el total de subidas
+        multiplicado 100.</p>
+    <p>El coeficiente de utilización representa el porcentaje de utilización de la oferta en promedio a lo largo de toda
+        la ruta. Se calcula dividiendo el total de pasajeros-kilómetro por el total de plazas-kilómetro. Ambos totales
+        se obtienen sobre todas las expediciones consideradas en el perfil. Conceptualmente, los pasajeros-kilómetro
+        corresponden a la suma de la distancia viajada por cada pasajero, mientras que las plazas-kilómetro de cada
+        expedición corresponden a la multiplicación de las plazas del bus por la longitud de la ruta.</p>
+    <p>El eje horizontal del gráfico muestra los paraderos en orden de aparición en la ruta del servicio. El eje
+        vertical izquierdo muestra el número de pasajeros y el eje vertical derecho muestra el porcentaje de ocupación
+        de 0% a 100%.</p>
+    <p>El gráfico muestra mediante barras las subidas y bajadas por paradero La carga promedio, y carga máxima aparecen
+        representadas por una línea continua y el porcentaje de ocupación con una línea discontinua. Todas las variables
+        se pueden visualizar considerando evasión activando el switch “Mostrar datos con evasión” o seleccionando cada
+        variable sobre el gráfico.</p>
+    <p>El usuario puede ver las variables activas por paradero posicionando el ratón en el gráfico sobre cualquier
+        punto. Aparecerá un cuadro gris con la orden numérica del paradero, el código de usuario y de Transantiago del
+        paradero, y el nombre del paradero.</p>
+    <p>Debajo del gráfico aparecen tres botones para guardar la imagen, ver los datos como texto, y cambiar el
+        porcentaje máximo del eje vertical derecho.</p>
 {% endblock body %}

@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
-
 from unittest import mock
+
 from django.urls import reverse
 
 from esapi.errors import ESQueryResultEmpty, ESQueryDateParametersDoesNotExist
@@ -169,7 +166,7 @@ class AvailableDaysTest(TestHelper):
             'origin[]': [1, 2, 3],
             'destination[]': [3, 2, 1]
         }
-        expected = {u'availableDays': u'days', u'info': []}
+        expected = {'availableDays': 'days', 'info': []}
         response = self.client.get(self.url, data)
         self.assertNotContains(response, 'status')
         self.assertJSONEqual(response.content, expected)
@@ -270,8 +267,8 @@ class FromToMapDataTest(TestHelper):
             'originOrDestination': '',
         }
         expected = {
-            u'destination_zone': {},
-            u'origin_zone': {}
+            'destination_zone': {},
+            'origin_zone': {}
         }
         response = self.client.get(self.url, data)
         self.assertNotContains(response, 'status')
@@ -292,10 +289,6 @@ class FromToMapDataTest(TestHelper):
             'period[]': [1, 2, 3],
             'stages[]': [1, 2, 3],
             'originOrDestination': '',
-        }
-        expected = {
-            u'destination_zone': {},
-            u'origin_zone': {}
         }
         response = self.client.get(self.url, data)
         self.assertContains(response, 'status')

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import csv
 import os
 import uuid
@@ -317,14 +314,6 @@ class ProfileCSVHelper(CSVHelper):
              'definition': 'identificador de la expedición, es único dentro del día'},
             {'es_name': 'stopDistanceFromPathStart', 'csv_name': 'Distancia_parada_desde_inicio_ruta',
              'definition': 'Distancia en metros entre el inicio de la ruta del servicio y la parada, considera la geometría de la ruta (no es euclidiana)'},
-            {'es_name': 'expandedBoarding', 'csv_name': 'Subidas_expandidas',
-             'definition': 'Número de personas que subieron al bus en la parada, la expansión se realiza por período-servicio-sentido'},
-            {'es_name': 'expandedAlighting', 'csv_name': 'Bajadas_expandidas',
-             'definition': 'Número de personas que bajaron del bus en la parada, la expansión se realiza por período-servicio-sentido'},
-            {'es_name': 'loadProfile', 'csv_name': 'Perfil_carga_al_llegar',
-             'definition': 'Número de personas arriba del bus al llegar a la parada'},
-            {'es_name': 'busCapacity', 'csv_name': 'Capacidad_bus',
-             'definition': 'Número máximo de personas que pueden estar dentro del bus'},
             {'es_name': 'expeditionStopTime', 'csv_name': 'Hora_en_parada',
              'definition': 'Fecha y hora en que la máquina pasó por la parada'},
             {'es_name': 'timePeriodInStartTime', 'csv_name': 'Periodo_transantiago_inicio_expedicion',
@@ -343,11 +332,18 @@ class ProfileCSVHelper(CSVHelper):
              'definition': 'Indica el período de media hora que la expedición pasó por la parada (ejemplo: 16:00:00)'},
             {'es_name': 'notValid', 'csv_name': 'Expedición_inválida',
              'definition': 'Indica si la expedición contiene alguno de los siguientes problemas -> porcentaje de paraderos con carga menor a -1 es superior al 1% o porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%'},
+            {'es_name': 'expandedBoarding', 'csv_name': 'Subidas_expandidas',
+             'definition': 'Número de personas que subieron al bus en la parada, la expansión se realiza por período-servicio-sentido'},
+            {'es_name': 'expandedAlighting', 'csv_name': 'Bajadas_expandidas',
+             'definition': 'Número de personas que bajaron del bus en la parada, la expansión se realiza por período-servicio-sentido'},
+            {'es_name': 'loadProfile', 'csv_name': 'Perfil_carga_al_llegar',
+             'definition': 'Número de personas arriba del bus al llegar a la parada'},
+            {'es_name': 'busCapacity', 'csv_name': 'Capacidad_bus',
+             'definition': 'Número máximo de personas que pueden estar dentro del bus'},
             {'es_name': 'expandedEvasionBoarding', 'csv_name': 'Subidas_evadidas',
              'definition': 'Número de personas que subieron al bus y no pagaron su pasaje.'},
             {'es_name': 'expandedEvasionAlighting', 'csv_name': 'Bajadas_evadidas',
-             'definition': 'Número de personas que bajaron del bus en la parada y no pagaron su pasaje.'
-             },
+             'definition': 'Número de personas que bajaron del bus en la parada y no pagaron su pasaje.'},
             {'es_name': 'expandedBoardingPlusExpandedEvasionBoarding', 'csv_name': 'Subidas_corregidas',
              'definition': 'Número total de personas que subieron al bus incluyendo quienes no pagaron su pasaje.'},
             {'es_name': 'expandedAlightingPlusExpandedEvasionAlighting', 'csv_name': 'Bajadas_corregidas',
@@ -355,7 +351,19 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'loadProfileWithEvasion', 'csv_name': 'Carga_corregida',
              'definition': 'Número de personas arriba del bus al llegar a la parada incluyendo quienes no pagaron su pasaje.'},
             {'es_name': 'boardingWithAlighting', 'csv_name': 'Subidas_con_bajada',
-             'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP'}
+             'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP.'},
+            {'es_name': 'evasionPercent', 'csv_name': '%evasión',
+             'definition': 'Porcentaje de evasión aplicado a las transacciones de la parada-expedición.'},
+            {'es_name': 'evasionType', 'csv_name': 'tipo_evasion',
+             'definition': 'puedes ser tres casos: 0, 1, 2, -1. El primero (0) indica que se usó una evasión a nivel de zonificación 777, el segundo valor (1) indica que se usó un valor de evasión a nivel de parada, y el tercer valor (2) indica que no se encontró un valor para el calculo de evasión. Existe un cuarto valor (-1) que indica que hubo un error con la información de evasión.'},
+            {'es_name': 'uniformDistributionMethod', 'csv_name': 'uniforme',
+             'definition': 'método de distribución uniforme para casos donde no es posible estimar bajada, "0" indica que se usó una distribución uniforme y el valor "1" significa que no se usó distribución uniforme.'},
+            {'es_name': 'passengerPerKmSection', 'csv_name': 'Pax-km_tramo',
+             'definition': 'Carga X distancia entre parada anterior y la del registro'},
+            {'es_name': 'passengerWithEvasionPerKmSection', 'csv_name': 'Pax-km_corregido_tramo',
+             'definition': 'Carga corregida X distancia entre parada anterior y la del registro'},
+            {'es_name': 'capacityPerKmSection', 'csv_name': 'Plazas-km_tramo',
+             'definition': 'Plazas de bus X distancia entre parada anterior y la del registro'},
         ]
 
     def get_data_file_name(self):
@@ -910,3 +918,55 @@ class BipCSVHelper(CSVHelper):
             formatted_row.append(value)
 
         return formatted_row
+
+
+class FormattedShapeCSVHelper(CSVHelper):
+    """ Class that represents a formated shape downloader. """
+
+    def __init__(self, es_client):
+        self.es_shape_helper = ESShapeHelper()
+        CSVHelper.__init__(self, es_client, "", self.es_shape_helper.index_name)
+
+    def get_column_dict(self):
+        """ this class uses this just to build csv header """
+        return [
+            {'es_name': 'route', 'csv_name': 'Servicio_transantiago', 'definition': 'Código transantiago del servicio'},
+            {'es_name': '', 'csv_name': 'Id_segmento', 'definition': 'Id de segmento 500m'},
+            {'es_name': '', 'csv_name': 'Latitud', 'definition': 'Latitud'},
+            {'es_name': '', 'csv_name': 'Longitud', 'definition': 'Longitud'}]
+
+    def get_data_file_name(self):
+        return 'Geometría_servicio_por_tramos.csv'
+
+    def get_file_description(self):
+        description = 'Geometría del servicio dividida por tramos de 500 metros. '
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def get_iterator(self, kwargs):
+        routes = kwargs['routes']
+        start_date = kwargs['start_date']
+        end_date = kwargs['end_date']
+
+        return [self.es_shape_helper.get_route_shape(route, [[start_date, end_date]]) for route in routes]
+
+    def row_parser(self, row):
+        rows = []
+        counter = 1
+        route = row['authRouteCode']
+        points = row['points']
+
+        rows.append([route, counter, points[0]['latitude'], points[0]['longitude']])
+        for point in points[1:]:
+            row = [route, counter, point['latitude'], point['longitude']]
+            if point['segmentStart'] == 1:
+                rows.append(row)
+                counter += 1
+                row = [route, counter, point['latitude'], point['longitude']]
+                rows.append(row)
+            else:
+                rows.append(row)
+        last_segment = points[len(points) - 1]
+        if last_segment['segmentStart'] == 1:
+            rows.append([route, counter, last_segment['latitude'], last_segment['longitude']])
+
+        return rows

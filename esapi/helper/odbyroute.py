@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from collections import defaultdict
 from functools import reduce
 
@@ -150,3 +147,14 @@ class ESODByRouteHelper(ElasticSearchHelper):
         matrix.sort(key=lambda e: e['origin']['order'])
 
         return matrix, max_value
+
+    def get_all_time_periods(self):
+        """
+        Make a query that get all time periods in index
+        Returns: ES query
+        """
+        es_query = self.get_base_query()
+        es_query = es_query[:0]
+        es_query.aggs.bucket('time_periods_per_file', 'terms', field='path', size=5000) \
+            .bucket('time_periods_0', 'terms', field='timePeriodInStopTime')
+        return es_query

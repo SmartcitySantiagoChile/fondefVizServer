@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from functools import reduce
 
 from elasticsearch_dsl import A, Q

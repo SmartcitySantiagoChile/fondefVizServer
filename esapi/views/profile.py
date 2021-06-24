@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collections import defaultdict
 
 from django.http import JsonResponse
@@ -197,7 +196,11 @@ class LoadProfileByExpeditionData(View):
                 self.clean_data(hit.expandedEvasionBoarding),
                 self.clean_data(hit.expandedEvasionAlighting),
                 self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
-                self.clean_data(hit.expandedAlightingPlusExpandedEvasionAlighting)
+                self.clean_data(hit.expandedAlightingPlusExpandedEvasionAlighting),
+                self.clean_data(hit.boarding),
+                self.clean_data(hit.boardingWithAlighting),
+                self.clean_data(hit.passengerWithEvasionPerKmSection),
+                self.clean_data(hit.capacityPerKmSection),
             ]
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 

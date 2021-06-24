@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 from django.http import JsonResponse
 from django.views import View
 
-from esapi.helper.stop import ESStopHelper
 from esapi.errors import ESQueryStopPatternTooShort
+from esapi.helper.stop import ESStopHelper
 
 
 class MatchedStopData(View):
@@ -34,4 +31,3 @@ class MatchedStopData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
-

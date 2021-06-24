@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from unittest import mock
+
 from django.test import TestCase
 from elasticsearch_dsl import Search
 
@@ -138,20 +136,22 @@ class ESProfileIndexTest(TestCase):
                                                                          period, half_hour,
                                                                          valid_operator_list)
         expected = {'query': {'bool': {'filter': [{'term': {'fulfillment': 'C'}}, {'terms': {'operator': [1, 2, 3]}},
-                                                  {'term': {'route': u'506 00I'}},
-                                                  {'terms': {'dayType': [u'LABORAL']}},
+                                                  {'term': {'route': '506 00I'}},
+                                                  {'terms': {'dayType': ['LABORAL']}},
                                                   {'terms': {'timePeriodInStartTime': [1, 2, 3]}},
                                                   {'terms': {'halfHourInStartTime': [1, 2, 3]}}, {'range': {
-                'expeditionStartTime': {u'time_zone': u'+00:00', u'gte': u'2018-01-01||/d', u'lte': u'2018-01-02||/d',
-                                        u'format': u'yyyy-MM-dd'}}}, {'term': {'notValid': 0}}]}},
-                    '_source': [u'busCapacity', u'licensePlate', u'route', u'loadProfile', u'expeditionDayId',
-                                u'expandedAlighting', u'expandedBoarding', u'expeditionStartTime', u'expeditionEndTime',
-                                u'authStopCode', u'timePeriodInStartTime', u'dayType', u'timePeriodInStopTime',
-                                u'busStation', u'path', u'notValid', u'expandedEvasionBoarding',
-                                u'expandedEvasionAlighting',
-                                u'expandedBoardingPlusExpandedEvasionBoarding',
-                                u'expandedAlightingPlusExpandedEvasionAlighting', u'loadProfileWithEvasion',
-                                u'boardingWithAlighting']}
+                'expeditionStartTime': {'time_zone': '+00:00', 'gte': '2018-01-01||/d', 'lte': '2018-01-02||/d',
+                                        'format': 'yyyy-MM-dd'}}}, {'term': {'notValid': 0}}]}},
+                    '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
+                                'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
+                                'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
+                                'busStation', 'path', 'notValid', 'expandedEvasionBoarding',
+                                'expandedEvasionAlighting',
+                                'expandedBoardingPlusExpandedEvasionBoarding',
+                                'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+                                'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
+                                'uniformDistributionMethod', 'passengerWithEvasionPerKmSection',
+                                'capacityPerKmSection']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -183,7 +183,17 @@ class ESProfileIndexTest(TestCase):
                                'expandedAlightingPlusExpandedEvasionAlighting': {
                                    'avg': {'field': 'expandedAlightingPlusExpandedEvasionAlighting'}},
                                'loadProfileWithEvasion': {'avg': {'field': 'loadProfileWithEvasion'}},
-                               'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}}}},
+                               'maxLoadProfileWithEvasion': {'max': {'field': 'loadProfileWithEvasion'}},
+                               'sumLoadProfileWithEvasion': {'sum': {'field': 'loadProfileWithEvasion'}},
+                               'busSaturationWithEvasion': {
+                                   'bucket_script': {'script': 'params.d / params.t',
+                                                     'buckets_path': {'d': 'sumLoadProfileWithEvasion',
+                                                                      't': 'sumBusCapacity'}}},
+                               'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}},
+                               'boarding': {'sum': {'field': 'boarding'}},
+                               'passengerWithEvasionPerKmSection': {
+                                   'sum': {'field': 'passengerWithEvasionPerKmSection'}},
+                               'capacityPerKmSection': {'sum': {'field': 'capacityPerKmSection'}}}},
             'stop': {'filter': {'term': {'busStation': 1}},
                      'aggs': {'station': {'terms': {'field': 'authStopCode.raw', 'size': 500}}}}}, 'from': 0, 'size': 0,
             '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
@@ -192,7 +202,8 @@ class ESProfileIndexTest(TestCase):
                         'busStation', 'path', 'notValid', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
                         'expandedBoardingPlusExpandedEvasionBoarding',
                         'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                        'boardingWithAlighting']}
+                        'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent',
+                        'uniformDistributionMethod', 'passengerWithEvasionPerKmSection', 'capacityPerKmSection']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -303,6 +314,14 @@ class ESProfileIndexTest(TestCase):
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_all_auth_routes(self):
-        expected = {'from': 0, 'aggs': {u'route': {'terms': {'field': u'route', 'size': 5000}}}, 'size': 0}
+        expected = {'from': 0, 'aggs': {'route': {'terms': {'field': 'route', 'size': 5000}}}, 'size': 0}
         result = self.instance.get_all_auth_routes().to_dict()
         self.assertDictEqual(result, expected)
+
+    def test_get_all_time_periods(self):
+        expected_query = {'aggs': {'time_periods_per_file': {'terms': {'field': 'path', 'size': 5000}, 'aggs': {
+            'time_periods_0': {'terms': {'field': 'timePeriodInStartTime'}},
+            'time_periods_1': {'terms': {'field': 'timePeriodInStopTime'}}}}}, 'from': 0, 'size': 0}
+
+        result = self.instance.get_all_time_periods().to_dict()
+        self.assertEqual(expected_query, result)

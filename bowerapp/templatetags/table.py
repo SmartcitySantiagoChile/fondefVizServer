@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django import template
 from django.utils.html import format_html, mark_safe
 
@@ -32,14 +30,16 @@ def table(html_id, columns, with_checker=True, data=None):
             rows.append('{0}</tr>'.format(html_row))
 
     html_table = """
-        <table id="{0}" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
-            <thead>
-              <tr>{1}{2}</tr>
-            </thead>
-            <tbody>
-                {3}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="{0}" class="table table-striped table-bordered dt-responsive table-condensed nowrap" width="100%">
+                <thead>
+                  <tr>{1}{2}</tr>
+                </thead>
+                <tbody>
+                    {3}
+                </tbody>
+            </table>
+        </div>
         """
 
     return format_html(html_table, html_id, mark_safe(checker), mark_safe(ths), mark_safe(''.join(rows)))
