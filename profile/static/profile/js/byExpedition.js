@@ -778,7 +778,7 @@ $(document).ready(function () {
         var _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
             boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage || 0;
-            utilizationCoefficient = utilizationCoefficient || _dataManager._utilizationCoefficient;
+            utilizationCoefficient = utilizationCoefficient || _dataManager._utilizationCoefficient || 0;
             $("#expeditionNumber").html(expeditionNumber);
             $("#expeditionNumber2").html(expeditionNumber);
             $("#boardingWithAlightingPercentage").html(Number(boardingWithAlightingPercentage.toFixed(2)).toLocaleString());
