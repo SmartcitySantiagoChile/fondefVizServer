@@ -1,4 +1,4 @@
-{% extends 'profile/base.html' %}
+{% extends 'postproducts/base.html' %}
 {% load static header panel inline_select table columns update_button label data_filter tabs %}
 
 {% block title %}Productos post{% endblock %}
@@ -10,8 +10,7 @@
 
 
 {% block content %}
-    {% label "OBSERVACIÓN: Los datos mostrados a continuación no consideran evasión." "warning" as label %}
-    {% header "Perfil de carga" "por servicio"|add:label %}
+    {% header "Subidas y Bajadas" %}
 
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
     {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
@@ -24,20 +23,13 @@
         {% columns 12 12 12 panel4 %}
     </div>
 
-    <div class="row">
-        {% table "expeditionDetail" 7 as expeditionTable %}
-        {% panel "fa-truck" 'Expediciones (<strong id="expeditionNumber2">-</strong>)' expeditionTable info_target_id="tableHelp" as panel5 %}
-        {% columns 12 12 12 panel5 %}
-
-    </div>
-
     {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
     {% include "help/modal/explanation/profile/by_route/chart.html" with modal_id="chartHelp" %}
     {% include "help/modal/explanation/profile/by_route/table.html" with modal_id="tableHelp" %}
     {{ block.super }}
 {% endblock %}
 
-
 {% block js %}
     {{ block.super }}
+    <script src="{% static "postproducts/js/boardingAndAlightingByZone.js" %}"></script>
 {% endblock %}
