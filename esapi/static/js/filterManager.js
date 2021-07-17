@@ -54,6 +54,7 @@ function FilterManager(opts) {
     var $METRIC_FILTER = $("#metricFilter");
     var $MULTI_STOP_FILTER = $("#multiStopFilter");
     var $MULTI_AUTH_ROUTE_FILTER = $("#multiAuthRouteFilter");
+    var $MULTI_COMMUNE_FILTER = $("#multiCommuneFilter");
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
@@ -61,6 +62,7 @@ function FilterManager(opts) {
     /* LABELS */
 
     var PLACEHOLDER_ALL = "Todos";
+    var PLACEHOLDER_FEMALE_ALL = "Todas";
     var PLACEHOLDER_USER_ROUTE = "Servicio usuario";
     var PLACEHOLDER_AUTH_ROUTE = "Servicio transantiago";
 
@@ -76,6 +78,7 @@ function FilterManager(opts) {
     $BOARDING_PERIOD_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $METRIC_FILTER.select2({placeholder: PLACEHOLDER_ALL});
     $MULTI_AUTH_ROUTE_FILTER.select2({placeholder: PLACEHOLDER_AUTH_ROUTE});
+    $MULTI_COMMUNE_FILTER.select2({placeholder: PLACEHOLDER_FEMALE_ALL});
 
     /* Local Variables */
 
@@ -346,6 +349,12 @@ function FilterManager(opts) {
         $METRIC_FILTER.val(localMetricFilter);
         $METRIC_FILTER.trigger("change");
     }
+    let localCommuneFilter = window.localStorage.getItem("communeFilter");
+    if (localCommuneFilter !== null) {
+        localCommuneFilter = JSON.parse(localCommuneFilter);
+        $MULTI_COMMUNE_FILTER.val(localCommuneFilter);
+        $MULTI_COMMUNE_FILTER.trigger("change");
+    }
 
     /* ACTIVATE UPDATE OF DEFAULT VALUES */
 
@@ -383,6 +392,10 @@ function FilterManager(opts) {
     });
 
     $DAY_FILTER.trigger("change");
+
+    $MULTI_COMMUNE_FILTER.change(function () {
+        window.localStorage.setItem("communeFilter", JSON.stringify($MULTI_COMMUNE_FILTER.val()));
+    });
 
     /* It saves last parameters sent to server */
     var paramsBackup = {};
@@ -482,6 +495,7 @@ function FilterManager(opts) {
         var operator = $OPERATOR_FILTER.val();
         var boardingPeriod = $BOARDING_PERIOD_FILTER.val();
         var metrics = $METRIC_FILTER.val();
+        var communes = $MULTI_COMMUNE_FILTER.val();
         var params = dataUrlParams();
         if (dates) {
             params.dates = JSON.stringify(dates);
@@ -555,6 +569,9 @@ function FilterManager(opts) {
         }
         if (metrics) {
             params.metrics = metrics;
+        }
+        if ($MULTI_COMMUNE_FILTER.length) {
+            params.communes = communes;
         }
 
         if ($MULTI_AUTH_ROUTE_FILTER.length && authRoutes) {
