@@ -14,8 +14,7 @@ $(document).ready(function() {
     };
 
     let opts = {
-      urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),
-      urlRouteData: Urls["esapi:availableProfileRoutes"](),
+      urlFilterData: Urls["esapi:postproductsTransfers"](),
       previousCallData: previousCall,
       afterCallData: afterCall
     };

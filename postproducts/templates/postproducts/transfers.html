@@ -1,5 +1,5 @@
 {% extends 'postproducts/base.html' %}
-{% load static header panel inline_select table columns update_button label data_filter tabs %}
+{% load static header postproducts_data_filter %}
 
 {% block title %}Productos post{% endblock %}
 
@@ -15,17 +15,9 @@
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
     {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
 
-    {% data_filter data_filter True False True False False True False True True True True info_target_id="filterHelp" %}
-
-    <div class="row">
-        {% tabs tabs.header tabs.content as profile_tabs %}
-        {% panel "fa-bar-chart" "Perfil de carga" profile_tabs info_target_id="chartHelp" as panel4 %}
-        {% columns 12 12 12 panel4 %}
-    </div>
+    {% postproducts_data_filter data_filter True True True info_target_id="filterHelp" %}
 
     {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
-    {% include "help/modal/explanation/profile/by_route/chart.html" with modal_id="chartHelp" %}
-    {% include "help/modal/explanation/profile/by_route/table.html" with modal_id="tableHelp" %}
     {{ block.super }}
 {% endblock %}
 
