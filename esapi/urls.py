@@ -13,7 +13,7 @@ from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, Matr
     SpeedVariation
 from esapi.views.stop import MatchedStopData
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, StrategiesData, \
-    TransfersData, MultiRouteData
+    TransfersData, MultiRouteData, PostProductTransfersData as PPTD
 
 app_name = 'esapi'
 urlpatterns = [
@@ -73,6 +73,9 @@ urlpatterns = [
     url(r'^bip/availableDays/$', login_required(BAD.as_view()), name='availableBipDays'),
     url(r'^bip/bipTransactionByOperatorData/$', login_required(BipTransactionByOperatorData.as_view()),
         name='operatorBipData'),
+
+    # post products, it is a mix of indexes
+    url(r'^postproducts/transfers/$', login_required(PPTD.as_view()), name='postproductsTransfers'),
 
     # opdata index
     url(r'^opdata/opDataByAuthRouteCode/', login_required(ODBAR.as_view()), name='opdataAuthRoute'),

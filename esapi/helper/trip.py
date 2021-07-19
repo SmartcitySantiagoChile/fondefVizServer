@@ -547,3 +547,60 @@ class ESTripHelper(ElasticSearchHelper):
         es_query_bucket.bucket('time_periods_4', 'terms', field='periodo_bajada_3')
         es_query_bucket.bucket('time_periods_5', 'terms', field='periodo_bajada_4')
         return es_query
+
+    def get_post_products_transfers_data_query(self, dates, day_types, communes):
+        es_query = self.get_base_query()[:0]
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+
+        # TODO: en los datos de viajes no existen las comunas en las etapas, solo en la subida de la primera etapa y
+        #  bajada de la última etapa
+        """
+        if communes:
+            commune_in_second_stage = Q('terms', comuna_subida_2=communes)
+            commune_in_third_stage = Q('terms', comuna_subida_3=communes)
+            commune_in_fourth_stage = Q('terms', comuna_subida_4=communes)
+            es_query = es_query.filter(commune_in_second_stage | commune_in_third_stage | commune_in_fourth_stage)
+        """
+
+        def add_aggregation(bucket_name, additional_conditions, half_hour_field, alighting_stop):
+            conditions = []
+            conditions += additional_conditions
+            aggregation = A('filter', Q({'bool': {'must': conditions}}))
+
+            transfer_bucket = es_query.aggs.bucket(bucket_name, aggregation)
+            transfer_bucket.bucket('day_type', 'terms', field='tipodia', size=4). \
+                bucket('stop', 'terms', field=alighting_stop, size=48). \
+                bucket('half_hour', 'terms', field=half_hour_field, size=48). \
+                metric('expansion_factor', 'sum', field='factor_expansion')
+
+            return transfer_bucket
+
+        first_condition = [{'range': {'n_etapas': {'gt': 1}}}]
+        second_condition = [{'range': {'n_etapas': {'gt': 2}}}]
+        third_condition = [{'range': {'n_etapas': {'gt': 3}}}]
+
+        # TODO: no está la media hora de subida para las etapas, solo está la media hora de bajadas
+        # TODO: no tengo la fecha del viaje en los datos
+        add_aggregation('first_transfer', first_condition, 'mediahora_bajada_1', 'zona_bajada_1')
+        add_aggregation('second_transfer', second_condition, 'mediahora_bajada_2', 'zona_bajada_2')
+        add_aggregation('third_transfer', third_condition, 'mediahora_bajada_3', 'zona_bajada_3')
+
+        return es_query

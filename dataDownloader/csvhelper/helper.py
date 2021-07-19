@@ -28,6 +28,9 @@ TRIP_DATA = 'trip_data'
 PAYMENT_FACTOR_DATA = 'payment_factor_data'
 BIP_DATA = 'bip'
 
+# post products
+POST_PRODUCTS_TRIP_TRANSFERS_DATA = 'post_products_trip_transfers_data'
+
 
 class WrongFormatterError(Exception):
     pass
@@ -970,3 +973,92 @@ class FormattedShapeCSVHelper(CSVHelper):
             rows.append([route, counter, last_segment['latitude'], last_segment['longitude']])
 
         return rows
+
+
+class PostProductsTripTransferCSVHelper(CSVHelper):
+    """ Class that represents a post product transfers file. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESTripHelper().index_name)
+
+    def get_iterator(self, kwargs):
+        es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
+        es_query = es_query.source(self.get_fields())
+        es_query.params = {'request_timeout': self.timeout, 'size': self.chunk_size}
+
+        return es_query.execute().aggregations
+
+    def download(self, zip_file_obj, **kwargs):
+        tmp_file_name = str(uuid.uuid4())
+        try:
+            with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
+                # added BOM to file to recognize accent in excel files
+                output.write('\ufeff')
+                writer = csv.writer(output, dialect='excel', delimiter=',')
+                writer.writerow(self.get_header())
+
+                for aggregation in self.get_iterator(kwargs):
+                    for doc in aggregation:
+                        print('hola')
+                        row = self.row_parser(doc)
+                        if isinstance(row[0], list):
+                            # there are more than one row in variable
+                            for r in row:
+                                writer.writerow(r)
+                        else:
+                            writer.writerow(row)
+
+            zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
+        finally:
+            os.remove(tmp_file_name)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'fecha_desde', 'csv_name': 'Fecha_desde',
+             'definition': 'Límite inferior del rango de fechas considerado en la consulta'},
+            {'es_name': 'fecha_hasta', 'csv_name': 'Fecha_hasta',
+             'definition': 'Límite superior del rango de fechas considerado en la consulta'},
+            {'es_name': 'tipodia', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'paradero_subida', 'csv_name': 'Parada_subida',
+             'definition': 'Código transantiago de la parada donde inició el viaje'},
+            {'es_name': 'comuna_subida', 'csv_name': 'Comuna_subida',
+             'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
+            {'es_name': 'mediahora_subida', 'csv_name': 'Media_hora_subida',
+             'definition': 'Tramo de media hora en que inició el viaje'},
+            {'es_name': 'ntransbordos', 'csv_name': 'Número_transbordos',
+             'definition': 'Números de transbordos realizados'},
+            # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
+            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
+             'definition': 'Fecha y hora en que se inició el viaje'},
+        ]
+
+    def get_data_file_name(self):
+        return 'Transbordos.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa un conjunto de transbordos en una parada.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'tipodia':
+                    value = self.day_type_dict[value]
+                elif column_name == 'mediahora_subida':
+                    value = self.halfhour_dict[value]
+                elif column_name == 'comuna_subida':
+                    value = self.commune_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+
+            formatted_row.append(value)
+
+        return formatted_row
