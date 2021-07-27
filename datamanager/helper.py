@@ -27,6 +27,7 @@ from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.stage import ESStageHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.trip import ESTripHelper
@@ -34,31 +35,48 @@ from rqworkers.killClass import KillJob
 from rqworkers.tasks import upload_file_job, export_data_job
 
 
-def get_util_helpers(file_path):
-    """ return a list of helpers that match with file extension """
-    file_extension = os.path.basename(file_path).split('.')[1]
+class ESHelperManager:
 
-    helpers = [
-        ESStopByRouteHelper(),
-        ESStopHelper(),
-        ESProfileHelper(),
-        ESSpeedHelper(),
-        ESTripHelper(),
-        ESShapeHelper(),
-        ESODByRouteHelper(),
-        ESResumeStatisticHelper(),
-        ESPaymentFactorHelper(),
-        ESBipHelper(),
-        ESOPDataHelper()
-    ]
+    def __init__(self):
+        self.helpers_dict = {
+            'stop': ESStopHelper(),
+            'stopbyroute': ESStopByRouteHelper(),
+            'profile': ESProfileHelper(),
+            'speed': ESSpeedHelper(),
+            'trip': ESTripHelper(),
+            'shape': ESShapeHelper(),
+            'odbyroute': ESODByRouteHelper(),
+            'general': ESResumeStatisticHelper(),
+            'paymentfactor': ESPaymentFactorHelper(),
+            'bip': ESBipHelper(),
+            'opdata': ESOPDataHelper(),
+            'stage': ESStageHelper()
+        }
 
-    result_helpers = []
+    def get_helper_from_index_name(self, index_name=None):
+        try:
+            return self.helpers_dict[index_name]
+        except KeyError:
+            raise ValueError('index name "{0}" does not exist'.format(index_name))
 
-    for helper in helpers:
-        if file_extension in helper.file_extensions:
-            result_helpers.append(helper)
+    def get_helpers_from_file_path(self, file_path):
+        """ return a list of helpers that match with file extension """
+        file_extension = os.path.basename(file_path).split('.')[1]
 
-    return result_helpers
+        result_helpers = []
+        for helper in self.helpers_dict.values():
+            if file_extension in helper.file_extensions:
+                result_helpers.append(helper)
+
+        return result_helpers
+
+    def get_all_helpers(self):
+        return list(self.helpers_dict.values())
+
+    def get_index_name_from_file_extension(self, file_extension):
+        for helper in self.helpers_dict.values():
+            if file_extension in helper.file_extensions:
+                return helper.index_name
 
 
 class ExporterManager(object):
@@ -114,6 +132,7 @@ class UploaderManager(object):
     def __init__(self, file_name):
         self.file_name = file_name
         self.index = self.file_name.split('.')[1]
+        self.es_helper_manager = ESHelperManager()
 
     def upload_data(self):
         with transaction.atomic():
@@ -128,7 +147,8 @@ class UploaderManager(object):
                 raise ThereIsPreviousJobUploadingTheFileError()
 
             file_path = os.path.join(file_path_obj.dataSourcePath, self.file_name)
-            job = upload_file_job.delay(file_path, [helper.index_name for helper in get_util_helpers(file_path)])
+            job = upload_file_job.delay(file_path, [helper.index_name for helper in
+                                                    self.es_helper_manager.get_helpers_from_file_path(file_path)])
 
             UploaderJobExecution.objects.create(enqueueTimestamp=timezone.now(), jobId=job.id,
                                                 status=UploaderJobExecution.ENQUEUED, file=file_path_obj)
@@ -140,7 +160,7 @@ class UploaderManager(object):
     def delete_data(self):
         result = None
         error_instance = None
-        for helper in get_util_helpers(self.file_name):
+        for helper in self.es_helper_manager.get_helpers_from_file_path(self.file_name):
             try:
                 result = helper.delete_data_by_file(self.file_name)
             except Exception as e:
@@ -187,46 +207,36 @@ class UploaderManager(object):
 
 class FileManager(object):
 
+    def __init__(self):
+        self.es_helper_manager = ESHelperManager()
+
     def _get_file_list(self, index_filter=None):
         """ list all files in directory with a given code """
         file_dict = defaultdict(list)
         if index_filter:
             query = Q()
             for index in index_filter:
-                query |= Q(fileName__contains=index)
+                for file_extension in self.es_helper_manager.get_helper_from_index_name(index).file_extensions:
+                    query |= Q(fileName__contains=file_extension)
             objects = LoadFile.objects.filter(query)
         else:
             objects = LoadFile.objects.all()
 
         for file_obj in objects:
             serialized_file = file_obj.get_dictionary()
-            index_name = file_obj.fileName.split('.')[1]
+            file_extension = file_obj.fileName.split('.')[1]
+            index_name = self.es_helper_manager.get_index_name_from_file_extension(file_extension)
             file_dict[index_name].append(serialized_file)
 
         return file_dict
 
     def get_document_number_by_file_from_elasticsearch(self, file_filter=None, index_filter=None):
-        helpers_dict = {
-            'stop': ESStopHelper(),
-            'stopbyroute': ESStopByRouteHelper(),
-            'profile': ESProfileHelper(),
-            'speed': ESSpeedHelper(),
-            'trip': ESTripHelper(),
-            'shape': ESShapeHelper(),
-            'odbyroute': ESODByRouteHelper(),
-            'general': ESResumeStatisticHelper(),
-            'paymentfactor': ESPaymentFactorHelper(),
-            'bip': ESBipHelper(),
-            'opdata': ESOPDataHelper()
-        }
-
         if index_filter is not None:
             helpers = []
             for index in index_filter:
-                if index in helpers_dict:
-                    helpers.append(helpers_dict[index])
+                helpers.append(self.es_helper_manager.get_helper_from_index_name(index))
         else:
-            helpers = list(helpers_dict.values())
+            helpers = self.es_helper_manager.get_all_helpers()
 
         if file_filter is not None:
             if isinstance(file_filter, list):
