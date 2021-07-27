@@ -3,6 +3,7 @@ import os
 import uuid
 import zipfile
 
+from django.utils.dateparse import parse_date
 from elasticsearch_dsl import Search
 
 from dataDownloader.errors import FilterHasToBeListError
@@ -154,6 +155,9 @@ class CSVHelper:
                 elif field in ['halfHourInStartTime', 'halfHourInStopTime', 'mediahora_bajada_1',
                                'mediahora_bajada_2', 'mediahora_bajada_3', 'mediahora_bajada_4']:
                     values = [self.halfhour_dict[int(x)] for x in values]
+                elif field in ['boardingStopCommune']:
+                    values = [self.commune_dict[int(x)] for x in values]
+
                 field = 'authStopCode' if field == 'authStopCode.raw' else field
 
                 formatted_values = []
@@ -170,17 +174,28 @@ class CSVHelper:
                 keys = list(query_filter['range'][field])
                 gte = query_filter['range'][field]["gte"] if 'gte' in keys else None
                 lte = query_filter['range'][field]["lte"] if 'lte' in keys else None
-                gte_lte_array = [gte, lte]
-                length = len(keys)
+                lt = query_filter['range'][field]["lt"] if 'lt' in keys else None
+                gt = query_filter['range'][field]["gt"] if 'gt' in keys else None
                 attr_filter = {'field': self.translator[field]}
-                type_args = type(gte) if length > 1 else type(query_filter['range'][field][keys[0]])
-                gte_lte_array = list(map(lambda x: x.replace("||/d", "") if type_args is str else x, gte_lte_array))
-                if length > 1:
-                    if type_args is str:
-                        attr_filter['value'] = \
-                            'entre {0} 00:00:00 y {1} 23:59:59'.format(gte_lte_array[0], gte_lte_array[1])
+                compare_values = list(map(lambda x: x.replace("||/d", "") if type(x) is str else x, [gte, lte, gt, lt]))
+                if None not in compare_values[0:2]:
+                    lower_bound = compare_values[0]
+                    upper_bound = compare_values[1]
+                    values_are_dates = True
+                    try:
+                        parse_date(lower_bound)
+                        parse_date(upper_bound)
+                    except ValueError:
+                        values_are_dates = False
+
+                    if values_are_dates:
+                        attr_filter['value'] = 'entre {0} 00:00:00 y {1} 23:59:59'.format(lower_bound, upper_bound)
                     else:
-                        attr_filter['value'] = 'entre {0} y {1}'.format(gte_lte_array[0], gte_lte_array[1])
+                        attr_filter['value'] = 'entre {0} y {1}'.format(lower_bound, upper_bound)
+                elif compare_values[2] is not None:
+                    attr_filter['value'] = 'mayor que {0}'.format(compare_values[2])
+                elif compare_values[3] is not None:
+                    attr_filter['value'] = 'menor que {0}'.format(compare_values[3])
                 else:
                     attr_filter['value'] = query_filter['range'][field][keys[0]]
 
