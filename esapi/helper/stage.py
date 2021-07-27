@@ -62,6 +62,7 @@ class ESStageHelper(ElasticSearchHelper):
         bucket_name = 'result'
         es_query.aggs.bucket(bucket_name, aggregation). \
             bucket('boardingStopCommune', 'terms', field='boardingStopCommune', size=48). \
+            bucket('authStopCode', 'terms', field='authStopCode', size=13000). \
             bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \
             metric('expandedBoarding', 'avg', field='expandedBoarding')
 

@@ -12,6 +12,7 @@ from esapi.helper.paymentfactor import ESPaymentFactorHelper
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.stage import ESStageHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.trip import ESTripHelper
 from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_list_for_select_input, \
@@ -979,12 +980,12 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
     """ Class that represents a post product stage transfers file. """
 
     def __init__(self, es_client, es_query):
-        CSVHelper.__init__(self, es_client, es_query, ESTripHelper().index_name)
+        CSVHelper.__init__(self, es_client, es_query, ESStageHelper().index_name)
+        self.start_date = es_query['query']['bool']['filter'][0]['range']['boardingTime']['gte'].split('||')[0]
+        self.end_date = es_query['query']['bool']['filter'][0]['range']['boardingTime']['lte'].split('||')[0]
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
-        import json
-        print(json.dumps(es_query.execute().to_dict(), indent=4, sort_keys=True))
         return es_query.execute().aggregations
 
     def download(self, zip_file_obj, **kwargs):
@@ -997,9 +998,7 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
                 writer.writerow(self.get_header())
 
                 for aggregation in self.get_iterator(kwargs):
-                    print(aggregation.buckets)
                     for doc in aggregation:
-                        print('hola')
                         row = self.row_parser(doc)
                         if isinstance(row[0], list):
                             # there are more than one row in variable
@@ -1042,25 +1041,17 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
         return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
 
     def row_parser(self, row):
-
         formatted_row = []
-        for column_name in self.get_fields():
-            value = row[column_name]
-            try:
-                if column_name == 'dayType':
-                    value = self.day_type_dict[value]
-                elif column_name == 'halfHourInBoardingTime':
-                    value = self.halfhour_dict[value]
-                elif column_name == 'boardingStopCommune':
-                    value = self.commune_dict[value]
-            except KeyError:
-                value = ""
 
-            if isinstance(value, (int, float)):
-                value = str(value)
-            elif value is None:
-                value = ""
-
-            formatted_row.append(value)
+        day_type = self.day_type_dict[row.key]
+        for boarding_stop_commune in row.boardingStopCommune:
+            commune = self.commune_dict[boarding_stop_commune.key]
+            for auth_stop_code in boarding_stop_commune.authStopCode:
+                stop_code = auth_stop_code.key
+                for half_hour_in_boarding_time in auth_stop_code.halfHourInBoardingTime:
+                    half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
+                    row = [self.start_date, self.end_date, day_type, commune, stop_code, half_hour,
+                           str(half_hour_in_boarding_time.doc_count)]
+                    formatted_row.append(row)
 
         return formatted_row
