@@ -29,7 +29,7 @@ PAYMENT_FACTOR_DATA = 'payment_factor_data'
 BIP_DATA = 'bip'
 
 # post products
-POST_PRODUCTS_TRIP_TRANSFERS_DATA = 'post_products_trip_transfers_data'
+POST_PRODUCTS_STAGE_TRANSFERS_DATA = 'post_products_stage_transfers_data'
 
 
 class WrongFormatterError(Exception):
@@ -975,17 +975,16 @@ class FormattedShapeCSVHelper(CSVHelper):
         return rows
 
 
-class PostProductsTripTransferCSVHelper(CSVHelper):
-    """ Class that represents a post product transfers file. """
+class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
+    """ Class that represents a post product stage transfers file. """
 
     def __init__(self, es_client, es_query):
         CSVHelper.__init__(self, es_client, es_query, ESTripHelper().index_name)
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
-        es_query = es_query.source(self.get_fields())
-        es_query.params = {'request_timeout': self.timeout, 'size': self.chunk_size}
-
+        import json
+        print(json.dumps(es_query.execute().to_dict(), indent=4, sort_keys=True))
         return es_query.execute().aggregations
 
     def download(self, zip_file_obj, **kwargs):
@@ -998,6 +997,7 @@ class PostProductsTripTransferCSVHelper(CSVHelper):
                 writer.writerow(self.get_header())
 
                 for aggregation in self.get_iterator(kwargs):
+                    print(aggregation.buckets)
                     for doc in aggregation:
                         print('hola')
                         row = self.row_parser(doc)
@@ -1018,18 +1018,20 @@ class PostProductsTripTransferCSVHelper(CSVHelper):
              'definition': 'Límite inferior del rango de fechas considerado en la consulta'},
             {'es_name': 'fecha_hasta', 'csv_name': 'Fecha_hasta',
              'definition': 'Límite superior del rango de fechas considerado en la consulta'},
-            {'es_name': 'tipodia', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
-            {'es_name': 'paradero_subida', 'csv_name': 'Parada_subida',
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'authStopCode', 'csv_name': 'Parada_subida',
              'definition': 'Código transantiago de la parada donde inició el viaje'},
-            {'es_name': 'comuna_subida', 'csv_name': 'Comuna_subida',
+            {'es_name': 'boardingStopCommune', 'csv_name': 'Comuna_subida',
              'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
-            {'es_name': 'mediahora_subida', 'csv_name': 'Media_hora_subida',
+            {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora_subida',
              'definition': 'Tramo de media hora en que inició el viaje'},
-            {'es_name': 'ntransbordos', 'csv_name': 'Número_transbordos',
+            {'es_name': 'expandedBoarding', 'csv_name': 'Número_transbordos',
              'definition': 'Números de transbordos realizados'},
             # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
-            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
+            {'es_name': 'boardingTime', 'csv_name': 'Tiempo_subida',
              'definition': 'Fecha y hora en que se inició el viaje'},
+            {'es_name': 'stageNumber', 'csv_name': 'Número_etapa',
+             'definition': 'Número de etapa dentro del viaje en que participa el registro'},
         ]
 
     def get_data_file_name(self):
@@ -1045,11 +1047,11 @@ class PostProductsTripTransferCSVHelper(CSVHelper):
         for column_name in self.get_fields():
             value = row[column_name]
             try:
-                if column_name == 'tipodia':
+                if column_name == 'dayType':
                     value = self.day_type_dict[value]
-                elif column_name == 'mediahora_subida':
+                elif column_name == 'halfHourInBoardingTime':
                     value = self.halfhour_dict[value]
-                elif column_name == 'comuna_subida':
+                elif column_name == 'boardingStopCommune':
                     value = self.commune_dict[value]
             except KeyError:
                 value = ""

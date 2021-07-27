@@ -3,8 +3,8 @@ $(document).ready(function() {
 
   // load filters
   (function (){
-    loadAvailableDays(Urls["esapi:availableTripDays"]());
-    loadRangeCalendar(Urls["esapi:availableTripDays"](), {});
+    loadAvailableDays(Urls["esapi:availableStageDays"]());
+    loadRangeCalendar(Urls["esapi:availableStageDays"](), {});
 
     let previousCall = function () {
       console.log("before");
@@ -14,7 +14,7 @@ $(document).ready(function() {
     };
 
     let opts = {
-      urlFilterData: Urls["esapi:postproductsTransfers"](),
+      urlFilterData: Urls["esapi:stageTransfers"](),
       previousCallData: previousCall,
       afterCallData: afterCall
     };

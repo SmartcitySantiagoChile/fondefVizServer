@@ -1,5 +1,10 @@
 from datetime import datetime
+from functools import reduce
 
+from elasticsearch_dsl import A
+from elasticsearch_dsl.query import Q
+
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.basehelper import ElasticSearchHelper
 
 
@@ -24,3 +29,40 @@ class ESStageHelper(ElasticSearchHelper):
             if start_date <= day_obj <= end_date:
                 days_in_between.append(day)
         return days_in_between
+
+    def get_post_products_transfers_data_query(self, dates, day_types, communes):
+        es_query = self.get_base_query()[:0]
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', boardingTime={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+
+        if day_types:
+            es_query = es_query.filter('terms', dayType=day_types)
+
+        if communes:
+            es_query = es_query.filter('terms', boardingStopCommune=communes)
+
+        # it uses only rows when stage value is greater than 1
+        es_query = es_query.filter('range', stageNumber={'gt': 1})
+
+        aggregation = A('terms', field='dayType', size=4)
+        bucket_name = 'result'
+        es_query.aggs.bucket(bucket_name, aggregation). \
+            bucket('boardingStopCommune', 'terms', field='boardingStopCommune', size=48). \
+            bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \
+            metric('expandedBoarding', 'avg', field='expandedBoarding')
+
+        return es_query
