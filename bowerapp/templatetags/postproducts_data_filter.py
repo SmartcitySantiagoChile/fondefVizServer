@@ -18,7 +18,9 @@ def postproducts_data_filter(data_filter,
                              show_commune_filter=False,
                              info_target_id='',
                              show_export_button_1=True,
-                             show_export_button_2=True):
+                             show_export_button_2=True,
+                             export_button_1_label='',
+                             export_button_2_label=''):
     data_filter = [] if data_filter == '' else data_filter
 
     filters = [
@@ -53,13 +55,13 @@ def postproducts_data_filter(data_filter,
     html_buttons = ''
     if show_export_button_1:
         export_btn_js_id = 'btnExportData'
-        export_btn_label = 'Descargar datos por día'
+        export_btn_label = export_button_1_label
         html_export_button = update_button(export_btn_js_id, export_btn_label, 'warning', 'pull-right')
         html_buttons += html_export_button
 
     if show_export_button_2:
         export_btn_js_id = 'btnExportData2'
-        export_btn_label = 'Descargar datos promediados'
+        export_btn_label = export_button_2_label
         html_export_button = update_button(export_btn_js_id, export_btn_label, 'warning', 'pull-right')
         html_buttons += html_export_button
 
