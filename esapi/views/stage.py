@@ -34,6 +34,7 @@ class PostProductTransfersData(View):
         dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
         communes = params.getlist('communes[]', [])
+        aggregate_data = params.get('exportButton2', False)
 
         response = {}
 
@@ -43,8 +44,14 @@ class PostProductTransfersData(View):
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
-                es_query = es_stage_helper.get_post_products_transfers_data_query(dates, day_types, communes)
-                ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_DATA, request.user)
+                if aggregate_data:
+                    es_query = es_stage_helper.get_post_products_aggregated_transfers_data_query(dates, day_types,
+                                                                                                 communes)
+                    ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA,
+                                                          request.user)
+                else:
+                    es_query = es_stage_helper.get_post_products_transfers_data_query(dates, day_types, communes)
+                    ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 pass

@@ -58,6 +58,7 @@ function FilterManager(opts) {
 
     var $BTN_UPDATE_DATA = $("#btnUpdateData");
     var $BTN_EXPORT_DATA = $("#btnExportData");
+    var $BTN_EXPORT_DATA2 = $("#btnExportData2");
 
     /* LABELS */
 
@@ -630,28 +631,58 @@ function FilterManager(opts) {
     // enable modal to export data
     var _makeAjaxCallForExportButton = true;
     var $EXPORT_DATA_MODAL = $("#exportDataModal");
-    $EXPORT_DATA_MODAL.on('show.bs.modal', function () {
-        // accept event
-        $EXPORT_DATA_MODAL.on("click", "button.btn-info", function () {
-            if (_makeAjaxCallForExportButton) {
-                _makeAjaxCallForExportButton = false;
-                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
-                var previousMessage = $BTN_EXPORT_DATA.html();
-                var button = $BTN_EXPORT_DATA.append(loadingIcon);
 
-                var params = getParameters();
-                $.post(urlFilterData, params, function (data) {
-                    if (data.status) {
-                        showMessage(data.status);
-                    }
-                }).always(function () {
-                    _makeAjaxCallForExportButton = true;
-                    button.html(previousMessage);
-                });
-            }
-        });
-    });
     $BTN_EXPORT_DATA.click(function () {
+        $EXPORT_DATA_MODAL.on('show.bs.modal', function () {
+            // accept event
+            $EXPORT_DATA_MODAL.off("click");
+            $EXPORT_DATA_MODAL.on("click", "button.btn-info", function () {
+                if (_makeAjaxCallForExportButton) {
+                    _makeAjaxCallForExportButton = false;
+                    var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+                    var previousMessage = $BTN_EXPORT_DATA.html();
+                    var button = $BTN_EXPORT_DATA.append(loadingIcon);
+
+                    var params = getParameters();
+                    console.log(params);
+                    $.post(urlFilterData, params, function (data) {
+                        if (data.status) {
+                            showMessage(data.status);
+                        }
+                    }).always(function () {
+                        _makeAjaxCallForExportButton = true;
+                        button.html(previousMessage);
+                    });
+                }
+            });
+        });
+        $EXPORT_DATA_MODAL.modal("show");
+    });
+    $BTN_EXPORT_DATA2.click(function () {
+        $EXPORT_DATA_MODAL.on('show.bs.modal', function () {
+            // accept event
+            $EXPORT_DATA_MODAL.off("click");
+            $EXPORT_DATA_MODAL.on("click", "button.btn-info", function () {
+                if (_makeAjaxCallForExportButton) {
+                    _makeAjaxCallForExportButton = false;
+                    var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+                    var previousMessage = $BTN_EXPORT_DATA2.html();
+                    var button = $BTN_EXPORT_DATA2.append(loadingIcon);
+
+                    var params = getParameters();
+                    params.exportButton2 = true;
+                    console.log(params);
+                    $.post(urlFilterData, params, function (data) {
+                        if (data.status) {
+                            showMessage(data.status);
+                        }
+                    }).always(function () {
+                        _makeAjaxCallForExportButton = true;
+                        button.html(previousMessage);
+                    });
+                }
+            });
+        });
         $EXPORT_DATA_MODAL.modal("show");
     });
 

@@ -30,7 +30,7 @@ class ESStageHelper(ElasticSearchHelper):
                 days_in_between.append(day)
         return days_in_between
 
-    def get_post_products_transfers_data_query(self, dates, day_types, communes):
+    def get_transfers_base_query(self, dates, day_types, communes):
         es_query = self.get_base_query()[:0]
 
         combined_filter = []
@@ -58,9 +58,27 @@ class ESStageHelper(ElasticSearchHelper):
         # it uses only rows when stage value is greater than 1
         es_query = es_query.filter('range', stageNumber={'gt': 1})
 
+        return es_query
+
+    def get_post_products_transfers_data_query(self, dates, day_types, communes):
+        es_query = self.get_transfers_base_query(dates, day_types, communes)
+
         aggregation = A('terms', field='dayType', size=4)
         bucket_name = 'result'
         es_query.aggs.bucket(bucket_name, aggregation). \
+            bucket('boardingStopCommune', 'terms', field='boardingStopCommune', size=48). \
+            bucket('authStopCode', 'terms', field='authStopCode', size=13000). \
+            bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \
+            metric('expandedBoarding', 'avg', field='expandedBoarding')
+
+        return es_query
+
+    def get_post_products_aggregated_transfers_data_query(self, dates, day_types, communes):
+        es_query = self.get_transfers_base_query(dates, day_types, communes)
+
+        bucket_name = 'result'
+        es_query.aggs.bucket(bucket_name, 'date_histogram', field='boardingTime', interval='day'). \
+            bucket('dayType', 'terms', field='dayType', size=4). \
             bucket('boardingStopCommune', 'terms', field='boardingStopCommune', size=48). \
             bucket('authStopCode', 'terms', field='authStopCode', size=13000). \
             bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \

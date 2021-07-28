@@ -32,6 +32,7 @@ BIP_DATA = 'bip'
 
 # post products
 POST_PRODUCTS_STAGE_TRANSFERS_DATA = 'post_products_stage_transfers_data'
+POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA = 'post_products_stage_transfers_aggregated_data'
 
 
 class WrongFormatterError(Exception):
@@ -1068,5 +1069,31 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
                     row = [self.start_date, self.end_date, day_type, commune, stop_code, half_hour,
                            str(half_hour_in_boarding_time.doc_count)]
                     formatted_row.append(row)
+
+        return formatted_row
+
+
+class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(PostProductsStageTransferInPeriodCSVHelper):
+    """ Class that represents a post product stage transfers file grouped by date. """
+
+    def get_file_description(self):
+        description = 'Cada línea representa un conjunto de transbordos en una parada por día.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+        formatted_row = []
+        string_date = row.key_as_string.split(' ')[0]
+
+        for day_type in row.dayType:
+            string_day_type = self.day_type_dict[day_type.key]
+            for boarding_stop_commune in day_type.boardingStopCommune:
+                commune = self.commune_dict[boarding_stop_commune.key]
+                for auth_stop_code in boarding_stop_commune.authStopCode:
+                    stop_code = auth_stop_code.key
+                    for half_hour_in_boarding_time in auth_stop_code.halfHourInBoardingTime:
+                        half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
+                        row = [string_date, string_date, string_day_type, commune, stop_code, half_hour,
+                               str(half_hour_in_boarding_time.doc_count)]
+                        formatted_row.append(row)
 
         return formatted_row

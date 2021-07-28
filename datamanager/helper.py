@@ -14,7 +14,7 @@ from dataDownloader.csvhelper.odbyroute import OdByRouteData
 from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
 from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
-from dataDownloader.csvhelper.stage import PostProductStageTransferData
+from dataDownloader.csvhelper.stage import PostProductStageTransferData, PostProductStageTransferAggregatedData
 from dataDownloader.csvhelper.trip import TripData
 from dataDownloader.errors import UnrecognizedDownloaderNameError
 from datamanager.errors import FileDoesNotExistError, ThereIsPreviousJobUploadingTheFileError, \
@@ -118,6 +118,9 @@ class ExporterManager(object):
                 file_type = ExporterJobExecution.BIP
             elif downloader == csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_DATA:
                 downloader_instance = PostProductStageTransferData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.STAGE
+            elif downloader == csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA:
+                downloader_instance = PostProductStageTransferAggregatedData(self.es_query.to_dict())
                 file_type = ExporterJobExecution.STAGE
             else:
                 raise UnrecognizedDownloaderNameError()
