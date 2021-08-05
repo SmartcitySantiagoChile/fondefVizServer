@@ -19,5 +19,12 @@
     "fields": {
       "date": "2020-09-26"
     }
+  },
+  {
+    "model": "localinfo.timeperioddate",
+    "pk": 4,
+    "fields": {
+      "date": "2021-01-01"
+    }
   }
 ]
