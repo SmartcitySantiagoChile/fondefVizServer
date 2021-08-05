@@ -33,6 +33,8 @@ BIP_DATA = 'bip'
 # post products
 POST_PRODUCTS_STAGE_TRANSFERS_DATA = 'post_products_stage_transfers_data'
 POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA = 'post_products_stage_transfers_aggregated_data'
+POST_PRODUCTS_TRIP_TRIP_BETWEEN_ZONES_DATA = 'post_products_trip_trip_between_zones_data'
+POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA = 'post_products_trip_boarding_and_alighting_data'
 
 
 class WrongFormatterError(Exception):
@@ -1094,6 +1096,133 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(PostProductsStageT
                         half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
                         row = [string_date, string_date, string_day_type, commune, stop_code, half_hour,
                                str(half_hour_in_boarding_time.doc_count)]
+                        formatted_row.append(row)
+
+        return formatted_row
+
+
+class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESTripHelper().index_name)
+        self.start_date = es_query['query']['bool']['filter'][0]['range']['tiempo_subida']['gte'].split('||')[0]
+        self.end_date = es_query['query']['bool']['filter'][0]['range']['tiempo_subida']['lte'].split('||')[0]
+
+    def get_iterator(self, kwargs):
+        es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
+        return es_query.execute().aggregations
+
+    def download(self, zip_file_obj, **kwargs):
+        tmp_file_name = str(uuid.uuid4())
+        try:
+            with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
+                # added BOM to file to recognize accent in excel files
+                output.write('\ufeff')
+                writer = csv.writer(output, dialect='excel', delimiter=',')
+                writer.writerow(self.get_header())
+
+                for aggregation in self.get_iterator(kwargs):
+                    for doc in aggregation:
+                        row = self.row_parser(doc)
+                        if isinstance(row[0], list):
+                            # there are more than one row in variable
+                            for r in row:
+                                writer.writerow(r)
+                        else:
+                            writer.writerow(row)
+
+            zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
+        finally:
+            os.remove(tmp_file_name)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'fecha_desde', 'csv_name': 'Fecha_desde',
+             'definition': 'Límite inferior del rango de fechas considerado en la consulta'},
+            {'es_name': 'fecha_hasta', 'csv_name': 'Fecha_hasta',
+             'definition': 'Límite superior del rango de fechas considerado en la consulta'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'startCommune', 'csv_name': 'Comuna_origen', 'definition': 'Comuna de inicio del viaje'},
+            {'es_name': 'endCommune', 'csv_name': 'Comuna_destino', 'definition': 'Comuna de destino del viaje'},
+            {'es_name': 'transportModes', 'csv_name': 'Modos_de_transporte',
+             'definition': 'Modo de viaje: puede ser Metro, Bus, Metrotren o una combinación'},
+            {'es_name': 'halfHour', 'csv_name': 'Media_hora',
+             'definition': 'Media hora del tiempo de inicio del viaje'},
+            {'es_name': 'tripNumber', 'csv_name': 'Cantidad_de_viajes',
+             'definition': 'Suma de viajes expandidos en la agrupación'},
+            {'es_name': 'tripTime', 'csv_name': 'Tiempo_de_viaje', 'definition': 'Tiempo de viaje promedio'},
+            {'es_name': 'tripDistance', 'csv_name': 'Distancia_de_viaje', 'definition': 'Distancia de viaje promedio'},
+            {'es_name': 'speed', 'csv_name': 'Velocidad_de_viaje', 'definition': 'Velocidad de viaje promedio'},
+            # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
+            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
+             'definition': 'Fecha y hora en que se inició el viaje'}
+        ]
+
+    def get_data_file_name(self):
+        return 'Viajes_entre_comunas.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa un conjunto de viajes entre comunas.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+        formatted_row = []
+
+        string_day_type = self.day_type_dict[row.key]
+        for start_commune in row.startCommune:
+            start_commune_str = self.commune_dict[start_commune.key]
+            for end_commune in start_commune.endCommune:
+                end_commune_str = self.commune_dict[end_commune.key]
+                for transport_modes in end_commune.transportModes:
+                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    for half_hour_in_boarding_time in transport_modes.halfHourInBoardingTime:
+                        half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
+                        sum_trip_number = half_hour_in_boarding_time.tripNumber.value
+                        sum_trip_time = half_hour_in_boarding_time.tripTime.value
+                        sum_trip_distance = half_hour_in_boarding_time.tripDistance.value
+
+                        average_time = sum_trip_time / sum_trip_number
+                        average_distance = sum_trip_distance / sum_trip_number
+
+                        row = [self.start_date, self.end_date, string_day_type, start_commune_str, end_commune_str,
+                               transport_modes_str, half_hour, round(sum_trip_number, 2), round(average_time, 2),
+                               round(average_distance, 2), round(sum_trip_distance / sum_trip_time, 2)]
+                        formatted_row.append(row)
+
+        return formatted_row
+
+
+class PostProductTripBoardingAndAlightingCSVHelper(PostProductTripTripBetweenZonesCSVHelper):
+
+    def get_data_file_name(self):
+        return 'Subidas_y_bajadas.csv'
+
+    def get_file_description(self):
+        description = 'Cada línea representa un conjunto de subidas y bajadas por parada.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def row_parser(self, row):
+        formatted_row = []
+
+        string_day_type = self.day_type_dict[row.key]
+        for start_commune in row.startCommune:
+            start_commune_str = self.commune_dict[start_commune.key]
+            for end_commune in start_commune.endCommune:
+                end_commune_str = self.commune_dict[end_commune.key]
+                for transport_modes in end_commune.transportModes:
+                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    for half_hour_in_boarding_time in transport_modes.halfHourInBoardingTime:
+                        half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
+                        sum_trip_number = half_hour_in_boarding_time.tripNumber.value
+                        sum_trip_time = half_hour_in_boarding_time.tripTime.value
+                        sum_trip_distance = half_hour_in_boarding_time.tripDistance.value
+
+                        average_time = sum_trip_time / sum_trip_number
+                        average_distance = sum_trip_distance / sum_trip_number
+
+                        row = [self.start_date, self.end_date, string_day_type, start_commune_str, end_commune_str,
+                               transport_modes_str, half_hour, round(sum_trip_number, 2), round(average_time, 2),
+                               round(average_distance, 2), round(sum_trip_distance / sum_trip_time, 2)]
                         formatted_row.append(row)
 
         return formatted_row

@@ -14,7 +14,7 @@ from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, Matr
 from esapi.views.stage import PostProductTransfersData as PPTD, AvailableDays as StageAD
 from esapi.views.stop import MatchedStopData
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, \
-    StrategiesData, TransfersData, MultiRouteData
+    StrategiesData, TransfersData, MultiRouteData, PostProductTripsBetweenZones, PostProductTripsBoardingAndAlighting
 
 app_name = 'esapi'
 urlpatterns = [
@@ -56,6 +56,10 @@ urlpatterns = [
     url(r'^trip/availableDays/$', login_required(TAD.as_view()), name='availableTripDays'),
     url(r'^trip/transfersData/$', login_required(TransfersData.as_view()), name='transfersData'),
     url(r'^trip/multiRouteData/$', login_required(MultiRouteData.as_view()), name='multiRouteData'),
+    url(r'^trip/postproduct/tripsBetweenZones/$', login_required(PostProductTripsBetweenZones.as_view()),
+        name='postProductTripsBetweenZones'),
+    url(r'^trip/postProduct/boardingAndAlighting$', login_required(PostProductTripsBoardingAndAlighting.as_view()),
+        name='postProductBoardingAndAlighting'),
 
     # stop indes
     url(r'^stop/matchedStopData/$', login_required(MatchedStopData.as_view()), name='matchedStopData'),
@@ -77,7 +81,7 @@ urlpatterns = [
 
     # stage index
     url(r'^stage/availableDays/$', login_required(StageAD.as_view()), name='availableStageDays'),
-    url(r'^stage/transfers/$', login_required(PPTD.as_view()), name='stageTransfers'),
+    url(r'^stage/postProduct/transfers/$', login_required(PPTD.as_view()), name='stageTransfers'),
 
     # opdata index
     url(r'^opdata/opDataByAuthRouteCode/', login_required(ODBAR.as_view()), name='opdataAuthRoute'),
