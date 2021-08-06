@@ -2,7 +2,7 @@ $(document).ready(function () {
     // map stuffs
     var pzaDeArmas = [-33.437824, -70.650439];
     var mbAttr = "flp";
-    var accessToken = "pk.eyJ1IjoiY2VwaGVpIiwiYSI6ImNrMzA0MHlvMjBsbmEzaHIzd24xNGV0NW0ifQ.5yTsjnoXTZ5ihlNbtf8cbw";
+    var accessToken = "pk.eyJ1IjoiYWRhdHJhcCIsImEiOiJja29hdnk4aXYwM3lsMzJuMnhnNW1xb2RlIn0.Fvn0zCbCeXAjMYmDeEqMmw";
     var mbUrl = "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=" + accessToken;
     var black = L.tileLayer(mbUrl, {id: "mapbox.light", attribution: mbAttr});
     var map = L.map("mapid", {
