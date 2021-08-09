@@ -999,8 +999,6 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
 
     def __init__(self, es_client, es_query):
         CSVHelper.__init__(self, es_client, es_query, ESStageHelper().index_name)
-        self.start_date = es_query['query']['bool']['filter'][0]['range']['boardingTime']['gte'].split('||')[0]
-        self.end_date = es_query['query']['bool']['filter'][0]['range']['boardingTime']['lte'].split('||')[0]
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
@@ -1018,12 +1016,15 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
                 for aggregation in self.get_iterator(kwargs):
                     for doc in aggregation:
                         row = self.row_parser(doc)
-                        if isinstance(row[0], list):
-                            # there are more than one row in variable
-                            for r in row:
-                                writer.writerow(r)
-                        else:
-                            writer.writerow(row)
+                        if row:
+                            if isinstance(row[0], list):
+                                # there are more than one row in variable
+                                for r in row:
+                                    # omit start date and end date
+                                    r = r[2:]
+                                    writer.writerow(r)
+                            else:
+                                writer.writerow(row)
 
             zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
         finally:
@@ -1031,11 +1032,7 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
 
     def get_column_dict(self):
         return [
-            {'es_name': 'fecha_desde', 'csv_name': 'Fecha_desde',
-             'definition': 'Límite inferior del rango de fechas considerado en la consulta'},
-            {'es_name': 'fecha_hasta', 'csv_name': 'Fecha_hasta',
-             'definition': 'Límite superior del rango de fechas considerado en la consulta'},
-            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
             {'es_name': 'boardingStopCommune', 'csv_name': 'Comuna_subida',
              'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
             {'es_name': 'authStopCode', 'csv_name': 'Parada_subida',
@@ -1060,7 +1057,6 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
 
     def row_parser(self, row):
         formatted_row = []
-
         day_type = self.day_type_dict[row.key]
         for boarding_stop_commune in row.boardingStopCommune:
             commune = self.commune_dict[boarding_stop_commune.key]
@@ -1068,7 +1064,7 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
                 stop_code = auth_stop_code.key
                 for half_hour_in_boarding_time in auth_stop_code.halfHourInBoardingTime:
                     half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
-                    row = [self.start_date, self.end_date, day_type, commune, stop_code, half_hour,
+                    row = [day_type, commune, stop_code, half_hour,
                            str(half_hour_in_boarding_time.doc_count)]
                     formatted_row.append(row)
 
