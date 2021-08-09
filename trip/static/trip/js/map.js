@@ -508,7 +508,9 @@ function MapApp(opts) {
                       if (bounds === null) {
                         bounds = new mapboxgl.LngLatBounds();
                       } else {
-                        bounds.extend(feature.geometry.coordinates);
+                        feature.geometry.coordinates.forEach(point => {
+                          bounds.extend(point);
+                        });
                       }
                    });
                }
