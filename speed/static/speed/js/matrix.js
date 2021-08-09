@@ -2,66 +2,59 @@
 
 $(document).ready(function () {
 
-    var periods = [
+    let periods = [
         "00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00", "05:30",
         "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
         "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
         "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
     ];
 
-    var selectedSpeed = [];
-    var selectedLayers = [];
-    var layersToChange = [];
-
+    let selectedSpeed = [];
+    let selectedLayers = [];
+    let layersToChange = [];
 
     function DrawSegmentsApp(colorScale, labels) {
-        var _self = this;
+        let _self = this;
 
-        /* map setting */
-        var mapboxKey = "pk.eyJ1IjoiYWRhdHJhcCIsImEiOiJja29hdnk4aXYwM3lsMzJuMnhnNW1xb2RlIn0.Fvn0zCbCeXAjMYmDeEqMmw";
-        var baseLocation = [-33.437824, -70.650439];
-        var mapboxUrl = "https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=" + mapboxKey;
-        var blackLayer = L.tileLayer(mapboxUrl, {
-            id: "mapbox.light",
-            attribution: "flp"
-        });
-        var mapId = "mapid";
-        var map = L.map(mapId, {
-            center: baseLocation,
-            zoom: 15,
-            layers: [blackLayer]
-        });
-        L.control.scale().addTo(map);
+        let mapOpts = {
+          mapId: 'mapid',
+          scaleControl: true,
+          zoomControl: true,
+          tileLayer: 'dark',
+          onLoad: (_mapInstance) => {
+              class SelectSegmentControl {
+                  onAdd(map) {
+                      let div = document.createElement('info');
+                      div.className = 'mapboxgl-ctrl info legend';
+                      div.id = 'button_legend';
+                      div.innerHTML = "<input id='legendButton' type='checkbox' class='form-check-input' " +
+                        "> <label class='form-check-label' for='legendButton'> Selección por tramos</label> ";
+                      return div;
+                  }
 
-        L.Control.selectBySegment = L.Control.extend({
-            onAdd: function (map) {
-                var div = L.DomUtil.create("info", "info legend");
-                div.id = "button_legend";
-                div.innerHTML = "<input id='legendButton' type='checkbox' class='form-check-input' " +
-                    "> <label class='form-check-label' for='legendButton'> Selección por tramos</label> ";
-                return div;
-            },
-        });
+                  onRemove() {
 
-        L.control.selectBySegment = function (opts) {
-            return new L.Control.selectBySegment(opts);
+                  }
+              }
+
+              _mapInstance.addControl(new SelectSegmentControl(), 'top-left');
+          }
         };
+        let _mapApp = new MapApp(mapOpts);
 
-        L.control.selectBySegment({position: 'topleft'}).addTo(map);
+        return;
 
-
-        var colors = colorScale;
+        let colors = colorScale;
 
         /* to draw on map */
-        var startEndSegments = null;
-        var routePoints = null;
-        var segmentPolylineList = [];
-        var decoratorPolylineList = [];
-        var startMarker = null;
-        var endMarker = null;
+        let startEndSegments = null;
+        let routePoints = null;
+        let segmentPolylineList = [];
+        let decoratorPolylineList = [];
+        let startMarker = null;
+        let endMarker = null;
         let lastRoute = null;
         let lastValuesRoute = null;
-
 
         let compareElementsOfArray = function (a, b) {
             let n = Array.from(Array(a.length).keys());
@@ -87,22 +80,22 @@ $(document).ready(function () {
         };
 
         this._buildLegend = function () {
-            var mapLegend = L.control({position: "bottomright"});
+            let mapLegend = L.control({position: "bottomright"});
             mapLegend.onAdd = function (map) {
-                var div = L.DomUtil.create("div", "info legend");
+                let div = L.DomUtil.create("div", "info legend");
                 div.id = "map_legend";
                 div.innerHTML = "Velocidad<br />";
                 // loop through our density intervals and generate a label with a colored square for each interval
-                for (var i = 0; i < colors.length; i++) {
+                for (let i = 0; i < colors.length; i++) {
                     div.innerHTML += "<i style='background:" + colors[i] + "'></i> " + labels[i];
                     div.innerHTML += "<br />";
                 }
                 return div;
             };
             mapLegend.addTo(map);
-            var speedLegend = L.control({position: "topright"});
+            let speedLegend = L.control({position: "topright"});
             speedLegend.onAdd = function (map) {
-                var div = L.DomUtil.create("div", "info legend");
+                let div = L.DomUtil.create("div", "info legend");
                 div.id = "infoLegendButton";
                 div.class = "d-flex justify-content-center";
                 div.style.visibility = "hidden";
@@ -115,16 +108,16 @@ $(document).ready(function () {
 
         this.highlightSegment = function (segmentId) {
 
-            var startIndex = startEndSegments[segmentId][0];
-            var endIndex = startEndSegments[segmentId][1];
+            let startIndex = startEndSegments[segmentId][0];
+            let endIndex = startEndSegments[segmentId][1];
 
             if (startMarker !== null) {
                 map.removeLayer(startMarker);
                 map.removeLayer(endMarker);
             }
 
-            var firstBound = null;
-            var secondBound = null;
+            let firstBound = null;
+            let secondBound = null;
 
             routePoints.forEach(function (el, i) {
                 if (i === startIndex) {
@@ -155,16 +148,16 @@ $(document).ready(function () {
 
             /* create segments with color */
             route.start_end.forEach(function (elem, i) {
-                var start = elem[0];
-                var end = elem[1];
-                var seg = routePoints.slice(start, end + 1);
-                var segpol = new L.Polyline(seg, {
+                let start = elem[0];
+                let end = elem[1];
+                let seg = routePoints.slice(start, end + 1);
+                let segpol = new L.Polyline(seg, {
                     color: colors[valuesRoute[i][0]],
                     weight: 5,
                     opacity: 1,
                     smoothFactor: 1
                 });
-                var deco = new L.polylineDecorator(segpol, {
+                let deco = new L.polylineDecorator(segpol, {
                     patterns: [
                         {
                             offset: 0,
@@ -183,9 +176,9 @@ $(document).ready(function () {
                         }
                     ]
                 });
-                var speed = valuesRoute[i][1];
-                var obsNumber = valuesRoute[i][2];
-                var popup = "Velocidad: " + speed.toFixed(2).toString().replace(".", ",") + " km/h<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
+                let speed = valuesRoute[i][1];
+                let obsNumber = valuesRoute[i][2];
+                let popup = "Velocidad: " + speed.toFixed(2).toString().replace(".", ",") + " km/h<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
                 segpol.bindPopup(popup);
                 deco.bindPopup(popup);
                 let createSpeedLegend = function () {
@@ -306,7 +299,7 @@ $(document).ready(function () {
             selectedLayers = [];
         });
 
-        var deletePopups = function () {
+        let deletePopups = function () {
             map.eachLayer(function (e) {
                 e._popup = null;
             });
@@ -315,26 +308,26 @@ $(document).ready(function () {
 
 
     function MatrixApp() {
-        var _self = this;
+        let _self = this;
 
-        var mChart = echarts.init(document.getElementById("main"));
-        var matrix = null;
-        var route = null;
+        let mChart = echarts.init(document.getElementById("main"));
+        let matrix = null;
+        let route = null;
 
-        var velRange = ["Sin Datos", " < 5 km/h", "5 - 7,5 km/h", "7,5 - 10 km/h", "10 - 15 km/h", "15 - 20 km/h", "20 - 25 km/h", "25 - 30 km/h", " > 30 km/h"];
-        var colors = ["#dfdfdf", "#a100f2", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
+        let velRange = ["Sin Datos", " < 5 km/h", "5 - 7,5 km/h", "7,5 - 10 km/h", "10 - 15 km/h", "15 - 20 km/h", "20 - 25 km/h", "25 - 30 km/h", " > 30 km/h"];
+        let colors = ["#dfdfdf", "#a100f2", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
-        var mapApp = new DrawSegmentsApp(colors, velRange);
+        let mapApp = new DrawSegmentsApp(colors, velRange);
 
-        var opts = {
+        let opts = {
             tooltip: {
                 position: "top",
                 formatter: function (obj) {
-                    var startHour = periods[obj.data[0]];
-                    var endHour = periods[(obj.data[0] + 1) % periods.length];
-                    var segment = obj.data[1];
-                    var speed = ((matrix[obj.data[0]][obj.data[1]][1] < 0) ? "No fue posible calcular" : matrix[obj.data[0]][obj.data[1]][1].toFixed(1));
-                    var obsNumber = matrix[obj.data[0]][obj.data[1]][2];
+                    let startHour = periods[obj.data[0]];
+                    let endHour = periods[(obj.data[0] + 1) % periods.length];
+                    let segment = obj.data[1];
+                    let speed = ((matrix[obj.data[0]][obj.data[1]][1] < 0) ? "No fue posible calcular" : matrix[obj.data[0]][obj.data[1]][1].toFixed(1));
+                    let obsNumber = matrix[obj.data[0]][obj.data[1]][2];
                     return "Horario: entre " + startHour + " y " + endHour + "<br/>" + "Segmento: " + segment + "<br/>" + "Velocidad: " + speed + " km/h" + "<br/># de observaciones: " + obsNumber;
                 }
             },
@@ -424,11 +417,11 @@ $(document).ready(function () {
                 (params.seriesIndex !== 0) || (params.seriesName !== "Velocidad")) {
                 return;
             }
-            var periodId = params.value[0];
-            var segmentId = params.value[1];
+            let periodId = params.value[0];
+            let segmentId = params.value[1];
 
             // set slider to period clicked
-            var slider = $("#filterHourRange").data("ionRangeSlider");
+            let slider = $("#filterHourRange").data("ionRangeSlider");
             slider.update({from: periodId});
 
             mapApp.drawRoute(route, matrix[periodId]);
@@ -482,7 +475,7 @@ $(document).ready(function () {
         app.setMatrix(dataSource.matrix);
         app.setRoute(dataSource.route);
 
-        var data = [];
+        let data = [];
         dataSource.matrix.forEach(function (vec, i) {
             vec.forEach(function (elem, j) {
                 data.push([i, j, elem[0]]);
@@ -497,8 +490,7 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableSpeedDays"]());
         loadRangeCalendar(Urls["esapi:availableSpeedDays"](), {});
 
-
-        var app = new MatrixApp();
+        let app = new MatrixApp();
 
         $("#filterHourRange").ionRangeSlider({
             type: "single",
@@ -506,21 +498,21 @@ $(document).ready(function () {
             grid: true,
             onFinish: function (data) {
                 console.log("slider moved");
-                var periodId = data.from;
+                let periodId = data.from;
                 app.updateMap(periodId);
             }
         });
 
-        var previousCall = function () {
+        let previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data, status) {
+        let afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
             }
             app.hideLoadingAnimationCharts();
         };
-        var opts = {
+        let opts = {
             urlFilterData: Urls["esapi:matrixData"](),
             urlRouteData: Urls["esapi:availableSpeedRoutes"](),
             previousCallData: previousCall,
