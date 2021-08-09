@@ -123,8 +123,6 @@ $(document).ready(function () {
     };
     let _mapApp = new MapApp(mapOpts);
 
-    return;
-
     /* to draw on map */
     let startEndSegments = null;
     let routePoints = null;
@@ -142,21 +140,6 @@ $(document).ready(function () {
       n.forEach((index) =>
         value = value && (a[index] === b[index]));
       return value;
-    };
-
-    this._clearMap = function () {
-      if (startMarker !== null) {
-        map.removeLayer(startMarker);
-      }
-      if (endMarker !== null) {
-        map.removeLayer(endMarker);
-      }
-      segmentPolylineList.forEach(function (elem) {
-        map.removeLayer(elem);
-      });
-      decoratorPolylineList.forEach(function (elem) {
-        map.removeLayer(elem);
-      });
     };
 
     this.highlightSegment = function (segmentId) {
@@ -192,7 +175,6 @@ $(document).ready(function () {
     this.drawRoute = function (route, valuesRoute, fly = true) {
       lastRoute = route;
       lastValuesRoute = valuesRoute;
-      _self._clearMap();
       /* update routes and segments */
       startEndSegments = route.start_end;
       routePoints = route.points.map(function (el) {
@@ -368,7 +350,7 @@ $(document).ready(function () {
     let velRange = ["Sin Datos", " < 5 km/h", "5 - 7,5 km/h", "7,5 - 10 km/h", "10 - 15 km/h", "15 - 20 km/h", "20 - 25 km/h", "25 - 30 km/h", " > 30 km/h"];
     let colors = ["#dfdfdf", "#a100f2", "#ef00d3", "#ff0000", "#ff8000", "#ffff00", "#01df01", "#088a08", "#045fb4"];
 
-    let mapApp = new DrawSegmentsApp(colors, velRange);
+    let drawSegmentApp = new DrawSegmentsApp(colors, velRange);
 
     let opts = {
       tooltip: {
@@ -475,8 +457,8 @@ $(document).ready(function () {
       let slider = $("#filterHourRange").data("ionRangeSlider");
       slider.update({from: periodId});
 
-      mapApp.drawRoute(route, matrix[periodId]);
-      mapApp.highlightSegment(segmentId);
+      drawSegmentApp.drawRoute(route, matrix[periodId]);
+      drawSegmentApp.highlightSegment(segmentId);
     });
 
     this.showLoadingAnimationCharts = function () {
@@ -503,7 +485,7 @@ $(document).ready(function () {
       opts.yAxis.data = segments;
       opts.series[0].data = data;
       mChart.setOption(opts, {merge: false});
-      mapApp.drawRoute(route, matrix[0]);
+      drawSegmentApp.drawRoute(route, matrix[0]);
     };
 
     this.updateLabel = function (label) {
@@ -514,7 +496,7 @@ $(document).ready(function () {
       if (route === null) {
         return;
       }
-      mapApp.drawRoute(route, matrix[periodId]);
+      drawSegmentApp.drawRoute(route, matrix[periodId]);
     };
   }
 
