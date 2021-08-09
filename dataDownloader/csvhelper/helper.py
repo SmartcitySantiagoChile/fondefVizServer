@@ -1020,8 +1020,6 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
                             if isinstance(row[0], list):
                                 # there are more than one row in variable
                                 for r in row:
-                                    # omit start date and end date
-                                    r = r[2:]
                                     writer.writerow(r)
                             else:
                                 writer.writerow(row)
@@ -1071,12 +1069,42 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
         return formatted_row
 
 
-class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(PostProductsStageTransferInPeriodCSVHelper):
+class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
     """ Class that represents a post product stage transfers file grouped by date. """
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESStageHelper().index_name)
+        print(1)
+
+    def get_iterator(self, kwargs):
+        es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
+        return es_query.execute().aggregations
 
     def get_file_description(self):
         description = 'Cada línea representa un conjunto de transbordos en una parada por día.'
         return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'fecha_desde', 'csv_name': 'Fecha_desde',
+             'definition': 'Límite inferior del rango de fechas considerado en la consulta'},
+            {'es_name': 'fecha_hasta', 'csv_name': 'Fecha_hasta',
+             'definition': 'Límite superior del rango de fechas considerado en la consulta'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'boardingStopCommune', 'csv_name': 'Comuna_subida',
+             'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
+            {'es_name': 'authStopCode', 'csv_name': 'Parada_subida',
+             'definition': 'Código transantiago de la parada donde inició el viaje'},
+            {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora_subida',
+             'definition': 'Tramo de media hora en que inició el viaje'},
+            {'es_name': 'expandedBoarding', 'csv_name': 'Número_transbordos',
+             'definition': 'Números de transbordos realizados'},
+            # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
+            {'es_name': 'boardingTime', 'csv_name': 'Tiempo_subida',
+             'definition': 'Fecha y hora en que se inició el viaje'},
+            {'es_name': 'stageNumber', 'csv_name': 'Número_etapa',
+             'definition': 'Número de etapa dentro del viaje en que participa el registro'},
+        ]
 
     def row_parser(self, row):
         formatted_row = []
@@ -1095,6 +1123,34 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(PostProductsStageT
                         formatted_row.append(row)
 
         return formatted_row
+
+    def download(self, zip_file_obj, **kwargs):
+        tmp_file_name = str(uuid.uuid4())
+        try:
+            with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
+                # added BOM to file to recognize accent in excel files
+                output.write('\ufeff')
+                writer = csv.writer(output, dialect='excel', delimiter=',')
+                writer.writerow(self.get_header())
+
+                for aggregation in self.get_iterator(kwargs):
+                    for doc in aggregation:
+                        row = self.row_parser(doc)
+                        print(row)
+                        if row:
+                            if isinstance(row[0], list):
+                                # there are more than one row in variable
+                                for r in row:
+                                    writer.writerow(r)
+                            else:
+                                writer.writerow(row)
+
+            zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
+        finally:
+            os.remove(tmp_file_name)
+
+    def get_data_file_name(self):
+        return 'Transbordos.csv'
 
 
 class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):

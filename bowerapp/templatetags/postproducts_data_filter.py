@@ -27,13 +27,12 @@ def postproducts_data_filter(data_filter,
         {'show': show_day_filter, 'data_key': '', 'input_type': 'text',
          'label': 'Días:', 'js_id': 'dayFilter',
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
-        {'show': show_commune_filter, 'data_key': 'communes', 'input_type': 'select',
-         'label': 'Comunas:', 'js_id': 'multiCommuneFilter', 'multi_select': True,
-         'col-xs': 12, 'col-sm': 3, 'col-md': 3},
         {'show': show_day_type_filter, 'data_key': 'day_types', 'input_type': 'select',
          'label': 'Tipo de día:', 'js_id': 'dayTypeFilter', 'multi_select': True,
          'col-xs': 12, 'col-sm': 3, 'col-md': 3},
-
+        {'show': show_commune_filter, 'data_key': 'communes', 'input_type': 'select',
+         'label': 'Comunas:', 'js_id': 'multiCommuneFilter', 'multi_select': True,
+         'col-xs': 12, 'col-sm': 3, 'col-md': 3}
     ]
 
     panel_body = ''
