@@ -1074,7 +1074,6 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
 
     def __init__(self, es_client, es_query):
         CSVHelper.__init__(self, es_client, es_query, ESStageHelper().index_name)
-        print(1)
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
@@ -1157,8 +1156,6 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
 
     def __init__(self, es_client, es_query):
         CSVHelper.__init__(self, es_client, es_query, ESTripHelper().index_name)
-        self.start_date = es_query['query']['bool']['filter'][0]['range']['tiempo_subida']['gte'].split('||')[0]
-        self.end_date = es_query['query']['bool']['filter'][0]['range']['tiempo_subida']['lte'].split('||')[0]
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
@@ -1189,10 +1186,6 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
 
     def get_column_dict(self):
         return [
-            {'es_name': 'fecha_desde', 'csv_name': 'Fecha_desde',
-             'definition': 'Límite inferior del rango de fechas considerado en la consulta'},
-            {'es_name': 'fecha_hasta', 'csv_name': 'Fecha_hasta',
-             'definition': 'Límite superior del rango de fechas considerado en la consulta'},
             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
             {'es_name': 'startCommune', 'csv_name': 'Comuna_origen', 'definition': 'Comuna de inicio del viaje'},
             {'es_name': 'endCommune', 'csv_name': 'Comuna_destino', 'definition': 'Comuna de destino del viaje'},
@@ -1236,7 +1229,7 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
                         average_time = sum_trip_time / sum_trip_number
                         average_distance = sum_trip_distance / sum_trip_number
 
-                        row = [self.start_date, self.end_date, string_day_type, start_commune_str, end_commune_str,
+                        row = [string_day_type, start_commune_str, end_commune_str,
                                transport_modes_str, half_hour, round(sum_trip_number, 2), round(average_time, 2),
                                round(average_distance, 2), round(sum_trip_distance / sum_trip_time, 2)]
                         formatted_row.append(row)
