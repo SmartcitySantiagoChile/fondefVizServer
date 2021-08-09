@@ -343,6 +343,7 @@ $(document).ready(function () {
           popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
           popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
           popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
+          popUpDescription += "</p>";
 
           new mapboxgl.Popup({closeOnClick: true}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapInstance);
         };
