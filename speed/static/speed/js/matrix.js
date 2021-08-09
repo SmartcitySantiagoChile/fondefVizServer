@@ -15,6 +15,7 @@ $(document).ready(function () {
 
     function DrawSegmentsApp(colorScale, labels) {
         let _self = this;
+        let colors = colorScale;
 
         let mapOpts = {
           mapId: 'mapid',
@@ -24,7 +25,7 @@ $(document).ready(function () {
           onLoad: (_mapInstance) => {
               class SelectSegmentControl {
                   onAdd(map) {
-                      let div = document.createElement('info');
+                      let div = document.createElement('div');
                       div.className = 'mapboxgl-ctrl info legend';
                       div.id = 'button_legend';
                       div.innerHTML = "<input id='legendButton' type='checkbox' class='form-check-input' " +
@@ -33,24 +34,103 @@ $(document).ready(function () {
                   }
 
                   onRemove() {
-
+                      // nothing
                   }
               }
 
               _mapInstance.addControl(new SelectSegmentControl(), 'top-left');
+
+              class MapLegend {
+                  onAdd(map) {
+                    let div = document.createElement('div');
+                    div.className = 'mapboxgl-ctrl info legend';
+                    div.id = "map_legend";
+                    div.innerHTML = "Velocidad<br />";
+                    // loop through our density intervals and generate a label with a colored square for each interval
+                    for (let i = 0; i < colors.length; i++) {
+                        div.innerHTML += "<i style='background:" + colors[i] + "'></i> " + labels[i];
+                        div.innerHTML += "<br />";
+                    }
+                    return div;
+                  }
+
+                  onRemove() {
+                      // nothing
+                  }
+              }
+
+              _mapInstance.addControl(new MapLegend(), 'bottom-right');
+
+              class SpeedLegend {
+                  onAdd(map) {
+                    let div = document.createElement('div');
+                    div.className ='mapboxgl-ctrl info legend';
+                    div.id = "infoLegendButton";
+                    div.class = "d-flex justify-content-center";
+                    div.style.visibility = "hidden";
+                    return div;
+                  }
+
+                  onRemove() {
+                      // nothing
+                  }
+              }
+
+              _mapInstance.addControl(new SpeedLegend(), 'top-right');
+
+              _mapInstance.addSource('shapes-source', {
+                  type: 'geojson',
+                  data: {
+                      type: 'FeatureCollection',
+                      features: []
+                  }
+              });
+              _mapInstance.addSource('bound-points-source', {
+                  type: 'geojson',
+                  data: {
+                      type: 'FeatureCollection',
+                      features: []
+                  }
+              });
+
+              let shapesLayer = {
+                  id: 'shapes-layer',
+                  source: 'shapes-source',
+                  type: 'line',
+                  layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                  },
+                  paint: {
+                    'line-color': 'black',
+                    'line-width': 2
+                  }
+              }
+
+              let boundPointsLayer = {
+                  id: 'bound-points-layer',
+                  source: 'bound-points-source',
+                  type: 'circle',
+                  paint: {
+                      'circle-radius': 8,
+                      'circle-color': '#28DCF2'
+                  }
+              }
+
+              _mapInstance.addLayer(shapesLayer);
+              _mapInstance.addLayer(boundPointsLayer);
           }
         };
         let _mapApp = new MapApp(mapOpts);
 
         return;
 
-        let colors = colorScale;
-
         /* to draw on map */
         let startEndSegments = null;
         let routePoints = null;
         let segmentPolylineList = [];
         let decoratorPolylineList = [];
+
         let startMarker = null;
         let endMarker = null;
         let lastRoute = null;
@@ -78,33 +158,6 @@ $(document).ready(function () {
                 map.removeLayer(elem);
             });
         };
-
-        this._buildLegend = function () {
-            let mapLegend = L.control({position: "bottomright"});
-            mapLegend.onAdd = function (map) {
-                let div = L.DomUtil.create("div", "info legend");
-                div.id = "map_legend";
-                div.innerHTML = "Velocidad<br />";
-                // loop through our density intervals and generate a label with a colored square for each interval
-                for (let i = 0; i < colors.length; i++) {
-                    div.innerHTML += "<i style='background:" + colors[i] + "'></i> " + labels[i];
-                    div.innerHTML += "<br />";
-                }
-                return div;
-            };
-            mapLegend.addTo(map);
-            let speedLegend = L.control({position: "topright"});
-            speedLegend.onAdd = function (map) {
-                let div = L.DomUtil.create("div", "info legend");
-                div.id = "infoLegendButton";
-                div.class = "d-flex justify-content-center";
-                div.style.visibility = "hidden";
-                return div;
-            };
-
-            speedLegend.addTo(map);
-        };
-        this._buildLegend();
 
         this.highlightSegment = function (segmentId) {
 
@@ -291,7 +344,6 @@ $(document).ready(function () {
             if ($("#legendButton").prop('checked') === false) {
                 $("#infoLegendButton").css({'visibility': 'hidden'});
                 _self.drawRoute(lastRoute, lastValuesRoute);
-
             } else {
                 deletePopups();
             }
@@ -305,7 +357,6 @@ $(document).ready(function () {
             });
         }
     }
-
 
     function MatrixApp() {
         let _self = this;
