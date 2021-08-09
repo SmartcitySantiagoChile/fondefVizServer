@@ -98,6 +98,7 @@ function MapApp(opts) {
     let defaultOverZoneStyle = opts.defaultOverZoneStyle || _self.styles.zoneOnHover;
     let doubleClickZoom = opts.doubleClickZoom || false;
     let zoomControl = opts.zoomControl === undefined ? true : opts.zoomControl;
+    let scaleControl = opts.scaleControl === undefined ? true : opts.scaleControl;
     let styles = {
         "streets": "mapbox://styles/mapbox/streets-v11",
         "light": "mapbox://styles/mapbox/light-v10",
@@ -124,6 +125,10 @@ function MapApp(opts) {
         if (zoomControl) {
             let navigationControl = new mapboxgl.NavigationControl({});
             map.addControl(navigationControl, 'top-left');
+        }
+        if (scaleControl) {
+            let navigationControl = new mapboxgl.ScaleControl({});
+            map.addControl(navigationControl, 'bottom-left');
         }
 
         map.setMaxBounds(maxBounds);
