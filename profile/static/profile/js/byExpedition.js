@@ -94,7 +94,7 @@ $(document).ready(function () {
             });
         };
         this.checkAllAreVisible = function (tripIdArray) {
-            var result = tripIdArray.length;
+            let result = tripIdArray.length;
             tripIdArray.forEach(function (tripId) {
                 if (!_trips[tripId].visible) {
                     result--;
@@ -127,7 +127,7 @@ $(document).ready(function () {
                 maxLoadWithEvasion: [],
                 saturationRateWithEvasion: []
             };
-            for (var i = 0; i < xAxisLength; i++) {
+            for (let i = 0; i < xAxisLength; i++) {
                 _yAxisData.expandedBoarding.push(0);
                 _yAxisData.expandedAlighting.push(0);
                 _yAxisData.loadProfile.push(0);
@@ -191,14 +191,14 @@ $(document).ready(function () {
         };
 
         this.getDatatableData = function () {
-            var values = [];
-            var max = 0;
-            for (var i in _trips) {
-                var trip = $.extend({}, _trips[i]);
+            let values = [];
+            let max = 0;
+            for (let i in _trips) {
+                let trip = $.extend({}, _trips[i]);
                 trip.busDetail = trip.licensePlate + " (" + trip.busCapacity + ")";
-                var loadProfile = [];
-                for (var k = 0; k < _xAxisData.length; k++) {
-                    var value = trip.yAxisData.loadProfile[k];
+                let loadProfile = [];
+                for (let k = 0; k < _xAxisData.length; k++) {
+                    let value = trip.yAxisData.loadProfile[k];
                     max = Math.max(max, value);
                     loadProfile.push(value);
                 }
@@ -212,20 +212,20 @@ $(document).ready(function () {
         };
 
         this.getDistributionData = function () {
-            var globalMax = 0;
-            var trips = [];
+            let globalMax = 0;
+            let trips = [];
 
-            for (var i in _trips) {
-                var trip = _trips[i];
-                var tripData = {};
+            for (let i in _trips) {
+                let trip = _trips[i];
+                let tripData = {};
                 if (!trip.visible) {
                     continue;
                 }
                 tripData.name = trip.timeTripInit;
 
-                var loadProfile = [];
-                for (var j = 0; j < _xAxisData.length; j++) {
-                    var value = trip.yAxisData.loadProfile[j];
+                let loadProfile = [];
+                for (let j = 0; j < _xAxisData.length; j++) {
+                    let value = trip.yAxisData.loadProfile[j];
                     if (globalMax < value) {
                         globalMax = value;
                     }
@@ -243,25 +243,131 @@ $(document).ready(function () {
     }
 
     function ExpeditionApp() {
-        var _self = this;
+        let _self = this;
 
-        var mapOpts = {
-            mapId: "mapid"
+        let _shapeLayer = {
+            id: 'shape-layer',
+            source: 'shape-source',
+            type: 'line',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': 'black',
+                'line-width': 2
+            }
         };
-        var _mappApp = new MapApp(mapOpts);
-        var _routeLayer = L.featureGroup([]);
-        var _circleLayer = L.featureGroup([]);
-        var _mapInstance = _mappApp.getMapInstance();
-        _routeLayer.addTo(_mapInstance);
-        _circleLayer.addTo(_mapInstance);
+        let _stopsLayer = {
+            id: 'stops-layer',
+            source: 'stops-source',
+            type: 'circle',
+            paint: {
+                'circle-radius': ['interpolate', ['linear'], ['zoom'],
+                    12, 2,
+                    14, 6,
+                    20, 12,
+                ],
+                'circle-color': 'black',
+                'circle-stroke-color': '#559BFF',
+                'circle-stroke-opacity': 0.4,
+                'circle-stroke-width': {
+                    property: 'radius',
+                    type: 'identity'
+                }
+            }
+        };
+        let _stopLabelLayer = {
+            id: 'stop-label-layer',
+            source: 'stops-source',
+            type: 'symbol',
+            layout: {
+                'text-field': '{userStopCode}',
+                'text-size': 10,
+                'text-offset': [0, 2]
+            }
+        };
+        let mapOpts = {
+          mapId: 'mapid',
+          onLoad: (_mapInstance) => {
+            _mapInstance.addSource('shape-source', {
+                type: 'geojson',
+                data: {
+                    type: "FeatureCollection",
+                    features: []
+                }
+            });
+            _mapInstance.addSource('stops-source', {
+                type: 'geojson',
+                data: {
+                    type: "FeatureCollection",
+                    features: []
+                }
+            });
 
-        var fitBoundFirstTime = true;
+            _mapInstance.addLayer(_shapeLayer);
+            _mapInstance.addLayer(_stopsLayer);
+            _mapInstance.addLayer(_stopLabelLayer);
+            let img = '/static/trip/img/double-arrow.png';
+            _mapInstance.loadImage(img, (err, image) => {
+                if (err) {
+                  console.log(err);
+                  return;
+                }
+                _mapInstance.addImage('double-arrow', image, {sdf: true});
+                _mapInstance.addLayer({
+                  'id': 'shape-arrow-layer',
+                  'type': 'symbol',
+                  'source': 'shape-source',
+                  'layout': {
+                    'symbol-placement': 'line',
+                    'symbol-spacing': 100,
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true,
+                    'icon-image': 'double-arrow',
+                    'icon-size': 0.4,
+                    'visibility': 'visible'
+                  },
+                  paint: {
+                    'icon-color': 'black',
+                    'icon-halo-color': '#fff',
+                    'icon-halo-width': 2,
+                  }
+                });
+            });
+
+            let openStopPopup = function (feature) {
+                let popUpDescription = "<p>";
+                popUpDescription += " Servicio: <b>" + feature.properties.route + "</b><br />";
+                popUpDescription += " Nombre: <b>" + feature.properties.stopName + "</b><br />";
+                popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
+                popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
+                popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
+
+                new mapboxgl.Popup({ closeOnClick: true }).setLngLat(feature.geometry.coordinates).
+                    setHTML(popUpDescription).addTo(_mapInstance);
+            };
+
+            let mouseenter = () => { _mapInstance.getCanvas().style.cursor = 'pointer'; };
+            let mouseleave = () => { _mapInstance.getCanvas().style.cursor = ''; };
+            let click = e => {
+                let feature = e.features[0];
+                openStopPopup(feature);
+            };
+            _mapInstance.on('mouseenter', 'stops-layer', mouseenter);
+            _mapInstance.on('mouseleave', 'stops-layer', mouseleave);
+            _mapInstance.on('click', 'stops-layer', click);
+          }
+        };
+        let _mapApp = new MapApp(mapOpts);
+
+        let fitBoundFirstTime = true;
         $("#tab-1").click(function () {
             setTimeout(function () {
-                _mapInstance.invalidateSize(false);
                 if (fitBoundFirstTime) {
                     setTimeout(function () {
-                        _mappApp.fitBound();
+                        _mapApp.fitBound(['shape-source', 'stops-source']);
+                        _mapApp.resize();
                         fitBoundFirstTime = false;
                     }, 400);
                 }
@@ -274,13 +380,13 @@ $(document).ready(function () {
         });
 
         this.getDataName = function () {
-            var FILE_NAME = "Perfil de carga ";
+            let FILE_NAME = "Perfil de carga ";
             return FILE_NAME + $("#authRouteFilter").val();
         };
 
-        var _dataManager = new DataManager();
-        var _barChart = echarts.init(document.getElementById("barChart"), theme);
-        var _datatable = $("#expeditionDetail").DataTable({
+        let _dataManager = new DataManager();
+        let _barChart = echarts.init(document.getElementById("barChart"), theme);
+        let _datatable = $("#expeditionDetail").DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
@@ -328,7 +434,7 @@ $(document).ready(function () {
             },
             initComplete: function (settings) {
                 // Handle click on "Select all" control
-                var mainCheckbox = $("#checkbox-select-all");
+                let mainCheckbox = $("#checkbox-select-all");
                 mainCheckbox.iCheck({
                     labelHover: false,
                     cursor: true,
@@ -339,9 +445,9 @@ $(document).ready(function () {
                     if (_dataManager.trips().length === 0) {
                         return;
                     }
-                    var rows = _datatable.rows({"search": "applied"}).nodes();
-                    var addToAggr = false;
-                    var inputs = $("input.flat", rows);
+                    let rows = _datatable.rows({"search": "applied"}).nodes();
+                    let addToAggr = false;
+                    let inputs = $("input.flat", rows);
                     if (event.target.checked) {
                         inputs.prop("checked", true);
                         $(rows).addClass("success");
@@ -351,7 +457,7 @@ $(document).ready(function () {
                         $(rows).removeClass("success");
                     }
                     $("tbody input.flat").iCheck("update");
-                    var tripIds = $.map(_datatable.rows({"search": "applied"}).data(), function (el) {
+                    let tripIds = $.map(_datatable.rows({"search": "applied"}).data(), function (el) {
                         return el.id;
                     });
                     _dataManager.setVisibilty(tripIds, addToAggr);
@@ -361,12 +467,11 @@ $(document).ready(function () {
             }
         });
         _datatable.on("search.dt", function (event) {
-
-            var el = $("#checkbox-select-all");
-            var tripIds = $.map(_datatable.rows({"search": "applied"}).data(), function (el) {
+            let el = $("#checkbox-select-all");
+            let tripIds = $.map(_datatable.rows({"search": "applied"}).data(), function (el) {
                 return el.id
             });
-            var resultChecked = _dataManager.checkAllAreVisible(tripIds);
+            let resultChecked = _dataManager.checkAllAreVisible(tripIds);
 
             if (resultChecked === tripIds.length) {
                 el.prop("checked", true);
@@ -390,46 +495,64 @@ $(document).ready(function () {
             _barChart.resize();
         };
 
-        var _updateMap = function () {
-            _routeLayer.clearLayers();
-            _circleLayer.clearLayers();
-            var shape = _dataManager.shape();
-            var stops = _dataManager.xAxisData();
-            var yAxisData = _dataManager.yAxisData().loadProfile;
+        let _updateMap = function () {
+            let shape = _dataManager.shape();
+            let stops = _dataManager.xAxisData();
+            let yAxisData = _dataManager.yAxisData().loadProfile;
 
-            var maxLoadProfile = Math.max(...yAxisData);
+            let shapeSource  = {
+                type: 'FeatureCollection',
+                features: []
+            };
+            let stopsSource  = {
+                type: 'FeatureCollection',
+                features: []
+            };
+
+            let maxLoadProfile = Math.max(...yAxisData);
             stops.forEach(function (stop, i) {
-                var loadProfile = yAxisData[i] ? yAxisData[i] : 0;
-                var formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
-                var radius = loadProfile / maxLoadProfile * 300;
+                let loadProfile = yAxisData[i] ? yAxisData[i] : 0;
+                let formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
+                let area = loadProfile / maxLoadProfile * 300;
+                let radius = Math.sqrt(area / Math.PI);
                 if (radius <= 0 || isNaN(radius)) {
                     radius = 1;
                 }
-                var circle = L.circle([stop.latitude, stop.longitude], {
-                    radius: radius
+
+                stopsSource.features.push({
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [stop.longitude, stop.latitude]
+                    },
+                    properties: {
+                        radius: radius,
+                        route: $("#authRouteFilter").val(),
+                        authStopCode: stop.authStopCode,
+                        userStopCode: stop.userStopCode,
+                        stopName: stop.stopName,
+                        order: stop.order,
+                        isBusStation: stop.busStation,
+                        loadProfile: formattedLoadProfile
+                    }
                 });
-                var popup = "Perfil de carga: " + formattedLoadProfile;
-                circle.bindPopup(popup);
-                _circleLayer.addLayer(circle);
             });
 
-            _mappApp.addPolyline(_routeLayer, shape, {
-                route: $("#authRouteFilter").val(),
-                stops: stops,
-                additonalStopInfo: function (stopPosition) {
-                    var loadProfile = yAxisData[stopPosition];
-                    if (loadProfile !== null) {
-                        loadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
-                    }
-                    return "<br />Perfil de carga: <b>" + loadProfile + "</b>";
+            shapeSource.features.push({
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: shape.map(el => [el.longitude, el.latitude])
                 }
             });
+            _mapApp.getMapInstance().getSource('shape-source').setData(shapeSource);
+            _mapApp.getMapInstance().getSource('stops-source').setData(stopsSource);
         };
 
-        var _updateDatatable = function () {
-            var dataset = _dataManager.getDatatableData();
-            var rows = dataset.rows;
-            var maxHeight = dataset.maxHeight;
+        let _updateDatatable = function () {
+            let dataset = _dataManager.getDatatableData();
+            let rows = dataset.rows;
+            let maxHeight = dataset.maxHeight;
 
             _datatable.off("draw");
             _datatable.on("draw", function (oSettings) {
@@ -451,12 +574,12 @@ $(document).ready(function () {
                 });
 
                 // activate iCheck in checkbox
-                var dtRows = _datatable.rows().nodes();
+                let dtRows = _datatable.rows().nodes();
                 // attach events check and uncheck
                 $("input.flat", dtRows).off("ifToggled");
                 $("input.flat", dtRows).on("ifToggled", function (event) {
-                    var tr = $(this).parent().parent().parent();
-                    var addToAggr = false;
+                    let tr = $(this).parent().parent().parent();
+                    let addToAggr = false;
                     if (event.target.checked) {
                         tr.addClass("success");
                         addToAggr = true;
@@ -465,7 +588,7 @@ $(document).ready(function () {
                     }
 
                     // updateChart
-                    var tripId = parseInt($(this).attr("name").replace("trip", ""));
+                    let tripId = parseInt($(this).attr("name").replace("trip", ""));
                     _dataManager.setVisibilty([tripId], addToAggr);
                     _dataManager.calculateAverage();
                     _self.updateCharts();
@@ -543,9 +666,9 @@ $(document).ready(function () {
                 $.extend(serie, colors[index]);
                 series.push(serie);
             }
-            var maxLabelLength = 0;
-            var xData = xAxisData.map(function (attr) {
-                var label = attr.order + " " + attr.stopName;
+            let maxLabelLength = 0;
+            let xData = xAxisData.map(function (attr) {
+                let label = attr.order + " " + attr.stopName;
                 if (maxLabelLength < label.length) {
                     maxLabelLength = label.length;
                 }
@@ -553,8 +676,8 @@ $(document).ready(function () {
                 label = attr;
                 return label;
             });
-            var route = $("#authRouteFilter").val();
-            var options = {
+            let route = $("#authRouteFilter").val();
+            let options = {
                 legend: {
                     data: yAxisDataName,
                     height: 40,
@@ -578,9 +701,9 @@ $(document).ready(function () {
                     axisLabel: {
                         rotate: 90,
                         interval: function (index) {
-                            var labelWidth = 20;
-                            var chartWidth = $("#barChart").width() - 82;
-                            var div = chartWidth / labelWidth;
+                            let labelWidth = 20;
+                            let chartWidth = $("#barChart").width() - 82;
+                            let div = chartWidth / labelWidth;
                             if (div >= xData.length) {
                                 return true;
                             }
@@ -634,14 +757,14 @@ $(document).ready(function () {
                     //alwaysShowContent: true,
                     formatter: function (params) {
                         if (Array.isArray(params)) {
-                            var xValue = params[0].dataIndex;
-                            var head = (xValue + 1) + "  " + xAxisData[xValue].userStopCode + " " + xAxisData[xValue].authStopCode + "  " + xAxisData[xValue].stopName + "<br />";
-                            var info = [];
-                            for (var index in params) {
-                                var el = params[index];
-                                var ball = el.marker;
-                                var name = el.seriesName;
-                                var value = Number(el.value.toFixed(2)).toLocaleString();
+                            let xValue = params[0].dataIndex;
+                            let head = (xValue + 1) + "  " + xAxisData[xValue].userStopCode + " " + xAxisData[xValue].authStopCode + "  " + xAxisData[xValue].stopName + "<br />";
+                            let info = [];
+                            for (let index in params) {
+                                let el = params[index];
+                                let ball = el.marker;
+                                let name = el.seriesName;
+                                let value = Number(el.value.toFixed(2)).toLocaleString();
                                 if (el.seriesIndex === 8 || el.seriesIndex === 9) {
                                     value = value + " %";
                                 }
@@ -649,9 +772,9 @@ $(document).ready(function () {
                             }
                             return head + info.join("<br />");
                         } else {
-                            var title = params.data.name;
-                            var name = params.seriesName;
-                            var value = Number(params.value.toFixed(2)).toLocaleString();
+                            let title = params.data.name;
+                            let name = params.seriesName;
+                            let value = Number(params.value.toFixed(2)).toLocaleString();
                             return title + "<br />" + name + ": " + value;
                         }
                     }
@@ -678,21 +801,21 @@ $(document).ready(function () {
                             buttonColor: "#169F85",
                             readOnly: true,
                             optionToContent: function (opt) {
-                                var axisData = opt.xAxis[0].data;
-                                var series = opt.series;
+                                let axisData = opt.xAxis[0].data;
+                                let series = opt.series;
 
-                                var textarea = document.createElement('textarea');
+                                let textarea = document.createElement('textarea');
                                 textarea.style.cssText = 'width:100%;height:100%;font-family:monospace;font-size:14px;line-height:1.6rem;white-space: pre;';
                                 textarea.readOnly = "true";
 
-                                var header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
+                                let header = "Servicio\tOrden\tCódigo usuario\tCódigo transantiago\tNombre parada";
                                 series.forEach(function (el) {
                                     header += "\t" + el.name;
                                 });
                                 header += "\n";
-                                var body = "";
+                                let body = "";
                                 axisData.forEach(function (el, index) {
-                                    var serieValues = [];
+                                    let serieValues = [];
                                     series.forEach(function (serie) {
                                         serieValues.push(serie.data[index]);
                                     });
@@ -709,7 +832,7 @@ $(document).ready(function () {
                             title: "Cambiar porcentaje máximo",
                             icon: 'image:///static/profile/img/percent.png',
                             onclick: function () {
-                                var percentage = prompt("Ingrese el porcentaje máximo");
+                                let percentage = prompt("Ingrese el porcentaje máximo");
                                 if (percentage !== "") {
                                     options.yAxis[1].max = percentage;
                                 } else {
@@ -775,7 +898,7 @@ $(document).ready(function () {
             })
         }
 
-        var _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
+        let _updateGlobalStats = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
             expeditionNumber = expeditionNumber || _dataManager.tripsUsed();
             boardingWithAlightingPercentage = boardingWithAlightingPercentage || _dataManager._boardingWithAlightingPercentage || 0;
             utilizationCoefficient = utilizationCoefficient || _dataManager._utilizationCoefficient || 0;
@@ -794,7 +917,7 @@ $(document).ready(function () {
             _updateDatatable();
         };
         this.showLoadingAnimationCharts = function () {
-            var loadingText = "Cargando...";
+            let loadingText = "Cargando...";
             _barChart.showLoading(null, {text: loadingText});
         };
         this.hideLoadingAnimationCharts = function () {
@@ -1003,17 +1126,17 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableProfileDays"]());
         loadRangeCalendar(Urls["esapi:availableProfileDays"](), {});
 
-        var app = new ExpeditionApp();
-        var previousCall = function () {
+        let app = new ExpeditionApp();
+        let previousCall = function () {
             app.showLoadingAnimationCharts();
         };
-        var afterCall = function (data, status) {
+        let afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
             }
             app.hideLoadingAnimationCharts();
         };
-        var opts = {
+        let opts = {
             urlFilterData: Urls["esapi:loadProfileByExpeditionData"](),
             urlRouteData: Urls["esapi:availableProfileRoutes"](),
             previousCallData: previousCall,
