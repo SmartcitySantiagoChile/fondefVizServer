@@ -102,7 +102,7 @@ $(document).ready(function () {
             'line-cap': 'round'
           },
           paint: {
-            'line-color': 'black',
+            'line-color': ['get', 'color'],
             'line-width': 2
           }
         }
@@ -112,25 +112,156 @@ $(document).ready(function () {
           source: 'bound-points-source',
           type: 'circle',
           paint: {
-            'circle-radius': 8,
+            'circle-radius': 5,
             'circle-color': '#28DCF2'
           }
         }
 
         _mapInstance.addLayer(shapesLayer);
         _mapInstance.addLayer(boundPointsLayer);
+        let img = '/static/trip/img/double-arrow.png';
+        _mapInstance.loadImage(img, (err, image) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          _mapInstance.addImage('double-arrow', image, {sdf: true});
+          _mapInstance.addLayer({
+            'id': 'shape-arrow-layer',
+            'type': 'symbol',
+            'source': 'shapes-source',
+            'layout': {
+              'symbol-placement': 'line',
+              'symbol-spacing': 30,
+              'icon-allow-overlap': true,
+              'icon-ignore-placement': true,
+              'icon-image': 'double-arrow',
+              'icon-size': 0.4,
+              'visibility': 'visible'
+            },
+            paint: {
+              'icon-color': ['get', 'color']
+            }
+          });
+        });
+
+        let openSegmentPopup = function (feature) {
+          let popUpDescription = "<p>";
+          popUpDescription = "Velocidad: " + feature.properties.formattedSpeed + " km/h<br/>";
+          popUpDescription += "N° obs: " + feature.properties.obsNumber + "<br/>";
+          popUpDescription += "Segmento de 500m: " + feature.properties.segmentIndex;
+          popUpDescription += "</p>";
+          new mapboxgl.Popup({closeOnClick: true}).setLngLat(feature.geometry.coordinates[0]).setHTML(popUpDescription).addTo(_mapInstance);
+        };
+
+        let mouseenter = () => {
+          _mapInstance.getCanvas().style.cursor = 'pointer';
+        };
+        let mouseleave = () => {
+          _mapInstance.getCanvas().style.cursor = '';
+        };
+        let click = e => {
+          let feature = e.features[0];
+          openSegmentPopup(feature);
+        };
+        _mapInstance.on('mouseenter', 'shapes-layer', mouseenter);
+        _mapInstance.on('mouseleave', 'shapes-layer', mouseleave);
+        _mapInstance.on('click', 'shapes-layer', click);
       }
     };
     let _mapApp = new MapApp(mapOpts);
 
+    let createSpeedLegend = function () {
+      if ($("#legendButton").prop('checked') === true) {
+        if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
+          if (selectedLayers.length !== 0) {
+            selectedLayers = [];
+            _self.drawRoute(lastRoute, lastValuesRoute, false);
+            deletePopups();
+            map.eachLayer(function (e) {
+              if (e._latlngs) {
+                let latInit = e._latlngs[0]['lat'];
+                let lngInit = e._latlngs[0]['lng'];
+                if (segpol._latlngs[0]['lat'] === latInit && segpol._latlngs[0]['lng'] === lngInit) {
+                  selectedLayers.push(e);
+                }
+              }
+            });
+          } else {
+            selectedLayers = [segpol, deco];
+          }
+          selectedSpeed = [valuesRoute[i]];
+          [segpol, deco].forEach(function (e) {
+            let newLayer = e;
+            map.removeLayer(e);
+            newLayer._popup = null;
+            if (newLayer.options.patterns !== undefined) {
+              newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
+            } else {
+              newLayer.options.color = '#28DCF2';
+
+            }
+            map.addLayer(newLayer);
+          });
+        } else {
+          //calculate speed
+          selectedSpeed.push(valuesRoute[i]);
+          selectedLayers.push(segpol);
+          selectedLayers.push(deco);
+          let indexA = valuesRoute.findIndex(function (a) {
+            return compareElementsOfArray(a, selectedSpeed[0]);
+          });
+
+          let indexB = valuesRoute.findIndex(function (a) {
+            return compareElementsOfArray(a, selectedSpeed[1]);
+          });
+          let firstIndex = Math.min(indexA, indexB);
+          let secondIndex = Math.max(indexA, indexB);
+          let accumulateDistance = 0;
+          let accumulateTime = 0;
+          for (let index = firstIndex; index <= secondIndex; index++) {
+            accumulateDistance += valuesRoute[index][3];
+            accumulateTime += valuesRoute[index][4];
+          }
+          let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2).toString().replace(".", ",");
+          let firstInfo = `Velocidad entre los tramos ${firstIndex} y ${secondIndex}: <br>  <b> ${speedInfo} km/h </b>`;
+          $("#infoLegendButton").html(firstInfo);
+          $("#infoLegendButton").css({'visibility': 'visible'});
+
+          //reprint
+          let indexSelectedLayers = selectedLayers.map(e => e._leaflet_id);
+          let firstLayerIndex = Math.min(...indexSelectedLayers);
+          let secondLayerIndex = Math.max(...indexSelectedLayers);
+          if (indexSelectedLayers.length !== 4) {
+            secondLayerIndex += 2;
+          }
+          layersToChange = [];
+          selectedSpeed = [];
+          map.eachLayer(function (e) {
+            let id = e._leaflet_id;
+            if (id >= firstLayerIndex && id <= secondLayerIndex) {
+              layersToChange.push(e);
+            }
+          });
+          layersToChange.forEach(function (e) {
+            let newLayer = e;
+            map.removeLayer(e);
+            newLayer._popup = null;
+            if (newLayer.options.patterns !== undefined) {
+              newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
+            } else {
+              newLayer.options.color = '#28DCF2';
+            }
+            map.addLayer(newLayer);
+          });
+        }
+      }
+    };
+
     /* to draw on map */
     let startEndSegments = null;
     let routePoints = null;
-    let segmentPolylineList = [];
-    let decoratorPolylineList = [];
 
-    let startMarker = null;
-    let endMarker = null;
     let lastRoute = null;
     let lastValuesRoute = null;
 
@@ -143,33 +274,28 @@ $(document).ready(function () {
     };
 
     this.highlightSegment = function (segmentId) {
-
       let startIndex = startEndSegments[segmentId][0];
       let endIndex = startEndSegments[segmentId][1];
 
-      if (startMarker !== null) {
-        map.removeLayer(startMarker);
-        map.removeLayer(endMarker);
-      }
-
-      let firstBound = null;
-      let secondBound = null;
+      let boundPointsSource = {
+        type: 'FeatureCollection',
+        features: []
+      };
 
       routePoints.forEach(function (el, i) {
-        if (i === startIndex) {
-          firstBound = el;
-        }
-        if (i === endIndex) {
-          secondBound = el;
+        if ([startIndex, endIndex].includes(i)) {
+          boundPointsSource.features.push({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: el
+            }
+          });
         }
       });
 
-      endMarker = L.marker(firstBound);
-      startMarker = L.marker(secondBound);
-      startMarker.addTo(map).bindPopup("<b>Inicio</b>");
-      endMarker.addTo(map).bindPopup("<b>Fin</b>");
-
-      map.flyToBounds(L.latLngBounds(firstBound, secondBound));
+      _mapApp.getMapInstance().getSource('bound-points-source').setData(boundPointsSource);
+      _mapApp.fitBound(['bound-points-source']);
     };
 
     this.drawRoute = function (route, valuesRoute, fly = true) {
@@ -178,147 +304,44 @@ $(document).ready(function () {
       /* update routes and segments */
       startEndSegments = route.start_end;
       routePoints = route.points.map(function (el) {
-        return L.latLng(el[0], el[1]);
+        return [el[1], el[0]];
       });
-
       /* create segments with color */
+      let segments = {
+        type: 'FeatureCollection',
+        features: []
+      }
+
       route.start_end.forEach(function (elem, i) {
         let start = elem[0];
         let end = elem[1];
-        let seg = routePoints.slice(start, end + 1);
-        let segpol = new L.Polyline(seg, {
-          color: colors[valuesRoute[i][0]],
-          weight: 5,
-          opacity: 1,
-          smoothFactor: 1
-        });
-        let deco = new L.polylineDecorator(segpol, {
-          patterns: [
-            {
-              offset: 0,
-              endOffset: 0,
-              repeat: "40",
-              symbol: L.Symbol.arrowHead(
-                {
-                  pixelSize: 10,
-                  polygon: true,
-                  pathOptions: {
-                    fillOpacity: 1,
-                    color: colors[valuesRoute[i][0]],
-                    stroke: true
-                  }
-                })
-            }
-          ]
-        });
+        let segmentPoints = routePoints.slice(start, end + 1);
+        let segmentColor = colors[valuesRoute[i][0]];
         let speed = valuesRoute[i][1];
         let obsNumber = valuesRoute[i][2];
-        let popup = "Velocidad: " + speed.toFixed(2).toString().replace(".", ",") + " km/h<br/>N° obs: " + obsNumber + "<br/>Segmento de 500m: " + i;
-        segpol.bindPopup(popup);
-        deco.bindPopup(popup);
-        let createSpeedLegend = function () {
-          if ($("#legendButton").prop('checked') === true) {
-            if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
-              if (selectedLayers.length !== 0) {
-                selectedLayers = [];
-                _self.drawRoute(lastRoute, lastValuesRoute, false);
-                deletePopups();
-                map.eachLayer(function (e) {
-                  if (e._latlngs) {
-                    let latInit = e._latlngs[0]['lat'];
-                    let lngInit = e._latlngs[0]['lng'];
-                    if (segpol._latlngs[0]['lat'] === latInit && segpol._latlngs[0]['lng'] === lngInit) {
-                      selectedLayers.push(e);
-                    }
-                  }
-                });
-              } else {
-                selectedLayers = [segpol, deco];
-              }
-              selectedSpeed = [valuesRoute[i]];
-              [segpol, deco].forEach(function (e) {
-                let newLayer = e;
-                map.removeLayer(e);
-                newLayer._popup = null;
-                if (newLayer.options.patterns !== undefined) {
-                  newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
-                } else {
-                  newLayer.options.color = '#28DCF2';
-
-                }
-                map.addLayer(newLayer);
-              });
-            } else {
-              //calculate speed
-              selectedSpeed.push(valuesRoute[i]);
-              selectedLayers.push(segpol);
-              selectedLayers.push(deco);
-              let indexA = valuesRoute.findIndex(function (a) {
-                return compareElementsOfArray(a, selectedSpeed[0]);
-              });
-
-              let indexB = valuesRoute.findIndex(function (a) {
-                return compareElementsOfArray(a, selectedSpeed[1]);
-              });
-              let firstIndex = Math.min(indexA, indexB);
-              let secondIndex = Math.max(indexA, indexB);
-              let accumulateDistance = 0;
-              let accumulateTime = 0;
-              for (let index = firstIndex; index <= secondIndex; index++) {
-                accumulateDistance += valuesRoute[index][3];
-                accumulateTime += valuesRoute[index][4];
-              }
-              let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2).toString().replace(".", ",");
-              let firstInfo = `Velocidad entre los tramos ${firstIndex} y ${secondIndex}: <br>  <b> ${speedInfo} km/h </b>`;
-              $("#infoLegendButton").html(firstInfo);
-              $("#infoLegendButton").css({'visibility': 'visible'});
-
-              //reprint
-              let indexSelectedLayers = selectedLayers.map(e => e._leaflet_id);
-              let firstLayerIndex = Math.min(...indexSelectedLayers);
-              let secondLayerIndex = Math.max(...indexSelectedLayers);
-              if (indexSelectedLayers.length !== 4) {
-                secondLayerIndex += 2;
-              }
-              layersToChange = [];
-              selectedSpeed = [];
-              map.eachLayer(function (e) {
-                let id = e._leaflet_id;
-                if (id >= firstLayerIndex && id <= secondLayerIndex) {
-                  layersToChange.push(e);
-                }
-              });
-              layersToChange.forEach(function (e) {
-                let newLayer = e;
-                map.removeLayer(e);
-                newLayer._popup = null;
-                if (newLayer.options.patterns !== undefined) {
-                  newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
-                } else {
-                  newLayer.options.color = '#28DCF2';
-                }
-                map.addLayer(newLayer);
-              });
-
-
-            }
+        let lineString = {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: segmentPoints
+          },
+          properties: {
+            color: segmentColor,
+            speed: speed,
+            formattedSpeed: speed.toFixed(2).toString().replace(".", ","),
+            obsNumber: obsNumber,
+            segmentIndex: i
           }
         };
-        segpol.on("click", function () {
-          createSpeedLegend();
-        });
-        deco.on("click", function () {
-          createSpeedLegend();
-        });
-        segmentPolylineList.push(segpol);
-        decoratorPolylineList.push(deco);
-        segpol.addTo(map);
-        deco.addTo(map);
+        segments.features.push(lineString);
       });
+
+      _mapApp.getMapInstance().getSource('shapes-source').setData(segments);
+
       if (fly) {
-        map.flyToBounds(L.polyline(routePoints).getBounds());
+        _mapApp.fitBound(['shapes-source']);
       } else {
-        map.zoomIn(0.00001);
+        map.zoomIn({duration: 1000});
       }
     };
 
