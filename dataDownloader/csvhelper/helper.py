@@ -1226,12 +1226,15 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
                         sum_trip_time = half_hour_in_boarding_time.tripTime.value
                         sum_trip_distance = half_hour_in_boarding_time.tripDistance.value
 
-                        average_time = sum_trip_time / sum_trip_number
-                        average_distance = sum_trip_distance / sum_trip_number
+                        # convert h to m
+                        average_time = (sum_trip_time / sum_trip_number) / 60
+
+                        #convert m to km
+                        average_distance = (sum_trip_distance / sum_trip_number) / 1000
 
                         row = [string_day_type, start_commune_str, end_commune_str,
                                transport_modes_str, half_hour, round(sum_trip_number, 2), round(average_time, 2),
-                               round(average_distance, 2), round(sum_trip_distance / sum_trip_time, 2)]
+                               round(average_distance, 2), round(average_distance / average_time, 2)]
                         formatted_row.append(row)
 
         return formatted_row
