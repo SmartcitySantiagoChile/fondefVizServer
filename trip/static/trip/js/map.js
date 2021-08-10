@@ -504,13 +504,15 @@ function MapApp(opts) {
                let geojson = map.getSource(sourceName)._data;
                if (geojson.type === 'FeatureCollection') {
                    geojson.features.forEach(feature => {
-                       // mejorar esto
                       if (bounds === null) {
                         bounds = new mapboxgl.LngLatBounds();
-                      } else {
-                        feature.geometry.coordinates.forEach(point => {
-                          bounds.extend(point);
-                        });
+                      }
+                      if (feature.geometry.type === 'LineString') {
+                          feature.geometry.coordinates.forEach(point => {
+                            bounds.extend(point);
+                          });
+                      } else if (feature.geometry.type === 'Point') {
+                          bounds.extend(feature.geometry.coordinates);
                       }
                    });
                }
