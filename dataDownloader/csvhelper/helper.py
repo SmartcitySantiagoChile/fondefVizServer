@@ -1324,9 +1324,6 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                             sum_trip_number = half_hour_in_boarding_time.expandedBoarding.value
                             row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour][0] = \
                                 sum_trip_number
-                            #row = [string_day_type, commune_str, stop_str,
-                            #    transport_modes_str, auth_route_str, half_hour, round(sum_trip_number, 2)]
-                            #formatted_row.append(row)
 
         for commune in row.alightingStopCommune:
             commune_str = self.commune_dict[commune.key]
@@ -1334,25 +1331,12 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                 stop_str = stop.key
                 for transport_modes in stop.transportModes:
                     transport_modes_str = self.transport_mode_dict[transport_modes.key]
-                    for n_trip in transport_modes.nTrips:
-                        n_trip_auth_route = None
-                        print(n_trip)
-                        if n_trip.key == 1:
-                            n_trip_auth_route = n_trip.authRouteCode1
-                        elif n_trip.key == 2:
-                            n_trip_auth_route = n_trip.authRouteCode2
-                        elif n_trip.key == 3:
-                            n_trip_auth_route = n_trip.authRouteCode3
-                        elif n_trip.key == 4:
-                            n_trip_auth_route = n_trip.authRouteCode4
-
-                        for auth_route in n_trip_auth_route:
-                            auth_route_str = auth_route.key
-                            for half_hour_in_alighting_time in auth_route.halfHourInAlightingTime:
-                                half_hour = self.halfhour_dict[half_hour_in_alighting_time.key]
-                                sum_trip_number = half_hour_in_alighting_time.expandedAlighting.value
-                                print(sum_trip_number)
-                                row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour][1] = sum_trip_number
+                    for auth_route in transport_modes.authRouteCode:
+                        auth_route_str = auth_route.key
+                        for half_hour_in_alighting_time in auth_route.halfHourInAlightingTime:
+                            half_hour = self.halfhour_dict[half_hour_in_alighting_time.key]
+                            sum_trip_number = half_hour_in_alighting_time.expandedAlighting.value
+                            row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour][1] = sum_trip_number
 
         for commune, commune_dict in row_dict.items():
             for stop, stop_dict in commune_dict.items():
@@ -1360,6 +1344,7 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                     for auth_route, auth_route_dict in transport_mode_dict.items():
                         for half_hour, trips in auth_route_dict.items():
                             row = [string_day_type, commune, stop, transport_mode, auth_route, half_hour, round(trips[0], 2), round(trips[1], 2)]
+                            print(row)
                             formatted_row.append(row)
 
         return formatted_row
