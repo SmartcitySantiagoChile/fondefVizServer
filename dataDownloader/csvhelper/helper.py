@@ -2,6 +2,7 @@ import csv
 import os
 import uuid
 import zipfile
+from collections import defaultdict
 
 from django.utils.dateparse import parse_date
 from elasticsearch_dsl import Search
@@ -1030,7 +1031,7 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
 
     def get_column_dict(self):
         return [
-             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
             {'es_name': 'boardingStopCommune', 'csv_name': 'Comuna_subida',
              'definition': 'Comuna asociada a la parada de subida de la primera etapa del viaje'},
             {'es_name': 'authStopCode', 'csv_name': 'Parada_subida',
@@ -1230,7 +1231,7 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
                         # convert h to m
                         average_time = (sum_trip_time / sum_trip_number) / 60
 
-                        #convert m to km
+                        # convert m to km
                         average_distance = (sum_trip_distance / sum_trip_number) / 1000
 
                         row = [string_day_type, start_commune_str, end_commune_str,
@@ -1294,7 +1295,6 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
              'definition': 'Número de etapa dentro del viaje en que participa el registro'},
         ]
 
-
     def get_data_file_name(self):
         return 'Subidas_y_bajadas.csv'
 
@@ -1305,7 +1305,13 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
     def row_parser(self, row):
         formatted_row = []
 
+        # default dict of commune, stop, transport_mode, auth_route, half_hour [boarding, alighting]
+
+        row_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(list)))))
+        print(row_dict)
+
         string_day_type = self.day_type_dict[row.key]
+
         for commune in row.boardingStopCommune:
             commune_str = self.commune_dict[commune.key]
             for stop in commune.authStopCode:
@@ -1317,7 +1323,13 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                         for half_hour_in_boarding_time in auth_route.halfHourInBoardingTime:
                             half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
                             sum_trip_number = half_hour_in_boarding_time.expandedBoarding.value
+                            row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour] = \
+                                [sum_trip_number]
                             row = [string_day_type, commune_str, stop_str,
                                    transport_modes_str, auth_route_str, half_hour, round(sum_trip_number, 2)]
                             formatted_row.append(row)
+        alighting_commune_list = []
+        for commune in row.alightingStopCommune:
+            alighting_commune_list.append(self.commune_dict[commune.key])
+        # print(alighting_commune_list)
         return formatted_row

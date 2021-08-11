@@ -591,11 +591,33 @@ class ESTripHelper(ElasticSearchHelper):
         es_query = self.get_post_products_base_query(dates, day_types)
 
         bucket_name = 'result'
-        es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4). \
-            bucket('boardingStopCommune', 'terms', field='comuna_subida', size=48). \
+        day_type_bucket = es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4)
+        day_type_bucket.bucket('boardingStopCommune', 'terms', field='comuna_subida', size=48). \
             bucket('authStopCode', 'terms', field='paradero_subida', size=13000). \
             bucket('transportModes', 'terms', field='modos', size=6). \
             bucket('authRouteCode', 'terms', field='srv_1', size=5000). \
             bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
             metric('expandedBoarding', 'sum', field='factor_expansion')
+
+        alighting_bucket = day_type_bucket.bucket('alightingStopCommune', 'terms', field='comuna_bajada', size=48). \
+            bucket('authStopCode', 'terms', field='paradero_bajada', size=13000). \
+            bucket('transportModes', 'terms', field='modos', size=6). \
+            bucket('nTrips', 'terms', field='n_viajes', size=5)
+
+        alighting_bucket.bucket('authRouteCode', 'terms', field='srv_1', size=5000). \
+            bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
+            metric('expandedAlighting', 'sum', field='factor_expansion')
+
+        alighting_bucket.bucket('authRouteCode', 'terms', field='srv_2', size=5000). \
+            bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
+            metric('expandedAlighting', 'sum', field='factor_expansion')
+
+        alighting_bucket.bucket('authRouteCode', 'terms', field='srv_3', size=5000). \
+            bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
+            metric('expandedAlighting', 'sum', field='factor_expansion')
+
+        alighting_bucket.bucket('authRouteCode', 'terms', field='srv_4', size=5000). \
+            bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
+            metric('expandedAlighting', 'sum', field='factor_expansion')
+
         return es_query
