@@ -1200,7 +1200,8 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
             {'es_name': 'speed', 'csv_name': 'Velocidad_de_viaje', 'definition': 'Velocidad de viaje promedio'},
             # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
             {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
-             'definition': 'Fecha y hora en que se inició el viaje'}
+             'definition': 'Fecha y hora en que se inició el viaje'},
+
         ]
 
     def get_data_file_name(self):
@@ -1240,7 +1241,59 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
         return formatted_row
 
 
-class PostProductTripBoardingAndAlightingCSVHelper(PostProductTripTripBetweenZonesCSVHelper):
+class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESTripHelper().index_name)
+
+    def get_iterator(self, kwargs):
+        es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
+        return es_query.execute().aggregations
+
+    def download(self, zip_file_obj, **kwargs):
+        tmp_file_name = str(uuid.uuid4())
+        try:
+            with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
+                # added BOM to file to recognize accent in excel files
+                output.write('\ufeff')
+                writer = csv.writer(output, dialect='excel', delimiter=',')
+                writer.writerow(self.get_header())
+
+                for aggregation in self.get_iterator(kwargs):
+                    for doc in aggregation:
+                        row = self.row_parser(doc)
+                        if isinstance(row[0], list):
+                            # there are more than one row in variable
+                            for r in row:
+                                writer.writerow(r)
+                        else:
+                            writer.writerow(row)
+
+            zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
+        finally:
+            os.remove(tmp_file_name)
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'boardingStopCommune', 'csv_name': 'Comuna',
+             'definition': 'Comuna asociada a la parada'},
+            {'es_name': 'authStopCode', 'csv_name': 'Paradero',
+             'definition': 'Paradero asociado'},
+            {'es_name': 'transportModes', 'csv_name': 'Modos_de_transporte',
+             'definition': 'Modo de viaje: puede ser Metro, Bus, Metrotren o una combinación'},
+            {'es_name': 'authRouteCode', 'csv_name': 'Servicio_usuario',
+             'definition': 'Servicio de Usuario asociado al paradero'},
+            {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora',
+             'definition': 'Media hora del tiempo asociado'},
+            {'es_name': 'expandedBoarding', 'csv_name': 'Cantidad_de_viajes',
+             'definition': 'Suma de viajes expandidos en la agrupación'},
+            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
+             'definition': 'Fecha y hora en que se inició el viaje'},
+            {'es_name': 'stageNumber', 'csv_name': 'Número_etapa',
+             'definition': 'Número de etapa dentro del viaje en que participa el registro'},
+        ]
+
 
     def get_data_file_name(self):
         return 'Subidas_y_bajadas.csv'
@@ -1253,24 +1306,18 @@ class PostProductTripBoardingAndAlightingCSVHelper(PostProductTripTripBetweenZon
         formatted_row = []
 
         string_day_type = self.day_type_dict[row.key]
-        for start_commune in row.startCommune:
-            start_commune_str = self.commune_dict[start_commune.key]
-            for end_commune in start_commune.endCommune:
-                end_commune_str = self.commune_dict[end_commune.key]
-                for transport_modes in end_commune.transportModes:
+        for commune in row.boardingStopCommune:
+            commune_str = self.commune_dict[commune.key]
+            for stop in commune.authStopCode:
+                stop_str = stop.key
+                for transport_modes in stop.transportModes:
                     transport_modes_str = self.transport_mode_dict[transport_modes.key]
-                    for half_hour_in_boarding_time in transport_modes.halfHourInBoardingTime:
-                        half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
-                        sum_trip_number = half_hour_in_boarding_time.tripNumber.value
-                        sum_trip_time = half_hour_in_boarding_time.tripTime.value
-                        sum_trip_distance = half_hour_in_boarding_time.tripDistance.value
-
-                        average_time = sum_trip_time / sum_trip_number
-                        average_distance = sum_trip_distance / sum_trip_number
-
-                        row = [self.start_date, self.end_date, string_day_type, start_commune_str, end_commune_str,
-                               transport_modes_str, half_hour, round(sum_trip_number, 2), round(average_time, 2),
-                               round(average_distance, 2), round(sum_trip_distance / sum_trip_time, 2)]
-                        formatted_row.append(row)
-
+                    for auth_route in transport_modes.authRouteCode:
+                        auth_route_str = auth_route.key
+                        for half_hour_in_boarding_time in auth_route.halfHourInBoardingTime:
+                            half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
+                            sum_trip_number = half_hour_in_boarding_time.expandedBoarding.value
+                            row = [string_day_type, commune_str, stop_str,
+                                   transport_modes_str, auth_route_str, half_hour, round(sum_trip_number, 2)]
+                            formatted_row.append(row)
         return formatted_row
