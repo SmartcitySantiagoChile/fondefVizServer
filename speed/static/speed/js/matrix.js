@@ -9,13 +9,21 @@ $(document).ready(function () {
     "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
   ];
 
-  let selectedSpeed = [];
-  let selectedLayers = [];
-  let layersToChange = [];
-
   function DrawSegmentsApp(colorScale, labels) {
     let _self = this;
     let colors = colorScale;
+
+    this.showSpeedLegend = (show, content) => {
+      let speedLegend = $("#speedLegend");
+      if (show) {
+        speedLegend.css({'visibility': 'visible'});
+        if (content !== undefined) {
+          speedLegend.html(content);
+        }
+      } else {
+        speedLegend.css({'visibility': 'hidden'});
+      }
+    };
 
     let mapOpts = {
       mapId: 'mapid',
@@ -28,8 +36,8 @@ $(document).ready(function () {
             let div = document.createElement('div');
             div.className = 'mapboxgl-ctrl info legend';
             div.id = 'button_legend';
-            div.innerHTML = "<input id='legendButton' type='checkbox' class='form-check-input' " +
-              "> <label class='form-check-label' for='legendButton'> Selección por tramos</label> ";
+            div.innerHTML = "<input id='chooseRangeButton' type='checkbox' class='form-check-input' " +
+              "> <label class='form-check-label' for='chooseRangeButton'> Selección por tramos</label> ";
             return div;
           }
 
@@ -65,7 +73,7 @@ $(document).ready(function () {
           onAdd(map) {
             let div = document.createElement('div');
             div.className = 'mapboxgl-ctrl info legend';
-            div.id = "infoLegendButton";
+            div.id = "speedLegend";
             div.class = "d-flex justify-content-center";
             div.style.visibility = "hidden";
             return div;
@@ -102,8 +110,12 @@ $(document).ready(function () {
             'line-cap': 'round'
           },
           paint: {
-            'line-color': ['get', 'color'],
-            'line-width': 2
+            'line-color': [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false], '#28DCF2',
+              ['get', 'color']
+            ],
+            'line-width': 3
           }
         }
 
@@ -136,11 +148,14 @@ $(document).ready(function () {
               'icon-allow-overlap': true,
               'icon-ignore-placement': true,
               'icon-image': 'double-arrow',
-              'icon-size': 0.4,
-              'visibility': 'visible'
+              'icon-size': 0.4
             },
             paint: {
-              'icon-color': ['get', 'color']
+              'icon-color': [
+                'case',
+                ['boolean', ['feature-state', 'selected'], false], '#28DCF2',
+                ['get', 'color']
+              ]
             }
           });
         });
@@ -167,111 +182,96 @@ $(document).ready(function () {
         _mapInstance.on('mouseenter', 'shapes-layer', mouseenter);
         _mapInstance.on('mouseleave', 'shapes-layer', mouseleave);
         _mapInstance.on('click', 'shapes-layer', click);
+
+        let aggregateSpeedMouseenter = () => {
+          _mapInstance.getCanvas().style.cursor = 'pointer';
+        };
+        let aggregateSpeedMouseleave = () => {
+          _mapInstance.getCanvas().style.cursor = '';
+        };
+
+        let aggregateSpeedClick = e => {
+          let feature = e.features[0];
+
+          selectedFeatures.push(feature);
+          _mapInstance.setFeatureState({source: 'shapes-source', id: feature.id}, {selected: true});
+
+          if (selectedFeatures.length === 2) {
+            // calculate speed info
+            _self.calculateAggregatedSpeed();
+          } else if (selectedFeatures.length > 2) {
+            _self.showSpeedLegend(false);
+            // clean previous
+            let features = _mapInstance.getSource('shapes-source')._data.features;
+            features.forEach(feature => {
+              _mapInstance.setFeatureState({source: 'shapes-source', id: feature.id}, {selected: false});
+            });
+
+            selectedFeatures = [feature];
+            _mapInstance.setFeatureState({source: 'shapes-source', id: feature.id}, {selected: true});
+          }
+        };
+
+        $('#chooseRangeButton').on("change", function () {
+          let checkboxValue = $("#chooseRangeButton").prop('checked');
+          if (checkboxValue) {
+            _mapInstance.off('mouseenter', 'shapes-layer', mouseenter);
+            _mapInstance.off('mouseleave', 'shapes-layer', mouseleave);
+            _mapInstance.off('click', 'shapes-layer', click);
+
+            _mapInstance.on('mouseenter', 'shapes-layer', aggregateSpeedMouseenter);
+            _mapInstance.on('mouseleave', 'shapes-layer', aggregateSpeedMouseleave);
+            _mapInstance.on('click', 'shapes-layer', aggregateSpeedClick);
+          } else {
+            _self.showSpeedLegend(false);
+            let features = _mapInstance.getSource('shapes-source')._data.features;
+            features.forEach(feature => {
+              _mapInstance.setFeatureState({source: 'shapes-source', id: feature.id}, {selected: false});
+            });
+
+            _mapInstance.off('mouseenter', 'shapes-layer', aggregateSpeedMouseenter);
+            _mapInstance.off('mouseleave', 'shapes-layer', aggregateSpeedMouseleave);
+            _mapInstance.off('click', 'shapes-layer', aggregateSpeedClick);
+
+            _mapInstance.on('mouseenter', 'shapes-layer', mouseenter);
+            _mapInstance.on('mouseleave', 'shapes-layer', mouseleave);
+            _mapInstance.on('click', 'shapes-layer', click);
+          }
+        });
       }
     };
     let _mapApp = new MapApp(mapOpts);
 
-    let createSpeedLegend = function () {
-      if ($("#legendButton").prop('checked') === true) {
-        if (selectedSpeed.length === 0 || selectedSpeed.length > 1) {
-          if (selectedLayers.length !== 0) {
-            selectedLayers = [];
-            _self.drawRoute(lastRoute, lastValuesRoute, false);
-            deletePopups();
-            map.eachLayer(function (e) {
-              if (e._latlngs) {
-                let latInit = e._latlngs[0]['lat'];
-                let lngInit = e._latlngs[0]['lng'];
-                if (segpol._latlngs[0]['lat'] === latInit && segpol._latlngs[0]['lng'] === lngInit) {
-                  selectedLayers.push(e);
-                }
-              }
-            });
-          } else {
-            selectedLayers = [segpol, deco];
-          }
-          selectedSpeed = [valuesRoute[i]];
-          [segpol, deco].forEach(function (e) {
-            let newLayer = e;
-            map.removeLayer(e);
-            newLayer._popup = null;
-            if (newLayer.options.patterns !== undefined) {
-              newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
-            } else {
-              newLayer.options.color = '#28DCF2';
-
-            }
-            map.addLayer(newLayer);
-          });
-        } else {
-          //calculate speed
-          selectedSpeed.push(valuesRoute[i]);
-          selectedLayers.push(segpol);
-          selectedLayers.push(deco);
-          let indexA = valuesRoute.findIndex(function (a) {
-            return compareElementsOfArray(a, selectedSpeed[0]);
-          });
-
-          let indexB = valuesRoute.findIndex(function (a) {
-            return compareElementsOfArray(a, selectedSpeed[1]);
-          });
-          let firstIndex = Math.min(indexA, indexB);
-          let secondIndex = Math.max(indexA, indexB);
-          let accumulateDistance = 0;
-          let accumulateTime = 0;
-          for (let index = firstIndex; index <= secondIndex; index++) {
-            accumulateDistance += valuesRoute[index][3];
-            accumulateTime += valuesRoute[index][4];
-          }
-          let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2).toString().replace(".", ",");
-          let firstInfo = `Velocidad entre los tramos ${firstIndex} y ${secondIndex}: <br>  <b> ${speedInfo} km/h </b>`;
-          $("#infoLegendButton").html(firstInfo);
-          $("#infoLegendButton").css({'visibility': 'visible'});
-
-          //reprint
-          let indexSelectedLayers = selectedLayers.map(e => e._leaflet_id);
-          let firstLayerIndex = Math.min(...indexSelectedLayers);
-          let secondLayerIndex = Math.max(...indexSelectedLayers);
-          if (indexSelectedLayers.length !== 4) {
-            secondLayerIndex += 2;
-          }
-          layersToChange = [];
-          selectedSpeed = [];
-          map.eachLayer(function (e) {
-            let id = e._leaflet_id;
-            if (id >= firstLayerIndex && id <= secondLayerIndex) {
-              layersToChange.push(e);
-            }
-          });
-          layersToChange.forEach(function (e) {
-            let newLayer = e;
-            map.removeLayer(e);
-            newLayer._popup = null;
-            if (newLayer.options.patterns !== undefined) {
-              newLayer.options.patterns[0].symbol.options.pathOptions.color = '#28DCF2';
-            } else {
-              newLayer.options.color = '#28DCF2';
-            }
-            map.addLayer(newLayer);
-          });
-        }
+    let selectedFeatures = [];
+    this.calculateAggregatedSpeed = () => {
+      let checkboxValue = $("#chooseRangeButton").prop('checked');
+      if (selectedFeatures.length < 2 || !checkboxValue) {
+        return;
       }
+      let firstIndex = Math.min(selectedFeatures[0].id, selectedFeatures[1].id);
+      let secondIndex = Math.max(selectedFeatures[0].id, selectedFeatures[1].id);
+      let features = _mapApp.getMapInstance().getSource('shapes-source')._data.features;
+
+      let accumulateDistance = 0;
+      let accumulateTime = 0;
+      features.forEach(feature => {
+        if (firstIndex <= feature.id && feature.id <= secondIndex) {
+          _mapApp.getMapInstance().setFeatureState({source: 'shapes-source', id: feature.id}, {selected: true});
+          accumulateTime += feature.properties.time;
+          accumulateDistance += feature.properties.distance;
+        }
+      });
+
+      let speedInfo = (3.6 * (accumulateDistance / accumulateTime)).toFixed(2).toString().replace(".", ",");
+      let speedLegendInfo = `Velocidad entre los tramos ${firstIndex} y ${secondIndex}: <br>  <b> ${speedInfo} km/h </b>`;
+      _self.showSpeedLegend(true, speedLegendInfo)
     };
 
     /* to draw on map */
     let startEndSegments = null;
     let routePoints = null;
-
     let lastRoute = null;
     let lastValuesRoute = null;
-
-    let compareElementsOfArray = function (a, b) {
-      let n = Array.from(Array(a.length).keys());
-      let value = true;
-      n.forEach((index) =>
-        value = value && (a[index] === b[index]));
-      return value;
-    };
 
     this.highlightSegment = function (segmentId) {
       let startIndex = startEndSegments[segmentId][0];
@@ -298,7 +298,7 @@ $(document).ready(function () {
       _mapApp.fitBound(['bound-points-source']);
     };
 
-    this.drawRoute = function (route, valuesRoute, fly = true) {
+    this.drawRoute = function (route, valuesRoute) {
       lastRoute = route;
       lastValuesRoute = valuesRoute;
       /* update routes and segments */
@@ -319,6 +319,8 @@ $(document).ready(function () {
         let segmentColor = colors[valuesRoute[i][0]];
         let speed = valuesRoute[i][1];
         let obsNumber = valuesRoute[i][2];
+        let distance = valuesRoute[i][3];
+        let time = valuesRoute[i][4];
         let lineString = {
           type: 'Feature',
           geometry: {
@@ -330,37 +332,19 @@ $(document).ready(function () {
             speed: speed,
             formattedSpeed: speed.toFixed(2).toString().replace(".", ","),
             obsNumber: obsNumber,
-            segmentIndex: i
-          }
+            segmentIndex: i,
+            distance: distance,
+            time: time
+          },
+          id: i
         };
         segments.features.push(lineString);
       });
 
       _mapApp.getMapInstance().getSource('shapes-source').setData(segments);
-
-      if (fly) {
-        _mapApp.fitBound(['shapes-source']);
-      } else {
-        map.zoomIn({duration: 1000});
-      }
+      _mapApp.fitBound(['shapes-source']);
+      _self.calculateAggregatedSpeed();
     };
-
-    $('#legendButton').on("change", function () {
-      if ($("#legendButton").prop('checked') === false) {
-        $("#infoLegendButton").css({'visibility': 'hidden'});
-        _self.drawRoute(lastRoute, lastValuesRoute);
-      } else {
-        deletePopups();
-      }
-      selectedSpeed = [];
-      selectedLayers = [];
-    });
-
-    let deletePopups = function () {
-      map.eachLayer(function (e) {
-        e._popup = null;
-      });
-    }
   }
 
   function MatrixApp() {
@@ -508,7 +492,8 @@ $(document).ready(function () {
       opts.yAxis.data = segments;
       opts.series[0].data = data;
       mChart.setOption(opts, {merge: false});
-      drawSegmentApp.drawRoute(route, matrix[0]);
+      let slider = $("#filterHourRange").data("ionRangeSlider");
+      drawSegmentApp.drawRoute(route, matrix[slider.result.from]);
     };
 
     this.updateLabel = function (label) {
