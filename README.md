@@ -345,6 +345,27 @@ Ejecutar tests:
  
 `docker-compose -f docker/docker-compose-test.yml up --abort-on-container-exit` 
 
+### Actualizar dataUploader
+Cada vez que exista una nueva release de dataUploader se debe actualizar la versión del submódulo del proyecto. Desde la raíz del proyecto se debe direccionar al módulo dataUploader:
+
+    cd datauploader
+
+Actualizar vía git:
+
+    git pull origin master
+
+Volver al proyecto
+
+    cd ..
+
+Hacer commit de la actualización
+
+    git add datauploader
+    git commit -m "Update dataUploader"
+
+Finalmente actualiar vía pip
+
+    pip install -r requirements.txt
 
 ### Opcionales
 
