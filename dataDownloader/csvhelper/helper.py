@@ -1287,12 +1287,12 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
              'definition': 'Servicio de Usuario asociado al paradero'},
             {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora',
              'definition': 'Media hora del tiempo asociado'},
-            {'es_name': 'expandedBoarding', 'csv_name': 'Cantidad_de_viajes',
+            {'es_name': 'expandedBoarding', 'csv_name': 'Cantidad_de_subidas',
              'definition': 'Suma de viajes expandidos en la agrupación'},
+            {'es_name': 'expandedAlighting', 'csv_name': 'Cantidad_de_bajadas',
+             'definition': 'Suma de bajadas expandidos en la agrupación'},
             {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
              'definition': 'Fecha y hora en que se inició el viaje'},
-            {'es_name': 'stageNumber', 'csv_name': 'Número_etapa',
-             'definition': 'Número de etapa dentro del viaje en que participa el registro'},
         ]
 
     def get_data_file_name(self):
@@ -1307,8 +1307,7 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
 
         # default dict of commune, stop, transport_mode, auth_route, half_hour [boarding, alighting]
 
-        row_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(list)))))
-        print(row_dict)
+        row_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda:[0, 0])))))
 
         string_day_type = self.day_type_dict[row.key]
 
@@ -1323,13 +1322,44 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                         for half_hour_in_boarding_time in auth_route.halfHourInBoardingTime:
                             half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
                             sum_trip_number = half_hour_in_boarding_time.expandedBoarding.value
-                            row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour] = \
-                                [sum_trip_number]
-                            row = [string_day_type, commune_str, stop_str,
-                                   transport_modes_str, auth_route_str, half_hour, round(sum_trip_number, 2)]
-                            formatted_row.append(row)
-        alighting_commune_list = []
+                            row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour][0] = \
+                                sum_trip_number
+                            #row = [string_day_type, commune_str, stop_str,
+                            #    transport_modes_str, auth_route_str, half_hour, round(sum_trip_number, 2)]
+                            #formatted_row.append(row)
+
         for commune in row.alightingStopCommune:
-            alighting_commune_list.append(self.commune_dict[commune.key])
-        # print(alighting_commune_list)
+            commune_str = self.commune_dict[commune.key]
+            for stop in commune.authStopCode:
+                stop_str = stop.key
+                for transport_modes in stop.transportModes:
+                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    for n_trip in transport_modes.nTrips:
+                        n_trip_auth_route = None
+                        print(n_trip)
+                        if n_trip.key == 1:
+                            n_trip_auth_route = n_trip.authRouteCode1
+                        elif n_trip.key == 2:
+                            n_trip_auth_route = n_trip.authRouteCode2
+                        elif n_trip.key == 3:
+                            n_trip_auth_route = n_trip.authRouteCode3
+                        elif n_trip.key == 4:
+                            n_trip_auth_route = n_trip.authRouteCode4
+
+                        for auth_route in n_trip_auth_route:
+                            auth_route_str = auth_route.key
+                            for half_hour_in_alighting_time in auth_route.halfHourInAlightingTime:
+                                half_hour = self.halfhour_dict[half_hour_in_alighting_time.key]
+                                sum_trip_number = half_hour_in_alighting_time.expandedAlighting.value
+                                print(sum_trip_number)
+                                row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour][1] = sum_trip_number
+
+        for commune, commune_dict in row_dict.items():
+            for stop, stop_dict in commune_dict.items():
+                for transport_mode, transport_mode_dict in stop_dict.items():
+                    for auth_route, auth_route_dict in transport_mode_dict.items():
+                        for half_hour, trips in auth_route_dict.items():
+                            row = [string_day_type, commune, stop, transport_mode, auth_route, half_hour, round(trips[0], 2), round(trips[1], 2)]
+                            formatted_row.append(row)
+
         return formatted_row
