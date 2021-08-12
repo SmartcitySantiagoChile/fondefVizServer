@@ -574,16 +574,14 @@ class ESTripHelper(ElasticSearchHelper):
 
     def get_post_products_trip_between_zone_data_query(self, dates, day_types):
         es_query = self.get_post_products_base_query(dates, day_types)
-
         es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4). \
             bucket('startCommune', 'terms', field='comuna_subida', size=48). \
             bucket('endCommune', 'terms', field='comuna_bajada', size=13000). \
             bucket('transportModes', 'terms', field='modos', size=6). \
             bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
             metric('tripNumber', 'sum', field='factor_expansion'). \
-            metric('tripTime', 'sum', field='tviaje'). \
-            metric('tripDistance', 'sum', field='distancia_ruta')
-
+            metric('expandedTime', 'sum', script="doc['tviaje'].value * doc['factor_expansion'].value"). \
+            metric('expandedDistance', 'sum', script="doc['distancia_ruta'].value * doc['factor_expansion'].value")
         return es_query
 
     def get_post_products_boarding_and_alighting_data_query(self, dates, day_types):
@@ -599,7 +597,7 @@ class ESTripHelper(ElasticSearchHelper):
 
         day_type_bucket.bucket('alightingStopCommune', 'terms', field='comuna_bajada', size=48). \
             bucket('authStopCode', 'terms', field='paradero_bajada', size=13000). \
-            bucket('transportModes', 'terms', field='modos', size=6).\
+            bucket('transportModes', 'terms', field='modos', size=6). \
             bucket('authRouteCode', 'terms', field='servicio_bajada', size=5000). \
             bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
             metric('expandedAlighting', 'sum', field='factor_expansion')

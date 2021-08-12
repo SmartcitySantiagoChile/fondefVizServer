@@ -1196,8 +1196,8 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
              'definition': 'Media hora del tiempo de inicio del viaje'},
             {'es_name': 'tripNumber', 'csv_name': 'Cantidad_de_viajes',
              'definition': 'Suma de viajes expandidos en la agrupación'},
-            {'es_name': 'tripTime', 'csv_name': 'Tiempo_de_viaje', 'definition': 'Tiempo de viaje promedio'},
-            {'es_name': 'tripDistance', 'csv_name': 'Distancia_de_viaje', 'definition': 'Distancia de viaje promedio'},
+            {'es_name': 'expandedTime', 'csv_name': 'Tiempo_de_viaje', 'definition': 'Tiempo de viaje promedio'},
+            {'es_name': 'expandedDistance', 'csv_name': 'Distancia_de_viaje', 'definition': 'Distancia de viaje promedio'},
             {'es_name': 'speed', 'csv_name': 'Velocidad_de_viaje', 'definition': 'Velocidad de viaje promedio'},
             # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
             {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
@@ -1225,9 +1225,8 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
                     for half_hour_in_boarding_time in transport_modes.halfHourInBoardingTime:
                         half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
                         sum_trip_number = half_hour_in_boarding_time.tripNumber.value
-                        sum_trip_time = half_hour_in_boarding_time.tripTime.value
-                        sum_trip_distance = half_hour_in_boarding_time.tripDistance.value
-
+                        sum_trip_time = half_hour_in_boarding_time.expandedTime.value
+                        sum_trip_distance = half_hour_in_boarding_time.expandedDistance.value
                         # convert h to m
                         average_time = (sum_trip_time / sum_trip_number) / 60
 
