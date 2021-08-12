@@ -77,12 +77,13 @@ services:
       memlock:
         soft: -1
         hard: -1
+    ports:
+      - 9200:9200
     environment:
       - discovery.type=single-node
       - cluster.routing.allocation.disk.threshold_enabled=false
-      - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
       - bootstrap.memory_lock=true
-
     volumes:
       - data:/usr/share/elasticsearch/data
     networks:
