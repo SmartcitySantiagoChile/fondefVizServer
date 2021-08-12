@@ -1187,7 +1187,7 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
 
     def get_column_dict(self):
         return [
-            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'tipodia', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
             {'es_name': 'startCommune', 'csv_name': 'Comuna_origen', 'definition': 'Comuna de inicio del viaje'},
             {'es_name': 'endCommune', 'csv_name': 'Comuna_destino', 'definition': 'Comuna de destino del viaje'},
             {'es_name': 'transportModes', 'csv_name': 'Modos_de_transporte',
@@ -1276,7 +1276,7 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
 
     def get_column_dict(self):
         return [
-            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'tipodia', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
             {'es_name': 'boardingStopCommune', 'csv_name': 'Comuna',
              'definition': 'Comuna asociada a la parada'},
             {'es_name': 'authStopCode', 'csv_name': 'Paradero',
@@ -1344,7 +1344,6 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                     for auth_route, auth_route_dict in transport_mode_dict.items():
                         for half_hour, trips in auth_route_dict.items():
                             row = [string_day_type, commune, stop, transport_mode, auth_route, half_hour, round(trips[0], 2), round(trips[1], 2)]
-                            print(row)
                             formatted_row.append(row)
 
         return formatted_row

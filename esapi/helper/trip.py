@@ -569,8 +569,7 @@ class ESTripHelper(ElasticSearchHelper):
         es_query = es_query.query('bool', filter=[combined_filter])
 
         if day_types:
-            es_query = es_query.filter('terms', dayType=day_types)
-
+            es_query = es_query.filter('terms', tipodia=day_types)
         return es_query
 
     def get_post_products_trip_between_zone_data_query(self, dates, day_types):
