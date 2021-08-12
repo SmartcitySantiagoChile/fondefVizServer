@@ -460,8 +460,8 @@ class PostProductTripsBetweenZones(View):
                 es_query = es_trip_helper.get_post_products_trip_between_zone_data_query(dates, day_types)
                 ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_TRIP_TRIP_BETWEEN_ZONES_DATA,
                                                       request.user)
-            else:
-                pass
+            response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -492,8 +492,8 @@ class PostProductTripsBoardingAndAlighting(View):
                 es_query = es_trip_helper.get_post_products_boarding_and_alighting_data_query(dates, day_types)
                 ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA,
                                                       request.user)
-            else:
-                pass
+            response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
