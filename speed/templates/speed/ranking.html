@@ -5,7 +5,7 @@
 
 {% block css %}
     {{ block.super }}
-    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+    <link href="{% static "css/mapbox-gl.css" %}" rel="stylesheet">
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.css" %}" rel="stylesheet">
         <link href="{% static gentelella_static|add:"ion.rangeSlider/css/ion.rangeSlider.skinModern.css" %}"
@@ -21,7 +21,6 @@
               rel="stylesheet">
         <link href="{% static gentelella_static|add:"datatables.net-scroller-bs/css/scroller.bootstrap.min.css" %}"
               rel="stylesheet">
-
         <style>
             .select2-container .select2-choice:not(.select2-default) {
                 background-image: none !important;
@@ -74,8 +73,6 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
-    <script src="{% static "components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"ion.rangeSlider/js/ion.rangeSlider.min.js" %}"></script>
 
@@ -86,5 +83,7 @@
         <script src="{% static gentelella_static|add:"datatables.net-responsive-bs/js/responsive.bootstrap.js" %}"></script>
         <script src="{% static gentelella_static|add:"datatables.net-scroller/js/dataTables.scroller.min.js" %}"></script>
     {% endwith %}
+    <script src="{% static "js/mapbox-gl.js" %}"></script>
+    <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "speed/js/ranking.js" %}"></script>
 {% endblock %}
