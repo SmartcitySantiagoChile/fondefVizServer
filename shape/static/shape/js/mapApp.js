@@ -15,66 +15,87 @@ $(document).ready(function () {
     }
   };
 
-
   function MapShapeApp() {
     let _self = this;
     let mapOpts = {
       mapId: $(".right_col")[0],
-      maxZoom: 18,
-      zoomControl: false
+      zoomControl: false,
+      scaleControl: true,
+      onLoad: (_mapInstance) => {
+        class RouteControl {
+          onAdd(map) {
+            let div = document.createElement('div');
+            div.className = 'mapboxgl-ctrl info legend';
+            div.innerHTML += '<button id="addRouteButton" class="btn btn-default btn-sm" >' +
+              '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta' +
+              '</button>';
+            return div;
+          }
+
+          onRemove() {
+            // nothing
+          }
+        }
+
+        _mapInstance.addControl(new RouteControl(), 'top-left');
+
+        class HelpControl {
+          onAdd(map) {
+            let div = document.createElement('div');
+            div.className = 'mapboxgl-ctrl info legend';
+            div.innerHTML += '<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>';
+            return div;
+          }
+
+          onRemove() {
+            // nothing
+          }
+        }
+
+        _mapInstance.addControl(new HelpControl(), 'top-right');
+
+        class RouteListControl {
+          onAdd(map) {
+            let div = document.createElement('div');
+            div.className = 'mapboxgl-ctrl info legend';
+            div.innerHTML += '<h4>Rutas en mapa</h4>' +
+              '<div id="header" style="display: none">' +
+              '<div class="form-inline" >' +
+              '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"></span> Ver información operacional</button>' + '</div>' +
+              '<div class="form-inline" >' +
+              '<div class="form-row">' +
+              '<div class="form-group col">' +
+              '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+              '<button class="btn btn-default-white btn-sm date" >Programa de Operación</button>' +
+              '<button class="btn btn-default-white btn-sm userRoute"" >Servicio</button>' +
+              '<button class="btn btn-default-white btn-sm route" >Servicio Sonda</button>' +
+              '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+              '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+              '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+              '<div id="routeListContainer" class="form-inline"</div>';
+            return div;
+          }
+
+          onRemove() {
+            // nothing
+          }
+        }
+
+        _mapInstance.addControl(new RouteListControl(), 'top-left');
+
+        // enable events
+        $("#helpButton").click(function () {
+          $("#helpModal").modal("show");
+        });
+      }
     };
     let app = new MapApp(mapOpts);
     let mapInstance = app.getMapInstance();
 
-    let addRouteControl = L.control({position: "topleft"});
-    addRouteControl.onAdd = function (map) {
-      let div = L.DomUtil.create("div", "info legend");
-      div.innerHTML += '<button id="addRouteButton" class="btn btn-default btn-sm" >' +
-        '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta' +
-        '</button>';
-      L.DomEvent.disableClickPropagation(div);
-      return div;
-    };
-    addRouteControl.addTo(mapInstance);
-
-    let routeListControl = L.control({position: "topleft"});
-    routeListControl.onAdd = function (map) {
-      let div = L.DomUtil.create("div", "info legend");
-      div.innerHTML += '<h4>Rutas en mapa</h4>' +
-        '<div id="header" style="display: none">' +
-        '<div class="form-inline" >' +
-        '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"></span> Ver información operacional</button>' + '</div>' +
-        '<div class="form-inline" >' +
-        '<div class="form-row">' +
-        '<div class="form-group col">' +
-        '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-        '<button class="btn btn-default-white btn-sm date" >Programa de Operación</button>' +
-        '<button class="btn btn-default-white btn-sm userRoute"" >Servicio</button>' +
-        '<button class="btn btn-default-white btn-sm route" >Servicio Sonda</button>' +
-        '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-        '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-        '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '<div id="routeListContainer" class="form-inline"</div>';
-      L.DomEvent.disableClickPropagation(div);
-      return div;
-    };
-    routeListControl.addTo(mapInstance);
-
-    let helpControl = L.control({position: "topright"});
-    helpControl.onAdd = function (map) {
-      let div = L.DomUtil.create("div", "info legend");
-      div.innerHTML += '<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>';
-      L.DomEvent.disableClickPropagation(div);
-      return div;
-    };
-    helpControl.addTo(mapInstance);
-    $("#helpButton").click(function () {
-      $("#helpModal").modal("show");
-    });
 
     $("#timePeriodButton").click(function () {
       let routeSelector = $("#routeListContainer");
@@ -129,10 +150,6 @@ $(document).ready(function () {
         }
       );
     });
-
-    L.control.zoom({
-      position: 'topright'
-    }).addTo(mapInstance);
 
     let $ROW_CONTAINER = $("#routeListContainer");
     let layers = {};

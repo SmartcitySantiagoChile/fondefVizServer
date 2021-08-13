@@ -2,12 +2,8 @@
 {% load static %}
 
 {% block css %}
-     <link rel="stylesheet" href="{% static 'shape/css/mapBase.css' %}" >
-
-    <!-- leaflet -->
-    <link rel="stylesheet" href="{% static "components/leaflet/dist/leaflet.css" %}">
-    <link rel="stylesheet"
-          href="{% static "components/BeautifyMarker/leaflet-beautify-marker-icon.css" %}">
+    <link rel="stylesheet" href="{% static 'shape/css/mapBase.css' %}">
+    <link href="{% static "css/mapbox-gl.css" %}" rel="stylesheet">
     <link rel="stylesheet"
           href="{% static "components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" %}">
 
@@ -25,16 +21,13 @@
         <link href="{% static gentelella_static|add:"datatables.net-buttons-bs/css/buttons.bootstrap.min.css" %}"
               rel="stylesheet">
     {% endwith %}
-
-
-
 {% endblock %}
 
 {% block content %}
     <div id="modalList">
-    {% include "help/modal/modal_shape.html" with show_ok_button=True modal_id="shape_info" modal_title="Datos sobre ruta" modal_body="" %}
-    {% include "help/modal/modal.html" with show_ok_button=True modal_id="modal" modal_title="Eliminar ruta" modal_body="¿Está seguro que quiere eliminar la ruta?" %}
-    {% include "help/modal/explanation/shape/map.html" with modal_id="helpModal" %}
+        {% include "help/modal/modal_shape.html" with show_ok_button=True modal_id="shape_info" modal_title="Datos sobre ruta" modal_body="" %}
+        {% include "help/modal/modal.html" with show_ok_button=True modal_id="modal" modal_title="Eliminar ruta" modal_body="¿Está seguro que quiere eliminar la ruta?" %}
+        {% include "help/modal/explanation/shape/map.html" with modal_id="helpModal" %}
     </div>
 {% endblock %}
 
@@ -54,10 +47,8 @@
         <script src="{% static gentelella_static|add:'datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
 
     {% endwith %}
-    <script src="{% static 'components/leaflet/dist/leaflet.js' %}"></script>
-    <script src="{% static 'components/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js' %}"></script>
     <script src="{% static 'components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
-    <script src="{% static 'components/BeautifyMarker/leaflet-beautify-marker-icon.js' %}"></script>
+    <script src="{% static "js/mapbox-gl.js" %}"></script>
     <script src="{% static 'trip/js/map.js' %}"></script>
     <script src="{% static 'shape/js/mapApp.js' %}"></script>
 {% endblock %}
