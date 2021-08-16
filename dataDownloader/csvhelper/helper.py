@@ -1197,11 +1197,13 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
             {'es_name': 'tripNumber', 'csv_name': 'Cantidad_de_viajes',
              'definition': 'Suma de viajes expandidos en la agrupación'},
             {'es_name': 'expandedTime', 'csv_name': 'Tiempo_de_viaje', 'definition': 'Tiempo de viaje promedio'},
-            {'es_name': 'expandedDistance', 'csv_name': 'Distancia_de_viaje', 'definition': 'Distancia de viaje promedio'},
+            {'es_name': 'expandedDistance', 'csv_name': 'Distancia_de_viaje',
+             'definition': 'Distancia de viaje promedio'},
             {'es_name': 'speed', 'csv_name': 'Velocidad_de_viaje', 'definition': 'Velocidad de viaje promedio'},
+            {'es_name': 'expandedStages', 'csv_name': 'Etapas', 'definition': 'Número de etapas promedio'},
             # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
             {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
-             'definition': 'Fecha y hora en que se inició el viaje'},
+             'definition': 'Fecha y hora en que se inició el viaje'}
 
         ]
 
@@ -1227,15 +1229,19 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
                         sum_trip_number = half_hour_in_boarding_time.tripNumber.value
                         sum_trip_time = half_hour_in_boarding_time.expandedTime.value
                         sum_trip_distance = half_hour_in_boarding_time.expandedDistance.value
+                        sum_trip_stages = half_hour_in_boarding_time.expandedStages.value
                         # convert h to m
                         average_time = (sum_trip_time / sum_trip_number) / 60
 
                         # convert m to km
                         average_distance = (sum_trip_distance / sum_trip_number) / 1000
 
+                        average_stages = (sum_trip_stages / sum_trip_number)
+
                         row = [string_day_type, start_commune_str, end_commune_str,
                                transport_modes_str, half_hour, round(sum_trip_number, 2), round(average_time, 2),
-                               round(average_distance, 2), round(average_distance / average_time, 2)]
+                               round(average_distance, 2), round(average_distance / average_time, 2),
+                               round(average_stages, 2)]
                         formatted_row.append(row)
 
         return formatted_row
@@ -1306,7 +1312,8 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
 
         # default dict of commune, stop, transport_mode, auth_route, half_hour [boarding, alighting]
 
-        row_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda:[0, 0])))))
+        row_dict = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [0, 0])))))
 
         string_day_type = self.day_type_dict[row.key]
 
@@ -1335,14 +1342,16 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                         for half_hour_in_alighting_time in auth_route.halfHourInAlightingTime:
                             half_hour = self.halfhour_dict[half_hour_in_alighting_time.key]
                             sum_trip_number = half_hour_in_alighting_time.expandedAlighting.value
-                            row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour][1] = sum_trip_number
+                            row_dict[commune_str][stop_str][transport_modes_str][auth_route_str][half_hour][
+                                1] = sum_trip_number
 
         for commune, commune_dict in row_dict.items():
             for stop, stop_dict in commune_dict.items():
                 for transport_mode, transport_mode_dict in stop_dict.items():
                     for auth_route, auth_route_dict in transport_mode_dict.items():
                         for half_hour, trips in auth_route_dict.items():
-                            row = [string_day_type, commune, stop, transport_mode, auth_route, half_hour, round(trips[0], 2), round(trips[1], 2)]
+                            row = [string_day_type, commune, stop, transport_mode, auth_route, half_hour,
+                                   round(trips[0], 2), round(trips[1], 2)]
                             formatted_row.append(row)
 
         return formatted_row
