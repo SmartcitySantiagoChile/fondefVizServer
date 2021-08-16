@@ -1196,11 +1196,12 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
              'definition': 'Media hora del tiempo de inicio del viaje'},
             {'es_name': 'tripNumber', 'csv_name': 'Cantidad_de_viajes',
              'definition': 'Suma de viajes expandidos en la agrupación'},
+            {'es_name': 'expandedStages', 'csv_name': 'Cantidad_de_etapas', 'definition': 'Número de etapas promedio'},
             {'es_name': 'expandedTime', 'csv_name': 'Tiempo_de_viaje', 'definition': 'Tiempo de viaje promedio'},
             {'es_name': 'expandedDistance', 'csv_name': 'Distancia_de_viaje',
              'definition': 'Distancia de viaje promedio'},
             {'es_name': 'speed', 'csv_name': 'Velocidad_de_viaje', 'definition': 'Velocidad de viaje promedio'},
-            {'es_name': 'expandedStages', 'csv_name': 'Etapas', 'definition': 'Número de etapas promedio'},
+
             # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
             {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
              'definition': 'Fecha y hora en que se inició el viaje'}
@@ -1239,9 +1240,9 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
                         average_stages = (sum_trip_stages / sum_trip_number)
 
                         row = [string_day_type, start_commune_str, end_commune_str,
-                               transport_modes_str, half_hour, round(sum_trip_number, 2), round(average_time, 2),
-                               round(average_distance, 2), round(average_distance / average_time, 2),
-                               round(average_stages, 2)]
+                               transport_modes_str, half_hour, round(sum_trip_number, 2),
+                               round(average_stages, 2), round(average_time, 2),
+                               round(average_distance, 2), round(average_distance / average_time, 2)]
                         formatted_row.append(row)
 
         return formatted_row
