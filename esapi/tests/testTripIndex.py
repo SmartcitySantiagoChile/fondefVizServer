@@ -709,8 +709,11 @@ class ESTripIndexTest(TestCase):
                                                                 'expandedTime': {'sum': {
                                                                     'script': "doc['tviaje'].value * doc['factor_expansion'].value"}},
                                                                 'expandedDistance': {'sum': {
-                                                                    'script': "doc['distancia_ruta'].value * doc['factor_expansion'].value"}}}}}}}}}}}}},
+                                                                    'script': "doc['distancia_ruta'].value * doc['factor_expansion'].value"}},
+                                                                'expandedStages': {'sum': {
+                                                                    'script': "doc['n_etapas'].value * doc['factor_expansion'].value"}}}}}}}}}}}}},
             'from': 0, 'size': 0}
+
         result = self.instance.get_post_products_trip_between_zone_data_query(dates, day_types)
         self.assertEqual(expected_result, result.to_dict())
 
@@ -734,7 +737,7 @@ class ESTripIndexTest(TestCase):
                                 'halfHourInAlightingTime': {'terms': {'field': 'mediahora_bajada', 'size': 48},
                                                             'aggs': {'expandedAlighting': {
                                                                 'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}}},
-                           'from': 0, 'size': 0}
+            'from': 0, 'size': 0}
 
         result = self.instance.get_post_products_boarding_and_alighting_data_query(dates, day_types)
         self.assertEqual(expected_result, result.to_dict())

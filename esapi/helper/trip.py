@@ -581,7 +581,8 @@ class ESTripHelper(ElasticSearchHelper):
             bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
             metric('tripNumber', 'sum', field='factor_expansion'). \
             metric('expandedTime', 'sum', script="doc['tviaje'].value * doc['factor_expansion'].value"). \
-            metric('expandedDistance', 'sum', script="doc['distancia_ruta'].value * doc['factor_expansion'].value")
+            metric('expandedDistance', 'sum', script="doc['distancia_ruta'].value * doc['factor_expansion'].value"). \
+            metric('expandedStages', 'sum', script="doc['n_etapas'].value * doc['factor_expansion'].value")
         return es_query
 
     def get_post_products_boarding_and_alighting_data_query(self, dates, day_types):
