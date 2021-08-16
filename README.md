@@ -348,7 +348,7 @@ Ejecutar tests:
 ### Actualizar dataUploader
 Cada vez que exista una nueva release de dataUploader se debe actualizar la versión del submódulo del proyecto. Desde la raíz del proyecto se debe direccionar al módulo dataUploader:
 
-    cd datauploader
+    cd dataUploader
 
 Actualizar vía git:
 
@@ -360,7 +360,7 @@ Volver al proyecto
 
 Hacer commit de la actualización
 
-    git add datauploader
+    git add dataUploader
     git commit -m "Update dataUploader"
 
 Finalmente actualiar vía pip

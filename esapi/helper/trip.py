@@ -591,14 +591,14 @@ class ESTripHelper(ElasticSearchHelper):
         day_type_bucket = es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4)
         day_type_bucket.bucket('boardingStopCommune', 'terms', field='comuna_subida', size=48). \
             bucket('authStopCode', 'terms', field='paradero_subida', size=13000). \
-            bucket('transportModes', 'terms', field='modos', size=6). \
+            bucket('transportModes', 'terms', field='tipo_transporte_1', size=6). \
             bucket('authRouteCode', 'terms', field='srv_1', size=5000). \
             bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
             metric('expandedBoarding', 'sum', field='factor_expansion')
 
         day_type_bucket.bucket('alightingStopCommune', 'terms', field='comuna_bajada', size=48). \
             bucket('authStopCode', 'terms', field='paradero_bajada', size=13000). \
-            bucket('transportModes', 'terms', field='modos', size=6). \
+            bucket('transportModes', 'terms', field='modo_bajada', size=6). \
             bucket('authRouteCode', 'terms', field='servicio_bajada', size=5000). \
             bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
             metric('expandedAlighting', 'sum', field='factor_expansion')

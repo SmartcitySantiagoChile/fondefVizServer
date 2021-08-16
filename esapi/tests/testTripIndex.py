@@ -726,13 +726,13 @@ class ESTripIndexTest(TestCase):
             'dayType': {'terms': {'field': 'tipodia', 'size': 4}, 'aggs': {
                 'boardingStopCommune': {'terms': {'field': 'comuna_subida', 'size': 48}, 'aggs': {
                     'authStopCode': {'terms': {'field': 'paradero_subida', 'size': 13000}, 'aggs': {
-                        'transportModes': {'terms': {'field': 'modos', 'size': 6}, 'aggs': {
+                        'transportModes': {'terms': {'field': 'tipo_transporte_1', 'size': 6}, 'aggs': {
                             'authRouteCode': {'terms': {'field': 'srv_1', 'size': 5000}, 'aggs': {
                                 'halfHourInBoardingTime': {'terms': {'field': 'mediahora_subida', 'size': 48}, 'aggs': {
                                     'expandedBoarding': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}},
                 'alightingStopCommune': {'terms': {'field': 'comuna_bajada', 'size': 48}, 'aggs': {
                     'authStopCode': {'terms': {'field': 'paradero_bajada', 'size': 13000}, 'aggs': {
-                        'transportModes': {'terms': {'field': 'modos', 'size': 6}, 'aggs': {
+                        'transportModes': {'terms': {'field': 'modo_bajada', 'size': 6}, 'aggs': {
                             'authRouteCode': {'terms': {'field': 'servicio_bajada', 'size': 5000}, 'aggs': {
                                 'halfHourInAlightingTime': {'terms': {'field': 'mediahora_bajada', 'size': 48},
                                                             'aggs': {'expandedAlighting': {
