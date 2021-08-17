@@ -184,13 +184,6 @@ function MapApp(opts) {
             });
         }
 
-        map.on("overlayremove", function (event) {
-            event.layer.isActive = false;
-        });
-        map.on("overlayadd", function (event) {
-            event.layer.isActive = true;
-        });
-
         let mapInfoBar = {};
         let mapLegend = {};
 
