@@ -1,10 +1,10 @@
 "use strict";
 $(document).ready(function () {
     function MapManagerApp() {
-        var _self = this;
-        var sectors = null;
-        var $SECTOR_SELECTOR = $("#sectorSelector");
-        var $KPI_SELECTOR = $("#vizSelector");
+        let _self = this;
+        let sectors = null;
+        let $SECTOR_SELECTOR = $("#sectorSelector");
+        let $KPI_SELECTOR = $("#vizSelector");
 
         $SECTOR_SELECTOR.on("change", function (e) {
             _self.updateMap({});
@@ -14,10 +14,10 @@ $(document).ready(function () {
         });
 
         // data given by server
-        var data = null;
+        let data = null;
 
-        var destinationLegend = "<br /><i style='background:black'></i> Zona de destino";
-        var mapOpts = {
+        let destinationLegend = "<br /><i style='background:black'></i> Zona de destino";
+        let mapOpts = {
             tviaje: {
                 name: "Tiempo de viaje" + destinationLegend,
                 grades: [0, 30, 45, 60, 75],
@@ -65,9 +65,9 @@ $(document).ready(function () {
             }
         };
 
-        var setSectors = function (newSectors) {
+        let setSectors = function (newSectors) {
             sectors = newSectors;
-            var sectorList = Object.keys(sectors).map(function (el) {
+            let sectorList = Object.keys(sectors).map(function (el) {
                 return {
                     id: el,
                     text: el
@@ -79,7 +79,7 @@ $(document).ready(function () {
                 minimumResultsForSearch: Infinity // hide search box
             });
         };
-        var setKPIs = function (KPIs) {
+        let setKPIs = function (KPIs) {
             // update kpi selector input
             $KPI_SELECTOR.select2({
                 data: KPIs,
@@ -87,8 +87,8 @@ $(document).ready(function () {
             });
         };
 
-        var getColorScale = function () {
-            var checkbox = document.querySelector("#colorscale_checkbox");
+        let getColorScale = function () {
+            let checkbox = document.querySelector("#colorscale_checkbox");
             if (checkbox.checked) {
                 return "sequential";
             } else {
@@ -96,8 +96,8 @@ $(document).ready(function () {
             }
         };
 
-        var setScaleSwitch = function () {
-            var checkbox = document.querySelector("#colorscale_checkbox");
+        let setScaleSwitch = function () {
+            let checkbox = document.querySelector("#colorscale_checkbox");
             new Switchery(checkbox, {
                 size: "small",
                 color: "#777",
@@ -106,7 +106,7 @@ $(document).ready(function () {
                 jackSecondaryColor: "#fff"
             });
             checkbox.onchange = function () {
-                var opts = {
+                let opts = {
                     scale: getColorScale()
                 };
                 _self.updateMap(opts);
@@ -119,9 +119,9 @@ $(document).ready(function () {
             setKPIs(KPIs);
         };
 
-        var printAmountOfData = function () {
-            var tripQuantity = data.aggregations.sum_expansion_factor.value;
-            var dataQuantity = data.hits.total;
+        let printAmountOfData = function () {
+            let tripQuantity = data.aggregations.sum_expansion_factor.value;
+            let dataQuantity = data.hits.total;
             document.getElementById("tripTotalNumberLabel").innerHTML = tripQuantity === 1 ? "viaje" : "viajes";
             document.getElementById("tripTotalNumberValue").innerHTML = tripQuantity.toLocaleString();
 
@@ -137,23 +137,23 @@ $(document).ready(function () {
         this.updateMap = function (opts) {
             console.log("updateMap method called!");
             // destination
-            var selectedDestinationZone = opts.selectedSector || $SECTOR_SELECTOR.val();
-            var scale = opts.scale || getColorScale();
-            var selectedKPI = opts.KPI || $KPI_SELECTOR.val();
+            let selectedDestinationZone = opts.selectedSector || $SECTOR_SELECTOR.val();
+            let scale = opts.scale || getColorScale();
+            let selectedKPI = opts.KPI || $KPI_SELECTOR.val();
 
-            var destinationZoneIds = sectors[selectedDestinationZone];
+            let destinationZoneIds = sectors[selectedDestinationZone];
 
-            var legendOpts = mapOpts[selectedKPI];
+            let legendOpts = mapOpts[selectedKPI];
             mapApp.refreshMap(destinationZoneIds, scale, selectedKPI, legendOpts);
         };
 
-        var opts = {
+        let opts = {
             getDataZoneById: function (zoneId) {
                 if (data === null) {
                     return null;
                 }
-                var zoneData = data.aggregations[$SECTOR_SELECTOR.val()].by_zone.buckets;
-                var answer = zoneData.filter(function (el) {
+                let zoneData = data.aggregations[$SECTOR_SELECTOR.val()].by_zone.buckets;
+                let answer = zoneData.filter(function (el) {
                     return el.key === zoneId;
                 });
                 if (answer.length) {
@@ -166,12 +166,12 @@ $(document).ready(function () {
             },
             getZoneColor: function (value, kpi, colors) {
                 // use mapping
-                var grades = mapOpts[kpi].grades;
+                let grades = mapOpts[kpi].grades;
                 if (value < grades[0]) {
                     return null;
                 }
 
-                for (var i = 1; i < grades.length; i++) {
+                for (let i = 1; i < grades.length; i++) {
                     if (value <= grades[i]) {
                         return colors[i - 1];
                     }
@@ -179,7 +179,7 @@ $(document).ready(function () {
                 return colors[grades.length - 1];
             }
         };
-        var mapApp = new MapApp(opts);
+        let mapApp = new MapApp(opts);
 
         this.loadLayers = function (readyFunction) {
             mapApp.loadLayers(readyFunction);
@@ -197,18 +197,18 @@ $(document).ready(function () {
         loadAvailableDays(Urls["esapi:availableTripDays"]());
         loadRangeCalendar(Urls["esapi:availableTripDays"](),{});
 
-        var app = new MapManagerApp();
+        let app = new MapManagerApp();
 
-        var afterCall = function (data, status) {
+        let afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
             }
         };
-        var opts = {
+        let opts = {
             urlFilterData: Urls["esapi:tripMapData"](),
             afterCallData: afterCall
         };
-        var manager = new FilterManager(opts);
+        let manager = new FilterManager(opts);
         // load first time
         app.loadLayers(function () {
             manager.updateData();
