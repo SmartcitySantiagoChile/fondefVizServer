@@ -741,3 +741,25 @@ class ESTripIndexTest(TestCase):
 
         result = self.instance.get_post_products_boarding_and_alighting_data_query(dates, day_types)
         self.assertEqual(expected_result, result.to_dict())
+
+    def test_get_post_products_boarding_and_alighting_without_service_data_query(self):
+        dates = [['2020-01-01', '2020-01-03']]
+        day_types = ['LABORAL']
+        expected_result = {'query': {'bool': {'filter': [{'range': {
+            'tiempo_subida': {'gte': '2020-01-01||/d', 'lte': '2020-01-03||/d', 'format': 'yyyy-MM-dd',
+                              'time_zone': '+00:00'}}}, {'terms': {'tipodia': ['LABORAL']}}]}}, 'aggs': {
+            'dayType': {'terms': {'field': 'tipodia', 'size': 4}, 'aggs': {
+                'boardingStopCommune': {'terms': {'field': 'comuna_subida', 'size': 48}, 'aggs': {
+                    'authStopCode': {'terms': {'field': 'paradero_subida', 'size': 13000}, 'aggs': {
+                        'transportModes': {'terms': {'field': 'tipo_transporte_1', 'size': 6}, 'aggs': {
+                            'halfHourInBoardingTime': {'terms': {'field': 'mediahora_subida', 'size': 48}, 'aggs': {
+                                'expandedBoarding': {'sum': {'field': 'factor_expansion'}}}}}}}}}},
+                'alightingStopCommune': {'terms': {'field': 'comuna_bajada', 'size': 48}, 'aggs': {
+                    'authStopCode': {'terms': {'field': 'paradero_bajada', 'size': 13000}, 'aggs': {
+                        'transportModes': {'terms': {'field': 'modo_bajada', 'size': 6}, 'aggs': {
+                            'halfHourInAlightingTime': {'terms': {'field': 'mediahora_bajada', 'size': 48}, 'aggs': {
+                                'expandedAlighting': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}, 'from': 0,
+                           'size': 0}
+
+        result = self.instance.get_post_products_boarding_and_alighting_without_service_data_query(dates, day_types)
+        self.assertEqual(expected_result, result.to_dict())
