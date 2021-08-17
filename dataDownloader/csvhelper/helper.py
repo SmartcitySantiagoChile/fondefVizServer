@@ -36,6 +36,7 @@ POST_PRODUCTS_STAGE_TRANSFERS_DATA = 'post_products_stage_transfers_data'
 POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA = 'post_products_stage_transfers_aggregated_data'
 POST_PRODUCTS_TRIP_TRIP_BETWEEN_ZONES_DATA = 'post_products_trip_trip_between_zones_data'
 POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA = 'post_products_trip_boarding_and_alighting_data'
+POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_WITHOUT_SERVICE_DATA = 'post_products_trip_boarding_and_alighting_without_service_data '
 
 
 class WrongFormatterError(Exception):
@@ -1354,5 +1355,71 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                             row = [string_day_type, commune, stop, transport_mode, auth_route, half_hour,
                                    round(trips[0], 2), round(trips[1], 2)]
                             formatted_row.append(row)
+
+        return formatted_row
+
+
+class PostProductTripBoardingAndAlightingWithoutServiceCSVHelper(PostProductTripBoardingAndAlightingCSVHelper):
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'tipodia', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'boardingStopCommune', 'csv_name': 'Comuna',
+             'definition': 'Comuna asociada a la parada'},
+            {'es_name': 'authStopCode', 'csv_name': 'Paradero',
+             'definition': 'Paradero asociado'},
+            {'es_name': 'transportModes', 'csv_name': 'Modos_de_transporte',
+             'definition': 'Modo de viaje: puede ser Metro, Bus, Metrotren o una combinación'},
+            {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora',
+             'definition': 'Media hora del tiempo asociado'},
+            {'es_name': 'expandedBoarding', 'csv_name': 'Cantidad_de_subidas',
+             'definition': 'Suma de viajes expandidos en la agrupación'},
+            {'es_name': 'expandedAlighting', 'csv_name': 'Cantidad_de_bajadas',
+             'definition': 'Suma de bajadas expandidos en la agrupación'},
+            {'es_name': 'tiempo_subida', 'csv_name': 'Tiempo_subida',
+             'definition': 'Fecha y hora en que se inició el viaje'},
+        ]
+
+    def row_parser(self, row):
+        formatted_row = []
+
+        # default dict of commune, stop, transport_mode, auth_route, half_hour [boarding, alighting]
+
+        row_dict = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [0, 0]))))
+
+        string_day_type = self.day_type_dict[row.key]
+
+        for commune in row.boardingStopCommune:
+            commune_str = self.commune_dict[commune.key]
+            for stop in commune.authStopCode:
+                stop_str = stop.key
+                for transport_modes in stop.transportModes:
+                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    for half_hour_in_boarding_time in transport_modes.halfHourInBoardingTime:
+                        half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
+                        sum_trip_number = half_hour_in_boarding_time.expandedBoarding.value
+                        row_dict[commune_str][stop_str][transport_modes_str][half_hour][0] = \
+                            sum_trip_number
+
+        for commune in row.alightingStopCommune:
+            commune_str = self.commune_dict[commune.key]
+            for stop in commune.authStopCode:
+                stop_str = stop.key
+                for transport_modes in stop.transportModes:
+                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    for half_hour_in_alighting_time in transport_modes.halfHourInAlightingTime:
+                        half_hour = self.halfhour_dict[half_hour_in_alighting_time.key]
+                        sum_trip_number = half_hour_in_alighting_time.expandedAlighting.value
+                        row_dict[commune_str][stop_str][transport_modes_str][half_hour][
+                            1] = sum_trip_number
+
+        for commune, commune_dict in row_dict.items():
+            for stop, stop_dict in commune_dict.items():
+                for transport_mode, transport_mode_dict in stop_dict.items():
+                    for half_hour, trips in transport_mode_dict.items():
+                        row = [string_day_type, commune, stop, transport_mode, half_hour,
+                               round(trips[0], 2), round(trips[1], 2)]
+                        formatted_row.append(row)
 
         return formatted_row

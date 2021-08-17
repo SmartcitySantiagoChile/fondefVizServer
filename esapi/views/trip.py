@@ -480,6 +480,7 @@ class PostProductTripsBoardingAndAlighting(View):
     def process_request(self, request, params, export_data=False):
         dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
+        with_service = params.get('exportButton2', False)
 
         response = {}
 
@@ -489,9 +490,16 @@ class PostProductTripsBoardingAndAlighting(View):
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
             if export_data:
-                es_query = es_trip_helper.get_post_products_boarding_and_alighting_data_query(dates, day_types)
-                ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA,
-                                                      request.user)
+                if with_service:
+                    es_query = es_trip_helper.get_post_products_boarding_and_alighting_data_query(dates, day_types)
+                    ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA,
+                                                          request.user)
+                else:
+                    es_query = es_trip_helper.get_post_products_boarding_and_alighting_without_service_data_query(dates,
+                                                                                                                  day_types)
+                    ExporterManager(es_query).export_data(
+                        csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_WITHOUT_SERVICE_DATA,
+                        request.user)
             response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
 
         except FondefVizError as e:
