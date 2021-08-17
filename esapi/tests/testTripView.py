@@ -597,7 +597,24 @@ class PostProductTripsBoardingAndAlightingTest(TestHelper):
         get_post_products_boarding_and_alighting_data_query.return_value = get_post_products_boarding_and_alighting_data_query
         data = {
             'dates': '[["2018-01-01","2018-01-01"]]',
-            'dayType[]': ['LABORAL']
+            'dayType[]': ['LABORAL'],
+            'exportButton2': True
+        }
+        response = self.client.post(self.url, data)
+        self.assertContains(response, 'status')
+        status = json.dumps(json.loads(response.content)['status'])
+        self.assertJSONEqual(status, ExporterDataHasBeenEnqueuedMessage().get_status_response())
+
+    @mock.patch('esapi.helper.trip.ESTripHelper.get_post_products_boarding_and_alighting_data_query')
+    @mock.patch('esapi.views.trip.ExporterManager')
+    def test_exec_elasticsearch_query_post_without_service(self, exporter_manager,
+                                                           get_post_products_boarding_and_alighting_without_service_data_query):
+        exporter_manager.return_value = exporter_manager
+        exporter_manager.export_data.return_value = None
+        get_post_products_boarding_and_alighting_without_service_data_query.return_value = get_post_products_boarding_and_alighting_without_service_data_query
+        data = {
+            'dates': '[["2018-01-01","2018-01-01"]]',
+            'dayType[]': ['LABORAL'],
         }
         response = self.client.post(self.url, data)
         self.assertContains(response, 'status')
