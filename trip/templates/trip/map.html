@@ -5,7 +5,7 @@
 
 {% block css %}
     {{ block.super }}
-    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+    <link href="{% static "css/mapbox-gl.css" %}" rel="stylesheet">
     {% with "components/gentelella/vendors/" as gentelella_static %}
         {# switchery: pretty checkboxes #}
         <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
@@ -39,11 +39,11 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
         {# switchery: pretty checkboxes #}
         <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
     {% endwith %}
+    <script src="{% static "js/mapbox-gl.js" %}"></script>
     <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "trip/js/mapApp.js" %}"></script>
 {% endblock %}

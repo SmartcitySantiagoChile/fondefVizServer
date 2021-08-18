@@ -3,6 +3,7 @@ $(document).ready(function () {
   function MapManagerApp() {
     let _self = this;
     let sectors = null;
+    let mapApp = null;
     let $SECTOR_SELECTOR = $("#sectorSelector");
     let $KPI_SELECTOR = $("#vizSelector");
 
@@ -17,7 +18,7 @@ $(document).ready(function () {
     let data = null;
 
     let destinationLegend = "<br /><i style='background:black'></i> Zona de destino";
-    let mapOpts = {
+    let mapLegendOpts = {
       tviaje: {
         name: "Tiempo de viaje" + destinationLegend,
         grades: [0, 30, 45, 60, 75],
@@ -68,10 +69,7 @@ $(document).ready(function () {
     let setSectors = function (newSectors) {
       sectors = newSectors;
       let sectorList = Object.keys(sectors).map(function (el) {
-        return {
-          id: el,
-          text: el
-        };
+        return {id: el, text: el};
       });
       // update sector selector input
       $SECTOR_SELECTOR.select2({
@@ -143,46 +141,48 @@ $(document).ready(function () {
 
       let destinationZoneIds = sectors[selectedDestinationZone];
 
-      let legendOpts = mapOpts[selectedKPI];
+      let legendOpts = mapLegendOpts[selectedKPI];
       mapApp.refreshMap(destinationZoneIds, scale, selectedKPI, legendOpts);
     };
 
-    let opts = {
-      getDataZoneById: function (zoneId) {
-        if (data === null) {
-          return null;
-        }
-        let zoneData = data.aggregations[$SECTOR_SELECTOR.val()].by_zone.buckets;
-        let answer = zoneData.filter(function (el) {
-          return el.key === zoneId;
-        });
-        if (answer.length) {
-          return answer[0];
-        }
-        return null;
-      },
-      getZoneValue: function (zone, kpi) {
-        return mapOpts[kpi].map_fn(zone);
-      },
-      getZoneColor: function (value, kpi, colors) {
-        // use mapping
-        let grades = mapOpts[kpi].grades;
-        if (value < grades[0]) {
-          return null;
-        }
-
-        for (let i = 1; i < grades.length; i++) {
-          if (value <= grades[i]) {
-            return colors[i - 1];
-          }
-        }
-        return colors[grades.length - 1];
-      }
-    };
-    let mapApp = new MapApp(opts);
-
     this.loadLayers = function (readyFunction) {
-      mapApp.loadLayers(readyFunction);
+      let opts = {
+        getDataZoneById: function (zoneId) {
+          if (data === null) {
+            return null;
+          }
+          let zoneData = data.aggregations[$SECTOR_SELECTOR.val()].by_zone.buckets;
+          let answer = zoneData.filter(function (el) {
+            return el.key === zoneId;
+          });
+          if (answer.length) {
+            return answer[0];
+          }
+          return null;
+        },
+        getZoneValue: function (zone, kpi) {
+          return mapLegendOpts[kpi].map_fn(zone);
+        },
+        getZoneColor: function (value, kpi, colors) {
+          // use mapping
+          let grades = mapLegendOpts[kpi].grades;
+          if (value < grades[0]) {
+            return null;
+          }
+
+          for (let i = 1; i < grades.length; i++) {
+            if (value <= grades[i]) {
+              return colors[i - 1];
+            }
+          }
+          return colors[grades.length - 1];
+        },
+        tileLayer: 'light',
+        onLoad: (_mapInstance, _mapApp) => {
+          _mapApp.loadLayers(readyFunction);
+        }
+      };
+      mapApp = new MapApp(opts);
     }
   }
 
@@ -214,5 +214,4 @@ $(document).ready(function () {
       manager.updateData();
     });
   })();
-})
-;
+});
