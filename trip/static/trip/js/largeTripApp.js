@@ -2,6 +2,7 @@
 $(document).ready(function () {
   function LargeTripApp() {
     let _self = this;
+    let mapApp = null;
     let $STAGES_SELECTOR = $(".netapas_checkbox");
     let $DATA_LIMITS = $("#dataLimits");
     let $ORIGIN_OR_DESTINATION_SELECTOR = $("#originOrDestination");
@@ -133,42 +134,44 @@ $(document).ready(function () {
       mapApp.refreshMap([], scale, selectedKPI, legendOpts);
     };
 
-    let opts = {
-      getDataZoneById: function (zoneId) {
-        if (data === null) {
-          return null;
-        }
-        let zoneData = data.aggregations.by_zone.buckets;
-        let answer = zoneData.filter(function (el) {
-          return el.key === zoneId;
-        });
-        if (answer.length) {
-          return answer[0];
-        }
-        return null;
-      },
-      getZoneValue: function (zone, kpi) {
-        return mapOpts[kpi].map_fn(zone);
-      },
-      getZoneColor: function (value, kpi, colors) {
-        // use mapping
-        let grades = mapOpts[kpi].grades;
-        if (value < grades[0]) {
-          return null;
-        }
-
-        for (let i = 1; i < grades.length; i++) {
-          if (value <= grades[i]) {
-            return colors[i - 1];
-          }
-        }
-        return colors[grades.length - 1];
-      }
-    };
-    let mapApp = new MapApp(opts);
-
     this.loadLayers = function (readyFunction) {
-      mapApp.loadLayers(readyFunction);
+      let opts = {
+        getDataZoneById: function (zoneId) {
+          if (data === null) {
+            return null;
+          }
+          let zoneData = data.aggregations.by_zone.buckets;
+          let answer = zoneData.filter(function (el) {
+            return el.key === zoneId;
+          });
+          if (answer.length) {
+            return answer[0];
+          }
+          return null;
+        },
+        getZoneValue: function (zone, kpi) {
+          return mapOpts[kpi].map_fn(zone);
+        },
+        getZoneColor: function (value, kpi, colors) {
+          // use mapping
+          let grades = mapOpts[kpi].grades;
+          if (value < grades[0]) {
+            return null;
+          }
+
+          for (let i = 1; i < grades.length; i++) {
+            if (value <= grades[i]) {
+              return colors[i - 1];
+            }
+          }
+          return colors[grades.length - 1];
+        },
+        tileLayer: 'light',
+        onLoad: (_mapInstance, _mapApp) => {
+          _mapApp.loadLayers(readyFunction);
+        }
+      };
+      mapApp = new MapApp(opts);
     }
   }
 
@@ -184,7 +187,6 @@ $(document).ready(function () {
   (function () {
     loadAvailableDays(Urls["esapi:availableTripDays"]());
     loadRangeCalendar(Urls["esapi:availableTripDays"](), {});
-
 
     let app = new LargeTripApp();
 
@@ -209,5 +211,4 @@ $(document).ready(function () {
       manager.updateData();
     });
   })();
-})
-;
+});
