@@ -237,7 +237,7 @@ function FilterManager(opts) {
             if (localMultiAuthRouteFilter) {
                 localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
             }
-            if (getDates().length !== 0 && localMultiAuthRouteFilter !== null) {
+            if (getDates().length !== 0 && localMultiAuthRouteFilter!==null && localMultiAuthRouteFilter.id!==null) {
                 let data = operatorFilterData["availableRoutes"].map(e => e.id);
                 if (localMultiAuthRouteFilter.id.every(v => data.includes(v))) {
                     $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter.id).trigger("change");
