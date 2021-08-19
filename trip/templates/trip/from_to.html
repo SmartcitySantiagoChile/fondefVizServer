@@ -45,11 +45,11 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="{% static "components/Leaflet.Sync/L.Map.Sync.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
     {% endwith %}
     <script src="{% static "js/mapbox-gl.js" %}"></script>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
     <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "trip/js/fromToApp.js" %}"></script>
 {% endblock %}

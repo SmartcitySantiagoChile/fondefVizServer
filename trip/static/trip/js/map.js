@@ -78,19 +78,6 @@ function MapApp(opts) {
       features: []
     };
 
-    let zoneSource = {
-      type: 'FeatureCollection',
-      features: []
-    };
-    let subwaySource = {
-      type: 'FeatureCollection',
-      features: []
-    };
-    let districtSource = {
-      type: 'FeatureCollection',
-      features: []
-    };
-
     let subwayLayer = {
       id: 'subway-layer',
       source: 'subway-source',
@@ -176,7 +163,11 @@ function MapApp(opts) {
     };
 
     _self.getZoneSource = function () {
-      return zoneSource;
+      return map.getSource('zones-source')._data;
+    };
+
+    _self.setZoneSource = function (newZoneSource) {
+      map.getSource('zones-source').setData(newZoneSource);
     };
 
     _self.getZoneLayer = function () {
@@ -226,7 +217,10 @@ function MapApp(opts) {
 
     _self.refreshMap = function (destinationZoneIds, scale, kpi, legendOpts) {
       console.log("refreshMap");
-      zoneSource.features = [];
+      let zoneSource = {
+        type: 'FeatureCollection',
+        features: []
+      };
       zoneGeoJSON.features.forEach(function (feature) {
         let zoneId = feature.properties.id;
         if (destinationZoneIds.includes(zoneId)) {
@@ -245,7 +239,7 @@ function MapApp(opts) {
         zoneSource.features.push(feature);
       });
 
-      map.getSource('zones-source').setData(zoneSource);
+      _self.setZoneSource(zoneSource);
 
       // add to map
       legendOpts.scale = scales[scale];
@@ -357,16 +351,14 @@ function MapApp(opts) {
 
       function loadSubwayGeoJSON() {
         let url = "/static/js/data/metro.geojson";
-        return $.getJSON(url, function (data) {
-          subwaySource = data;
+        return $.getJSON(url, function (subwaySource) {
           map.addSource('subway-source', {type: 'geojson', data: subwaySource});
         });
       }
 
       function loadDistrictGeoJSON() {
         let url = "/static/js/data/comunas.geojson";
-        return $.getJSON(url, function (data) {
-          districtSource = data;
+        return $.getJSON(url, function (districtSource) {
           map.addSource('district-source', {type: 'geojson', data: districtSource});
         });
       }

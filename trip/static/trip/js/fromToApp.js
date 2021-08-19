@@ -1,11 +1,40 @@
 "use strict";
 $(document).ready(function () {
-   function FromToApp() {
+  function FromToApp() {
     let _self = this;
+    let originMapApp = null;
+    let destinationMapApp = null;
+
     let $STAGES_SELECTOR = $(".netapas_checkbox");
     let $TRANSPORT_MODES_SELECTOR = $(".modes_checkbox");
-    let originGroupLayer = L.featureGroup([]);
-    let destinationGroupLayer = L.featureGroup([]);
+    let originSource = {
+      type: 'FeatureCollection',
+      features: []
+    };
+    let destinationSource = {
+      type: 'FeatureCollection',
+      features: []
+    };
+    let originLayer = {
+      id: 'origin-layer',
+      type: 'circle',
+      source: 'origin-source',
+      paint: {
+        'circle-color': ['get', 'color'],
+        'circle-radius': ['get', 'radius'],
+        'circle-opacity': 0.6
+      }
+    };
+    let destinationLayer = {
+      id: 'destination-layer',
+      type: 'circle',
+      source: 'destination-source',
+      paint: {
+        'circle-color': ['get', 'color'],
+        'circle-radius': ['get', 'radius'],
+        'circle-opacity': 0.6
+      }
+    };
     let originSelected = new Set([]);
     let destinationSelected = new Set([]);
 
@@ -13,18 +42,15 @@ $(document).ready(function () {
     let originZones = [];
     let destinationZones = [];
 
-    let minCircleSize = 3;
-    let maxCircleSize = 23;
+    let minCircleArea = 30;
+    let maxCircleArea = 800;
 
-    let originMapLegend = L.control({position: "bottomright"});
-    let destinationMapLegend = L.control({position: "bottomright"});
+    let originMapLegend = null;
+    let destinationMapLegend = null;
 
     [$STAGES_SELECTOR, $TRANSPORT_MODES_SELECTOR].forEach(function (el) {
       el.each(function (index, html) {
-        new Switchery(html, {
-          size: "small",
-          color: "rgb(38, 185, 154)"
-        });
+        new Switchery(html, {size: "small", color: "rgb(38, 185, 154)"});
       });
     });
 
@@ -102,226 +128,242 @@ $(document).ready(function () {
       };
     };
 
-    let setMapLegend = function (mapInstance, control, divId) {
-      control.onAdd = function (map) {
-        let div = L.DomUtil.create("canvas", "info legend");
-        div.id = divId;
-        return div;
-      };
-
-      control.update = function () {
-        // loop through our density intervals and generate a label with a colored square for each interval
-        let div = document.getElementById(divId);
-        div.style.display = "none";
-
-        let bounds = getCircleBounds();
-
-        let ctx = div.getContext("2d");
-        let half = (maxCircleSize + minCircleSize) / 2.0;
-        let border = 10;
-
-        let circles = [{
-          x: border + maxCircleSize,
-          y: border + maxCircleSize,
-          r: maxCircleSize,
-          label: Number(bounds.max.toFixed(0)).toLocaleString() + " viajes"
-        }, {
-          x: border + maxCircleSize,
-          y: border + 2 * maxCircleSize - half,
-          r: half,
-          label: Number(((bounds.min + bounds.max) / 2.0).toFixed(0)).toLocaleString() + " viajes"
-        }, {
-          x: border + maxCircleSize,
-          y: border + 2 * maxCircleSize - minCircleSize,
-          r: minCircleSize,
-          label: Number(bounds.min.toFixed(0)).toLocaleString() + " viajes"
-        }];
-
-        // this ocurrs when select same zone as origin and destination
-        if (bounds.min === bounds.max) {
-          circles = [circles[2]];
-        }
-
-        let drawCircle = function (circle) {
-          ctx.beginPath();
-          ctx.arc(circle.x, circle.y, circle.r, 0, 2 * Math.PI);
-          ctx.moveTo(circle.x, circle.y - circle.r);
-          ctx.lineTo(2 * border + 2 * maxCircleSize, circle.y - circle.r);
-          ctx.font = "small-caps 10px Arial";
-          ctx.fillText(circle.label, 2 * border + 2 * maxCircleSize, circle.y - circle.r + 4);
-          ctx.stroke();
-
-          let xFirstPoint = 2 * border + 2 * maxCircleSize;
-          let yFirstPoint = circle.y - circle.r;
-          ctx.beginPath();
-          ctx.moveTo(xFirstPoint, yFirstPoint);
-          ctx.lineTo(xFirstPoint - 3, yFirstPoint + 3);
-          ctx.lineTo(xFirstPoint - 3, yFirstPoint - 3);
-          ctx.closePath();
-          ctx.fill();
+    let setMapLegend = function (mapInstance, divId, controlPosition) {
+      class Control {
+        onAdd = function (map) {
+          let div = document.createElement('canvas');
+          div.className = 'mapboxgl-ctrl info legend';
+          div.id = divId;
+          return div;
         };
 
-        let maxTextLength = 0;
-        circles.forEach(function (circle) {
-          maxTextLength = Math.max(maxTextLength, ctx.measureText(circle.label).width);
-        });
+        update = function () {
+          // loop through our density intervals and generate a label with a colored square for each interval
+          let div = document.getElementById(divId);
+          div.style.display = "none";
 
-        let width = 40 + 2 * maxCircleSize + maxTextLength;
-        let height = 20 + 2 * maxCircleSize;
+          let bounds = getCircleBounds();
 
-        div.width = width;
-        div.height = height;
-        ctx.clearRect(0, 0, width, height);
-        circles.forEach(drawCircle);
+          let ctx = div.getContext("2d");
+          let halfCircleArea = (maxCircleArea + minCircleArea) / 2.0;
+          let border = 10;
 
-        div.style.display = "inline";
-      };
-      control.addTo(mapInstance);
+          let maxRadio = Math.sqrt(maxCircleArea / Math.PI);
+          let halfRadio = Math.sqrt(halfCircleArea / Math.PI);
+          let minRadio = Math.sqrt(minCircleArea / Math.PI);
 
-      return control;
+          let circles = [{
+            x: border + maxRadio,
+            y: border + maxRadio,
+            r: maxRadio,
+            label: Number(bounds.max.toFixed(0)).toLocaleString() + " viajes"
+          }, {
+            x: border + maxRadio,
+            y: border + 2 * maxRadio - halfRadio,
+            r: halfRadio,
+            label: Number(((bounds.min + bounds.max) / 2.0).toFixed(0)).toLocaleString() + " viajes"
+          }, {
+            x: border + maxRadio,
+            y: border + 2 * maxRadio - minRadio,
+            r: minRadio,
+            label: Number(bounds.min.toFixed(0)).toLocaleString() + " viajes"
+          }];
+
+          // this occurs when select same zone as origin and destination
+          if (bounds.min === bounds.max) {
+            circles = [circles[2]];
+          }
+
+          let drawCircle = function (circle) {
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.r, 0, 2 * Math.PI);
+            ctx.moveTo(circle.x, circle.y - circle.r);
+            ctx.lineTo(2 * border + 2 * maxRadio, circle.y - circle.r);
+            ctx.font = "small-caps 10px Arial";
+            ctx.fillText(circle.label, 2 * border + 2 * maxRadio, circle.y - circle.r + 4);
+            ctx.stroke();
+
+            let xFirstPoint = 2 * border + 2 * maxRadio;
+            let yFirstPoint = circle.y - circle.r;
+            ctx.beginPath();
+            ctx.moveTo(xFirstPoint, yFirstPoint);
+            ctx.lineTo(xFirstPoint - 3, yFirstPoint + 3);
+            ctx.lineTo(xFirstPoint - 3, yFirstPoint - 3);
+            ctx.closePath();
+            ctx.fill();
+          };
+
+          let maxTextLength = 0;
+          circles.forEach(function (circle) {
+            maxTextLength = Math.max(maxTextLength, ctx.measureText(circle.label).width);
+          });
+
+          let width = 40 + 2 * maxRadio + maxTextLength;
+          let height = 20 + 2 * maxRadio;
+
+          div.width = width;
+          div.height = height;
+          ctx.clearRect(0, 0, width, height);
+          circles.forEach(drawCircle);
+
+          div.style.display = "inline";
+        }
+      }
+
+      let controlInstance = new Control();
+      mapInstance.addControl(controlInstance, controlPosition);
+
+      return controlInstance;
     };
 
     this.updateMap = function () {
       console.log("updateMap method called!");
-      originGroupLayer.clearLayers();
-      destinationGroupLayer.clearLayers();
-
       let bounds = getCircleBounds();
 
       let originZoneInfo = {};
-      originMapApp.getZoneLayer().eachLayer(function (layer) {
-        originZoneInfo[layer.feature.properties.id] = {
-          center: layer.getBounds().getCenter()
-        };
+      originMapApp.getZoneSource().features.forEach(function (feature) {
+        originZoneInfo[feature.properties.id] = turf.centerOfMass(feature);
       });
       let destinationZoneInfo = {};
-      destinationMapApp.getZoneLayer().eachLayer(function (layer) {
-        destinationZoneInfo[layer.feature.properties.id] = {
-          center: layer.getBounds().getCenter()
-        };
+      destinationMapApp.getZoneSource().features.forEach(function (feature) {
+        destinationZoneInfo[feature.properties.id] = turf.centerOfMass(feature);
       });
-      let createCircleMarker = function (position, indicator, color) {
+
+      let setCircleFeature = function (feature, indicator, color) {
         let boundRange = bounds.max - bounds.min === 0 ? 1 : bounds.max - bounds.min;
-        let radius = minCircleSize + (indicator - bounds.min) * (maxCircleSize - minCircleSize) / boundRange;
-        return L.circleMarker(position, {
-          radius: radius,
-          fillColor: color,
-          weight: 0,
-          opacity: 1,
-          fillOpacity: 0.5,
-          interactive: false
-        });
+        let area = minCircleArea + (indicator - bounds.min) * (maxCircleArea - minCircleArea) / boundRange;
+        let radius = Math.sqrt(area / Math.PI);
+        feature.properties.radius = radius;
+        feature.properties.color = color;
+        return feature;
       };
 
+      originSource.features = [];
       originZones.forEach(function (item) {
         try {
-          createCircleMarker(originZoneInfo[item.key].center, item.expansion_factor.value, "#FFFF00").addTo(originGroupLayer);
+          let feature = setCircleFeature(originZoneInfo[item.key], item.expansion_factor.value, "#FFFF00");
+          originSource.features.push(feature);
         } catch (error) {
           console.log(error);
         }
       });
+
+      destinationSource.features = [];
       destinationZones.forEach(function (item) {
         try {
-          createCircleMarker(destinationZoneInfo[item.key].center, item.expansion_factor.value, "#A900FF").addTo(destinationGroupLayer);
+          let feature = setCircleFeature(destinationZoneInfo[item.key], item.expansion_factor.value, "#A900FF");
+          destinationSource.features.push(feature);
         } catch (error) {
           console.log(error);
         }
       });
+
+      console.log(originSource);
+      console.log(destinationSource);
+
+      originMapApp.getMapInstance().getSource('origin-source').setData(originSource);
+      destinationMapApp.getMapInstance().getSource('destination-source').setData(destinationSource);
 
       originMapLegend.update();
       destinationMapLegend.update();
+      originMapApp.fitBound(['zones-source']);
+      destinationMapApp.fitBound(['zones-source']);
     };
 
     let mapOptionBuilder = function (opts) {
-      return {
-        mapId: opts.mapId,
+      let hoveredFeature = null;
+      let defaultOpts = {
         hideMapLegend: true,
         showMetroStations: false,
         showMacroZones: false,
-        defaultZoneStyle: function (feature) {
-          let zoneId = feature.properties.id;
-          let color = originSelected.has(zoneId) ? opts.selectedColor : opts.baseColor;
-          let fillOpacity = originSelected.has(zoneId) ? 0.5 : 0.3;
-          return {
-            weight: 1,
-            color: color,
-            opacity: 0.5,
-            dashArray: "1",
-            fillOpacity: fillOpacity,
-            fillColor: color
-          };
-        },
         onClickZone: function (e) {
-          let layer = e.target;
-          let zoneId = layer.feature.properties.id;
+          let map = e.target;
+          let feature = e.features[0];
+          let zoneId = feature.properties.id;
           if (opts.selectedZoneSet.has(zoneId)) {
             opts.selectedZoneSet.delete(zoneId);
-            this.defaultOnMouseoutZone(e);
-            this.defaultOnMouseinZone(e);
+            map.setFeatureState({source: 'zones-source', id: feature.id}, {selected: false});
+            this.defaultOnMouseleaveZone(e);
+            this.defaultOnMousemoveZone(e);
           } else {
             opts.selectedZoneSet.add(zoneId);
-            layer.setStyle(this.styles.zoneWithColor(layer.feature, opts.selectedColor));
+            map.setFeatureState({source: 'zones-source', id: feature.id}, {selected: true});
           }
         },
-        onMouseinZone: function (e) {
-          let layer = e.target;
-          let zoneId = layer.feature.properties.id;
-          if (!opts.selectedZoneSet.has(zoneId)) {
-            this.defaultOnMouseinZone(e);
-          }
+        onMousemoveZone: function (e) {
+          let feature = e.features[0];
+          hoveredFeature = feature;
+          let zoneId = feature.properties.id;
           let zoneData = opts.getDataSource().find(function (el) {
             return el.key === zoneId;
           });
-          this.refreshZoneInfoControl(layer.feature.properties, zoneData);
+          feature.properties.data = JSON.stringify(zoneData);
+          this.defaultOnMousemoveZone(e);
+          this.refreshZoneInfoControl(feature.properties);
         },
-        onMouseoutZone: function (e) {
-          let layer = e.target;
-          let zoneId = layer.feature.properties.id;
-          if (!opts.selectedZoneSet.has(zoneId)) {
-            this.defaultOnMouseoutZone(e);
-          }
+        onMouseleaveZone: function (e) {
+          this.defaultOnMouseleaveZone(e);
           this.refreshZoneInfoControl();
         }
       };
+      return Object.assign({}, defaultOpts, opts);
     };
 
-    let originMapOpts = mapOptionBuilder({
-      mapId: "mapChart",
-      selectedZoneSet: originSelected,
-      getDataSource: function () {
-        return originZones;
-      },
-      baseColor: "#0000FF",
-      selectedColor: "#d8d813"
-    });
-    let destinationMapOpts = mapOptionBuilder({
-      mapId: "mapChart2",
-      selectedZoneSet: destinationSelected,
-      getDataSource: function () {
-        return destinationZones;
-      },
-      baseColor: "#0000FF",
-      selectedColor: "#9d2bdb"
-    });
-    let originMapApp = new MapApp(originMapOpts);
-    let destinationMapApp = new MapApp(destinationMapOpts);
-
-    // synchronize maps
-    let originMap = originMapApp.getMapInstance();
-    let destinationMap = destinationMapApp.getMapInstance();
-
-    setMapLegend(originMap, originMapLegend, "circleMapLegend1").update();
-    setMapLegend(destinationMap, destinationMapLegend, "circleMapLegend2").update();
-
-    originMap.sync(destinationMap);
-    destinationMap.sync(originMap);
-
-    originGroupLayer.addTo(originMap);
-    destinationGroupLayer.addTo(destinationMap);
-
     this.loadLayers = function (readyFunction) {
-      originMapApp.loadLayers();
-      destinationMapApp.loadLayers(readyFunction);
+      let baseColor = "#0000FF";
+      let selectedOriginColor = "#9d2bdb";
+      let selectedDestinationColor = "#9d2bdb";
+
+      let originMapOpts = mapOptionBuilder({
+        mapId: "mapChart",
+        selectedZoneSet: originSelected,
+        getDataSource: function () {
+          return originZones;
+        },
+        onLoad: (_mapInstance, _appInstance) => {
+          originMapLegend = setMapLegend(_mapInstance, "circleMapLegend1", 'bottom-right');
+          originMapLegend.update();
+          _appInstance.loadLayers(() => {
+            // set style
+            let zoneLayer = _appInstance.getZoneLayer();
+            zoneLayer.paint['fill-color'] = [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false], selectedOriginColor,
+              baseColor
+            ];
+            _appInstance.setLayer(zoneLayer);
+            _mapInstance.addSource('origin-source', {type: 'geojson', data: originSource});
+            _mapInstance.addLayer(originLayer);
+          });
+        }
+      });
+
+      let destinationMapOpts = mapOptionBuilder({
+        mapId: "mapChart2",
+        selectedZoneSet: destinationSelected,
+        getDataSource: function () {
+          return destinationZones;
+        },
+        onLoad: (_mapInstance, _appInstance) => {
+          destinationMapLegend = setMapLegend(_mapInstance, "circleMapLegend2", 'bottom-right');
+          destinationMapLegend.update();
+          _appInstance.loadLayers(() => {
+            // set style
+            let zoneLayer = _appInstance.getZoneLayer();
+            zoneLayer.paint['fill-color'] = [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false], selectedDestinationColor,
+              baseColor
+            ];
+            _appInstance.setLayer(zoneLayer);
+            _mapInstance.addSource('destination-source', {type: 'geojson', data: destinationSource});
+            _mapInstance.addLayer(destinationLayer);
+            readyFunction();
+          });
+        }
+      });
+      originMapApp = new MapApp(originMapOpts);
+      destinationMapApp = new MapApp(destinationMapOpts);
     };
   }
 
