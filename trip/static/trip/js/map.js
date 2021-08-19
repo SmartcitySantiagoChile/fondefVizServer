@@ -175,8 +175,17 @@ function MapApp(opts) {
       return map;
     };
 
+    _self.getZoneSource = function () {
+      return zoneSource;
+    };
+
     _self.getZoneLayer = function () {
       return zoneLayer;
+    };
+
+    _self.setLayer = function (newZoneLayer) {
+      map.removeLayer(newZoneLayer.id);
+      map.addLayer(newZoneLayer);
     };
 
     _self.refreshZoneInfoControl = function (properties) {
@@ -411,7 +420,7 @@ function MapApp(opts) {
             if (bounds === null) {
               bounds = new mapboxgl.LngLatBounds();
             }
-            if (feature.geometry.type === 'LineString') {
+            if (['LineString', 'Polygon'].includes(feature.geometry.type)) {
               feature.geometry.coordinates.forEach(point => {
                 bounds.extend(point);
               });
