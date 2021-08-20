@@ -375,7 +375,7 @@ function MapApp(opts) {
 
     _self.loadLayers = function (readyFunction) {
       function loadZoneGeoJSON() {
-        let url = '/static/js/data/zones777.geojson';
+        let url = '/static/data/zones777.geojson';
         return $.getJSON(url, function (data) {
           data.features = data.features.map((feature) => {
             feature.id = feature.properties.id;
@@ -398,42 +398,42 @@ function MapApp(opts) {
       }
 
       function loadSubwayStationGeoJSON() {
-        let url = "/static/js/data/metro-estaciones.geojson";
+        let url = "/static/data/metro-estaciones.geojson";
         return $.getJSON(url, function (subwayStationSource) {
           map.addSource('subway-station-source', {type: 'geojson', data: subwayStationSource});
         });
       }
 
       function loadSubwayShapeGeoJSON() {
-        let url = "/static/js/data/metro-lineas.geojson";
+        let url = "/static/data/metro-lineas.geojson";
         return $.getJSON(url, function (subwayShapeSource) {
           map.addSource('subway-shape-source', {type: 'geojson', data: subwayShapeSource});
         });
       }
 
       function loadTrainStationGeoJSON() {
-        let url = "/static/js/data/metrotren-estaciones.geojson";
+        let url = "/static/data/metrotren-estaciones.geojson";
         return $.getJSON(url, function (trainStationSource) {
           map.addSource('train-station-source', {type: 'geojson', data: trainStationSource});
         });
       }
 
       function loadTrainShapeGeoJSON() {
-        let url = "/static/js/data/metrotren-lineas.geojson";
+        let url = "/static/data/metrotren-lineas.geojson";
         return $.getJSON(url, function (trainShapeSource) {
           map.addSource('train-shape-source', {type: 'geojson', data: trainShapeSource});
         });
       }
 
       function loadDistrictGeoJSON() {
-        let url = "/static/js/data/macrozonas.geojson";
+        let url = "/static/data/macrozonas.geojson";
         return $.getJSON(url, function (districtSource) {
           map.addSource('district-source', {type: 'geojson', data: districtSource});
         });
       }
 
       function loadCommuneGeoJSON() {
-        let url = "/static/js/data/comunas.geojson";
+        let url = "/static/data/comunas.geojson";
         return $.getJSON(url, function (communeSource) {
           map.addSource('commune-source', {type: 'geojson', data: communeSource});
         });
