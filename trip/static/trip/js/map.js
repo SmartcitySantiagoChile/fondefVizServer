@@ -498,7 +498,6 @@ function MapApp(opts) {
             controlMapping['Comunas'] = communeLayer;
             map.addLayer(communeLayer)
           }
-          console.log(controlMapping);
 
           /*
           hay que poner los checkbox en la pantalla

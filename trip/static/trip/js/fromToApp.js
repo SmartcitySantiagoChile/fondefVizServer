@@ -257,10 +257,6 @@ $(document).ready(function () {
           console.log(error);
         }
       });
-
-      console.log(originSource);
-      console.log(destinationSource);
-
       originMapApp.getMapInstance().getSource('origin-source').setData(originSource);
       destinationMapApp.getMapInstance().getSource('destination-source').setData(destinationSource);
 
