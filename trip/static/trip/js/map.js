@@ -31,6 +31,7 @@ function MapApp(opts) {
   let doubleClickZoom = opts.doubleClickZoom || false;
   let zoomControl = opts.zoomControl === undefined ? true : opts.zoomControl;
   let scaleControl = opts.scaleControl === undefined ? true : opts.scaleControl;
+  let fullscreenControl = opts.fullscreenControl === undefined ? false : opts.fullscreenControl;
   let styles = {
     "streets": "mapbox://styles/mapbox/streets-v11",
     "light": "mapbox://styles/mapbox/light-v10",
@@ -62,6 +63,9 @@ function MapApp(opts) {
     if (scaleControl) {
       let navigationControl = new mapboxgl.ScaleControl({});
       map.addControl(navigationControl, 'bottom-left');
+    }
+    if (fullscreenControl) {
+      map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
     }
 
     map.setMaxBounds(maxBounds);
