@@ -119,7 +119,7 @@ $(document).ready(function () {
         popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
         popUpDescription += "</p>";
 
-        new mapboxgl.Popup({closeOnClick: true}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
+        new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
       };
 
       let mouseenter = () => {
