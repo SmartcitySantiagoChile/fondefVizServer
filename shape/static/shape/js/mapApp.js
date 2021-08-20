@@ -352,8 +352,12 @@ $(document).ready(function () {
       mapId: 'mapid',//$(".right_col")[0],
       zoomControl: false,
       scaleControl: true,
+      showZones: false,
+      showMacroZones: false,
+      hideZoneLegend: true,
+      showCommunes: true,
       tileLayer: 'streets',
-      onLoad: (_mapInstance) => {
+      onLoad: (_mapInstance, _mapApp) => {
         let img = '/static/trip/img/double-arrow.png';
         _mapInstance.loadImage(img, (err, image) => {
           if (err) {
@@ -370,6 +374,8 @@ $(document).ready(function () {
 
           // enable events
           _self.enableEvents();
+
+          _mapApp.loadLayers();
 
           // set map height
           $('#mapid').css('min-height', $(window).height() - 100);

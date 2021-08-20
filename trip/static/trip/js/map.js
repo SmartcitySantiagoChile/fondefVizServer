@@ -13,8 +13,13 @@ function MapApp(opts) {
   let maxZoom = opts.maxZoom || 15;
   let minZoom = opts.minZoom || 8;
   let maxBounds = opts.maxBounds || new mapboxgl.LngLatBounds(new mapboxgl.LngLat(-70.942223, -33.697721), new mapboxgl.LngLat(-70.357465, -33.178138));
+  let showZones = opts.showZones === undefined ? true : opts.showZones;
   let showMetroStations = opts.showMetroStations === undefined ? true : opts.showMetroStations;
+  let showMetroShapes = opts.showMetroShapes === undefined ? true : opts.showMetroShapes;
+  let showTrainStations = opts.showTrainStations === undefined ? true : opts.showTrainStations;
+  let showTrainShapes = opts.showTrainShapes === undefined ? true : opts.showTrainShapes;
   let showMacroZones = opts.showMacroZones === undefined ? true : opts.showMacroZones;
+  let showCommunes = opts.showCommunes === undefined ? true : opts.showCommunes;
   let selectedStyle = opts.tileLayer || "light";
   let mapStartLocation = opts.startLocation || new mapboxgl.LngLat(-70.645348, -33.459229);
   let onClickZone = opts.onClickZone || function (e) {
@@ -82,30 +87,69 @@ function MapApp(opts) {
       features: []
     };
 
-    let subwayLayer = {
-      id: 'subway-layer',
-      source: 'subway-source',
+    let subwayStationLayer = {
+      id: 'subway-station-layer',
+      source: 'subway-station-source',
       type: 'circle',
-      layout: {},
       paint: {
-        'circle-radius': 3,
-        'circle-color': [
-          'case',
-          ['==', ['get', 'line'], 'MetroTren'], ['get', 'color2'],
-          ['get', 'color']
-        ],
+        'circle-radius': 2,
+        'circle-color': ['get', 'COLOR'],
         'circle-opacity': 1,
-        'circle-stroke-color': [
-          'case',
-          ['==', ['get', 'line'], 'MetroTren'], ['get', 'color1'],
-          '#000000'
-        ],
+        'circle-stroke-color': '#000000',
         'circle-stroke-width': 1,
       }
     };
+    let trainStationLayer = {
+      id: 'train-station-layer',
+      source: 'train-station-source',
+      type: 'circle',
+      paint: {
+        'circle-radius': 2,
+        'circle-color': ['get', 'COLOR2'],
+        'circle-opacity': 1,
+        'circle-stroke-color': ['get', 'COLOR1'],
+        'circle-stroke-width': 1,
+      }
+    };
+
+    let subwayShapeLayer = {
+      id: 'subway-shape-layer',
+      source: 'subway-shape-source',
+      type: 'line',
+      layout: {},
+      paint: {
+        'line-color': ['get', 'COLOR'],
+        'line-width': 4,
+        'line-opacity': 0.3
+      }
+    };
+
+    let trainShapeLayer = {
+      id: 'train-shape-layer',
+      source: 'train-shape-source',
+      type: 'line',
+      layout: {},
+      paint: {
+        'line-color': ['get', 'COLOR'],
+        'line-width': 4,
+        'line-opacity': 0.3
+      }
+    };
+
     let districtLayer = {
       id: 'district-layer',
       source: 'district-source',
+      type: 'line',
+      layout: {},
+      paint: {
+        'line-color': '#000000',
+        'line-width': 1,
+        'line-opacity': 0.3
+      }
+    };
+    let communeLayer = {
+      id: 'commune-layer',
+      source: 'commune-source',
       type: 'line',
       layout: {},
       paint: {
@@ -353,26 +397,69 @@ function MapApp(opts) {
         });
       }
 
-      function loadSubwayGeoJSON() {
-        let url = "/static/js/data/metro.geojson";
-        return $.getJSON(url, function (subwaySource) {
-          map.addSource('subway-source', {type: 'geojson', data: subwaySource});
+      function loadSubwayStationGeoJSON() {
+        let url = "/static/js/data/metro-estaciones.geojson";
+        return $.getJSON(url, function (subwayStationSource) {
+          map.addSource('subway-station-source', {type: 'geojson', data: subwayStationSource});
+        });
+      }
+
+      function loadSubwayShapeGeoJSON() {
+        let url = "/static/js/data/metro-lineas.geojson";
+        return $.getJSON(url, function (subwayShapeSource) {
+          map.addSource('subway-shape-source', {type: 'geojson', data: subwayShapeSource});
+        });
+      }
+
+      function loadTrainStationGeoJSON() {
+        let url = "/static/js/data/metrotren-estaciones.geojson";
+        return $.getJSON(url, function (trainStationSource) {
+          map.addSource('train-station-source', {type: 'geojson', data: trainStationSource});
+        });
+      }
+
+      function loadTrainShapeGeoJSON() {
+        let url = "/static/js/data/metrotren-lineas.geojson";
+        return $.getJSON(url, function (trainShapeSource) {
+          map.addSource('train-shape-source', {type: 'geojson', data: trainShapeSource});
         });
       }
 
       function loadDistrictGeoJSON() {
-        let url = "/static/js/data/comunas.geojson";
+        let url = "/static/js/data/macrozonas.geojson";
         return $.getJSON(url, function (districtSource) {
           map.addSource('district-source', {type: 'geojson', data: districtSource});
         });
       }
 
-      let shapesToLoad = [loadZoneGeoJSON()];
+      function loadCommuneGeoJSON() {
+        let url = "/static/js/data/comunas.geojson";
+        return $.getJSON(url, function (communeSource) {
+          map.addSource('commune-source', {type: 'geojson', data: communeSource});
+        });
+      }
+
+      let shapesToLoad = [];
+      if (showZones) {
+        shapesToLoad.push(loadZoneGeoJSON());
+      }
       if (showMetroStations) {
-        shapesToLoad.push(loadSubwayGeoJSON());
+        shapesToLoad.push(loadSubwayStationGeoJSON());
+      }
+      if (showMetroShapes) {
+        shapesToLoad.push(loadSubwayShapeGeoJSON());
+      }
+      if (showTrainStations) {
+        shapesToLoad.push(loadTrainStationGeoJSON());
+      }
+      if (showTrainShapes) {
+        shapesToLoad.push(loadTrainShapeGeoJSON());
       }
       if (showMacroZones) {
         shapesToLoad.push(loadDistrictGeoJSON());
+      }
+      if (showCommunes) {
+        shapesToLoad.push(loadCommuneGeoJSON());
       }
 
       $.when(...shapesToLoad)
@@ -385,16 +472,33 @@ function MapApp(opts) {
           }
 
           let controlMapping = {
-            "Zonas 777": zoneLayer
+            'Zonas 777': zoneLayer
           };
           if (showMetroStations) {
-            controlMapping["Estaciones de Metro"] = subwayLayer;
-            map.addLayer(subwayLayer)
+            controlMapping['Estaciones de Metro'] = subwayStationLayer;
+            map.addLayer(subwayStationLayer)
+          }
+          if (showMetroShapes) {
+            controlMapping['Líneas de Metro'] = subwayShapeLayer;
+            map.addLayer(subwayShapeLayer)
+          }
+          if (showTrainStations) {
+            controlMapping['Estaciones de Metrotren'] = trainStationLayer;
+            map.addLayer(trainStationLayer)
+          }
+          if (showTrainShapes) {
+            controlMapping['Líneas de Metrotren'] = trainShapeLayer;
+            map.addLayer(trainShapeLayer)
           }
           if (showMacroZones) {
-            controlMapping["Comunas"] = districtLayer;
+            controlMapping['Macrozonas'] = districtLayer;
             map.addLayer(districtLayer)
           }
+          if (showCommunes) {
+            controlMapping['Comunas'] = communeLayer;
+            map.addLayer(communeLayer)
+          }
+          console.log(controlMapping);
 
           /*
           hay que poner los checkbox en la pantalla
