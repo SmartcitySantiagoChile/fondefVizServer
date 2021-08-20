@@ -352,6 +352,7 @@ $(document).ready(function () {
       mapId: 'mapid',//$(".right_col")[0],
       zoomControl: false,
       scaleControl: true,
+      tileLayer: 'streets',
       onLoad: (_mapInstance) => {
         let img = '/static/trip/img/double-arrow.png';
         _mapInstance.loadImage(img, (err, image) => {
