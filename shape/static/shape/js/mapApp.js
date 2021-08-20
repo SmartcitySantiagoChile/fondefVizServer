@@ -220,9 +220,9 @@ $(document).ready(function () {
             '<div class="form-row">' +
             '<div class="form-group col">' +
             '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-            '<button class="btn btn-default-white btn-sm date" >Programa de Operación</button>' +
+            '<button class="btn btn-default-white btn-sm date" >Fecha PO</button>' +
             '<button class="btn btn-default-white btn-sm userRoute"" >Servicio</button>' +
-            '<button class="btn btn-default-white btn-sm route" >Servicio Sonda</button>' +
+            '<button class="btn btn-default-white btn-sm route" >Servicio TS</button>' +
             '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
             '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
             '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
@@ -355,6 +355,7 @@ $(document).ready(function () {
       showZones: false,
       showMacroZones: false,
       hideZoneLegend: true,
+      hideMapLegend: true,
       showCommunes: true,
       tileLayer: 'streets',
       onLoad: (_mapInstance, _mapApp) => {

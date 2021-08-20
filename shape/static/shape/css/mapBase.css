@@ -88,9 +88,11 @@
 .route {
     width: 180px !important;
 }
+
 .modal-lg {
     width: 80%;
 }
+
 #timePeriodButton {
     float: right;
 }
@@ -98,4 +100,41 @@
 .select2-selection--multiple {
     max-height: 60px;
     overflow: auto
+}
+
+/* used for layer group control */
+
+#layerGroupContainer {
+    background: #fff;
+    top: 10px;
+    right: 10px;
+    width: 120px;
+}
+
+#layerGroupContainer a {
+    font-size: 11px;
+    color: #404040;
+    border-radius: 5px;
+    display: block;
+    padding: 3px;
+    text-decoration: none;
+    text-align: center;
+}
+
+#layerGroupContainer a:last-child {
+    border: none;
+}
+
+#layerGroupContainer a:hover {
+    background-color: #f8f8f8;
+    color: #404040;
+}
+
+#layerGroupContainer a.active {
+    background-color: #3887be;
+    color: #ffffff;
+}
+
+#layerGroupContainer a.active:hover {
+    background: #3074a4;
 }

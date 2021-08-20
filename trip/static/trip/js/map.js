@@ -91,6 +91,9 @@ function MapApp(opts) {
       id: 'subway-station-layer',
       source: 'subway-station-source',
       type: 'circle',
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'circle-radius': 2,
         'circle-color': ['get', 'COLOR'],
@@ -103,6 +106,9 @@ function MapApp(opts) {
       id: 'train-station-layer',
       source: 'train-station-source',
       type: 'circle',
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'circle-radius': 2,
         'circle-color': ['get', 'COLOR2'],
@@ -116,7 +122,9 @@ function MapApp(opts) {
       id: 'subway-shape-layer',
       source: 'subway-shape-source',
       type: 'line',
-      layout: {},
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'line-color': ['get', 'COLOR'],
         'line-width': 4,
@@ -128,7 +136,9 @@ function MapApp(opts) {
       id: 'train-shape-layer',
       source: 'train-shape-source',
       type: 'line',
-      layout: {},
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'line-color': ['get', 'COLOR'],
         'line-width': 4,
@@ -140,7 +150,9 @@ function MapApp(opts) {
       id: 'district-layer',
       source: 'district-source',
       type: 'line',
-      layout: {},
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'line-color': '#000000',
         'line-width': 1,
@@ -151,7 +163,9 @@ function MapApp(opts) {
       id: 'commune-layer',
       source: 'commune-source',
       type: 'line',
-      layout: {},
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'line-color': '#000000',
         'line-width': 1,
@@ -163,6 +177,9 @@ function MapApp(opts) {
       id: 'zone-layer',
       source: 'zones-source',
       type: 'fill',
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'fill-color': [
           'case',
@@ -183,6 +200,9 @@ function MapApp(opts) {
       id: 'zone-border-layer',
       source: 'zones-source',
       type: 'line',
+      layout: {
+        'visibility': 'visible'
+      },
       paint: {
         'line-width': [
           'case',
@@ -383,17 +403,6 @@ function MapApp(opts) {
           });
           zoneGeoJSON = data;
           map.addSource('zones-source', {type: 'geojson', data: zoneGeoJSON});
-          map.addLayer(zoneLayer);
-          map.addLayer(zoneBorderLayer);
-          map.on('mousemove', zoneLayer.id, (e) => {
-            onMousemoveZone.call(_self, e);
-          });
-          map.on('mouseleave', zoneLayer.id, (e) => {
-            onMouseleaveZone.call(_self, e);
-          });
-          map.on('click', zoneLayer.id, (e) => {
-            onClickZone.call(_self, e);
-          });
         });
       }
 
@@ -471,38 +480,95 @@ function MapApp(opts) {
             setupMapLegend();
           }
 
-          let controlMapping = {
-            'Zonas 777': zoneLayer
-          };
+          let controlMapping = {};
+          if (showZones) {
+            controlMapping['Zonas 777'] = [zoneLayer, zoneBorderLayer];
+            map.addLayer(zoneLayer);
+            map.addLayer(zoneBorderLayer);
+            map.on('mousemove', zoneLayer.id, (e) => {
+              onMousemoveZone.call(_self, e);
+            });
+            map.on('mouseleave', zoneLayer.id, (e) => {
+              onMouseleaveZone.call(_self, e);
+            });
+            map.on('click', zoneLayer.id, (e) => {
+              onClickZone.call(_self, e);
+            });
+          }
           if (showMetroStations) {
-            controlMapping['Estaciones de Metro'] = subwayStationLayer;
+            controlMapping['Estaciones de Metro'] = [subwayStationLayer];
             map.addLayer(subwayStationLayer)
           }
           if (showMetroShapes) {
-            controlMapping['Líneas de Metro'] = subwayShapeLayer;
+            controlMapping['Líneas de Metro'] = [subwayShapeLayer];
             map.addLayer(subwayShapeLayer)
           }
           if (showTrainStations) {
-            controlMapping['Estaciones de Metrotren'] = trainStationLayer;
+            controlMapping['Estaciones de Metrotren'] = [trainStationLayer];
             map.addLayer(trainStationLayer)
           }
           if (showTrainShapes) {
-            controlMapping['Líneas de Metrotren'] = trainShapeLayer;
+            controlMapping['Líneas de Metrotren'] = [trainShapeLayer];
             map.addLayer(trainShapeLayer)
           }
           if (showMacroZones) {
-            controlMapping['Macrozonas'] = districtLayer;
+            controlMapping['Macrozonas'] = [districtLayer];
             map.addLayer(districtLayer)
           }
           if (showCommunes) {
-            controlMapping['Comunas'] = communeLayer;
+            controlMapping['Comunas'] = [communeLayer];
             map.addLayer(communeLayer)
           }
 
-          /*
-          hay que poner los checkbox en la pantalla
-          para poder ocultar o mostrar las capas
-          */
+          if (Object.keys(controlMapping).length !== 0) {
+            class LayerGroupControl {
+              onAdd(map) {
+                this._div = document.createElement('div');
+                this._div.className = 'mapboxgl-ctrl info';
+                this._div.id = 'layerGroupContainer';
+                this._div.innerHTML = '<h5>Capas disponibles</h5><div id="layerGroupMenu"></div>';
+                return this._div;
+              }
+            }
+
+            map.addControl(new LayerGroupControl(), 'top-right');
+
+            map.on('idle', () => {
+              for (const key of Object.keys(controlMapping)) {
+                let layers = controlMapping[key];
+                if (document.getElementById(layers[0].id)) {
+                  continue;
+                }
+
+                const link = document.createElement('a');
+                link.id = layers[0].id;
+                link.href = '#';
+                link.textContent = key;
+                $(link).data('layerIds', layers.map(layer => layer.id));
+                link.className = 'active';
+                link.onclick = function (e) {
+                  const clickedLayers = $(this).data('layerIds');
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  clickedLayers.forEach(layerId => {
+                    const visibility = map.getLayoutProperty(layerId, 'visibility');
+                    if (visibility === 'visible') {
+                      map.setLayoutProperty(layerId, 'visibility', 'none');
+                      this.className = '';
+                    } else {
+                      this.className = 'active';
+                      map.setLayoutProperty(layerId, 'visibility', 'visible');
+                    }
+                  });
+                };
+
+                const layersMenu = document.getElementById('layerGroupMenu');
+                layersMenu.appendChild(link);
+                layersMenu.appendChild(document.createElement('br'));
+              }
+            });
+          }
 
           if (readyFunction !== undefined) {
             readyFunction();
