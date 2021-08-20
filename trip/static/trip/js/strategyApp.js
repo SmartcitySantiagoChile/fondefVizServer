@@ -5,8 +5,10 @@ $(document).ready(function () {
     let originSelected = new Set([]);
     let destinationSelected = new Set([]);
 
-    let mapZoneInfoLegend = L.control({position: "topright"});
-    let mapLegend = L.control({position: "bottomright"});
+    let mapZoneInfoLegend = null;
+    let mapLegend = null;
+
+    let mapApp = null;
 
     let tableOpts = {
       language: {
@@ -57,115 +59,133 @@ $(document).ready(function () {
     };
 
     let colors = {
-      none: "#CCCCCC",
+      none: "#77847e",
       origin: "#fc8d59",
       destination: "#ffffbf",
       both: "#91bfdb"
     };
 
-    let setZoneStyle = function (layer) {
-      let zoneId = layer.feature.properties.id;
-      if (originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
-        layer.setStyle(mapApp.styles.zoneWithColor(layer.feature, colors.both));
-      } else if (originSelected.has(zoneId) && !destinationSelected.has(zoneId)) {
-        layer.setStyle(mapApp.styles.zoneWithColor(layer.feature, colors.origin));
-      } else if (!originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
-        layer.setStyle(mapApp.styles.zoneWithColor(layer.feature, colors.destination));
-      } else {
-        layer.setStyle(mapApp.styles.zoneWithoutData(layer.feature));
-      }
-    };
-
-    let mapOpts = {
-      hideMapLegend: true,
-      hideZoneLegend: true,
-      showMetroStations: false,
-      showMacroZones: false,
-      onClickZone: function (e) {
-        let layer = e.target;
-        let zoneId = layer.feature.properties.id;
-        if (originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
-          originSelected.delete(zoneId);
-          destinationSelected.delete(zoneId);
-        } else if (originSelected.has(zoneId) && !destinationSelected.has(zoneId)) {
-          originSelected.delete(zoneId);
-          destinationSelected.add(zoneId);
-        } else if (!originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
-          originSelected.add(zoneId);
-        } else {
-          originSelected.add(zoneId);
+    let createZoneInfoLegend = function () {
+      class MapZoneInfoLegend {
+        onAdd(map) {
+          let div = document.createElement('div');
+          div.className = 'mapboxgl-ctrl info legend';
+          div.id = 'mapZoneInfoLegend';
+          return div;
         }
-        setZoneStyle(layer);
-        layer.setStyle(this.styles.zoneOnHover());
-      },
-      onMouseinZone: function (e) {
-        let zoneId = e.target.feature.properties.id;
-        mapZoneInfoLegend.update(zoneId);
-        this.defaultOnMouseinZone(e);
-      },
-      onMouseoutZone: function (e) {
-        let layer = e.target;
-        mapZoneInfoLegend.update();
-        setZoneStyle(layer);
+
+        update(zoneId) {
+          zoneId = zoneId || '';
+          let div = document.getElementById('mapZoneInfoLegend');
+          div.innerHTML = '<h4>Zonificación 777: </h4>';
+          div.innerHTML += '<b>Zona ' + zoneId + '</b>';
+        }
       }
+
+      return new MapZoneInfoLegend();
     };
 
-    let mapApp = new MapApp(mapOpts);
+    let createColorLengend = function () {
+      class MapLegend {
+        onAdd(map) {
+          let div = document.createElement('div')
+          div.className = 'mapboxgl-ctrl info legend';
+          div.id = 'mapLegend';
+          return div;
+        }
 
-    let constructZoneInfoLegend = function () {
-      mapZoneInfoLegend.onAdd = function (map) {
-        let div = L.DomUtil.create("div", "info legend");
-        div.id = "mapZoneInfoLegend";
-        return div;
-      };
+        update() {
+          let div = document.getElementById('mapLegend');
+          div.innerHTML = '<h4>Leyenda: </h4>';
+          let rows = [{
+            label: 'Zonas no seleccionadas',
+            color: colors.none
+          }, {
+            label: 'Zonas de origen',
+            color: colors.origin
+          }, {
+            label: 'Zonas de destino',
+            color: colors.destination
+          }, {
 
-      mapZoneInfoLegend.update = function (zoneId) {
-        zoneId = zoneId || "";
-        let div = document.getElementById("mapZoneInfoLegend");
-        div.innerHTML = "<h4>Zonificación 777: </h4>";
-        div.innerHTML += "<b>Zona " + zoneId + "</b>";
-      };
-      mapZoneInfoLegend.addTo(mapApp.getMapInstance());
-      mapZoneInfoLegend.update();
-    };
+            label: 'Zonas de origen y destino',
+            color: colors.both
+          }];
+          rows.forEach(function (el) {
+            div.innerHTML += "<i style='background:" + el.color + "'></i><b> " + el.label + "</b>";
+            div.innerHTML += '<br />';
+          });
+        }
+      }
 
-    let constructColorLenged = function () {
-      mapLegend.onAdd = function (map) {
-        let div = L.DomUtil.create("div", "info legend");
-        div.id = "mapLegend";
-        return div;
-      };
-
-      mapLegend.update = function () {
-        let div = document.getElementById("mapLegend");
-        div.innerHTML = "<h4>Leyenda: </h4>";
-        let rows = [{
-          label: "Zonas no seleccionadas",
-          color: colors.none
-        }, {
-          label: "Zonas de origen",
-          color: colors.origin
-        }, {
-          label: "Zonas de destino",
-          color: colors.destination
-        }, {
-
-          label: "Zonas de origen y destino",
-          color: colors.both
-        }];
-        rows.forEach(function (el) {
-          div.innerHTML += "<i style='background:" + el.color + "'></i><b> " + el.label + "</b>";
-          div.innerHTML += "<br />";
-        });
-      };
-      mapLegend.addTo(mapApp.getMapInstance());
-      mapLegend.update();
+      return new MapLegend();
     };
 
     this.loadLayers = function (readyFunction) {
-      constructColorLenged();
-      constructZoneInfoLegend();
-      mapApp.loadLayers(readyFunction);
+      let hoveredFeature = null;
+      let mapOpts = {
+        hideMapLegend: true,
+        hideZoneLegend: true,
+        showMetroStations: false,
+        showMacroZones: false,
+        onClickZone: function (e) {
+          let feature = e.features[0];
+          let zoneId = feature.properties.id;
+          let states = {origin: false, destination: false, both: false};
+          if (originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
+            originSelected.delete(zoneId);
+            destinationSelected.delete(zoneId);
+          } else if (originSelected.has(zoneId) && !destinationSelected.has(zoneId)) {
+            originSelected.delete(zoneId);
+            destinationSelected.add(zoneId);
+            states.destination = true;
+          } else if (!originSelected.has(zoneId) && destinationSelected.has(zoneId)) {
+            originSelected.add(zoneId);
+            states.both = true;
+          } else {
+            originSelected.add(zoneId);
+            states.origin = true;
+          }
+          mapApp.getMapInstance().setFeatureState({source: 'zones-source', id: feature.id}, states);
+        },
+        onMousemoveZone: function (e) {
+          let feature = e.features[0];
+          hoveredFeature = feature;
+          let zoneId = feature.properties.id;
+          mapZoneInfoLegend.update(zoneId);
+          this.defaultOnMousemoveZone(e);
+        },
+        onMouseleaveZone: function (e) {
+          hoveredFeature = null;
+          mapZoneInfoLegend.update();
+          this.defaultOnMouseleaveZone(e);
+        },
+        onLoad: (_mapInstance, _mapApp) => {
+          _mapApp.loadLayers(() => {
+            mapZoneInfoLegend = createColorLengend();
+            _mapApp.getMapInstance().addControl(mapZoneInfoLegend, 'bottom-right');
+            mapZoneInfoLegend.update();
+
+            mapLegend = createZoneInfoLegend();
+            _mapApp.getMapInstance().addControl(mapLegend, 'top-right');
+            mapLegend.update();
+
+            let zoneLayer = _mapApp.getZoneLayer();
+            zoneLayer.paint['fill-color'] = [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false], '#666',
+              ['boolean', ['feature-state', 'origin'], false], colors.origin,
+              ['boolean', ['feature-state', 'destination'], false], colors.destination,
+              ['boolean', ['feature-state', 'both'], false], colors.both,
+              colors.none
+            ];
+            _mapApp.setLayer(zoneLayer);
+
+            readyFunction();
+          });
+        }
+      };
+      mapApp = new MapApp(mapOpts);
     };
   }
 
@@ -201,7 +221,6 @@ $(document).ready(function () {
   (function () {
     loadAvailableDays(Urls["esapi:availableTripDays"]());
     loadRangeCalendar(Urls["esapi:availableTripDays"](), {});
-
 
     let app = new FromToApp();
 
