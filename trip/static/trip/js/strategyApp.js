@@ -85,7 +85,7 @@ $(document).ready(function () {
       return new MapZoneInfoLegend();
     };
 
-    let createColorLengend = function () {
+    let createColorLegend = function () {
       class MapLegend {
         onAdd(map) {
           let div = document.createElement('div')
@@ -107,7 +107,6 @@ $(document).ready(function () {
             label: 'Zonas de destino',
             color: colors.destination
           }, {
-
             label: 'Zonas de origen y destino',
             color: colors.both
           }];
@@ -127,7 +126,12 @@ $(document).ready(function () {
         hideMapLegend: true,
         hideZoneLegend: true,
         showMetroStations: false,
+        showMetroShapes: false,
+        showTrainStations: false,
+        showTrainShapes: false,
+        showCommunes: false,
         showMacroZones: false,
+        showLayerGroupControl: false,
         onClickZone: function (e) {
           let feature = e.features[0];
           let zoneId = feature.properties.id;
@@ -152,17 +156,17 @@ $(document).ready(function () {
           let feature = e.features[0];
           hoveredFeature = feature;
           let zoneId = feature.properties.id;
-          mapZoneInfoLegend.update(zoneId);
+          mapLegend.update(zoneId);
           this.defaultOnMousemoveZone(e);
         },
         onMouseleaveZone: function (e) {
           hoveredFeature = null;
-          mapZoneInfoLegend.update();
+          mapLegend.update();
           this.defaultOnMouseleaveZone(e);
         },
         onLoad: (_mapInstance, _mapApp) => {
           _mapApp.loadLayers(() => {
-            mapZoneInfoLegend = createColorLengend();
+            mapZoneInfoLegend = createColorLegend();
             _mapApp.getMapInstance().addControl(mapZoneInfoLegend, 'bottom-right');
             mapZoneInfoLegend.update();
 

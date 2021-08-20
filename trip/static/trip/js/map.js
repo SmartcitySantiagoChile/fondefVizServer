@@ -20,6 +20,7 @@ function MapApp(opts) {
   let showTrainShapes = opts.showTrainShapes === undefined ? true : opts.showTrainShapes;
   let showMacroZones = opts.showMacroZones === undefined ? true : opts.showMacroZones;
   let showCommunes = opts.showCommunes === undefined ? true : opts.showCommunes;
+  let showLayerGroupControl = opts.showLayerGroupControl === undefined ? true : opts.showLayerGroupControl;
   let selectedStyle = opts.tileLayer || "light";
   let mapStartLocation = opts.startLocation || new mapboxgl.LngLat(-70.645348, -33.459229);
   let onClickZone = opts.onClickZone || function (e) {
@@ -520,7 +521,7 @@ function MapApp(opts) {
             map.addLayer(communeLayer)
           }
 
-          if (Object.keys(controlMapping).length !== 0) {
+          if (Object.keys(controlMapping).length !== 0 && showLayerGroupControl) {
             class LayerGroupControl {
               onAdd(map) {
                 this._div = document.createElement('div');

@@ -147,6 +147,12 @@ $(document).ready(function () {
 
     this.loadLayers = function (readyFunction) {
       let opts = {
+        showMetroStations: false,
+        showMetroShapes: false,
+        showTrainStations: false,
+        showTrainShapes: false,
+        showCommunes: false,
+        showLayerGroupControl: false,
         getDataZoneById: function (zoneId) {
           if (data === null) {
             return null;

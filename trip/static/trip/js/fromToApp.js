@@ -271,7 +271,11 @@ $(document).ready(function () {
       let defaultOpts = {
         hideMapLegend: true,
         showMetroStations: false,
-        showMacroZones: false,
+        showMetroShapes: false,
+        showTrainStations: false,
+        showTrainShapes: false,
+        showCommunes: false,
+        showLayerGroupControl: false,
         onClickZone: function (e) {
           let map = e.target;
           let feature = e.features[0];
