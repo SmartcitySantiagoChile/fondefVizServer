@@ -433,8 +433,17 @@ $(document).ready(function () {
         _self.addLayers(selectorId, stopsSource, shapeSource);
 
         // update color
+        let getRandomColor = function () {
+          let letters = "0123456789ABCDEF";
+          let color = "#";
+          for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+        };
         let $COLOR_BUTTON = $(`#colorSelect-${selectorId}`);
-        let color = $COLOR_BUTTON.css("color");
+        let color = getRandomColor();
+        $COLOR_BUTTON.colorpicker('setValue', color);
         updateLayerColor(color, selectorId);
 
         // update routes
@@ -541,7 +550,6 @@ $(document).ready(function () {
       }
 
       $USER_ROUTE.trigger("change");
-      //$DATE.trigger("change");
     };
 
     this.refreshRemoveButton = function () {
