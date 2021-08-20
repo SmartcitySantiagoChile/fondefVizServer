@@ -343,6 +343,7 @@ $(document).ready(function () {
           popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
           popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
           popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
+          popUpDescription += " Perfil de carga promedio (sin evasión): <b>" + (feature.properties.loadProfile + 1) + "</b><br />";
           popUpDescription += "</p>";
 
           new mapboxgl.Popup({closeOnClick: true}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapInstance);
@@ -517,7 +518,7 @@ $(document).ready(function () {
       stops.forEach(function (stop, i) {
         let loadProfile = yAxisData[i] ? yAxisData[i] : 0;
         let formattedLoadProfile = Number(loadProfile.toFixed(2)).toLocaleString();
-        let area = loadProfile / maxLoadProfile * 300;
+        let area = (loadProfile / maxLoadProfile) * 400;
         let radius = Math.sqrt(area / Math.PI);
         if (radius <= 0 || isNaN(radius)) {
           radius = 1;
