@@ -175,10 +175,11 @@ $(document).ready(function () {
       class RouteControl {
         onAdd(map) {
           let div = document.createElement('div');
-          div.className = 'mapboxgl-ctrl info legend';
-          div.innerHTML += '<button id="addRouteButton" class="btn btn-default btn-sm" >' +
-            '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta' +
-            '</button>';
+          div.className = 'mapboxgl-ctrl legend';
+          div.innerHTML = `
+            <button id="addRouteButton" class="btn btn-default btn-sm" >
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta
+            </button>`;
           return div;
         }
 
@@ -194,8 +195,8 @@ $(document).ready(function () {
       class HelpControl {
         onAdd(map) {
           let div = document.createElement('div');
-          div.className = 'mapboxgl-ctrl info legend';
-          div.innerHTML += '<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>';
+          div.className = 'mapboxgl-ctrl legend';
+          div.innerHTML = `<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>`;
           return div;
         }
 
@@ -212,25 +213,37 @@ $(document).ready(function () {
         onAdd(map) {
           let div = document.createElement('div');
           div.className = 'mapboxgl-ctrl info legend';
-          div.innerHTML += '<h4>Rutas en mapa</h4>' +
-            '<div id="header" style="display: none">' +
-            '<div class="form-inline" >' +
-            '<button id="timePeriodButton" class="btn alert-warning " ><span class="fa fa-bus" aria-hidden="true"></span> Ver información operacional</button>' + '</div>' +
-            '<div class="form-inline" >' +
-            '<div class="form-row">' +
-            '<div class="form-group col">' +
-            '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-            '<button class="btn btn-default-white btn-sm date" >Fecha PO</button>' +
-            '<button class="btn btn-default-white btn-sm userRoute"" >Servicio</button>' +
-            '<button class="btn btn-default-white btn-sm route" >Servicio TS</button>' +
-            '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-            '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-            '<button class="btn btn-default-disabled btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '<div id="routeListContainer" class="form-inline"</div>';
+          div.id = 'header';
+          div.style = 'display: none';
+          div.innerHTML += `
+            <div class='row'>
+              <div class='col-lg-6'>
+                <h4>Rutas en mapa</h4>
+              </div>
+              <div class='col-lg-6'>
+                <button id="timePeriodButton" class="btn alert-warning" >
+                  <span class="fa fa-bus" aria-hidden="true"></span> Ver información operacional
+                </button>
+              </div>
+            </div>
+            <div class="row" >
+              <div class="col-lg-12">
+                <table class="table table-condensed">
+                  <thead>
+                    <th></th>
+                    <th>Fecha PO</th>
+                    <th>Servicio</th>
+                    <th>Servicio TS</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                  </thead>
+                  <tbody id="routeListContainer">
+                  </tbody>
+                </table>
+              </div>
+            </div>`;
           return div;
         }
 
@@ -324,21 +337,22 @@ $(document).ready(function () {
     this.addRow = function (dateList, userRouteList) {
       let newId = selectorId;
       selectorId++;
-      let row = '<div class="selectorRow" data-id="' + newId + '">' +
-        '<button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
-        `<select id=dateSelect-${newId} class="form-control date"></select>` +
-        `<select id=userRouteSelect-${newId} class="form-control userRoute"></select>` +
-        `<select id=routeSelect-${newId} class="form-control route"></select>` +
-        `<button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button>` +
-        `<button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>` +
-        `<button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button>` +
-        `<button id=visibilityUserStopLabels-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>` +
-        '</div>';
+      let row = `
+        <tr class="selectorRow" data-id="${newId}">
+            <td><button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+            <td><select id=dateSelect-${newId} class="form-control date"></select></td>
+            <td><select id=userRouteSelect-${newId} class="form-control userRoute"></select></td>
+            <td><select id=routeSelect-${newId} class="form-control route"></select></td>
+            <td><button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button></td>
+            <td><button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button></td>
+            <td><button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button></td>
+            <td><button id=visibilityUserStopLabels-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button></td>
+        </tr>`;
 
       $("#routeListContainer").append(row);
-      $(`#dateSelect-${newId}`).select2({width: 'element', data: dateList});
-      $(`#userRouteSelect-${newId}`).select2({width: 'element', data: userRouteList});
-      $(`#routeSelect-${newId}`).select2({width: 'element'});
+      $(`#dateSelect-${newId}`).select2({width: 'auto', data: dateList});
+      $(`#userRouteSelect-${newId}`).select2({width: 'auto', data: userRouteList});
+      $(`#routeSelect-${newId}`).select2({width: 'auto'});
 
       _self.refreshControlEvents(newId);
       _self.refreshRemoveButton();
@@ -398,7 +412,7 @@ $(document).ready(function () {
       $.getJSON(Urls['esapi:shapeRoute'](), params, function (data) {
         if (data.status) {
           showMessage(data.status);
-          if (!('points' in data)) {
+          if (!('points' in data) || !data.stops) {
             return;
           }
         }
@@ -569,10 +583,10 @@ $(document).ready(function () {
         modal.on("show.bs.modal", function () {
           modal.off("click", "button.btn-info");
           modal.on("click", "button.btn-info", function () {
-            let layerId = removeButtonRef.parent().data("id");
+            let layerId = removeButtonRef.parent().parent().data("id");
             // update last selected
             _self.removeLayers(layerId);
-            removeButtonRef.parent().remove();
+            removeButtonRef.parent().parent().remove();
           });
         });
         modal.modal("show");
@@ -599,7 +613,7 @@ $(document).ready(function () {
       $COLOR_BUTTON.off("changeColor");
       $COLOR_BUTTON.colorpicker({format: "rgb"}).on("changeColor", function (e) {
         let color = e.color.toString("rgba");
-        let layerId = $(this).parent().data("id");
+        let layerId = $(this).parent().parent().data("id");
         $(this).css("color", color);
         updateLayerColor(color, layerId);
       });
@@ -623,7 +637,7 @@ $(document).ready(function () {
       $VISIBILITY_BUTTON.click(function () {
         let button = $(this);
         let span = button.find("span");
-        let layerId = button.parent().data("id");
+        let layerId = button.parent().parent().data("id");
         let active = span.hasClass("glyphicon-eye-open");
         updateLayerRoutes(active, layerId, button, span);
       });
@@ -647,7 +661,7 @@ $(document).ready(function () {
       $VISIBILITY_BUTTON.click(function () {
         let button = $(this);
         let span = button.find("span");
-        let layerId = button.parent().data("id");
+        let layerId = button.parent().parent().data("id");
         let active = button.hasClass("btn-success");
         updateStopRoutes(active, layerId, button, span);
       });
@@ -671,7 +685,7 @@ $(document).ready(function () {
       $VISIBILITY_BUTTON.click(function () {
         let button = $(this);
         let span = button.find("span");
-        let layerId = button.parent().data("id");
+        let layerId = button.parent().parent().data("id");
         let active = button.hasClass("btn-success");
         updateUserStopLabels(active, layerId, button, span);
       });

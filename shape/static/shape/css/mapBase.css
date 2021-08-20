@@ -73,28 +73,17 @@
     border-radius: 3px;
 }
 
-.leaflet-container a.btn-success {
-    color: #ffffff;
-}
-
-.date {
-    width: 180px !important;
-}
-
-.userRoute {
-    width: 70px !important;
-}
-
-.route {
-    width: 180px !important;
-}
-
 .modal-lg {
     width: 80%;
 }
 
 #timePeriodButton {
     float: right;
+}
+
+#header .table-condensed tbody tr td,
+#header .table-condensed tbody tr th {
+    padding: 0px;
 }
 
 .select2-selection--multiple {
