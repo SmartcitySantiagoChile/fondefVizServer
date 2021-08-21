@@ -527,7 +527,12 @@ function MapApp(opts) {
                 this._div = document.createElement('div');
                 this._div.className = 'mapboxgl-ctrl info';
                 this._div.id = 'layerGroupContainer';
-                this._div.innerHTML = '<h5>Capas disponibles</h5><div id="layerGroupMenu"></div>';
+                this._div.innerHTML = `
+                    <img src="/static/trip/img/layersGroup.png">
+                    <div>
+                      <h5>Capas disponibles</h5>
+                      <div id="layerGroupMenu"></div>
+                    </div>`;
                 return this._div;
               }
             }

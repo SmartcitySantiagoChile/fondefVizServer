@@ -97,7 +97,20 @@
     background: #fff;
     top: 10px;
     right: 10px;
+}
+
+/* to show and hide layer group control */
+#layerGroupContainer div {
+    display: none;
+}
+
+#layerGroupContainer:hover img {
+    display: none;
+}
+
+#layerGroupContainer:hover div {
     width: 120px;
+    display: block;
 }
 
 #layerGroupContainer a {
