@@ -21,6 +21,7 @@ function MapApp(opts) {
   let showMacroZones = opts.showMacroZones === undefined ? true : opts.showMacroZones;
   let showCommunes = opts.showCommunes === undefined ? true : opts.showCommunes;
   let showLayerGroupControl = opts.showLayerGroupControl === undefined ? true : opts.showLayerGroupControl;
+  let showRuleControl = opts.showRuleControl === undefined ? false : opts.showRuleControl;
   let selectedStyle = opts.tileLayer || "light";
   let mapStartLocation = opts.startLocation || new mapboxgl.LngLat(-70.645348, -33.459229);
   let onClickZone = opts.onClickZone || function (e) {
@@ -67,8 +68,8 @@ function MapApp(opts) {
       map.addControl(navigationControl, 'top-left');
     }
     if (scaleControl) {
-      let navigationControl = new mapboxgl.ScaleControl({});
-      map.addControl(navigationControl, 'bottom-left');
+      let scaleControl = new mapboxgl.ScaleControl({});
+      map.addControl(scaleControl, 'bottom-left');
     }
     if (fullscreenControl) {
       map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
@@ -394,6 +395,142 @@ function MapApp(opts) {
       map.addControl(mapLegend, 'bottom-right');
     }
 
+    _self.addRuleControl = () => {
+      class RuleControl {
+        onAdd(map) {
+          this._div = document.createElement('div');
+          this._div.className = 'mapboxgl-ctrl legend';
+          this._div.innerHTML = `<button id="ruleButton" class="btn btn-default" ><span class="fa fa-arrows-h" aria-hidden="true"></span></button>`;
+          return this._div;
+        }
+      }
+
+      map.addControl(new RuleControl(), 'top-right');
+
+      let ruleSource = {
+        type: 'FeatureCollection',
+        features: []
+      };
+      let ruleLayer = {
+        id: 'rule-layer',
+        source: 'rule-source',
+        type: 'line',
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#2A3F54',
+          'line-width': 2
+        },
+        filter: ['in', '$type', 'LineString']
+      };
+      let measurePointLayer = {
+        id: 'measure-point-layer',
+        type: 'circle',
+        source: 'rule-source',
+        paint: {
+          'circle-radius': 4,
+          'circle-color': '#2A3F54'
+        },
+        filter: ['in', '$type', 'Point']
+      };
+      let measurePointLabelLayer = {
+        id: 'measure-point-label-layer',
+        type: 'symbol',
+        source: 'rule-source',
+        layout: {
+          'text-field': ['get', 'distance'],
+          'text-offset': [0, 1],
+          'text-size': 10
+        },
+        paint: {
+          'text-color': '#2A3F54'
+        },
+        filter: ['in', '$type', 'Point']
+      };
+
+      let linestring = {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': []
+        }
+      };
+
+      let clickEvent = (e) => {
+        const features = map.queryRenderedFeatures(e.point, {layers: ['measure-point-layer']});
+        if (ruleSource.features.length > 1) ruleSource.features.pop();
+
+        if (features.length) {
+          const id = features[0].properties.id;
+          ruleSource.features = ruleSource.features.filter(
+            (point) => point.properties.id !== id
+          );
+        } else {
+          const point = {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [e.lngLat.lng, e.lngLat.lat]
+            },
+            'properties': {
+              'id': String(new Date().getTime())
+            }
+          };
+
+          ruleSource.features.push(point);
+        }
+
+        if (ruleSource.features.length > 1) {
+          linestring.geometry.coordinates = ruleSource.features.map(
+            (point) => point.geometry.coordinates
+          );
+
+          let distance = turf.length(linestring);
+          distance = `${distance.toLocaleString()}km`;
+
+          ruleSource.features[ruleSource.features.length - 1].properties.distance = distance;
+          ruleSource.features.push(linestring);
+        }
+
+        map.getSource('rule-source').setData(ruleSource);
+      };
+
+      let mouseMoveEvent = (e) => {
+        const features = map.queryRenderedFeatures(e.point, {layers: ['measure-point-label-layer', 'measure-point-layer']});
+        map.getCanvas().style.cursor = features.length ? 'pointer' : 'crosshair';
+      };
+
+      let isEnable = false;
+      $('#ruleButton').click(() => {
+        if (isEnable) {
+          // disable rule mode
+          map.removeLayer(ruleLayer.id);
+          map.removeLayer(measurePointLayer.id);
+          map.removeLayer(measurePointLabelLayer.id);
+          map.removeSource('rule-source')
+
+          map.off('click', clickEvent);
+          map.off('mousemove', mouseMoveEvent);
+          map.getCanvas().style.cursor = 'grab';
+          $('#ruleButton').removeClass('active');// esto no funciona
+        } else {
+          // enable rule mode
+          ruleSource.features = [];
+          map.addSource('rule-source', {type: 'geojson', data: ruleSource});
+          map.addLayer(ruleLayer);
+          map.addLayer(measurePointLayer);
+          map.addLayer(measurePointLabelLayer);
+
+          map.on('click', clickEvent);
+          map.on('mousemove', mouseMoveEvent);
+          $('#ruleButton').addClass('active');
+        }
+        isEnable = !isEnable;
+      });
+    };
+
     _self.loadLayers = function (readyFunction) {
       function loadZoneGeoJSON() {
         let url = '/static/data/zones777.geojson';
@@ -479,6 +616,9 @@ function MapApp(opts) {
           }
           if (!hideMapLegend) {
             setupMapLegend();
+          }
+          if (showRuleControl) {
+            _self.addRuleControl();
           }
 
           let controlMapping = {};

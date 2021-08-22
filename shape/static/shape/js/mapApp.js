@@ -196,7 +196,7 @@ $(document).ready(function () {
         onAdd(map) {
           let div = document.createElement('div');
           div.className = 'mapboxgl-ctrl legend';
-          div.innerHTML = `<button id="helpButton" class="btn btn-default" ><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>`;
+          div.innerHTML = `<button id="helpButton" class="btn btn-default" ><span class="fa fa-info" aria-hidden="true"></span></button>`;
           return div;
         }
 
@@ -371,6 +371,7 @@ $(document).ready(function () {
       hideZoneLegend: true,
       hideMapLegend: true,
       showCommunes: true,
+      showRuleControl: true,
       tileLayer: 'streets',
       onLoad: (_mapInstance, _mapApp) => {
         let img = '/static/trip/img/double-arrow.png';
