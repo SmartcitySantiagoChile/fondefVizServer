@@ -255,6 +255,102 @@ $(document).ready(function () {
       mapInstance.addControl(new RouteListControl(), 'top-left');
     };
 
+    this.addBearingWithRouteLegendControl = (mapInstance) => {
+      class BearingWithRouteLegendControl {
+        onAdd(map) {
+          this._div = document.createElement('canvas');
+          this._div.className = 'mapboxgl-ctrl info legend';
+          this._div.width = 210;
+          this._div.height = 43;
+          this._div.id = 'bearingWithRouteLegendControl';
+          return this._div;
+        }
+
+        drawArrowToNorth(ctx, fromX, fromY, mapAngle) {
+          let distance = 7;
+          let angle = -90 + -1 * mapAngle;
+          let angleInRadians = angle * Math.PI / 180;
+          let headLength = 3; // length of head in pixels
+          let toX = fromX + distance * Math.cos(angleInRadians);
+          let toY = fromY + distance * Math.sin(angleInRadians);
+
+          ctx.beginPath();
+          ctx.moveTo(fromX, fromY);
+          ctx.lineTo(toX, toY);
+          ctx.moveTo(toX, toY);
+          ctx.lineTo(toX - headLength * Math.cos(angleInRadians - Math.PI / 6), toY - headLength * Math.sin(angleInRadians - Math.PI / 6));
+          ctx.moveTo(toX, toY);
+          ctx.lineTo(toX - headLength * Math.cos(angleInRadians + Math.PI / 6), toY - headLength * Math.sin(angleInRadians + Math.PI / 6));
+
+          ctx.font = '11px serif';
+          let offsetX = (distance + 4) * Math.cos(angleInRadians);
+          let offsetY = (distance + 4) * Math.sin(angleInRadians);
+
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.strokeText('N', fromX + offsetX, fromY + offsetY);
+
+          let radius = 2
+          ctx.moveTo(fromX + radius, fromY);
+          ctx.arc(fromX, fromY, radius, 0, 2 * Math.PI);
+          ctx.stroke();
+
+          radius = 20
+          ctx.moveTo(fromX + radius, fromY);
+          ctx.arc(fromX, fromY, radius, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+
+        drawRouteLegend(ctx, fromY, label, color) {
+          ctx.beginPath();
+          let lineLength = 50;
+          ctx.moveTo(0, fromY);
+          ctx.lineTo(lineLength, fromY);
+          ctx.lineWidth = 8;
+          ctx.strokeStyle = color;
+          ctx.stroke();
+
+          ctx.font = '12px serif';
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 1;
+          ctx.fillText(label, 130, fromY);
+        }
+
+        update() {
+          let rows = $('#routeListContainer tr');
+          this._div.height = 43 + rows.length * 17;
+          this._div.style.display = "none";
+          let ctx = this._div.getContext("2d");
+          ctx.clearRect(0, 0, this._div.width, this._div.height);
+
+          this.drawArrowToNorth(ctx, 21, 21, mapInstance.getBearing());
+
+          if (rows.length > 0) {
+            let fromY = 50;
+            rows.each((index, el) => {
+              let opDate = $(`#dateSelect-${index + 1}`).val();
+              let userRoute = $(`#userRouteSelect-${index + 1}`).val();
+              let authRoute = $(`#routeSelect-${index + 1}`).val();
+              let color = $(`#colorSelect-${index + 1}`).colorpicker('getValue');
+
+              let label = `${opDate} | ${userRoute} | ${authRoute}`;
+              this.drawRouteLegend(ctx, fromY, label, color);
+              fromY += 17;
+            });
+          }
+          ctx.closePath();
+          this._div.style.display = "inline";
+        }
+      }
+
+      let bearingWithRouteLegendControl = new BearingWithRouteLegendControl();
+      mapInstance.addControl(bearingWithRouteLegendControl, 'bottom-left');
+      bearingWithRouteLegendControl.update();
+      mapInstance.on('rotate', () => {
+        bearingWithRouteLegendControl.update();
+      });
+    };
+
     this.loadBaseData = () => {
       $.getJSON(Urls["esapi:shapeBase"](), function (data) {
         // data for selectors
@@ -385,6 +481,7 @@ $(document).ready(function () {
           _self.addRouteControl(_mapInstance);
           _self.addHelpControl(_mapInstance);
           _self.addListControl(_mapInstance);
+          _self.addBearingWithRouteLegendControl(_mapInstance);
 
           _self.loadBaseData();
 
