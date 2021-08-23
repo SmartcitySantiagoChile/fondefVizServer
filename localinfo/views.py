@@ -1,5 +1,7 @@
+import csv
+
 from django.core.files.storage import FileSystemStorage
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -75,3 +77,17 @@ class OPProgramList(View):
     def get(self, request):
         synchronize_op_program()
         return JsonResponse(data={'opProgramList': get_opprogram_list_for_select_input()})
+
+
+class DownloadUserList(View):
+    def get(self, request):
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="userlist.csv"'},
+        )
+
+        writer = csv.writer(response)
+        writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
+        writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
+
+        return response
