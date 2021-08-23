@@ -59,7 +59,8 @@ function MapApp(opts) {
     minZoom: minZoom,
     maxZoom: maxZoom,
     style: selectedStyle,
-    trackResize: true
+    trackResize: true,
+    logoPosition: 'bottom-right'
   });
 
   map.on('load', () => {
