@@ -135,3 +135,21 @@
 #layerGroupContainer a.active:hover {
     background: #3074a4;
 }
+
+#listControl {
+    padding: 0px;
+}
+
+@media print {
+    .noprint {
+        visibility: hidden;
+    }
+
+    .mapboxgl-ctrl-attrib-inner {
+        visibility: hidden;
+    }
+
+    .mapboxgl-ctrl-logo {
+        visibility: hidden;
+    }
+}

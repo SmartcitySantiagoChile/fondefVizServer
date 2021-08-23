@@ -176,8 +176,8 @@ $(document).ready(function () {
       class HelpControl {
         onAdd(map) {
           let div = document.createElement('div');
-          div.className = 'mapboxgl-ctrl legend';
-          div.innerHTML = `<button id="helpButton" class="btn btn-default" ><span class="fa fa-info" aria-hidden="true"></span></button>`;
+          div.className = 'mapboxgl-ctrl legend noprint';
+          div.innerHTML = `<button id="helpButton" class="btn btn-default btn-sm" ><span class="fa fa-info" aria-hidden="true"></span></button>`;
           return div;
         }
 
@@ -193,8 +193,11 @@ $(document).ready(function () {
       class OperationInfoControl {
         onAdd(map) {
           let div = document.createElement('div');
-          div.className = 'mapboxgl-ctrl legend';
-          div.innerHTML = `<button id="operationInfoButton" class="btn btn-default btn-sm" ><span class="fa fa-bus" aria-hidden="true"></span> <span class="fa fa-info" aria-hidden="true"></span> Datos operacionales</button>`;
+          div.className = 'mapboxgl-ctrl legend noprint';
+          div.innerHTML = `
+            <button id="operationInfoButton" class="btn btn-default btn-sm" >
+              <span class="fa fa-bus" aria-hidden="true"></span> <span class="fa fa-info" aria-hidden="true"></span> Datos operacionales
+            </button>`;
           return div;
         }
 
@@ -210,7 +213,7 @@ $(document).ready(function () {
       class RouteListControl {
         onAdd(map) {
           let div = document.createElement('div');
-          div.className = 'mapboxgl-ctrl info';
+          div.className = 'mapboxgl-ctrl info noprint';
           div.id = 'listControl';
           div.innerHTML += `
             <button id="addRouteInMapButton" class="btn btn-default btn-sm" >
@@ -228,7 +231,7 @@ $(document).ready(function () {
         onAdd(map) {
           this._div = document.createElement('canvas');
           this._div.className = 'mapboxgl-ctrl info legend';
-          this._div.width = 210;
+          this._div.width = 43;
           this._div.height = 43;
           this._div.id = 'bearingWithRouteLegendControl';
           return this._div;
@@ -286,6 +289,7 @@ $(document).ready(function () {
 
         update() {
           let rows = $('#routeListContainer tr');
+          this._div.width = rows.length ? 210 : 43;
           this._div.height = 43 + rows.length * 17;
           this._div.style.display = "none";
           let ctx = this._div.getContext("2d");

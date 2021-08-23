@@ -400,8 +400,8 @@ function MapApp(opts) {
       class RuleControl {
         onAdd(map) {
           this._div = document.createElement('div');
-          this._div.className = 'mapboxgl-ctrl legend';
-          this._div.innerHTML = `<button id="ruleButton" class="btn btn-default" ><span class="fa fa-arrows-h" aria-hidden="true"></span></button>`;
+          this._div.className = 'mapboxgl-ctrl legend noprint';
+          this._div.innerHTML = `<button id="ruleButton" class="btn btn-default btn-sm" ><span class="fa fa-arrows-h" aria-hidden="true"></span></button>`;
           return this._div;
         }
       }
@@ -666,7 +666,7 @@ function MapApp(opts) {
             class LayerGroupControl {
               onAdd(map) {
                 this._div = document.createElement('div');
-                this._div.className = 'mapboxgl-ctrl info';
+                this._div.className = 'mapboxgl-ctrl info noprint';
                 this._div.id = 'layerGroupContainer';
                 this._div.innerHTML = `
                     <img src="/static/trip/img/layersGroup.png">
