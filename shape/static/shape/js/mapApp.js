@@ -18,6 +18,7 @@ $(document).ready(function () {
   function MapShapeApp() {
     let _self = this;
     let selectorId = 1;
+    let bearingWithRouteLegendControl = null;
 
     this.addLayers = (layerId, stopsSource, shapeSource) => {
       stopsSource = {
@@ -171,26 +172,6 @@ $(document).ready(function () {
       _mapApp.getMapInstance().setLayoutProperty(`stop-label-${layerId}`, 'visibility', visible);
     };
 
-    this.addRouteControl = (mapInstance) => {
-      class RouteControl {
-        onAdd(map) {
-          let div = document.createElement('div');
-          div.className = 'mapboxgl-ctrl legend';
-          div.innerHTML = `
-            <button id="addRouteButton" class="btn btn-default btn-sm" >
-              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar ruta
-            </button>`;
-          return div;
-        }
-
-        onRemove() {
-          // nothing
-        }
-      }
-
-      mapInstance.addControl(new RouteControl(), 'top-left');
-    };
-
     this.addHelpControl = (mapInstance) => {
       class HelpControl {
         onAdd(map) {
@@ -213,7 +194,7 @@ $(document).ready(function () {
         onAdd(map) {
           let div = document.createElement('div');
           div.className = 'mapboxgl-ctrl legend';
-          div.innerHTML = `<button id="operationInfoButton" class="btn btn-default" ><span class="fa fa-bus" aria-hidden="true"></span> <span class="fa fa-info" aria-hidden="true"></span></button>`;
+          div.innerHTML = `<button id="operationInfoButton" class="btn btn-default btn-sm" ><span class="fa fa-bus" aria-hidden="true"></span> <span class="fa fa-info" aria-hidden="true"></span> Datos operacionales</button>`;
           return div;
         }
 
@@ -229,43 +210,13 @@ $(document).ready(function () {
       class RouteListControl {
         onAdd(map) {
           let div = document.createElement('div');
-          div.className = 'mapboxgl-ctrl info legend';
-          div.id = 'header';
-          div.style = 'display: none';
+          div.className = 'mapboxgl-ctrl info';
+          div.id = 'listControl';
           div.innerHTML += `
-            <div class='row'>
-              <div class='col-lg-6'>
-                <h4>Rutas en mapa</h4>
-              </div>
-              <div class='col-lg-6'>
-                <button id="timePeriodButton" class="btn alert-warning" >
-                  <span class="fa fa-bus" aria-hidden="true"></span> Ver información operacional
-                </button>
-              </div>
-            </div>
-            <div class="row" >
-              <div class="col-lg-12">
-                <table class="table table-condensed">
-                  <thead>
-                    <th></th>
-                    <th>Fecha PO</th>
-                    <th>Servicio</th>
-                    <th>Servicio TS</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                  </thead>
-                  <tbody id="routeListContainer">
-                  </tbody>
-                </table>
-              </div>
-            </div>`;
+            <button id="addRouteInMapButton" class="btn btn-default btn-sm" >
+              <span class="fa fa-bus" aria-hidden="true"></span> Rutas en mapa
+            </button>`;
           return div;
-        }
-
-        onRemove() {
-          // nothing
         }
       }
 
@@ -345,10 +296,11 @@ $(document).ready(function () {
           if (rows.length > 0) {
             let fromY = 50;
             rows.each((index, el) => {
-              let opDate = $(`#dateSelect-${index + 1}`).val();
-              let userRoute = $(`#userRouteSelect-${index + 1}`).val();
-              let authRoute = $(`#routeSelect-${index + 1}`).val();
-              let color = $(`#colorSelect-${index + 1}`).colorpicker('getValue');
+              let id = $(el).data('id');
+              let opDate = $(`#dateSelect-${id}`).val();
+              let userRoute = $(`#userRouteSelect-${id}`).val();
+              let authRoute = $(`#routeSelect-${id}`).val();
+              let color = $(`#colorSelect-${id}`).colorpicker('getValue');
 
               let label = `${opDate} | ${userRoute} | ${authRoute}`;
               this.drawRouteLegend(ctx, fromY, label, color);
@@ -366,6 +318,7 @@ $(document).ready(function () {
       mapInstance.on('rotate', () => {
         bearingWithRouteLegendControl.update();
       });
+      return bearingWithRouteLegendControl;
     };
 
     this.loadBaseData = () => {
@@ -391,6 +344,9 @@ $(document).ready(function () {
     this.enableEvents = () => {
       $("#helpButton").click(function () {
         $("#helpModal").modal("show");
+      });
+      $("#addRouteInMapButton").click(function () {
+        $("#routeListModal").modal("show");
       });
       $("#operationInfoButton").click(function () {
         let routeSelector = $("#routeListContainer");
@@ -495,11 +451,10 @@ $(document).ready(function () {
           }
           _mapInstance.addImage('double-arrow', image, {sdf: true});
 
-          _self.addRouteControl(_mapInstance);
           _self.addHelpControl(_mapInstance);
           _self.addOperationInfoControl(_mapInstance);
           _self.addListControl(_mapInstance);
-          _self.addBearingWithRouteLegendControl(_mapInstance);
+          bearingWithRouteLegendControl = _self.addBearingWithRouteLegendControl(_mapInstance);
 
           _self.loadBaseData();
 
@@ -682,8 +637,6 @@ $(document).ready(function () {
         $(`#visibilityStops-${id}`).removeClass().addClass(stopButton.attr("class"));
         let userStopButton = lastSelected.find(".visibility-user-stops");
         $(`#visibilityUserStopLabels-${id}`).removeClass().addClass(userStopButton.attr("class"));
-      } else {
-        $("#header").css('display', "block");
       }
 
       $USER_ROUTE.trigger("change");
@@ -691,21 +644,14 @@ $(document).ready(function () {
 
     this.refreshRemoveButton = function () {
       let $REMOVE_BUTTON = $(".btn-danger");
-      let modal = $("#modal");
       $REMOVE_BUTTON.off("click");
       $REMOVE_BUTTON.click(function () {
         let removeButtonRef = $(this);
-        modal.off("show.bs.modal");
-        modal.on("show.bs.modal", function () {
-          modal.off("click", "button.btn-info");
-          modal.on("click", "button.btn-info", function () {
-            let layerId = removeButtonRef.parent().parent().data("id");
-            // update last selected
-            _self.removeLayers(layerId);
-            removeButtonRef.parent().parent().remove();
-          });
-        });
-        modal.modal("show");
+        let layerId = removeButtonRef.parent().parent().data("id");
+        // update last selected
+        _self.removeLayers(layerId);
+        removeButtonRef.parent().parent().remove();
+        bearingWithRouteLegendControl.update();
       });
     };
 
@@ -722,6 +668,8 @@ $(document).ready(function () {
       });
       _mapApp.getMapInstance().getSource(`stops-source-${layerId}`).setData(stopsSource);
       _mapApp.getMapInstance().getSource(`shape-source-${layerId}`).setData(shapeSource);
+      // update route legend
+      bearingWithRouteLegendControl.update();
     };
 
     this.refreshColorPickerButton = function () {
@@ -888,8 +836,7 @@ $(document).ready(function () {
     };
   }
 
-  let mapShapeApp = new MapShapeApp();
-  mapShapeApp.loadBaseData();
+  new MapShapeApp();
   $("#modalList").detach().appendTo($(".main_container")[0]);
   document.activeElement.blur();
 });

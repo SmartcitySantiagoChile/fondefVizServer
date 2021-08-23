@@ -77,13 +77,8 @@
     width: 80%;
 }
 
-#timePeriodButton {
+#addRouteButton {
     float: right;
-}
-
-#header .table-condensed tbody tr td,
-#header .table-condensed tbody tr th {
-    padding: 0px;
 }
 
 .select2-selection--multiple {
