@@ -7,6 +7,7 @@ from collections import defaultdict
 from datetime import date as dt
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -262,6 +263,25 @@ def check_period_list_id(period_time_list: list) -> list:
         if set(period_time_list).issubset(value):
             res.append(key)
     return res
+
+
+def get_all_users_list() -> list:
+    """
+    Get all user list
+    Returns: user list
+    """
+    user = get_user_model()
+    users = user.objects.all()
+    user_list = []
+    for user in users:
+        user_groups = Group.objects.filter(user=user)
+        formatted_group_data = "|".join([group.name for group in user_groups])
+        formatted_is_staff = "Si" if user.is_staff else "No"
+        formatted_time = user.last_login.strftime("%d-%m-%Y %H:%M:%S")
+        user_list.append(
+            [user.username, user.email, user.first_name, user.last_name, formatted_is_staff, formatted_time,
+             formatted_group_data])
+    return user_list
 
 
 class PermissionBuilder(object):

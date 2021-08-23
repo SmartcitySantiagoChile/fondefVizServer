@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from unittest import mock
 
+from django.contrib.auth.models import User, Group
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.test import TestCase
 from django.utils import timezone
@@ -10,7 +11,7 @@ from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _di
     get_day_type_list_for_select_input, get_operator_list_for_select_input, get_timeperiod_list_for_select_input, \
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
     get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict, synchronize_op_program, \
-    get_opprogram_list_for_select_input, upload_csv_op_dictionary, check_period_list_id
+    get_opprogram_list_for_select_input, upload_csv_op_dictionary, check_period_list_id, get_all_users_list
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
 
 
@@ -604,3 +605,15 @@ class TestHelperUtils(TestCase):
         self.assertEqual([], check_period_list_id(null_period_list))
         none_period_list = []
         self.assertEqual([], check_period_list_id(none_period_list))
+
+    def test_get_all_users_list(self):
+        login_time = timezone.now()
+        formatted_login_time = login_time.strftime("%d-%m-%Y %H:%M:%S")
+        user = User.objects.create(password="test_user_password", first_name="test", last_name="user",
+                                   username="test_user", email="test@user.com", last_login=login_time)
+        group = Group.objects.create(name="test_group")
+        group_2 = Group.objects.create(name="test_group_two")
+        group.user_set.add(user)
+        group_2.user_set.add(user)
+        expected_user_list = [['test_user', 'test@user.com', 'test', 'user', 'No', formatted_login_time, 'test_group|test_group_two']]
+        self.assertEqual(expected_user_list, get_all_users_list())
