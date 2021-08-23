@@ -208,6 +208,23 @@ $(document).ready(function () {
       mapInstance.addControl(new HelpControl(), 'top-right');
     };
 
+    this.addOperationInfoControl = (mapInstance) => {
+      class OperationInfoControl {
+        onAdd(map) {
+          let div = document.createElement('div');
+          div.className = 'mapboxgl-ctrl legend';
+          div.innerHTML = `<button id="operationInfoButton" class="btn btn-default" ><span class="fa fa-bus" aria-hidden="true"></span> <span class="fa fa-info" aria-hidden="true"></span></button>`;
+          return div;
+        }
+
+        onRemove() {
+          // nothing
+        }
+      }
+
+      mapInstance.addControl(new OperationInfoControl(), 'top-left');
+    };
+
     this.addListControl = (mapInstance) => {
       class RouteListControl {
         onAdd(map) {
@@ -375,7 +392,7 @@ $(document).ready(function () {
       $("#helpButton").click(function () {
         $("#helpModal").modal("show");
       });
-      $("#timePeriodButton").click(function () {
+      $("#operationInfoButton").click(function () {
         let routeSelector = $("#routeListContainer");
         let periodInfoList = [];
         let requestList = [];
@@ -480,6 +497,7 @@ $(document).ready(function () {
 
           _self.addRouteControl(_mapInstance);
           _self.addHelpControl(_mapInstance);
+          _self.addOperationInfoControl(_mapInstance);
           _self.addListControl(_mapInstance);
           _self.addBearingWithRouteLegendControl(_mapInstance);
 
