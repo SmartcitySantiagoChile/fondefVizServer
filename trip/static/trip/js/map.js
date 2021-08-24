@@ -401,7 +401,7 @@ function MapApp(opts) {
         onAdd(map) {
           this._div = document.createElement('div');
           this._div.className = 'mapboxgl-ctrl legend noprint';
-          this._div.innerHTML = `<button id="ruleButton" class="btn btn-default btn-sm" ><span class="fa fa-arrows-h" aria-hidden="true"></span></button>`;
+          this._div.innerHTML = `<button id="ruleButton" class="btn btn-default btn-sm" ><span class="fas fa-ruler-combined" aria-hidden="true"></span></button>`;
           return this._div;
         }
       }

@@ -177,7 +177,7 @@ $(document).ready(function () {
         onAdd(map) {
           let div = document.createElement('div');
           div.className = 'mapboxgl-ctrl legend noprint';
-          div.innerHTML = `<button id="helpButton" class="btn btn-default btn-sm" ><span class="fa fa-info" aria-hidden="true"></span></button>`;
+          div.innerHTML = `<button id="helpButton" class="btn btn-default btn-sm" ><span class="fas fa-info" aria-hidden="true"></span></button>`;
           return div;
         }
 
@@ -196,7 +196,7 @@ $(document).ready(function () {
           div.className = 'mapboxgl-ctrl legend noprint';
           div.innerHTML = `
             <button id="operationInfoButton" class="btn btn-default btn-sm" >
-              <span class="fa fa-bus" aria-hidden="true"></span> <span class="fa fa-info" aria-hidden="true"></span> Datos operacionales
+              <span class="fas fa-bus-alt" aria-hidden="true"></span> <span class="fas fa-info" aria-hidden="true"></span> Datos operacionales
             </button>`;
           return div;
         }
@@ -217,7 +217,7 @@ $(document).ready(function () {
           div.id = 'listControl';
           div.innerHTML += `
             <button id="addRouteInMapButton" class="btn btn-default btn-sm" >
-              <span class="fa fa-bus" aria-hidden="true"></span> Rutas en mapa
+              <span class="fas fa-bus-alt" aria-hidden="true"></span> Rutas en mapa
             </button>`;
           return div;
         }
@@ -418,7 +418,7 @@ $(document).ready(function () {
             <td><select id=routeSelect-${newId} class="form-control route"></select></td>
             <td><button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button></td>
             <td><button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button></td>
-            <td><button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fa fa-bus" aria-hidden="true"></span></button></td>
+            <td><button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fas fa-bus-alt" aria-hidden="true"></span></button></td>
             <td><button id=visibilityUserStopLabels-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button></td>
         </tr>`;
 

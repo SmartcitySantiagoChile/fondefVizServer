@@ -8,7 +8,7 @@
       <div class="col-md-3 left_col">
         <div class="left_col scroll-view">
           <div class="navbar nav_title" style="border: 0;">
-            <a href="{% url "index" %}" class="site_title"><i class="fa fa-dashboard"></i>
+            <a href="{% url "index" %}" class="site_title"><i class="fas fa-tachometer-alt"></i>
               <span> ADATRAP</span></a>
           </div>
 
@@ -17,7 +17,7 @@
           <!-- menu profile quick info -->
           <div class="profile clearfix">
             <div class="profile_pic">
-              <i class="fa fa-user fa-3x fa-fw img-circle profile_img"></i>
+              <i class="fas fa-user fa-3x fa-fw img-circle profile_img"></i>
             </div>
             <div class="profile_info">
             <span>
@@ -38,8 +38,8 @@
               <h3>Menú</h3>
               <ul class="nav side-menu">
                 {% if user.is_staff %}
-                  <li><a><i class="fa fa-users"></i> Administración <span
-                          class="fa fa-chevron-down"></span></a>
+                  <li><a><i class="fas fa-users"></i> Administración <span
+                          class="fas fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a href="{% url 'admin:auth_user_changelist' %}"> Usuarios</a></li>
                       <li><a href="{% url 'admin:localinfo_operator_changelist' %}">
@@ -49,7 +49,7 @@
                       <li><a href="{% url 'admin:datamanager_datasourcepath_changelist' %}">
                         Fuentes de datos</a></li>
                       <li><a href="{% url 'datamanager:loadmanager' %}"> Carga de datos</a></li>
-                      <li><a>Programa de Operación<span class="fa fa-chevron-down"></span></a>
+                      <li><a>Programa de Operación<span class="fas fa-chevron-down"></span></a>
                         <ul class="nav child_menu" style="">
                           <li class="sub_menu"><a
                                   href="{% url 'datamanager:loadmanagerOP' %}">Carga de Datos</a>
@@ -67,7 +67,7 @@
                       <li><a href="{% url 'rq_home' %}"> Cola de carga</a></li>
                       <li><a href="{% url 'admin:awsbackup_downloadlink_changelist' %}"> Links a
                         S3 generados</a></li>
-                      <li><a>Actividad de usuarios<span class="fa fa-chevron-down"></span></a>
+                      <li><a>Actividad de usuarios<span class="fas fa-chevron-down"></span></a>
                         <ul class="nav child_menu" style="">
                           <li class="sub_menu"><a
                                   href="{% url 'admin:logapp_usersession_changelist' %}">Sesiones</a>
@@ -77,7 +77,7 @@
                           </li>
                         </ul>
                       </li>
-                      <li><a>Descripción de días<span class="fa fa-chevron-down"></span></a>
+                      <li><a>Descripción de días<span class="fas fa-chevron-down"></span></a>
                         <ul class="nav child_menu" style="">
                           <li class="sub_menu"><a
                                   href="{% url 'admin:localinfo_daydescription_changelist' %}">
@@ -94,8 +94,8 @@
                   </li>
                 {% endif %}
                 {% if perms.localinfo.storage %}
-                  <li><a><i class="fa fa-cloud-download"></i> Almacenamiento <span
-                          class="fa fa-chevron-down"></span></a>
+                  <li><a><i class="fas fa-cloud-download-alt"></i> Almacenamiento <span
+                          class="fas fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a href="{% url 'awsbackup:gps' %}"> GPS</a></li>
                       <li><a href="{% url 'awsbackup:trip' %}"> Viajes</a></li>
@@ -115,8 +115,8 @@
                   </li>
                 {% endif %}
                 {% if perms.localinfo.validation %}
-                  <li><a><i class="fa fa-dollar"></i> Transacciones <span
-                          class="fa fa-chevron-down"></span></a>
+                  <li><a><i class="fas fa-dollar-sign"></i> Transacciones <span
+                          class="fas fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a href="{% url 'paymentfactor:index' %}"> Dist. en zona paga mixta</a>
                       </li>
@@ -125,8 +125,8 @@
                     </ul>
                   </li>
                 {% endif %}
-                <li><a><i class="fa fa-bus"></i> Perfil de carga <span
-                        class="fa fa-chevron-down"></span></a>
+                <li><a><i class="fas fa-bus-alt"></i> Perfil de carga <span
+                        class="fas fa-chevron-down"></span></a>
                   <ul class="nav child_menu">
                     <li><a href=" {% url "profile:expedition" %} "> Por servicio</a></li>
                     <li><a href=" {% url "profile:stop" %} "> Por parada-servicio</a></li>
@@ -136,23 +136,23 @@
                     <li><a href=" {% url 'profile:odmatrix' %} "> Matriz de etapas</a></li>
                   </ul>
                 </li>
-                <li><a><i class="fa fa-tachometer"></i> Velocidades <span
-                        class="fa fa-chevron-down"></span></a>
+                <li><a><i class="fas fa-tachometer-alt"></i> Velocidades <span
+                        class="fas fa-chevron-down"></span></a>
                   <ul class="nav child_menu">
                     <li><a href=" {% url "speed:matrix" %} "> Matriz por servicio</a></li>
                     <li><a href=" {% url "speed:ranking" %} "> Ranking de velocidades</a></li>
                     <li><a href=" {% url "speed:variation" %} "> Variación de velocidades</a></li>
                   </ul>
                 </li>
-                <li><a><i class="fa fa-map"></i> Rutas <span class="fa fa-chevron-down"></span></a>
+                <li><a><i class="fas fa-map"></i> Rutas <span class="fas fa-chevron-down"></span></a>
                   <ul class="nav child_menu">
                     <li><a href=" {% url "shape:map" %} "> Ficha de servicios</a></li>
                   </ul>
                 </li>
                 {% if perms.localinfo.travel %}
                   <li>
-                    <a><i class="fa fa-line-chart"></i> Viajes<span
-                            class="fa fa-chevron-down"></span></a>
+                    <a><i class="fas fa-suitcase-rolling"></i> Viajes<span
+                            class="fas fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a href=" {% url "trip:graphs" %} ">Indicadores de viajes</a></li>
                       <li><a href=" {% url "trip:map" %} ">Geolocalización de viajes</a></li>
@@ -164,8 +164,8 @@
                 {% endif %}
                 {% if perms.localinfo.globalstat %}
                   <li>
-                    <a><i class="fa fa-clone"></i> Est. globales<span
-                            class="fa fa-chevron-down"></span></a>
+                    <a><i class="fas fa-chart-line"></i> Est. globales<span
+                            class="fas fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a href=" {% url "globalstat:resume" %} ">Resumen histórico</a></li>
                       <li><a href=" {% url "globalstat:detail" %} ">Detalle</a></li>
@@ -184,7 +184,7 @@
         <div class="nav_menu">
           <nav>
             <div class="nav toggle">
-              <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+              <a id="menu_toggle"><i class="fas fa-bars"></i></a>
             </div>
 
             <ul class="nav navbar-nav navbar-right" id="user-tools">
@@ -192,26 +192,26 @@
               <li class="">
                 <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown"
                    aria-expanded="false">
-                  <i class="fa fa-user fa-fw"></i>
+                  <i class="fas fa-user fa-fw"></i>
                   {% firstof user.get_short_name user.get_username %}
-                  <span class=" fa fa-angle-down"></span>
+                  <span class=" fas fa-angle-down"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-usermenu pull-right">
                   {% if user.has_usable_password %}
                     <li><a href="{% url 'datamanager:jobHistoryByUser' %}"><i
-                            class="fa fa-cloud-download pull-right"></i> Solicitudes de descarga</a>
+                            class="fas fa-cloud-download-alt pull-right"></i> Solicitudes de descarga</a>
                     </li>
                     <li><a href="{% url 'webuser:password_change' %}"><i
-                            class="fa fa-edit pull-right"></i> Cambiar contraseña</a></li>
+                            class="fas fa-edit pull-right"></i> Cambiar contraseña</a></li>
                   {% endif %}
-                  <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out pull-right"></i> Cerrar
+                  <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt pull-right"></i> Cerrar
                     sesión</a></li>
                 </ul>
               </li>
               <li role="presentation" class="dropdown">
                 <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown"
                    aria-expanded="false">
-                  <i class="fa fa-envelope-o"></i>
+                  <i class="fas fa-envelope"></i>
                   {% if jobs %}
                     <span class="badge bg-green">{{ jobs|length }}</span>
                   {% endif %}
@@ -221,7 +221,7 @@
                     <li class="alert alert-{% if job.status == 'finished' %}success{% elif job.status == 'failed' %}error{% elif job.status == 'canceled' %}warning{% elif job.status == 'running' %}warning{% else %}info{% endif %}">
                       <a href="{% url 'datamanager:jobHistoryByUser' %}">
                                                 <span class="image"><i
-                                                        class="fa {% if job.status == 'running' %}fa-refresh fa-spin{% else %}fa-cloud-download{% endif %} pull-right"></i></span>
+                                                        class="fas {% if job.status == 'running' %}fa-refresh fa-spin{% else %}fa-cloud-download{% endif %} pull-right"></i></span>
                         <span>
                       <span>Solicitud de descarga</span>
                       <span class="time">hace {{ job.enqueueTimestamp|timesince }} atrás</span>
@@ -237,7 +237,7 @@
                     <div class="text-center">
                       <a href="{% url 'datamanager:jobHistoryByUser' %}">
                         <strong>Ver todas las solicitudes de descarga</strong>
-                        <i class="fa fa-angle-right"></i>
+                        <i class="fas fa-angle-right"></i>
                       </a>
                     </div>
                   </li>
@@ -245,7 +245,7 @@
               </li>
               <li>
                   <a target="_blank" href="{% url 'localinfo:faq' %}">
-                  <i class="fa fa-question-circle-o fa-5x"></i>
+                  <i class="fas fa-question fa-5x"></i>
                 </a>
               </li>
             </ul>

@@ -16,7 +16,7 @@
     <div class="row">
         {% table "transferTable" 1 False as transfersTable %}
         {% label "Los servicios o estaciones de metro utilizadas para transbordar no está restringido a los servicios que se detienen en la parada. " "info" as label2 %}
-        {% panel "fa-bar-chart" "Transbordos" "<p>Nombre Parada: <b class='text-info' id='stopName'></b><br /><small>Código usuario: <b class='text-info' id='userStopCode'></b> | Código transantiago: <b class='text-info' id='authStopCode'></b></small></p>"|add:label2|add:transfersTable info_target_id="tableHelp" as panel1 %}
+        {% panel "fa-chart-bar" "Transbordos" "<p>Nombre Parada: <b class='text-info' id='stopName'></b><br /><small>Código usuario: <b class='text-info' id='userStopCode'></b> | Código transantiago: <b class='text-info' id='authStopCode'></b></small></p>"|add:label2|add:transfersTable info_target_id="tableHelp" as panel1 %}
         {% columns 12 12 12 panel1 %}
     </div>
 

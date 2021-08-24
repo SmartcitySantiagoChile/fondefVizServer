@@ -32,7 +32,7 @@
                 {% with map1="<div id='mapChart' style='height:500px;'></div>" map2="<div id='mapChart2' style='height:500px;'></div>" %}
                     {% columns 6 6 12 "<h3>Origen</h3><br />"|add:map1 as col1 %}
                     {% columns 6 6 12 "<h3>Destino</h3><br />"|add:map2 as col2 %}
-                    {% panel "fa-map-o" "<span id='mapTitle'>Mapa con</span> <span id='tripTotalNumberValue'>0</span> <span id='tripTotalNumberLabel'>viajes</span> en <span id='dataTotalNumberValue'>0</span> <span id='dataTotalNumberLabel'>datos</span>" col1|add:col2 info_target_id="mapHelp" %}
+                    {% panel "fa-map" "<span id='mapTitle'>Mapa con</span> <span id='tripTotalNumberValue'>0</span> <span id='tripTotalNumberLabel'>viajes</span> en <span id='dataTotalNumberValue'>0</span> <span id='dataTotalNumberLabel'>datos</span>" col1|add:col2 info_target_id="mapHelp" %}
                 {% endwith %}
             </div>
         </div>

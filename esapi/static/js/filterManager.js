@@ -568,7 +568,7 @@ function FilterManager(opts) {
     $BTN_UPDATE_DATA.click(function () {
         if (_makeAjaxCallForUpdateButton) {
             _makeAjaxCallForUpdateButton = false;
-            var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+            var loadingIcon = " " + $("<i>").addClass("fas fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
             var previousMessage = $(this).html();
             var button = $(this).append(loadingIcon);
 
@@ -618,7 +618,7 @@ function FilterManager(opts) {
         $EXPORT_DATA_MODAL.on("click", "button.btn-info", function () {
             if (_makeAjaxCallForExportButton) {
                 _makeAjaxCallForExportButton = false;
-                var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+                var loadingIcon = " " + $("<i>").addClass("fas fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
                 var previousMessage = $BTN_EXPORT_DATA.html();
                 var button = $BTN_EXPORT_DATA.append(loadingIcon);
 
