@@ -1137,7 +1137,6 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
                 for aggregation in self.get_iterator(kwargs):
                     for doc in aggregation:
                         row = self.row_parser(doc)
-                        print(row)
                         if row:
                             if isinstance(row[0], list):
                                 # there are more than one row in variable
@@ -1324,7 +1323,10 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
             for stop in commune.authStopCode:
                 stop_str = stop.key
                 for transport_modes in stop.transportModes:
-                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    if transport_modes.key != 0:
+                        transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    else:
+                        continue
                     for auth_route in transport_modes.authRouteCode:
                         auth_route_str = auth_route.key
                         for half_hour_in_boarding_time in auth_route.halfHourInBoardingTime:
@@ -1338,7 +1340,10 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
             for stop in commune.authStopCode:
                 stop_str = stop.key
                 for transport_modes in stop.transportModes:
-                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    if transport_modes.key != 0:
+                        transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    else:
+                        continue
                     for auth_route in transport_modes.authRouteCode:
                         auth_route_str = auth_route.key
                         for half_hour_in_alighting_time in auth_route.halfHourInAlightingTime:
@@ -1395,7 +1400,10 @@ class PostProductTripBoardingAndAlightingWithoutServiceCSVHelper(PostProductTrip
             for stop in commune.authStopCode:
                 stop_str = stop.key
                 for transport_modes in stop.transportModes:
-                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    if transport_modes.key != 0:
+                        transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    else:
+                        continue
                     for half_hour_in_boarding_time in transport_modes.halfHourInBoardingTime:
                         half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
                         sum_trip_number = half_hour_in_boarding_time.expandedBoarding.value
@@ -1407,7 +1415,10 @@ class PostProductTripBoardingAndAlightingWithoutServiceCSVHelper(PostProductTrip
             for stop in commune.authStopCode:
                 stop_str = stop.key
                 for transport_modes in stop.transportModes:
-                    transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    if transport_modes.key != 0:
+                        transport_modes_str = self.transport_mode_dict[transport_modes.key]
+                    else:
+                        continue
                     for half_hour_in_alighting_time in transport_modes.halfHourInAlightingTime:
                         half_hour = self.halfhour_dict[half_hour_in_alighting_time.key]
                         sum_trip_number = half_hour_in_alighting_time.expandedAlighting.value

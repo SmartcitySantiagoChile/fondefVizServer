@@ -591,7 +591,7 @@ class ESTripHelper(ElasticSearchHelper):
         day_type_bucket = es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4)
         day_type_bucket.bucket('boardingStopCommune', 'terms', field='comuna_subida', size=48). \
             bucket('authStopCode', 'terms', field='paradero_subida', size=13000). \
-            bucket('transportModes', 'terms', field='tipo_transporte_1', size=6). \
+            bucket('transportModes', 'terms', field='modo_subida', size=6). \
             bucket('authRouteCode', 'terms', field='srv_1', size=5000). \
             bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
             metric('expandedBoarding', 'sum', field='factor_expansion')
@@ -611,7 +611,7 @@ class ESTripHelper(ElasticSearchHelper):
         day_type_bucket = es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4)
         day_type_bucket.bucket('boardingStopCommune', 'terms', field='comuna_subida', size=48). \
             bucket('authStopCode', 'terms', field='paradero_subida', size=13000). \
-            bucket('transportModes', 'terms', field='tipo_transporte_1', size=6). \
+            bucket('transportModes', 'terms', field='modo_subida', size=6). \
             bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
             metric('expandedBoarding', 'sum', field='factor_expansion')
 
