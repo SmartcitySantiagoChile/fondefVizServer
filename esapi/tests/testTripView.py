@@ -278,6 +278,8 @@ class FromToMapDataTest(TestHelper):
     def test_exec_elasticsearch_query_without_result(self, make_multisearch_query_for_aggs):
         origin_zone = mock.Mock()
         destination_zone = mock.Mock()
+        origin_zone.to_dict.return_value = {}
+        destination_zone.to_dict.return_value = {}
         type(origin_zone).hits = mock.PropertyMock(return_value=origin_zone)
         type(origin_zone).total = mock.PropertyMock(return_value=0)
         type(destination_zone).total = mock.PropertyMock(return_value=destination_zone)
