@@ -576,17 +576,10 @@ $(document).ready(function () {
         $COLOR_BUTTON.colorpicker('setValue', color);
         updateLayerColor(color, selectorId);
 
-        // update routes
-        let routesButton = $(`#visibilityRoutes-${selectorId}`);
-        let routesSpan = routesButton.find("span");
-        let routesActive = routesSpan.hasClass("glyphicon-eye-open");
-        updateLayerRoutes(!routesActive, selectorId, routesButton, routesSpan);
-
-        // update stops
-        let stopButton = $(`#visibilityStops-${selectorId}`);
-        let stopSpan = stopButton.find("span");
-        let stopActive = stopButton.hasClass("btn-success");
-        updateStopRoutes(!stopActive, selectorId, stopButton, stopSpan);
+        let routeNumberInMap = $('#routeListContainer tr').length;
+        if (routeNumberInMap === 1) {
+          _mapApp.fitBound([`shape-source-${selectorId}`]);
+        }
       });
     };
 
