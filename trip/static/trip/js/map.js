@@ -10,7 +10,7 @@ function MapApp(opts) {
   let getZoneValue = opts.getZoneValue || null;
   let getZoneColor = opts.getZoneColor || null;
   let mapId = opts.mapId || "mapChart";
-  let maxZoom = opts.maxZoom || 15;
+  let maxZoom = opts.maxZoom || 22;
   let minZoom = opts.minZoom || 8;
   let maxBounds = opts.maxBounds || new mapboxgl.LngLatBounds(new mapboxgl.LngLat(-70.942223, -33.697721), new mapboxgl.LngLat(-70.357465, -33.178138));
   let showZones = opts.showZones === undefined ? true : opts.showZones;
@@ -532,6 +532,97 @@ function MapApp(opts) {
       });
     };
 
+    _self.addLayerGroupControl = (layerGroup) => {
+      class LayerGroupControl {
+        onAdd(map) {
+          this._div = document.createElement('div');
+          this._div.className = 'mapboxgl-ctrl info noprint';
+          this._div.id = 'layerGroupContainer';
+          this._div.innerHTML = `
+            <img src="/static/trip/img/layersGroup.png">
+            <div>
+              <h5>Capas de datos disponibles</h5>
+              <div id="layerGroupMenu"></div>
+              <!-- <h5>Estilo de mapa disponibles</h5>
+              <div class="btn-group" id="mapStyleGroupMenu" data-toggle="buttons"></div> -->
+            </div>`;
+          return this._div;
+        }
+      }
+
+      map.addControl(new LayerGroupControl(), 'top-right');
+
+      map.on('idle', () => {
+        for (const key of Object.keys(layerGroup)) {
+          let layers = layerGroup[key];
+          if (document.getElementById(layers[0].id)) {
+            continue;
+          }
+
+          const link = document.createElement('a');
+          link.id = layers[0].id;
+          link.href = '#';
+          link.textContent = key;
+          $(link).data('layerIds', layers.map(layer => layer.id));
+          link.className = 'btn btn-xs btn-success active';
+          link.onclick = function (e) {
+            const clickedLayers = $(this).data('layerIds');
+            e.preventDefault();
+            e.stopPropagation();
+
+            clickedLayers.forEach(layerId => {
+              const visibility = map.getLayoutProperty(layerId, 'visibility');
+              if (visibility === 'visible') {
+                map.setLayoutProperty(layerId, 'visibility', 'none');
+                this.className = 'btn btn-xs btn-dark';
+              } else {
+                this.className = 'btn btn-xs btn-success active';
+                map.setLayoutProperty(layerId, 'visibility', 'visible');
+              }
+            });
+          };
+
+          const layersMenu = document.getElementById('layerGroupMenu');
+          layersMenu.appendChild(link);
+        }
+        /*
+        // add map style options
+        const mapStyleMenu = document.getElementById('mapStyleGroupMenu');
+        let styles = [
+          {name: 'Satélite', id: 'satellite', style: 'mapbox://styles/mapbox/satellite-v9'},
+          {name: 'Claro', id: 'light', style: 'mapbox://styles/mapbox/light-v10'},
+          {name: 'Oscuro', id: 'dark', style: 'mapbox://styles/mapbox/dark-v10'},
+          {name: 'Calles', id: 'streets', style: 'mapbox://styles/mapbox/streets-v11'},
+        ];
+        styles.forEach(el => {
+          if (document.getElementById(el.id)) {
+            return;
+          }
+
+          let styleRadioInput = document.createElement('input');
+          styleRadioInput.type = 'radio';
+          styleRadioInput.id = el.id;
+          styleRadioInput.name = 'rtoggle';
+          styleRadioInput.value = el.style;
+          styleRadioInput.className = 'join-btn';
+
+          let styleRadioLabel = document.createElement('label');
+          styleRadioLabel.className = 'btn btn-dark';
+          $(styleRadioLabel).append(styleRadioInput).append(el.name);
+          mapStyleMenu.append(styleRadioLabel);
+
+          $('input[name="rtoggle"]').change((e) => {
+
+            let mapStyle = e.target.value;
+            map.setStyle(mapStyle);
+            map.once('styledata', () => {
+
+            });
+          });
+        });*/
+      });
+    };
+
     _self.loadLayers = function (readyFunction) {
       function loadZoneGeoJSON() {
         let url = '/static/data/zones777.geojson';
@@ -622,9 +713,9 @@ function MapApp(opts) {
             _self.addRuleControl();
           }
 
-          let controlMapping = {};
+          let layerMapping = {};
           if (showZones) {
-            controlMapping['Zonas 777'] = [zoneLayer, zoneBorderLayer];
+            layerMapping['Zonas 777'] = [zoneLayer, zoneBorderLayer];
             map.addLayer(zoneLayer);
             map.addLayer(zoneBorderLayer);
             map.on('mousemove', zoneLayer.id, (e) => {
@@ -638,83 +729,32 @@ function MapApp(opts) {
             });
           }
           if (showMetroStations) {
-            controlMapping['Estaciones de Metro'] = [subwayStationLayer];
+            layerMapping['Estaciones de Metro'] = [subwayStationLayer];
             map.addLayer(subwayStationLayer)
           }
           if (showMetroShapes) {
-            controlMapping['Líneas de Metro'] = [subwayShapeLayer];
+            layerMapping['Líneas de Metro'] = [subwayShapeLayer];
             map.addLayer(subwayShapeLayer)
           }
           if (showTrainStations) {
-            controlMapping['Estaciones de Metrotren'] = [trainStationLayer];
+            layerMapping['Estaciones de Metrotren'] = [trainStationLayer];
             map.addLayer(trainStationLayer)
           }
           if (showTrainShapes) {
-            controlMapping['Líneas de Metrotren'] = [trainShapeLayer];
+            layerMapping['Líneas de Metrotren'] = [trainShapeLayer];
             map.addLayer(trainShapeLayer)
           }
           if (showMacroZones) {
-            controlMapping['Macrozonas'] = [districtLayer];
+            layerMapping['Macrozonas'] = [districtLayer];
             map.addLayer(districtLayer)
           }
           if (showCommunes) {
-            controlMapping['Comunas'] = [communeLayer];
+            layerMapping['Comunas'] = [communeLayer];
             map.addLayer(communeLayer)
           }
 
-          if (Object.keys(controlMapping).length !== 0 && showLayerGroupControl) {
-            class LayerGroupControl {
-              onAdd(map) {
-                this._div = document.createElement('div');
-                this._div.className = 'mapboxgl-ctrl info noprint';
-                this._div.id = 'layerGroupContainer';
-                this._div.innerHTML = `
-                    <img src="/static/trip/img/layersGroup.png">
-                    <div>
-                      <h5>Capas disponibles</h5>
-                      <div id="layerGroupMenu"></div>
-                    </div>`;
-                return this._div;
-              }
-            }
-
-            map.addControl(new LayerGroupControl(), 'top-right');
-
-            map.on('idle', () => {
-              for (const key of Object.keys(controlMapping)) {
-                let layers = controlMapping[key];
-                if (document.getElementById(layers[0].id)) {
-                  continue;
-                }
-
-                const link = document.createElement('a');
-                link.id = layers[0].id;
-                link.href = '#';
-                link.textContent = key;
-                $(link).data('layerIds', layers.map(layer => layer.id));
-                link.className = 'active';
-                link.onclick = function (e) {
-                  const clickedLayers = $(this).data('layerIds');
-                  e.preventDefault();
-                  e.stopPropagation();
-
-                  clickedLayers.forEach(layerId => {
-                    const visibility = map.getLayoutProperty(layerId, 'visibility');
-                    if (visibility === 'visible') {
-                      map.setLayoutProperty(layerId, 'visibility', 'none');
-                      this.className = '';
-                    } else {
-                      this.className = 'active';
-                      map.setLayoutProperty(layerId, 'visibility', 'visible');
-                    }
-                  });
-                };
-
-                const layersMenu = document.getElementById('layerGroupMenu');
-                layersMenu.appendChild(link);
-                layersMenu.appendChild(document.createElement('br'));
-              }
-            });
+          if (Object.keys(layerMapping).length !== 0 && showLayerGroupControl) {
+            _self.addLayerGroupControl(layerMapping);
           }
 
           if (readyFunction !== undefined) {
