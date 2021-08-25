@@ -445,14 +445,14 @@ $(document).ready(function () {
       selectorId++;
       let row = `
         <tr class="selectorRow" data-id="${newId}">
-            <td><button class="btn btn-danger btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+            <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
             <td><select id=dateSelect-${newId} class="form-control date"></select></td>
             <td><select id=userRouteSelect-${newId} class="form-control userRoute"></select></td>
             <td><select id=routeSelect-${newId} class="form-control route"></select></td>
-            <td><button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button></td>
-            <td><button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button></td>
-            <td><button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="glyphicon fas fa-bus-alt" aria-hidden="true"></span></button></td>
-            <td><button id=visibilityUserStopLabels-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button></td>
+            <td><button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="fas fa-tint" aria-hidden="true"></span></button></td>
+            <td><button id=visibilityRoutes-${newId} class="btn btn-success btn-sm visibility-routes" ><span class="fas fa-route" aria-hidden="true"></span></button></td>
+            <td><button id=visibilityStops-${newId} class="btn btn-success btn-sm visibility-stops" ><span class="fas fa-traffic-light" aria-hidden="true"></span></button></td>
+            <td><button id=visibilityUserStopLabels-${newId} class="btn btn-success btn-sm visibility-user-stops" ><span class="fas fa-user-tag" aria-hidden="true"></span></button></td>
         </tr>`;
 
       $("#routeListContainer").append(row);
@@ -667,7 +667,7 @@ $(document).ready(function () {
         $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
         $USER_ROUTE.data("first", true);
 
-        let color = lastSelected.find(".glyphicon-tint").css("color");
+        let color = lastSelected.find(".fa-tint").css("color");
         $(`#colorSelect-${id}`).css("color", color);
         let routesButton = lastSelected.find(".visibility-routes").find("span");
         $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
@@ -721,14 +721,12 @@ $(document).ready(function () {
       });
     };
 
-    const updateLayerRoutes = (update, layerId, button, span) => {
-      if (update) {
+    const updateLayerRoute = (isVisible, layerId, button, span) => {
+      if (isVisible) {
         button.removeClass("btn-success").addClass("btn-warning");
-        span.removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
         _self.setShapeLayerVisibility(layerId, false);
       } else {
         button.removeClass("btn-warning").addClass("btn-success");
-        span.removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
         _self.setShapeLayerVisibility(layerId, true);
       }
     };
@@ -740,8 +738,8 @@ $(document).ready(function () {
         let button = $(this);
         let span = button.find("span");
         let layerId = button.parent().parent().data("id");
-        let active = span.hasClass("glyphicon-eye-open");
-        updateLayerRoutes(active, layerId, button, span);
+        let isVisible = button.hasClass("btn-success");
+        updateLayerRoute(isVisible, layerId, button, span);
       });
     };
 
@@ -772,11 +770,9 @@ $(document).ready(function () {
     const updateUserStopLabels = (active, layerId, button, span) => {
       if (active) {
         button.removeClass("btn-success").addClass("btn-warning");
-        span.removeClass("glyphicon-user").addClass("glyphicon-user");
         _self.setStopLabelLayerVisibility(layerId, false);
       } else {
         button.removeClass("btn-warning").addClass("btn-success");
-        span.removeClass("glyphicon-user").addClass("glyphicon-user");
         _self.setStopLabelLayerVisibility(layerId, true);
       }
     };
