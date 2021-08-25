@@ -290,6 +290,34 @@ $(document).ready(function () {
       });
     }
 
+    this.addScreenshotControl = (mapInstance) => {
+      class ScreenshotControl {
+        onAdd(map) {
+          let div = document.createElement('div');
+          div.className = 'mapboxgl-ctrl legend noprint';
+          div.innerHTML = `<button id="screenshotButton" class="btn btn-default btn-sm" ><span class="fas fa-camera" aria-hidden="true"></span></button>`;
+          return div;
+        }
+
+        update() {
+          $('#screenshotButton').click(() => {
+            html2canvas(document.getElementById('mapid')).then(canvas => {
+              let link = document.createElement("a");
+              document.body.appendChild(link);
+              link.download = "imagen.png";
+              link.href = canvas.toDataURL("image/png");
+              link.target = '_blank';
+              link.click();
+            });
+          });
+        }
+      }
+
+      let screenshotControl = new ScreenshotControl();
+      mapInstance.addControl(screenshotControl, 'top-right');
+      screenshotControl.update();
+    };
+
     this.addRouteLegendControl = (mapInstance) => {
       class RouteLegendControl {
         onAdd(map) {
@@ -493,6 +521,7 @@ $(document).ready(function () {
           _self.addListControl(_mapInstance);
           _self.addBearingControl(_mapInstance);
           routeLegendControl = _self.addRouteLegendControl(_mapInstance);
+          _self.addScreenshotControl(_mapInstance);
 
           _self.loadBaseData();
 
