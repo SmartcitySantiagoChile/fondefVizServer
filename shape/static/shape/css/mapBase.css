@@ -153,3 +153,11 @@
         visibility: hidden;
     }
 }
+
+#routeLegendControl {
+    opacity: 1;
+}
+
+#routeLegendControl table thead tr th, #routeLegendControl table tbody tr td {
+    padding: 0px 2px;
+}

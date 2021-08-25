@@ -18,7 +18,7 @@ $(document).ready(function () {
   function MapShapeApp() {
     let _self = this;
     let selectorId = 1;
-    let bearingWithRouteLegendControl = null;
+    let routeLegendControl = null;
 
     this.addLayers = (layerId, stopsSource, shapeSource) => {
       stopsSource = {
@@ -226,14 +226,15 @@ $(document).ready(function () {
       mapInstance.addControl(new RouteListControl(), 'top-left');
     };
 
-    this.addBearingWithRouteLegendControl = (mapInstance) => {
-      class BearingWithRouteLegendControl {
+    this.addBearingControl = (mapInstance) => {
+      class BearingControl {
         onAdd(map) {
+          this._map = map;
           this._div = document.createElement('canvas');
           this._div.className = 'mapboxgl-ctrl info legend';
           this._div.width = 43;
           this._div.height = 43;
-          this._div.id = 'bearingWithRouteLegendControl';
+          this._div.id = 'bearingControl';
           return this._div;
         }
 
@@ -272,57 +273,89 @@ $(document).ready(function () {
           ctx.stroke();
         }
 
-        drawRouteLegend(ctx, fromY, label, color) {
-          ctx.beginPath();
-          let lineLength = 50;
-          ctx.moveTo(0, fromY);
-          ctx.lineTo(lineLength, fromY);
-          ctx.lineWidth = 8;
-          ctx.strokeStyle = color;
-          ctx.stroke();
+        update() {
+          this._div.style.display = "none";
+          let ctx = this._div.getContext("2d");
+          ctx.clearRect(0, 0, this._div.width, this._div.height);
+          this.drawArrowToNorth(ctx, 21, 21, this._map.getBearing());
+          this._div.style.display = "inline";
+        }
+      }
 
-          ctx.font = '12px serif';
-          ctx.strokeStyle = '#000000';
-          ctx.lineWidth = 1;
-          ctx.fillText(label, 130, fromY);
+      let bearingControl = new BearingControl();
+      mapInstance.addControl(bearingControl, 'bottom-left');
+      bearingControl.update();
+      mapInstance.on('rotate', () => {
+        bearingControl.update();
+      });
+    }
+
+    this.addRouteLegendControl = (mapInstance) => {
+      class RouteLegendControl {
+        onAdd(map) {
+          this._div = document.createElement('div');
+          this._div.className = 'mapboxgl-ctrl info legend';
+          this._div.id = 'routeLegendControl';
+          this._div.style.display = "none";
+          this._div.width = 230;
+          this._div.innerHTML = `
+            <table>
+              <thead>
+                <th>Color</th>
+                <th>P. operación</th>
+                <th>Servicio</th>
+                <th>Servicio TS</th>
+              </thead>
+              <tbody id='routeLegendTable'>
+              </tbody>
+            </table>`;
+          return this._div;
+        }
+
+        setRouteColorCanvas(canvasId, color) {
+          let canvas = document.getElementById(canvasId);
+          canvas.width = 40;
+          canvas.height = 10;
+          let ctx = canvas.getContext("2d");
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         update() {
           let rows = $('#routeListContainer tr');
-          this._div.width = rows.length ? 210 : 43;
-          this._div.height = 43 + rows.length * 17;
           this._div.style.display = "none";
-          let ctx = this._div.getContext("2d");
-          ctx.clearRect(0, 0, this._div.width, this._div.height);
-
-          this.drawArrowToNorth(ctx, 21, 21, mapInstance.getBearing());
 
           if (rows.length > 0) {
-            let fromY = 50;
+            // remove previous rows
+            $("#routeLegendTable").empty();
+
             rows.each((index, el) => {
               let id = $(el).data('id');
               let opDate = $(`#dateSelect-${id}`).val();
               let userRoute = $(`#userRouteSelect-${id}`).val();
               let authRoute = $(`#routeSelect-${id}`).val();
               let color = $(`#colorSelect-${id}`).colorpicker('getValue');
+              let canvasId = `canvas-${id}`;
 
-              let label = `${opDate} | ${userRoute} | ${authRoute}`;
-              this.drawRouteLegend(ctx, fromY, label, color);
-              fromY += 17;
+              let legendRow = `<tr>
+                <td><canvas id="${canvasId}"></canvas></td>
+                <td>${opDate}</td>
+                <td>${userRoute}</td>
+                <td>${authRoute}</td>
+              </tr>`;
+              $('#routeLegendTable').append(legendRow);
+              this.setRouteColorCanvas(canvasId, color);
             });
+
+            this._div.style.display = "inline";
           }
-          ctx.closePath();
-          this._div.style.display = "inline";
         }
       }
 
-      let bearingWithRouteLegendControl = new BearingWithRouteLegendControl();
-      mapInstance.addControl(bearingWithRouteLegendControl, 'bottom-left');
-      bearingWithRouteLegendControl.update();
-      mapInstance.on('rotate', () => {
-        bearingWithRouteLegendControl.update();
-      });
-      return bearingWithRouteLegendControl;
+      let routeLegendControl = new RouteLegendControl();
+      mapInstance.addControl(routeLegendControl, 'bottom-left');
+      routeLegendControl.update();
+      return routeLegendControl;
     };
 
     this.loadBaseData = () => {
@@ -458,7 +491,8 @@ $(document).ready(function () {
           _self.addHelpControl(_mapInstance);
           _self.addOperationInfoControl(_mapInstance);
           _self.addListControl(_mapInstance);
-          bearingWithRouteLegendControl = _self.addBearingWithRouteLegendControl(_mapInstance);
+          _self.addBearingControl(_mapInstance);
+          routeLegendControl = _self.addRouteLegendControl(_mapInstance);
 
           _self.loadBaseData();
 
@@ -655,7 +689,7 @@ $(document).ready(function () {
         // update last selected
         _self.removeLayers(layerId);
         removeButtonRef.parent().parent().remove();
-        bearingWithRouteLegendControl.update();
+        routeLegendControl.update();
       });
     };
 
@@ -673,7 +707,7 @@ $(document).ready(function () {
       _mapApp.getMapInstance().getSource(`stops-source-${layerId}`).setData(stopsSource);
       _mapApp.getMapInstance().getSource(`shape-source-${layerId}`).setData(shapeSource);
       // update route legend
-      bearingWithRouteLegendControl.update();
+      routeLegendControl.update();
     };
 
     this.refreshColorPickerButton = function () {
