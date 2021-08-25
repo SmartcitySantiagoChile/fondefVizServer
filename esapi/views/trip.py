@@ -216,11 +216,11 @@ class FromToMapData(PermissionRequiredMixin, View):
                                                          transport_modes, origin_zones, destination_zones, routes)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
 
+                response['origin_zone'] = origin_zone.to_dict()
+                response['destination_zone'] = destination_zone.to_dict()
                 if origin_zone.hits.total == 0 or destination_zone.hits.total == 0:
                     raise ESQueryResultEmpty
 
-                response['origin_zone'] = origin_zone.to_dict()
-                response['destination_zone'] = destination_zone.to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

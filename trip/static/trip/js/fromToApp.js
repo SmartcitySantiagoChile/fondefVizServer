@@ -326,9 +326,7 @@ $(document).ready(function () {
     }
 
     function processData(data, app) {
-        if (data.status) {
-            return;
-        }
+        console.log(data);
         app.setData(data);
         app.updateMap();
     }
@@ -341,9 +339,7 @@ $(document).ready(function () {
         var app = new FromToApp();
 
         var afterCall = function (data, status) {
-            if (status) {
-                processData(data, app);
-            }
+            processData(data, app);
         };
         var opts = {
             urlFilterData: Urls["esapi:fromToMapData"](),
