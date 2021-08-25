@@ -279,7 +279,6 @@ $(document).ready(function () {
                 "indicator-dist-ruta-max": ""
             }
             this.updateIndicatorsDisplay(indicators);
-
         };
 
         this.getChartData = function (vizType) {
@@ -341,8 +340,14 @@ $(document).ready(function () {
         if (data.status) {
             return;
         }
+        $("#vizSelector").prop('disabled', false);
         var vizType = $("#vizSelector").val();
         app.updateChart(vizType, data.histogram.aggregations, data.indicators.aggregations);
+    }
+
+    function clearDisplayData(app) {
+        app.resetChart();
+        app.resetIndicatorsDisplay();
     }
 
 // load filters
@@ -358,11 +363,9 @@ $(document).ready(function () {
         };
         var afterCall = function (data, status) {
             if (status) {
-                $("#vizSelector").prop('disabled', false);
                 processData(data, app);
             } else {
-                app.resetChart();
-                app.resetIndicatorsDisplay();
+                clearDisplayData(app);
             }
             app.hideLoadingAnimationCharts();
         };
