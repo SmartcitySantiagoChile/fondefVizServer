@@ -282,7 +282,6 @@ class StrategiesData(PermissionRequiredMixin, View):
             strategies = group_strategy(result.aggregations[agg_name], [], agg_name)
             for strategy in strategies:
                 trips[strategy[0]][strategy[1]][strategy[2]][strategy[3]] += strategy[4]
-
         return {
             'strategies': trips,
             'expansionFactor': result.aggregations.expansion_factor.value,
@@ -291,7 +290,7 @@ class StrategiesData(PermissionRequiredMixin, View):
 
     def process_request(self, request, params, export_data=False):
         dates = get_dates_from_request(request, export_data)
-        day_types = params.getlist('daytypes[]', [])
+        day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
         origin_zones = params.getlist('originZones[]', [])
