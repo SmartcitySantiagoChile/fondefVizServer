@@ -73,29 +73,62 @@
     border-radius: 3px;
 }
 
-.leaflet-container a.btn-success {
-    color: #ffffff;
-}
-
-.date {
-    width: 180px !important;
-}
-
-.userRoute {
-    width: 70px !important;
-}
-
-.route {
-    width: 180px !important;
-}
 .modal-lg {
     width: 80%;
 }
-#timePeriodButton {
+
+#addRouteButton {
     float: right;
 }
 
 .select2-selection--multiple {
     max-height: 60px;
     overflow: auto
+}
+
+/* used for layer group control */
+
+#layerGroupContainer {
+    background: #fff;
+    top: 10px;
+    right: 10px;
+}
+
+/* to show and hide layer group control */
+#layerGroupContainer div {
+    display: none;
+}
+
+#layerGroupContainer:hover img {
+    display: none;
+}
+
+#layerGroupContainer:hover div {
+    display: block;
+}
+
+#listControl {
+    padding: 0px;
+}
+
+@media print {
+    .noprint {
+        visibility: hidden;
+    }
+
+    .mapboxgl-ctrl-attrib-inner {
+        visibility: hidden;
+    }
+
+    .mapboxgl-ctrl-logo {
+        visibility: hidden;
+    }
+}
+
+#routeLegendControl {
+    opacity: 1;
+}
+
+#routeLegendControl table thead tr th, #routeLegendControl table tbody tr td {
+    padding: 0px 2px;
 }

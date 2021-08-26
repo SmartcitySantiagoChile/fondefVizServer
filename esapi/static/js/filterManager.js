@@ -241,7 +241,7 @@ function FilterManager(opts) {
             if (localMultiAuthRouteFilter) {
                 localMultiAuthRouteFilter = JSON.parse(localMultiAuthRouteFilter);
             }
-            if (getDates().length !== 0 && localMultiAuthRouteFilter !== null) {
+            if (getDates().length !== 0 && localMultiAuthRouteFilter!==null && localMultiAuthRouteFilter.id!==null) {
                 let data = operatorFilterData["availableRoutes"].map(e => e.id);
                 if (localMultiAuthRouteFilter.id.every(v => data.includes(v))) {
                     $MULTI_AUTH_ROUTE_FILTER.val(localMultiAuthRouteFilter.id).trigger("change");
@@ -586,7 +586,7 @@ function FilterManager(opts) {
     $BTN_UPDATE_DATA.click(function () {
         if (_makeAjaxCallForUpdateButton) {
             _makeAjaxCallForUpdateButton = false;
-            var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+            var loadingIcon = " " + $("<i>").addClass("fas fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
             var previousMessage = $(this).html();
             var button = $(this).append(loadingIcon);
 
@@ -631,7 +631,6 @@ function FilterManager(opts) {
     // enable modal to export data
     var _makeAjaxCallForExportButton = true;
     var $EXPORT_DATA_MODAL = $("#exportDataModal");
-
     $BTN_EXPORT_DATA.click(function () {
         $EXPORT_DATA_MODAL.on('show.bs.modal', function () {
             // accept event
@@ -639,12 +638,10 @@ function FilterManager(opts) {
             $EXPORT_DATA_MODAL.on("click", "button.btn-info", function () {
                 if (_makeAjaxCallForExportButton) {
                     _makeAjaxCallForExportButton = false;
-                    var loadingIcon = " " + $("<i>").addClass("fa fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
+                    var loadingIcon = " " + $("<i>").addClass("fas fa-cog fa-spin fa-2x fa-fw")[0].outerHTML;
                     var previousMessage = $BTN_EXPORT_DATA.html();
                     var button = $BTN_EXPORT_DATA.append(loadingIcon);
-
                     var params = getParameters();
-                    console.log(params);
                     $.post(urlFilterData, params, function (data) {
                         if (data.status) {
                             showMessage(data.status);

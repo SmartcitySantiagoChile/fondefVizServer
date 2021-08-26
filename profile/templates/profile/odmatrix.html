@@ -14,14 +14,14 @@
     {% data_filter data_filter True False True True False False False False True True True info_target_id="filterHelp" %}
 
     <div class="row">
-        {% panel "fa-bar-chart" "Matriz de etapas" '<div id="matrixChart" style="height:600px;"></div>' info_target_id="chartHelp" as panel4 %}
+        {% panel "fa-chart-bar" "Matriz de etapas" '<div id="matrixChart" style="height:600px;"></div>' info_target_id="chartHelp" as panel4 %}
 
         {% with radioButton='<p>¿Qué desea visualizar?:</p><div class="radio-inline"><label><input type="radio" class="flat" name="stopSelector" value="boarding" checked> Paradero de subida</label></div><div class="radio-inline"><label><input type="radio" class="flat" name="stopSelector" value="landing"> Paradero de bajada</label></div>' %}
             {% columns 12 12 12 radioButton as col7 %}
             {% with btnGroup='<br /><p>Secuencia de paradas (inicio -> fin):</p><div class="btn-group btn-group-xs" id="stops"></div>' graphChart='<div id="graphChart" style="height:250px;"></div>' %}
                 {% columns 12 12 12 btnGroup as col8 %}
                 {% columns 12 12 12 graphChart as col9 %}
-                {% panel "fa-bar-chart" "Etapas de una parada" col7|add:col8|add:col9 info_target_id="chart2Help" as panel5 %}
+                {% panel "fa-chart-bar" "Etapas de una parada" col7|add:col8|add:col9 info_target_id="chart2Help" as panel5 %}
                 {% columns 12 12 12 panel4 %}
                 {% columns 12 12 12 panel5 %}
             {% endwith %}

@@ -18,7 +18,7 @@
           <table class="table table-striped">
             <thead>
               <tr class="headings">
-                <th class="column-title"><i class="fa fa-table fa-lg"></i> Tabla </th>
+                <th class="column-title"><i class="fas fa-table fa-lg"></i> Tabla </th>
                 <th class="column-title"> </th>
                 <th class="column-title last"> </th>
               </tr>
@@ -33,13 +33,13 @@
                 {% endif %}
 
                 {% if model.add_url %}
-                <td class=" "><a href="{{ model.add_url }}"><i class="fa fa-plus"></i> {% trans 'Add' %}</a></td>
+                <td class=" "><a href="{{ model.add_url }}"><i class="fas fa-plus"></i> {% trans 'Add' %}</a></td>
                 {% else %}
                 <td>&nbsp;</td>
                 {% endif %}
 
                 {% if model.admin_url %}
-                <td class=" last"><a href="{{ model.admin_url }}"><i class="fa fa-edit"></i> {% trans 'Change' %}</a></td>
+                <td class=" last"><a href="{{ model.admin_url }}"><i class="fas fa-edit"></i> {% trans 'Change' %}</a></td>
                 {% else %}
                 <td class=" last">&nbsp;</td>
                 {% endif %}
@@ -67,7 +67,7 @@
     </div>
     <div class="panel-body">
       <h3 class="green">
-        <i class="fa fa-hand-pointer-o"></i> {% trans 'My actions' %}
+        <i class="fas fa-hand-point-right"></i> {% trans 'My actions' %}
       </h3>
       {% load log %}
       {% get_admin_log 10 as admin_log for_user user %}
@@ -79,11 +79,11 @@
           <li class="media event">
             <a class="pull-left border-aero profile_thumb">
               {% if entry.is_addition %}
-              <i class="fa fa-plus aero"></i>
+              <i class="fas fa-plus aero"></i>
               {% elif entry.is_change %}
-              <i class="fa fa-edit aero"></i>
+              <i class="fas fa-edit aero"></i>
               {% elif entry.is_deletion %}
-              <i class="fa fa-remove aero"></i>
+              <i class="fas fa-remove aero"></i>
               {% endif %}
             </a>
             <div class="media-body">
