@@ -484,9 +484,17 @@ $(document).ready(function () {
         </tr>`;
 
       $("#routeListContainer").append(row);
-      $(`#dateSelect-${newId}`).select2({width: 'auto', data: dateList});
-      $(`#userRouteSelect-${newId}`).select2({width: 'auto', data: userRouteList});
-      $(`#routeSelect-${newId}`).select2({width: 'auto'});
+      $(`#dateSelect-${newId}`).select2({
+        width: 'auto',
+        data: dateList,
+        dropdownParent: $('#routeListContainer').parent()
+      });
+      $(`#userRouteSelect-${newId}`).select2({
+        width: 'auto',
+        data: userRouteList,
+        dropdownParent: $('#routeListContainer').parent()
+      });
+      $(`#routeSelect-${newId}`).select2({width: 'auto', dropdownParent: $('#routeListContainer').parent()});
 
       _self.refreshControlEvents(newId);
       _self.refreshRemoveButton();
