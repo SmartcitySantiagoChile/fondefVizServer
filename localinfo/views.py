@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from localinfo.helper import get_all_faqs, search_faq, get_valid_time_period_date, get_timeperiod_list_for_select_input, \
-    synchronize_op_program, get_opprogram_list_for_select_input, upload_csv_op_dictionary, get_all_users_list
+    synchronize_op_program, get_opprogram_list_for_select_input, upload_csv_op_dictionary, create_csv_format_users_list
 from localinfo.models import OPProgram
 
 
@@ -80,16 +80,15 @@ class OPProgramList(View):
 
 
 class DownloadUserList(View):
+    """Class to create an downloadable user list csv file."""
+
     def get(self, request):
         response = HttpResponse(
             content_type='text/csv',
             headers={'Content-Disposition': 'attachment; filename="Lista de Usuarios.csv"'},
         )
-        users_list = get_all_users_list()
+        csv_formatted_users_list = create_csv_format_users_list()
         writer = csv.writer(response)
-        header = ["Nombre de Usuario", "Email", "Nombre", "Apellidos", "Es Admin", "Ultimo Inicio de Sesión",
-                  "Permisos"]
-        writer.writerow(header)
-        for user_row in users_list:
-            writer.writerow(user_row)
+        for row in csv_formatted_users_list:
+            writer.writerow(row)
         return response
