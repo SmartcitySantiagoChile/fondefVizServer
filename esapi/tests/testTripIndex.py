@@ -692,7 +692,7 @@ class ESTripIndexTest(TestCase):
             'time_periods_4': {'terms': {'field': 'periodo_bajada_3'}},
             'time_periods_5': {'terms': {'field': 'periodo_bajada_4'}}}}}, 'from': 0, 'size': 0}
         result = self.instance.get_all_time_periods().to_dict()
-        self.assertEqual(expected_query, result)
+        self.assertDictEqual(expected_query, result)
 
     def test_get_post_products_trip_between_zone_data_query(self):
         dates = [['2020-01-01', '2020-01-03']]
@@ -715,7 +715,7 @@ class ESTripIndexTest(TestCase):
             'from': 0, 'size': 0}
 
         result = self.instance.get_post_products_trip_between_zone_data_query(dates, day_types)
-        self.assertEqual(expected_result, result.to_dict())
+        self.assertDictEqual(expected_result, result.to_dict())
 
     def test_get_post_products_boarding_and_alighting_data_query(self):
         dates = [['2020-01-01', '2020-01-03']]
@@ -726,7 +726,7 @@ class ESTripIndexTest(TestCase):
             'dayType': {'terms': {'field': 'tipodia', 'size': 4}, 'aggs': {
                 'boardingStopCommune': {'terms': {'field': 'comuna_subida', 'size': 48}, 'aggs': {
                     'authStopCode': {'terms': {'field': 'paradero_subida', 'size': 13000}, 'aggs': {
-                        'transportModes': {'terms': {'field': 'tipo_transporte_1', 'size': 6}, 'aggs': {
+                        'transportModes': {'terms': {'field': 'modo_subida', 'size': 6}, 'aggs': {
                             'authRouteCode': {'terms': {'field': 'srv_1', 'size': 5000}, 'aggs': {
                                 'halfHourInBoardingTime': {'terms': {'field': 'mediahora_subida', 'size': 48}, 'aggs': {
                                     'expandedBoarding': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}},
@@ -740,7 +740,7 @@ class ESTripIndexTest(TestCase):
             'from': 0, 'size': 0}
 
         result = self.instance.get_post_products_boarding_and_alighting_data_query(dates, day_types)
-        self.assertEqual(expected_result, result.to_dict())
+        self.assertDictEqual(expected_result, result.to_dict())
 
     def test_get_post_products_boarding_and_alighting_without_service_data_query(self):
         dates = [['2020-01-01', '2020-01-03']]
@@ -751,7 +751,7 @@ class ESTripIndexTest(TestCase):
             'dayType': {'terms': {'field': 'tipodia', 'size': 4}, 'aggs': {
                 'boardingStopCommune': {'terms': {'field': 'comuna_subida', 'size': 48}, 'aggs': {
                     'authStopCode': {'terms': {'field': 'paradero_subida', 'size': 13000}, 'aggs': {
-                        'transportModes': {'terms': {'field': 'tipo_transporte_1', 'size': 6}, 'aggs': {
+                        'transportModes': {'terms': {'field': 'modo_subida', 'size': 6}, 'aggs': {
                             'halfHourInBoardingTime': {'terms': {'field': 'mediahora_subida', 'size': 48}, 'aggs': {
                                 'expandedBoarding': {'sum': {'field': 'factor_expansion'}}}}}}}}}},
                 'alightingStopCommune': {'terms': {'field': 'comuna_bajada', 'size': 48}, 'aggs': {
@@ -759,7 +759,7 @@ class ESTripIndexTest(TestCase):
                         'transportModes': {'terms': {'field': 'modo_bajada', 'size': 6}, 'aggs': {
                             'halfHourInAlightingTime': {'terms': {'field': 'mediahora_bajada', 'size': 48}, 'aggs': {
                                 'expandedAlighting': {'sum': {'field': 'factor_expansion'}}}}}}}}}}}}}, 'from': 0,
-                           'size': 0}
+            'size': 0}
 
         result = self.instance.get_post_products_boarding_and_alighting_without_service_data_query(dates, day_types)
-        self.assertEqual(expected_result, result.to_dict())
+        self.assertDictEqual(expected_result, result.to_dict())
