@@ -17,7 +17,9 @@ from elasticsearch import Elasticsearch
 from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
 from dataDownloader.csvhelper.odbyroute import OdByRouteData
 from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
-from dataDownloader.csvhelper.trip import TripData
+from dataDownloader.csvhelper.trip import TripData, PostProductTripTripBetweenZonesData, \
+    PostProductTripBoardingAndAlightingData, PostProductTripBoardingAndAlightingWithoutServiceData
+from dataDownloader.csvhelper.stage import PostProductStageTransferData, PostProductStageTransferAggregatedData
 from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from dataDownloader.csvhelper.bip import BipData
 
@@ -44,6 +46,16 @@ def download_file(es_instance, query, downloader, zip_file_path):
         data_to_download = PaymentFactorData(query, es_instance)
     elif downloader == csv_helper.BIP_DATA:
         data_to_download = BipData(query, es_instance)
+    elif downloader == csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_DATA:
+        data_to_download = PostProductStageTransferData(query, es_instance)
+    elif downloader == csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA:
+        data_to_download = PostProductStageTransferAggregatedData(query, es_instance)
+    elif downloader == csv_helper.POST_PRODUCTS_TRIP_TRIP_BETWEEN_ZONES_DATA:
+        data_to_download = PostProductTripTripBetweenZonesData(query, es_instance)
+    elif downloader == csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA:
+        data_to_download = PostProductTripBoardingAndAlightingData(query, es_instance)
+    elif downloader == csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_WITHOUT_SERVICE_DATA:
+        data_to_download = PostProductTripBoardingAndAlightingWithoutServiceData(query, es_instance)
     else:
         raise UnrecognizedDownloaderNameError()
 
