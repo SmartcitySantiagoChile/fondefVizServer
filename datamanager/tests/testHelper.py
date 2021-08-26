@@ -12,9 +12,9 @@ class TestFileManager(TestHelper):
 
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
-        self.file_manager = FileManager()
 
     def test__get_file_list(self):
+        file_manager = FileManager()
         expected = {
             'stop': [
                 {'name': '2020-01-01.stop',
@@ -73,14 +73,14 @@ class TestFileManager(TestHelper):
                  'lastModified': datetime.datetime(
                      2020, 3, 26, 13, 15, 24, 266000, tzinfo=pytz.utc), 'lines': 0, 'id': 10, 'lastExecution': None}]}
 
-        self.assertEqual(expected, self.file_manager._get_file_list())
+        self.assertEqual(expected, file_manager._get_file_list())
 
         filter_bip_expected = {'bip': [
             {'name': '2019-10-08.bip',
              'discoveredAt': datetime.datetime(2020, 9, 14, 13, 54, 38, 822000, tzinfo=pytz.utc),
              'lastModified': datetime.datetime(
                  2020, 3, 25, 15, 25, 56, 761000, tzinfo=pytz.utc), 'lines': 5892312, 'id': 4, 'lastExecution': None}]}
-        self.assertEqual(filter_bip_expected, self.file_manager._get_file_list(index_filter=['bip']))
+        self.assertEqual(filter_bip_expected, file_manager._get_file_list(index_filter=['bip']))
 
     @mock.patch('datamanager.helper.ESBipHelper')
     @mock.patch('datamanager.helper.ESODByRouteHelper')
@@ -93,36 +93,30 @@ class TestFileManager(TestHelper):
     @mock.patch('datamanager.helper.ESStopByRouteHelper')
     @mock.patch('datamanager.helper.ESTripHelper')
     @mock.patch('datamanager.helper.ESProfileHelper')
-    def test_get_document_number_by_file_from_elasticsearch(self, profile, trip, stopbyroute, stop, speed, shape,
-                                                            resume,
-                                                            paymentfactor, opdata, odbyroute, bip):
+    @mock.patch('datamanager.helper.ESStageHelper')
+    def test_get_document_number_by_file_from_elasticsearch(self, stage, profile, trip, stopbyroute, stop, speed, shape,
+                                                            resume, paymentfactor, opdata, odbyroute, bip):
+        file_manager = FileManager()
+
         expected = {'key': 1}
         buckets = [mock.MagicMock(key='key', doc_count=1)]
-        files = mock.MagicMock(buckets=buckets)
-        aggregations = mock.MagicMock(files=files)
-        execute = mock.MagicMock(aggregations=aggregations)
-        data_by_file = mock.MagicMock(execute=mock.MagicMock(return_value=execute))
-        profile.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        trip.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        stopbyroute.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        stop.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        speed.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        shape.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        resume.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        paymentfactor.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        opdata.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        odbyroute.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        bip.return_value = mock.MagicMock(get_data_by_file=mock.MagicMock(return_value=data_by_file))
-        self.assertEqual(expected, self.file_manager.get_document_number_by_file_from_elasticsearch())
-        self.assertEqual(expected,
-                         self.file_manager.get_document_number_by_file_from_elasticsearch(index_filter=['stop']))
-        self.assertEqual(expected, self.file_manager.get_document_number_by_file_from_elasticsearch(
+
+        for index_mock in [stage, profile, trip, stopbyroute, stop, speed, shape, resume, paymentfactor, opdata,
+                           odbyroute, bip]:
+            index_mock.return_value.get_data_by_file.return_value.execute.return_value.aggregations.files.buckets = \
+                buckets
+
+        self.assertEqual(expected, file_manager.get_document_number_by_file_from_elasticsearch())
+        self.assertEqual(expected, file_manager.get_document_number_by_file_from_elasticsearch(index_filter=['stop']))
+        self.assertEqual(expected, file_manager.get_document_number_by_file_from_elasticsearch(
             file_filter='2020-01-01.stop'))
-        self.assertEqual(expected, self.file_manager.get_document_number_by_file_from_elasticsearch(
+        self.assertEqual(expected, file_manager.get_document_number_by_file_from_elasticsearch(
             file_filter=['2020-01-01.stop', '2020-01-02.stop']))
 
     @mock.patch("datamanager.helper.FileManager.get_document_number_by_file_from_elasticsearch")
     def test_get_file_list(self, get_document_es):
+        file_manager = FileManager()
+
         expected = {
             'stop': [
                 {'name': '2020-01-01.stop',
@@ -186,7 +180,7 @@ class TestFileManager(TestHelper):
                  'lastModified': datetime.datetime(
                      2020, 3, 26, 13, 15, 24, 266000, tzinfo=pytz.utc), 'lines': 0, 'id': 10, 'lastExecution': None,
                  'docNumber': 0}]}
-        self.assertEqual(expected, self.file_manager.get_file_list())
+        self.assertEqual(expected, file_manager.get_file_list())
 
         stop_expected = {
             'stop': [
@@ -197,24 +191,26 @@ class TestFileManager(TestHelper):
                  'docNumber': 0}
             ]
         }
-        self.assertEqual(stop_expected, self.file_manager.get_file_list(index_filter=['stop']))
+        self.assertEqual(stop_expected, file_manager.get_file_list(index_filter=['stop']))
 
     @mock.patch('datamanager.helper.ESODByRouteHelper')
     @mock.patch('datamanager.helper.ESTripHelper')
     @mock.patch('datamanager.helper.ESProfileHelper')
     def test_get_time_period_list_by_file_from_elasticsearch(self, profile, trip, odbyroute):
-        expected = {"01-01-2020":
-                        {"profile": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}
-                    }
+        file_manager = FileManager()
+
+        expected = {
+            "01-01-2020": {
+                "profile": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+            }
+        }
         file_list = [{
             "key": "01-01-2020.profile",
             "time_periods_0": {
-                "buckets":
-                    [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 4}, {"key": 5}, {"key": 6}, {"key": 7}]
+                "buckets": [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 4}, {"key": 5}, {"key": 6}, {"key": 7}]
             },
             "time_periods_1": {
-                "buckets":
-                    [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 11}, {"key": 10}, {"key": 9}, {"key": 8}]
+                "buckets": [{"key": 1}, {"key": 2}, {"key": 3}, {"key": 11}, {"key": 10}, {"key": 9}, {"key": 8}]
             },
             "dead_key": {}
         }]
@@ -225,4 +221,4 @@ class TestFileManager(TestHelper):
         profile.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
         trip.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
         odbyroute.return_value = mock.MagicMock(get_all_time_periods=mock.MagicMock(return_value=get_all_time_periods))
-        self.assertEqual(expected, self.file_manager.get_time_period_list_by_file_from_elasticsearch())
+        self.assertEqual(expected, file_manager.get_time_period_list_by_file_from_elasticsearch())

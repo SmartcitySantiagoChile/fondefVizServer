@@ -125,6 +125,15 @@
                     </ul>
                   </li>
                 {% endif %}
+                <li>
+                    <a><i class="fa fa-save"></i> Productos post. <span
+                        class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                        <li><a href=" {% url "postproducts:transfers" %} "> Transbordos por parada</a></li>
+                        <li><a href=" {% url "postproducts:tripsBetweenZones" %} "> Viajes entre comunas</a></li>
+                        <li><a href=" {% url "postproducts:boardingAndAlightingByZone" %} "> Subidas y bajadas</a></li>
+                    </ul>
+                </li>
                 <li><a><i class="fa fa-bus"></i> Perfil de carga <span
                         class="fa fa-chevron-down"></span></a>
                   <ul class="nav child_menu">

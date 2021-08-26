@@ -306,6 +306,14 @@ class PermissionBuilder(object):
         storage_group, _ = Group.objects.get_or_create(name='Sección de validaciones')
         storage_group.permissions.add(storage_permission)
 
+        # create permission to see postproduct section
+        post_products_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='postproducts', defaults={'name': 'productos post'})
+        post_products_group, _ = Group.objects.get_or_create(name='Sección de productos post')
+        post_products_group.permissions.add(post_products_permission)
+
+
+
     def update_permission(self, new_operator_obj):
         """
         Modify permission if user change name or esId

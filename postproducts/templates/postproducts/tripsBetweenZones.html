@@ -1,0 +1,28 @@
+{% extends 'postproducts/base.html' %}
+{% load static header postproducts_data_filter %}
+
+{% block title %}Productos post{% endblock %}
+
+
+{% block css %}
+    {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+    {% header "Viajes entre comunas" %}
+
+    {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
+    {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
+
+    {% postproducts_data_filter data_filter True True False info_target_id="filterHelp" show_export_button_2=False export_button_1_label='Descargar datos' %}
+
+    {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
+    {{ block.super }}
+{% endblock %}
+
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static "postproducts/js/tripsBetweenZones.js" %}"></script>
+{% endblock %}

@@ -437,3 +437,75 @@ class MultiRouteData(View):
 
     def post(self, request):
         return self.process_request(request, request.POST, export_data=True)
+
+
+class PostProductTripsBetweenZones(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(PostProductTripsBetweenZones, self).dispatch(request, *args, **kwargs)
+
+    def process_request(self, request, params, export_data=False):
+        dates = get_dates_from_request(request, export_data)
+        day_types = params.getlist('dayType[]', [])
+
+        response = {}
+
+        es_trip_helper = ESTripHelper()
+
+        try:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
+                raise ESQueryDateParametersDoesNotExist
+            if export_data:
+                es_query = es_trip_helper.get_post_products_trip_between_zone_data_query(dates, day_types)
+                ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_TRIP_TRIP_BETWEEN_ZONES_DATA,
+                                                      request.user)
+            response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
+
+
+class PostProductTripsBoardingAndAlighting(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(PostProductTripsBoardingAndAlighting, self).dispatch(request, *args, **kwargs)
+
+    def process_request(self, request, params, export_data=False):
+        dates = get_dates_from_request(request, export_data)
+        day_types = params.getlist('dayType[]', [])
+        with_service = params.get('exportButton2', False)
+
+        response = {}
+
+        es_trip_helper = ESTripHelper()
+
+        try:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
+                raise ESQueryDateParametersDoesNotExist
+            if export_data:
+                if with_service:
+                    es_query = es_trip_helper.get_post_products_boarding_and_alighting_data_query(dates, day_types)
+                    ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA,
+                                                          request.user)
+                else:
+                    es_query = es_trip_helper.get_post_products_boarding_and_alighting_without_service_data_query(dates,
+                                                                                                                  day_types)
+                    ExporterManager(es_query).export_data(
+                        csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_WITHOUT_SERVICE_DATA,
+                        request.user)
+            response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
