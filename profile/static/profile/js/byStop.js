@@ -634,6 +634,7 @@ $(document).ready(function () {
          */
         this.clearDisplayData = function () {
             _barChart.clear();
+            _datatable.clear().draw();
         };
     }
 
