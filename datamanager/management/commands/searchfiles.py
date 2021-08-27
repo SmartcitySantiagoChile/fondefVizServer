@@ -3,7 +3,6 @@ import os
 import re
 import sys
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -26,9 +25,6 @@ class Command(BaseCommand):
 
         for data_source_obj in DataSourcePath.objects.all():
             path = data_source_obj.path
-            # TODO: if is running on windows, remove this
-            if os.name == 'nt':
-                path = os.path.join(settings.BASE_DIR, 'media')
 
             path_name = os.path.join(path, data_source_obj.filePattern)
             zipped_path_name = os.path.join(path, '{0}.zip'.format(data_source_obj.filePattern))

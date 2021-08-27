@@ -51,12 +51,16 @@ class LoadManagerHTML(View):
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de validaciones bip',
                 'id': 'bipTable', 'title_icon': 'fa-line-chart', 'title': 'Validaciones Bip'
+            },
+            {
+                'bubble_title': '', 'bubble_content': 'Archivos de etapas',
+                'id': 'stageTable', 'title_icon': 'fa-line-chart', 'title': 'Etapas'
             }
         ]
         context = {
             'tables': tables,
             'operation_program_tables': [],
-            'data': ["profile", "speed", "general", "stopbyoute", "trip", "odbyroute", "paymentfactor", "bip"]
+            'data': ['profile', 'speed', 'general', 'stopbyroute', 'trip', 'odbyroute', 'paymentfactor', 'bip', 'stage']
         }
 
         return render(request, template, context)
