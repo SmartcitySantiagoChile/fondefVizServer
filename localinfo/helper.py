@@ -285,7 +285,7 @@ def create_csv_format_users_list() -> list:
     user_list = []
     all_user_permissions = Group.objects.all()
     header = ["Nombre de Usuario", "Email", "Nombre", "Apellidos", "Es Admin", "Ultimo Inicio de Sesión"]
-    header += [permission.name for permission in all_user_permissions]
+    header += ["Permiso '{0}'".format(permission.name) for permission in all_user_permissions]
     user_list.append(header)
     for user in users:
         formatted_is_staff = "Si" if user.is_staff else "No"
