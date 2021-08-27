@@ -29,6 +29,7 @@ class AvailableDays(View):
 
 @method_decorator([csrf_exempt], name='dispatch')
 class PostProductTransfersData(View):
+    permission_required = 'localinfo.postproducts'
 
     def process_request(self, request, params, export_data=False):
         dates = get_dates_from_request(request, export_data)
