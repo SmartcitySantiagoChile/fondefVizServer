@@ -105,14 +105,13 @@ $(document).ready(function () {
         _self.updateTable([], []);
 
         /**
-         * Clear information in bar chart, datatables and map.
+         * Clear information in datatable.
          */
         this.clearDisplayData = function () {
-            _barChart.clear();
-            _clearGlobalStats();
-            _datatable.clear().draw();
-            _routeLayer.clearLayers();
-            _circleLayer.clearLayers();
+            _self.updateTable([], []);
+            $("#stopName").html("-");
+            $("#userStopCode").html("-");
+            $("#authStopCode").html("-");
         };
     }
 
@@ -166,6 +165,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
         };
         var opts = {
