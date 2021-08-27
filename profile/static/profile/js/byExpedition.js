@@ -809,7 +809,7 @@ $(document).ready(function () {
         };
 
         /**
-         * Clear information in barChart, datatables and map.
+         * Clear information in bar chart, datatables and map.
          */
         this.clearDisplayData = function () {
             _barChart.clear();
