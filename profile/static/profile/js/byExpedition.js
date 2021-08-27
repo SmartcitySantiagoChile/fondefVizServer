@@ -785,6 +785,13 @@ $(document).ready(function () {
             $("#utilizationCoefficient").html(Number(utilizationCoefficient.toFixed(2)).toLocaleString());
         };
 
+        const _clearGlobalStats = function(){
+            $("#expeditionNumber").html('-');
+            $("#expeditionNumber2").html('-');
+            $("#boardingWithAlightingPercentage").html('-');
+            $("#utilizationCoefficient").html('-');
+        };
+
         this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
             _updateBarChart();
             _updateGlobalStats(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
@@ -799,6 +806,17 @@ $(document).ready(function () {
         };
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
+        };
+
+        /**
+         * Clear information in barChart, datatables and map.
+         */
+        this.clearDisplayData = function () {
+            _barChart.clear();
+            _clearGlobalStats();
+            _datatable.clear().draw();
+            _routeLayer.clearLayers();
+            _circleLayer.clearLayers();
         };
     }
 
@@ -983,7 +1001,7 @@ $(document).ready(function () {
                 });
 
                 trip = new Trip(expeditionId, route, licensePlate, capacity, timeTripInit, timeTripEnd, authTimePeriod,
-                  dayType, yAxisData, valid, passengerWithEvasionPerKmSectionSum, capacityPerKmSectionSum);
+                    dayType, yAxisData, valid, passengerWithEvasionPerKmSectionSum, capacityPerKmSectionSum);
                 dataManager.addTrip(trip);
             }
             let tripXAxisData = stops.map(function (stop) {
@@ -1010,6 +1028,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
             app.hideLoadingAnimationCharts();
         };
