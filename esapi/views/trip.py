@@ -383,7 +383,7 @@ class TransfersData(View):
                 es_query = es_trip_helper.get_transfers_data(dates, auth_stop_code, day_types, periods,
                                                              half_hours)[:0]
                 response.update(self.process_data(es_query))
-                response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code).to_dict()
+                response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
