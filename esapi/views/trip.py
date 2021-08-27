@@ -440,6 +440,7 @@ class MultiRouteData(View):
 
 
 class PostProductTripsBetweenZones(View):
+    permission_required = 'localinfo.postproducts'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -472,6 +473,7 @@ class PostProductTripsBetweenZones(View):
 
 
 class PostProductTripsBoardingAndAlighting(View):
+    permission_required = 'localinfo.postproducts'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
