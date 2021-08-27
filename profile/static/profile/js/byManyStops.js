@@ -421,6 +421,13 @@ $(document).ready(function () {
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
         };
+
+        /**
+         * Clear information in bar chart.
+         */
+        this.clearDisplayData = function () {
+            _barChart.clear();
+        };
     }
 
     function processData(dataSource, app) {
@@ -470,6 +477,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
             app.hideLoadingAnimationCharts();
         };
