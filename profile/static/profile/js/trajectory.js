@@ -555,10 +555,19 @@ $(document).ready(function () {
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
         };
+
+        /**
+         * Clear information in bar chart and datatables, disable radio selector.
+         */
+        this.clearDisplayData = function () {
+            _barChart.clear();
+            _datatable.clear().draw();
+            $("input[name='dataSelector']").attr("disabled", true);
+        };
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
+        $("input[name='dataSelector']").attr("disabled", false);
 
         if (dataSource.status) {
             return;
@@ -650,6 +659,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
             app.hideLoadingAnimationCharts();
         };
