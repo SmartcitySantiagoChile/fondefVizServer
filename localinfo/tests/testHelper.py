@@ -616,7 +616,7 @@ class TestHelperUtils(TestCase):
         Group.objects.create(name="test_group_two")
         group.user_set.add(user)
         header = ["Nombre de Usuario", "Email", "Nombre", "Apellidos", "Es Admin", "Ultimo Inicio de Sesión",
-                  "test_group", "test_group_two"]
+                  "Permiso 'test_group'", "Permiso 'test_group_two'"]
         expected_user_list = [
             header,
             ['test_user', 'test@user.com', 'test', 'user', 'No', formatted_login_time, "Si", "No"]]
