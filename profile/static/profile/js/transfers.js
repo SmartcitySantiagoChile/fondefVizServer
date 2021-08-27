@@ -103,6 +103,17 @@ $(document).ready(function () {
             datatableInstance = $(tableId).DataTable(opts);
         };
         _self.updateTable([], []);
+
+        /**
+         * Clear information in bar chart, datatables and map.
+         */
+        this.clearDisplayData = function () {
+            _barChart.clear();
+            _clearGlobalStats();
+            _datatable.clear().draw();
+            _routeLayer.clearLayers();
+            _circleLayer.clearLayers();
+        };
     }
 
     function processData(dataSource, app) {

@@ -635,6 +635,8 @@ $(document).ready(function () {
         this.clearDisplayData = function () {
             _barChart.clear();
             _datatable.clear().draw();
+            $("#expeditionNumber").html("N");
+            $("#expeditionNumber2").html("N");
         };
     }
 

@@ -563,6 +563,8 @@ $(document).ready(function () {
             _barChart.clear();
             _datatable.clear().draw();
             $("input[name='dataSelector']").attr("disabled", true);
+            $("#expeditionNumber").html("N");
+            $("#expeditionNumber2").html("N");
         };
     }
 
