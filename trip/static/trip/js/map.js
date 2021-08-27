@@ -585,6 +585,7 @@ function MapApp(opts) {
 
           const layersMenu = document.getElementById('layerGroupMenu');
           layersMenu.appendChild(link);
+          layersMenu.appendChild(document.createElement('br'));
         }
         /*
         // add map style options
