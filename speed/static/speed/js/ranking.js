@@ -188,6 +188,14 @@ $(document).ready(function () {
                 return showSegment(section, response);
             });
         }
+
+        /**
+         * Clear information in bar chart, datatables and map.
+         */
+        this.clearDisplayData = function () {
+            _datatable.clear().draw();
+            clearMap();
+        };
     }
 
     function processData(dataSource, app) {
@@ -209,6 +217,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
         };
         var opts = {

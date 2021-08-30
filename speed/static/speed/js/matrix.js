@@ -473,7 +473,7 @@ $(document).ready(function () {
             mapApp.drawRoute(route, matrix[periodId]);
         };
         /**
-         * Clear information in bar chart, datatables and map.
+         * Clear information in  chart and map.
          */
         this.clearDisplayData = function () {
             mChart.clear();
