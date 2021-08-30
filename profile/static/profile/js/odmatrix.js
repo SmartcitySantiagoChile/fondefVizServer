@@ -340,7 +340,7 @@ $(document).ready(function () {
         }
 
         /**
-         * Clear information in bar chart, datatables and map.
+         * Clear information in charts, buttons and disable radio selector.
          */
         this.clearDisplayData = function () {
             _matrixChart.clear();

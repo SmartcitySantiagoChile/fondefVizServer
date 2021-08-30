@@ -472,9 +472,21 @@ $(document).ready(function () {
             }
             mapApp.drawRoute(route, matrix[periodId]);
         };
+        /**
+         * Clear information in bar chart, datatables and map.
+         */
+        this.clearDisplayData = function () {
+            mChart.clear();
+            _self.updateLabel("");
+            mapApp._clearMap();
+            $("#filterHourRange").data("ionRangeSlider").update({"disable": true});
+            $('#legendButton').attr("disabled", true);
+        };
     }
 
     function processData(dataSource, app) {
+        $("#filterHourRange").data("ionRangeSlider").update({"disable": false});
+        $('#legendButton').attr("disabled", false);
         if (dataSource.status) {
             return;
         }
@@ -517,6 +529,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
             app.hideLoadingAnimationCharts();
         };
