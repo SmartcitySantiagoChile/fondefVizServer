@@ -338,10 +338,20 @@ $(document).ready(function () {
                 DIV.append(button);
             });
         }
+
+        /**
+         * Clear information in bar chart, datatables and map.
+         */
+        this.clearDisplayData = function () {
+            _matrixChart.clear();
+            _graphChart.clear();
+            $("#stops").empty();
+            $("input[name='stopSelector']").attr("disabled", true);
+        };
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
+        $("input[name='stopSelector']").attr("disabled", false);
 
         if (dataSource.status) {
             return;
@@ -413,6 +423,7 @@ $(document).ready(function () {
                 app.updateGraphChart(lastStopCode, linksFromDestination[lastStopCode], maxValue);
             }
         });
+
         radioSelector.iCheck("check");
     }
 
@@ -429,6 +440,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
             app.hideLoadingAnimationCharts();
         };
