@@ -5,7 +5,7 @@
 
 {% block css %}
     {{ block.super }}
-    <link href="{% static "components/leaflet/dist/leaflet.css" %}" rel="stylesheet">
+    <link href="{% static "css/mapbox-gl.css" %}" rel="stylesheet">
     {% with "components/gentelella/vendors/" as gentelella_static %}
         {# switchery: pretty checkboxes #}
         <link href="{% static gentelella_static|add:"switchery/dist/switchery.min.css" %}" rel="stylesheet">
@@ -32,7 +32,7 @@
                 {% with map1="<div id='mapChart' style='height:500px;'></div>" map2="<div id='mapChart2' style='height:500px;'></div>" %}
                     {% columns 6 6 12 "<h3>Origen</h3><br />"|add:map1 as col1 %}
                     {% columns 6 6 12 "<h3>Destino</h3><br />"|add:map2 as col2 %}
-                    {% panel "fa-map-o" "<span id='mapTitle'>Mapa con</span> <span id='tripTotalNumberValue'>0</span> <span id='tripTotalNumberLabel'>viajes</span> en <span id='dataTotalNumberValue'>0</span> <span id='dataTotalNumberLabel'>datos</span>" col1|add:col2 info_target_id="mapHelp" %}
+                    {% panel "fa-map" "<span id='mapTitle'>Mapa con</span> <span id='tripTotalNumberValue'>0</span> <span id='tripTotalNumberLabel'>viajes</span> en <span id='dataTotalNumberValue'>0</span> <span id='dataTotalNumberLabel'>datos</span>" col1|add:col2 info_target_id="mapHelp" %}
                 {% endwith %}
             </div>
         </div>
@@ -45,11 +45,11 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
-    <script src="{% static "components/Leaflet.Sync/L.Map.Sync.js" %}"></script>
     {% with "components/gentelella/vendors/" as gentelella_static %}
         <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
     {% endwith %}
+    <script src="{% static "js/mapbox-gl.js" %}"></script>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
     <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "trip/js/fromToApp.js" %}"></script>
 {% endblock %}

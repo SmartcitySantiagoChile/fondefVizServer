@@ -25,36 +25,36 @@ class LoadManagerHTML(View):
         tables = [
             {
                 'bubble_title': '', 'bubble_content': 'Archivo de perfiles de carga',
-                'id': 'profileTable', 'title_icon': 'fa-bus', 'title': 'Perfiles'
+                'id': 'profileTable', 'title_icon': 'fa-bus-alt', 'title': 'Perfiles'
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de velocidades',
-                'id': 'speedTable', 'title_icon': 'fa-tachometer', 'title': 'Velocidades'
+                'id': 'speedTable', 'title_icon': 'fa-tachometer-alt', 'title': 'Velocidades'
             },
             {
                 'bubble_title': '', 'bubble_content': 'Información de las etapas hechas por usuario en cada servicio.',
-                'id': 'odbyrouteTable', 'title_icon': 'fa-map-o', 'title': 'etapas por servicio'
+                'id': 'odbyrouteTable', 'title_icon': 'fa-map', 'title': 'etapas por servicio'
             },
             {
                 'bubble_title': '', 'bubble_content': 'Datos de la ejecución de adatrap',
-                'id': 'generalTable', 'title_icon': 'fa-clone', 'title': 'Datos generales'
+                'id': 'generalTable', 'title_icon': 'fa-chart-line', 'title': 'Datos generales'
             },
             {
                 'bubble_title': '', 'bubble_content': 'Datos de la distribución de validaciones en zonas pago',
-                'id': 'paymentfactorTable', 'title_icon': 'fa-money',
+                'id': 'paymentfactorTable', 'title_icon': 'fa-dollar-sign',
                 'title': 'Distribución de validaciones en zona de pago'
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de viajes',
-                'id': 'tripTable', 'title_icon': 'fa-line-chart', 'title': 'Viajes'
+                'id': 'tripTable', 'title_icon': 'fa-suitcase-rolling', 'title': 'Viajes'
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de validaciones bip',
-                'id': 'bipTable', 'title_icon': 'fa-line-chart', 'title': 'Validaciones Bip'
+                'id': 'bipTable', 'title_icon': 'fa-money-check-alt', 'title': 'Validaciones Bip'
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivos de etapas',
-                'id': 'stageTable', 'title_icon': 'fa-line-chart', 'title': 'Etapas'
+                'id': 'stageTable', 'title_icon': 'fa-project-diagram', 'title': 'Etapas'
             }
         ]
         context = {
@@ -84,7 +84,7 @@ class LoadManagerOPHTML(View):
             },
             {
                 'bubble_title': '', 'bubble_content': 'Archivo datos de programas de operación',
-                'id': 'opdataTable', 'title_icon': 'fa-bar-chart', 'title': 'Datos de programas de operación'
+                'id': 'opdataTable', 'title_icon': 'fa-chart-bar', 'title': 'Datos de programas de operación'
             }
 
         ]

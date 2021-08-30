@@ -1,0 +1,215 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.68588000003942,
+          -33.51380599892608
+        ]
+      },
+      "properties": {
+        "ID1": 133,
+        "LONGITUDE": -70.68588,
+        "LATITUDE": -33.513806,
+        "LNEA": "MT",
+        "NOMBRE": "Lo Espejo",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.69851900004211,
+          -33.573892998900234
+        ]
+      },
+      "properties": {
+        "ID1": 134,
+        "LONGITUDE": -70.698519,
+        "LATITUDE": -33.573893,
+        "LNEA": "MT",
+        "NOMBRE": "Lo Blanco",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.69841700004211,
+          -33.58716199890118
+        ]
+      },
+      "properties": {
+        "ID1": 135,
+        "LONGITUDE": -70.698417,
+        "LATITUDE": -33.587162,
+        "LNEA": "MT",
+        "NOMBRE": "Freire",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.6818700000386,
+          -33.49204199893399
+        ]
+      },
+      "properties": {
+        "ID1": 112,
+        "LONGITUDE": -70.68187,
+        "LATITUDE": -33.492042,
+        "LNEA": "MT",
+        "NOMBRE": "Pedro Aguirre Cerda",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.69794100004201,
+          -33.59431399890266
+        ]
+      },
+      "properties": {
+        "ID1": 113,
+        "LONGITUDE": -70.697941,
+        "LATITUDE": -33.594314,
+        "LNEA": "MT",
+        "NOMBRE": "San Bernardo",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.69707900004187,
+          -33.6065009989053
+        ]
+      },
+      "properties": {
+        "ID1": 114,
+        "LONGITUDE": -70.697079,
+        "LATITUDE": -33.606501,
+        "LNEA": "MT",
+        "NOMBRE": "Maestranza",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.70572700004374,
+          -33.634446998886624
+        ]
+      },
+      "properties": {
+        "ID1": 115,
+        "LONGITUDE": -70.705727,
+        "LATITUDE": -33.634447,
+        "LNEA": "MT",
+        "NOMBRE": "Nos",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.70240700004301,
+          -33.62695899889401
+        ]
+      },
+      "properties": {
+        "ID1": 136,
+        "LONGITUDE": -70.702407,
+        "LATITUDE": -33.626959,
+        "LNEA": "MT",
+        "NOMBRE": "Cinco Pinos",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.67888600003793,
+          -33.45119099893864
+        ]
+      },
+      "properties": {
+        "ID1": 138,
+        "LONGITUDE": -70.678886,
+        "LATITUDE": -33.451191,
+        "LNEA": "MT",
+        "NOMBRE": "Alameda",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.68066100003831,
+          -33.478255998935985
+        ]
+      },
+      "properties": {
+        "ID1": 110,
+        "LONGITUDE": -70.680661,
+        "LATITUDE": -33.478256,
+        "LNEA": "L6-MT",
+        "NOMBRE": "Lo Valledor",
+        "REFERENCIA": "",
+        "HITO_RELEV": "",
+        "COLOR1": "#173E77",
+        "COLOR2": "#ffff00"
+      }
+    }
+  ]
+}

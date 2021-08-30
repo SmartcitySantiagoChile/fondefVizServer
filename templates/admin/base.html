@@ -11,19 +11,19 @@
 
     <title>{% block title %}{% endblock %}</title>
 
+    <!-- Font Awesome -->
+    <link href="{% static "components/font-awesome/css/all.css" %}" rel="stylesheet">
     {% with "components/gentelella/vendors/" as gentelella_static %}
     <!-- Bootstrap -->
     <link href="{% static gentelella_static|add:"bootstrap/dist/css/bootstrap.min.css" %}" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="{% static gentelella_static|add:"font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
     <!-- NProgress -->
     <link href="{% static gentelella_static|add:"nprogress/nprogress.css" %}" rel="stylesheet">
-    <!-- Custom Theme Style -->
-    <link href="{% block stylesheet %}{% static gentelella_static|add:"../build/css/custom.min.css" %}{% endblock %}" rel="stylesheet">
     <!-- PNotify -->
     <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.css" %}" rel="stylesheet">
     <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.buttons.css" %}" rel="stylesheet">
     <link href="{% static gentelella_static|add:"pnotify/dist/pnotify.nonblock.css" %}" rel="stylesheet">
+    <!-- Custom Theme Style -->
+    <link href="{% static "css/custom.css" %}" rel="stylesheet">
 
     <style>
     .panel_toolbox {

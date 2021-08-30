@@ -75,7 +75,7 @@ class MapData(PermissionRequiredMixin, View):
     def process_request(self, request, params, export_data=False):
         dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
-        periods = params.getlist('boardingPeriod[]', [])
+        periods = params.getlist('period[]', [])
 
         es_helper = ESTripHelper()
 
