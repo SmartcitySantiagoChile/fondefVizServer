@@ -930,6 +930,17 @@ $(document).ready(function () {
     };
 
     /**
+     * Replace information labels with -.
+     * @private
+     */
+    const _clearGlobalStats = function(){
+      $("#expeditionNumber").html('-');
+      $("#expeditionNumber2").html('-');
+      $("#boardingWithAlightingPercentage").html('-');
+      $("#utilizationCoefficient").html('-');
+    };
+
+    /**
      * Clear information in bar chart, datatables and map.
      */
     this.clearDisplayData = function () {
@@ -1150,7 +1161,7 @@ $(document).ready(function () {
     let afterCall = function (data, status) {
       if (status) {
         processData(data, app);
-      }  else {
+      } else {
         app.clearDisplayData();
       }
       app.hideLoadingAnimationCharts();
