@@ -90,7 +90,7 @@
                     {% url cl.opts|admin_urlname:'add' as add_url %}
                     <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink"
                        style="color:#2A3F54">
-                        <i class="fa fa-plus fa-lg"></i> {% blocktrans with cl.opts.verbose_name as name %}Add
+                        <i class="fas fa-plus fa-lg"></i> {% blocktrans with cl.opts.verbose_name as name %}Add
                         {{ name }}{% endblocktrans %}
                     </a>
                 </li>

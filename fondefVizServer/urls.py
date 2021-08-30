@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^bip/', include('bip.urls')),
     url(r'^consistencychecker/', include('consistencychecker.urls')),
     url(r'^localinfo/', include('localinfo.urls')),
+    url(r'^postproducts/', include('postproducts.urls')),
 ]
 
 if settings.DEBUG:

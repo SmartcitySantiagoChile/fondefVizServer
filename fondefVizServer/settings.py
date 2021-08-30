@@ -66,7 +66,8 @@ LOCAL_APPS = (
     'awsbackup',
     'paymentfactor',
     'bip',
-    'consistencychecker'
+    'consistencychecker',
+    'postproducts'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

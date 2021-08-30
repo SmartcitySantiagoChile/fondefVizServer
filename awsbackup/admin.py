@@ -23,7 +23,7 @@ class DownloadLinkAdmin(admin.ModelAdmin):
     def link(self, obj):
         if obj.url is not None:
             return mark_safe(
-                "<a href='{0}' class='btn btn-success btn-xs'><i class='fa fa-file'></i> Descargar</a>".format(
+                "<a href='{0}' class='btn btn-success btn-xs'><i class='fas fa-file'></i> Descargar</a>".format(
                     obj.url))
         else:
             return 'link was not created'

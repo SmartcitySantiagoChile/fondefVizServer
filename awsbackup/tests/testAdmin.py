@@ -37,7 +37,7 @@ class AdminTest(TestCase):
         self.assertFalse(self.my_model_admin.is_active(self.download_link))
 
     def test_link(self):
-        expected_url = "<a href='' class='btn btn-success btn-xs'><i class='fa fa-file'></i> Descargar</a>"
+        expected_url = "<a href='' class='btn btn-success btn-xs'><i class='fas fa-file'></i> Descargar</a>"
         expected_not_url = 'link was not created'
         object_without_url = mock.MagicMock(url=None)
         self.assertEqual(expected_url, self.my_model_admin.link(self.download_link))

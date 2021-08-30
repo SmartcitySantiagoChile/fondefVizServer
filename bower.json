@@ -27,6 +27,7 @@
     "Leaflet.Sync": "leaflet.sync#^0.2.2",
     "bootstrap-datepicker": "^1.9.0",
     "trix": "https://github.com/basecamp/trix.git",
-    "faq-template": "https://github.com/CodyHouse/faq-template.git"
+    "faq-template": "https://github.com/CodyHouse/faq-template.git",
+    "font-awesome": "^5.15.4"
   }
 }

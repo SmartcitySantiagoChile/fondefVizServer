@@ -9,6 +9,7 @@ from esapi.helper.profile import ESProfileHelper
 from esapi.helper.resume import ESResumeStatisticHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.speed import ESSpeedHelper
+from esapi.helper.stage import ESStageHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.trip import ESTripHelper
@@ -32,7 +33,8 @@ class Command(BaseCommand):
             ESResumeStatisticHelper(),
             ESPaymentFactorHelper(),
             ESBipHelper(),
-            ESOPDataHelper()
+            ESOPDataHelper(),
+            ESStageHelper()
         ]
 
         for helper in helpers:
