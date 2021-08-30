@@ -2,6 +2,8 @@
 $(document).ready(function () {
     function DetailApp() {
         var charts = [];
+        let dataTables = [];
+        let metricValues = [];
 
         this.updateMetrics = function (data) {
             // var header = data.header;
@@ -9,7 +11,7 @@ $(document).ready(function () {
             var ids = data.ids;
             var row = data.rows[0];
             var days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-
+            console.log(ids);
             ids.forEach(function (id, index) {
                 var value = row[index];
                 if ($.isNumeric(value)) {
@@ -24,6 +26,7 @@ $(document).ready(function () {
                 }
                 try {
                     $("#" + id).html(value);
+                    metricValues.push("#" + id)
                 } catch (e) {
                     console.log("error: " + e);
                 }
@@ -203,6 +206,7 @@ $(document).ready(function () {
                     });
                     dataTable.append(tableRow.replace("{0}", index + 1).replace("{1}", values.join("")));
                 });
+                dataTables.push(dataTable);
             }
         };
 
@@ -210,6 +214,15 @@ $(document).ready(function () {
             charts.forEach(function (chart) {
                 chart.resize();
             });
+        };
+
+        /**
+         * Clear information in bar chart, datatables and map.
+         */
+        this.clearDisplayData = function () {
+            charts.forEach(chart => chart.clear());
+            dataTables.forEach(table => table.empty());
+            metricValues.forEach(metric => $(metric).html(""));
         };
     }
 
@@ -227,6 +240,8 @@ $(document).ready(function () {
         var afterCall = function (answer, status) {
             if (status) {
                 app.updateMetrics(answer.data);
+            } else {
+                app.clearDisplayData();
             }
         };
         var opts = {
