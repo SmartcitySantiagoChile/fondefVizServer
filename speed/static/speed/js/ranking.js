@@ -190,7 +190,7 @@ $(document).ready(function () {
         }
 
         /**
-         * Clear information in bar chart, datatables and map.
+         * Clear information in datable and map.
          */
         this.clearDisplayData = function () {
             _datatable.clear().draw();
