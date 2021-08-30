@@ -30,7 +30,7 @@
               {% block object-tools-items %}
               <li>
                 {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
-                <a href="{% add_preserved_filters history_url %}" class="historylink" style="color:#2A3F54"><i class="fa fa-history"></i> {% trans "History" %}</a>
+                <a href="{% add_preserved_filters history_url %}" class="historylink" style="color:#2A3F54"><i class="fas fa-history"></i> {% trans "History" %}</a>
               </li>
               {% if has_absolute_url %}
                 <li><a href="{{ absolute_url }}" class="viewsitelink">{% trans "View on site" %}</a></li>
@@ -51,7 +51,7 @@
         {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
         {% if save_on_top %}{% block submit_buttons_top %}{% submit_row %}{% endblock %}{% endif %}
         {% if errors %}
-          <div class="alert alert-danger"><i class="fa fa-warning fa-lg fa-2x"></i> 
+          <div class="alert alert-danger"><i class="fas exclamation-triangle fa-lg fa-2x"></i>
           {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
           </div>
           {{ adminform.form.non_field_errors }}

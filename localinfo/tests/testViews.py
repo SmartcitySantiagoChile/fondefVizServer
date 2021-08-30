@@ -146,3 +146,10 @@ class LocalInfoViewTest(TestHelper):
         response = self.client.get(reverse('localinfo:opProgramList'))
         self.assertEqual(200, response.status_code)
         self.assertIsNotNone(json.loads(response.content)['opProgramList'])
+
+    def test_user_changelist(self):
+        self.check_http_response(self.client, 'admin:auth_user_changelist', 200)
+
+    def test_downloaduserlist(self):
+        response = self.client.get(reverse('localinfo:downloaduserlist'))
+        self.assertEqual(200, response.status_code)

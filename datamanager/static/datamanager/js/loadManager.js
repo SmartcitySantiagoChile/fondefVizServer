@@ -101,17 +101,17 @@ $(document).ready(function () {
             var uploadButtonName = "Cargar datos";
             var deleteButtonName = "Eliminar";
             var cancelButtonName = "Cancelar carga";
-            var infoButtonName = "<i class='fa fa-info'></i>";
+            var infoButtonName = "<i class='fas fa-info'></i>";
 
             if (data.lastExecution !== null) {
                 if (data.lastExecution.status === "running") {
-                    infoButtonName = "<i class='fa fa-refresh fa-pulse'></i> " + infoButtonName;
+                    infoButtonName = "<i class='fas fa-refresh fa-pulse'></i> " + infoButtonName;
                     LoadingOrReadyToLoad = true;
                 } else if (data.lastExecution.status === "enqueued") {
-                    infoButtonName = "<i class='fa fa-spinner fa-pulse'></i> " + infoButtonName;
+                    infoButtonName = "<i class='fas fa-spinner fa-pulse'></i> " + infoButtonName;
                     LoadingOrReadyToLoad = true;
                 } else if (data.lastExecution.status === "failed") {
-                    infoButtonName = "<i class='fa fa-warning'></i> " + infoButtonName;
+                    infoButtonName = "<i class='fas fa-warning'></i> " + infoButtonName;
                 }
             } else {
                 disableJobInfoButton = true;

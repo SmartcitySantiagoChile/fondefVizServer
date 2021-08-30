@@ -7,6 +7,7 @@ from collections import defaultdict
 from datetime import date as dt
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import SearchVector
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -264,6 +265,41 @@ def check_period_list_id(period_time_list: list) -> list:
     return res
 
 
+def create_csv_format_users_list() -> list:
+    """Get all users from database and parse them to a csv list of lists format.
+
+    This function return a list of row list, where each row list has the header
+    format for it respective user.
+
+    The header format is [username, email, first name, last name, is staff,
+    last login time, permission_1, ..., permission_n].
+
+    This format uses group's name as permission's name. A group name represent
+    all permissions associated with the group.
+
+    Returns:
+        user list: a csv format list of lists with header
+    """
+    user = get_user_model()
+    users = user.objects.all()
+    user_list = []
+    all_user_permissions = Group.objects.all()
+    header = ["Nombre de Usuario", "Email", "Nombre", "Apellidos", "Es Admin", "Ultimo Inicio de Sesión"]
+    header += ["Permiso '{0}'".format(permission.name) for permission in all_user_permissions]
+    user_list.append(header)
+    for user in users:
+        formatted_is_staff = "Si" if user.is_staff else "No"
+        formatted_last_login_time = user.last_login.strftime("%d-%m-%Y %H:%M:%S")
+        user_row = [user.username, user.email, user.first_name, user.last_name, formatted_is_staff,
+                    formatted_last_login_time]
+        user_permissions = Group.objects.filter(user=user)
+        for permission in all_user_permissions:
+            has_permission = "Si" if permission in user_permissions else "No"
+            user_row.append(has_permission)
+        user_list.append(user_row)
+    return user_list
+
+
 class PermissionBuilder(object):
 
     def __init__(self):
@@ -305,6 +341,12 @@ class PermissionBuilder(object):
             codename='validation', defaults={'name': 'validaciones'})
         storage_group, _ = Group.objects.get_or_create(name='Sección de validaciones')
         storage_group.permissions.add(storage_permission)
+
+        # create permission to see postproduct section
+        post_products_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='postproducts', defaults={'name': 'productos post'})
+        post_products_group, _ = Group.objects.get_or_create(name='Sección de productos post')
+        post_products_group.permissions.add(post_products_permission)
 
     def update_permission(self, new_operator_obj):
         """

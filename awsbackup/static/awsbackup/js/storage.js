@@ -30,9 +30,9 @@ $(document).ready(function () {
                 {
                     render: function (data, type, row) {
                         if (activeDownloadLinkData.hasOwnProperty(row[0])) {
-                            return "<a href='" + activeDownloadLinkData[row[0]].url + "' class='btn btn-success btn-xs'><i class='fa fa-file'></i> Descargar (válido hasta " + (new Date(activeDownloadLinkData[row[0]].expire_at)).toLocaleString() + ")</a>";
+                            return "<a href='" + activeDownloadLinkData[row[0]].url + "' class='btn btn-success btn-xs'><i class='fas fa-file'></i> Descargar (válido hasta " + (new Date(activeDownloadLinkData[row[0]].expire_at)).toLocaleString() + ")</a>";
                         }
-                        return "<button type='button' class='btn btn-warning btn-xs'><i class='fa fa-file'></i> Crear link de descarga</button>";
+                        return "<button type='button' class='btn btn-warning btn-xs'><i class='fas fa-file'></i> Crear link de descarga</button>";
                     },
                     createdCell: function (td, cellData, rowData, row, col) {
                         $(td).find("button.btn-warning").click(function () {
@@ -42,7 +42,7 @@ $(document).ready(function () {
                             var filename = data[0];
 
                             var currentText = $(this).html();
-                            var spinner = "<i class='fa fa-refresh fa-pulse'></i>";
+                            var spinner = "<i class='fas fa-refresh fa-pulse'></i>";
                             $(this).html(spinner + " " + currentText);
                             $.post(Urls["awsbackup:createDownloadLink"](), {
                                 bucket_name: bucketName,

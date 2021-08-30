@@ -19,7 +19,7 @@
                 {% with barChart='<div id="barChart" style="height:800px;"></div>' radioButton='<p>¿Qué desea visualizar?:</p><div class="radio-inline"><label><input type="radio" class="flat" name="dataSelector" value="boarding" checked> Subidas</label></div><div class="radio-inline"><label><input type="radio" class="flat" name="dataSelector" value="landing"> Bajadas</label></div>' %}
                     {% columns 12 12 12 barChart as col7 %}
                     {% columns 12 12 12 radioButton as col8 %}
-                    {% panel "fa-bar-chart" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col8|add:col7 info_target_id="chartHelp" %}
+                    {% panel "fa-chart-bar" "Perfil de carga con trayectoria <small>para <strong id='expeditionNumber'>0</strong> expediciones</small>" col8|add:col7 info_target_id="chartHelp" %}
                 {% endwith %}
             </div>
         </div>

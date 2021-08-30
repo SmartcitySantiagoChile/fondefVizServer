@@ -98,5 +98,15 @@
       "indexName": "opdata",
       "timeStamp": "2020-06-23T19:02:10.838Z"
     }
+  },
+  {
+    "model": "datamanager.datasourcepath",
+    "pk": 11,
+    "fields": {
+      "path": "/home/cephei/elasticdata/",
+      "filePattern": "*.etapas",
+      "indexName": "stage",
+      "timeStamp": "2021-07-26T19:07:00.000Z"
+    }
   }
 ]

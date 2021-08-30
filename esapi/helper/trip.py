@@ -547,3 +547,78 @@ class ESTripHelper(ElasticSearchHelper):
         es_query_bucket.bucket('time_periods_4', 'terms', field='periodo_bajada_3')
         es_query_bucket.bucket('time_periods_5', 'terms', field='periodo_bajada_4')
         return es_query
+
+    def get_post_products_base_query(self, dates, day_types):
+        es_query = self.get_base_query()
+        es_query = es_query[:0]
+
+        combined_filter = []
+        for date_range in dates:
+            start_date = date_range[0]
+            end_date = date_range[-1]
+            if not start_date or not end_date:
+                raise ESQueryDateRangeParametersDoesNotExist()
+            filter_q = Q('range', tiempo_subida={
+                'gte': start_date + '||/d',
+                'lte': end_date + '||/d',
+                'format': 'yyyy-MM-dd',
+                'time_zone': '+00:00'
+            })
+            combined_filter.append(filter_q)
+        combined_filter = reduce((lambda x, y: x | y), combined_filter)
+        es_query = es_query.query('bool', filter=[combined_filter])
+
+        if day_types:
+            es_query = es_query.filter('terms', tipodia=day_types)
+        return es_query
+
+    def get_post_products_trip_between_zone_data_query(self, dates, day_types):
+        es_query = self.get_post_products_base_query(dates, day_types)
+        es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4). \
+            bucket('startCommune', 'terms', field='comuna_subida', size=48). \
+            bucket('endCommune', 'terms', field='comuna_bajada', size=13000). \
+            bucket('transportModes', 'terms', field='modos', size=6). \
+            bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
+            metric('tripNumber', 'sum', field='factor_expansion'). \
+            metric('expandedTime', 'sum', script="doc['tviaje'].value * doc['factor_expansion'].value"). \
+            metric('expandedDistance', 'sum', script="doc['distancia_ruta'].value * doc['factor_expansion'].value"). \
+            metric('expandedStages', 'sum', script="doc['n_etapas'].value * doc['factor_expansion'].value")
+        return es_query
+
+    def get_post_products_boarding_and_alighting_data_query(self, dates, day_types):
+        es_query = self.get_post_products_base_query(dates, day_types)
+
+        day_type_bucket = es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4)
+        day_type_bucket.bucket('boardingStopCommune', 'terms', field='comuna_subida', size=48). \
+            bucket('authStopCode', 'terms', field='paradero_subida', size=13000). \
+            bucket('transportModes', 'terms', field='modo_subida', size=6). \
+            bucket('authRouteCode', 'terms', field='srv_1', size=5000). \
+            bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
+            metric('expandedBoarding', 'sum', field='factor_expansion')
+
+        day_type_bucket.bucket('alightingStopCommune', 'terms', field='comuna_bajada', size=48). \
+            bucket('authStopCode', 'terms', field='paradero_bajada', size=13000). \
+            bucket('transportModes', 'terms', field='modo_bajada', size=6). \
+            bucket('authRouteCode', 'terms', field='servicio_bajada', size=5000). \
+            bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
+            metric('expandedAlighting', 'sum', field='factor_expansion')
+
+        return es_query
+
+    def get_post_products_boarding_and_alighting_without_service_data_query(self, dates, day_types):
+        es_query = self.get_post_products_base_query(dates, day_types)
+
+        day_type_bucket = es_query.aggs.bucket('dayType', 'terms', field='tipodia', size=4)
+        day_type_bucket.bucket('boardingStopCommune', 'terms', field='comuna_subida', size=48). \
+            bucket('authStopCode', 'terms', field='paradero_subida', size=13000). \
+            bucket('transportModes', 'terms', field='modo_subida', size=6). \
+            bucket('halfHourInBoardingTime', 'terms', field='mediahora_subida', size=48). \
+            metric('expandedBoarding', 'sum', field='factor_expansion')
+
+        day_type_bucket.bucket('alightingStopCommune', 'terms', field='comuna_bajada', size=48). \
+            bucket('authStopCode', 'terms', field='paradero_bajada', size=13000). \
+            bucket('transportModes', 'terms', field='modo_bajada', size=6). \
+            bucket('halfHourInAlightingTime', 'terms', field='mediahora_bajada', size=48). \
+            metric('expandedAlighting', 'sum', field='factor_expansion')
+
+        return es_query
