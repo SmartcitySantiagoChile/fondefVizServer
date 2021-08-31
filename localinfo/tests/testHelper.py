@@ -179,7 +179,36 @@ class TestHelperUtils(TestCase):
                                   {'value': 26, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
                                   {'value': 27, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
                                   {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
-                                  {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]
+                                  {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'},
+                                  {'value': 30, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
+                                  {'value': 31, 'item': 'Nocturno (01:00:00-05:29:59)'},
+                                  {'value': 32, 'item': 'Transición nocturno (05:30:00-06:29:59)'},
+                                  {'value': 33, 'item': 'Punta mañana (06:30:00-07:59:59)'},
+                                  {'value': 34, 'item': 'Transición punta mañana (08:00:00-09:29:59)'},
+                                  {'value': 35, 'item': 'Fuera de punta mañana (09:30:00-12:29:59)'},
+                                  {'value': 36, 'item': 'Punta mediodía (12:30:00-13:59:59)'},
+                                  {'value': 37, 'item': 'Fuera de punta tarde (14:00:00-16:29:59)'},
+                                  {'value': 38, 'item': 'Punta tarde 1 (16:30:00-18:29:59)'},
+                                  {'value': 39, 'item': 'Punta tarde 2 (18:30:00-20:29:59)'},
+                                  {'value': 40, 'item': 'Fuera de punta nocturno (20:30:00-22:59:59)'},
+                                  {'value': 41, 'item': 'Pre nocturno (23:00:00-23:59:59)'},
+                                  {'value': 42, 'item': 'Pre nocturno sábado (00:00:00-00:59:59)'},
+                                  {'value': 43, 'item': 'Nocturno sábado (01:00:00-05:29:59)'},
+                                  {'value': 44, 'item': 'Transición sábado mañana (05:30:00-06:29:59)'},
+                                  {'value': 45, 'item': 'Punta mañana sábado (06:30:00-10:59:59)'},
+                                  {'value': 46, 'item': 'Mañana sábado (11:00:00-13:29:59)'},
+                                  {'value': 47, 'item': 'Punta mediodia sábado (13:30:00-17:29:59)'},
+                                  {'value': 48, 'item': 'Tarde sábado (17:30:00-20:29:59)'},
+                                  {'value': 49, 'item': 'Transición sábado nocturno (20:30:00-22:59:59)'},
+                                  {'value': 50, 'item': 'Pre nocturno sábado (23:00:00-23:59:59)'},
+                                  {'value': 51, 'item': 'Pre nocturno domingo (00:00:00-00:59:59)'},
+                                  {'value': 52, 'item': 'Nocturno domingo (01:00:00-05:29:59)'},
+                                  {'value': 53, 'item': 'Transición domingo mañana (05:30:00-09:29:59)'},
+                                  {'value': 54, 'item': 'Mañana domingo (09:30:00-13:29:59)'},
+                                  {'value': 55, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
+                                  {'value': 56, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
+                                  {'value': 57, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
+                                  {'value': 58, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]
 
         self.assertListEqual(expected_list_period_1, get_timeperiod_list_for_select_input())
 
@@ -591,13 +620,41 @@ class TestHelperUtils(TestCase):
                                {'value': 27, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
                                {'value': 28, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
                                {'value': 29, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}],
-                           }
+                           4: [{'value': 30, 'item': 'Pre nocturno (00:00:00-00:59:59)'},
+                               {'value': 31, 'item': 'Nocturno (01:00:00-05:29:59)'},
+                               {'value': 32, 'item': 'Transición nocturno (05:30:00-06:29:59)'},
+                               {'value': 33, 'item': 'Punta mañana (06:30:00-07:59:59)'},
+                               {'value': 34, 'item': 'Transición punta mañana (08:00:00-09:29:59)'},
+                               {'value': 35, 'item': 'Fuera de punta mañana (09:30:00-12:29:59)'},
+                               {'value': 36, 'item': 'Punta mediodía (12:30:00-13:59:59)'},
+                               {'value': 37, 'item': 'Fuera de punta tarde (14:00:00-16:29:59)'},
+                               {'value': 38, 'item': 'Punta tarde 1 (16:30:00-18:29:59)'},
+                               {'value': 39, 'item': 'Punta tarde 2 (18:30:00-20:29:59)'},
+                               {'value': 40, 'item': 'Fuera de punta nocturno (20:30:00-22:59:59)'},
+                               {'value': 41, 'item': 'Pre nocturno (23:00:00-23:59:59)'},
+                               {'value': 42, 'item': 'Pre nocturno sábado (00:00:00-00:59:59)'},
+                               {'value': 43, 'item': 'Nocturno sábado (01:00:00-05:29:59)'},
+                               {'value': 44, 'item': 'Transición sábado mañana (05:30:00-06:29:59)'},
+                               {'value': 45, 'item': 'Punta mañana sábado (06:30:00-10:59:59)'},
+                               {'value': 46, 'item': 'Mañana sábado (11:00:00-13:29:59)'},
+                               {'value': 47, 'item': 'Punta mediodia sábado (13:30:00-17:29:59)'},
+                               {'value': 48, 'item': 'Tarde sábado (17:30:00-20:29:59)'},
+                               {'value': 49, 'item': 'Transición sábado nocturno (20:30:00-22:59:59)'},
+                               {'value': 50, 'item': 'Pre nocturno sábado (23:00:00-23:59:59)'},
+                               {'value': 51, 'item': 'Pre nocturno domingo (00:00:00-00:59:59)'},
+                               {'value': 52, 'item': 'Nocturno domingo (01:00:00-05:29:59)'},
+                               {'value': 53, 'item': 'Transición domingo mañana (05:30:00-09:29:59)'},
+                               {'value': 54, 'item': 'Mañana domingo (09:30:00-13:29:59)'},
+                               {'value': 55, 'item': 'Mediodia domingo (13:30:00-17:29:59)'},
+                               {'value': 56, 'item': 'Tarde domingo (17:30:00-20:59:59)'},
+                               {'value': 57, 'item': 'Transición domingo nocturno (21:00:00-22:59:59)'},
+                               {'value': 58, 'item': 'Pre nocturno domingo (23:00:00-23:59:59)'}]}
 
         self.assertDictEqual(expected_answer, get_periods_dict())
 
     def test_check_period_list_id(self):
         correct_period_list = [33, 34, 35, 36, 37, 38, 39]
-        correct_period_id = [2]
+        correct_period_id = [2, 4]
         self.assertEqual(correct_period_id, check_period_list_id(correct_period_list))
         multiple_period_list = [3, 4, 5, 6, 7, 8, 9]
         multiple_period_id = [1, 3]

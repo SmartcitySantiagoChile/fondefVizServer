@@ -98,7 +98,7 @@ class ConnectionTest(TestHelper):
         expected_value = {
             'dates': ['2020-01-01'],
             'dates_periods_dict': {'2020-01-01': 1},
-            'periods': {'1': [], '2': [], '3': []},
+            'periods': {'1': [], '2': [], '3': [], '4': []},
             'op_routes_dict': {
                 '2020-01-01': {
                     '101': {'F41 00I': 'F41I', 'F41 00R': 'F41R', 'F41 06I': 'F41I', 'F41 06R': 'F41R',
@@ -111,6 +111,8 @@ class ConnectionTest(TestHelper):
                 }
             }
         }
+
+        print(json_response)
         self.assertDictEqual(json_response, expected_value)
 
     @patch('esapi.views.shape.ESProfileHelper')
