@@ -11,7 +11,6 @@ $(document).ready(function () {
             var ids = data.ids;
             var row = data.rows[0];
             var days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-            console.log(ids);
             ids.forEach(function (id, index) {
                 var value = row[index];
                 if ($.isNumeric(value)) {
@@ -130,7 +129,6 @@ $(document).ready(function () {
                     var name = chartNames[ids.indexOf(attr)];
                     chartOpts[index].series[0].data.push({value: value, name: name});
                 });
-                // console.log(chartOpts[index]);
                 chart.setOption(chartOpts[index]);
                 charts.push(chart);
             });
