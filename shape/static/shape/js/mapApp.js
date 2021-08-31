@@ -118,6 +118,7 @@ $(document).ready(function () {
         popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
         popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
         popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
+        popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
         popUpDescription += "</p>";
 
         new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
@@ -579,6 +580,7 @@ $(document).ready(function () {
               userStopCode: stop.userStopCode,
               stopName: stop.stopName,
               order: stop.order,
+              routes: stop.routes.join(', '),
               layerId: selectorId
             }
           });
