@@ -239,13 +239,18 @@ $(document).ready(function () {
         return showSegment(section, response);
       });
     }
+
+    /**
+     * Clear information in bar chart, datatables and map.
+     */
+    this.clearDisplayData = function () {
+      $("#mapid").hide();
+      _datatable.clear().draw();
+    };
   }
 
   function processData(dataSource, app) {
-    if (dataSource.status) {
-      return;
-    }
-
+    $("#mapid").show();
     let data = dataSource.data;
     app.updateRows(data);
   }
@@ -260,6 +265,8 @@ $(document).ready(function () {
     let afterCall = function (data, status) {
       if (status) {
         processData(data, app);
+      } else{
+        app.clearDisplayData();
       }
     };
     let opts = {

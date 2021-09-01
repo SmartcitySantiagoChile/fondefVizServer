@@ -375,6 +375,8 @@ $(document).ready(function () {
             _mapApp.resize();
             fitBoundFirstTime = false;
           }, 400);
+        } else {
+          _mapApp.resize();
         }
       }, 400);
     });
