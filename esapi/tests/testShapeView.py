@@ -112,7 +112,6 @@ class ConnectionTest(TestHelper):
             }
         }
 
-        print(json_response)
         self.assertDictEqual(json_response, expected_value)
 
     @patch('esapi.views.shape.ESProfileHelper')
