@@ -339,13 +339,12 @@ $(document).ready(function () {
                             color = colors[3];
                             break;
                     }
-                    if (arr[index - 1][0] !== "" && data[0] !== "") {
+                    if (arr[index - 1][0] !== "" && data[0] !== "" && data[0] !== "-") {
                         var piece = {
                             gte: (new Date(arr[index - 1][0])).getTime(),
                             lte: (new Date(data[0])).getTime(),
                             color: color
                         };
-
                         if (previousPiece === null) {
                             previousPiece = piece;
                         } else if (previousPiece.color === piece.color) {
@@ -454,9 +453,6 @@ $(document).ready(function () {
             };
             //scatterSerie.data = null;
             series.push(scatterSerie);
-            //console.log(series);
-            //console.log(visualMaps);
-
             var options = {
                 animation: false,
                 series: series,
@@ -529,7 +525,7 @@ $(document).ready(function () {
                     }
                 }
             };
-
+            console.log(options);
             _barChart.clear();
             _barChart.setOption(options, {
                 notMerge: true
@@ -569,6 +565,7 @@ $(document).ready(function () {
     }
 
     function processData(dataSource, app) {
+        console.log(dataSource);
         $("input[name='dataSelector']").attr("disabled", false);
 
         if (dataSource.status) {
