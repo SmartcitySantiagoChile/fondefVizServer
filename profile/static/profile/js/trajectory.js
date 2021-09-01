@@ -525,7 +525,6 @@ $(document).ready(function () {
                     }
                 }
             };
-            console.log(options);
             _barChart.clear();
             _barChart.setOption(options, {
                 notMerge: true
@@ -565,7 +564,6 @@ $(document).ready(function () {
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
         $("input[name='dataSelector']").attr("disabled", false);
 
         if (dataSource.status) {
