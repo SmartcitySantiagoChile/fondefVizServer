@@ -18,6 +18,7 @@ $(document).ready(function () {
     function MapShapeApp() {
         let _self = this;
         let selectorId = 1;
+        let selectorStopId = 1;
         let routeLegendControl = null;
 
         this.addLayers = (layerId, stopsSource, shapeSource) => {
@@ -210,6 +211,7 @@ $(document).ready(function () {
             mapInstance.addControl(new OperationInfoControl(), 'top-left');
         };
 
+
         this.addListControl = (mapInstance) => {
             class RouteListControl {
                 onAdd(map) {
@@ -224,7 +226,21 @@ $(document).ready(function () {
                 }
             }
 
+            class StopListControl {
+                onAdd(map) {
+                    let div = document.createElement('div');
+                    div.className = 'mapboxgl-ctrl info noprint';
+                    div.id = 'listControl';
+                    div.innerHTML += `
+            <button id="addStopInMapButton" class="btn btn-default btn-sm" >
+              <span class="fas fa-bus-alt" aria-hidden="true"></span> Paradas en mapa
+            </button>`;
+                    return div;
+                }
+            }
+
             mapInstance.addControl(new RouteListControl(), 'top-left');
+            mapInstance.addControl(new StopListControl(), 'top-left');
         };
 
         this.addBearingControl = (mapInstance) => {
@@ -387,12 +403,65 @@ $(document).ready(function () {
             return routeLegendControl;
         };
 
+        this.addStopLegendControl = (mapInstance) => {
+            class StopLegendControl {
+                onAdd(map) {
+                    this._div = document.createElement('div');
+                    this._div.className = 'mapboxgl-ctrl info legend';
+                    this._div.id = 'stopLegendControl';
+                    this._div.style.display = "none";
+                    this._div.width = 230;
+                    this._div.innerHTML = `
+            <table>
+              <thead>
+                <th>Color</th>
+                <th>P. operación</th>
+                <th>Servicio</th>
+                <th>Servicio TS</th>
+              </thead>
+              <tbody id='stopLegendTable'>
+              </tbody>
+            </table>`;
+                    return this._div;
+                }
+
+                update() {
+                    let rows = $('#stopListContainer tr');
+                    this._div.style.display = "none";
+
+                    if (rows.length > 0) {
+                        // remove previous rows
+                        $("#stopLegendTable").empty();
+
+                        rows.each((index, el) => {
+                            let id = $(el).data('id');
+                            let opDate = $(`#dateSelect-${id}`).val();
+                            let userRoute = $(`#stopRouteSelect-${id}`).val();
+                            let legendRow = `<tr>
+                                            <td>${opDate}</td>
+                                            <td>${userRoute}</td>
+                                          </tr>`;
+                            $('#stopLegendTable').append(legendRow);
+                        });
+
+                        this._div.style.display = "inline";
+                    }
+                }
+            }
+
+            let stopLegendControl = new StopLegendControl();
+            mapInstance.addControl(stopLegendControl, 'bottom-left');
+            stopLegendControl.update();
+            return stopLegendControl;
+        };
+
         this.loadBaseData = () => {
             $.getJSON(Urls["esapi:shapeBase"](), function (data) {
                 // data for selectors
                 let currentDate = data.dates[0]
                 _self.dates_period_dict = data.dates_periods_dict;
                 _self.op_routes_dict = data.op_routes_dict;
+                console.log(_self.op_routes_dict);
                 _self.periods = data.periods;
                 let userRouteList = (Object.keys(data.op_routes_dict[currentDate]).sort(sortAlphaNum));
                 userRouteList = userRouteList.map(e => ({id: e, text: e}));
@@ -401,6 +470,9 @@ $(document).ready(function () {
                 // activate add button when data exist
                 $("#addRouteButton").click(function () {
                     _self.addRow(dateList, userRouteList);
+                });
+                $("#addStopButton").click(function () {
+                    _self.addStopRow(dateList);
                 });
             });
 
@@ -413,6 +485,9 @@ $(document).ready(function () {
             });
             $("#addRouteInMapButton").click(function () {
                 $("#routeListModal").modal("show");
+            });
+            $("#addStopInMapButton").click(function () {
+                $("#stopListModal").modal("show");
             });
             $("#operationInfoButton").click(function () {
                 let routeSelector = $("#routeListContainer");
@@ -505,6 +580,31 @@ $(document).ready(function () {
             _self.refreshVisibilityUserStopLabelsButton();
         };
 
+        /**
+         * Add stop row selector with OP date list.
+         * @param opDateList available operation programs
+         */
+        this.addStopRow = function (opDateList) {
+            const newStopId = selectorStopId;
+            selectorStopId++;
+            const row = `
+            <tr class="stopSelectorRow" data-id="stop-${newStopId}">
+                <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
+                <td><select id=stopDateSelect-${newStopId} class="form-control stopDate"></select></td>
+                <td><select id=stopNameSelect-${newStopId} class="form-control stopName"></select></td>
+                <td><button id=stopColorSelect-${newStopId} class="btn btn-default btn-sm color-button" ><span class="fas fa-tint" aria-hidden="true"></span></button></td>
+               </tr>`;
+            $("#stopListContainer").append(row);
+            $(`#stopDateSelect-${newStopId}`).select2({
+                width: 'auto',
+                data: opDateList,
+                dropdownParent: $('#stopListContainer').parent()
+            });
+            _self.refreshStopControlEvents(newStopId);
+            _self.refreshRemoveStopButton();
+            _self.refreshColorPickerStopButton();
+        };
+
         let mapOpts = {
             mapId: 'mapid',//$(".right_col")[0],
             zoomControl: false,
@@ -566,7 +666,14 @@ $(document).ready(function () {
 
                 // update map data
                 let stopsSource = [];
+
                 data.stops.forEach((stop) => {
+                    let routes = [];
+                    try {
+                        routes = stop.routes.join(', ');
+                    } catch (error){
+                        routes = undefined
+                    }
                     stopsSource.push({
                         type: 'Feature',
                         geometry: {
@@ -580,7 +687,7 @@ $(document).ready(function () {
                             userStopCode: stop.userStopCode,
                             stopName: stop.stopName,
                             order: stop.order,
-                            routes: stop.routes.join(', '),
+                            routes: routes,
                             layerId: selectorId
                         }
                     });
@@ -712,6 +819,61 @@ $(document).ready(function () {
             $USER_ROUTE.trigger("change");
         };
 
+        /**
+         * Handle control events for stop date and stop name selector.
+         * Create stop selector based on stop date.
+         * If it is not the first selector, copy last selector.
+         * @param stopId: stop selector's id
+         */
+        this.refreshStopControlEvents = function (stopId) {
+            // handle date selector
+            const dateSelector = $(`#stopDateSelect-${stopId}`);
+            const stopSelector = $(`#stopNameSelect-${stopId}`)
+            dateSelector.change(function () {
+                const selector = $(this).closest(".stopSelectorRow");
+                const date = selector.find(".stopDate").first().val();
+                const stops = selector.find(".stopName").first();
+
+                stops.select2({
+                    ajax: {
+                        delay: 500, // milliseconds
+                        url: Urls["esapi:matchedStopData"](),
+                        dataType: "json",
+                        data: function (params) {
+                            return {
+                                term: params.term
+                            }
+                        },
+                        processResults: function (data, params) {
+                            return {
+                                results: data.items
+                            }
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 3,
+                    language: {
+                        inputTooShort: function () {
+                            return "Ingresar 3 o más caracteres";
+                        }
+                    },
+                    dropdownParent: selector,
+                });
+            });
+            // handle clone selector
+            const selector = $(".stopSelectorRow");
+            if (selector.length > 1) {
+                const lastSelected = selector.slice(-2, -1);
+                dateSelector.val(lastSelected.find(".stopDate").first().val());
+                dateSelector.data("first", true);
+                stopSelector.val(lastSelected.find(".stopName").first().val());
+                stopSelector.data("first", true);
+                const color = lastSelected.find(".fa-tint").css("color");
+                $(`#stopColorSelect-${stopId}`).css("color", color);
+            }
+            dateSelector.trigger("change");
+        };
+
         this.refreshRemoveButton = function () {
             let $REMOVE_BUTTON = $(".btn-danger");
             $REMOVE_BUTTON.off("click");
@@ -722,6 +884,19 @@ $(document).ready(function () {
                 _self.removeLayers(layerId);
                 removeButtonRef.parent().parent().remove();
                 routeLegendControl.update();
+            });
+        };
+
+        /**
+         * Handle control events for stop remove button.
+         */
+        this.refreshRemoveStopButton = function () {
+            const removeStopButton = $(".btn-danger");
+            removeStopButton.off("click");
+            removeStopButton.click(function () {
+                const removeButtonRef = $(this);
+                const layerId = removeButtonRef.parent().parent().data("id");
+                removeButtonRef.parent().parent().remove();
             });
         };
 
@@ -748,6 +923,20 @@ $(document).ready(function () {
             $COLOR_BUTTON.colorpicker({format: "rgb"}).on("changeColor", function (e) {
                 let color = e.color.toString("rgba");
                 let layerId = $(this).parent().parent().data("id");
+                $(this).css("color", color);
+                updateLayerColor(color, layerId);
+            });
+        };
+
+        /**
+         *
+         */
+        this.refreshColorPickerStopButton = function () {
+            const stopColorButton = $(".stopSelectorRow .btn-default");
+            stopColorButton.off("changeColor");
+            stopColorButton.colorpicker({format: "rgb"}).on("changeColor", function (e) {
+                const color = e.color.toString("rgba");
+                const layerId = $(this).parent().parent().data("stopId");
                 $(this).css("color", color);
                 updateLayerColor(color, layerId);
             });
