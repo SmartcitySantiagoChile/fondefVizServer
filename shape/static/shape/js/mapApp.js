@@ -841,7 +841,8 @@ $(document).ready(function () {
                         dataType: "json",
                         data: function (params) {
                             return {
-                                term: params.term
+                                term: params.term,
+                                date: date
                             }
                         },
                         processResults: function (data, params) {
@@ -858,6 +859,7 @@ $(document).ready(function () {
                         }
                     },
                     dropdownParent: selector,
+                    placeholder: "Todos",
                 });
             });
             // handle clone selector
