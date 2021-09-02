@@ -31,3 +31,5 @@ class MatchedStopData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+
