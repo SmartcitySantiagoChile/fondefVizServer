@@ -61,7 +61,7 @@ urlpatterns = [
     url(r'^trip/postProduct/boardingAndAlighting$', login_required(PostProductTripsBoardingAndAlighting.as_view()),
         name='postProductBoardingAndAlighting'),
 
-    # stop indes
+    # stop index
     url(r'^stop/matchedStopData/$', login_required(MatchedStopData.as_view()), name='matchedStopData'),
 
     # shape index
