@@ -11,6 +11,7 @@ class MatchedStopData(View):
     def get(self, request):
 
         term = request.GET.get("term", '')
+        date = request.GET.get("date", None)
 
         response = {
             'items': []
@@ -20,7 +21,7 @@ class MatchedStopData(View):
                 raise ESQueryStopPatternTooShort()
 
             es_helper = ESStopHelper()
-            results = es_helper.get_matched_stop_list(term)
+            results = es_helper.get_matched_stop_list(term, date)
 
             result_list = []
             for text, text_id in results:

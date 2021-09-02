@@ -17,7 +17,7 @@ class ESStopHelper(ElasticSearchHelper):
         """ Ask to elasticsearch for a stop match values based on date.
         Args:
            term: stop term
-           date: op program date
+           date: op program date (optional)
 
         Returns: matched stop
 
@@ -27,8 +27,8 @@ class ESStopHelper(ElasticSearchHelper):
         es_user_stop_name_query = Search()
         if date:
             es_auth_stop_query = es_auth_stop_query.query("match", startDate=date)
-            es_user_stop_query = es_user_stop_query
-            es_user_stop_name_query = es_user_stop_name_query
+            es_user_stop_query = es_user_stop_query.query("match", startDate=date)
+            es_user_stop_name_query = es_user_stop_name_query.query("match", startDate=date)
 
         es_auth_stop_query = es_auth_stop_query.query(Match(authCode={"query": term, "analyzer": "standard"}))[:0]
         aggs = A('terms', field='authCode.raw', size=100)
