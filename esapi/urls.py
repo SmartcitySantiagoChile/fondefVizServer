@@ -12,7 +12,7 @@ from esapi.views.shape import GetBaseInfo, GetRouteInfo, GetUserRoutesByOP
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
 from esapi.views.stage import PostProductTransfersData as PPTD, AvailableDays as StageAD
-from esapi.views.stop import MatchedStopData
+from esapi.views.stop import MatchedStopData, StopInfo
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, \
     StrategiesData, TransfersData, MultiRouteData, PostProductTripsBetweenZones, PostProductTripsBoardingAndAlighting
 
@@ -63,6 +63,7 @@ urlpatterns = [
 
     # stop index
     url(r'^stop/matchedStopData/$', login_required(MatchedStopData.as_view()), name='matchedStopData'),
+    url(r'^stop/stopInfo/$', login_required(StopInfo.as_view()), name='stopInfo'),
 
     # shape index
     # url(r'^shape', login_required(DeleteData.as_view()), name='deleteData'),
