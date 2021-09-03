@@ -14,7 +14,7 @@ class ESStopHelper(ElasticSearchHelper):
         super(ESStopHelper, self).__init__(index_name, file_extensions)
 
     def get_matched_stop_list(self, term, date=None):
-        """ Ask to elasticsearch for a stop match values based on date.
+        """Ask to elasticsearch for a stop match values based on date.
         Args:
            term: stop term
            date: op program date (optional)
@@ -82,3 +82,24 @@ class ESStopHelper(ElasticSearchHelper):
 
     def get_available_days(self):
         return self._get_available_days('startDate', [])
+
+    def get_all_stop_info(self, date):
+        """Ask to elasticsearch for all stops in given date
+        Args:
+            date: date for stops
+
+        Returns: all stops
+        """
+        if not date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        es_query = self.get_base_query().filter('term', startDate=date).extra(track_total_hits=True)
+        stop_info = []
+        try:
+            for stop in es_query.scan():
+                del stop['path']
+                del stop['timestamp']
+                stop_info.append(stop.to_dict())
+        except IndexError:
+            raise ESQueryStopInfoDoesNotExist()
+        return stop_info

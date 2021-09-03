@@ -44,7 +44,10 @@ class StopInfo(View):
         }
         try:
             es_helper = ESStopHelper()
-            results = es_helper.get_stop_info([[stop_date]], stop_name)
+            if stop_name:
+                results = [es_helper.get_stop_info([[stop_date]], stop_name)]
+            else:
+                results = es_helper.get_all_stop_info(stop_date)
             response["info"] = results
         except FondefVizError as e:
             response['status'] = e.get_status_response()
