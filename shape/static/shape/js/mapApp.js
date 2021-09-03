@@ -862,6 +862,24 @@ $(document).ready(function () {
                     placeholder: "Todos",
                 });
             });
+
+            stopSelector.change(function(){
+                const stopDate = selector.find(".stopDate").first().val();
+                const stopName = selector.find(".stopName").first().val();
+                let params = {
+                    stop: stopName,
+                    date: stopDate
+                };
+                $.getJSON(Urls['esapi:stopInfo'](), params, function (data) {
+                    if (data.status) {
+                        showMessage(data.status);
+                    } else {
+                        console.log(data.info);
+                    }
+                });
+
+            });
+
             // handle clone selector
             const selector = $(".stopSelectorRow");
             if (selector.length > 1) {
@@ -874,6 +892,7 @@ $(document).ready(function () {
                 $(`#stopColorSelect-${stopId}`).css("color", color);
             }
             dateSelector.trigger("change");
+            stopSelector.trigger("change");
         };
 
         this.refreshRemoveButton = function () {
