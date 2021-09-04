@@ -216,11 +216,11 @@ class FromToMapData(PermissionRequiredMixin, View):
                                                          transport_modes, origin_zones, destination_zones, routes)
                 origin_zone, destination_zone = es_helper.make_multisearch_query_for_aggs(*queries)
 
+                response['origin_zone'] = origin_zone.to_dict()
+                response['destination_zone'] = destination_zone.to_dict()
                 if origin_zone.hits.total == 0 or destination_zone.hits.total == 0:
                     raise ESQueryResultEmpty
 
-                response['origin_zone'] = origin_zone.to_dict()
-                response['destination_zone'] = destination_zone.to_dict()
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
@@ -282,7 +282,6 @@ class StrategiesData(PermissionRequiredMixin, View):
             strategies = group_strategy(result.aggregations[agg_name], [], agg_name)
             for strategy in strategies:
                 trips[strategy[0]][strategy[1]][strategy[2]][strategy[3]] += strategy[4]
-
         return {
             'strategies': trips,
             'expansionFactor': result.aggregations.expansion_factor.value,
@@ -291,7 +290,7 @@ class StrategiesData(PermissionRequiredMixin, View):
 
     def process_request(self, request, params, export_data=False):
         dates = get_dates_from_request(request, export_data)
-        day_types = params.getlist('daytypes[]', [])
+        day_types = params.getlist('dayType[]', [])
         periods = params.getlist('period[]', [])
         minutes = params.getlist('halfHour[]', [])
         origin_zones = params.getlist('originZones[]', [])
@@ -384,7 +383,7 @@ class TransfersData(View):
                 es_query = es_trip_helper.get_transfers_data(dates, auth_stop_code, day_types, periods,
                                                              half_hours)[:0]
                 response.update(self.process_data(es_query))
-                response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code).to_dict()
+                response['stopInfo'] = es_stop_helper.get_stop_info(dates, auth_stop_code)
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

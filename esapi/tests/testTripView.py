@@ -278,6 +278,8 @@ class FromToMapDataTest(TestHelper):
     def test_exec_elasticsearch_query_without_result(self, make_multisearch_query_for_aggs):
         origin_zone = mock.Mock()
         destination_zone = mock.Mock()
+        origin_zone.to_dict.return_value = {}
+        destination_zone.to_dict.return_value = {}
         type(origin_zone).hits = mock.PropertyMock(return_value=origin_zone)
         type(origin_zone).total = mock.PropertyMock(return_value=0)
         type(destination_zone).total = mock.PropertyMock(return_value=destination_zone)
@@ -436,9 +438,7 @@ class TransfersDataTest(TestHelper):
     @mock.patch('esapi.helper.stop.ESStopHelper.get_stop_info')
     @mock.patch('esapi.helper.trip.ESTripHelper.get_transfers_data')
     def test_exec_elasticsearch_query_get(self, get_transfers_data, get_stop_info):
-        stop_list = mock.MagicMock()
-        stop_list.to_dict.return_value = {}
-        get_stop_info.return_value = stop_list
+        get_stop_info.return_value = {}
         get_transfers_data.return_value = get_transfers_data
         get_transfers_data.__getitem__.return_value = get_transfers_data
         get_transfers_data.execute.return_value = get_transfers_data

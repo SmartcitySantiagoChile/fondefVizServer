@@ -92,6 +92,13 @@ $(document).ready(function () {
             ]
         });
 
+        /**
+         * Clear information in datatables.
+         */
+        this.clearDisplayData = function () {
+            _datatable.clear().draw();
+        };
+
         _self.updateDatatable = function (rows) {
             _datatable.clear();
             _datatable.rows.add(rows);
@@ -122,6 +129,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            }  else {
+                app.clearDisplayData();
             }
         };
         var opts = {

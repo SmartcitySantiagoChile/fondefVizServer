@@ -375,6 +375,8 @@ $(document).ready(function () {
             _mapApp.resize();
             fitBoundFirstTime = false;
           }, 400);
+        } else {
+          _mapApp.resize();
         }
       }, 400);
     });
@@ -928,9 +930,32 @@ $(document).ready(function () {
     this.hideLoadingAnimationCharts = function () {
       _barChart.hideLoading();
     };
+
+    /**
+     * Replace information labels with -.
+     * @private
+     */
+    const _clearGlobalStats = function(){
+      $("#expeditionNumber").html('-');
+      $("#expeditionNumber2").html('-');
+      $("#boardingWithAlightingPercentage").html('-');
+      $("#utilizationCoefficient").html('-');
+    };
+
+    /**
+     * Clear information in bar chart, datatables and map.
+     */
+    this.clearDisplayData = function () {
+      _barChart.clear();
+      _clearGlobalStats();
+      _datatable.clear().draw();
+      _dataManager.clearData();
+      $("#mapid").hide();
+    };
   }
 
   function processData(dataSource, app) {
+    $("#mapid").show();
     if (dataSource.status && (dataSource.status.code !== 252 && dataSource.status.code !== 253)) {
       return;
     }
@@ -1138,6 +1163,8 @@ $(document).ready(function () {
     let afterCall = function (data, status) {
       if (status) {
         processData(data, app);
+      } else {
+        app.clearDisplayData();
       }
       app.hideLoadingAnimationCharts();
     };

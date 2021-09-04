@@ -149,6 +149,13 @@ $(document).ready(function () {
         this.resizeCharts = function () {
             chart.resize();
         };
+
+        /**
+         * Clear information in chart.
+         */
+        this.clearDisplayData = function () {
+            chart.clear();
+        };
     }
 
     // load filters
@@ -162,6 +169,8 @@ $(document).ready(function () {
         let afterCall = function (data, status) {
             if (status) {
                 app.updateMetrics(data);
+            } else {
+                app.clearDisplayData();
             }
         };
         let opts = {

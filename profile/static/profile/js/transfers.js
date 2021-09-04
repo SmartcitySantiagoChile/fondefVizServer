@@ -103,6 +103,16 @@ $(document).ready(function () {
             datatableInstance = $(tableId).DataTable(opts);
         };
         _self.updateTable([], []);
+
+        /**
+         * Clear information in datatable.
+         */
+        this.clearDisplayData = function () {
+            _self.updateTable([], []);
+            $("#stopName").html("-");
+            $("#userStopCode").html("-");
+            $("#authStopCode").html("-");
+        };
     }
 
     function processData(dataSource, app) {
@@ -155,6 +165,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
         };
         var opts = {

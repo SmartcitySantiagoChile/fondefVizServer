@@ -506,9 +506,18 @@ $(document).ready(function () {
       }
       drawSegmentApp.drawRoute(route, matrix[periodId]);
     };
+
+    /**
+     * Clear information in bar chart and map.
+     */
+    this.clearDisplayData = function () {
+      mChart.clear();
+      $("#mapid").hide();
+    };
   }
 
   function processData(dataSource, app) {
+    $("#mapid").show();
     if (dataSource.status) {
       return;
     }
@@ -550,6 +559,8 @@ $(document).ready(function () {
     let afterCall = function (data, status) {
       if (status) {
         processData(data, app);
+      } else{
+        app.clearDisplayData();
       }
       app.hideLoadingAnimationCharts();
     };

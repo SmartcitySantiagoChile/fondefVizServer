@@ -228,6 +228,13 @@ $(document).ready(function () {
         this.resizeCharts = function () {
             chart.resize();
         };
+
+        /**
+         * Clear information in chart.
+         */
+        this.clearDisplayData = function () {
+            chart.clear();
+        };
     }
 
     // load filters
@@ -239,6 +246,8 @@ $(document).ready(function () {
         var afterCall = function (answer, status) {
             if (status) {
                 app.updateMetrics(answer.data);
+            } else {
+                app.clearDisplayData();
             }
 
         };
