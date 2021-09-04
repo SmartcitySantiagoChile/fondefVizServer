@@ -339,13 +339,12 @@ $(document).ready(function () {
                             color = colors[3];
                             break;
                     }
-                    if (arr[index - 1][0] !== "" && data[0] !== "") {
+                    if (arr[index - 1][0] !== "" && data[0] !== "" && data[0] !== "-") {
                         var piece = {
                             gte: (new Date(arr[index - 1][0])).getTime(),
                             lte: (new Date(data[0])).getTime(),
                             color: color
                         };
-
                         if (previousPiece === null) {
                             previousPiece = piece;
                         } else if (previousPiece.color === piece.color) {
@@ -441,7 +440,7 @@ $(document).ready(function () {
                             fontSize: 9,
                             color: "#000"
                         },
-                        position: "left"
+                        position: "start"
                     }
                 },
                 lineStyle: {
@@ -454,9 +453,6 @@ $(document).ready(function () {
             };
             //scatterSerie.data = null;
             series.push(scatterSerie);
-            //console.log(series);
-            //console.log(visualMaps);
-
             var options = {
                 animation: false,
                 series: series,
@@ -529,7 +525,6 @@ $(document).ready(function () {
                     }
                 }
             };
-
             _barChart.clear();
             _barChart.setOption(options, {
                 notMerge: true
@@ -555,10 +550,21 @@ $(document).ready(function () {
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
         };
+
+        /**
+         * Clear information in bar chart and datatables, disable radio selector.
+         */
+        this.clearDisplayData = function () {
+            _barChart.clear();
+            _datatable.clear().draw();
+            $("input[name='dataSelector']").attr("disabled", true);
+            $("#expeditionNumber").html("N");
+            $("#expeditionNumber2").html("N");
+        };
     }
 
     function processData(dataSource, app) {
-        console.log(dataSource);
+        $("input[name='dataSelector']").attr("disabled", false);
 
         if (dataSource.status) {
             return;
@@ -650,6 +656,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
             app.hideLoadingAnimationCharts();
         };

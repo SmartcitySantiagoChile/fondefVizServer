@@ -170,6 +170,11 @@ $(document).ready(function () {
             chart.resize();
         };
 
+        this.resetChart = function () {
+            chart.clear();
+            $("#vizSelector").prop('disabled', true);
+        };
+
         this.updateChart = function (vizType, histogram, indicators) {
             if (histogram !== undefined) {
                 histogramData = histogram;
@@ -220,28 +225,60 @@ $(document).ready(function () {
         };
 
         this.updateIndicators = function (data) {
-            var viajes = data.viajes.value || 0;
-            var documents = data.documentos.value || 0;
-            var tviaje_avg = data.tviaje.avg || 0;
-            var tviaje_max = data.tviaje.max || 0;
-            var netapas_avg = data.n_etapas.avg || 0;
-            var netapas_max = data.n_etapas.max || 0;
-            var dist_eucl_avg = data.distancia_eucl.avg / 1000.0 || 0;
-            var dist_eucl_max = data.distancia_eucl.max / 1000.0 || 0;
-            var dist_ruta_avg = data.distancia_ruta.avg / 1000.0 || 0;
-            var dist_ruta_max = data.distancia_ruta.max / 1000.0 || 0;
+            let viajes = data.viajes.value || 0;
+            let documents = data.documentos.value || 0;
+            let tviaje_avg = data.tviaje.avg || 0;
+            let tviaje_max = data.tviaje.max || 0;
+            let netapas_avg = data.n_etapas.avg || 0;
+            let netapas_max = data.n_etapas.max || 0;
+            let dist_eucl_avg = data.distancia_eucl.avg / 1000.0 || 0;
+            let dist_eucl_max = data.distancia_eucl.max / 1000.0 || 0;
+            let dist_ruta_avg = data.distancia_ruta.avg / 1000.0 || 0;
+            let dist_ruta_max = data.distancia_ruta.max / 1000.0 || 0;
 
-            // display
-            $("#indicator-viajes").text(parseFloat(viajes.toFixed(2)).toLocaleString());
-            $("#indicator-documentos").text(parseFloat(documents.toFixed(0)).toLocaleString());
-            $("#indicator-tviaje-avg").text(parseFloat(tviaje_avg.toFixed(0)).toLocaleString() + " min");
-            $("#indicator-tviaje-max").text(parseFloat(tviaje_max.toFixed(0)).toLocaleString() + " min");
-            $("#indicator-netapas-avg").text(parseFloat(netapas_avg.toFixed(2)).toLocaleString() + " etapas");
-            $("#indicator-netapas-max").text(parseFloat(netapas_max.toFixed(0)).toLocaleString());
-            $("#indicator-dist-eucl-avg").text(parseFloat(dist_eucl_avg.toFixed(1)).toLocaleString() + " km");
-            $("#indicator-dist-eucl-max").text(parseFloat(dist_eucl_max.toFixed(1)).toLocaleString() + " km");
-            $("#indicator-dist-ruta-avg").text(parseFloat(dist_ruta_avg.toFixed(1)).toLocaleString() + " km");
-            $("#indicator-dist-ruta-max").text(parseFloat(dist_ruta_max.toFixed(1)).toLocaleString() + " km");
+            let indicators = {
+                "indicator-viajes": parseFloat(viajes.toFixed(2)).toLocaleString(),
+                "indicator-documentos": parseFloat(documents.toFixed(0)).toLocaleString(),
+                "indicator-tviaje-avg": parseFloat(tviaje_avg.toFixed(0)).toLocaleString() + " min",
+                "indicator-tviaje-max": parseFloat(tviaje_max.toFixed(0)).toLocaleString() + " min",
+                "indicator-netapas-avg": parseFloat(netapas_avg.toFixed(2)).toLocaleString() + " etapas",
+                "#indicator-netapas-max": parseFloat(netapas_max.toFixed(0)).toLocaleString(),
+                "indicator-dist-eucl-avg": parseFloat(dist_eucl_avg.toFixed(1)).toLocaleString() + " km",
+                "indicator-dist-eucl-max": parseFloat(dist_eucl_max.toFixed(1)).toLocaleString() + " km",
+                "indicator-dist-ruta-avg": parseFloat(dist_ruta_avg.toFixed(1)).toLocaleString() + " km",
+                "indicator-dist-ruta-max": parseFloat(dist_ruta_max.toFixed(1)).toLocaleString() + " km"
+            }
+
+            this.updateIndicatorsDisplay(indicators);
+        };
+
+        this.updateIndicatorsDisplay = function (indicators) {
+            $("#indicator-viajes").text(indicators["indicator-viajes"]);
+            $("#indicator-documentos").text(indicators["indicator-documentos"]);
+            $("#indicator-tviaje-avg").text(indicators["indicator-tviaje-avg"]);
+            $("#indicator-tviaje-max").text(indicators["indicator-tviaje-max"]);
+            $("#indicator-netapas-avg").text(indicators["indicator-netapas-avg"]);
+            $("#indicator-netapas-max").text(indicators["indicator-netapas-max"]);
+            $("#indicator-dist-eucl-avg").text(indicators["indicator-dist-eucl-avg"]);
+            $("#indicator-dist-eucl-max").text(indicators["indicator-dist-eucl-max"]);
+            $("#indicator-dist-ruta-avg").text(indicators["indicator-dist-ruta-avg"]);
+            $("#indicator-dist-ruta-max").text(indicators["indicator-dist-ruta-max"]);
+        };
+
+        this.resetIndicatorsDisplay = function () {
+            let indicators = {
+                "indicator-viajes": "",
+                "indicator-documentos": "",
+                "indicator-tviaje-avg": "",
+                "indicator-tviaje-max": "",
+                "indicator-netapas-avg": "",
+                "#indicator-netapas-max": "",
+                "indicator-dist-eucl-avg": "",
+                "indicator-dist-eucl-max": "",
+                "indicator-dist-ruta-avg": "",
+                "indicator-dist-ruta-max": ""
+            }
+            this.updateIndicatorsDisplay(indicators);
         };
 
         this.getChartData = function (vizType) {
@@ -303,14 +340,20 @@ $(document).ready(function () {
         if (data.status) {
             return;
         }
+        $("#vizSelector").prop('disabled', false);
         var vizType = $("#vizSelector").val();
         app.updateChart(vizType, data.histogram.aggregations, data.indicators.aggregations);
+    }
+
+    function clearDisplayData(app) {
+        app.resetChart();
+        app.resetIndicatorsDisplay();
     }
 
 // load filters
     (function () {
         loadAvailableDays(Urls["esapi:availableTripDays"]());
-        loadRangeCalendar(Urls["esapi:availableTripDays"](),{});
+        loadRangeCalendar(Urls["esapi:availableTripDays"](), {});
 
 
         var app = new ResumeApp();
@@ -319,8 +362,10 @@ $(document).ready(function () {
             app.showLoadingAnimationCharts();
         };
         var afterCall = function (data, status) {
-           if (status) {
+            if (status) {
                 processData(data, app);
+            } else {
+                clearDisplayData(app);
             }
             app.hideLoadingAnimationCharts();
         };

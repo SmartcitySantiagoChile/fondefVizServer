@@ -343,6 +343,7 @@ $(document).ready(function () {
 
         this.resizeCharts = function () {
             _barChart.resize();
+            _datatable.clear().draw();
         };
 
         var _updateDatatable = function () {
@@ -627,6 +628,16 @@ $(document).ready(function () {
         this.hideLoadingAnimationCharts = function () {
             _barChart.hideLoading();
         };
+
+        /**
+         * Clear information in bar chart and datatable.
+         */
+        this.clearDisplayData = function () {
+            _barChart.clear();
+            _datatable.clear().draw();
+            $("#expeditionNumber").html("N");
+            $("#expeditionNumber2").html("N");
+        };
     }
 
     function processData(dataSource, app) {
@@ -682,6 +693,8 @@ $(document).ready(function () {
         var afterCall = function (data, status) {
             if (status) {
                 processData(data, app);
+            } else {
+                app.clearDisplayData();
             }
             app.hideLoadingAnimationCharts();
         };

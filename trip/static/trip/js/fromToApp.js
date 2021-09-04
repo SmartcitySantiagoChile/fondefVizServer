@@ -368,9 +368,6 @@ $(document).ready(function () {
   }
 
   function processData(data, app) {
-    if (data.status) {
-      return;
-    }
     app.setData(data);
     app.updateMap();
   }
@@ -383,7 +380,7 @@ $(document).ready(function () {
     let app = new FromToApp();
 
     let afterCall = function (data, status) {
-      if (status) {
+      if (status || data["status"]["code"] === 403) {
         processData(data, app);
       }
     };
