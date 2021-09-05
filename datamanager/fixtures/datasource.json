@@ -101,9 +101,9 @@
   },
   {
     "model": "datamanager.datasourcepath",
-    "pk": 11,
+    "pk": 12,
     "fields": {
-      "path": "/home/cephei/elasticdata/",
+      "path": "/es2/rawdata/stage/",
       "filePattern": "*.etapas",
       "indexName": "stage",
       "timeStamp": "2021-07-26T19:07:00.000Z"
