@@ -103,7 +103,7 @@
     "model": "datamanager.datasourcepath",
     "pk": 12,
     "fields": {
-      "path": "/es2/rawdata/stage/",
+      "path": "/var/lib/adatrap/data/stage/",
       "filePattern": "*.etapas",
       "indexName": "stage",
       "timeStamp": "2021-07-26T19:07:00.000Z"
