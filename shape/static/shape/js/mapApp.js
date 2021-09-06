@@ -21,10 +21,10 @@ $(document).ready(function () {
         let selectorStopId = 1;
         let routeLegendControl = null;
 
-        this.addLayers = (layerId, stopsSource, shapeSource) => {
-            stopsSource = {
+        this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
+            shapeStopsSource = {
                 type: "FeatureCollection",
-                features: stopsSource
+                features: shapeStopsSource
             };
             shapeSource = {
                 type: "FeatureCollection",
@@ -44,9 +44,9 @@ $(document).ready(function () {
                     'line-width': 2
                 }
             };
-            let stopsLayerTemplate = {
-                id: 'stops-layer',
-                source: 'stops-source',
+            let shapeStopsLayerTemplate = {
+                id: 'shape-stops-layer',
+                source: 'shape-stops-source',
                 type: 'circle',
                 paint: {
                     'circle-radius': ['interpolate', ['linear'], ['zoom'],
@@ -57,9 +57,133 @@ $(document).ready(function () {
                     'circle-color': ['get', 'color']
                 }
             };
-            let stopLabelLayerTemplate = {
-                id: 'stop-label-layer',
-                source: 'stops-source',
+            let shapeStopLabelLayerTemplate = {
+                id: 'shape-stop-label-layer',
+                source: 'shape-stops-source',
+                type: 'symbol',
+                layout: {
+                    'text-field': '{userStopCode}',
+                    'text-size': 10,
+                    'text-offset': [0, 1]
+                }
+            };
+            let shapeArrowLayerTemplate = {
+                'id': 'shape-arrow-layer',
+                'type': 'symbol',
+                'source': 'shape-source',
+                'layout': {
+                    'symbol-placement': 'line',
+                    'symbol-spacing': 100,
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true,
+                    'icon-image': 'double-arrow',
+                    'icon-size': 0.4,
+                    'visibility': 'visible'
+                },
+                paint: {
+                    'icon-color': ['get', 'color'],
+                    'icon-halo-color': '#fff',
+                    'icon-halo-width': 2,
+                }
+            };
+
+            _self.removeShapeLayers(layerId);
+
+            let shapeLayer = $.extend({}, shapeLayerTemplate);
+            let shapeArrowLayer = $.extend({}, shapeArrowLayerTemplate);
+            let shapeStopsLayer = $.extend({}, shapeStopsLayerTemplate);
+            let shapeStopLabelLayer = $.extend({}, shapeStopLabelLayerTemplate);
+
+            shapeLayer.id = `shape-${layerId}`;
+            shapeLayer.source = `shape-source-${layerId}`;
+            shapeArrowLayer.id = `shape-arrow-${layerId}`;
+            shapeArrowLayer.source = `shape-source-${layerId}`;
+
+            shapeStopsLayer.id = `shape-stops-${layerId}`;
+            shapeStopsLayer.source = `shape-stops-source-${layerId}`;
+            shapeStopLabelLayer.id = `shape-stop-label-${layerId}`;
+            shapeStopLabelLayer.source = `shape-stops-source-${layerId}`;
+
+            _mapApp.getMapInstance().addSource(`shape-source-${layerId}`, {type: 'geojson', data: shapeSource});
+            _mapApp.getMapInstance().addSource(`shape-stops-source-${layerId}`, {type: 'geojson', data: shapeStopsSource});
+
+            _mapApp.getMapInstance().addLayer(shapeLayer);
+            _mapApp.getMapInstance().addLayer(shapeArrowLayer);
+            _mapApp.getMapInstance().addLayer(shapeStopsLayer);
+            _mapApp.getMapInstance().addLayer(shapeStopLabelLayer);
+
+            let openStopPopup = function (feature) {
+                let popUpDescription = "<p>";
+                popUpDescription += " Servicio: <b>" + feature.properties.route + "</b><br />";
+                popUpDescription += " Nombre: <b>" + feature.properties.stopName + "</b><br />";
+                popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
+                popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
+                popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
+                popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
+                popUpDescription += "</p>";
+
+                new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
+            };
+
+            let mouseenter = () => {
+                _mapApp.getMapInstance().getCanvas().style.cursor = 'pointer';
+            };
+            let mouseleave = () => {
+                _mapApp.getMapInstance().getCanvas().style.cursor = '';
+            };
+            let click = e => {
+                let feature = e.features[0];
+                openStopPopup(feature);
+            };
+
+            _mapApp.getMapInstance().on('mouseenter', shapeStopsLayer.id, mouseenter);
+            _mapApp.getMapInstance().on('mouseleave', shapeStopsLayer.id, mouseleave);
+            _mapApp.getMapInstance().on('click', shapeStopsLayer.id, click);
+
+            _mapApp.getMapInstance().on('mouseenter', shapeStopLabelLayer.id, mouseenter);
+            _mapApp.getMapInstance().on('mouseleave', shapeStopLabelLayer.id, mouseleave);
+            _mapApp.getMapInstance().on('click', shapeStopLabelLayer.id, click);
+        };
+
+        /*this.addStopLayers = (layerID, stopsSource) => {
+            shapeStopsSource = {
+                type: "FeatureCollection",
+                features: shapeStopsSource
+            };
+            shapeSource = {
+                type: "FeatureCollection",
+                features: shapeSource
+            };
+
+            let shapeLayerTemplate = {
+                id: 'shape-layer',
+                source: 'shape-source',
+                type: 'line',
+                layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                paint: {
+                    'line-color': ['get', 'color'],
+                    'line-width': 2
+                }
+            };
+            let shapeStopsLayerTemplate = {
+                id: 'shape-stops-layer',
+                source: 'shape-stops-source',
+                type: 'circle',
+                paint: {
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'],
+                        12, 3,
+                        14, 6,
+                        20, 12,
+                    ],
+                    'circle-color': ['get', 'color']
+                }
+            };
+            let shapeStopLabelLayerTemplate = {
+                id: 'shape-stop-label-layer',
+                source: 'shape-stops-source',
                 type: 'symbol',
                 layout: {
                     'text-field': '{userStopCode}',
@@ -91,8 +215,8 @@ $(document).ready(function () {
 
             let shapeLayer = $.extend({}, shapeLayerTemplate);
             let shapeArrowLayer = $.extend({}, shapeArrowLayerTemplate);
-            let stopsLayer = $.extend({}, stopsLayerTemplate);
-            let stopLabelLayer = $.extend({}, stopLabelLayerTemplate);
+            let shapeStopsLayer = $.extend({}, shapeStopsLayerTemplate);
+            let shapeStopLabelLayer = $.extend({}, shapeStopLabelLayerTemplate);
 
             shapeLayer.id = `shape-${layerId}`;
             shapeLayer.source = `shape-source-${layerId}`;
@@ -144,17 +268,18 @@ $(document).ready(function () {
             _mapApp.getMapInstance().on('mouseleave', stopLabelLayer.id, mouseleave);
             _mapApp.getMapInstance().on('click', stopLabelLayer.id, click);
         };
+         */
 
-        this.removeLayers = (layerId) => {
+        this.removeShapeLayers = (layerId) => {
             // remove data
             if (_mapApp.getMapInstance().getLayer(`shape-${layerId}`)) {
                 _mapApp.getMapInstance().removeLayer(`shape-${layerId}`);
-                _mapApp.getMapInstance().removeLayer(`stops-${layerId}`);
-                _mapApp.getMapInstance().removeLayer(`stop-label-${layerId}`);
+                _mapApp.getMapInstance().removeLayer(`shape-stops-${layerId}`);
+                _mapApp.getMapInstance().removeLayer(`shape-stop-label-${layerId}`);
                 _mapApp.getMapInstance().removeLayer(`shape-arrow-${layerId}`);
 
                 _mapApp.getMapInstance().removeSource(`shape-source-${layerId}`);
-                _mapApp.getMapInstance().removeSource(`stops-source-${layerId}`);
+                _mapApp.getMapInstance().removeSource(`shape-stops-source-${layerId}`);
             }
         };
 
@@ -164,14 +289,14 @@ $(document).ready(function () {
             _mapApp.getMapInstance().setLayoutProperty(`shape-arrow-${layerId}`, 'visibility', visible);
         };
 
-        this.setStopLayerVisibility = (layerId, show) => {
+        this.setShapeStopLayerVisibility = (layerId, show) => {
             let visible = show ? 'visible' : 'none';
-            _mapApp.getMapInstance().setLayoutProperty(`stops-${layerId}`, 'visibility', visible);
+            _mapApp.getMapInstance().setLayoutProperty(`shape-stops-${layerId}`, 'visibility', visible);
         };
 
-        this.setStopLabelLayerVisibility = (layerId, show) => {
+        this.setShapeStopLabelLayerVisibility = (layerId, show) => {
             let visible = show ? 'visible' : 'none';
-            _mapApp.getMapInstance().setLayoutProperty(`stop-label-${layerId}`, 'visibility', visible);
+            _mapApp.getMapInstance().setLayoutProperty(`shape-stop-label-${layerId}`, 'visibility', visible);
         };
 
         this.addHelpControl = (mapInstance) => {
@@ -461,7 +586,6 @@ $(document).ready(function () {
                 let currentDate = data.dates[0]
                 _self.dates_period_dict = data.dates_periods_dict;
                 _self.op_routes_dict = data.op_routes_dict;
-                console.log(_self.op_routes_dict);
                 _self.periods = data.periods;
                 let userRouteList = (Object.keys(data.op_routes_dict[currentDate]).sort(sortAlphaNum));
                 userRouteList = userRouteList.map(e => ({id: e, text: e}));
@@ -671,7 +795,7 @@ $(document).ready(function () {
                     let routes = [];
                     try {
                         routes = stop.routes.join(', ');
-                    } catch (error){
+                    } catch (error) {
                         routes = undefined
                     }
                     stopsSource.push({
@@ -706,7 +830,7 @@ $(document).ready(function () {
                     }
                 });
 
-                _self.addLayers(selectorId, stopsSource, shapeSource);
+                _self.addShapeLayers(selectorId, stopsSource, shapeSource);
 
                 // update color
                 let getRandomColor = function () {
@@ -863,7 +987,7 @@ $(document).ready(function () {
                 });
             });
 
-            stopSelector.change(function(){
+            stopSelector.change(function () {
                 const stopDate = selector.find(".stopDate").first().val();
                 const stopName = selector.find(".stopName").first().val();
                 let params = {
@@ -902,7 +1026,7 @@ $(document).ready(function () {
                 let removeButtonRef = $(this);
                 let layerId = removeButtonRef.parent().parent().data("id");
                 // update last selected
-                _self.removeLayers(layerId);
+                _self.removeShapeLayers(layerId);
                 removeButtonRef.parent().parent().remove();
                 routeLegendControl.update();
             });
@@ -922,7 +1046,7 @@ $(document).ready(function () {
         };
 
         const updateLayerColor = (color, layerId) => {
-            let stopsSource = _mapApp.getMapInstance().getSource(`stops-source-${layerId}`)._data;
+            let stopsSource = _mapApp.getMapInstance().getSource(`shape-stops-source-${layerId}`)._data;
             stopsSource.features = stopsSource.features.map(feature => {
                 feature.properties.color = color;
                 return feature;
@@ -932,7 +1056,7 @@ $(document).ready(function () {
                 feature.properties.color = color;
                 return feature;
             });
-            _mapApp.getMapInstance().getSource(`stops-source-${layerId}`).setData(stopsSource);
+            _mapApp.getMapInstance().getSource(`shape-stops-source-${layerId}`).setData(stopsSource);
             _mapApp.getMapInstance().getSource(`shape-source-${layerId}`).setData(shapeSource);
             // update route legend
             routeLegendControl.update();
