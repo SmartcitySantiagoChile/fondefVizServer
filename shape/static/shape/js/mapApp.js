@@ -1038,7 +1038,10 @@ $(document).ready(function () {
             removeStopButton.click(function () {
                 const removeButtonRef = $(this);
                 const layerId = removeButtonRef.parent().parent().data("id");
+                // update last selected
+                _self.removeStopLayers(layerId);
                 removeButtonRef.parent().parent().remove();
+                //routeLegendControl.update();
             });
         };
 
