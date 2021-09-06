@@ -2,7 +2,7 @@ $(document).ready(function () {
     "use strict";
 
     function DataManagerApp() {
-        var indexNames = ["Profile", "Speed", "Bip", "Odbyroute", "Trip", "Paymentfactor", "General"];
+        var indexNames = ["Profile", "Speed", "Bip", "Odbyroute", "Trip", "Paymentfactor", "General", "stage"];
         var lowerIndexNames = indexNames.map(e => e.toLowerCase());
 
         var _datatableOpts = {
