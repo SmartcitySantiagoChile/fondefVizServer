@@ -187,7 +187,7 @@ $(document).ready(function () {
                     'text-offset': [0, 1]
                 }
             };
-
+            console.log(layerId);
             _self.removeStopLayers(layerId);
 
 
@@ -251,7 +251,6 @@ $(document).ready(function () {
             if (_mapApp.getMapInstance().getLayer(`stops-${layerId}`)) {
                 _mapApp.getMapInstance().removeLayer(`stops-${layerId}`);
                 _mapApp.getMapInstance().removeLayer(`stop-label-${layerId}`);
-                _mapApp.getMapInstance().removeLayer(`shape-arrow-${layerId}`);
                 _mapApp.getMapInstance().removeSource(`stops-source-${layerId}`);
             }
         };
@@ -841,7 +840,7 @@ $(document).ready(function () {
          */
         this.sendStopData = function (e) {
             const selector = $(e).closest(".stopSelectorRow");
-            const selectorId = selector.data("id");
+            const selectorId = selector.data("id").split("-")[1];
             const stopDate = selector.find(".stopDate").first().val();
             const stopName = selector.find(".stopName").first().val();
             const params = {
@@ -880,6 +879,11 @@ $(document).ready(function () {
                     const color = getRandomColor();
                     colorButton.colorpicker('setValue', color);
                     updateStopLayerColor(color, selectorId);
+
+                    const stopNumberInMap = $('#stopListContainer tr').length;
+                    if (stopNumberInMap === 1) {
+                        _mapApp.fitBound([`stops-source-${selectorId}`]);
+                    }
                 }
             });
         };
@@ -1083,6 +1087,11 @@ $(document).ready(function () {
             routeLegendControl.update();
         };
 
+        /**
+         * Change the stop layer's color based on id.
+         * @param color: new color to change
+         * @param layerId: stop layer id
+         */
         const updateStopLayerColor = (color, layerId) => {
             let stopsSource = _mapApp.getMapInstance().getSource(`stops-source-${layerId}`)._data;
             stopsSource.features = stopsSource.features.map(feature => {
@@ -1106,16 +1115,16 @@ $(document).ready(function () {
         };
 
         /**
-         *
+         * Update stop color picker on change color.
          */
         this.refreshColorPickerStopButton = function () {
             const stopColorButton = $(".stopSelectorRow .btn-default");
             stopColorButton.off("changeColor");
             stopColorButton.colorpicker({format: "rgb"}).on("changeColor", function (e) {
                 const color = e.color.toString("rgba");
-                const layerId = $(this).parent().parent().data("stopId");
+                const layerId = $(this).parent().parent().data("id").split("-")[1];
                 $(this).css("color", color);
-                updateLayerColor(color, layerId);
+                updateStopLayerColor(color, layerId);
             });
         };
 
@@ -1140,7 +1149,27 @@ $(document).ready(function () {
                 updateLayerRoute(isVisible, layerId, button, span);
             });
         };
+        this.setStopLayerVisibility = (layerId, show) => {
+            let visible = show ? 'visible' : 'none';
+            _mapApp.getMapInstance().setLayoutProperty(`shape-stops-${layerId}`, 'visibility', visible);
+        };
 
+        this.setStopLabelLayerVisibility = (layerId, show) => {
+            let visible = show ? 'visible' : 'none';
+            _mapApp.getMapInstance().setLayoutProperty(`shape-stop-label-${layerId}`, 'visibility', visible);
+        };
+
+        const updateStopRoutes = (active, layerId, button, span) => {
+            if (active) {
+                button.removeClass("btn-success").addClass("btn-warning");
+                span.removeClass("fa-bus").addClass("fa-bus");
+                _self.setStopLayerVisibility(layerId, false);
+            } else {
+                button.removeClass("btn-warning").addClass("btn-success");
+                span.removeClass("fa-bus").addClass("fa-bus");
+                _self.setStopLayerVisibility(layerId, true);
+            }
+        };
 
         this.refreshVisibilityStopsButton = function () {
             let $VISIBILITY_BUTTON = $(".selectorRow .visibility-stops");
