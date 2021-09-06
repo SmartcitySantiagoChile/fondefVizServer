@@ -15,6 +15,15 @@ $(document).ready(function () {
         }
     };
 
+    const getRandomColor =  () => {
+        const letters = "0123456789ABCDEF";
+        let color = "#";
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    };
+
     function MapShapeApp() {
         let _self = this;
         let selectorId = 1;
@@ -145,32 +154,15 @@ $(document).ready(function () {
             _mapApp.getMapInstance().on('click', shapeStopLabelLayer.id, click);
         };
 
-        /*this.addStopLayers = (layerID, stopsSource) => {
-            shapeStopsSource = {
+        this.addStopLayers = (layerId, stopsSource) => {
+            stopsSource = {
                 type: "FeatureCollection",
-                features: shapeStopsSource
-            };
-            shapeSource = {
-                type: "FeatureCollection",
-                features: shapeSource
+                features: stopsSource
             };
 
-            let shapeLayerTemplate = {
-                id: 'shape-layer',
-                source: 'shape-source',
-                type: 'line',
-                layout: {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                paint: {
-                    'line-color': ['get', 'color'],
-                    'line-width': 2
-                }
-            };
-            let shapeStopsLayerTemplate = {
-                id: 'shape-stops-layer',
-                source: 'shape-stops-source',
+            let stopsLayerTemplate = {
+                id: 'stops-layer',
+                source: 'stops-source',
                 type: 'circle',
                 paint: {
                     'circle-radius': ['interpolate', ['linear'], ['zoom'],
@@ -181,9 +173,9 @@ $(document).ready(function () {
                     'circle-color': ['get', 'color']
                 }
             };
-            let shapeStopLabelLayerTemplate = {
-                id: 'shape-stop-label-layer',
-                source: 'shape-stops-source',
+            let stopLabelLayerTemplate = {
+                id: 'stop-label-layer',
+                source: 'stops-source',
                 type: 'symbol',
                 layout: {
                     'text-field': '{userStopCode}',
@@ -191,59 +183,27 @@ $(document).ready(function () {
                     'text-offset': [0, 1]
                 }
             };
-            let shapeArrowLayerTemplate = {
-                'id': 'shape-arrow-layer',
-                'type': 'symbol',
-                'source': 'shape-source',
-                'layout': {
-                    'symbol-placement': 'line',
-                    'symbol-spacing': 100,
-                    'icon-allow-overlap': true,
-                    'icon-ignore-placement': true,
-                    'icon-image': 'double-arrow',
-                    'icon-size': 0.4,
-                    'visibility': 'visible'
-                },
-                paint: {
-                    'icon-color': ['get', 'color'],
-                    'icon-halo-color': '#fff',
-                    'icon-halo-width': 2,
-                }
-            };
 
-            _self.removeLayers(layerId);
+            _self.removeStopLayers(layerId);
 
-            let shapeLayer = $.extend({}, shapeLayerTemplate);
-            let shapeArrowLayer = $.extend({}, shapeArrowLayerTemplate);
-            let shapeStopsLayer = $.extend({}, shapeStopsLayerTemplate);
-            let shapeStopLabelLayer = $.extend({}, shapeStopLabelLayerTemplate);
 
-            shapeLayer.id = `shape-${layerId}`;
-            shapeLayer.source = `shape-source-${layerId}`;
-            shapeArrowLayer.id = `shape-arrow-${layerId}`;
-            shapeArrowLayer.source = `shape-source-${layerId}`;
+            let stopsLayer = $.extend({}, stopsLayerTemplate);
+            let stopLabelLayer = $.extend({}, stopLabelLayerTemplate);
 
             stopsLayer.id = `stops-${layerId}`;
             stopsLayer.source = `stops-source-${layerId}`;
             stopLabelLayer.id = `stop-label-${layerId}`;
             stopLabelLayer.source = `stops-source-${layerId}`;
 
-            _mapApp.getMapInstance().addSource(`shape-source-${layerId}`, {type: 'geojson', data: shapeSource});
             _mapApp.getMapInstance().addSource(`stops-source-${layerId}`, {type: 'geojson', data: stopsSource});
-
-            _mapApp.getMapInstance().addLayer(shapeLayer);
-            _mapApp.getMapInstance().addLayer(shapeArrowLayer);
             _mapApp.getMapInstance().addLayer(stopsLayer);
             _mapApp.getMapInstance().addLayer(stopLabelLayer);
 
             let openStopPopup = function (feature) {
                 let popUpDescription = "<p>";
-                popUpDescription += " Servicio: <b>" + feature.properties.route + "</b><br />";
                 popUpDescription += " Nombre: <b>" + feature.properties.stopName + "</b><br />";
                 popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
                 popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
-                popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
-                popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
                 popUpDescription += "</p>";
 
                 new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
@@ -268,7 +228,6 @@ $(document).ready(function () {
             _mapApp.getMapInstance().on('mouseleave', stopLabelLayer.id, mouseleave);
             _mapApp.getMapInstance().on('click', stopLabelLayer.id, click);
         };
-         */
 
         this.removeShapeLayers = (layerId) => {
             // remove data
@@ -280,6 +239,16 @@ $(document).ready(function () {
 
                 _mapApp.getMapInstance().removeSource(`shape-source-${layerId}`);
                 _mapApp.getMapInstance().removeSource(`shape-stops-source-${layerId}`);
+            }
+        };
+
+        this.removeStopLayers = (layerId) => {
+            // remove data
+            if (_mapApp.getMapInstance().getLayer(`stops-${layerId}`)) {
+                _mapApp.getMapInstance().removeLayer(`stops-${layerId}`);
+                _mapApp.getMapInstance().removeLayer(`stop-label-${layerId}`);
+                _mapApp.getMapInstance().removeLayer(`shape-arrow-${layerId}`);
+                _mapApp.getMapInstance().removeSource(`stops-source-${layerId}`);
             }
         };
 
@@ -771,7 +740,8 @@ $(document).ready(function () {
         };
         let _mapApp = new MapApp(mapOpts);
 
-        this.sendData = function (e) {
+
+        this.sendShapeData = function (e) {
             let selector = $(e).closest(".selectorRow");
             let selectorId = selector.data("id");
             let route = $(`#routeSelect-${selectorId}`).val();
@@ -832,15 +802,6 @@ $(document).ready(function () {
 
                 _self.addShapeLayers(selectorId, stopsSource, shapeSource);
 
-                // update color
-                let getRandomColor = function () {
-                    let letters = "0123456789ABCDEF";
-                    let color = "#";
-                    for (let i = 0; i < 6; i++) {
-                        color += letters[Math.floor(Math.random() * 16)];
-                    }
-                    return color;
-                };
                 let $COLOR_BUTTON = $(`#colorSelect-${selectorId}`);
                 let color = getRandomColor();
                 $COLOR_BUTTON.colorpicker('setValue', color);
@@ -849,6 +810,55 @@ $(document).ready(function () {
                 let routeNumberInMap = $('#routeListContainer tr').length;
                 if (routeNumberInMap === 1) {
                     _mapApp.fitBound([`shape-source-${selectorId}`]);
+                }
+            });
+        };
+
+        /**
+         * Get stops data and update map with the data.
+         * @param e: stop selector
+         */
+        this.sendStopData = function (e) {
+            const selector = $(e).closest(".stopSelectorRow");
+            const selectorId = selector.data("id");
+            const stopDate = selector.find(".stopDate").first().val();
+            const stopName = selector.find(".stopName").first().val();
+            const params = {
+                stop: stopName,
+                date: stopDate
+            };
+            $.getJSON(Urls['esapi:stopInfo'](), params, function (data) {
+                if (data.status) {
+                    showMessage(data.status);
+                } else {
+
+                    // update map data
+                    let stopsSource = [];
+
+                    data.info.forEach((stop) => {
+                        stopsSource.push({
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [stop.longitude, stop.latitude]
+                            },
+                            properties: {
+                                color: 'black',
+                                authStopCode: stop.authCode,
+                                userStopCode: stop.userCode,
+                                stopName: stop.name,
+                                layerId: selectorId
+                            }
+                        });
+                    });
+
+                    _self.addStopLayers(selectorId, stopsSource);
+
+                    // update color
+                    const colorButton = $(`#stopColorSelect-${selectorId}`);
+                    const color = getRandomColor();
+                    colorButton.colorpicker('setValue', color);
+                    updateStopLayerColor(color, selectorId);
                 }
             });
         };
@@ -886,13 +896,13 @@ $(document).ready(function () {
                     route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
                     $(this).data("first", false);
                 }
-                _self.sendData(this);
+                _self.sendShapeData(this);
             });
 
             // handle route selector
             let $ROUTE = $(`#routeSelect-${id}`);
             $ROUTE.change(function () {
-                _self.sendData(this);
+                _self.sendShapeData(this);
             });
 
             // handle date selector
@@ -988,20 +998,7 @@ $(document).ready(function () {
             });
 
             stopSelector.change(function () {
-                const stopDate = selector.find(".stopDate").first().val();
-                const stopName = selector.find(".stopName").first().val();
-                let params = {
-                    stop: stopName,
-                    date: stopDate
-                };
-                $.getJSON(Urls['esapi:stopInfo'](), params, function (data) {
-                    if (data.status) {
-                        showMessage(data.status);
-                    } else {
-                        console.log(data.info);
-                    }
-                });
-
+                _self.sendStopData(this);
             });
 
             // handle clone selector
@@ -1060,6 +1057,18 @@ $(document).ready(function () {
             _mapApp.getMapInstance().getSource(`shape-source-${layerId}`).setData(shapeSource);
             // update route legend
             routeLegendControl.update();
+        };
+
+        const updateStopLayerColor = (color, layerId) => {
+            let stopsSource = _mapApp.getMapInstance().getSource(`stops-source-${layerId}`)._data;
+            stopsSource.features = stopsSource.features.map(feature => {
+                feature.properties.color = color;
+                return feature;
+            });
+            let shapeSource
+            _mapApp.getMapInstance().getSource(`stops-source-${layerId}`).setData(stopsSource);
+            // update route legend
+            //routeLegendControl.update();
         };
 
         this.refreshColorPickerButton = function () {
