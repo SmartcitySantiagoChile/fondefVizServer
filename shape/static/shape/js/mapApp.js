@@ -15,7 +15,7 @@ $(document).ready(function () {
         }
     };
 
-    const getRandomColor =  () => {
+    const getRandomColor = () => {
         const letters = "0123456789ABCDEF";
         let color = "#";
         for (let i = 0; i < 6; i++) {
@@ -29,6 +29,7 @@ $(document).ready(function () {
         let selectorId = 1;
         let selectorStopId = 1;
         let routeLegendControl = null;
+        let stopLegendControl = null;
 
         this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
             shapeStopsSource = {
@@ -114,7 +115,10 @@ $(document).ready(function () {
             shapeStopLabelLayer.source = `shape-stops-source-${layerId}`;
 
             _mapApp.getMapInstance().addSource(`shape-source-${layerId}`, {type: 'geojson', data: shapeSource});
-            _mapApp.getMapInstance().addSource(`shape-stops-source-${layerId}`, {type: 'geojson', data: shapeStopsSource});
+            _mapApp.getMapInstance().addSource(`shape-stops-source-${layerId}`, {
+                type: 'geojson',
+                data: shapeStopsSource
+            });
 
             _mapApp.getMapInstance().addLayer(shapeLayer);
             _mapApp.getMapInstance().addLayer(shapeArrowLayer);
@@ -497,6 +501,11 @@ $(document).ready(function () {
             return routeLegendControl;
         };
 
+        /**
+         * Add a stop legend to map instance.
+         * @param mapInstance
+         * @returns {StopLegendControl}
+         */
         this.addStopLegendControl = (mapInstance) => {
             class StopLegendControl {
                 onAdd(map) {
@@ -504,19 +513,27 @@ $(document).ready(function () {
                     this._div.className = 'mapboxgl-ctrl info legend';
                     this._div.id = 'stopLegendControl';
                     this._div.style.display = "none";
-                    this._div.width = 230;
+                    this._div.width = 250;
                     this._div.innerHTML = `
             <table>
               <thead>
                 <th>Color</th>
                 <th>P. operación</th>
-                <th>Servicio</th>
-                <th>Servicio TS</th>
+                <th>Parada</th>
               </thead>
               <tbody id='stopLegendTable'>
               </tbody>
             </table>`;
                     return this._div;
+                }
+
+                setRouteColorCanvas(canvasId, color) {
+                    let canvas = document.getElementById(canvasId);
+                    canvas.width = 40;
+                    canvas.height = 10;
+                    let ctx = canvas.getContext("2d");
+                    ctx.fillStyle = color;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
 
                 update() {
@@ -526,16 +543,19 @@ $(document).ready(function () {
                     if (rows.length > 0) {
                         // remove previous rows
                         $("#stopLegendTable").empty();
-
                         rows.each((index, el) => {
-                            let id = $(el).data('id');
-                            let opDate = $(`#dateSelect-${id}`).val();
-                            let userRoute = $(`#stopRouteSelect-${id}`).val();
-                            let legendRow = `<tr>
-                                            <td>${opDate}</td>
-                                            <td>${userRoute}</td>
-                                          </tr>`;
+                            const id = $(el).data('id').split('-')[1];
+                            const canvasId = `stop-canvas-${id}`;
+                            const stopDate = $(`#stopDateSelect-${id}`).val();
+                            const userStopCode = $(`#stopNameSelect-${id}`).val() || "Todos";
+                            const color = $(`#stopColorSelect-${id}`).colorpicker('getValue');
+                            const legendRow = `<tr>
+                                <td><canvas id="${canvasId}"></canvas></td>
+                                <td>${stopDate}</td>
+                                <td>${userStopCode}</td>
+                              </tr>`;
                             $('#stopLegendTable').append(legendRow);
+                            this.setRouteColorCanvas(canvasId, color);
                         });
 
                         this._div.style.display = "inline";
@@ -723,6 +743,7 @@ $(document).ready(function () {
                     _self.addListControl(_mapInstance);
                     _self.addBearingControl(_mapInstance);
                     routeLegendControl = _self.addRouteLegendControl(_mapInstance);
+                    stopLegendControl = _self.addStopLegendControl(_mapInstance);
                     _self.addScreenshotControl(_mapInstance);
 
                     _self.loadBaseData();
@@ -1041,7 +1062,7 @@ $(document).ready(function () {
                 // update last selected
                 _self.removeStopLayers(layerId);
                 removeButtonRef.parent().parent().remove();
-                //routeLegendControl.update();
+                stopLegendControl.update();
             });
         };
 
@@ -1058,7 +1079,7 @@ $(document).ready(function () {
             });
             _mapApp.getMapInstance().getSource(`shape-stops-source-${layerId}`).setData(stopsSource);
             _mapApp.getMapInstance().getSource(`shape-source-${layerId}`).setData(shapeSource);
-            // update route legend
+            // update stop legend
             routeLegendControl.update();
         };
 
@@ -1068,10 +1089,9 @@ $(document).ready(function () {
                 feature.properties.color = color;
                 return feature;
             });
-            let shapeSource
             _mapApp.getMapInstance().getSource(`stops-source-${layerId}`).setData(stopsSource);
-            // update route legend
-            //routeLegendControl.update();
+            // update stop legend
+            stopLegendControl.update();
         };
 
         this.refreshColorPickerButton = function () {
@@ -1121,17 +1141,6 @@ $(document).ready(function () {
             });
         };
 
-        const updateStopRoutes = (active, layerId, button, span) => {
-            if (active) {
-                button.removeClass("btn-success").addClass("btn-warning");
-                span.removeClass("fa-bus").addClass("fa-bus");
-                _self.setStopLayerVisibility(layerId, false);
-            } else {
-                button.removeClass("btn-warning").addClass("btn-success");
-                span.removeClass("fa-bus").addClass("fa-bus");
-                _self.setStopLayerVisibility(layerId, true);
-            }
-        };
 
         this.refreshVisibilityStopsButton = function () {
             let $VISIBILITY_BUTTON = $(".selectorRow .visibility-stops");
