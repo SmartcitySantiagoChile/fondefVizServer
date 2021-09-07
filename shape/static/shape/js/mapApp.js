@@ -187,7 +187,6 @@ $(document).ready(function () {
                     'text-offset': [0, 1]
                 }
             };
-            console.log(layerId);
             _self.removeStopLayers(layerId);
 
 
@@ -446,7 +445,6 @@ $(document).ready(function () {
                 <th>Color</th>
                 <th>P. operación</th>
                 <th>Servicio</th>
-                <th>Servicio TS</th>
               </thead>
               <tbody id='routeLegendTable'>
               </tbody>
@@ -512,13 +510,15 @@ $(document).ready(function () {
                     this._div.className = 'mapboxgl-ctrl info legend';
                     this._div.id = 'stopLegendControl';
                     this._div.style.display = "none";
-                    this._div.width = 250;
+                    this._div.width = 230;
                     this._div.innerHTML = `
             <table>
               <thead>
                 <th>Color</th>
-                <th>P. operación</th>
-                <th>Parada</th>
+                <th> P. operación</th>
+                <th> C. de Usuario</th>
+                <th> Código TS</th>
+                <th> Nombre de Parada</th>
               </thead>
               <tbody id='stopLegendTable'>
               </tbody>
@@ -544,14 +544,20 @@ $(document).ready(function () {
                         $("#stopLegendTable").empty();
                         rows.each((index, el) => {
                             const id = $(el).data('id').split('-')[1];
+                            const data = _mapApp.getMapInstance().getSource(`stops-source-${id}`)._data.features;
+                            const isSingleStop = data.length === 1;
                             const canvasId = `stop-canvas-${id}`;
                             const stopDate = $(`#stopDateSelect-${id}`).val();
-                            const userStopCode = $(`#stopNameSelect-${id}`).val() || "Todos";
+                            const userStopCode = isSingleStop ? data[0].properties.userStopCode : "Todas las paradas";
+                            const stopName = isSingleStop ? data[0].properties.stopName : "";
+                            const authStopCode = isSingleStop ? data[0].properties.authStopCode : "";
                             const color = $(`#stopColorSelect-${id}`).colorpicker('getValue');
                             const legendRow = `<tr>
                                 <td><canvas id="${canvasId}"></canvas></td>
                                 <td>${stopDate}</td>
                                 <td>${userStopCode}</td>
+                                <td>${authStopCode}</td>
+                                <td>${stopName}</td>
                               </tr>`;
                             $('#stopLegendTable').append(legendRow);
                             this.setRouteColorCanvas(canvasId, color);
