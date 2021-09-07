@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^tripsBetweenZones/$', login_required(TripsBetweenZonesHTML.as_view()), name='tripsBetweenZones'),
     url(r'^boardingAndAlightingByZone/$', login_required(BoardingAndAlightingByZoneHTML.as_view()),
         name='boardingAndAlightingByZone'),
+    url(r'^transactionsByOperator/$', login_required(TransfersHTML.as_view()), name='transactionsByOperator'),
 
 ]
