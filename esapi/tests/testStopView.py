@@ -3,7 +3,7 @@ from unittest import mock
 
 from django.urls import reverse
 
-from esapi.errors import ESQueryStopPatternTooShort, ESQueryResultEmpty
+from esapi.errors import ESQueryStopPatternTooShort, ESQueryResultEmpty, ESQueryDateRangeParametersDoesNotExist
 from testhelper.helper import TestHelper
 
 
@@ -60,7 +60,7 @@ class StopInfoTest(TestHelper):
         }
         get_stop_info.return_value = stop_dict
         expected = {
-            "info": stop_dict
+            "info": [stop_dict]
         }
         response = self.client.get(self.url, self.data)
         self.assertJSONEqual(response.content, expected)
@@ -73,4 +73,4 @@ class StopInfoTest(TestHelper):
         }
         response = self.client.get(self.url, data)
         status = json.dumps(json.loads(response.content)['status'])
-        self.assertJSONEqual(status, ESQueryResultEmpty().get_status_response())
+        self.assertJSONEqual(status, ESQueryDateRangeParametersDoesNotExist().get_status_response())
