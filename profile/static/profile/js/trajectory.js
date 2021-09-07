@@ -440,7 +440,7 @@ $(document).ready(function () {
                             fontSize: 9,
                             color: "#000"
                         },
-                        position: "left"
+                        position: "start"
                     }
                 },
                 lineStyle: {
