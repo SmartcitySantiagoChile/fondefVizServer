@@ -8,7 +8,7 @@ from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
 from esapi.helper.stage import ESStageHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-from esapi.utils import get_dates_from_request
+from esapi.utils import get_dates_from_request, check_operation_program
 from localinfo.helper import PermissionBuilder, get_calendar_info
 
 
@@ -56,6 +56,33 @@ class PostProductTransfersData(View):
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 pass
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
+
+
+method_decorator([csrf_exempt], name='dispatch')
+class PostProductTransactionsByOperatorData(View):
+    permission_required = 'localinfo.postproducts'
+
+    def process_request(self, request, params, export_data=False):
+        dates = get_dates_from_request(request, export_data)
+        day_types = params.getlist('dayType[]', [])
+        aggregate_data = params.get('exportButton2', False)
+
+        response = {}
+
+        es_stage_helper = ESStageHelper()
+        try:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
+                raise ESQueryDateParametersDoesNotExist
+
+            check_operation_program(dates[0][0], dates[-1][-1])
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 
