@@ -15,7 +15,7 @@
     {% include "datamanager/availableDays.html" with info_target_id="dayHelp" %}
     {% include "admin/date_range_modal.html" with modal_id="dateRangeModal" show_save_button="True" %}
 
-    {% postproducts_data_filter data_filter True True False info_target_id="filterHelp" export_button_1_label='Descargar datos agrupados por periodo' export_button_2_label='Descargar datos agrupados por día'%}
+    {% postproducts_data_filter data_filter True True False show_export_button_2=False info_target_id="filterHelp" export_button_1_label='Descargar datos '%}
 
     {% include "help/modal/explanation/profile/by_route/filter.html" with modal_id="filterHelp" %}
     {{ block.super }}

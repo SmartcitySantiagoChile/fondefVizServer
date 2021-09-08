@@ -14,7 +14,7 @@ $(document).ready(function() {
     };
 
     let opts = {
-      urlFilterData: Urls["esapi:stageTransfers"](),
+      urlFilterData: Urls["esapi:stageTransactionsByOperator"](),
       previousCallData: previousCall,
       afterCallData: afterCall
     };
