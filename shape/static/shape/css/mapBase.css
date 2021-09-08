@@ -77,7 +77,7 @@
     width: 80%;
 }
 
-#addRouteButton {
+#addRouteButton, #addStopButton {
     float: right;
 }
 
@@ -130,5 +130,13 @@
 }
 
 #routeLegendControl table thead tr th, #routeLegendControl table tbody tr td {
+    padding: 0px 2px;
+}
+
+#stopLegendControl {
+    opacity: 1;
+}
+
+#stopLegendControl table thead tr th, #stopLegendControl table tbody tr td {
     padding: 0px 2px;
 }
