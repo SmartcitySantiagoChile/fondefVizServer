@@ -85,3 +85,28 @@ class ESStageHelper(ElasticSearchHelper):
             metric('expandedBoarding', 'avg', field='expandedBoarding')
 
         return es_query
+
+    def get_post_products_aggregated_transfers_data_by_operator_query(self, dates, day_types):
+        """
+        Get all transfer grouped by day type, period, half hour, auth stop
+         code, operator, bus station, transactions number and distribution percentage
+        Args:
+            dates: date range to get information
+            day_types: day type filter
+
+        Returns: transfers query
+
+        """
+        es_query = self.get_transfers_base_query(dates, day_types, communes=None)
+
+        bucket_name = 'result'
+        es_query.aggs.bucket(bucket_name, 'date_histogram', field='boardingTime', interval='day'). \
+            bucket('dayType', 'terms', field='dayType', size=4). \
+            bucket('timePeriodInBoardingTime', 'terms', field='timePeriodInBoardingTime', size=100). \
+            bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \
+            bucket('authStopCode', 'terms', field='authStopCode', size=13000). \
+            bucket('operator', 'terms', field='operator', size=20). \
+            bucket('busSation', 'terms', field='busSation', size=2). \
+            metric('expandedBoarding', 'sum', field='expandedBoarding')
+
+        return es_query
