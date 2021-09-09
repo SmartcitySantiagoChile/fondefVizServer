@@ -37,6 +37,7 @@ POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA = 'post_products_stage_transfers_a
 POST_PRODUCTS_TRIP_TRIP_BETWEEN_ZONES_DATA = 'post_products_trip_trip_between_zones_data'
 POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_DATA = 'post_products_trip_boarding_and_alighting_data'
 POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_WITHOUT_SERVICE_DATA = 'post_products_trip_boarding_and_alighting_without_service_data '
+POST_PRODUCTS_STAGE_TRANSACTIONS_BY_OPERATOR_DATA = 'post_products_stage_transactions_by_operator_data'
 
 
 class WrongFormatterError(Exception):
@@ -81,6 +82,7 @@ class CSVHelper:
         self.timeout = 30
 
         self.operator_dict = get_operator_list_for_select_input(to_dict=True)
+        print(self.operator_dict)
         self.day_type_dict = get_day_type_list_for_select_input(to_dict=True)
         self.timeperiod_dict = get_timeperiod_list_for_select_input(to_dict=True)
         self.halfhour_dict = get_halfhour_list_for_select_input(to_dict=True, format='name')
@@ -1433,4 +1435,86 @@ class PostProductTripBoardingAndAlightingWithoutServiceCSVHelper(PostProductTrip
                                round(trips[0], 2), round(trips[1], 2)]
                         formatted_row.append(row)
 
+        return formatted_row
+
+
+class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
+
+    def __init__(self, es_client, es_query):
+        CSVHelper.__init__(self, es_client, es_query, ESStageHelper().index_name)
+
+    def get_iterator(self, kwargs):
+        es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
+        return es_query.execute().aggregations
+
+    def get_file_description(self):
+        description = 'Cada línea representa un conjunto de transacciones en una parada por día.'
+        return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
+
+    def download(self, zip_file_obj, **kwargs):
+        tmp_file_name = str(uuid.uuid4())
+        try:
+            with open(tmp_file_name, 'w', encoding='utf-8-sig') as output:
+                # added BOM to file to recognize accent in excel files
+                output.write('\ufeff')
+                writer = csv.writer(output, dialect='excel', delimiter=',')
+                writer.writerow(self.get_header())
+                import time
+
+                start = time.time()
+                for aggregation in self.get_iterator(kwargs):
+                    for doc in aggregation:
+                        row = self.row_parser(doc)
+                        if isinstance(row[0], list):
+                            # there are more than one row in variable
+                            for r in row:
+                                writer.writerow(r)
+                        else:
+                            writer.writerow(row)
+
+                end = time.time()
+                print(end - start)
+            zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
+        finally:
+            os.remove(tmp_file_name)
+
+    def get_data_file_name(self):
+        return 'Transacciones_por_operador.csv'
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'timePeriodInBoardingTime', 'csv_name': 'Periodo_transantiago_subida',
+             'definition': 'Período transantiago en que inició el viaje'},
+            {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora',
+             'definition': 'Media hora del tiempo asociado'},
+            {'es_name': 'authStopCode', 'csv_name': 'Paradero',
+             'definition': 'Paradero asociado'},
+            {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa asociada a la zona paga'},
+
+            # extra columns, está columna existe para el diccionario que aparece en la sección de descarga
+            {'es_name': 'boardingTime', 'csv_name': 'Tiempo_subida',
+             'definition': 'Fecha y hora en que se inició el viaje'},
+            {'es_name': 'stageNumber', 'csv_name': 'Número_etapa',
+             'definition': 'Número de etapa dentro del viaje en que participa el registro'},
+        ]
+
+    def row_parser(self, row):
+        formatted_row = []
+        for day_type in row.dayType:
+            day_type_str = self.day_type_dict[day_type.key]
+            for time_period in day_type.timePeriodInBoardingTime:
+                time_period_str = self.timeperiod_dict[time_period.key]
+                for half_hour in time_period.halfHourInBoardingTime:
+                    half_hour_str = self.halfhour_dict[half_hour.key]
+                    for auth_stop_code in half_hour.authStopCode:
+                        auth_stop_code_str = auth_stop_code.key
+                        for operator in auth_stop_code.operator:
+                            print(operator.key)
+                            operator_str = self.operator_dict[operator.key]
+                            for bus_station in operator.busStation:
+                                bus_station_str = bus_station.key
+                                formatted_row.append(
+                                    [day_type_str, time_period_str, half_hour_str, auth_stop_code_str, operator_str,
+                                     bus_station_str])
         return formatted_row

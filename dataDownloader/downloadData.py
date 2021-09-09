@@ -19,7 +19,7 @@ from dataDownloader.csvhelper.odbyroute import OdByRouteData
 from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
 from dataDownloader.csvhelper.trip import TripData, PostProductTripTripBetweenZonesData, \
     PostProductTripBoardingAndAlightingData, PostProductTripBoardingAndAlightingWithoutServiceData
-from dataDownloader.csvhelper.stage import PostProductStageTransferData, PostProductStageTransferAggregatedData
+from dataDownloader.csvhelper.stage import PostProductStageTransferData, PostProductStageTransferAggregatedData, PostProductStageTransactionsByOperatorData
 from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from dataDownloader.csvhelper.bip import BipData
 
@@ -56,6 +56,8 @@ def download_file(es_instance, query, downloader, zip_file_path):
         data_to_download = PostProductTripBoardingAndAlightingData(query, es_instance)
     elif downloader == csv_helper.POST_PRODUCTS_TRIP_BOARDING_AND_ALIGHTING_WITHOUT_SERVICE_DATA:
         data_to_download = PostProductTripBoardingAndAlightingWithoutServiceData(query, es_instance)
+    elif downloader == csv_helper.POST_PRODUCTS_STAGE_TRANSACTIONS_BY_OPERATOR_DATA:
+        data_to_download = PostProductStageTransactionsByOperatorData(query, es_instance)
     else:
         raise UnrecognizedDownloaderNameError()
 

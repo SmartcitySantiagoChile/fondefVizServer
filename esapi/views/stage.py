@@ -87,8 +87,9 @@ class PostProductTransactionsByOperatorData(View):
             op_program_date = ESShapeHelper().get_most_recent_operation_program_date(start_date)
             stop_info = ESStopHelper().get_all_stop_info(op_program_date, to_dict=True)
             es_query = es_stage_helper.get_post_products_aggregated_transfers_data_by_operator_query(dates, day_types)
-            # ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA,
-            #                                      request.user)
+            print(es_query.to_dict())
+            ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSACTIONS_BY_OPERATOR_DATA,
+                                                  request.user)
             response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
 
         except FondefVizError as e:
