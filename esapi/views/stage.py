@@ -84,8 +84,6 @@ class PostProductTransactionsByOperatorData(View):
             start_date = dates[0][0]
             end_date = dates[-1][-1]
             check_operation_program(start_date, end_date)
-            op_program_date = ESShapeHelper().get_most_recent_operation_program_date(start_date)
-            stop_info = ESStopHelper().get_all_stop_info(op_program_date, to_dict=True)
             es_query = es_stage_helper.get_post_products_aggregated_transfers_data_by_operator_query(dates, day_types)
             print(es_query.to_dict())
             ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSACTIONS_BY_OPERATOR_DATA,
