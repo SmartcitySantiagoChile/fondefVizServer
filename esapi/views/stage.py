@@ -6,7 +6,10 @@ from django.views.generic import View
 import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
+from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stage import ESStageHelper
+from esapi.helper.stop import ESStopHelper
+from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request, check_operation_program
 from localinfo.helper import PermissionBuilder, get_calendar_info
@@ -65,26 +68,32 @@ class PostProductTransfersData(View):
         return self.process_request(request, request.POST, export_data=True)
 
 
-method_decorator([csrf_exempt], name='dispatch')
+@method_decorator([csrf_exempt], name='dispatch')
 class PostProductTransactionsByOperatorData(View):
     permission_required = 'localinfo.postproducts'
 
     def process_request(self, request, params, export_data=False):
         dates = get_dates_from_request(request, export_data)
         day_types = params.getlist('dayType[]', [])
-        aggregate_data = params.get('exportButton2', False)
 
         response = {}
-
         es_stage_helper = ESStageHelper()
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
-
-            check_operation_program(dates[0][0], dates[-1][-1])
+            start_date = dates[0][0]
+            end_date = dates[-1][-1]
+            check_operation_program(start_date, end_date)
+            op_program_date = ESShapeHelper().get_most_recent_operation_program_date(start_date)
+            stop_info = ESStopHelper().get_all_stop_info(op_program_date, to_dict=True)
+            es_query = es_stage_helper.get_post_products_aggregated_transfers_data_by_operator_query(dates, day_types)
+            # ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSFERS_AGGREGATED_DATA,
+            #                                      request.user)
+            response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
+            print(e)
 
         return JsonResponse(response)
 
