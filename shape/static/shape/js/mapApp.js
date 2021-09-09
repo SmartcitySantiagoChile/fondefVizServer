@@ -170,9 +170,9 @@ $(document).ready(function () {
         type: 'circle',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'],
-            12, 3,
-            14, 6,
-            20, 12,
+            12, 2,
+            14, 4,
+            20, 8,
           ],
           'circle-color': ['get', 'color']
         }
