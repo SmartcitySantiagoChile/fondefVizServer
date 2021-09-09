@@ -189,7 +189,6 @@ $(document).ready(function () {
       };
       _self.removeStopLayers(layerId);
 
-
       let stopsLayer = $.extend({}, stopsLayerTemplate);
       let stopLabelLayer = $.extend({}, stopLabelLayerTemplate);
 
@@ -207,6 +206,8 @@ $(document).ready(function () {
         popUpDescription += " Nombre: <b>" + feature.properties.stopName + "</b><br />";
         popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
         popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
+        popUpDescription += " Posición: <b>" + feature.properties.latitude + "," + feature.properties.longitude + "</b><br />";
+        popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
         popUpDescription += "</p>";
 
         new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
@@ -329,7 +330,7 @@ $(document).ready(function () {
           div.id = 'listControl';
           div.innerHTML += `
             <button id="addStopInMapButton" class="btn btn-default btn-sm" >
-              <span class="fas fa-bus-alt" aria-hidden="true"></span> Paradas en mapa
+              <span class="fas fa-traffic-light" aria-hidden="true"></span> Paradas en mapa
             </button>`;
           return div;
         }
@@ -873,7 +874,10 @@ $(document).ready(function () {
                 authStopCode: stop.authCode,
                 userStopCode: stop.userCode,
                 stopName: stop.name,
-                layerId: selectorId
+                layerId: selectorId,
+                latitude: stop.latitude,
+                longitude: stop.longitude,
+                routes: stop.routes.join(', ')
               }
             });
           });
