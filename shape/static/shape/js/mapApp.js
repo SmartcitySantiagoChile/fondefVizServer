@@ -31,6 +31,7 @@ $(document).ready(function () {
 		let routeLegendControl = null;
 		let routeControl = null;
 		let stopLegendControl = null;
+		let stopControl = null;
 
 		this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
 			shapeStopsSource = {
@@ -310,7 +311,7 @@ $(document).ready(function () {
 		};
 
 
-		this.addListControl = (mapInstance) => {
+		this.addRouteListControl = (mapInstance) => {
 			class RouteListControl {
 				onAdd(map) {
 					let div = document.createElement('div');
@@ -324,11 +325,15 @@ $(document).ready(function () {
 				}
 			}
 
+			mapInstance.addControl(new RouteListControl(), 'top-left');
+		};
+
+		this.addStopListControl = (mapInstance) => {
 			class StopListControl {
 				onAdd(map) {
 					let div = document.createElement('div');
 					div.className = 'mapboxgl-ctrl info noprint';
-					div.id = 'listControl';
+					div.id = 'stopListControl';
 					div.innerHTML += `
             <button id="addStopInMapButton" class="btn btn-default btn-sm" >
               <span class="fas fa-traffic-light" aria-hidden="true"></span> Paradas en mapa
@@ -337,9 +342,8 @@ $(document).ready(function () {
 				}
 			}
 
-			mapInstance.addControl(new RouteListControl(), 'top-left');
 			mapInstance.addControl(new StopListControl(), 'top-left');
-		};
+		}
 
 		this.addBearingControl = (mapInstance) => {
 			class BearingControl {
@@ -531,6 +535,7 @@ $(document).ready(function () {
               <div class='col-lg-12'>
                 <table class='table table-condensed'>
                   <thead>
+                  	<th></th>
                     <th>Fecha PO</th>
                     <th>Servicio</th>
                     <th>Servicio TS</th>
@@ -546,11 +551,10 @@ $(document).ready(function () {
 
 				show() {
 					this._div.style.display = "inline";
-					if ($("#routeListContainer").children().length === 0 ){
+					if ($("#routeListContainer").children().length === 0) {
 						$("#addRouteButton").trigger("click");
 					}
 				}
-
 
 
 				hide() {
@@ -639,6 +643,69 @@ $(document).ready(function () {
 			return stopLegendControl;
 		};
 
+		/**
+		 * Define and create a StopControl instance.
+		 * This class have the stop control selectors.
+		 * @param mapInstance
+		 * @returns {StopControl} a new instance of this class
+		 */
+		this.addStopControl = (mapInstance) => {
+			class StopControl {
+				onAdd(map) {
+					this._div = document.createElement('div');
+					this._div.className = 'mapboxgl-ctrl info legend';
+					this._div.id = 'stopControl';
+					this._div.style.display = "none";
+					this._div.width = 230;
+					this._div.innerHTML = `
+            <div class='row'>
+              <div class='col-lg-12'>
+                <button id='backToStopControl' class='btn btn-default btn-sm'>
+                  <span class='fas fa-minus' aria-hidden='true'></span>
+                  Minimizar
+                </button>
+                <button id='addStopButton' class='btn btn-default btn-sm'>
+                  <span class='fas fa-plus' aria-hidden='true'></span>
+                   Agregar parada
+                </button>
+              </div>
+            </div>
+            <div class='row' >
+              <div class='col-lg-12'>
+                <table class='table table-condensed'>
+                  <thead>
+                  	<th></th>
+                    <th>Fecha PO</th>
+                    <th>Parada</th>
+                    <th>Servicio TS</th>
+                    <th></th><th></th><th></th><th></th>
+                  </thead>
+                  <tbody id='stopListContainer'>
+                  </tbody>
+                </table>
+              </div>
+            </div>`;
+					return this._div;
+				}
+
+				show() {
+					this._div.style.display = "inline";
+					if ($("#stopListContainer").children().length === 0) {
+						$("#addStopButton").trigger("click");
+					}
+				}
+
+				hide() {
+					this._div.style.display = "none";
+				}
+			}
+
+			let stopControl = new StopControl();
+			mapInstance.addControl(stopControl, 'top-left');
+			return stopControl;
+		}
+
+
 		this.loadBaseData = () => {
 			$.getJSON(Urls["esapi:shapeBase"](), function (data) {
 				// data for selectors
@@ -670,14 +737,21 @@ $(document).ready(function () {
 				$(this).css("display", "none")
 				routeControl.show();
 			});
-			$("#backToRouteControl").click(function (){
+			$("#backToRouteControl").click(function () {
 				routeControl.hide();
 				$("#addRouteInMapButton").css("display", "inline");
 			});
 
 			$("#addStopInMapButton").click(function () {
-				$("#stopListModal").modal("show");
+				$(this).css("display", "none");
+				stopControl.show();
 			});
+
+			$("#backToStopControl").click(function () {
+				stopControl.hide();
+				$("#addStopInMapButton").css("display", "inline");
+			});
+
 			$("#operationInfoButton").click(function () {
 				let routeSelector = $("#routeListContainer");
 				let periodInfoList = [];
@@ -816,11 +890,14 @@ $(document).ready(function () {
 
 					_self.addHelpControl(_mapInstance);
 					_self.addOperationInfoControl(_mapInstance);
-					_self.addListControl(_mapInstance);
-					_self.addBearingControl(_mapInstance);
-					routeLegendControl = _self.addRouteLegendControl(_mapInstance);
+					_self.addRouteListControl(_mapInstance);
 					routeControl = _self.addRouteControl(_mapInstance);
+					stopControl = _self.addStopControl(_mapInstance);
+					_self.addStopListControl(_mapInstance);
+					_self.addBearingControl(_mapInstance);
 					stopLegendControl = _self.addStopLegendControl(_mapInstance);
+					routeLegendControl = _self.addRouteLegendControl(_mapInstance);
+
 					_self.addScreenshotControl(_mapInstance);
 
 					_self.loadBaseData();
@@ -1100,6 +1177,7 @@ $(document).ready(function () {
 					},
 					dropdownParent: selector,
 					placeholder: "Todos",
+					width: 'style'
 				});
 			});
 
@@ -1230,6 +1308,7 @@ $(document).ready(function () {
 				updateLayerRoute(isVisible, layerId, button, span);
 			});
 		};
+
 		this.setStopLayerVisibility = (layerId, show) => {
 			let visible = show ? 'visible' : 'none';
 			_mapApp.getMapInstance().setLayoutProperty(`shape-stops-${layerId}`, 'visibility', visible);
