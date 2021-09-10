@@ -27,6 +27,21 @@ class ESStopIndexTest(TestCase):
         result = self.instance.get_matched_stop_list('term')
         self.assertListEqual(result, [('key', 'auth_code')])
 
+    @mock.patch('esapi.helper.stop.ESStopHelper.make_multisearch_query_for_aggs')
+    def test_get_matched_stop_list_with_date(self, make_multisearch_query_for_aggs):
+        es_query = mock.Mock()
+        ans = mock.Mock()
+        type(es_query).aggregations = mock.PropertyMock(return_value=es_query)
+        type(es_query).unique = mock.PropertyMock(return_value=es_query)
+        type(ans).key = mock.PropertyMock(return_value='key')
+        type(ans).additional_info = mock.PropertyMock(return_value=ans)
+        type(ans).hits = mock.PropertyMock(return_value=[ans])
+        type(ans).authCode = mock.PropertyMock(return_value='auth_code')
+        type(es_query).buckets = mock.PropertyMock(return_value=[ans])
+        make_multisearch_query_for_aggs.return_value = [es_query]
+        result = self.instance.get_matched_stop_list('term','date')
+        self.assertListEqual(result, [('key', 'auth_code')])
+
     @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
     def test_get_stop_info(self, get_base_query):
         auth_stop_code = ''
@@ -71,3 +86,26 @@ class ESStopIndexTest(TestCase):
         _get_available_days.return_value = list()
         result = self.instance.get_available_days()
         self.assertListEqual(result, [])
+
+    @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
+    def test_all_get_stop_info(self, get_base_query):
+        date = ''
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_all_stop_info, date)
+        date = "2018-01-01"
+        get_base_query.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.extra.return_value = get_base_query
+        expected_result = {"1123"}
+        get_base_query.scan.return_value = mock.MagicMock(to_dict=expected_result)
+        result = self.instance.get_all_stop_info(date)
+        self.assertEqual(result, [])
+
+    @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
+    def test_get_all_stop_info_with_empty_stop_info(self, get_base_query):
+        start_date = '2018-01-01'
+        get_base_query.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.extra.return_value = get_base_query
+        get_base_query.scan = mock.Mock(side_effect=ESQueryStopInfoDoesNotExist())
+        self.assertRaises(ESQueryStopInfoDoesNotExist, self.instance.get_all_stop_info, start_date)
+
