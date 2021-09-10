@@ -845,7 +845,7 @@ $(document).ready(function () {
 
 		/**
 		 * Add stop row selector with OP date list.
-		 * @param opDateList available operation programs
+		 * @param opDateList available operation programs.
 		 */
 		this.addStopRow = function (opDateList) {
 			const newStopId = selectorStopId;
