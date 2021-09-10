@@ -77,8 +77,11 @@
     width: 80%;
 }
 
-#addRouteButton, #addStopButton {
-    float: right;
+#addRouteButton, #addStopButton{
+    float: left;
+}
+#backToRouteControl{
+    float: right
 }
 
 .select2-selection--multiple {
@@ -129,7 +132,7 @@
     opacity: 1;
 }
 
-#routeLegendControl table thead tr th, #routeLegendControl table tbody tr td {
+#routeLegendControl, table thead tr th, #routeLegendControl, table tbody tr td {
     padding: 0px 2px;
 }
 
