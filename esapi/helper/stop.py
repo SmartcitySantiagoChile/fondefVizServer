@@ -13,20 +13,34 @@ class ESStopHelper(ElasticSearchHelper):
         file_extensions = ['stop']
         super(ESStopHelper, self).__init__(index_name, file_extensions)
 
-    def get_matched_stop_list(self, term):
-        """ ask to elasticsearch for a match values """
+    def get_matched_stop_list(self, term, date=None):
+        """Ask to elasticsearch for a stop match values based on date.
+        Args:
+           term: stop term
+           date: op program date (optional)
 
-        es_auth_stop_query = Search().query(Match(authCode={"query": term, "analyzer": "standard"}))[:0]
+        Returns: matched stop
+
+        """
+        es_auth_stop_query = Search()
+        es_user_stop_query = Search()
+        es_user_stop_name_query = Search()
+        if date:
+            es_auth_stop_query = es_auth_stop_query.query("match", startDate=date)
+            es_user_stop_query = es_user_stop_query.query("match", startDate=date)
+            es_user_stop_name_query = es_user_stop_name_query.query("match", startDate=date)
+
+        es_auth_stop_query = es_auth_stop_query.query(Match(authCode={"query": term, "analyzer": "standard"}))[:0]
         aggs = A('terms', field='authCode.raw', size=100)
         es_auth_stop_query.aggs.bucket('unique', aggs)
         es_auth_stop_query.aggs['unique'].metric('additional_info', 'top_hits', size=1, _source=['authCode'])
 
-        es_user_stop_query = Search().query(Match(userCode={"query": term, "analyzer": "standard"}))[:0]
+        es_user_stop_query = es_user_stop_query.query(Match(userCode={"query": term, "analyzer": "standard"}))[:0]
         aggs = A('terms', field='userCode.raw', size=100)
         es_user_stop_query.aggs.bucket('unique', aggs)
         es_user_stop_query.aggs['unique'].metric('additional_info', 'top_hits', size=1, _source=['authCode'])
 
-        es_user_stop_name_query = Search().query(
+        es_user_stop_name_query = es_user_stop_name_query.query(
             Match(name={"query": term, "operator": "and", "analyzer": "autocomplete_analyzer"}))[:0]
         aggs = A('terms', field='name.raw', size=100, order={"max_score": "desc"})
         es_user_stop_name_query.aggs.bucket('unique', aggs)
@@ -68,3 +82,24 @@ class ESStopHelper(ElasticSearchHelper):
 
     def get_available_days(self):
         return self._get_available_days('startDate', [])
+
+    def get_all_stop_info(self, date):
+        """Ask to elasticsearch for all stops in given date
+        Args:
+            date: date for stops
+
+        Returns: all stops
+        """
+        if not date:
+            raise ESQueryDateRangeParametersDoesNotExist()
+
+        es_query = self.get_base_query().filter('term', startDate=date).extra(track_total_hits=True)
+        stop_info = []
+        try:
+            for stop in es_query.scan():
+                del stop['path']
+                del stop['timestamp']
+                stop_info.append(stop.to_dict())
+        except IndexError:
+            raise ESQueryStopInfoDoesNotExist()
+        return stop_info

@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views import View
 
-from esapi.errors import ESQueryStopPatternTooShort
+from esapi.errors import ESQueryStopPatternTooShort, FondefVizError
 from esapi.helper.stop import ESStopHelper
 
 
@@ -11,6 +11,7 @@ class MatchedStopData(View):
     def get(self, request):
 
         term = request.GET.get("term", '')
+        date = request.GET.get("date", None)
 
         response = {
             'items': []
@@ -20,7 +21,7 @@ class MatchedStopData(View):
                 raise ESQueryStopPatternTooShort()
 
             es_helper = ESStopHelper()
-            results = es_helper.get_matched_stop_list(term)
+            results = es_helper.get_matched_stop_list(term, date)
 
             result_list = []
             for text, text_id in results:
@@ -31,3 +32,25 @@ class MatchedStopData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response, safe=False)
+
+
+class StopInfo(View):
+    """ Give a stop info based on stop name and date"""
+    def get(self, request):
+        stop_name = request.GET.get("stop", '')
+        stop_date = request.GET.get("date", None)
+        response = {
+            'info': []
+        }
+        try:
+            es_helper = ESStopHelper()
+            if stop_name:
+                results = [es_helper.get_stop_info([[stop_date]], stop_name)]
+            else:
+                results = es_helper.get_all_stop_info(stop_date)
+            response["info"] = results
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+        return JsonResponse(response, safe=False)
+
+

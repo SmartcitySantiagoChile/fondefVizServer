@@ -767,6 +767,7 @@ function MapApp(opts) {
 
     _self.fitBound = function (sourceList) {
       let bounds = null;
+      let pointNumber = 0;
       sourceList.forEach(sourceName => {
         let geojson = map.getSource(sourceName)._data;
         if (geojson.type === 'FeatureCollection') {
@@ -777,18 +778,27 @@ function MapApp(opts) {
             if (['LineString', 'Polygon'].includes(feature.geometry.type)) {
               feature.geometry.coordinates.forEach(point => {
                 bounds.extend(point);
+                pointNumber += 1;
               });
             } else if (feature.geometry.type === 'Point') {
               bounds.extend(feature.geometry.coordinates);
+              pointNumber += 1;
             }
           });
         }
       });
 
       if (bounds !== null) {
-        map.fitBounds(bounds, {
-          padding: 20
-        });
+        if (pointNumber > 1) {
+          map.fitBounds(bounds, {
+            padding: 20
+          });
+        } else {
+          map.flyTo({
+            center: bounds.getSouthEast(),
+            zoom: 16
+          });
+        }
       }
     };
 
