@@ -15,15 +15,26 @@ $(document).ready(function () {
     }
   };
 
+  const getRandomColor = () => {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
   function MapShapeApp() {
     let _self = this;
     let selectorId = 1;
+    let selectorStopId = 1;
     let routeLegendControl = null;
+    let stopLegendControl = null;
 
-    this.addLayers = (layerId, stopsSource, shapeSource) => {
-      stopsSource = {
+    this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
+      shapeStopsSource = {
         type: "FeatureCollection",
-        features: stopsSource
+        features: shapeStopsSource
       };
       shapeSource = {
         type: "FeatureCollection",
@@ -43,9 +54,9 @@ $(document).ready(function () {
           'line-width': 2
         }
       };
-      let stopsLayerTemplate = {
-        id: 'stops-layer',
-        source: 'stops-source',
+      let shapeStopsLayerTemplate = {
+        id: 'shape-stops-layer',
+        source: 'shape-stops-source',
         type: 'circle',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'],
@@ -56,9 +67,9 @@ $(document).ready(function () {
           'circle-color': ['get', 'color']
         }
       };
-      let stopLabelLayerTemplate = {
-        id: 'stop-label-layer',
-        source: 'stops-source',
+      let shapeStopLabelLayerTemplate = {
+        id: 'shape-stop-label-layer',
+        source: 'shape-stops-source',
         type: 'symbol',
         layout: {
           'text-field': '{userStopCode}',
@@ -86,30 +97,33 @@ $(document).ready(function () {
         }
       };
 
-      _self.removeLayers(layerId);
+      _self.removeShapeLayers(layerId);
 
       let shapeLayer = $.extend({}, shapeLayerTemplate);
       let shapeArrowLayer = $.extend({}, shapeArrowLayerTemplate);
-      let stopsLayer = $.extend({}, stopsLayerTemplate);
-      let stopLabelLayer = $.extend({}, stopLabelLayerTemplate);
+      let shapeStopsLayer = $.extend({}, shapeStopsLayerTemplate);
+      let shapeStopLabelLayer = $.extend({}, shapeStopLabelLayerTemplate);
 
       shapeLayer.id = `shape-${layerId}`;
       shapeLayer.source = `shape-source-${layerId}`;
       shapeArrowLayer.id = `shape-arrow-${layerId}`;
       shapeArrowLayer.source = `shape-source-${layerId}`;
 
-      stopsLayer.id = `stops-${layerId}`;
-      stopsLayer.source = `stops-source-${layerId}`;
-      stopLabelLayer.id = `stop-label-${layerId}`;
-      stopLabelLayer.source = `stops-source-${layerId}`;
+      shapeStopsLayer.id = `shape-stops-${layerId}`;
+      shapeStopsLayer.source = `shape-stops-source-${layerId}`;
+      shapeStopLabelLayer.id = `shape-stop-label-${layerId}`;
+      shapeStopLabelLayer.source = `shape-stops-source-${layerId}`;
 
       _mapApp.getMapInstance().addSource(`shape-source-${layerId}`, {type: 'geojson', data: shapeSource});
-      _mapApp.getMapInstance().addSource(`stops-source-${layerId}`, {type: 'geojson', data: stopsSource});
+      _mapApp.getMapInstance().addSource(`shape-stops-source-${layerId}`, {
+        type: 'geojson',
+        data: shapeStopsSource
+      });
 
       _mapApp.getMapInstance().addLayer(shapeLayer);
       _mapApp.getMapInstance().addLayer(shapeArrowLayer);
-      _mapApp.getMapInstance().addLayer(stopsLayer);
-      _mapApp.getMapInstance().addLayer(stopLabelLayer);
+      _mapApp.getMapInstance().addLayer(shapeStopsLayer);
+      _mapApp.getMapInstance().addLayer(shapeStopLabelLayer);
 
       let openStopPopup = function (feature) {
         let popUpDescription = "<p>";
@@ -118,6 +132,81 @@ $(document).ready(function () {
         popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
         popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
         popUpDescription += " Posición en la ruta: <b>" + (feature.properties.order + 1) + "</b><br />";
+        popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
+        popUpDescription += "</p>";
+
+        new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
+      };
+
+      let mouseenter = () => {
+        _mapApp.getMapInstance().getCanvas().style.cursor = 'pointer';
+      };
+      let mouseleave = () => {
+        _mapApp.getMapInstance().getCanvas().style.cursor = '';
+      };
+      let click = e => {
+        let feature = e.features[0];
+        openStopPopup(feature);
+      };
+
+      _mapApp.getMapInstance().on('mouseenter', shapeStopsLayer.id, mouseenter);
+      _mapApp.getMapInstance().on('mouseleave', shapeStopsLayer.id, mouseleave);
+      _mapApp.getMapInstance().on('click', shapeStopsLayer.id, click);
+
+      _mapApp.getMapInstance().on('mouseenter', shapeStopLabelLayer.id, mouseenter);
+      _mapApp.getMapInstance().on('mouseleave', shapeStopLabelLayer.id, mouseleave);
+      _mapApp.getMapInstance().on('click', shapeStopLabelLayer.id, click);
+    };
+
+    this.addStopLayers = (layerId, stopsSource) => {
+      stopsSource = {
+        type: "FeatureCollection",
+        features: stopsSource
+      };
+
+      let stopsLayerTemplate = {
+        id: 'stops-layer',
+        source: 'stops-source',
+        type: 'circle',
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'],
+            12, 2,
+            14, 4,
+            20, 8,
+          ],
+          'circle-color': ['get', 'color']
+        }
+      };
+      let stopLabelLayerTemplate = {
+        id: 'stop-label-layer',
+        source: 'stops-source',
+        type: 'symbol',
+        layout: {
+          'text-field': '{userStopCode}',
+          'text-size': 10,
+          'text-offset': [0, 1]
+        }
+      };
+      _self.removeStopLayers(layerId);
+
+      let stopsLayer = $.extend({}, stopsLayerTemplate);
+      let stopLabelLayer = $.extend({}, stopLabelLayerTemplate);
+
+      stopsLayer.id = `stops-${layerId}`;
+      stopsLayer.source = `stops-source-${layerId}`;
+      stopLabelLayer.id = `stop-label-${layerId}`;
+      stopLabelLayer.source = `stops-source-${layerId}`;
+
+      _mapApp.getMapInstance().addSource(`stops-source-${layerId}`, {type: 'geojson', data: stopsSource});
+      _mapApp.getMapInstance().addLayer(stopsLayer);
+      _mapApp.getMapInstance().addLayer(stopLabelLayer);
+
+      let openStopPopup = function (feature) {
+        let popUpDescription = "<p>";
+        popUpDescription += " Nombre: <b>" + feature.properties.stopName + "</b><br />";
+        popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
+        popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
+        popUpDescription += " Posición: <b>" + feature.properties.latitude + "," + feature.properties.longitude + "</b><br />";
         popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
         popUpDescription += "</p>";
 
@@ -144,15 +233,24 @@ $(document).ready(function () {
       _mapApp.getMapInstance().on('click', stopLabelLayer.id, click);
     };
 
-    this.removeLayers = (layerId) => {
+    this.removeShapeLayers = (layerId) => {
       // remove data
       if (_mapApp.getMapInstance().getLayer(`shape-${layerId}`)) {
         _mapApp.getMapInstance().removeLayer(`shape-${layerId}`);
-        _mapApp.getMapInstance().removeLayer(`stops-${layerId}`);
-        _mapApp.getMapInstance().removeLayer(`stop-label-${layerId}`);
+        _mapApp.getMapInstance().removeLayer(`shape-stops-${layerId}`);
+        _mapApp.getMapInstance().removeLayer(`shape-stop-label-${layerId}`);
         _mapApp.getMapInstance().removeLayer(`shape-arrow-${layerId}`);
 
         _mapApp.getMapInstance().removeSource(`shape-source-${layerId}`);
+        _mapApp.getMapInstance().removeSource(`shape-stops-source-${layerId}`);
+      }
+    };
+
+    this.removeStopLayers = (layerId) => {
+      // remove data
+      if (_mapApp.getMapInstance().getLayer(`stops-${layerId}`)) {
+        _mapApp.getMapInstance().removeLayer(`stops-${layerId}`);
+        _mapApp.getMapInstance().removeLayer(`stop-label-${layerId}`);
         _mapApp.getMapInstance().removeSource(`stops-source-${layerId}`);
       }
     };
@@ -163,14 +261,14 @@ $(document).ready(function () {
       _mapApp.getMapInstance().setLayoutProperty(`shape-arrow-${layerId}`, 'visibility', visible);
     };
 
-    this.setStopLayerVisibility = (layerId, show) => {
+    this.setShapeStopLayerVisibility = (layerId, show) => {
       let visible = show ? 'visible' : 'none';
-      _mapApp.getMapInstance().setLayoutProperty(`stops-${layerId}`, 'visibility', visible);
+      _mapApp.getMapInstance().setLayoutProperty(`shape-stops-${layerId}`, 'visibility', visible);
     };
 
-    this.setStopLabelLayerVisibility = (layerId, show) => {
+    this.setShapeStopLabelLayerVisibility = (layerId, show) => {
       let visible = show ? 'visible' : 'none';
-      _mapApp.getMapInstance().setLayoutProperty(`stop-label-${layerId}`, 'visibility', visible);
+      _mapApp.getMapInstance().setLayoutProperty(`shape-stop-label-${layerId}`, 'visibility', visible);
     };
 
     this.addHelpControl = (mapInstance) => {
@@ -210,6 +308,7 @@ $(document).ready(function () {
       mapInstance.addControl(new OperationInfoControl(), 'top-left');
     };
 
+
     this.addListControl = (mapInstance) => {
       class RouteListControl {
         onAdd(map) {
@@ -224,7 +323,21 @@ $(document).ready(function () {
         }
       }
 
+      class StopListControl {
+        onAdd(map) {
+          let div = document.createElement('div');
+          div.className = 'mapboxgl-ctrl info noprint';
+          div.id = 'listControl';
+          div.innerHTML += `
+            <button id="addStopInMapButton" class="btn btn-default btn-sm" >
+              <span class="fas fa-traffic-light" aria-hidden="true"></span> Paradas en mapa
+            </button>`;
+          return div;
+        }
+      }
+
       mapInstance.addControl(new RouteListControl(), 'top-left');
+      mapInstance.addControl(new StopListControl(), 'top-left');
     };
 
     this.addBearingControl = (mapInstance) => {
@@ -333,7 +446,6 @@ $(document).ready(function () {
                 <th>Color</th>
                 <th>P. operación</th>
                 <th>Servicio</th>
-                <th>Servicio TS</th>
               </thead>
               <tbody id='routeLegendTable'>
               </tbody>
@@ -387,6 +499,82 @@ $(document).ready(function () {
       return routeLegendControl;
     };
 
+    /**
+     * Add a stop legend to map instance.
+     * @param mapInstance
+     * @returns {StopLegendControl}
+     */
+    this.addStopLegendControl = (mapInstance) => {
+      class StopLegendControl {
+        onAdd(map) {
+          this._div = document.createElement('div');
+          this._div.className = 'mapboxgl-ctrl info legend';
+          this._div.id = 'stopLegendControl';
+          this._div.style.display = "none";
+          this._div.width = 230;
+          this._div.innerHTML = `
+            <table>
+              <thead>
+                <th>Color</th>
+                <th> P. operación</th>
+                <th> C. de Usuario</th>
+                <th> Código TS</th>
+                <th> Nombre de Parada</th>
+              </thead>
+              <tbody id='stopLegendTable'>
+              </tbody>
+            </table>`;
+          return this._div;
+        }
+
+        setRouteColorCanvas(canvasId, color) {
+          let canvas = document.getElementById(canvasId);
+          canvas.width = 40;
+          canvas.height = 10;
+          let ctx = canvas.getContext("2d");
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        update() {
+          let rows = $('#stopListContainer tr');
+          this._div.style.display = "none";
+
+          if (rows.length > 0) {
+            // remove previous rows
+            $("#stopLegendTable").empty();
+            rows.each((index, el) => {
+              const id = $(el).data('id').split('-')[1];
+              const data = _mapApp.getMapInstance().getSource(`stops-source-${id}`)._data.features;
+              const isSingleStop = data.length === 1;
+              const canvasId = `stop-canvas-${id}`;
+              const stopDate = $(`#stopDateSelect-${id}`).val();
+              const userStopCode = isSingleStop ? data[0].properties.userStopCode : "Todas las paradas";
+              const stopName = isSingleStop ? data[0].properties.stopName : "";
+              const authStopCode = isSingleStop ? data[0].properties.authStopCode : "";
+              const color = $(`#stopColorSelect-${id}`).colorpicker('getValue');
+              const legendRow = `<tr>
+                                <td><canvas id="${canvasId}"></canvas></td>
+                                <td>${stopDate}</td>
+                                <td>${userStopCode}</td>
+                                <td>${authStopCode}</td>
+                                <td>${stopName}</td>
+                              </tr>`;
+              $('#stopLegendTable').append(legendRow);
+              this.setRouteColorCanvas(canvasId, color);
+            });
+
+            this._div.style.display = "inline";
+          }
+        }
+      }
+
+      let stopLegendControl = new StopLegendControl();
+      mapInstance.addControl(stopLegendControl, 'bottom-left');
+      stopLegendControl.update();
+      return stopLegendControl;
+    };
+
     this.loadBaseData = () => {
       $.getJSON(Urls["esapi:shapeBase"](), function (data) {
         // data for selectors
@@ -402,6 +590,9 @@ $(document).ready(function () {
         $("#addRouteButton").click(function () {
           _self.addRow(dateList, userRouteList);
         });
+        $("#addStopButton").click(function () {
+          _self.addStopRow(dateList);
+        });
       });
 
       _self.addTableInfo();
@@ -413,6 +604,9 @@ $(document).ready(function () {
       });
       $("#addRouteInMapButton").click(function () {
         $("#routeListModal").modal("show");
+      });
+      $("#addStopInMapButton").click(function () {
+        $("#stopListModal").modal("show");
       });
       $("#operationInfoButton").click(function () {
         let routeSelector = $("#routeListContainer");
@@ -505,6 +699,31 @@ $(document).ready(function () {
       _self.refreshVisibilityUserStopLabelsButton();
     };
 
+    /**
+     * Add stop row selector with OP date list.
+     * @param opDateList available operation programs
+     */
+    this.addStopRow = function (opDateList) {
+      const newStopId = selectorStopId;
+      selectorStopId++;
+      const row = `
+            <tr class="stopSelectorRow" data-id="stop-${newStopId}">
+                <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
+                <td><select id=stopDateSelect-${newStopId} class="form-control stopDate"></select></td>
+                <td><select id=stopNameSelect-${newStopId} class="form-control stopName"></select></td>
+                <td><button id=stopColorSelect-${newStopId} class="btn btn-default btn-sm color-button" ><span class="fas fa-tint" aria-hidden="true"></span></button></td>
+               </tr>`;
+      $("#stopListContainer").append(row);
+      $(`#stopDateSelect-${newStopId}`).select2({
+        width: 'auto',
+        data: opDateList,
+        dropdownParent: $('#stopListContainer').parent()
+      });
+      _self.refreshStopControlEvents(newStopId);
+      _self.refreshRemoveStopButton();
+      _self.refreshColorPickerStopButton();
+    };
+
     let mapOpts = {
       mapId: 'mapid',//$(".right_col")[0],
       zoomControl: false,
@@ -530,6 +749,7 @@ $(document).ready(function () {
           _self.addListControl(_mapInstance);
           _self.addBearingControl(_mapInstance);
           routeLegendControl = _self.addRouteLegendControl(_mapInstance);
+          stopLegendControl = _self.addStopLegendControl(_mapInstance);
           _self.addScreenshotControl(_mapInstance);
 
           _self.loadBaseData();
@@ -547,7 +767,8 @@ $(document).ready(function () {
     };
     let _mapApp = new MapApp(mapOpts);
 
-    this.sendData = function (e) {
+
+    this.sendShapeData = function (e) {
       let selector = $(e).closest(".selectorRow");
       let selectorId = selector.data("id");
       let route = $(`#routeSelect-${selectorId}`).val();
@@ -566,7 +787,14 @@ $(document).ready(function () {
 
         // update map data
         let stopsSource = [];
+
         data.stops.forEach((stop) => {
+          let routes = [];
+          try {
+            routes = stop.routes.join(', ');
+          } catch (error) {
+            routes = undefined
+          }
           stopsSource.push({
             type: 'Feature',
             geometry: {
@@ -580,7 +808,7 @@ $(document).ready(function () {
               userStopCode: stop.userStopCode,
               stopName: stop.stopName,
               order: stop.order,
-              routes: stop.routes.join(', '),
+              routes: routes,
               layerId: selectorId
             }
           });
@@ -599,17 +827,8 @@ $(document).ready(function () {
           }
         });
 
-        _self.addLayers(selectorId, stopsSource, shapeSource);
+        _self.addShapeLayers(selectorId, stopsSource, shapeSource);
 
-        // update color
-        let getRandomColor = function () {
-          let letters = "0123456789ABCDEF";
-          let color = "#";
-          for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-          }
-          return color;
-        };
         let $COLOR_BUTTON = $(`#colorSelect-${selectorId}`);
         let color = getRandomColor();
         $COLOR_BUTTON.colorpicker('setValue', color);
@@ -622,82 +841,139 @@ $(document).ready(function () {
       });
     };
 
-        this.refreshControlEvents = function (id) {
-            // handle user route selector
-            let $USER_ROUTE = $(`#userRouteSelect-${id}`);
-            $USER_ROUTE.change(function () {
-                let selector = $(this).closest(".selectorRow");
-                let userRoute = selector.find(".userRoute").first().val();
-                let route = selector.find(".route").first();
-                let date = selector.find(".date").first().val();
+    /**
+     * Get stops data and update map with the data.
+     * @param e: stop selector
+     */
+    this.sendStopData = function (e) {
+      const selector = $(e).closest(".stopSelectorRow");
+      const selectorId = selector.data("id").split("-")[1];
+      const stopDate = selector.find(".stopDate").first().val();
+      const stopName = selector.find(".stopName").first().val();
+      const params = {
+        stop: stopName,
+        date: stopDate
+      };
+      $.getJSON(Urls['esapi:stopInfo'](), params, function (data) {
+        if (data.status) {
+          showMessage(data.status);
+        } else {
 
-                //update auth route list
-                let routeValues = [];
-                if (_self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(userRoute)) {
-                    routeValues = _self.op_routes_dict[date][userRoute];
-                }
-                route.empty();
-                route.select2({
-                    data: Object.keys(routeValues).map(authRouteCode => {
-                        let opRouteCode = routeValues[authRouteCode];
-                        let text = `${authRouteCode} (${opRouteCode})`;
-                        return {
-                            id: authRouteCode,
-                            opRouteCode: opRouteCode,
-                            text: text
-                        }
-                    })
-                });
-                //set value
-                let allSelectors = $(".selectorRow");
-                let selectorIndex = allSelectors.index(selector);
-                if ($(this).data("first") === true) {
-                    route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
-                    $(this).data("first", false);
-                }
-                _self.sendData(this);
+          // update map data
+          let stopsSource = [];
+
+          data.info.forEach((stop) => {
+            stopsSource.push({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [stop.longitude, stop.latitude]
+              },
+              properties: {
+                color: 'black',
+                authStopCode: stop.authCode,
+                userStopCode: stop.userCode,
+                stopName: stop.name,
+                layerId: selectorId,
+                latitude: stop.latitude,
+                longitude: stop.longitude,
+                routes: stop.routes.join(', ')
+              }
             });
+          });
 
-            // handle route selector
-            let $ROUTE = $(`#routeSelect-${id}`);
-            $ROUTE.change(function () {
-                _self.sendData(this);
-            });
+          _self.addStopLayers(selectorId, stopsSource);
 
-            // handle date selector
-            let $DATE = $(`#dateSelect-${id}`);
-            $DATE.change(function () {
-                let selector = $(this).closest(".selectorRow");
-                let date = selector.find(".date").first().val();
-                let userRoutes = selector.find(".userRoute").first();
+          // update color
+          const colorButton = $(`#stopColorSelect-${selectorId}`);
+          const color = getRandomColor();
+          colorButton.colorpicker('setValue', color);
+          updateStopLayerColor(color, selectorId);
 
-                userRoutes.empty();
-                let userRouteDict = _self.op_routes_dict.hasOwnProperty(date)?_self.op_routes_dict[date]:[];
-                let dataList = Object.keys(userRouteDict).sort(sortAlphaNum);
-                userRoutes.select2({
-                    data: dataList.map(e => {
-                        return {
-                            id: e,
-                            text: e
-                        }
-                    })
-                });
-                userRoutes.trigger("change");
+          const stopNumberInMap = $('#stopListContainer tr').length;
+          if (stopNumberInMap === 1) {
+            _mapApp.fitBound([`stops-source-${selectorId}`]);
+          }
+        }
+      });
+    };
 
-                //set value
-                if ($(this).data("first") === true) {
-                    $(this).data("first", false);
-                }
-            });
+    this.refreshControlEvents = function (id) {
+      // handle user route selector
+      let $USER_ROUTE = $(`#userRouteSelect-${id}`);
+      $USER_ROUTE.change(function () {
+        let selector = $(this).closest(".selectorRow");
+        let userRoute = selector.find(".userRoute").first().val();
+        let route = selector.find(".route").first();
+        let date = selector.find(".date").first().val();
 
-            // handle clone selector
-            let selector = $(".selectorRow");
-            if (selector.length > 1) {
-                let lastSelected = selector.slice(-2, -1);
-                $DATE.val(lastSelected.find(".date").first().val());
-                $DATE.data("first", true);
-                $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
-                $USER_ROUTE.data("first", true);
+        //update auth route list
+        let routeValues = [];
+        if (_self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(userRoute)) {
+          routeValues = _self.op_routes_dict[date][userRoute];
+        }
+        route.empty();
+        route.select2({
+          data: Object.keys(routeValues).map(authRouteCode => {
+            let opRouteCode = routeValues[authRouteCode];
+            let text = `${authRouteCode} (${opRouteCode})`;
+            return {
+              id: authRouteCode,
+              opRouteCode: opRouteCode,
+              text: text
+            }
+          })
+        });
+        //set value
+        let allSelectors = $(".selectorRow");
+        let selectorIndex = allSelectors.index(selector);
+        if ($(this).data("first") === true) {
+          route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
+          $(this).data("first", false);
+        }
+        _self.sendShapeData(this);
+      });
+
+      // handle route selector
+      let $ROUTE = $(`#routeSelect-${id}`);
+      $ROUTE.change(function () {
+        _self.sendShapeData(this);
+      });
+
+      // handle date selector
+      let $DATE = $(`#dateSelect-${id}`);
+      $DATE.change(function () {
+        let selector = $(this).closest(".selectorRow");
+        let date = selector.find(".date").first().val();
+        let userRoutes = selector.find(".userRoute").first();
+
+        userRoutes.empty();
+        let userRouteDict = _self.op_routes_dict.hasOwnProperty(date) ? _self.op_routes_dict[date] : [];
+        let dataList = Object.keys(userRouteDict).sort(sortAlphaNum);
+        userRoutes.select2({
+          data: dataList.map(e => {
+            return {
+              id: e,
+              text: e
+            }
+          })
+        });
+        userRoutes.trigger("change");
+
+        //set value
+        if ($(this).data("first") === true) {
+          $(this).data("first", false);
+        }
+      });
+
+      // handle clone selector
+      let selector = $(".selectorRow");
+      if (selector.length > 1) {
+        let lastSelected = selector.slice(-2, -1);
+        $DATE.val(lastSelected.find(".date").first().val());
+        $DATE.data("first", true);
+        $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
+        $USER_ROUTE.data("first", true);
 
         let color = lastSelected.find(".fa-tint").css("color");
         $(`#colorSelect-${id}`).css("color", color);
@@ -712,6 +988,69 @@ $(document).ready(function () {
       $USER_ROUTE.trigger("change");
     };
 
+    /**
+     * Handle control events for stop date and stop name selector.
+     * Create stop selector based on stop date.
+     * If it is not the first selector, copy last selector.
+     * @param stopId: stop selector's id
+     */
+    this.refreshStopControlEvents = function (stopId) {
+      // handle date selector
+      const dateSelector = $(`#stopDateSelect-${stopId}`);
+      const stopSelector = $(`#stopNameSelect-${stopId}`)
+      dateSelector.change(function () {
+        const selector = $(this).closest(".stopSelectorRow");
+        const date = selector.find(".stopDate").first().val();
+        const stops = selector.find(".stopName").first();
+
+        stops.select2({
+          ajax: {
+            delay: 500, // milliseconds
+            url: Urls["esapi:matchedStopData"](),
+            dataType: "json",
+            data: function (params) {
+              return {
+                term: params.term,
+                date: date
+              }
+            },
+            processResults: function (data, params) {
+              return {
+                results: data.items
+              }
+            },
+            cache: true
+          },
+          minimumInputLength: 3,
+          language: {
+            inputTooShort: function () {
+              return "Ingresar 3 o más caracteres";
+            }
+          },
+          dropdownParent: selector,
+          placeholder: "Todos",
+        });
+      });
+
+      stopSelector.change(function () {
+        _self.sendStopData(this);
+      });
+
+      // handle clone selector
+      const selector = $(".stopSelectorRow");
+      if (selector.length > 1) {
+        const lastSelected = selector.slice(-2, -1);
+        dateSelector.val(lastSelected.find(".stopDate").first().val());
+        dateSelector.data("first", true);
+        stopSelector.val(lastSelected.find(".stopName").first().val());
+        stopSelector.data("first", true);
+        const color = lastSelected.find(".fa-tint").css("color");
+        $(`#stopColorSelect-${stopId}`).css("color", color);
+      }
+      dateSelector.trigger("change");
+      stopSelector.trigger("change");
+    };
+
     this.refreshRemoveButton = function () {
       let $REMOVE_BUTTON = $(".btn-danger");
       $REMOVE_BUTTON.off("click");
@@ -719,14 +1058,30 @@ $(document).ready(function () {
         let removeButtonRef = $(this);
         let layerId = removeButtonRef.parent().parent().data("id");
         // update last selected
-        _self.removeLayers(layerId);
+        _self.removeShapeLayers(layerId);
         removeButtonRef.parent().parent().remove();
         routeLegendControl.update();
       });
     };
 
+    /**
+     * Handle control events for stop remove button.
+     */
+    this.refreshRemoveStopButton = function () {
+      const removeStopButton = $(".btn-danger");
+      removeStopButton.off("click");
+      removeStopButton.click(function () {
+        const removeButtonRef = $(this);
+        const layerId = removeButtonRef.parent().parent().data("id");
+        // update last selected
+        _self.removeStopLayers(layerId);
+        removeButtonRef.parent().parent().remove();
+        stopLegendControl.update();
+      });
+    };
+
     const updateLayerColor = (color, layerId) => {
-      let stopsSource = _mapApp.getMapInstance().getSource(`stops-source-${layerId}`)._data;
+      let stopsSource = _mapApp.getMapInstance().getSource(`shape-stops-source-${layerId}`)._data;
       stopsSource.features = stopsSource.features.map(feature => {
         feature.properties.color = color;
         return feature;
@@ -736,10 +1091,26 @@ $(document).ready(function () {
         feature.properties.color = color;
         return feature;
       });
-      _mapApp.getMapInstance().getSource(`stops-source-${layerId}`).setData(stopsSource);
+      _mapApp.getMapInstance().getSource(`shape-stops-source-${layerId}`).setData(stopsSource);
       _mapApp.getMapInstance().getSource(`shape-source-${layerId}`).setData(shapeSource);
-      // update route legend
+      // update stop legend
       routeLegendControl.update();
+    };
+
+    /**
+     * Change the stop layer's color based on id.
+     * @param color: new color to change
+     * @param layerId: stop layer id
+     */
+    const updateStopLayerColor = (color, layerId) => {
+      let stopsSource = _mapApp.getMapInstance().getSource(`stops-source-${layerId}`)._data;
+      stopsSource.features = stopsSource.features.map(feature => {
+        feature.properties.color = color;
+        return feature;
+      });
+      _mapApp.getMapInstance().getSource(`stops-source-${layerId}`).setData(stopsSource);
+      // update stop legend
+      stopLegendControl.update();
     };
 
     this.refreshColorPickerButton = function () {
@@ -750,6 +1121,20 @@ $(document).ready(function () {
         let layerId = $(this).parent().parent().data("id");
         $(this).css("color", color);
         updateLayerColor(color, layerId);
+      });
+    };
+
+    /**
+     * Update stop color picker on change color.
+     */
+    this.refreshColorPickerStopButton = function () {
+      const stopColorButton = $(".stopSelectorRow .btn-default");
+      stopColorButton.off("changeColor");
+      stopColorButton.colorpicker({format: "rgb"}).on("changeColor", function (e) {
+        const color = e.color.toString("rgba");
+        const layerId = $(this).parent().parent().data("id").split("-")[1];
+        $(this).css("color", color);
+        updateStopLayerColor(color, layerId);
       });
     };
 
@@ -773,6 +1158,15 @@ $(document).ready(function () {
         let isVisible = button.hasClass("btn-success");
         updateLayerRoute(isVisible, layerId, button, span);
       });
+    };
+    this.setStopLayerVisibility = (layerId, show) => {
+      let visible = show ? 'visible' : 'none';
+      _mapApp.getMapInstance().setLayoutProperty(`shape-stops-${layerId}`, 'visibility', visible);
+    };
+
+    this.setStopLabelLayerVisibility = (layerId, show) => {
+      let visible = show ? 'visible' : 'none';
+      _mapApp.getMapInstance().setLayoutProperty(`shape-stop-label-${layerId}`, 'visibility', visible);
     };
 
     const updateStopRoutes = (active, layerId, button, span) => {
@@ -821,73 +1215,73 @@ $(document).ready(function () {
       });
     };
 
-        this.addTableInfo = function () {
-            let $TABLE = $('#shapeDetail');
-            $TABLE.DataTable({
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
-                    decimal: ",",
-                    thousands: "."
-                },
-                scrollX: true,
-                responsive: true,
-                pageLength: 15,
-                paging: true,
-                retrieve: true,
-                searching: true,
-                order: [[0, "asc"], [1, "asc"], [2, "asc"]],
-                dom: 'Bfr<"periodSelector">iptpi',
-                buttons: [
-                    {
-                        extend: "excelHtml5",
-                        text: "Exportar a excel",
-                        title: 'datos_de_ruta',
-                        className: "buttons-excel buttons-html5 btn btn-success",
-                        exportOptions: {
-                            columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                        }
-                    },
-                    {
-                        extend: 'copy',
-                        text: "Copiar datos",
-                        className: "buttons-excel buttons-html5 btn btn-default",
-                    }
-                ],
-                columns: [
-                    {title: "Programa de Operación", data: "date", searchable: true},
-                    {title: "Servicio Usuario", data: "userRoute", searchable: true},
-                    {title: "Servicio Sonda", data: "authRoute", searchable: true},
-                    {
-                        title: "Periodo Transantiago", data: "timePeriod", searchable: true,
-                        render: function (data) {
-                            return data.replace(/ *\([^)]*\) */g, "");
-                        }
-                    },
-                    {title: "Inicio", data: "startPeriodTime", searchable: false},
-                    {title: "Fin", data: "endPeriodTime", searchable: false},
-                    {title: "Frecuencia [Bus/h]", data: "frequency", searchable: false},
-                    {title: "Capacidad [Plazas/h]", data: "capacity", searchable: false},
-                    {title: "Distancia [km]", data: "distance", searchable: false},
-                    {title: "Velocidad [km/h]", data: "speed", searchable: false},
-                ],
-                createdRow: function () {
-                    this.api().columns([3]).every(function () {
-                        let column = this;
-                        let select = $('<select id="periodTimeSelector" multiple="multiple" style="width: 400px; height: 60px"></select>')
-                            .appendTo($(".periodSelector").empty())
-                            .on('change', function () {
-                                let selectedValues = $(this).val() || [];
-                                let regexValues = selectedValues.map(e => $.fn.dataTable.util.escapeRegex(e));
-                                regexValues = regexValues.map(e => `^${e}$`);
-                                let query = regexValues.join("|");
-                                column
-                                    .search(query, true, false)
-                                    .draw();
-                            });
-                        select.select2({
-                            width: 'element',
-                            height: 'element',
-                            placeholder: " Filtrar según periodo transantiago",
+    this.addTableInfo = function () {
+      let $TABLE = $('#shapeDetail');
+      $TABLE.DataTable({
+        language: {
+          url: "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json",
+          decimal: ",",
+          thousands: "."
+        },
+        scrollX: true,
+        responsive: true,
+        pageLength: 15,
+        paging: true,
+        retrieve: true,
+        searching: true,
+        order: [[0, "asc"], [1, "asc"], [2, "asc"]],
+        dom: 'Bfr<"periodSelector">iptpi',
+        buttons: [
+          {
+            extend: "excelHtml5",
+            text: "Exportar a excel",
+            title: 'datos_de_ruta',
+            className: "buttons-excel buttons-html5 btn btn-success",
+            exportOptions: {
+              columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            }
+          },
+          {
+            extend: 'copy',
+            text: "Copiar datos",
+            className: "buttons-excel buttons-html5 btn btn-default",
+          }
+        ],
+        columns: [
+          {title: "Programa de Operación", data: "date", searchable: true},
+          {title: "Servicio Usuario", data: "userRoute", searchable: true},
+          {title: "Servicio Sonda", data: "authRoute", searchable: true},
+          {
+            title: "Periodo Transantiago", data: "timePeriod", searchable: true,
+            render: function (data) {
+              return data.replace(/ *\([^)]*\) */g, "");
+            }
+          },
+          {title: "Inicio", data: "startPeriodTime", searchable: false},
+          {title: "Fin", data: "endPeriodTime", searchable: false},
+          {title: "Frecuencia [Bus/h]", data: "frequency", searchable: false},
+          {title: "Capacidad [Plazas/h]", data: "capacity", searchable: false},
+          {title: "Distancia [km]", data: "distance", searchable: false},
+          {title: "Velocidad [km/h]", data: "speed", searchable: false},
+        ],
+        createdRow: function () {
+          this.api().columns([3]).every(function () {
+            let column = this;
+            let select = $('<select id="periodTimeSelector" multiple="multiple" style="width: 400px; height: 60px"></select>')
+              .appendTo($(".periodSelector").empty())
+              .on('change', function () {
+                let selectedValues = $(this).val() || [];
+                let regexValues = selectedValues.map(e => $.fn.dataTable.util.escapeRegex(e));
+                regexValues = regexValues.map(e => `^${e}$`);
+                let query = regexValues.join("|");
+                column
+                  .search(query, true, false)
+                  .draw();
+              });
+            select.select2({
+              width: 'element',
+              height: 'element',
+              placeholder: " Filtrar según periodo transantiago",
 
             });
             let selectorValues = [];
