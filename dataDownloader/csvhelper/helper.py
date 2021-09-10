@@ -1522,7 +1522,7 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
                             user_stop_code_str = stops_dict[auth_stop_code_str]["userCode"]
                             stop_name_str = stops_dict[auth_stop_code_str]['name']
                         for operator in auth_stop_code.operator:
-                            operator_str = operator.key  # TODO: use dict
+                            operator_str = self.operator_dict[operator.key]
                             for bus_station in operator.busStation:
                                 bus_station_str = self.bus_station_dict[bus_station.key]
                                 formatted_row.append(
