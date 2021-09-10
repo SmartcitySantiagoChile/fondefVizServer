@@ -89,14 +89,14 @@ class ESStageHelperTest(TestCase):
         expected_result = {'query': {'bool': {'filter': [{'range': {
             'boardingTime': {'gte': '2020-01-01||/d', 'lte': '2020-01-03||/d', 'format': 'yyyy-MM-dd',
                              'time_zone': '+00:00'}}}, {'terms': {'dayType': ['LABORAL']}},
-                                                         {'range': {'stageNumber': {'gt': 1}}}]}}, 'aggs': {
+            {'range': {'stageNumber': {'gt': 1}}}]}}, 'aggs': {
             'result': {'date_histogram': {'field': 'boardingTime', 'interval': 'day'}, 'aggs': {
                 'dayType': {'terms': {'field': 'dayType', 'size': 4}, 'aggs': {
                     'timePeriodInBoardingTime': {'terms': {'field': 'timePeriodInBoardingTime', 'size': 100}, 'aggs': {
                         'halfHourInBoardingTime': {'terms': {'field': 'halfHourInBoardingTime', 'size': 48}, 'aggs': {
                             'authStopCode': {'terms': {'field': 'authStopCode', 'size': 13000}, 'aggs': {
                                 'operator': {'terms': {'field': 'operator', 'size': 20}, 'aggs': {
-                                    'busSation': {'terms': {'field': 'busSation', 'size': 2}, 'aggs': {
+                                    'busStation': {'terms': {'field': 'busStation', 'size': 2}, 'aggs': {
                                         'expandedBoarding': {'sum': {'field': 'expandedBoarding'}}}}}}}}}}}}}}}}},
-                           'from': 0, 'size': 0}
+            'from': 0, 'size': 0}
         self.assertEqual(expected_result, result.to_dict())
