@@ -351,7 +351,7 @@ class PermissionBuilder(object):
         # create permission to see evasion information on profile views
         evasion_permission, _ = GlobalPermission.objects.get_or_create(
             odename='evasion', defaults={'name': 'evasion'})
-        evasion_group, _ = Group.objects.get_or_create(name='Ver datos de evasión en perfil de carga')
+        evasion_group, _ = Group.objects.get_or_create(name='Sección de evasión')
         evasion_group.permissions.add(evasion_permission)
 
     def update_permission(self, new_operator_obj):
