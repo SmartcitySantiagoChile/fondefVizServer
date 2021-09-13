@@ -181,19 +181,7 @@ class ESProfileHelper(ElasticSearchHelper):
 
     def get_profile_by_expedition_data(self, dates, day_type, auth_route, period, half_hour,
                                        valid_operator_list, show_evasion=True):
-        """
-        Args:
-            dates:
-            day_type:
-            auth_route:
-            period:
-            half_hour:
-            valid_operator_list:
-            show_evasion:
 
-        Returns:
-
-        """
         es_query = self.get_base_profile_by_expedition_data_query(dates, day_type, auth_route, period,
                                                                   half_hour, valid_operator_list, show_evasion=show_evasion)[:0]
         stops = A('terms', field='authStopCode.raw', size=500)
