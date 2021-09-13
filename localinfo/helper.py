@@ -348,12 +348,6 @@ class PermissionBuilder(object):
         post_products_group, _ = Group.objects.get_or_create(name='Sección de productos post')
         post_products_group.permissions.add(post_products_permission)
 
-        # create permission to see evasion information on profile views
-        evasion_permission, _ = GlobalPermission.objects.get_or_create(
-            odename='evasion', defaults={'name': 'evasion'})
-        evasion_group, _ = Group.objects.get_or_create(name='Sección de evasión')
-        evasion_group.permissions.add(evasion_permission)
-
     def update_permission(self, new_operator_obj):
         """
         Modify permission if user change name or esId
