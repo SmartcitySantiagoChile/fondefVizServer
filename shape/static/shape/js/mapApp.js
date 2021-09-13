@@ -161,7 +161,6 @@ $(document).ready(function () {
     };
 
     this.addStopLayers = (layerId, stopsSource) => {
-      console.log(layerId);
         stopsSource = {
           type: "FeatureCollection",
           features: stopsSource
