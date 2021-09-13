@@ -161,78 +161,78 @@ $(document).ready(function () {
     };
 
     this.addStopLayers = (layerId, stopsSource) => {
-        stopsSource = {
-          type: "FeatureCollection",
-          features: stopsSource
-        };
+      stopsSource = {
+        type: "FeatureCollection",
+        features: stopsSource
+      };
 
-        let stopsLayerTemplate = {
-          id: 'stops-layer',
-          source: 'stops-source',
-          type: 'circle',
-          paint: {
-            'circle-radius': ['interpolate', ['linear'], ['zoom'],
-              12, 2,
-              14, 4,
-              20, 8,
-            ],
-            'circle-color': ['get', 'color']
-          }
-        };
-        let stopLabelLayerTemplate = {
-          id: 'stop-label-layer',
-          source: 'stops-source',
-          type: 'symbol',
-          layout: {
-            'text-field': '{userStopCode}',
-            'text-size': 10,
-            'text-offset': [0, 1]
-          }
-        };
-        _self.removeStopLayers(layerId);
+      let stopsLayerTemplate = {
+        id: 'stops-layer',
+        source: 'stops-source',
+        type: 'circle',
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'],
+            12, 2,
+            14, 4,
+            20, 8,
+          ],
+          'circle-color': ['get', 'color']
+        }
+      };
+      let stopLabelLayerTemplate = {
+        id: 'stop-label-layer',
+        source: 'stops-source',
+        type: 'symbol',
+        layout: {
+          'text-field': '{userStopCode}',
+          'text-size': 10,
+          'text-offset': [0, 1]
+        }
+      };
+      _self.removeStopLayers(layerId);
 
-        let stopsLayer = $.extend({}, stopsLayerTemplate);
-        let stopLabelLayer = $.extend({}, stopLabelLayerTemplate);
+      let stopsLayer = $.extend({}, stopsLayerTemplate);
+      let stopLabelLayer = $.extend({}, stopLabelLayerTemplate);
 
-        stopsLayer.id = `stops-${layerId}`;
-        stopsLayer.source = `stops-source-${layerId}`;
-        stopLabelLayer.id = `stop-label-${layerId}`;
-        stopLabelLayer.source = `stops-source-${layerId}`;
+      stopsLayer.id = `stops-${layerId}`;
+      stopsLayer.source = `stops-source-${layerId}`;
+      stopLabelLayer.id = `stop-label-${layerId}`;
+      stopLabelLayer.source = `stops-source-${layerId}`;
 
-        _mapApp.getMapInstance().addSource(`stops-source-${layerId}`, {type: 'geojson', data: stopsSource});
-        _mapApp.getMapInstance().addLayer(stopsLayer);
-        _mapApp.getMapInstance().addLayer(stopLabelLayer);
+      _mapApp.getMapInstance().addSource(`stops-source-${layerId}`, {type: 'geojson', data: stopsSource});
+      _mapApp.getMapInstance().addLayer(stopsLayer);
+      _mapApp.getMapInstance().addLayer(stopLabelLayer);
 
-        let openStopPopup = function (feature) {
-          let popUpDescription = "<p>";
-          popUpDescription += " Nombre: <b>" + feature.properties.stopName + "</b><br />";
-          popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
-          popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
-          popUpDescription += " Posición: <b>" + feature.properties.latitude + "," + feature.properties.longitude + "</b><br />";
-          popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
-          popUpDescription += "</p>";
+      let openStopPopup = function (feature) {
+        let popUpDescription = "<p>";
+        popUpDescription += " Nombre: <b>" + feature.properties.stopName + "</b><br />";
+        popUpDescription += " Código transantiago: <b>" + feature.properties.authStopCode + "</b><br />";
+        popUpDescription += " Código usuario: <b>" + feature.properties.userStopCode + "</b><br />";
+        popUpDescription += " Posición: <b>" + feature.properties.latitude + "," + feature.properties.longitude + "</b><br />";
+        popUpDescription += " Servicios que se detienen: <b>" + feature.properties.routes + "</b><br />";
+        popUpDescription += "</p>";
 
-          new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
-        };
+        new mapboxgl.Popup({closeOnClick: false}).setLngLat(feature.geometry.coordinates).setHTML(popUpDescription).addTo(_mapApp.getMapInstance());
+      };
 
-        let mouseenter = () => {
-          _mapApp.getMapInstance().getCanvas().style.cursor = 'pointer';
-        };
-        let mouseleave = () => {
-          _mapApp.getMapInstance().getCanvas().style.cursor = '';
-        };
-        let click = e => {
-          let feature = e.features[0];
-          openStopPopup(feature);
-        };
+      let mouseenter = () => {
+        _mapApp.getMapInstance().getCanvas().style.cursor = 'pointer';
+      };
+      let mouseleave = () => {
+        _mapApp.getMapInstance().getCanvas().style.cursor = '';
+      };
+      let click = e => {
+        let feature = e.features[0];
+        openStopPopup(feature);
+      };
 
-        _mapApp.getMapInstance().on('mouseenter', stopsLayer.id, mouseenter);
-        _mapApp.getMapInstance().on('mouseleave', stopsLayer.id, mouseleave);
-        _mapApp.getMapInstance().on('click', stopsLayer.id, click);
+      _mapApp.getMapInstance().on('mouseenter', stopsLayer.id, mouseenter);
+      _mapApp.getMapInstance().on('mouseleave', stopsLayer.id, mouseleave);
+      _mapApp.getMapInstance().on('click', stopsLayer.id, click);
 
-        _mapApp.getMapInstance().on('mouseenter', stopLabelLayer.id, mouseenter);
-        _mapApp.getMapInstance().on('mouseleave', stopLabelLayer.id, mouseleave);
-        _mapApp.getMapInstance().on('click', stopLabelLayer.id, click);
+      _mapApp.getMapInstance().on('mouseenter', stopLabelLayer.id, mouseenter);
+      _mapApp.getMapInstance().on('mouseleave', stopLabelLayer.id, mouseleave);
+      _mapApp.getMapInstance().on('click', stopLabelLayer.id, click);
 
     };
 
@@ -250,7 +250,7 @@ $(document).ready(function () {
     };
 
     this.removeStopLayers = (layerId) => {
-      if (layerId.includes("stop")){
+      if (layerId.includes("stop")) {
         layerId = layerId.split("-")[1];
       }
       // remove data
@@ -617,23 +617,26 @@ $(document).ready(function () {
             $("#stopLegendTable").empty();
             rows.each((index, el) => {
               const id = $(el).data('id').split('-')[1];
-              const data = _mapApp.getMapInstance().getSource(`stops-source-${id}`)._data.features;
-              const isSingleStop = data.length === 1;
-              const canvasId = `stop-canvas-${id}`;
-              const stopDate = $(`#stopDateSelect-${id}`).val();
-              const userStopCode = isSingleStop ? data[0].properties.userStopCode : "Todas las paradas";
-              const stopName = isSingleStop ? data[0].properties.stopName : "";
-              const authStopCode = isSingleStop ? data[0].properties.authStopCode : "";
-              const color = $(`#stopColorSelect-${id}`).colorpicker('getValue');
-              const legendRow = `<tr>
+              const source = _mapApp.getMapInstance().getSource(`stops-source-${id}`)
+              if (source) {
+                const data = source._data.features;
+                const isSingleStop = data.length === 1;
+                const canvasId = `stop-canvas-${id}`;
+                const stopDate = $(`#stopDateSelect-${id}`).val();
+                const userStopCode = isSingleStop ? data[0].properties.userStopCode : "Todas las paradas";
+                const stopName = isSingleStop ? data[0].properties.stopName : "";
+                const authStopCode = isSingleStop ? data[0].properties.authStopCode : "";
+                const color = $(`#stopColorSelect-${id}`).colorpicker('getValue');
+                const legendRow = `<tr>
                                 <td><canvas id="${canvasId}"></canvas></td>
                                 <td>${stopDate}</td>
                                 <td>${userStopCode}</td>
                                 <td>${authStopCode}</td>
                                 <td>${stopName}</td>
                               </tr>`;
-              $('#stopLegendTable').append(legendRow);
-              this.setRouteColorCanvas(canvasId, color);
+                $('#stopLegendTable').append(legendRow);
+                this.setRouteColorCanvas(canvasId, color);
+              }
             });
 
             this._div.style.display = "inline";
@@ -1036,7 +1039,7 @@ $(document).ready(function () {
           if ($(`#stopDateSelect-${selectorId}`).length) {
             _self.addStopLayers(selectorId, stopsSource);
           }
-            // update color
+          // update color
           if ($(`#stopDateSelect-${selectorId}`).length) {
             const colorButton = $(`#stopColorSelect-${selectorId} `);
             const color = getRandomColor();
