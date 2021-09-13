@@ -109,7 +109,21 @@ class ESProfileHelper(ElasticSearchHelper):
         return result, operator_list
 
     def get_base_profile_by_expedition_data_query(self, dates, day_type, auth_route, period, half_hour,
-                                                  valid_operator_list, show_only_valid_expeditions=True):
+                                                  valid_operator_list, show_only_valid_expeditions=True,
+                                                  show_evasion=True):
+        """ Get base profile by expedition query
+        Args:
+            dates: dates to filter
+            day_type: day type filter
+            auth_route: auth route filter
+            period: period filter
+            half_hour: half hour filter
+            valid_operator_list: valid operator list filter
+            show_only_valid_expeditions: valid expedition filter
+            show_evasion: add evasion data to the query
+
+        Returns: profile by expedition query
+        """
         es_query = self.get_base_query()
         es_query = es_query.filter('term', fulfillment="C")
         if valid_operator_list:
@@ -150,15 +164,18 @@ class ESProfileHelper(ElasticSearchHelper):
         if show_only_valid_expeditions:
             es_query = es_query.filter('term', notValid=0)
 
+        # evasion data parameters
+        evasion_data = ['expandedEvasionBoarding', 'expandedEvasionAlighting',
+                        'expandedBoardingPlusExpandedEvasionBoarding', 'expandedAlightingPlusExpandedEvasionAlighting',
+                        'loadProfileWithEvasion', 'evasionPercent', 'evasionPercent',
+                        'passengerWithEvasionPerKmSection'] if show_evasion else []
+
         es_query = es_query.source(
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
-             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid', 'expandedEvasionBoarding',
-             'expandedEvasionAlighting',
-             'expandedBoardingPlusExpandedEvasionBoarding',
-             'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-             'boardingWithAlighting', 'boarding', 'evasionPercent', 'evasionPercent', 'uniformDistributionMethod',
-             'passengerWithEvasionPerKmSection', 'capacityPerKmSection'])
+             'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid',
+             'boardingWithAlighting', 'boarding', 'uniformDistributionMethod',
+             'capacityPerKmSection'] + evasion_data)
 
         return es_query
 
