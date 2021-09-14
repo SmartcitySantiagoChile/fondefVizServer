@@ -1207,7 +1207,7 @@ $(document).ready(function () {
     };
 
     this.refreshRemoveButton = function () {
-      let $REMOVE_BUTTON = $(".btn-danger");
+      let $REMOVE_BUTTON = $("#routeControl .btn-danger");
       $REMOVE_BUTTON.off("click");
       $REMOVE_BUTTON.click(function () {
         let removeButtonRef = $(this);
@@ -1223,7 +1223,7 @@ $(document).ready(function () {
      * Handle control events for stop remove button.
      */
     this.refreshRemoveStopButton = function () {
-      const removeStopButton = $(".btn-danger");
+      const removeStopButton = $("#stopControl .btn-danger");
       removeStopButton.off("click");
       removeStopButton.click(function () {
         const removeButtonRef = $(this);
