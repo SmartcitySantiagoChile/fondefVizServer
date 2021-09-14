@@ -12,7 +12,7 @@ from localinfo.helper import get_op_route, get_op_routes_dict, _list_parser, _di
     get_halfhour_list_for_select_input, get_commune_list_for_select_input, get_transport_mode_list_for_select_input, \
     get_calendar_info, get_all_faqs, search_faq, get_valid_time_period_date, get_periods_dict, synchronize_op_program, \
     get_opprogram_list_for_select_input, upload_csv_op_dictionary, check_period_list_id, \
-    create_csv_format_users_list
+    create_csv_format_users_list, PermissionBuilder
 from localinfo.models import DayDescription, CalendarInfo, OPDictionary, FAQ, OPProgram
 
 
@@ -678,3 +678,11 @@ class TestHelperUtils(TestCase):
             header,
             ['test_user', 'test@user.com', 'test', 'user', 'No', formatted_login_time, "Si", "No"]]
         self.assertEqual(expected_user_list, create_csv_format_users_list())
+
+    def test_has_evasion_permission(self):
+        login_time = timezone.now()
+        user = User.objects.create(password="test_user_password", first_name="test", last_name="user",
+                                   username="test_user", email="test@user.com", last_login=login_time)
+        group = Group.objects.create(name="Ver datos de evasión en perfil de carga")
+        group.user_set.add(user)
+        self.assertTrue(PermissionBuilder.has_evasion_permission(user))

@@ -400,3 +400,8 @@ class PermissionBuilder(object):
                 answer.append(esId)
 
         return answer
+
+    @staticmethod
+    def has_evasion_permission(user) -> bool:
+        """Check if an user has evasion permission"""
+        return user.groups.filter(name='Ver datos de evasión en perfil de carga').exists()
