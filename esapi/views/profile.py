@@ -159,7 +159,7 @@ class LoadProfileByExpeditionData(View):
         value = float(data)
         return 0 if (-1 < value < 0) else value
 
-    def transform_answer(self, es_query):
+    def transform_answer(self, es_query, show_evasion):
         """ transform ES answer to something util to web client """
         trips = defaultdict(lambda: {'info': [], 'stops': {}})
         bus_stations = []
@@ -188,20 +188,21 @@ class LoadProfileByExpeditionData(View):
                 bus_stations.append(hit.authStopCode)
 
             # loadProfile, expandedBoarding, expandedAlighting
-            stop = [
-                self.clean_data(hit.loadProfile),
-                self.clean_data(hit.expandedBoarding),
-                self.clean_data(hit.expandedAlighting),
-                self.clean_data(hit.loadProfileWithEvasion),
-                self.clean_data(hit.expandedEvasionBoarding),
-                self.clean_data(hit.expandedEvasionAlighting),
-                self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
-                self.clean_data(hit.expandedAlightingPlusExpandedEvasionAlighting),
-                self.clean_data(hit.boarding),
-                self.clean_data(hit.boardingWithAlighting),
-                self.clean_data(hit.passengerWithEvasionPerKmSection),
-                self.clean_data(hit.capacityPerKmSection),
-            ]
+            evasion_data_a = [self.clean_data(hit.loadProfileWithEvasion),
+                              self.clean_data(hit.expandedEvasionBoarding),
+                              self.clean_data(hit.expandedEvasionAlighting),
+                              self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
+                              self.clean_data(
+                                  hit.expandedAlightingPlusExpandedEvasionAlighting)] if show_evasion else [0] * 5
+            evasion_data_b = [self.clean_data(hit.passengerWithEvasionPerKmSection)] if show_evasion else [0]
+            stop = [self.clean_data(hit.loadProfile),
+                    self.clean_data(hit.expandedBoarding),
+                    self.clean_data(hit.expandedAlighting)] \
+                   + evasion_data_a \
+                   + [self.clean_data(hit.boarding),
+                      self.clean_data(hit.boardingWithAlighting)] \
+                   + evasion_data_b + \
+                   [self.clean_data(hit.capacityPerKmSection)]
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 
         if len(list(trips.keys())) == 0:
@@ -216,7 +217,7 @@ class LoadProfileByExpeditionData(View):
         half_hour = params.getlist('halfHour[]')
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-        show_evasion_permission = PermissionBuilder.has_evasion_permission(request.user)
+        show_evasion = PermissionBuilder.has_evasion_permission(request.user)
         response = {}
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
@@ -244,8 +245,9 @@ class LoadProfileByExpeditionData(View):
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
                                                                                            valid_operator_list, False,
-                                                                                           show_evasion_permission)
-                    response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
+                                                                                           show_evasion)
+                    response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query,
+                                                                                                             show_evasion)
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
                                                                                 len(list(response['trips'].keys()))). \
@@ -255,11 +257,12 @@ class LoadProfileByExpeditionData(View):
                     es_query = es_profile_helper.get_profile_by_expedition_data(dates, day_type,
                                                                                 auth_route_code, period, half_hour,
                                                                                 valid_operator_list,
-                                                                                show_evasion_permission)
+                                                                                show_evasion)
                     response['groupedTrips'] = es_query.execute().to_dict()
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
                 response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
+                response['show_evasion'] = show_evasion
         except FondefVizError as e:
             response['status'] = e.get_status_response()
         return JsonResponse(response, safe=False)
