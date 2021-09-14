@@ -216,7 +216,7 @@ class LoadProfileByExpeditionData(View):
         half_hour = params.getlist('halfHour[]')
 
         valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-
+        show_evasion_permission = PermissionBuilder.has_evasion_permission(request.user)
         response = {}
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
@@ -236,14 +236,15 @@ class LoadProfileByExpeditionData(View):
                 diff_days = 0
                 for date_range in dates:
                     diff_days += len(es_profile_helper.get_available_days_between_dates(date_range[0], date_range[-1],
-                                                                                        valid_operator_list))
+                                                                                        valid_operator_list, ))
                 day_limit = 7
 
                 if diff_days <= day_limit:
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
-                                                                                           valid_operator_list, False)
+                                                                                           valid_operator_list, False,
+                                                                                           show_evasion_permission)
                     response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
@@ -253,7 +254,8 @@ class LoadProfileByExpeditionData(View):
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(dates, day_type,
                                                                                 auth_route_code, period, half_hour,
-                                                                                valid_operator_list)
+                                                                                valid_operator_list,
+                                                                                show_evasion_permission)
                     response['groupedTrips'] = es_query.execute().to_dict()
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
