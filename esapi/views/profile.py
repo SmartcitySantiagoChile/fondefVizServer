@@ -262,7 +262,7 @@ class LoadProfileByExpeditionData(View):
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
                 response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
-                response['show_evasion'] = show_evasion
+                response['showEvasion'] = show_evasion
         except FondefVizError as e:
             response['status'] = e.get_status_response()
         return JsonResponse(response, safe=False)

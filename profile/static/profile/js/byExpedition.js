@@ -617,7 +617,7 @@ $(document).ready(function () {
       })
     };
 
-    const _updateBarChart = function () {
+    const _updateBarChart = function (showEvasion) {
       let yAxisData = _dataManager.yAxisData();
       let xAxisData = _dataManager.xAxisData();
 
@@ -628,6 +628,12 @@ $(document).ready(function () {
         "Carga prom.", "Carga prom. con evasión",
         "Carga máx.", "Carga máx. con evasión",
         "% ocupación", "% ocupación con evasión"];
+      let yAxisDataNameWithoutEvasion = [
+        "Subidas",
+        "Bajadas",
+        "Carga prom.",
+        "Carga máx.",
+        "% ocupación"];
       let yAxisIndex = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1];
       let yChartType = [
         "bar", "bar",
@@ -686,7 +692,7 @@ $(document).ready(function () {
       let route = $("#authRouteFilter").val();
       let options = {
         legend: {
-          data: yAxisDataName,
+          data: yAxisDataNameWithoutEvasion,
           height: 40,
           orient: 'vertical',
           formatter: '{styleA|{name}}',
@@ -869,7 +875,7 @@ $(document).ready(function () {
     };
 
     const addSwitch = function () {
-      let evasionSwitch = "<input id='evasionSwitch'  type='checkbox'  class='modes_checkbox' data-switchery='true'> Mostrar datos con evasión ";
+      let evasionSwitch = "<div id='evasionControl'><input id='evasionSwitch'  type='checkbox'  class='modes_checkbox' data-switchery='true'> Mostrar datos con evasión </div>";
       $("#barChart").prepend(evasionSwitch);
       let evasionJquerySwitch = $("#evasionSwitch");
       evasionJquerySwitch.each(function (index, html) {
@@ -915,8 +921,8 @@ $(document).ready(function () {
       $("#utilizationCoefficient").html(Number(utilizationCoefficient.toFixed(2)).toLocaleString());
     };
 
-    this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
-      _updateBarChart();
+    this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient, showEvasion) {
+      _updateBarChart(showEvasion);
       _updateGlobalStats(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
       _updateMap();
     };
@@ -935,7 +941,7 @@ $(document).ready(function () {
      * Replace information labels with -.
      * @private
      */
-    const _clearGlobalStats = function(){
+    const _clearGlobalStats = function () {
       $("#expeditionNumber").html('-');
       $("#expeditionNumber2").html('-');
       $("#boardingWithAlightingPercentage").html('-');
@@ -946,12 +952,39 @@ $(document).ready(function () {
      * Clear information in bar chart, datatables and map.
      */
     this.clearDisplayData = function () {
+      $("#globalStatsTable").hide();
       _barChart.clear();
       _clearGlobalStats();
       _datatable.clear().draw();
       _dataManager.clearData();
       $("#mapid").hide();
     };
+
+    /** Hide or show evasion display
+     * If show evasion, add evasion legends.
+     * If not show evasion, remove evasion global stat column and hide evasion switch.
+     * @param showEvasion: true if show evasion
+     */
+    this.manageEvasionDisplay = function (showEvasion) {
+      if (showEvasion) {
+        let options = {legend: {
+            data: [
+              "Subidas", "Subidas evadidas",
+              "Bajadas", "Bajadas evadidas",
+              "Carga prom.", "Carga prom. con evasión",
+              "Carga máx.", "Carga máx. con evasión",
+              "% ocupación", "% ocupación con evasión"]
+          }};
+        _barChart.setOption(options, {
+          replaceMerge: 'legend'
+        });
+      } else {
+        $("#evasionControl").hide();
+        $("#globalStatsTable thead tr").children("th:eq(2)").remove();
+        $("#globalStatsTable tbody tr").children("td:eq(2)").remove();
+      }
+      $("#globalStatsTable").show();
+    }
   }
 
   function processData(dataSource, app) {
@@ -959,12 +992,12 @@ $(document).ready(function () {
     if (dataSource.status && (dataSource.status.code !== 252 && dataSource.status.code !== 253)) {
       return;
     }
-
     let trips = dataSource.trips;
     let stops = dataSource.stops;
     let busStations = dataSource.busStations;
     let shape = dataSource.shape;
     let dataManager = new DataManager();
+    const showEvasion = dataSource.showEvasion;
     dataManager.shape(shape);
     if (dataSource.groupedTrips) {
       busStations = dataSource.groupedTrips.aggregations.stop.station.buckets.map(function (el) {
@@ -1064,8 +1097,9 @@ $(document).ready(function () {
       });
       dataManager.xAxisData(tripGroupXAxisData);
       app.dataManager(dataManager);
-      app.updateCharts(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
+      app.updateCharts(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient, showEvasion);
       app.updateDatatable();
+      app.manageEvasionDisplay(showEvasion);
     } else {
       for (let expeditionId in trips) {
         let trip = trips[expeditionId];
@@ -1148,6 +1182,7 @@ $(document).ready(function () {
       app.dataManager(dataManager);
       app.updateCharts();
       app.updateDatatable();
+      app.manageEvasionDisplay(showEvasion);
     }
   }
 
