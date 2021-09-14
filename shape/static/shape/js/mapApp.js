@@ -250,9 +250,6 @@ $(document).ready(function () {
     };
 
     this.removeStopLayers = (layerId) => {
-      if (layerId.includes("stop")) {
-        layerId = layerId.split("-")[1];
-      }
       // remove data
       if (_mapApp.getMapInstance().getLayer(`stops-${layerId}`)) {
         _mapApp.getMapInstance().removeLayer(`stops-${layerId}`);
@@ -616,7 +613,7 @@ $(document).ready(function () {
             // remove previous rows
             $("#stopLegendTable").empty();
             rows.each((index, el) => {
-              const id = $(el).data('id').split('-')[1];
+              const id = $(el).data('id');
               const source = _mapApp.getMapInstance().getSource(`stops-source-${id}`)
               if (source) {
                 const data = source._data.features;
@@ -858,7 +855,7 @@ $(document).ready(function () {
       const newStopId = selectorStopId;
       selectorStopId++;
       const row = `
-            <tr class="stopSelectorRow" data-id="stop-${newStopId}">
+            <tr class="stopSelectorRow" data-id="${newStopId}">
                 <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
                 <td><select id=stopDateSelect-${newStopId} class="form-control stopDate"></select></td>
                 <td><select id=stopNameSelect-${newStopId} class="form-control stopName"></select></td>
@@ -1002,7 +999,7 @@ $(document).ready(function () {
      */
     this.sendStopData = function (e) {
       const selector = $(e).closest(".stopSelectorRow");
-      const selectorId = selector.data("id").split("-")[1];
+      const selectorId = selector.data("id");
       const stopDate = selector.find(".stopDate").first().val();
       const stopName = selector.find(".stopName").first().val();
       const params = {
@@ -1290,7 +1287,7 @@ $(document).ready(function () {
       stopColorButton.off("changeColor");
       stopColorButton.colorpicker({format: "rgb"}).on("changeColor", function (e) {
         const color = e.color.toString("rgba");
-        const layerId = $(this).parent().parent().data("id").split("-")[1];
+        const layerId = $(this).parent().parent().data("id");
         $(this).css("color", color);
         updateStopLayerColor(color, layerId);
       });
