@@ -29,7 +29,9 @@ $(document).ready(function () {
     let selectorId = 1;
     let selectorStopId = 1;
     let routeLegendControl = null;
+    let routeControl = null;
     let stopLegendControl = null;
+    let stopControl = null;
 
     this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
       shapeStopsSource = {
@@ -231,6 +233,7 @@ $(document).ready(function () {
       _mapApp.getMapInstance().on('mouseenter', stopLabelLayer.id, mouseenter);
       _mapApp.getMapInstance().on('mouseleave', stopLabelLayer.id, mouseleave);
       _mapApp.getMapInstance().on('click', stopLabelLayer.id, click);
+
     };
 
     this.removeShapeLayers = (layerId) => {
@@ -309,7 +312,7 @@ $(document).ready(function () {
     };
 
 
-    this.addListControl = (mapInstance) => {
+    this.addRouteListControl = (mapInstance) => {
       class RouteListControl {
         onAdd(map) {
           let div = document.createElement('div');
@@ -323,11 +326,15 @@ $(document).ready(function () {
         }
       }
 
+      mapInstance.addControl(new RouteListControl(), 'top-left');
+    };
+
+    this.addStopListControl = (mapInstance) => {
       class StopListControl {
         onAdd(map) {
           let div = document.createElement('div');
           div.className = 'mapboxgl-ctrl info noprint';
-          div.id = 'listControl';
+          div.id = 'stopListControl';
           div.innerHTML += `
             <button id="addStopInMapButton" class="btn btn-default btn-sm" >
               <span class="fas fa-traffic-light" aria-hidden="true"></span> Paradas en mapa
@@ -336,9 +343,8 @@ $(document).ready(function () {
         }
       }
 
-      mapInstance.addControl(new RouteListControl(), 'top-left');
       mapInstance.addControl(new StopListControl(), 'top-left');
-    };
+    }
 
     this.addBearingControl = (mapInstance) => {
       class BearingControl {
@@ -500,6 +506,69 @@ $(document).ready(function () {
     };
 
     /**
+     * Define and create a RouteControl instance.
+     * This class have the route control selectors.
+     * @param mapInstance
+     * @returns {RouteControl} a new instance of this class
+     */
+    this.addRouteControl = (mapInstance) => {
+      class RouteControl {
+        onAdd(map) {
+          this._div = document.createElement('div');
+          this._div.className = 'mapboxgl-ctrl info legend';
+          this._div.id = 'routeControl';
+          this._div.style.display = "none";
+          this._div.width = 230;
+          this._div.innerHTML = `
+            <div class='row'>
+              <div class='col-lg-12'>
+                <button id='backToRouteControl' class='btn btn-default btn-sm'>
+                  <span class='fas fa-minus' aria-hidden='true'></span>
+                  Minimizar
+                </button>
+                <button id='addRouteButton' class='btn btn-default btn-sm'>
+                  <span class='fas fa-plus' aria-hidden='true'></span>
+                   Agregar ruta
+                </button>
+              </div>
+            </div>
+            <div class='row' >
+              <div class='col-lg-12'>
+                <table class='table table-condensed'>
+                  <thead>
+                  	<th></th>
+                    <th>Fecha PO</th>
+                    <th>Servicio</th>
+                    <th>Servicio TS</th>
+                    <th></th><th></th><th></th><th></th>
+                  </thead>
+                  <tbody id='routeListContainer'>
+                  </tbody>
+                </table>
+              </div>
+            </div>`;
+          return this._div;
+        }
+
+        show() {
+          this._div.style.display = "inline";
+          if ($("#routeListContainer").children().length === 0) {
+            $("#addRouteButton").trigger("click");
+          }
+        }
+
+
+        hide() {
+          this._div.style.display = "none";
+        }
+      }
+
+      let routeControl = new RouteControl();
+      mapInstance.addControl(routeControl, 'top-left');
+      return routeControl;
+    }
+
+    /**
      * Add a stop legend to map instance.
      * @param mapInstance
      * @returns {StopLegendControl}
@@ -544,24 +613,27 @@ $(document).ready(function () {
             // remove previous rows
             $("#stopLegendTable").empty();
             rows.each((index, el) => {
-              const id = $(el).data('id').split('-')[1];
-              const data = _mapApp.getMapInstance().getSource(`stops-source-${id}`)._data.features;
-              const isSingleStop = data.length === 1;
-              const canvasId = `stop-canvas-${id}`;
-              const stopDate = $(`#stopDateSelect-${id}`).val();
-              const userStopCode = isSingleStop ? data[0].properties.userStopCode : "Todas las paradas";
-              const stopName = isSingleStop ? data[0].properties.stopName : "";
-              const authStopCode = isSingleStop ? data[0].properties.authStopCode : "";
-              const color = $(`#stopColorSelect-${id}`).colorpicker('getValue');
-              const legendRow = `<tr>
+              const id = $(el).data('id');
+              const source = _mapApp.getMapInstance().getSource(`stops-source-${id}`)
+              if (source) {
+                const data = source._data.features;
+                const isSingleStop = data.length === 1;
+                const canvasId = `stop-canvas-${id}`;
+                const stopDate = $(`#stopDateSelect-${id}`).val();
+                const userStopCode = isSingleStop ? data[0].properties.userStopCode : "Todas las paradas";
+                const stopName = isSingleStop ? data[0].properties.stopName : "";
+                const authStopCode = isSingleStop ? data[0].properties.authStopCode : "";
+                const color = $(`#stopColorSelect-${id}`).colorpicker('getValue');
+                const legendRow = `<tr>
                                 <td><canvas id="${canvasId}"></canvas></td>
                                 <td>${stopDate}</td>
                                 <td>${userStopCode}</td>
                                 <td>${authStopCode}</td>
                                 <td>${stopName}</td>
                               </tr>`;
-              $('#stopLegendTable').append(legendRow);
-              this.setRouteColorCanvas(canvasId, color);
+                $('#stopLegendTable').append(legendRow);
+                this.setRouteColorCanvas(canvasId, color);
+              }
             });
 
             this._div.style.display = "inline";
@@ -574,6 +646,69 @@ $(document).ready(function () {
       stopLegendControl.update();
       return stopLegendControl;
     };
+
+    /**
+     * Define and create a StopControl instance.
+     * This class have the stop control selectors.
+     * @param mapInstance
+     * @returns {StopControl} a new instance of this class
+     */
+    this.addStopControl = (mapInstance) => {
+      class StopControl {
+        onAdd(map) {
+          this._div = document.createElement('div');
+          this._div.className = 'mapboxgl-ctrl info legend';
+          this._div.id = 'stopControl';
+          this._div.style.display = "none";
+          this._div.width = 230;
+          this._div.innerHTML = `
+            <div class='row'>
+              <div class='col-lg-12'>
+                <button id='backToStopControl' class='btn btn-default btn-sm'>
+                  <span class='fas fa-minus' aria-hidden='true'></span>
+                  Minimizar
+                </button>
+                <button id='addStopButton' class='btn btn-default btn-sm'>
+                  <span class='fas fa-plus' aria-hidden='true'></span>
+                   Agregar parada
+                </button>
+              </div>
+            </div>
+            <div class='row' >
+              <div class='col-lg-12'>
+                <table class='table table-condensed'>
+                  <thead>
+                  	<th></th>
+                    <th>Fecha PO</th>
+                    <th>Parada</th>
+                    <th>Servicio TS</th>
+                    <th></th><th></th><th></th><th></th>
+                  </thead>
+                  <tbody id='stopListContainer'>
+                  </tbody>
+                </table>
+              </div>
+            </div>`;
+          return this._div;
+        }
+
+        show() {
+          this._div.style.display = "inline";
+          if ($("#stopListContainer").children().length === 0) {
+            $("#addStopButton").trigger("click");
+          }
+        }
+
+        hide() {
+          this._div.style.display = "none";
+        }
+      }
+
+      let stopControl = new StopControl();
+      mapInstance.addControl(stopControl, 'top-left');
+      return stopControl;
+    }
+
 
     this.loadBaseData = () => {
       $.getJSON(Urls["esapi:shapeBase"](), function (data) {
@@ -603,11 +738,24 @@ $(document).ready(function () {
         $("#helpModal").modal("show");
       });
       $("#addRouteInMapButton").click(function () {
-        $("#routeListModal").modal("show");
+        $(this).css("display", "none")
+        routeControl.show();
       });
+      $("#backToRouteControl").click(function () {
+        routeControl.hide();
+        $("#addRouteInMapButton").css("display", "inline");
+      });
+
       $("#addStopInMapButton").click(function () {
-        $("#stopListModal").modal("show");
+        $(this).css("display", "none");
+        stopControl.show();
       });
+
+      $("#backToStopControl").click(function () {
+        stopControl.hide();
+        $("#addStopInMapButton").css("display", "inline");
+      });
+
       $("#operationInfoButton").click(function () {
         let routeSelector = $("#routeListContainer");
         let periodInfoList = [];
@@ -701,13 +849,13 @@ $(document).ready(function () {
 
     /**
      * Add stop row selector with OP date list.
-     * @param opDateList available operation programs
+     * @param opDateList available operation programs.
      */
     this.addStopRow = function (opDateList) {
       const newStopId = selectorStopId;
       selectorStopId++;
       const row = `
-            <tr class="stopSelectorRow" data-id="stop-${newStopId}">
+            <tr class="stopSelectorRow" data-id="${newStopId}">
                 <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
                 <td><select id=stopDateSelect-${newStopId} class="form-control stopDate"></select></td>
                 <td><select id=stopNameSelect-${newStopId} class="form-control stopName"></select></td>
@@ -746,10 +894,14 @@ $(document).ready(function () {
 
           _self.addHelpControl(_mapInstance);
           _self.addOperationInfoControl(_mapInstance);
-          _self.addListControl(_mapInstance);
+          _self.addRouteListControl(_mapInstance);
+          routeControl = _self.addRouteControl(_mapInstance);
+          stopControl = _self.addStopControl(_mapInstance);
+          _self.addStopListControl(_mapInstance);
           _self.addBearingControl(_mapInstance);
-          routeLegendControl = _self.addRouteLegendControl(_mapInstance);
           stopLegendControl = _self.addStopLegendControl(_mapInstance);
+          routeLegendControl = _self.addRouteLegendControl(_mapInstance);
+
           _self.addScreenshotControl(_mapInstance);
 
           _self.loadBaseData();
@@ -847,7 +999,7 @@ $(document).ready(function () {
      */
     this.sendStopData = function (e) {
       const selector = $(e).closest(".stopSelectorRow");
-      const selectorId = selector.data("id").split("-")[1];
+      const selectorId = selector.data("id");
       const stopDate = selector.find(".stopDate").first().val();
       const stopName = selector.find(".stopName").first().val();
       const params = {
@@ -881,18 +1033,20 @@ $(document).ready(function () {
               }
             });
           });
-
-          _self.addStopLayers(selectorId, stopsSource);
-
+          if ($(`#stopDateSelect-${selectorId}`).length) {
+            _self.addStopLayers(selectorId, stopsSource);
+          }
           // update color
-          const colorButton = $(`#stopColorSelect-${selectorId}`);
-          const color = getRandomColor();
-          colorButton.colorpicker('setValue', color);
-          updateStopLayerColor(color, selectorId);
+          if ($(`#stopDateSelect-${selectorId}`).length) {
+            const colorButton = $(`#stopColorSelect-${selectorId} `);
+            const color = getRandomColor();
+            colorButton.colorpicker('setValue', color);
+            updateStopLayerColor(color, selectorId);
 
-          const stopNumberInMap = $('#stopListContainer tr').length;
-          if (stopNumberInMap === 1) {
-            _mapApp.fitBound([`stops-source-${selectorId}`]);
+            const stopNumberInMap = $('#stopListContainer tr').length;
+            if (stopNumberInMap === 1) {
+              _mapApp.fitBound([`stops-source-${selectorId}`]);
+            }
           }
         }
       });
@@ -1029,6 +1183,7 @@ $(document).ready(function () {
           },
           dropdownParent: selector,
           placeholder: "Todos",
+          width: 'style'
         });
       });
 
@@ -1132,7 +1287,7 @@ $(document).ready(function () {
       stopColorButton.off("changeColor");
       stopColorButton.colorpicker({format: "rgb"}).on("changeColor", function (e) {
         const color = e.color.toString("rgba");
-        const layerId = $(this).parent().parent().data("id").split("-")[1];
+        const layerId = $(this).parent().parent().data("id");
         $(this).css("color", color);
         updateStopLayerColor(color, layerId);
       });
@@ -1159,6 +1314,7 @@ $(document).ready(function () {
         updateLayerRoute(isVisible, layerId, button, span);
       });
     };
+
     this.setStopLayerVisibility = (layerId, show) => {
       let visible = show ? 'visible' : 'none';
       _mapApp.getMapInstance().setLayoutProperty(`shape-stops-${layerId}`, 'visibility', visible);
