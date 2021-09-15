@@ -230,8 +230,12 @@ class LoadProfileByExpeditionData(View):
             if export_data:
                 es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates, day_type,
                                                                                        auth_route_code, period,
-                                                                                       half_hour, valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
+                                                                                       half_hour, valid_operator_list,
+                                                                                       show_evasion)
+                if show_evasion:
+                    ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
+                else:
+                    ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA, request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 diff_days = 0
