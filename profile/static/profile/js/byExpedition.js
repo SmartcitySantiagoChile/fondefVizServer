@@ -617,7 +617,7 @@ $(document).ready(function () {
       })
     };
 
-    const _updateBarChart = function (showEvasion) {
+    const _updateBarChart = function () {
       let yAxisData = _dataManager.yAxisData();
       let xAxisData = _dataManager.xAxisData();
 
@@ -921,8 +921,8 @@ $(document).ready(function () {
       $("#utilizationCoefficient").html(Number(utilizationCoefficient.toFixed(2)).toLocaleString());
     };
 
-    this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient, showEvasion) {
-      _updateBarChart(showEvasion);
+    this.updateCharts = function (expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient) {
+      _updateBarChart();
       _updateGlobalStats(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
       _updateMap();
     };
@@ -965,8 +965,8 @@ $(document).ready(function () {
      * If not show evasion, remove evasion global stat column and hide evasion switch.
      * @param showEvasion: true if show evasion
      */
-    this.manageEvasionDisplay = function (showEvasion) {
-      if (showEvasion) {
+    this.manageEvasionDisplay = function (showEvasionData) {
+      if (showEvasionData) {
         let options = {
           legend: {
             data: [
@@ -999,7 +999,7 @@ $(document).ready(function () {
     let busStations = dataSource.busStations;
     let shape = dataSource.shape;
     let dataManager = new DataManager();
-    const showEvasion = dataSource.showEvasion;
+    const showEvasionData = dataSource.showEvasion;
     dataManager.shape(shape);
     if (dataSource.groupedTrips) {
       busStations = dataSource.groupedTrips.aggregations.stop.station.buckets.map(function (el) {
@@ -1102,9 +1102,9 @@ $(document).ready(function () {
       });
       dataManager.xAxisData(tripGroupXAxisData);
       app.dataManager(dataManager);
-      app.updateCharts(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient, showEvasion);
+      app.updateCharts(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
       app.updateDatatable();
-      app.manageEvasionDisplay(showEvasion);
+      app.manageEvasionDisplay(showEvasionData);
     } else {
       for (let expeditionId in trips) {
         let trip = trips[expeditionId];
@@ -1187,7 +1187,7 @@ $(document).ready(function () {
       app.dataManager(dataManager);
       app.updateCharts();
       app.updateDatatable();
-      app.manageEvasionDisplay(showEvasion);
+      app.manageEvasionDisplay(showEvasionData);
     }
   }
 
