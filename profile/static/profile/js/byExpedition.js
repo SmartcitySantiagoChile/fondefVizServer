@@ -967,14 +967,16 @@ $(document).ready(function () {
      */
     this.manageEvasionDisplay = function (showEvasion) {
       if (showEvasion) {
-        let options = {legend: {
+        let options = {
+          legend: {
             data: [
               "Subidas", "Subidas evadidas",
               "Bajadas", "Bajadas evadidas",
               "Carga prom.", "Carga prom. con evasión",
               "Carga máx.", "Carga máx. con evasión",
               "% ocupación", "% ocupación con evasión"]
-          }};
+          }
+        };
         _barChart.setOption(options, {
           replaceMerge: 'legend'
         });
@@ -1028,16 +1030,19 @@ $(document).ready(function () {
           distOnPath: el.pathDistance.hits.hits[0]._source.stopDistanceFromPathStart,
           expeditionNumber: el.doc_count,
           maxLoadProfile: el.maxLoadProfile.value,
-          loadProfileWithEvasion: el.loadProfileWithEvasion.value,
-          maxLoadProfileWithEvasion: el.maxLoadProfileWithEvasion.value,
-          expandedEvasionBoarding: el.expandedEvasionBoarding.value,
-          expandedEvasionAlighting: el.expandedEvasionAlighting.value,
-          expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding.value,
-          expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting.value,
-          busSaturationWithEvasion: el.busSaturationWithEvasion.value,
+          loadProfileWithEvasion: el.loadProfileWithEvasion ? el.loadProfileWithEvasion.value : 0,
+          maxLoadProfileWithEvasion: el.maxLoadProfileWithEvasion ? el.maxLoadProfileWithEvasion.value : 0,
+          expandedEvasionBoarding: el.expandedEvasionBoarding ? el.expandedEvasionBoarding.value : 0,
+          expandedEvasionAlighting: el.expandedEvasionAlighting ? el.expandedEvasionAlighting.value : 0,
+          expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding ?
+            el.expandedBoardingPlusExpandedEvasionBoarding.value : 0,
+          expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting ?
+            el.expandedAlightingPlusExpandedEvasionAlighting.value : 0,
+          busSaturationWithEvasion: el.busSaturationWithEvasion ? el.busSaturationWithEvasion.value : 0,
           boarding: el.boarding.value,
           boardingWithAlighting: el.boardingWithAlighting.value,
-          passengerWithEvasionPerKmSection: el.passengerWithEvasionPerKmSection.value,
+          passengerWithEvasionPerKmSection: el.passengerWithEvasionPerKmSection ?
+            el.passengerWithEvasionPerKmSection.value : 0,
           capacityPerKmSection: el.capacityPerKmSection.value
         }
       });
