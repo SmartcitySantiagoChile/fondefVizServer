@@ -963,7 +963,7 @@ $(document).ready(function () {
     /** Hide or show evasion display
      * If show evasion, add evasion legends.
      * If not show evasion, remove evasion global stat column and hide evasion switch.
-     * @param showEvasion: true if show evasion
+     * @param showEvasionData: true if show evasion
      */
     this.manageEvasionDisplay = function (showEvasionData) {
       if (showEvasionData) {
@@ -1030,18 +1030,18 @@ $(document).ready(function () {
           distOnPath: el.pathDistance.hits.hits[0]._source.stopDistanceFromPathStart,
           expeditionNumber: el.doc_count,
           maxLoadProfile: el.maxLoadProfile.value,
-          loadProfileWithEvasion: el.loadProfileWithEvasion ? el.loadProfileWithEvasion.value : 0,
-          maxLoadProfileWithEvasion: el.maxLoadProfileWithEvasion ? el.maxLoadProfileWithEvasion.value : 0,
-          expandedEvasionBoarding: el.expandedEvasionBoarding ? el.expandedEvasionBoarding.value : 0,
-          expandedEvasionAlighting: el.expandedEvasionAlighting ? el.expandedEvasionAlighting.value : 0,
-          expandedBoardingPlusExpandedEvasionBoarding: el.expandedBoardingPlusExpandedEvasionBoarding ?
+          loadProfileWithEvasion: showEvasionData ? el.loadProfileWithEvasion.value : 0,
+          maxLoadProfileWithEvasion: showEvasionData ? el.maxLoadProfileWithEvasion.value : 0,
+          expandedEvasionBoarding: showEvasionData ? el.expandedEvasionBoarding.value : 0,
+          expandedEvasionAlighting: showEvasionData ? el.expandedEvasionAlighting.value : 0,
+          expandedBoardingPlusExpandedEvasionBoarding: showEvasionData ?
             el.expandedBoardingPlusExpandedEvasionBoarding.value : 0,
-          expandedAlightingPlusExpandedEvasionAlighting: el.expandedAlightingPlusExpandedEvasionAlighting ?
+          expandedAlightingPlusExpandedEvasionAlighting: showEvasionData ?
             el.expandedAlightingPlusExpandedEvasionAlighting.value : 0,
-          busSaturationWithEvasion: el.busSaturationWithEvasion ? el.busSaturationWithEvasion.value : 0,
+          busSaturationWithEvasion: showEvasionData ? el.busSaturationWithEvasion.value : 0,
           boarding: el.boarding.value,
           boardingWithAlighting: el.boardingWithAlighting.value,
-          passengerWithEvasionPerKmSection: el.passengerWithEvasionPerKmSection ?
+          passengerWithEvasionPerKmSection: showEvasionData ?
             el.passengerWithEvasionPerKmSection.value : 0,
           capacityPerKmSection: el.capacityPerKmSection.value
         }
