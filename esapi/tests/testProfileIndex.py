@@ -151,7 +151,6 @@ class ESProfileIndexTest(TestCase):
                                 'evasionPercent', 'evasionPercent', 'passengerWithEvasionPerKmSection']}
 
         self.assertIsInstance(result, Search)
-        print(result.to_dict())
         self.assertDictEqual(result.to_dict(), expected)
 
     def test_get_profile_by_expedition_data(self):

@@ -514,7 +514,6 @@ class ProfileWithoutEvasionCSVHelper(ProfileCSVHelper):
             elif value is None:
                 value = ""
             formatted_row.append(value)
-        print(formatted_row)
         return formatted_row
 
 
