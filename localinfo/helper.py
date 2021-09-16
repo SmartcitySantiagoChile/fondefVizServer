@@ -343,6 +343,12 @@ class PermissionBuilder(object):
         storage_group.permissions.add(storage_permission)
 
         # create permission to see postproduct section
+        evasion_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='evasion', defaults={'name': 'Evasión en perfil de carga'})
+        evasion_group, _ = Group.objects.get_or_create(name='Ver datos de evasión en perfil de carga')
+        evasion_group.permissions.add(evasion_permission)
+
+        # create permission to see evasion data
         post_products_permission, _ = GlobalPermission.objects.get_or_create(
             codename='postproducts', defaults={'name': 'productos post'})
         post_products_group, _ = Group.objects.get_or_create(name='Sección de productos post')
