@@ -13,7 +13,7 @@ class LoadProfileByExpeditionHTML(View):
         indicator_table = '''
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
-                <table id="{0}" class="table table-striped table-bordered dt-responsive table-condensed nowrap">
+                <table id="globalStatsTable" style="display:none" class="table table-striped table-bordered dt-responsive table-condensed nowrap">
                     <thead>
                         <tr>
                             <th class="text-center">N° de expediciones</th>
