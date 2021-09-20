@@ -6,10 +6,7 @@ from django.views.generic import View
 import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
 from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
-from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stage import ESStageHelper
-from esapi.helper.stop import ESStopHelper
-from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request, check_operation_program
 from localinfo.helper import PermissionBuilder, get_calendar_info
@@ -85,14 +82,12 @@ class PostProductTransactionsByOperatorData(View):
             end_date = dates[-1][-1]
             check_operation_program(start_date, end_date)
             es_query = es_stage_helper.get_post_products_aggregated_transfers_data_by_operator_query(dates, day_types)
-            print(es_query.to_dict())
             ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSACTIONS_BY_OPERATOR_DATA,
                                                   request.user)
             response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
 
         except FondefVizError as e:
             response['status'] = e.get_status_response()
-            print(e)
 
         return JsonResponse(response)
 
