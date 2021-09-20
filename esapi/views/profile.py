@@ -235,7 +235,8 @@ class LoadProfileByExpeditionData(View):
                 if show_evasion:
                     ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
                 else:
-                    ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA, request.user)
+                    ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA,
+                                                          request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 diff_days = 0
@@ -353,7 +354,8 @@ class LoadProfileByTrajectoryData(View):
                                                                                    auth_route_code, period, half_hour,
                                                                                    valid_operator_list)
             if export_data:
-                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
+                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA,
+                                                      request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
