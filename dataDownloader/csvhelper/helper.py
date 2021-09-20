@@ -486,10 +486,6 @@ class ProfileWithoutEvasionCSVHelper(ProfileCSVHelper):
              'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP.'},
             {'es_name': 'uniformDistributionMethod', 'csv_name': 'uniforme',
              'definition': 'método de distribución uniforme para casos donde no es posible estimar bajada, "0" indica que se usó una distribución uniforme y el valor "1" significa que no se usó distribución uniforme.'},
-            {'es_name': 'passengerPerKmSection', 'csv_name': 'Pax-km_tramo',
-             'definition': 'Carga X distancia entre parada anterior y la del registro'},
-            {'es_name': 'capacityPerKmSection', 'csv_name': 'Plazas-km_tramo',
-             'definition': 'Plazas de bus X distancia entre parada anterior y la del registro'},
         ]
 
     def row_parser(self, row):
