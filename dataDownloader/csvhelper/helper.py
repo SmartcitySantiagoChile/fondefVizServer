@@ -1492,7 +1492,7 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
              'definition': 'Nombre del paradero'},
             {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa asociada a la zona paga'},
             {'es_name': 'busStation', 'csv_name': 'Zona_paga',
-             'definition': 'Número de transacciones'},
+             'definition': 'Indica si la parada es zona paga en algún periodo del día'},
             {'es_name': 'expandedBoarding', 'csv_name': 'Número_de_transacciones',
              'definition': 'Número de transacciones en el paradero.'},
 
