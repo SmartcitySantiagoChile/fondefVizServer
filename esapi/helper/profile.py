@@ -199,7 +199,8 @@ class ESProfileHelper(ElasticSearchHelper):
                 metric('sumLoadProfileWithEvasion', 'sum', field='loadProfileWithEvasion'). \
                 metric('busSaturationWithEvasion', 'bucket_script', script='params.d / params.t',
                        buckets_path={'d': 'sumLoadProfileWithEvasion', 't': 'sumBusCapacity'}). \
-                metric('passengerWithEvasionPerKmSection', 'sum', field='passengerWithEvasionPerKmSection')
+                metric('passengerWithEvasionPerKmSection', 'sum', field='passengerWithEvasionPerKmSection'). \
+                metric('capacityPerKmSection', 'sum', field='capacityPerKmSection')
 
         stops_bucket = es_query.aggs.bucket('stops', stops)
         stops_bucket.metric('expandedAlighting', 'avg', field='expandedAlighting'). \
@@ -212,8 +213,7 @@ class ESProfileHelper(ElasticSearchHelper):
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
             metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart']). \
             metric('boardingWithAlighting', 'sum', field='boardingWithAlighting'). \
-            metric('boarding', 'sum', field='boarding'). \
-            metric('capacityPerKmSection', 'sum', field='capacityPerKmSection')
+            metric('boarding', 'sum', field='boarding')
 
         if show_evasion:
             apply_evasion_metrics(stops_bucket)
