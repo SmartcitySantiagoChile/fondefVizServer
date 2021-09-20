@@ -83,7 +83,7 @@ class GetUserRoutesByOP(View):
             end_date = date.fromisoformat(end_date) - timedelta(days=1)
             end_date = end_date.isoformat()
 
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
         es_helper = ESProfileHelper()
 
         available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date=start_date,

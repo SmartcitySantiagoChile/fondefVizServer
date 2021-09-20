@@ -342,6 +342,12 @@ class PermissionBuilder(object):
         storage_group, _ = Group.objects.get_or_create(name='Sección de validaciones')
         storage_group.permissions.add(storage_permission)
 
+        # create permission to see evasion data
+        evasion_permission, _ = GlobalPermission.objects.get_or_create(
+            codename='evasion', defaults={'name': 'Evasión en perfil de carga'})
+        evasion_group, _ = Group.objects.get_or_create(name='Ver datos de evasión en perfil de carga')
+        evasion_group.permissions.add(evasion_permission)
+
         # create permission to see postproduct section
         post_products_permission, _ = GlobalPermission.objects.get_or_create(
             codename='postproducts', defaults={'name': 'productos post'})
@@ -390,7 +396,8 @@ class PermissionBuilder(object):
 
         permission.delete()
 
-    def get_valid_operator_id_list(self, user):
+    @staticmethod
+    def get_valid_operator_id_list(user) -> list:
         """
         return list of operator esId field valid for user
         """
@@ -400,3 +407,8 @@ class PermissionBuilder(object):
                 answer.append(esId)
 
         return answer
+
+    @staticmethod
+    def has_evasion_permission(user) -> bool:
+        """Check if an user has evasion permission"""
+        return user.groups.filter(name='Ver datos de evasión en perfil de carga').exists()
