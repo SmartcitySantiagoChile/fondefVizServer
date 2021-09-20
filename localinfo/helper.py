@@ -396,7 +396,8 @@ class PermissionBuilder(object):
 
         permission.delete()
 
-    def get_valid_operator_id_list(self, user):
+    @staticmethod
+    def get_valid_operator_id_list(user) -> list:
         """
         return list of operator esId field valid for user
         """

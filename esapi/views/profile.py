@@ -83,7 +83,7 @@ class LoadProfileByStopData(View):
         period = params.getlist('period[]', [])
         half_hour = params.getlist('halfHour[]', [])
 
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
 
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
@@ -114,7 +114,7 @@ class AvailableDays(View):
 
     def get(self, request):
         es_helper = ESProfileHelper()
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
         available_days = es_helper.get_available_days(valid_operator_list)
         calendar_info = get_calendar_info()
         response = {
@@ -134,7 +134,7 @@ class AvailableRoutes(View):
         end_date = request.GET.get("end_date", None)
         try:
             es_helper = ESProfileHelper()
-            valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+            valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
             available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date, end_date)
             available_operators = available_routes.keys()
             op_dict = [operator_dict for operator_dict in op_dict if operator_dict["value"] in available_operators]
@@ -216,7 +216,7 @@ class LoadProfileByExpeditionData(View):
         period = params.getlist('period[]')
         half_hour = params.getlist('halfHour[]')
 
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
         show_evasion = PermissionBuilder.has_evasion_permission(request.user)
         response = {}
         try:
@@ -339,7 +339,7 @@ class LoadProfileByTrajectoryData(View):
         period = params.getlist('period[]')
         half_hour = params.getlist('halfHour[]')
 
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
 
         response = {}
 
@@ -401,7 +401,7 @@ class BoardingAndAlightingAverageByStops(View):
         stop_codes = params.getlist('stopCodes[]', [])
         period = params.getlist('period[]', [])
         half_hour = params.getlist('halfHour[]', [])
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
 
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:

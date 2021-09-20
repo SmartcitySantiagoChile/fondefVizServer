@@ -50,7 +50,7 @@ class BipTransactionByOperatorData(View):
     def process_request(self, request, params, export_data=False):
         response = {}
         dates = get_dates_from_request(request, export_data)
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
