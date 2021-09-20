@@ -1482,8 +1482,6 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
             {'es_name': 'timePeriodInBoardingTime', 'csv_name': 'Periodo_transantiago_subida',
              'definition': 'Período transantiago en que inició el viaje'},
-            {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora',
-             'definition': 'Media hora del tiempo asociado'},
             {'es_name': 'authStopCode', 'csv_name': 'Paradero_ts',
              'definition': 'Código Transantiago de paradero'},
             {'es_name': 'authStopCode', 'csv_name': 'Paradero_usuario',
@@ -1512,21 +1510,19 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
             day_type_str = self.day_type_dict[day_type.key]
             for time_period in day_type.timePeriodInBoardingTime:
                 time_period_str = self.timeperiod_dict[time_period.key]
-                for half_hour in time_period.halfHourInBoardingTime:
-                    half_hour_str = self.halfhour_dict[half_hour.key]
-                    for auth_stop_code in half_hour.authStopCode:
-                        auth_stop_code_str = auth_stop_code.key
-                        user_stop_code_str = ""
-                        stop_name_str = ""
-                        if stops_dict.get(auth_stop_code_str):
-                            user_stop_code_str = stops_dict[auth_stop_code_str]["userCode"]
-                            stop_name_str = stops_dict[auth_stop_code_str]['name']
-                        for operator in auth_stop_code.operator:
-                            operator_str = self.operator_dict[operator.key]
-                            for bus_station in operator.busStation:
-                                bus_station_str = self.bus_station_dict[bus_station.key]
-                                formatted_row.append(
-                                    [day_type_str, time_period_str, half_hour_str, auth_stop_code_str,
-                                     user_stop_code_str, stop_name_str, operator_str,
-                                     bus_station_str, round(bus_station.expandedBoarding.value, 2)])
+                for auth_stop_code in time_period.authStopCode:
+                    auth_stop_code_str = auth_stop_code.key
+                    user_stop_code_str = ""
+                    stop_name_str = ""
+                    if stops_dict.get(auth_stop_code_str):
+                        user_stop_code_str = stops_dict[auth_stop_code_str]["userCode"]
+                        stop_name_str = stops_dict[auth_stop_code_str]['name']
+                    for operator in auth_stop_code.operator:
+                        operator_str = self.operator_dict[operator.key]
+                        for bus_station in operator.busStation:
+                            bus_station_str = self.bus_station_dict[bus_station.key]
+                            formatted_row.append(
+                                [day_type_str, time_period_str, auth_stop_code_str,
+                                 user_stop_code_str, stop_name_str, operator_str,
+                                 bus_station_str, round(bus_station.expandedBoarding.value, 2)])
         return formatted_row
