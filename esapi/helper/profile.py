@@ -167,15 +167,14 @@ class ESProfileHelper(ElasticSearchHelper):
         # evasion data parameters
         evasion_data = ['expandedEvasionBoarding', 'expandedEvasionAlighting',
                         'expandedBoardingPlusExpandedEvasionBoarding', 'expandedAlightingPlusExpandedEvasionAlighting',
-                        'loadProfileWithEvasion', 'evasionPercent', 'evasionPercent',
-                        'passengerWithEvasionPerKmSection'] if show_evasion else []
+                        'loadProfileWithEvasion', 'evasionPercent', 'evasionType',
+                        'passengerWithEvasionPerKmSection', 'capacityPerKmSection'] if show_evasion else []
 
         es_query = es_query.source(
             ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId', 'expandedAlighting',
              'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime', 'authStopCode', 'timePeriodInStartTime',
              'dayType', 'timePeriodInStopTime', 'busStation', 'path', 'notValid',
-             'boardingWithAlighting', 'boarding', 'uniformDistributionMethod',
-             'capacityPerKmSection'] + evasion_data)
+             'boardingWithAlighting', 'boarding', 'uniformDistributionMethod'] + evasion_data)
 
         return es_query
 
@@ -183,7 +182,8 @@ class ESProfileHelper(ElasticSearchHelper):
                                        valid_operator_list, show_evasion=True):
 
         es_query = self.get_base_profile_by_expedition_data_query(dates, day_type, auth_route, period,
-                                                                  half_hour, valid_operator_list, show_evasion=show_evasion)[:0]
+                                                                  half_hour, valid_operator_list,
+                                                                  show_evasion=show_evasion)[:0]
         stops = A('terms', field='authStopCode.raw', size=500)
 
         # evasion metrics
@@ -210,7 +210,7 @@ class ESProfileHelper(ElasticSearchHelper):
             metric('sumBusCapacity', 'sum', field='busCapacity'). \
             metric('busSaturation', 'bucket_script', script='params.d / params.t',
                    buckets_path={'d': 'sumLoadProfile', 't': 'sumBusCapacity'}). \
-            metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart']).\
+            metric('pathDistance', 'top_hits', size=1, _source=['stopDistanceFromPathStart']). \
             metric('boardingWithAlighting', 'sum', field='boardingWithAlighting'). \
             metric('boarding', 'sum', field='boarding'). \
             metric('capacityPerKmSection', 'sum', field='capacityPerKmSection')
