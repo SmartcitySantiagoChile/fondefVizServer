@@ -1104,7 +1104,6 @@ $(document).ready(function () {
       app.dataManager(dataManager);
       app.updateCharts(expeditionNumber, boardingWithAlightingPercentage, utilizationCoefficient);
       app.updateDatatable();
-      app.manageEvasionDisplay(showEvasionData);
     } else {
       for (let expeditionId in trips) {
         let trip = trips[expeditionId];
@@ -1187,8 +1186,8 @@ $(document).ready(function () {
       app.dataManager(dataManager);
       app.updateCharts();
       app.updateDatatable();
-      app.manageEvasionDisplay(showEvasionData);
     }
+    app.manageEvasionDisplay(showEvasionData);
   }
 
   // load filters
