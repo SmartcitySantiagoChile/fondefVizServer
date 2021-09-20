@@ -38,8 +38,7 @@ class ESStageHelperTest(TestCase):
         expect_result = {'query': {'bool': {'filter': [{'range': {
             'boardingTime': {'gte': '2020-01-01||/d', 'lte': '2020-01-03||/d', 'format': 'yyyy-MM-dd',
                              'time_zone': '+00:00'}}}, {'terms': {'dayType': ['LABORAL']}},
-            {'terms': {'boardingStopCommune': [0, 1]}},
-            {'range': {'stageNumber': {'gt': 1}}}]}}, 'from': 0, 'size': 0}
+            {'terms': {'boardingStopCommune': [0, 1]}}]}}, 'from': 0, 'size': 0}
 
         self.assertEqual(result.to_dict(), expect_result)
 
@@ -88,8 +87,7 @@ class ESStageHelperTest(TestCase):
         result = self.instance.get_post_products_aggregated_transfers_data_by_operator_query(dates, day_types)
         expected_result = {'query': {'bool': {'filter': [{'range': {
             'boardingTime': {'gte': '2020-01-01||/d', 'lte': '2020-01-03||/d', 'format': 'yyyy-MM-dd',
-                             'time_zone': '+00:00'}}}, {'terms': {'dayType': ['LABORAL']}},
-            {'range': {'stageNumber': {'gt': 1}}}]}}, 'aggs': {
+                             'time_zone': '+00:00'}}}, {'terms': {'dayType': ['LABORAL']}}]}}, 'aggs': {
             'result': {'date_histogram': {'field': 'boardingTime', 'interval': 'day'}, 'aggs': {
                 'dayType': {'terms': {'field': 'dayType', 'size': 4}, 'aggs': {
                     'timePeriodInBoardingTime': {'terms': {'field': 'timePeriodInBoardingTime', 'size': 100}, 'aggs': {
