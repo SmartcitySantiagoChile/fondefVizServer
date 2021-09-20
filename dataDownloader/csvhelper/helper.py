@@ -429,7 +429,6 @@ class ProfileCSVHelper(CSVHelper):
 class ProfileWithoutEvasionCSVHelper(ProfileCSVHelper):
     """ Class that represents a profile without evasion downloader. """
 
-
     def get_column_dict(self):
         return [
             {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa que opera el servicio'},
