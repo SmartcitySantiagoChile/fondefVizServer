@@ -145,10 +145,11 @@ class ESProfileIndexTest(TestCase):
                                 'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
                                 'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
                                 'busStation', 'path', 'notValid', 'boardingWithAlighting', 'boarding',
-                                'uniformDistributionMethod', 'capacityPerKmSection', 'expandedEvasionBoarding',
-                                'expandedEvasionAlighting', 'expandedBoardingPlusExpandedEvasionBoarding',
+                                'uniformDistributionMethod', 'expandedEvasionBoarding', 'expandedEvasionAlighting',
+                                'expandedBoardingPlusExpandedEvasionBoarding',
                                 'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                                'evasionPercent', 'evasionPercent', 'passengerWithEvasionPerKmSection']}
+                                'evasionPercent', 'evasionType', 'passengerWithEvasionPerKmSection',
+                                'capacityPerKmSection']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
@@ -175,7 +176,6 @@ class ESProfileIndexTest(TestCase):
                                'pathDistance': {'top_hits': {'size': 1, '_source': ['stopDistanceFromPathStart']}},
                                'boardingWithAlighting': {'sum': {'field': 'boardingWithAlighting'}},
                                'boarding': {'sum': {'field': 'boarding'}},
-                               'capacityPerKmSection': {'sum': {'field': 'capacityPerKmSection'}},
                                'expandedEvasionBoarding': {'avg': {'field': 'expandedEvasionBoarding'}},
                                'expandedEvasionAlighting': {'avg': {'field': 'expandedEvasionAlighting'}},
                                'expandedBoardingPlusExpandedEvasionBoarding': {
@@ -190,17 +190,18 @@ class ESProfileIndexTest(TestCase):
                                                                                   'd': 'sumLoadProfileWithEvasion',
                                                                                   't': 'sumBusCapacity'}}},
                                'passengerWithEvasionPerKmSection': {
-                                   'sum': {'field': 'passengerWithEvasionPerKmSection'}}}},
+                                   'sum': {'field': 'passengerWithEvasionPerKmSection'}},
+                               'capacityPerKmSection': {'sum': {'field': 'capacityPerKmSection'}}}},
             'stop': {'filter': {'term': {'busStation': 1}},
                      'aggs': {'station': {'terms': {'field': 'authStopCode.raw', 'size': 500}}}}}, 'from': 0, 'size': 0,
-                    '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
-                                'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
-                                'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
-                                'busStation', 'path', 'notValid', 'boardingWithAlighting', 'boarding',
-                                'uniformDistributionMethod', 'capacityPerKmSection', 'expandedEvasionBoarding',
-                                'expandedEvasionAlighting', 'expandedBoardingPlusExpandedEvasionBoarding',
-                                'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
-                                'evasionPercent', 'evasionPercent', 'passengerWithEvasionPerKmSection']}
+            '_source': ['busCapacity', 'licensePlate', 'route', 'loadProfile', 'expeditionDayId',
+                        'expandedAlighting', 'expandedBoarding', 'expeditionStartTime', 'expeditionEndTime',
+                        'authStopCode', 'timePeriodInStartTime', 'dayType', 'timePeriodInStopTime',
+                        'busStation', 'path', 'notValid', 'boardingWithAlighting', 'boarding',
+                        'uniformDistributionMethod', 'expandedEvasionBoarding',
+                        'expandedEvasionAlighting', 'expandedBoardingPlusExpandedEvasionBoarding',
+                        'expandedAlightingPlusExpandedEvasionAlighting', 'loadProfileWithEvasion',
+                        'evasionPercent', 'evasionType', 'passengerWithEvasionPerKmSection', 'capacityPerKmSection']}
 
         self.assertIsInstance(result, Search)
         self.assertDictEqual(result.to_dict(), expected)
