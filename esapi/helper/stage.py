@@ -107,10 +107,10 @@ class ESStageHelper(ElasticSearchHelper):
         aggregation = A('terms', field='dayType', size=4)
 
         es_query.aggs.bucket(bucket_name, aggregation). \
-            bucket('timePeriodInBoardingTime', 'terms', field='timePeriodInBoardingTime', size=100). \
+            bucket('timePeriodInBoardingTime', 'terms', field='timePeriodInBoardingTime', size=29). \
             bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \
-            bucket('authStopCode', 'terms', field='authStopCode', size=13000). \
-            bucket('operator', 'terms', field='operator', size=20). \
+            bucket('authStopCode', 'terms', field='authStopCode', size=12000). \
+            bucket('operator', 'terms', field='operator', size=9). \
             bucket('busStation', 'terms', field='busStation', size=2). \
             metric('expandedBoarding', 'sum', field='expandedBoarding')
 
