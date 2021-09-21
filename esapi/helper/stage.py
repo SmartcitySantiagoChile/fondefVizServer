@@ -105,7 +105,6 @@ class ESStageHelper(ElasticSearchHelper):
         bucket_name = 'result'
         es_query.aggs.bucket(bucket_name, 'date_histogram', field='boardingTime', interval='day'). \
             bucket('dayType', 'terms', field='dayType', size=3). \
-            bucket('timePeriodInBoardingTime', 'terms', field='timePeriodInBoardingTime', size=30). \
             bucket('authStopCode', 'terms', field='authStopCode', size=12000). \
             bucket('operator', 'terms', field='operator', size=9). \
             bucket('busStation', 'terms', field='busStation', size=2). \
