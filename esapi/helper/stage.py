@@ -111,6 +111,7 @@ class ESStageHelper(ElasticSearchHelper):
             bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \
             bucket('authStopCode', 'terms', field='authStopCode', size=13000). \
             bucket('operator', 'terms', field='operator', size=20). \
+            bucket('busStation', 'terms', field='busStation', size=2). \
             metric('expandedBoarding', 'sum', field='expandedBoarding')
 
         return es_query

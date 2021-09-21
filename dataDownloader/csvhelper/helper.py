@@ -1612,8 +1612,10 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
                         stop_name_str = stops_dict[auth_stop_code_str]['name']
                     for operator in auth_stop_code.operator:
                         operator_str = self.operator_dict[operator.key]
-                        formatted_row.append(
-                            [day_type_str, time_period_str, half_hour_str, auth_stop_code_str,
-                             user_stop_code_str, stop_name_str, operator_str,
-                             '', round(operator.expandedBoarding.value, 2)])
+                        for bus_station in operator.busStation:
+                            bus_station_str = self.bus_station_dict[bus_station.key]
+                            formatted_row.append(
+                                [day_type_str, time_period_str, half_hour_str, auth_stop_code_str,
+                                 user_stop_code_str, stop_name_str, operator_str,
+                                 bus_station_str, round(bus_station.expandedBoarding.value, 2)])
         return formatted_row
