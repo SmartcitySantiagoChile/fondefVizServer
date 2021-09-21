@@ -1530,7 +1530,10 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
 
     def __init__(self, es_client, es_query):
         CSVHelper.__init__(self, es_client, es_query, ESStageHelper().index_name)
-        self.start_date = es_query['query']['bool']['filter'][0]['range']['boardingTime']['gte'].split('||')[0]
+        base_query = es_query['query']['bool']['filter'][0]
+        if base_query.get("bool"):
+            base_query = base_query['bool']['should'][0]
+        self.start_date = base_query['range']['boardingTime']['gte'].split('||')[0]
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
