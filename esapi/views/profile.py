@@ -194,15 +194,15 @@ class LoadProfileByExpeditionData(View):
                               self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
                               self.clean_data(
                                   hit.expandedAlightingPlusExpandedEvasionAlighting)] if show_evasion else [0] * 5
-            evasion_data_b = [self.clean_data(hit.passengerWithEvasionPerKmSection)] if show_evasion else [0]
+            evasion_data_b = [self.clean_data(hit.passengerWithEvasionPerKmSection),
+                              self.clean_data(hit.capacityPerKmSection)] if show_evasion else [0] * 2
             stop = [self.clean_data(hit.loadProfile),
                     self.clean_data(hit.expandedBoarding),
                     self.clean_data(hit.expandedAlighting)] \
                    + evasion_data_a \
                    + [self.clean_data(hit.boarding),
                       self.clean_data(hit.boardingWithAlighting)] \
-                   + evasion_data_b + \
-                   [self.clean_data(hit.capacityPerKmSection)]
+                   + evasion_data_b
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 
         if len(list(trips.keys())) == 0:
