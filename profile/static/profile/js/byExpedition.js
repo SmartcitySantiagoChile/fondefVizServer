@@ -1043,7 +1043,7 @@ $(document).ready(function () {
           boardingWithAlighting: el.boardingWithAlighting.value,
           passengerWithEvasionPerKmSection: showEvasionData ?
             el.passengerWithEvasionPerKmSection.value : 0,
-          capacityPerKmSection: el.capacityPerKmSection.value
+          capacityPerKmSection: showEvasionData ? el.capacityPerKmSection.value : 0
         }
       });
       let expeditionNumber = 0;
