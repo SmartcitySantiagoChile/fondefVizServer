@@ -1530,6 +1530,7 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
 
     def __init__(self, es_client, es_query):
         CSVHelper.__init__(self, es_client, es_query, ESStageHelper().index_name)
+        self.start_date = es_query['query']['bool']['filter'][0]['range']['boardingTime']['gte'].split('||')[0]
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
@@ -1567,6 +1568,10 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
     def get_column_dict(self):
         return [
             {'es_name': 'dayType', 'csv_name': 'Tipo_día', 'definition': 'tipo de día en el que inició el viaje'},
+            {'es_name': 'timePeriodInBoardingTime', 'csv_name': 'Periodo_transantiago_subida',
+             'definition': 'Período transantiago en que inició el viaje'},
+            {'es_name': 'halfHourInBoardingTime', 'csv_name': 'Media_hora',
+             'definition': 'Media hora del tiempo asociado'},
             {'es_name': 'authStopCode', 'csv_name': 'Paradero_ts',
              'definition': 'Código Transantiago de paradero'},
             {'es_name': 'authStopCode', 'csv_name': 'Paradero_usuario',
@@ -1588,24 +1593,26 @@ class PostProductStageTransactionsByOperatorCSVHelper(CSVHelper):
 
     def row_parser(self, row):
         formatted_row = []
-        day_str = row.key_as_string.split(" ")[0]
-        op_program_date = ESShapeHelper().get_most_recent_operation_program_date(day_str)
+        op_program_date = ESShapeHelper().get_most_recent_operation_program_date(self.start_date)
         stops_dict = ESStopHelper().get_all_stop_info(op_program_date, to_dict=True)
-        for day_type in row.dayType:
-            day_type_str = self.day_type_dict[day_type.key]
-            for auth_stop_code in day_type.authStopCode:
-                auth_stop_code_str = auth_stop_code.key
-                user_stop_code_str = ""
-                stop_name_str = ""
-                if stops_dict.get(auth_stop_code_str):
-                    user_stop_code_str = stops_dict[auth_stop_code_str]["userCode"]
-                    stop_name_str = stops_dict[auth_stop_code_str]['name']
-                for operator in auth_stop_code.operator:
-                    operator_str = self.operator_dict[operator.key]
-                    for bus_station in operator.busStation:
-                        bus_station_str = self.bus_station_dict[bus_station.key]
-                        formatted_row.append(
-                            [day_type_str, auth_stop_code_str,
-                             user_stop_code_str, stop_name_str, operator_str,
-                             bus_station_str, round(bus_station.expandedBoarding.value, 2)])
+        day_type_str = self.day_type_dict[row.key]
+        for time_period in row.timePeriodInBoardingTime:
+            time_period_str = self.timeperiod_dict[time_period.key]
+            for half_hour in time_period.halfHourInBoardingTime:
+                half_hour_str = self.halfhour_dict[half_hour.key]
+                for auth_stop_code in half_hour.authStopCode:
+                    auth_stop_code_str = auth_stop_code.key
+                    user_stop_code_str = ""
+                    stop_name_str = ""
+                    if stops_dict.get(auth_stop_code_str):
+                        user_stop_code_str = stops_dict[auth_stop_code_str]["userCode"]
+                        stop_name_str = stops_dict[auth_stop_code_str]['name']
+                    for operator in auth_stop_code.operator:
+                        operator_str = self.operator_dict[operator.key]
+                        for bus_station in operator.busStation:
+                            bus_station_str = self.bus_station_dict[bus_station.key]
+                            formatted_row.append(
+                                [day_type_str, time_period_str, half_hour_str, auth_stop_code_str,
+                                 user_stop_code_str, stop_name_str, operator_str,
+                                 bus_station_str, round(bus_station.expandedBoarding.value, 2)])
         return formatted_row
