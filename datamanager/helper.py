@@ -12,7 +12,8 @@ import dataDownloader.csvhelper.helper as csv_helper
 from dataDownloader.csvhelper.bip import BipData
 from dataDownloader.csvhelper.odbyroute import OdByRouteData
 from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
-from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
+from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop, \
+    ProfileByExpeditionWithoutEvasionData
 from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
 from dataDownloader.csvhelper.stage import PostProductStageTransferData, PostProductStageTransferAggregatedData, PostProductStageTransactionsByOperatorData
 from dataDownloader.csvhelper.trip import TripData, PostProductTripTripBetweenZonesData, \
@@ -101,6 +102,9 @@ class ExporterManager(object):
                 file_type = ExporterJobExecution.OD_BY_ROUTE
             elif downloader == csv_helper.PROFILE_BY_EXPEDITION_DATA:
                 downloader_instance = ProfileByExpeditionData(self.es_query.to_dict())
+                file_type = ExporterJobExecution.PROFILE
+            elif downloader == csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA:
+                downloader_instance = ProfileByExpeditionWithoutEvasionData(self.es_query.to_dict())
                 file_type = ExporterJobExecution.PROFILE
             elif downloader == csv_helper.PROFILE_BY_STOP_DATA:
                 downloader_instance = ProfileDataByStop(self.es_query.to_dict())

@@ -83,7 +83,7 @@ class LoadProfileByStopData(View):
         period = params.getlist('period[]', [])
         half_hour = params.getlist('halfHour[]', [])
 
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
 
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
@@ -114,7 +114,7 @@ class AvailableDays(View):
 
     def get(self, request):
         es_helper = ESProfileHelper()
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
         available_days = es_helper.get_available_days(valid_operator_list)
         calendar_info = get_calendar_info()
         response = {
@@ -134,7 +134,7 @@ class AvailableRoutes(View):
         end_date = request.GET.get("end_date", None)
         try:
             es_helper = ESProfileHelper()
-            valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+            valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
             available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date, end_date)
             available_operators = available_routes.keys()
             op_dict = [operator_dict for operator_dict in op_dict if operator_dict["value"] in available_operators]
@@ -159,7 +159,7 @@ class LoadProfileByExpeditionData(View):
         value = float(data)
         return 0 if (-1 < value < 0) else value
 
-    def transform_answer(self, es_query):
+    def transform_answer(self, es_query, show_evasion):
         """ transform ES answer to something util to web client """
         trips = defaultdict(lambda: {'info': [], 'stops': {}})
         bus_stations = []
@@ -188,20 +188,21 @@ class LoadProfileByExpeditionData(View):
                 bus_stations.append(hit.authStopCode)
 
             # loadProfile, expandedBoarding, expandedAlighting
-            stop = [
-                self.clean_data(hit.loadProfile),
-                self.clean_data(hit.expandedBoarding),
-                self.clean_data(hit.expandedAlighting),
-                self.clean_data(hit.loadProfileWithEvasion),
-                self.clean_data(hit.expandedEvasionBoarding),
-                self.clean_data(hit.expandedEvasionAlighting),
-                self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
-                self.clean_data(hit.expandedAlightingPlusExpandedEvasionAlighting),
-                self.clean_data(hit.boarding),
-                self.clean_data(hit.boardingWithAlighting),
-                self.clean_data(hit.passengerWithEvasionPerKmSection),
-                self.clean_data(hit.capacityPerKmSection),
-            ]
+            evasion_data_a = [self.clean_data(hit.loadProfileWithEvasion),
+                              self.clean_data(hit.expandedEvasionBoarding),
+                              self.clean_data(hit.expandedEvasionAlighting),
+                              self.clean_data(hit.expandedBoardingPlusExpandedEvasionBoarding),
+                              self.clean_data(
+                                  hit.expandedAlightingPlusExpandedEvasionAlighting)] if show_evasion else [0] * 5
+            evasion_data_b = [self.clean_data(hit.passengerWithEvasionPerKmSection),
+                              self.clean_data(hit.capacityPerKmSection)] if show_evasion else [0] * 2
+            stop = [self.clean_data(hit.loadProfile),
+                    self.clean_data(hit.expandedBoarding),
+                    self.clean_data(hit.expandedAlighting)] \
+                   + evasion_data_a \
+                   + [self.clean_data(hit.boarding),
+                      self.clean_data(hit.boardingWithAlighting)] \
+                   + evasion_data_b
             trips[expedition_id]['stops'][hit.authStopCode] = stop
 
         if len(list(trips.keys())) == 0:
@@ -215,8 +216,8 @@ class LoadProfileByExpeditionData(View):
         period = params.getlist('period[]')
         half_hour = params.getlist('halfHour[]')
 
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
-
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
+        show_evasion = PermissionBuilder.has_evasion_permission(request.user)
         response = {}
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
@@ -229,22 +230,29 @@ class LoadProfileByExpeditionData(View):
             if export_data:
                 es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates, day_type,
                                                                                        auth_route_code, period,
-                                                                                       half_hour, valid_operator_list)
-                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
+                                                                                       half_hour, valid_operator_list,
+                                                                                       show_evasion)
+                if show_evasion:
+                    ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
+                else:
+                    ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA,
+                                                          request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 diff_days = 0
                 for date_range in dates:
                     diff_days += len(es_profile_helper.get_available_days_between_dates(date_range[0], date_range[-1],
-                                                                                        valid_operator_list))
+                                                                                        valid_operator_list, ))
                 day_limit = 7
 
                 if diff_days <= day_limit:
                     es_query = es_profile_helper.get_base_profile_by_expedition_data_query(dates,
                                                                                            day_type, auth_route_code,
                                                                                            period, half_hour,
-                                                                                           valid_operator_list, False)
-                    response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
+                                                                                           valid_operator_list, False,
+                                                                                           show_evasion)
+                    response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query,
+                                                                                                             show_evasion)
                     if exp_not_valid_number:
                         response['status'] = ThereAreNotValidExpeditionsMessage(exp_not_valid_number,
                                                                                 len(list(response['trips'].keys()))). \
@@ -253,11 +261,13 @@ class LoadProfileByExpeditionData(View):
                 else:
                     es_query = es_profile_helper.get_profile_by_expedition_data(dates, day_type,
                                                                                 auth_route_code, period, half_hour,
-                                                                                valid_operator_list)
+                                                                                valid_operator_list,
+                                                                                show_evasion)
                     response['groupedTrips'] = es_query.execute().to_dict()
                     response['status'] = ExpeditionsHaveBeenGroupedMessage(day_limit).get_status_response()
                 response['stops'] = es_stop_helper.get_stop_list(auth_route_code, dates)['stops']
                 response['shape'] = es_shape_helper.get_route_shape(auth_route_code, dates)['points']
+                response['showEvasion'] = show_evasion
         except FondefVizError as e:
             response['status'] = e.get_status_response()
         return JsonResponse(response, safe=False)
@@ -329,7 +339,7 @@ class LoadProfileByTrajectoryData(View):
         period = params.getlist('period[]')
         half_hour = params.getlist('halfHour[]')
 
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
 
         response = {}
 
@@ -344,7 +354,8 @@ class LoadProfileByTrajectoryData(View):
                                                                                    auth_route_code, period, half_hour,
                                                                                    valid_operator_list)
             if export_data:
-                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_DATA, request.user)
+                ExporterManager(es_query).export_data(csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA,
+                                                      request.user)
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 response['trips'], response['busStations'], exp_not_valid_number = self.transform_answer(es_query)
@@ -390,7 +401,7 @@ class BoardingAndAlightingAverageByStops(View):
         stop_codes = params.getlist('stopCodes[]', [])
         period = params.getlist('period[]', [])
         half_hour = params.getlist('halfHour[]', [])
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
 
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:

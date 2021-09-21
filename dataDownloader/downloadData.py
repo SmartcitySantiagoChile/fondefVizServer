@@ -14,7 +14,8 @@ django.setup()
 
 from elasticsearch import Elasticsearch
 
-from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop
+from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop, \
+    ProfileByExpeditionWithoutEvasionData
 from dataDownloader.csvhelper.odbyroute import OdByRouteData
 from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
 from dataDownloader.csvhelper.trip import TripData, PostProductTripTripBetweenZonesData, \
@@ -38,6 +39,8 @@ def download_file(es_instance, query, downloader, zip_file_path):
         data_to_download = ProfileByExpeditionData(query, es_instance)
     elif downloader == csv_helper.PROFILE_BY_STOP_DATA:
         data_to_download = ProfileDataByStop(query, es_instance)
+    elif downloader == csv_helper.PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA:
+        data_to_download = ProfileByExpeditionWithoutEvasionData(query, es_instance)
     elif downloader == csv_helper.SPEED_MATRIX_DATA:
         data_to_download = SpeedDataWithFormattedShape(query, es_instance)
     elif downloader == csv_helper.TRIP_DATA:

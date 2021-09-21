@@ -16,7 +16,7 @@ class AvailableDays(View):
 
     def get(self, request):
         es_helper = ESStageHelper()
-        valid_operator_list = PermissionBuilder().get_valid_operator_id_list(request.user)
+        valid_operator_list = PermissionBuilder.get_valid_operator_id_list(request.user)
         available_days = es_helper.get_available_days(valid_operator_list)
         calendar_info = get_calendar_info()
         response = {

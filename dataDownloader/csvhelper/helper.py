@@ -25,6 +25,7 @@ from localinfo.helper import get_day_type_list_for_select_input, get_timeperiod_
 README_FILE_NAME = 'Léeme.txt'
 
 PROFILE_BY_EXPEDITION_DATA = 'profile_by_expedition'
+PROFILE_BY_EXPEDITION_WITHOUT_EVASION_DATA = 'profile_by_expedition_without_evasion'
 PROFILE_BY_STOP_DATA = 'profile_by_stop'
 OD_BY_ROUTE_DATA = 'od_by_route_data'
 SPEED_MATRIX_DATA = 'speed_matrix_data'
@@ -382,7 +383,7 @@ class ProfileCSVHelper(CSVHelper):
             {'es_name': 'evasionPercent', 'csv_name': '%evasión',
              'definition': 'Porcentaje de evasión aplicado a las transacciones de la parada-expedición.'},
             {'es_name': 'evasionType', 'csv_name': 'tipo_evasion',
-             'definition': 'puedes ser tres casos: 0, 1, 2, -1. El primero (0) indica que se usó una evasión a nivel de zonificación 777, el segundo valor (1) indica que se usó un valor de evasión a nivel de parada, y el tercer valor (2) indica que no se encontró un valor para el calculo de evasión. Existe un cuarto valor (-1) que indica que hubo un error con la información de evasión.'},
+             'definition': 'pueden ser tres casos: 0, 1, 2, -1. El primero (0) indica que se usó una evasión a nivel de zonificación 777, el segundo valor (1) indica que se usó un valor de evasión a nivel de parada, y el tercer valor (2) indica que no se encontró un valor para el calculo de evasión. Existe un cuarto valor (-1) que indica que hubo un error con la información de evasión.'},
             {'es_name': 'uniformDistributionMethod', 'csv_name': 'uniforme',
              'definition': 'método de distribución uniforme para casos donde no es posible estimar bajada, "0" indica que se usó una distribución uniforme y el valor "1" significa que no se usó distribución uniforme.'},
             {'es_name': 'passengerPerKmSection', 'csv_name': 'Pax-km_tramo',
@@ -425,6 +426,92 @@ class ProfileCSVHelper(CSVHelper):
 
             formatted_row.append(value)
 
+        return formatted_row
+
+
+class ProfileWithoutEvasionCSVHelper(ProfileCSVHelper):
+    """ Class that represents a profile without evasion downloader. """
+
+    def get_column_dict(self):
+        return [
+            {'es_name': 'operator', 'csv_name': 'Operador', 'definition': 'Empresa que opera el servicio'},
+            {'es_name': 'route', 'csv_name': 'Servicio_transantiago',
+             'definition': 'Código de transantiago del servicio'},
+            {'es_name': 'userRoute', 'csv_name': 'Servicio_usuario',
+             'definition': 'Código de usuario del servicio (ejemplo: 506)'},
+            {'es_name': 'licensePlate', 'csv_name': 'Patente',
+             'definition': 'Patente de la máquina que realizó la expedición'},
+            {'es_name': 'authStopCode', 'csv_name': 'Código_parada_transantiago',
+             'definition': 'Código de transantiago de la parada por la que pasó el servicio'},
+            {'es_name': 'userStopCode', 'csv_name': 'Código_parada_usuario',
+             'definition': 'Código de usuario de la parada por la que pasó el servicio (ejemplo: PA433)'},
+            {'es_name': 'userStopName', 'csv_name': 'Nombre_parada',
+             'definition': 'Nombre de la parada por la que pasó el servicio'},
+            {'es_name': 'expeditionStartTime', 'csv_name': 'Hora_inicio_expedición',
+             'definition': 'Fecha y hora de inicio de la expedición'},
+            {'es_name': 'expeditionEndTime', 'csv_name': 'Hora_fin_expedición',
+             'definition': 'Fecha y hora de fin de la expedición'},
+            {'es_name': 'fulfillment', 'csv_name': 'Cumplimiento',
+             'definition': 'La expedición cumple la condición de cruzar por los puntos de control de inicio y fin de ruta indicado en el reporte 1.96'},
+            {'es_name': 'expeditionStopOrder', 'csv_name': 'Secuencia_parada',
+             'definition': 'Posición de la parada dentro de la secuencia de paradas asociada al servicio'},
+            {'es_name': 'expeditionDayId', 'csv_name': 'Identificador_expedición_día',
+             'definition': 'identificador de la expedición, es único dentro del día'},
+            {'es_name': 'stopDistanceFromPathStart', 'csv_name': 'Distancia_parada_desde_inicio_ruta',
+             'definition': 'Distancia en metros entre el inicio de la ruta del servicio y la parada, considera la geometría de la ruta (no es euclidiana)'},
+            {'es_name': 'expeditionStopTime', 'csv_name': 'Hora_en_parada',
+             'definition': 'Fecha y hora en que la máquina pasó por la parada'},
+            {'es_name': 'timePeriodInStartTime', 'csv_name': 'Periodo_transantiago_inicio_expedicion',
+             'definition': 'Período transantiago en que inició la expedición'},
+            {'es_name': 'timePeriodInStopTime', 'csv_name': 'Periodo_transantiago_parada_expedición',
+             'definition': 'Período transantiago en que el bus cruza la parada'},
+            {'es_name': 'dayType', 'csv_name': 'Tipo_dia',
+             'definition': 'Tipo de día considerado por adatrap al momento de realizar el procesamiento de los datos'},
+            {'es_name': 'busStation', 'csv_name': 'Zona_paga',
+             'definition': 'Indica si la parada es zona paga (1: es zona paga, 0: no es zona paga)'},
+            {'es_name': 'transactions', 'csv_name': 'Número_transacciones_en_parada',
+             'definition': 'Número de transacciones realizadas en el paradero'},
+            {'es_name': 'halfHourInStartTime', 'csv_name': 'Media_hora_de_inicio_expedición',
+             'definition': 'Indica el período de media hora que la expedición inicio el recorrido (ejemplo: 16:00:00)'},
+            {'es_name': 'halfHourInStopTime', 'csv_name': 'Media_hora_en_parada',
+             'definition': 'Indica el período de media hora que la expedición pasó por la parada (ejemplo: 16:00:00)'},
+            {'es_name': 'notValid', 'csv_name': 'Expedición_inválida',
+             'definition': 'Indica si la expedición contiene alguno de los siguientes problemas -> porcentaje de paraderos con carga menor a -1 es superior al 1% o porcentaje de paraderos con carga mayor al 1% sobre la capacidad del bus es superior al 1%'},
+            {'es_name': 'expandedBoarding', 'csv_name': 'Subidas_expandidas',
+             'definition': 'Número de personas que subieron al bus en la parada, la expansión se realiza por período-servicio-sentido'},
+            {'es_name': 'expandedAlighting', 'csv_name': 'Bajadas_expandidas',
+             'definition': 'Número de personas que bajaron del bus en la parada, la expansión se realiza por período-servicio-sentido'},
+            {'es_name': 'loadProfile', 'csv_name': 'Perfil_carga_al_llegar',
+             'definition': 'Número de personas arriba del bus al llegar a la parada'},
+            {'es_name': 'busCapacity', 'csv_name': 'Capacidad_bus',
+             'definition': 'Número máximo de personas que pueden estar dentro del bus'},
+            {'es_name': 'boardingWithAlighting', 'csv_name': 'Subidas_con_bajada',
+             'definition': 'Número de personas que subieron y tienen bajada estimada por ADATRAP.'},
+            {'es_name': 'uniformDistributionMethod', 'csv_name': 'uniforme',
+             'definition': 'método de distribución uniforme para casos donde no es posible estimar bajada, "0" indica que se usó una distribución uniforme y el valor "1" significa que no se usó distribución uniforme.'},
+        ]
+
+    def row_parser(self, row):
+        formatted_row = []
+        for column_name in self.get_fields():
+            value = row[column_name]
+            try:
+                if column_name == 'dayType':
+                    value = self.day_type_dict[value]
+                elif column_name == 'operator':
+                    value = self.operator_dict[value]
+                elif column_name in ['timePeriodInStartTime', 'timePeriodInStopTime']:
+                    value = self.timeperiod_dict[value]
+                elif column_name in ['halfHourInStartTime', 'halfHourInStopTime']:
+                    value = self.halfhour_dict[value]
+            except KeyError:
+                value = ""
+
+            if isinstance(value, (int, float)):
+                value = str(value)
+            elif value is None:
+                value = ""
+            formatted_row.append(value)
         return formatted_row
 
 
