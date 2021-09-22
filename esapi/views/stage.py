@@ -83,7 +83,6 @@ class PostProductTransactionsByOperatorData(View):
                 for _ in date_range:
                     diff_days += 1
             day_limit = 5
-
             if diff_days > day_limit:
                 raise ESQueryTooManyDaysError(day_limit)
 
