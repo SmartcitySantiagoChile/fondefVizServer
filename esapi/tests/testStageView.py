@@ -3,7 +3,7 @@ from unittest import mock
 
 from django.urls import reverse
 
-from esapi.errors import ESQueryDateParametersDoesNotExist, ESQueryTooManyDaysError
+from esapi.errors import ESQueryDateParametersDoesNotExist, ESQueryTooManyDaysError, ESQueryOperationProgramDoesNotExist
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from testhelper.helper import TestHelper
 
@@ -119,10 +119,7 @@ class PostProductTransactionsByOperatorData(TestHelper):
             'dayType[]': [],
         }
         response = self.client.post(self.url, data)
-        expected_response = {"code": 411,
-                             "message": "No existe programa de operaci\u00f3n para el per\u00edodo 01/01/2018 - 01/01/2018",
-                             "title": "Error", "type": "error"}
-
+        expected_response = ESQueryOperationProgramDoesNotExist("2018-01-01", "2018-01-01").get_status_response()
         self.assertJSONEqual(json.dumps(json.loads(response.content)['status']), expected_response)
 
     @mock.patch('esapi.helper.stage.ESStageHelper.get_post_products_aggregated_transfers_data_by_operator_query')
