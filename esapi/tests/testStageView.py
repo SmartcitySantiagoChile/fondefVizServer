@@ -124,7 +124,7 @@ class PostProductTransactionsByOperatorData(TestHelper):
 
     @mock.patch('esapi.helper.stage.ESStageHelper.get_post_products_aggregated_transfers_data_by_operator_query')
     def test_exec_elasticsearch_query_with_too_many_days(self,
-                                                 get_post_products_aggregated_transfers_data_by_operator_query):
+                                                         get_post_products_aggregated_transfers_data_by_operator_query):
         get_post_products_aggregated_transfers_data_by_operator_query.return_value = mock.Mock()
         data = {
             'dates': '[["2018-01-01", "2018-01-01"], ["2018-01-01", "2018-01-01"], ["2018-01-01", "2018-01-01"]]',
@@ -150,6 +150,3 @@ class PostProductTransactionsByOperatorData(TestHelper):
         status = ExporterDataHasBeenEnqueuedMessage().get_status_response()
         response = self.client.post(self.url, data)
         self.assertJSONEqual(json.dumps(json.loads(response.content)['status']), status)
-
-
-
