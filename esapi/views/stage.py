@@ -5,7 +5,7 @@ from django.views.generic import View
 
 import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
+from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist, ESQueryTooManyDaysError
 from esapi.helper.stage import ESStageHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
 from esapi.utils import get_dates_from_request, check_operation_program
@@ -78,6 +78,15 @@ class PostProductTransactionsByOperatorData(View):
         try:
             if not dates or not isinstance(dates[0], list) or not dates[0]:
                 raise ESQueryDateParametersDoesNotExist
+            diff_days = 0
+            for date_range in dates:
+                for _ in date_range:
+                    diff_days += 1
+            day_limit = 5
+
+            if diff_days > day_limit:
+                raise ESQueryTooManyDaysError(day_limit)
+
             start_date = dates[0][0]
             end_date = dates[-1][-1]
             check_operation_program(start_date, end_date)
