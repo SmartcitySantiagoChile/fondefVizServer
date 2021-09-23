@@ -80,8 +80,7 @@ class PostProductTransactionsByOperatorData(View):
                 raise ESQueryDateParametersDoesNotExist
             diff_days = 0
             for date_range in dates:
-                for _ in date_range:
-                    diff_days += 1
+                diff_days += len(es_stage_helper.get_available_days_between_dates(date_range[0], date_range[-1]))
             day_limit = 5
             if diff_days > day_limit:
                 raise ESQueryTooManyDaysError(day_limit)
