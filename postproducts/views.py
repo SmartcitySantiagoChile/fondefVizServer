@@ -1,6 +1,6 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
-from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from localinfo.helper import get_day_type_list_for_select_input, get_commune_list_for_select_input
 
@@ -47,6 +47,21 @@ class BoardingAndAlightingByZoneHTML(PermissionRequiredMixin, View):
             'data_filter': {
                 'day_types': get_day_type_list_for_select_input(),
                 'communes': get_commune_list_for_select_input(),
+            },
+        }
+
+        return render(request, template, context)
+
+
+class TransactionsByOperatorHTML(PermissionRequiredMixin, View):
+    permission_required = 'localinfo.postproducts'
+
+    def get(self, request):
+        template = "postproducts/transactionsByOperator.html"
+
+        context = {
+            'data_filter': {
+                'day_types': get_day_type_list_for_select_input(),
             },
         }
 

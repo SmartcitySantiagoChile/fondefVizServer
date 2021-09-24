@@ -16,11 +16,14 @@ class ConnectionTest(TestHelper):
     def setUp(self):
         self.client = self.create_logged_client_with_global_permission()
 
-    def test_site_from_to_map(self):
+    def test_site_transfers(self):
         self.check_http_response(self.client, 'postproducts:transfers', 200)
 
-    def test_site_large_trips(self):
+    def test_site_trip_between_zones(self):
         self.check_http_response(self.client, 'postproducts:tripsBetweenZones', 200)
 
-    def test_site_map(self):
+    def test_site_boarding_and_alighting_by_zone(self):
         self.check_http_response(self.client, 'postproducts:boardingAndAlightingByZone', 200)
+
+    def test_site_transactions_by_operator(self):
+        self.check_http_response(self.client, 'postproducts:transactionsByOperator', 200)

@@ -5,10 +5,10 @@ from django.views.generic import View
 
 import dataDownloader.csvhelper.helper as csv_helper
 from datamanager.helper import ExporterManager
-from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist
+from esapi.errors import FondefVizError, ESQueryDateParametersDoesNotExist, ESQueryTooManyDaysError
 from esapi.helper.stage import ESStageHelper
 from esapi.messages import ExporterDataHasBeenEnqueuedMessage
-from esapi.utils import get_dates_from_request
+from esapi.utils import get_dates_from_request, check_operation_program
 from localinfo.helper import PermissionBuilder, get_calendar_info
 
 
@@ -56,6 +56,43 @@ class PostProductTransfersData(View):
                 response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
             else:
                 pass
+        except FondefVizError as e:
+            response['status'] = e.get_status_response()
+
+        return JsonResponse(response)
+
+    def post(self, request):
+        return self.process_request(request, request.POST, export_data=True)
+
+
+@method_decorator([csrf_exempt], name='dispatch')
+class PostProductTransactionsByOperatorData(View):
+    permission_required = 'localinfo.postproducts'
+
+    def process_request(self, request, params, export_data=False):
+        dates = get_dates_from_request(request, export_data)
+        day_types = params.getlist('dayType[]', [])
+
+        response = {}
+        es_stage_helper = ESStageHelper()
+        try:
+            if not dates or not isinstance(dates[0], list) or not dates[0]:
+                raise ESQueryDateParametersDoesNotExist
+            diff_days = 0
+            for date_range in dates:
+                diff_days += len(es_stage_helper.get_available_days_between_dates(date_range[0], date_range[-1]))
+            day_limit = 5
+            if diff_days > day_limit:
+                raise ESQueryTooManyDaysError(day_limit)
+
+            start_date = dates[0][0]
+            end_date = dates[-1][-1]
+            check_operation_program(start_date, end_date)
+            es_query = es_stage_helper.get_post_products_aggregated_transfers_data_by_operator_query(dates, day_types)
+            ExporterManager(es_query).export_data(csv_helper.POST_PRODUCTS_STAGE_TRANSACTIONS_BY_OPERATOR_DATA,
+                                                  request.user)
+            response['status'] = ExporterDataHasBeenEnqueuedMessage().get_status_response()
+
         except FondefVizError as e:
             response['status'] = e.get_status_response()
 

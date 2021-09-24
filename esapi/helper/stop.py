@@ -83,7 +83,7 @@ class ESStopHelper(ElasticSearchHelper):
     def get_available_days(self):
         return self._get_available_days('startDate', [])
 
-    def get_all_stop_info(self, date):
+    def get_all_stop_info(self, date, to_dict=False):
         """Ask to elasticsearch for all stops in given date
         Args:
             date: date for stops
@@ -94,12 +94,15 @@ class ESStopHelper(ElasticSearchHelper):
             raise ESQueryDateRangeParametersDoesNotExist()
 
         es_query = self.get_base_query().filter('term', startDate=date).extra(track_total_hits=True)
-        stop_info = []
+        stop_info = [] if not to_dict else {}
         try:
             for stop in es_query.scan():
                 del stop['path']
                 del stop['timestamp']
-                stop_info.append(stop.to_dict())
+                if not to_dict:
+                    stop_info.append(stop.to_dict())
+                else:
+                    stop_info[stop.to_dict()["authCode"]] = stop.to_dict()
         except IndexError:
             raise ESQueryStopInfoDoesNotExist()
         return stop_info
