@@ -11,7 +11,8 @@ from esapi.views.resume import GlobalData, AvailableDays as StatisticAD
 from esapi.views.shape import GetBaseInfo, GetRouteInfo, GetUserRoutesByOP
 from esapi.views.speed import AvailableDays as SAD, AvailableRoutes as SAR, MatrixData, RankingData, SpeedByRoute, \
     SpeedVariation
-from esapi.views.stage import PostProductTransfersData as PPTD, AvailableDays as StageAD
+from esapi.views.stage import PostProductTransfersData as PPTD, AvailableDays as StageAD, \
+    PostProductTransactionsByOperatorData as PPTByOD
 from esapi.views.stop import MatchedStopData, StopInfo
 from esapi.views.trip import ResumeData, AvailableDays as TAD, MapData, LargeTravelData, FromToMapData, \
     StrategiesData, TransfersData, MultiRouteData, PostProductTripsBetweenZones, PostProductTripsBoardingAndAlighting
@@ -83,6 +84,8 @@ urlpatterns = [
     # stage index
     url(r'^stage/availableDays/$', login_required(StageAD.as_view()), name='availableStageDays'),
     url(r'^stage/postProduct/transfers/$', login_required(PPTD.as_view()), name='stageTransfers'),
+    url(r'^stage/postProduct/transactionsByOperator/$', login_required(PPTByOD.as_view()),
+        name='stageTransactionsByOperator'),
 
     # opdata index
     url(r'^opdata/opDataByAuthRouteCode/', login_required(ODBAR.as_view()), name='opdataAuthRoute'),

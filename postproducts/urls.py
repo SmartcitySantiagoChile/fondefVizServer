@@ -1,7 +1,8 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from postproducts.views import TransfersHTML, TripsBetweenZonesHTML, BoardingAndAlightingByZoneHTML
+from postproducts.views import TransfersHTML, TripsBetweenZonesHTML, BoardingAndAlightingByZoneHTML, \
+    TransactionsByOperatorHTML
 
 app_name = 'postproducts'
 urlpatterns = [
@@ -10,5 +11,7 @@ urlpatterns = [
     url(r'^tripsBetweenZones/$', login_required(TripsBetweenZonesHTML.as_view()), name='tripsBetweenZones'),
     url(r'^boardingAndAlightingByZone/$', login_required(BoardingAndAlightingByZoneHTML.as_view()),
         name='boardingAndAlightingByZone'),
+    url(r'^transactionsByOperator/$', login_required(TransactionsByOperatorHTML.as_view()),
+        name='transactionsByOperator'),
 
 ]

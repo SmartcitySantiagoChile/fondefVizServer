@@ -214,4 +214,12 @@ class ESQueryResultEmptyRoute(FondefVizError):
         message = 'La consulta por el servicio {0} no arrojó resultados'.format(route)
         title = 'Información'
         message_type = 'info'
-        super(ESQueryResultEmptyRoute, self).__init__(403, message, title, message_type)
+        super(ESQueryResultEmptyRoute, self).__init__(420, message, title, message_type)
+
+
+class ESQueryTooManyDaysError(FondefVizError):
+    """ It raises when user send more days than days limit """
+
+    def __init__(self, limit_number):
+        message = f'No puede seleccionar más de {limit_number} días'
+        super(ESQueryTooManyDaysError, self).__init__(421, message)

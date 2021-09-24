@@ -1,11 +1,8 @@
 from unittest import mock
 
 from django.test import TestCase
-from elasticsearch_dsl import Search
 
-from esapi.errors import ESQueryDateRangeParametersDoesNotExist, ESQueryStagesEmpty, ESQueryTooManyOriginZonesError, \
-    ESQueryDestinationZoneParameterDoesNotExist, \
-    ESQueryTooManyDestinationZonesError, ESQueryStopParameterDoesNotExist
+from esapi.errors import ESQueryDateRangeParametersDoesNotExist
 from esapi.helper.stage import ESStageHelper
 
 
@@ -41,8 +38,7 @@ class ESStageHelperTest(TestCase):
         expect_result = {'query': {'bool': {'filter': [{'range': {
             'boardingTime': {'gte': '2020-01-01||/d', 'lte': '2020-01-03||/d', 'format': 'yyyy-MM-dd',
                              'time_zone': '+00:00'}}}, {'terms': {'dayType': ['LABORAL']}},
-            {'terms': {'boardingStopCommune': [0, 1]}},
-            {'range': {'stageNumber': {'gt': 1}}}]}}, 'from': 0, 'size': 0}
+            {'terms': {'boardingStopCommune': [0, 1]}}]}}, 'from': 0, 'size': 0}
 
         self.assertEqual(result.to_dict(), expect_result)
 
@@ -75,12 +71,30 @@ class ESStageHelperTest(TestCase):
         expected_result = {'query': {'bool': {'filter': [{'range': {
             'boardingTime': {'gte': '2020-01-01||/d', 'lte': '2020-01-03||/d', 'format': 'yyyy-MM-dd',
                              'time_zone': '+00:00'}}}, {'terms': {'dayType': ['LABORAL']}},
-                                                         {'terms': {'boardingStopCommune': [0, 1]}},
-                                                         {'range': {'stageNumber': {'gt': 1}}}]}}, 'aggs': {
+            {'terms': {'boardingStopCommune': [0, 1]}},
+            {'range': {'stageNumber': {'gt': 1}}}]}}, 'aggs': {
             'result': {'terms': {'field': 'dayType', 'size': 4}, 'aggs': {
                 'boardingStopCommune': {'terms': {'field': 'boardingStopCommune', 'size': 48}, 'aggs': {
                     'authStopCode': {'terms': {'field': 'authStopCode', 'size': 13000}, 'aggs': {
                         'halfHourInBoardingTime': {'terms': {'field': 'halfHourInBoardingTime', 'size': 48}, 'aggs': {
                             'expandedBoarding': {'avg': {'field': 'expandedBoarding'}}}}}}}}}}}, 'from': 0, 'size': 0}
 
+        self.assertEqual(expected_result, result.to_dict())
+
+    def test_get_post_products_aggregated_transfers_data_by_operator_query(self):
+        dates = [['2020-01-01', '2020-01-03']]
+        day_types = ['LABORAL']
+        result = self.instance.get_post_products_aggregated_transfers_data_by_operator_query(dates, day_types)
+        expected_result = {'query': {'bool': {'filter': [{'range': {
+            'boardingTime': {'gte': '2020-01-01||/d', 'lte': '2020-01-03||/d', 'format': 'yyyy-MM-dd',
+                             'time_zone': '+00:00'}}}, {'terms': {'dayType': ['LABORAL']}}]}}, 'aggs': {
+            'result': {'date_histogram': {'field': 'boardingTime', 'interval': 'day'}, 'aggs': {
+                'dayType': {'terms': {'field': 'dayType', 'size': 4}, 'aggs': {
+                    'timePeriodInBoardingTime': {'terms': {'field': 'timePeriodInBoardingTime', 'size': 100}, 'aggs': {
+                        'halfHourInBoardingTime': {'terms': {'field': 'halfHourInBoardingTime', 'size': 48}, 'aggs': {
+                            'authStopCode': {'terms': {'field': 'authStopCode', 'size': 13000}, 'aggs': {
+                                'operator': {'terms': {'field': 'operator', 'size': 20}, 'aggs': {
+                                    'busStation': {'terms': {'field': 'busStation', 'size': 2}, 'aggs': {
+                                        'expandedBoarding': {'sum': {'field': 'expandedBoarding'}}}}}}}}}}}}}}}}},
+            'from': 0, 'size': 0}
         self.assertEqual(expected_result, result.to_dict())

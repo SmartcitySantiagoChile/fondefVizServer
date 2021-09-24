@@ -109,3 +109,24 @@ class ESStopIndexTest(TestCase):
         get_base_query.scan = mock.Mock(side_effect=ESQueryStopInfoDoesNotExist())
         self.assertRaises(ESQueryStopInfoDoesNotExist, self.instance.get_all_stop_info, start_date)
 
+    @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
+    def test_all_get_stop_info_to_dict(self, get_base_query):
+        date = ''
+        self.assertRaises(ESQueryDateRangeParametersDoesNotExist, self.instance.get_all_stop_info, date)
+        date = "2018-01-01"
+        get_base_query.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.extra.return_value = get_base_query
+        expected_result = {"1123"}
+        get_base_query.scan.return_value = mock.MagicMock(to_dict=expected_result)
+        result = self.instance.get_all_stop_info(date, to_dict=True)
+        self.assertEqual(result, {})
+
+    @mock.patch('esapi.helper.stop.ESStopHelper.get_base_query')
+    def test_get_all_stop_info_with_empty_stop_info_to_dict(self, get_base_query):
+        start_date = '2018-01-01'
+        get_base_query.return_value = get_base_query
+        get_base_query.filter.return_value = get_base_query
+        get_base_query.extra.return_value = get_base_query
+        get_base_query.scan = mock.Mock(side_effect=ESQueryStopInfoDoesNotExist())
+        self.assertRaises(ESQueryStopInfoDoesNotExist, self.instance.get_all_stop_info, start_date, to_dict=True)
