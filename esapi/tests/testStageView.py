@@ -110,9 +110,14 @@ class PostProductTransactionsByOperatorData(TestHelper):
         status = json.dumps(json.loads(response.content)['status'])
         self.assertJSONEqual(status, ESQueryDateParametersDoesNotExist().get_status_response())
 
+    @mock.patch('esapi.views.stage.check_operation_program')
+    @mock.patch('esapi.helper.stage.ESStageHelper.get_available_days_between_dates')
     @mock.patch('esapi.helper.stage.ESStageHelper.get_post_products_aggregated_transfers_data_by_operator_query')
     def test_exec_elasticsearch_query_with_no_po(self,
-                                                 get_post_products_aggregated_transfers_data_by_operator_query):
+                                                 get_post_products_aggregated_transfers_data_by_operator_query,
+                                                 get_available_days_between_dates, check_operation_program):
+        check_operation_program.side_effect = ESQueryOperationProgramDoesNotExist("2018-01-01", "2018-01-01")
+        get_available_days_between_dates.return_value = mock.MagicMock()
         get_post_products_aggregated_transfers_data_by_operator_query.return_value = mock.Mock()
         data = {
             'dates': '[["2018-01-01", "2018-01-01"]]',
@@ -122,12 +127,17 @@ class PostProductTransactionsByOperatorData(TestHelper):
         expected_response = ESQueryOperationProgramDoesNotExist("2018-01-01", "2018-01-01").get_status_response()
         self.assertJSONEqual(json.dumps(json.loads(response.content)['status']), expected_response)
 
+    @mock.patch('esapi.helper.stage.ESStageHelper.get_available_days_between_dates')
     @mock.patch('esapi.helper.stage.ESStageHelper.get_post_products_aggregated_transfers_data_by_operator_query')
     def test_exec_elasticsearch_query_with_too_many_days(self,
-                                                         get_post_products_aggregated_transfers_data_by_operator_query):
+                                                         get_post_products_aggregated_transfers_data_by_operator_query,
+                                                         get_available_days_between_dates):
+
+        get_available_days_between_dates.return_value = [1, 2, 3]
+
         get_post_products_aggregated_transfers_data_by_operator_query.return_value = mock.Mock()
         data = {
-            'dates': '[["2018-01-01", "2018-01-01"], ["2018-01-01", "2018-01-01"], ["2018-01-01", "2018-01-01"]]',
+            'dates': '[["2018-01-01", "2018-01-02"], ["2018-01-01", "2018-01-02"], ["2018-01-01", "2018-01-02"]]',
             'dayType[]': [],
         }
         response = self.client.post(self.url, data)
@@ -135,12 +145,14 @@ class PostProductTransactionsByOperatorData(TestHelper):
 
         self.assertJSONEqual(json.dumps(json.loads(response.content)['status']), expected_response)
 
+    @mock.patch('esapi.helper.stage.ESStageHelper.get_available_days_between_dates')
     @mock.patch('datamanager.helper.ExporterManager.export_data')
     @mock.patch('esapi.views.stage.check_operation_program')
     @mock.patch('esapi.helper.stage.ESStageHelper.get_post_products_aggregated_transfers_data_by_operator_query')
     def test_exec_elasticsearch_query_with_po(self,
                                               get_post_products_aggregated_transfers_data_by_operator_query,
-                                              check_operation_program, export_data):
+                                              check_operation_program, export_data, get_available_days_between_dates):
+        get_available_days_between_dates.return_value = mock.MagicMock()
         get_post_products_aggregated_transfers_data_by_operator_query.return_value = mock.Mock()
         check_operation_program.side_effect = mock.Mock()
         data = {
