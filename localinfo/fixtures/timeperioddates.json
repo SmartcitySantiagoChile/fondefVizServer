@@ -26,5 +26,12 @@
     "fields": {
       "date": "2021-01-01"
     }
+  },
+  {
+    "model": "localinfo.timeperioddate",
+    "pk": 5,
+    "fields": {
+      "date": "2022-01-15"
+    }
   }
 ]
