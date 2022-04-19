@@ -228,7 +228,7 @@ comando:
 
 Luego se deben cargar los datos base requeridos por la aplicación web, para esto se debe ejecutar la siguiente instrucción:
 
-    $ python manage.py loaddata datasource communes daytypes halfhours operators timeperiods transportmodes
+    $ python manage.py loaddata datasource communes daytypes halfhours operators timeperioddates timeperiods transportmodes
 
 La interfaz web requiere de un usuario para acceder por loq que se debe crear un super usuario, esto se hace por medio del comando:
     
