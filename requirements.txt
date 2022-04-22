@@ -1,6 +1,6 @@
 boto3==1.17.99
 coverage==5.5
-Django==3.2.4
+Django==3.2.13
 django-js-reverse==0.9.1
 django-rq==2.4.1
 django-debug-toolbar==3.2.1
