@@ -115,8 +115,6 @@ class TaskTest(TestCase):
     def test_export_data_but_job_id_does_not_exist(self, exporter_job_execution):
         exporter_job_execution.side_effect = [ExporterJobExecution.DoesNotExist, ExporterJobExecution.DoesNotExist]
         job_id = 'd8c961e5-db5b-4033-a27f-6f2d30662548'
-        # with self.assertRaisesMessage(
-        #        ValueError, 'job id "{0}" does not have a record in ExporterJobExecution model'.format(job_id)):
         job = self.queue.enqueue(export_data_job, "", '', job_id=job_id)
         self.assertTrue(job.is_failed)
 
