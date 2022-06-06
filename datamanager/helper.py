@@ -7,6 +7,8 @@ from django.db.models import Q
 from django.utils import timezone
 from redis import Redis
 from rq import Connection
+from rq.command import send_stop_job_command
+from rq.job import Job
 
 import dataDownloader.csvhelper.helper as csv_helper
 from dataDownloader.csvhelper.bip import BipData
@@ -15,7 +17,8 @@ from dataDownloader.csvhelper.paymentfactor import PaymentFactorData
 from dataDownloader.csvhelper.profile import ProfileByExpeditionData, ProfileDataByStop, \
     ProfileByExpeditionWithoutEvasionData
 from dataDownloader.csvhelper.speed import SpeedDataWithFormattedShape
-from dataDownloader.csvhelper.stage import PostProductStageTransferData, PostProductStageTransferAggregatedData, PostProductStageTransactionsByOperatorData
+from dataDownloader.csvhelper.stage import PostProductStageTransferData, PostProductStageTransferAggregatedData, \
+    PostProductStageTransactionsByOperatorData
 from dataDownloader.csvhelper.trip import TripData, PostProductTripTripBetweenZonesData, \
     PostProductTripBoardingAndAlightingData, PostProductTripBoardingAndAlightingWithoutServiceData
 from dataDownloader.errors import UnrecognizedDownloaderNameError
@@ -34,7 +37,6 @@ from esapi.helper.stage import ESStageHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.trip import ESTripHelper
-from rqworkers.killClass import KillJob
 from rqworkers.tasks import upload_file_job, export_data_job
 
 
@@ -213,9 +215,12 @@ class UploaderManager(object):
             host = settings.RQ_QUEUES[queue_name]['HOST']
             port = settings.RQ_QUEUES[queue_name]['PORT']
             with Connection(Redis(host, port)) as redis_conn:
-                job = KillJob.fetch(str(job_obj.jobId), connection=redis_conn)
-                job.kill()
-                job.delete()
+                if job_obj.status == UploaderJobExecution.ENQUEUED:
+                    job = Job.fetch(job_obj.jobId, connection=redis_conn)
+                    job.cancel()
+                if job_obj.status == UploaderJobExecution.RUNNING:
+                    send_stop_job_command(redis_conn, job_obj.jobId)
+
             job_obj.status = UploaderJobExecution.CANCELED
             job_obj.executionEnd = timezone.now()
             job_obj.save()
