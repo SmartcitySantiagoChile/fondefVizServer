@@ -766,10 +766,13 @@ class TripCSVHelper(CSVHelper):
         return '\t\t- {0}: {1}\r\n'.format(self.get_data_file_name(), description)
 
     def row_parser(self, row):
-
         formatted_row = []
         for column_name in self.get_fields():
-            value = row[column_name]
+            try:
+                value = row[column_name]
+            except KeyError:
+                continue
+
             try:
                 if column_name == 'tipodia':
                     value = self.day_type_dict[value]
