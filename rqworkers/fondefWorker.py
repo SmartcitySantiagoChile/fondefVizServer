@@ -1,7 +1,7 @@
-from rqworkers.killClass import KillWorker
+from rq.worker import Worker
 
 
-class FondefWorker(KillWorker):
+class FondefWorker(Worker):
     """ Worker that preloads the necessary imports to upload data """
 
     def __init__(self, queues, name=None, default_result_ttl=None, connection=None,
