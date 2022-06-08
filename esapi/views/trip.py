@@ -414,13 +414,12 @@ class MultiRouteData(View):
             'availableRoutes': res
         }
 
-    def process_request(self, request, params, export_data=False):
+    def get(self, request):
         es_helper = ESProfileHelper()
-        start_date = params.get("start_date", None)
-        end_date = params.get("end_date", None)
+        start_date = request.GET.get("start_date", None)
+        end_date = request.GET.get("end_date", None)
         response = {}
         try:
-
             es_query = es_helper.get_all_auth_routes(start_date, end_date)
             response = self.process_data(es_query)
             response['routesDict'] = get_op_routes_dict()
@@ -430,12 +429,6 @@ class MultiRouteData(View):
             response['status'] = e.get_status_response()
 
         return JsonResponse(response)
-
-    def get(self, request):
-        return self.process_request(request, request.GET)
-
-    def post(self, request):
-        return self.process_request(request, request.POST, export_data=True)
 
 
 class PostProductTripsBetweenZones(View):
