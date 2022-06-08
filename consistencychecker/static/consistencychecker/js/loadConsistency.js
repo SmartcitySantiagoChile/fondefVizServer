@@ -32,27 +32,27 @@ $(document).ready(function () {
     };
 
     let addColorToRow = function (data, row) {
-      $(row).removeClass('danger warning success');
       lowerIndexNames.forEach((index_name, index_position) => {
+        let cellReference = $(row).find(`td:eq(${index_position + 2})`);
         let diff = 0;
         if (data[index_name + '_index'] !== 0) {
           diff = data[index_name + '_file'] / data[index_name + '_index'];
         }
 
         if (diff === 1) {
-          $(row).find(`td:eq(${index_position + 2})`).css({
+          cellReference.css({
             'background-color': '#d4edda',
             'border-color': '#c3e6cb',
             'color': '#155724'
           });
         } else if (diff > 1) {
-          $(row).find(`td:eq(${index_position + 2})`).css({
+          cellReference.css({
             'background-color': '#f8d7da',
             'border-color': '#f5c6cb',
             'color': '#721c24'
           });
         } else {
-          $(row).find(`td:eq(${index_position + 2})`).css({
+          cellReference.css({
             'background-color': '#fff3cd',
             'border-color': '#ffeeba',
             'color': '#856404'
@@ -61,29 +61,31 @@ $(document).ready(function () {
       });
 
       let authorityIndexId = JSON.parse(data['authority_period_index_version']);
+      let authorityColumnIndex = 10;
+      let cellReference = $(row).find(`td:eq(${authorityColumnIndex})`);
       if (authorityIndexId.length === 1) {
         let diffAuthorityPeriodId = data['authority_period_version'] === authorityIndexId[0].toString();
         if (diffAuthorityPeriodId) {
-          $(row).find(`td:eq(9)`).css({
+          cellReference.css({
             'background-color': '#d4edda',
             'border-color': '#c3e6cb',
             'color': '#155724'
           });
         } else {
-          $(row).find(`td:eq(9)`).css({
+          cellReference.css({
             'background-color': '#fff3cd',
             'border-color': '#ffeeba',
             'color': '#856404'
           });
         }
       } else if (authorityIndexId.length === 0) {
-        $(row).find(`td:eq(9)`).css({
+        cellReference.css({
           'background-color': '#f8d7da',
           'border-color': '#f5c6cb',
           'color': '#721c24'
         });
       } else {
-        $(row).find(`td:eq(9)`).css({
+        cellReference.css({
           'background-color': '#fff3cd',
           'border-color': '#ffeeba',
           'color': '#856404'
