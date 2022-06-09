@@ -289,7 +289,9 @@ def create_csv_format_users_list() -> list:
     user_list.append(header)
     for user in users:
         formatted_is_staff = "Si" if user.is_staff else "No"
-        formatted_last_login_time = user.last_login.strftime("%d-%m-%Y %H:%M:%S")
+        formatted_last_login_time = ''
+        if user.last_login is not None:
+            formatted_last_login_time = user.last_login.strftime("%d-%m-%Y %H:%M:%S")
         user_row = [user.username, user.email, user.first_name, user.last_name, formatted_is_staff,
                     formatted_last_login_time]
         user_permissions = Group.objects.filter(user=user)
