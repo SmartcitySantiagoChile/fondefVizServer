@@ -744,7 +744,7 @@ $(document).ready(function () {
           position: "left"
         }, {
           type: "value",
-          name: "Porcentaje",
+          name: "% ocupación",
           //min: 0,
           max: 100,
           position: "right",
