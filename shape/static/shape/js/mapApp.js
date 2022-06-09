@@ -500,7 +500,7 @@ $(document).ready(function () {
       }
 
       let routeLegendControl = new RouteLegendControl();
-      mapInstance.addControl(routeLegendControl, 'bottom-left');
+      mapInstance.addControl(routeLegendControl, 'bottom-right');
       routeLegendControl.update();
       return routeLegendControl;
     };
@@ -642,7 +642,7 @@ $(document).ready(function () {
       }
 
       let stopLegendControl = new StopLegendControl();
-      mapInstance.addControl(stopLegendControl, 'bottom-left');
+      mapInstance.addControl(stopLegendControl, 'bottom-right');
       stopLegendControl.update();
       return stopLegendControl;
     };
