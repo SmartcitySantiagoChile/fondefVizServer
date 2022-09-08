@@ -954,6 +954,10 @@ class PaymentFactorCSVHelper(CSVHelper):
              'definition': 'N° de validaciones por servicio, están separados por el signo "-" y su servicio asociado es el ubicado en la misma posición de la columna "Servicios"'},
             {'es_name': 'validatorId', 'csv_name': 'Id de validador',
              'definition': 'Identificador del validador asociado a la zona paga'},
+            {'es_name': 'operatorTransactions', 'csv_name': 'Transacciones UN',
+             'definition': 'Transacciones de la unidad de negocio. Un valor de -1 significa que no fue posible calcular este número.'},
+            {'es_name': 'factorWithoutThreesomeMethodology', 'csv_name': 'Factor sin trío',
+             'definition': 'Factor de pago sin la metodología de tríos Un valor de -1 significa que no fue posible calcular este número.'},
         ]
 
     def get_data_file_name(self):
