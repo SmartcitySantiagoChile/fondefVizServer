@@ -363,7 +363,7 @@ Hacer commit de la actualización
     git add dataUploader
     git commit -m "Update dataUploader"
 
-Finalmente actualiar vía pip
+Finalmente actualizar vía pip
 
     pip install -r requirements.txt
 
