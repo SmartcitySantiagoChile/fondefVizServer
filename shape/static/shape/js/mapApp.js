@@ -681,7 +681,7 @@ $(document).ready(function () {
                   	<th></th>
                     <th>Fecha PO</th>
                     <th>Parada</th>
-                    <th>Servicio TS</th>
+                    <th>Color</th>
                     <th></th><th></th><th></th><th></th>
                   </thead>
                   <tbody id='stopListContainer'>
