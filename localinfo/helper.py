@@ -366,9 +366,12 @@ class PermissionBuilder(object):
         permission.name = new_operator_obj.name.lower()
         permission.save()
 
-        group = Group.objects.get(name=old_operator.name.capitalize())
-        group.name = new_operator_obj.name.capitalize()
-        group.save()
+        try:
+            group = Group.objects.get(name__iexact=old_operator.name.capitalize())
+            group.name = new_operator_obj.name.capitalize()
+            group.save()
+        except Group.DoesNotExist:
+            pass
 
     def add_permission(self, operator_obj):
         """
