@@ -10,7 +10,7 @@ params = [
     dict(bucket_name=AWSSession.GPS_BUCKET_NAME, subtitle='GPS'),
     dict(bucket_name=AWSSession.TRIP_BUCKET_NAME, subtitle='viajes'),
     dict(bucket_name=AWSSession.OP_PROGRAM_BUCKET_NAME, subtitle='Programas de operación'),
-    dict(bucket_name=AWSSession.REPRESENTATIVE_WEEk_BUCKET_NAME, subtitle='Semanas representativas'),
+    dict(bucket_name=AWSSession.REPRESENTATIVE_WEEK_BUCKET_NAME, subtitle='Semanas representativas'),
     dict(bucket_name=AWSSession.FILE_196_BUCKET_NAME, subtitle='Reportes 1.96'),
     dict(bucket_name=AWSSession.PROFILE_BUCKET_NAME, subtitle='Perfiles'),
     dict(bucket_name=AWSSession.STAGE_BUCKET_NAME, subtitle='Etapas'),
