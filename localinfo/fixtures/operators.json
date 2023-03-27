@@ -8,8 +8,8 @@
   {"model": "localinfo.operator", "pk":7 , "fields":{ "esId":"7", "name":"STP Santiago" }},
   {"model": "localinfo.operator", "pk":8 , "fields":{ "esId":"8", "name":"Metropol Alpha" }},
   {"model": "localinfo.operator", "pk":9 , "fields":{ "esId":"9", "name":"Metropol Omega" }},
-  {"model": "localinfo.operator", "pk":10 , "fields":{ "esId":"9", "name":"STU (U10)" }},
-  {"model": "localinfo.operator", "pk":11 , "fields":{ "esId":"9", "name":"RBU (U11)" }},
-  {"model": "localinfo.operator", "pk":12 , "fields":{ "esId":"9", "name":"STU (U12)" }},
-  {"model": "localinfo.operator", "pk":13 , "fields":{ "esId":"9", "name":"RBU (U13)" }}
+  {"model": "localinfo.operator", "pk":10 , "fields":{ "esId":"10", "name":"STU (U10)" }},
+  {"model": "localinfo.operator", "pk":11 , "fields":{ "esId":"11", "name":"RBU (U11)" }},
+  {"model": "localinfo.operator", "pk":12 , "fields":{ "esId":"12", "name":"STU (U12)" }},
+  {"model": "localinfo.operator", "pk":13 , "fields":{ "esId":"13", "name":"RBU (U13)" }}
 ]

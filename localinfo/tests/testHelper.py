@@ -78,13 +78,17 @@ class TestHelperUtils(TestCase):
                          {'value': 3, 'item': 'Buses Vule'},
                          {'value': 4, 'item': 'Express'}, {'value': 5, 'item': 'Buses Metropolitana'},
                          {'value': 6, 'item': 'Red Bus Urbano'}, {'value': 7, 'item': 'STP Santiago'},
-                         {'value': 8, 'item': 'Metro'},
-                         {'value': 9, 'item': 'Metrotren'}]
+                         {'value': 8, 'item': 'Metropol Alpha'},
+                         {'value': 9, 'item': 'Metropol Omega'},
+                         {'value': 10, 'item': 'STU (U10)'},
+                         {'value': 11, 'item': 'RBU (U11)'},
+                         {'value': 12, 'item': 'STU (U12)'},
+                         {'value': 13, 'item': 'RBU (U13)'}, ]
         self.assertEqual(expected_list, get_operator_list_for_select_input())
 
         expected_dict = {1: 'Alsacia', 2: 'Su Bus', 3: 'Buses Vule', 4: 'Express', 5: 'Buses Metropolitana',
-                         6: 'Red Bus Urbano',
-                         7: 'STP Santiago', 8: 'Metro', 9: 'Metrotren'}
+                         6: 'Red Bus Urbano', 7: 'STP Santiago', 8: 'Metropol Alpha', 9: 'Metropol Omega',
+                         10: 'STU (U10)', 11: 'RBU (U11)', 12: 'STU (U12)', 13: 'RBU (U13)'}
 
         self.assertEqual(expected_dict, get_operator_list_for_select_input(to_dict=True))
 
