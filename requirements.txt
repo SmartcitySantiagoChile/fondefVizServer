@@ -1,7 +1,7 @@
 boto3==1.26.99
 coverage==7.2.2
-datadog==0.44.0
-ddtrace==1.1.4
+datadog==0.45.0
+ddtrace==1.10.1
 Django==3.2.18
 django-js-reverse==0.9.1
 django-rq==2.7.0
