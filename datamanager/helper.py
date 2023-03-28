@@ -216,10 +216,10 @@ class UploaderManager(object):
             port = settings.RQ_QUEUES[queue_name]['PORT']
             with Connection(Redis(host, port)) as redis_conn:
                 if job_obj.status == UploaderJobExecution.ENQUEUED:
-                    job = Job.fetch(job_obj.jobId, connection=redis_conn)
+                    job = Job.fetch(str(job_obj.jobId), connection=redis_conn)
                     job.cancel()
                 if job_obj.status == UploaderJobExecution.RUNNING:
-                    send_stop_job_command(redis_conn, job_obj.jobId)
+                    send_stop_job_command(redis_conn, str(job_obj.jobId))
 
             job_obj.status = UploaderJobExecution.CANCELED
             job_obj.executionEnd = timezone.now()
