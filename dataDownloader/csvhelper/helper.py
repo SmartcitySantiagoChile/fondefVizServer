@@ -1414,6 +1414,86 @@ class TripCSVHelper(CSVHelper):
                 "csv_name": "distancia_euclideana_vehiculo_rfinal",
                 "definition": "Suma de distancia euclideana total recorrida por vehículos en ruta.",
             },
+            {
+                "es_name": "tipo_corte_etapa_viaje",
+                "csv_name": "tipo_corte_etapa_viaje",
+                "definition": "Tipo de corte etapa/viaje.",
+            },
+            {
+                "es_name": "proposito",
+                "csv_name": "proposito",
+                "definition": "Propósito para el cual se realiza el viaje",
+            },
+            {
+                "es_name": "tiempo_entrada",
+                "csv_name": "tiempo_entrada",
+                "definition": "Tiempo de entrada a estaciones de Metro [min].",
+            },
+            {
+                "es_name": "tiempo_espera_0",
+                "csv_name": "tiempo_espera_0",
+                "definition": "Tiempo de espera en la etapa 1 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_1",
+                "csv_name": "tiempo_viaje_vehiculo_1",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 1 [min].",
+            },
+            {
+                "es_name": "tiempo_caminata_etapa_1",
+                "csv_name": "tiempo_caminata_etapa_1",
+                "definition": "Tiempo de caminata de la etapa 1 hacia la subida de la etapa 2 [min].",
+            },
+            {
+                "es_name": "tiempo_espera_1",
+                "csv_name": "tiempo_espera_1",
+                "definition": "Tiempo de espera en la etapa 2 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_2",
+                "csv_name": "tiempo_viaje_vehiculo_2",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 2 [min].",
+            },
+            {
+                "es_name": "tiempo_caminata_etapa_2",
+                "csv_name": "tiempo_caminata_etapa_2",
+                "definition": "Tiempo de caminata de la etapa 2 hacia la subida de la etapa 3 [min].",
+            },
+            {
+                "es_name": "tiempo_espera_2",
+                "csv_name": "tiempo_espera_2",
+                "definition": "Tiempo de espera en la etapa 3 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_3",
+                "csv_name": "tiempo_viaje_vehiculo_3",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 3 [min].",
+            },
+            {
+                "es_name": "tiempo_caminata_etapa_3",
+                "csv_name": "tiempo_caminata_etapa_3",
+                "definition": "Tiempo de caminata de la etapa 3 hacia la subida de la etapa 4 [min].",
+            },
+            {
+                "es_name": "tiempo_espera_3",
+                "csv_name": "tiempo_espera_3",
+                "definition": "Tiempo de espera en la etapa 4 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_4",
+                "csv_name": "tiempo_viaje_vehiculo_4",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 4 [min].",
+            },
+            {
+                "es_name": "tiempo_egreso",
+                "csv_name": "tiempo_egreso",
+                "definition": "Tiempo de egreso de estaciones de metro [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_total",
+                "csv_name": "tiempo_viaje_total",
+                "definition": "Tiempo de viaje total, la suma de todos los tiempos anteriores [min]. Reemplaza a Tiempo_viaje para fechas posterires al 30-09-2022.",
+            },
         ]
 
     def get_data_file_name(self):
@@ -1627,9 +1707,6 @@ class StopByRouteCSVHelper(CSVHelper):
                 auth_route_code,
                 user_route_code,
                 start_date,
-                str(stop["order"]),
-                str(stop["latitude"]),
-                str(stop["longitude"]),
                 stop["authStopCode"],
                 stop["userStopCode"],
                 stop["stopName"],
