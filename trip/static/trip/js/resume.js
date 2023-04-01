@@ -134,7 +134,7 @@ $(document).ready(function () {
                     xaxis_label: "Kilometros"
                 },
                 distancia_eucl: {
-                    name: "Distancia euclideana",
+                    name: "Distancia euclidiana",
                     image_name: "histograma_distancia_eucl",
                     xaxis_fn: function (cur, next) {
                         if (next === undefined) {

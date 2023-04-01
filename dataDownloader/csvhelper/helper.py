@@ -1355,9 +1355,9 @@ class TripCSVHelper(CSVHelper):
                 "definition": "Distancia recorrida por vehículo en ruta durante la etapa 1.",
             },
             {
-                "es_name": "distancia_euclideana_vehiculo_ruta_1",
-                "csv_name": "distancia_euclideana_vehiculo_ruta_1",
-                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 1.",
+                "es_name": "distancia_euclidiana_vehiculo_ruta_1",
+                "csv_name": "distancia_euclidiana_vehiculo_ruta_1",
+                "definition": "Distancia euclidiana recorrida por vehículo en ruta durante la etapa 1.",
             },
             {
                 "es_name": "distancia_caminata_2",
@@ -1370,9 +1370,9 @@ class TripCSVHelper(CSVHelper):
                 "definition": "Distancia recorrida por vehículo en ruta durante la etapa 2.",
             },
             {
-                "es_name": "distancia_euclideana_vehiculo_ruta_2",
-                "csv_name": "distancia_euclideana_vehiculo_ruta_2",
-                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 2.",
+                "es_name": "distancia_euclidiana_vehiculo_ruta_2",
+                "csv_name": "distancia_euclidiana_vehiculo_ruta_2",
+                "definition": "Distancia euclidiana recorrida por vehículo en ruta durante la etapa 2.",
             },
             {
                 "es_name": "distancia_caminata_3",
@@ -1385,9 +1385,9 @@ class TripCSVHelper(CSVHelper):
                 "definition": "Distancia recorrida por vehículo en ruta durante la etapa 3.",
             },
             {
-                "es_name": "distancia_euclideana_vehiculo_ruta_3",
-                "csv_name": "distancia_euclideana_vehiculo_ruta_3",
-                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 3.",
+                "es_name": "distancia_euclidiana_vehiculo_ruta_3",
+                "csv_name": "distancia_euclidiana_vehiculo_ruta_3",
+                "definition": "Distancia euclidiana recorrida por vehículo en ruta durante la etapa 3.",
             },
             {
                 "es_name": "distancia_vehiculo_ruta_4",
@@ -1395,9 +1395,9 @@ class TripCSVHelper(CSVHelper):
                 "definition": "Distancia recorrida por vehículo en ruta durante la etapa 4.",
             },
             {
-                "es_name": "distancia_euclideana_vehiculo_ruta_4",
-                "csv_name": "distancia_euclideana_vehiculo_ruta_4",
-                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 4.",
+                "es_name": "distancia_euclidiana_vehiculo_ruta_4",
+                "csv_name": "distancia_euclidiana_vehiculo_ruta_4",
+                "definition": "Distancia euclidiana recorrida por vehículo en ruta durante la etapa 4.",
             },
             {
                 "es_name": "distancia_caminata_final",
@@ -1410,9 +1410,9 @@ class TripCSVHelper(CSVHelper):
                 "definition": "Suma de distancia total recorrida por vehiculos en ruta.",
             },
             {
-                "es_name": "distancia_euclideana_vehiculo_ruta_final",
-                "csv_name": "distancia_euclideana_vehiculo_rfinal",
-                "definition": "Suma de distancia euclideana total recorrida por vehículos en ruta.",
+                "es_name": "distancia_euclidiana_vehiculo_ruta_final",
+                "csv_name": "distancia_euclidiana_vehiculo_rfinal",
+                "definition": "Suma de distancia euclidiana total recorrida por vehículos en ruta.",
             },
             {
                 "es_name": "tipo_corte_etapa_viaje",

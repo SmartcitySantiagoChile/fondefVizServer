@@ -116,7 +116,7 @@ class MapDataTest(TestHelper):
         }
         expected = {
             "KPIs": [{"text": "Tiempo de viaje", "id": "tviaje"}, {"text": "Distancia en ruta", "id": "distancia_ruta"},
-                     {"text": "Distancia euclideana", "id": "distancia_eucl"},
+                     {"text": "Distancia euclidiana", "id": "distancia_eucl"},
                      {"text": "N\u00famero de etapas", "id": "n_etapas"}, {"text": "Cantidad de datos", "id": "count"}],
             "sectors": {"Lo Barnechea": [202, 642], "Centro": [267, 276, 285, 286], "Providencia": [175, 176, 179],
                         "Quilicura": [557, 831], "Vitacura": [191, 192, 193, 195, 196], "Las Condes": [207, 215, 216]},

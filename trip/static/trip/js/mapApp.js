@@ -38,7 +38,7 @@ $(document).ready(function () {
         }
       },
       distancia_eucl: {
-        name: "Distancia euclideana" + destinationLegend,
+        name: "Distancia euclidiana" + destinationLegend,
         grades: [0, 1000, 5000, 10000, 20000],
         grades_str: ["0", "1", "5", "10", "20"],
         legend_post_str: "km",
