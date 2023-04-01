@@ -91,7 +91,7 @@ class MapData(PermissionRequiredMixin, View):
         KPIs = [
             {'id': 'tviaje', 'text': 'Tiempo de viaje'},
             {'id': 'distancia_ruta', 'text': 'Distancia en ruta'},
-            {'id': 'distancia_eucl', 'text': 'Distancia euclideana'},
+            {'id': 'distancia_eucl', 'text': 'Distancia euclidiana'},
             {'id': 'n_etapas', 'text': 'Número de etapas'},
             {'id': 'count', 'text': 'Cantidad de datos'}
         ]
