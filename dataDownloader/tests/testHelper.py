@@ -325,7 +325,212 @@ class TestTripCSVHelper(TestCase):
             {'es_name': 'periodo_bajada_3', 'csv_name': 'periodo_bajada_etapa_3',
              'definition': 'Período transantiago de bajada asociada a la etapa 3'},
             {'es_name': 'periodo_bajada_4', 'csv_name': 'periodo_bajada_etapa_4',
-             'definition': 'Período transantiago de bajada asociada a la etapa 4'}
+             'definition': 'Período transantiago de bajada asociada a la etapa 4'},
+             {
+                "es_name": "id_tarjeta",
+                "csv_name": "id_tarjeta",
+                "definition": "Identificador asociado a la tarjeta bip!.",
+            },
+            {
+                "es_name": "id_viaje",
+                "csv_name": "id_viaje",
+                "definition": "Correlativo del viaje de la tarjeta bip!.",
+            },
+            {
+                "es_name": "n_etapas_sin_bajada",
+                "csv_name": "n_etapas_sin_bajada",
+                "definition": "Número de etapas sin bajada del viaje.",
+            },
+            {
+                "es_name": "ultima_etapa_con_bajada",
+                "csv_name": "ultima_etapa_con_bajada",
+                "definition": "Indicador de que la última etapa tiene bajada estimada. Toma el valor 1 en caso de que si sea.",
+            },
+            {
+                "es_name": "contrato",
+                "csv_name": "contrato",
+                "definition": "Contrato de la transacción",
+            },
+            {
+                "es_name": "mediahora_inicio_viaje_hora",
+                "csv_name": "mediahora_inicio_viaje_hora",
+                "definition": "Media hora en formato HH:mm:ss en el que se inició el viaje",
+            },
+            {
+                "es_name": "mediahora_fin_viaje_hora",
+                "csv_name": "mediahora_fin_viaje_hora",
+                "definition": "Media hora en formato HH:mm:ss en el que finalizó el viaje",
+            },
+            {
+                "es_name": "op_etapa_1",
+                "csv_name": "operador_etapa_1",
+                "definition": "Operador asociado a la primera etapa.",
+            },
+            {
+                "es_name": "op_etapa_2",
+                "csv_name": "operador_etapa_2",
+                "definition": "Operador asociado a la segunda etapa.",
+            },
+            {
+                "es_name": "op_etapa_3",
+                "csv_name": "operador_etapa_3",
+                "definition": "Operador asociado a la tercera etapa.",
+            },
+            {
+                "es_name": "op_etapa_4",
+                "csv_name": "operador_etapa_4",
+                "definition": "Operador asociado a la cuarta etapa.",
+            },
+            {
+                "es_name": "distancia_caminata_1",
+                "csv_name": "distancia_caminata_1",
+                "definition": "Distancia de transbordo (caminata) entre la etapa 1 y la etapa 2.",
+            },
+            {
+                "es_name": "distancia_vehiculo_ruta_1",
+                "csv_name": "distancia_vehiculo_ruta_1",
+                "definition": "Distancia recorrida por vehículo en ruta durante la etapa 1.",
+            },
+            {
+                "es_name": "distancia_euclideana_vehiculo_ruta_1",
+                "csv_name": "distancia_euclideana_vehiculo_ruta_1",
+                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 1.",
+            },
+            {
+                "es_name": "distancia_caminata_2",
+                "csv_name": "distancia_caminata_2",
+                "definition": "Distancia de transbordo (caminata) entre la etapa 2 y la etapa 3.",
+            },
+            {
+                "es_name": "distancia_vehiculo_ruta_2",
+                "csv_name": "distancia_vehiculo_ruta_2",
+                "definition": "Distancia recorrida por vehículo en ruta durante la etapa 2.",
+            },
+            {
+                "es_name": "distancia_euclideana_vehiculo_ruta_2",
+                "csv_name": "distancia_euclideana_vehiculo_ruta_2",
+                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 2.",
+            },
+            {
+                "es_name": "distancia_caminata_3",
+                "csv_name": "distancia_caminata_3",
+                "definition": "Distancia de transbordo (caminata) entre la etapa 3 y la etapa 4.",
+            },
+            {
+                "es_name": "distancia_vehiculo_ruta_3",
+                "csv_name": "distancia_vehiculo_ruta_3",
+                "definition": "Distancia recorrida por vehículo en ruta durante la etapa 3.",
+            },
+            {
+                "es_name": "distancia_euclideana_vehiculo_ruta_3",
+                "csv_name": "distancia_euclideana_vehiculo_ruta_3",
+                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 3.",
+            },
+            {
+                "es_name": "distancia_vehiculo_ruta_4",
+                "csv_name": "distancia_vehiculo_ruta_4",
+                "definition": "Distancia recorrida por vehículo en ruta durante la etapa 4.",
+            },
+            {
+                "es_name": "distancia_euclideana_vehiculo_ruta_4",
+                "csv_name": "distancia_euclideana_vehiculo_ruta_4",
+                "definition": "Distancia euclideana recorrida por vehículo en ruta durante la etapa 4.",
+            },
+            {
+                "es_name": "distancia_caminata_final",
+                "csv_name": "distancia_caminata_final",
+                "definition": "Suma de distancias de todos los transbordos (caminatas)",
+            },
+            {
+                "es_name": "distancia_vehiculo_ruta_final",
+                "csv_name": "distancia_vehiculo_ruta_final",
+                "definition": "Suma de distancia total recorrida por vehiculos en ruta.",
+            },
+            {
+                "es_name": "distancia_euclideana_vehiculo_ruta_final",
+                "csv_name": "distancia_euclideana_vehiculo_rfinal",
+                "definition": "Suma de distancia euclideana total recorrida por vehículos en ruta.",
+            },
+            {
+                "es_name": "tipo_corte_etapa_viaje",
+                "csv_name": "tipo_corte_etapa_viaje",
+                "definition": "Tipo de corte etapa/viaje.",
+            },
+            {
+                "es_name": "proposito",
+                "csv_name": "proposito",
+                "definition": "Propósito para el cual se realiza el viaje",
+            },
+            {
+                "es_name": "tiempo_entrada",
+                "csv_name": "tiempo_entrada",
+                "definition": "Tiempo de entrada a estaciones de Metro [min].",
+            },
+            {
+                "es_name": "tiempo_espera_0",
+                "csv_name": "tiempo_espera_0",
+                "definition": "Tiempo de espera en la etapa 1 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_1",
+                "csv_name": "tiempo_viaje_vehiculo_1",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 1 [min].",
+            },
+            {
+                "es_name": "tiempo_caminata_etapa_1",
+                "csv_name": "tiempo_caminata_etapa_1",
+                "definition": "Tiempo de caminata de la etapa 1 hacia la subida de la etapa 2 [min].",
+            },
+            {
+                "es_name": "tiempo_espera_1",
+                "csv_name": "tiempo_espera_1",
+                "definition": "Tiempo de espera en la etapa 2 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_2",
+                "csv_name": "tiempo_viaje_vehiculo_2",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 2 [min].",
+            },
+            {
+                "es_name": "tiempo_caminata_etapa_2",
+                "csv_name": "tiempo_caminata_etapa_2",
+                "definition": "Tiempo de caminata de la etapa 2 hacia la subida de la etapa 3 [min].",
+            },
+            {
+                "es_name": "tiempo_espera_2",
+                "csv_name": "tiempo_espera_2",
+                "definition": "Tiempo de espera en la etapa 3 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_3",
+                "csv_name": "tiempo_viaje_vehiculo_3",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 3 [min].",
+            },
+            {
+                "es_name": "tiempo_caminata_etapa_3",
+                "csv_name": "tiempo_caminata_etapa_3",
+                "definition": "Tiempo de caminata de la etapa 3 hacia la subida de la etapa 4 [min].",
+            },
+            {
+                "es_name": "tiempo_espera_3",
+                "csv_name": "tiempo_espera_3",
+                "definition": "Tiempo de espera en la etapa 4 [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_vehiculo_4",
+                "csv_name": "tiempo_viaje_vehiculo_4",
+                "definition": "Tiempo de viaje en vehículo durante la etapa 4 [min].",
+            },
+            {
+                "es_name": "tiempo_egreso",
+                "csv_name": "tiempo_egreso",
+                "definition": "Tiempo de egreso de estaciones de metro [min].",
+            },
+            {
+                "es_name": "tiempo_viaje_total",
+                "csv_name": "tiempo_viaje_total",
+                "definition": "Tiempo de viaje total, la suma de todos los tiempos anteriores [min]. Reemplaza a Tiempo_viaje para fechas posterires al 30-09-2022.",
+            }
         ]
         self.assertEqual(expected, self.csv_helper.get_column_dict())
 

@@ -47,6 +47,19 @@ Para no tener conflictos de dependencias se recomienda hacer uso de un [entorno 
 
 ##### Instalación de dependencias Python
 
+El proyecto requiere el submodulo `dataUploader` para funcionar.
+Se debe descargar de la siguiente forma:
+
+    cd dataUploader
+
+Actualizar vía git:
+
+    git pull origin master
+
+Volver al proyecto:
+
+    cd ../
+
 Las librerías necesarias para ejecutar el proyecto están definidas en el archivo `requirements.txt` 
 ubicado en la raíz del proyecto y se pueden instalar rápidamente con el comando `pip install -r requirements.txt`.
 
@@ -149,7 +162,11 @@ El archivo .env contiene las siguientes definiciones:
     SPEED_BUCKET_NAME=
     TRANSACTION_BUCKET_NAME=
     TRIP_BUCKET_NAME=
-    REPRESENTATIVE_WEEk_BUCKET_NAME=
+    REPRESENTATIVE_WEEK_BUCKET_NAME=
+    OP_SPEED_BUCKET_NAME=
+    STOP_TIMES_BUCKET_NAME=
+    EARLY_TRANSACTION_BUCKET_NAME=
+    MISCELLANEOUS_BUCKET_NAME=
     
     # Configuraciones de Amazon Web Service
     AWS_ACCESS_KEY_ID=
