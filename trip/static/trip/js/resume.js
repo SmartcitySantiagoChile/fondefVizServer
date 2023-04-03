@@ -116,9 +116,9 @@ $(document).ready(function () {
                     image_name: "histograma_tviaje",
                     xaxis_fn: function (cur, next) {
                         if (next === undefined) {
-                            return cur + "+";
+                            return Math.round(cur / 60) + "+";
                         }
-                        return "" + cur + " - " + next;
+                        return "" + Math.round(cur / 60) + " - " + Math.round(next / 60);
                     },
                     xaxis_label: "Minutos"
                 },
@@ -227,8 +227,8 @@ $(document).ready(function () {
         this.updateIndicators = function (data) {
             let viajes = data.viajes.value || 0;
             let documents = data.documentos.value || 0;
-            let tviaje_avg = data.tviaje.avg || 0;
-            let tviaje_max = data.tviaje.max || 0;
+            let tviaje_avg = Math.round((data.tviaje.avg || 0) / 60);
+            let tviaje_max = Math.round((data.tviaje.max || 0) / 60);
             let netapas_avg = data.n_etapas.avg || 0;
             let netapas_max = data.n_etapas.max || 0;
             let dist_eucl_avg = data.distancia_eucl.avg / 1000.0 || 0;
