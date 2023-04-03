@@ -525,11 +525,6 @@ class TestTripCSVHelper(TestCase):
                 "es_name": "tiempo_egreso",
                 "csv_name": "tiempo_egreso",
                 "definition": "Tiempo de egreso de estaciones de metro [min].",
-            },
-            {
-                "es_name": "tiempo_viaje_total",
-                "csv_name": "tiempo_viaje_total",
-                "definition": "Tiempo de viaje total, la suma de todos los tiempos anteriores [min]. Reemplaza a Tiempo_viaje para fechas posterires al 30-09-2022.",
             }
         ]
         self.assertEqual(expected, self.csv_helper.get_column_dict())
