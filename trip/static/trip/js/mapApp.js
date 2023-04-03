@@ -25,7 +25,7 @@ $(document).ready(function () {
         grades_str: ["0", "30", "45", "60", "75"],
         legend_post_str: "min",
         map_fn: function (zone) {
-          return zone.tviaje.value;
+          return zone.tviaje.value / 60;
         }
       },
       distancia_ruta: {
