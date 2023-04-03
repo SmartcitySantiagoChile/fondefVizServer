@@ -33,8 +33,8 @@ class ESTripIndexTest(TestCase):
                               'extended_bounds': {'max': 30000, 'min': 0}}}, 'tviaje': {
                 'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
                          'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
-                'histogram': {'field': 'tviaje', 'interval': '15', 'min_doc_count': 0,
-                              'extended_bounds': {'max': 120, 'min': 0}}}}}
+                'histogram': {'field': 'tviaje', 'interval': str(15 * 60), 'min_doc_count': 0,
+                              'extended_bounds': {'max': 120 * 60, 'min': 0}}}}}
         self.assertDictEqual(result.to_dict(), expected)
 
     def test__build_indicators_query(self):
@@ -102,9 +102,9 @@ class ESTripIndexTest(TestCase):
                                                                                               'min': 0}}},
                                          'tviaje': {'aggs': {'bin': {'sum': {'field': 'factor_expansion'}},
                                                              'total': {'cumulative_sum': {'buckets_path': 'bin'}}},
-                                                    'histogram': {'field': 'tviaje', 'interval': '15',
+                                                    'histogram': {'field': 'tviaje', 'interval': str(15 * 60),
                                                                   'min_doc_count': 0,
-                                                                  'extended_bounds': {'max': 120, 'min': 0}}}},
+                                                                  'extended_bounds': {'max': 120 * 60, 'min': 0}}}},
                      'size': 0}
         expected2 = {'from': 0, 'aggs': {'viajes': {'sum': {'field': 'factor_expansion'}},
                                          'distancia_ruta': {'stats': {'field': 'distancia_ruta'}},
