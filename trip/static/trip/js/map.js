@@ -338,7 +338,7 @@ function MapApp(opts) {
                 "<br/> - # Datos: " + zoneData.doc_count.toLocaleString() +
                 "<br/> - # Viajes: " + zoneData.expansion_factor.value.toLocaleString() +
                 "<br/> - # Etapas promedio: " + Number(zoneData.n_etapas.value.toFixed(2)).toLocaleString() +
-                "<br/> - Duración promedio: " + Number(zoneData.tviaje.value.toFixed(1)).toLocaleString() + " [min]" +
+                "<br/> - Duración promedio: " + Number((zoneData.tviaje.value / 60).toFixed(1)).toLocaleString() + " [min]" +
                 "<br/> - Distancia promedio (en ruta): " + Number((zoneData.distancia_ruta.value / 1000.0).toFixed(2)).toLocaleString() + " [km]" +
                 "<br/> - Distancia promedio (euclidiana): " + Number((zoneData.distancia_eucl.value / 1000.0).toFixed(2)).toLocaleString() + " [km]";
             } else {
