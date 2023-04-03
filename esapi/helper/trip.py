@@ -31,7 +31,7 @@ class ESTripHelper(ElasticSearchHelper):
                 .pipeline('total', 'cumulative_sum', buckets_path='bin')
 
         # up to 120 min
-        add_histogram('tviaje', str(60 * 15), 0, 120 * 60)
+        add_histogram('tviaje', str(15 * 60), 0, 120 * 60)
 
         # at least from 1 to 5 stages
         add_histogram('n_etapas', '1', 1, 5)
