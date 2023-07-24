@@ -5,7 +5,7 @@ import zipfile
 from collections import defaultdict
 
 from django.utils.dateparse import parse_date
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import A, Search
 
 from dataDownloader.errors import FilterHasToBeListError
 from esapi.helper.bip import ESBipHelper
@@ -1962,8 +1962,22 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(
             self.es_query
         )
-        return es_query.execute().aggregations
-
+        while True:
+            response = es_query.execute().aggregations
+            if not "after_key" in response.result:
+                break
+            for bucket in response.result.buckets:
+                yield bucket
+            after_key = response.result.after_key
+            composite_agg = A('composite', sources=[
+            {'dayType': A('terms', field='dayType', missing_bucket=True)},
+            {'boardingStopCommune': A('terms', field='boardingStopCommune', missing_bucket=True)},
+            {'authStopCode': A('terms', field='authStopCode', missing_bucket=True)},
+            {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
+       ], size=100, after=after_key)
+            es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(
+            self.es_query)
+            es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
     def download(self, zip_file_obj, **kwargs):
         tmp_file_name = str(uuid.uuid4())
         try:
@@ -1974,15 +1988,14 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
                 writer.writerow(self.get_header())
 
                 for aggregation in self.get_iterator(kwargs):
-                    for doc in aggregation:
-                        row = self.row_parser(doc)
-                        if row:
-                            if isinstance(row[0], list):
-                                # there are more than one row in variable
-                                for r in row:
-                                    writer.writerow(r)
-                            else:
-                                writer.writerow(row)
+                    row = self.row_parser(aggregation)
+                    if row:
+                        if isinstance(row[0], list):
+                            # there are more than one row in variable
+                            for r in row:
+                                writer.writerow(r)
+                        else:
+                            writer.writerow(row)
 
             zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
         finally:
@@ -1997,8 +2010,8 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
             },
             {
                 "es_name": "boardingStopCommune",
-                "csv_name": "Comuna_subida",
-                "definition": "Comuna asociada a la parada de subida de la primera etapa del viaje",
+                "csv_name": "Comuna_origen",
+                "definition": "Comuna de inicio del viaje",
             },
             {
                 "es_name": "authStopCode",
@@ -2036,24 +2049,17 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
         return "\t\t- {0}: {1}\r\n".format(self.get_data_file_name(), description)
 
     def row_parser(self, row):
-        formatted_row = []
-        day_type = self.day_type_dict[row.key]
-        for boarding_stop_commune in row.boardingStopCommune:
-            commune = self.commune_dict[boarding_stop_commune.key]
-            for auth_stop_code in boarding_stop_commune.authStopCode:
-                stop_code = auth_stop_code.key
-                for half_hour_in_boarding_time in auth_stop_code.halfHourInBoardingTime:
-                    half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
-                    row = [
-                        day_type,
-                        commune,
-                        stop_code,
-                        half_hour,
-                        str(half_hour_in_boarding_time.doc_count),
-                    ]
-                    formatted_row.append(row)
+        day_type = self.day_type_dict[row.key.dayType]
+        half_hour = self.halfhour_dict[row.key.halfHourInBoardingTime]
+        row = [
+            day_type,
+            row.key.boardingStopCommune,
+            row.key.authStopCode,
+            half_hour,
+            str(row.doc_count),
+        ]
 
-        return formatted_row
+        return row
 
 
 class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
@@ -2066,6 +2072,7 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(
             self.es_query
         )
+        print(es_query.to_dict())
         return es_query.execute().aggregations
 
     def get_file_description(self):
@@ -2091,12 +2098,7 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
                 "csv_name": "Tipo_día",
                 "definition": "tipo de día en el que inició el viaje",
             },
-            {
-                "es_name": "boardingStopCommune",
-                "csv_name": "Comuna_subida",
-                "definition": "Comuna asociada a la parada de subida de la primera etapa del viaje",
-            },
-            {
+              {
                 "es_name": "authStopCode",
                 "csv_name": "Parada_subida",
                 "definition": "Código transantiago de la parada donde inició el viaje",
@@ -2130,24 +2132,21 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
 
         for day_type in row.dayType:
             string_day_type = self.day_type_dict[day_type.key]
-            for boarding_stop_commune in day_type.boardingStopCommune:
-                commune = self.commune_dict[boarding_stop_commune.key]
-                for auth_stop_code in boarding_stop_commune.authStopCode:
-                    stop_code = auth_stop_code.key
-                    for (
-                        half_hour_in_boarding_time
-                    ) in auth_stop_code.halfHourInBoardingTime:
-                        half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
-                        row = [
-                            string_date,
-                            string_date,
-                            string_day_type,
-                            commune,
-                            stop_code,
-                            half_hour,
-                            str(half_hour_in_boarding_time.doc_count),
-                        ]
-                        formatted_row.append(row)
+            for auth_stop_code in day_type.authStopCode:
+                stop_code = auth_stop_code.key
+                for (
+                    half_hour_in_boarding_time
+                ) in auth_stop_code.halfHourInBoardingTime:
+                    half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
+                    row = [
+                        string_date,
+                        string_date,
+                        string_day_type,
+                        stop_code,
+                        half_hour,
+                        str(half_hour_in_boarding_time.doc_count),
+                    ]
+                    formatted_row.append(row)
 
         return formatted_row
 
