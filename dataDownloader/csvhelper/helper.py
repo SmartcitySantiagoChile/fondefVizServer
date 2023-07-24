@@ -2051,9 +2051,10 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
     def row_parser(self, row):
         day_type = self.day_type_dict[row.key.dayType]
         half_hour = self.halfhour_dict[row.key.halfHourInBoardingTime]
+        commune = self.commune_dict[row.key.boardingStopCommune]
         row = [
             day_type,
-            row.key.boardingStopCommune,
+            commune,
             row.key.authStopCode,
             half_hour,
             str(row.doc_count),
