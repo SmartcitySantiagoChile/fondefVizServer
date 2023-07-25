@@ -70,7 +70,7 @@ class ESStageHelper(ElasticSearchHelper):
             {'authStopCode': A('terms', field='authStopCode', missing_bucket=True)},
             {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
         ], size=size)
-
+                                                                                                                                                                                                                                                                                                                                        
         # Add the Composite Aggregation to the es_query
         es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
 
