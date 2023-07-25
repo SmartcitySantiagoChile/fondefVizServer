@@ -60,18 +60,15 @@ class ESStageHelper(ElasticSearchHelper):
     def get_post_products_transfers_data_query(self, dates, day_types, communes, size=100):
         es_query = self.get_transfers_base_query(dates, day_types, communes)
 
-        # Filter rows when stage value is greater than 1
         es_query = es_query.filter('range', stageNumber={'gt': 1})
 
-        # Define the Composite Aggregation
         composite_agg = A('composite', sources=[
             {'dayType': A('terms', field='dayType', missing_bucket=True)},
             {'boardingStopCommune': A('terms', field='boardingStopCommune', missing_bucket=True)},
             {'authStopCode': A('terms', field='authStopCode', missing_bucket=True)},
             {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
         ], size=size)
-                                                                                                                                                                                                                                                                                                                                        
-        # Add the Composite Aggregation to the es_query
+
         es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
 
         return es_query
@@ -79,10 +76,8 @@ class ESStageHelper(ElasticSearchHelper):
     def get_post_products_aggregated_transfers_data_query(self, dates, day_types, communes,  size=100):
         es_query = self.get_transfers_base_query(dates, day_types, communes)
 
-        # it uses only rows when stage value is greater than 1
         es_query = es_query.filter('range', stageNumber={'gt': 1})
 
-        # Define the Composite Aggregation
         composite_agg = A('composite', sources=[
             {'boardingTime': A('date_histogram', field='boardingTime', interval='day')},
             {'dayType': A('terms', field='dayType', missing_bucket=True)},
@@ -91,7 +86,6 @@ class ESStageHelper(ElasticSearchHelper):
             {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
         ], size=size)
 
-        # Add the Composite Aggregation to the es_query
         es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
         return es_query
 
