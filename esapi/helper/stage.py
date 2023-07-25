@@ -57,7 +57,7 @@ class ESStageHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_post_products_transfers_data_query(self, dates, day_types, communes, size=100):
+    def get_post_products_transfers_data_query(self, dates, day_types, communes, size=10000):
         es_query = self.get_transfers_base_query(dates, day_types, communes)
 
         es_query = es_query.filter('range', stageNumber={'gt': 1})
@@ -73,7 +73,7 @@ class ESStageHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_post_products_aggregated_transfers_data_query(self, dates, day_types, communes,  size=100):
+    def get_post_products_aggregated_transfers_data_query(self, dates, day_types, communes,  size=10000):
         es_query = self.get_transfers_base_query(dates, day_types, communes)
 
         es_query = es_query.filter('range', stageNumber={'gt': 1})
