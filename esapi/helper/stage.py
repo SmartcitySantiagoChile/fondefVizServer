@@ -1,7 +1,7 @@
 from datetime import datetime
 from functools import reduce
 
-from elasticsearch_dsl import A
+from elasticsearch_dsl import A, DateHistogramFacet
 from elasticsearch_dsl.query import Q
 
 from esapi.errors import ESQueryDateRangeParametersDoesNotExist
@@ -57,7 +57,7 @@ class ESStageHelper(ElasticSearchHelper):
 
         return es_query
 
-    def get_post_products_transfers_data_query(self, dates, day_types, communes, size=100, after_key = None):
+    def get_post_products_transfers_data_query(self, dates, day_types, communes, size=100):
         es_query = self.get_transfers_base_query(dates, day_types, communes)
 
         # Filter rows when stage value is greater than 1
@@ -71,25 +71,28 @@ class ESStageHelper(ElasticSearchHelper):
             {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
         ], size=size)
 
-        # Add the Composite Aggregation to the search object
+        # Add the Composite Aggregation to the es_query
         es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
 
         return es_query
 
-    def get_post_products_aggregated_transfers_data_query(self, dates, day_types, communes):
+    def get_post_products_aggregated_transfers_data_query(self, dates, day_types, communes,  size=100):
         es_query = self.get_transfers_base_query(dates, day_types, communes)
 
         # it uses only rows when stage value is greater than 1
         es_query = es_query.filter('range', stageNumber={'gt': 1})
 
-        bucket_name = 'result'
-        es_query.aggs.bucket(bucket_name, 'date_histogram', field='boardingTime', interval='day'). \
-            bucket('dayType', 'terms', field='dayType', size=4). \
-            bucket('boardingStopCommune', 'terms', field='boardingStopCommune', size=48). \
-            bucket('authStopCode', 'terms', field='authStopCode', size=13000). \
-            bucket('halfHourInBoardingTime', 'terms', field='halfHourInBoardingTime', size=48). \
-            metric('expandedBoarding', 'avg', field='expandedBoarding')
+        # Define the Composite Aggregation
+        composite_agg = A('composite', sources=[
+            {'boardingTime': A('date_histogram', field='boardingTime', interval='day')},
+            {'dayType': A('terms', field='dayType', missing_bucket=True)},
+            {'boardingStopCommune': A('terms', field='boardingStopCommune', missing_bucket=True)},
+            {'authStopCode': A('terms', field='authStopCode', missing_bucket=True)},
+            {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
+        ], size=size)
 
+        # Add the Composite Aggregation to the es_query
+        es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
         return es_query
 
     def get_post_products_aggregated_transfers_data_by_operator_query(self, dates, day_types):
