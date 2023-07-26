@@ -1062,11 +1062,10 @@ class TripCSVHelper(CSVHelper):
                 "es_name": "distancia_ruta",
                 "csv_name": "Distancia_considerando_ruta",
                 "definition": "distancia considerando la ruta de los modos utilizados durante el viaje",
-            },
-            {
-                "es_name": "tiempo_subida",
-                "csv_name": "Tiempo_subida",
-                "definition": "Fecha y hora en que se inició el viaje",
+            }, {
+                "es_name": "date",
+                "csv_name": "Fecha",
+                "definition": "Día en que inició la etapa",
             },
             {
                 "es_name": "tiempo_bajada",
@@ -2116,9 +2115,9 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
     def get_column_dict(self):
         return [
             {
-                "es_name": "fecha",
+                "es_name": "date",
                 "csv_name": "Fecha",
-                "definition": "Fecha de la consulta",
+                "definition": "Día en que inició la etapa",
             },
             {
                 "es_name": "dayType",
