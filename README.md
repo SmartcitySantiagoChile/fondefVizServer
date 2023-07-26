@@ -77,7 +77,7 @@ La descarga e instalación se puede realizar siguiendo los pasos del siguiente e
 Los datos generados por ADATRAP son almacenados en una (o más) instancia(s) de elasticsearch. Es importante tener en cuenta que es necesario contar con una versión de Java para su ejecución. Se recomienda instalar una versión de [openJDK 8](https://openjdk.java.net/install/) para su ejecución (solo disponible para ambientes Linux), para entornos con sistema operativo (S.O) Windows se recomienda descargar desde la [página oficial](https://www.oracle.com/technetwork/java/javase/downloads/index.html) de Oracle.
 
 Habiendo instalado JDK se procede instalar Elasticsearch, se puede descargar desde el siguiente enlace:
-><https://www.elastic.co/es/downloads/past-releases/elasticsearch-6-2-3>
+><https://www.elastic.co/es/downloads/past-releases/elasticsearch-6-4-2>
 
 ##### Redis
 
