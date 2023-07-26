@@ -1,9 +1,9 @@
 import csv
-from datetime import datetime
 import os
 import uuid
 import zipfile
 from collections import defaultdict
+from datetime import datetime
 
 from django.utils.dateparse import parse_date
 from elasticsearch_dsl import A, Search
@@ -19,14 +19,12 @@ from esapi.helper.stage import ESStageHelper
 from esapi.helper.stop import ESStopHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
 from esapi.helper.trip import ESTripHelper
-from localinfo.helper import (
-    get_day_type_list_for_select_input,
-    get_timeperiod_list_for_select_input,
-    get_operator_list_for_select_input,
-    get_halfhour_list_for_select_input,
-    get_commune_list_for_select_input,
-    get_transport_mode_list_for_select_input,
-)
+from localinfo.helper import (get_commune_list_for_select_input,
+                              get_day_type_list_for_select_input,
+                              get_halfhour_list_for_select_input,
+                              get_operator_list_for_select_input,
+                              get_timeperiod_list_for_select_input,
+                              get_transport_mode_list_for_select_input)
 
 README_FILE_NAME = "Léeme.txt"
 
@@ -1967,7 +1965,7 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
             {'boardingStopCommune': A('terms', field='boardingStopCommune', missing_bucket=True)},
             {'authStopCode': A('terms', field='authStopCode', missing_bucket=True)},
             {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
-        ], size=100)
+        ], size=1000)
 
         while True:
             # Use the existing es_query for the composite aggregation
@@ -2018,8 +2016,9 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
             },
             {
                 "es_name": "boardingStopCommune",
-                "csv_name": "Comuna_origen",
-                "definition": "Comuna de inicio del viaje",
+                "csv_name": "Comuna_subida",
+                "definition": "Comuna asociada a la parada de subida de la primera etapa del viaje",
+                
             },
             {
                 "es_name": "authStopCode",
@@ -2086,7 +2085,7 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
             {'boardingStopCommune': A('terms', field='boardingStopCommune', missing_bucket=True)},
             {'authStopCode': A('terms', field='authStopCode', missing_bucket=True)},
             {'halfHourInBoardingTime': A('terms', field='halfHourInBoardingTime', missing_bucket=True)},
-        ], size=100)
+        ], size=1000)
 
         # Initial after_key is None
         after_key = None
@@ -2121,13 +2120,18 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
                 "csv_name": "Fecha",
                 "definition": "Fecha de la consulta",
             },
-            
             {
                 "es_name": "dayType",
                 "csv_name": "Tipo_día",
                 "definition": "tipo de día en el que inició el viaje",
             },
-              {
+            {
+                "es_name": "boardingStopCommune",
+                "csv_name": "Comuna_subida",
+                "definition": "Comuna asociada a la parada de subida de la primera etapa del viaje",
+                
+            },
+            {
                 "es_name": "authStopCode",
                 "csv_name": "Parada_subida",
                 "definition": "Código transantiago de la parada donde inició el viaje",
