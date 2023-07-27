@@ -72,7 +72,7 @@ services:
       - database_network
       - elastic
   es:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
     ulimits:
       memlock:
         soft: -1
