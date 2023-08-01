@@ -43,7 +43,10 @@ class PaymentFactorData(View):
                             neutral_value = e.neutral.value
 
                             factor_by_date = []
+                            factor_without_threesome_methodology_by_date = []
+
                             factor_average = 0
+                            factor_without_threesome_methodology_average = 0
                             date_list = sorted(e.by_date, key=lambda x: x['key'])
 
                             day_in_millis = 86400000
@@ -51,16 +54,21 @@ class PaymentFactorData(View):
                             for date in date_list:
                                 while date.key > aux_date:
                                     factor_by_date.append((aux_date, None))
+                                    factor_without_threesome_methodology_by_date.append((aux_date, None))
                                     aux_date = aux_date + day_in_millis
 
                                 factor_by_date.append((date.key, date.factor.value * 100))
+                                factor_without_threesome_methodology_by_date.append(
+                                    (date.key, date.factorWithoutThreesomeMethodology.value * 100))
                                 factor_average += date.factor.value
+                                factor_without_threesome_methodology_average += date.factorWithoutThreesomeMethodology.value
                                 aux_date = aux_date + day_in_millis
                             factor_average = factor_average * 100 / len(date_list)
 
                             # complete days with empty date until end_date
                             while aux_date <= end_date:
                                 factor_by_date.append((aux_date, None))
+                                factor_without_threesome_methodology_by_date.append((aux_date, None))
                                 aux_date = aux_date + day_in_millis
 
                             # bus_station_id, bus_station_name, assignation, operator, day_type
@@ -68,7 +76,9 @@ class PaymentFactorData(View):
                                        operator=operator_dict[d.key], operator_id=d.key, day_type=day_type_dict[e.key],
                                        total=total_value, sum=sum_value, subtraction=subtraction_value,
                                        neutral=neutral_value, factor_by_date=factor_by_date,
-                                       factor_average=factor_average)
+                                       factor_average=factor_average,
+                                       factor_without_threesome_methodology_by_date=factor_without_threesome_methodology_by_date,
+                                       factor_without_threesome_methodology_average=factor_without_threesome_methodology_average)
                             rows.append(row)
         if len(rows) == 0:
             raise ESQueryResultEmpty()
