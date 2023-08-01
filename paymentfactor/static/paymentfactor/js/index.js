@@ -68,7 +68,7 @@ $(document).ready(function () {
                             count++;
                         });
                         var result = total / count;
-                        return Number((result * 100).toFixed(2)).toLocaleString() + " %";
+                        return Number(result.toFixed(2)).toLocaleString() + " %";
                     }
                 }
             ],
