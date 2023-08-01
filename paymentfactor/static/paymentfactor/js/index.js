@@ -31,7 +31,13 @@ $(document).ready(function () {
                 {
                     title: "Factor por día", data: "factor_by_date",
                     render: function (data, type, row) {
-                        return $("<i>").addClass("spark")[0].outerHTML;
+                        return $("<i>").addClass("spark1")[0].outerHTML;
+                    }
+                },
+                {
+                    title: "Factor por día (sin met. de tríos)", data: "factor_without_threesome_methodology_by_date",
+                    render: function (data, type, row) {
+                        return $("<i>").addClass("spark2")[0].outerHTML;
                     }
                 },
                 {title: "Id zona paga", data: "bus_station_id"},
@@ -51,10 +57,26 @@ $(document).ready(function () {
                         result = row.assignation === "ASIGNADA" ? 1 + result : result;
                         return Number((result * 100).toFixed(2)).toLocaleString() + " %";
                     }
+                },
+                {
+                    title: "Factor sin met. de tríos", data: null,
+                    render: function (data, type, row) {
+                        var total = 0;
+                        var count = 0;
+                        data.factor_without_threesome_methodology_by_date.forEach(function (el) {
+                            total += el[1];
+                            count++;
+                        });
+                        var result = total / count;
+                        return Number((result * 100).toFixed(2)).toLocaleString() + " %";
+                    }
                 }
             ],
             createdRow: function (row, data, index) {
                 var values = data.factor_by_date.map(function (el) {
+                    return el[1];
+                });
+                var values2 = data.factor_without_threesome_methodology_by_date.map(function (el) {
                     return el[1];
                 });
                 var field = data.bus_station_id + "-" + data.day_type;
@@ -62,12 +84,26 @@ $(document).ready(function () {
                     _self._stopColor[field] = _self.getRandomColor();
                 }
                 setTimeout(function () {
-                    $(row).find(".spark:not(:has(canvas))").sparkline(values, {
+                    $(row).find(".spark1:not(:has(canvas))").sparkline(values, {
                         type: "bar", barColor: _self._stopColor[field], chartRangeMax: 100,
                         chartRangeMin: 0,
                         width: "113px",
                         tooltipFormatter: function (sparkline, options, fields) {
                             var date = data.factor_by_date[fields[0].offset][0];
+                            date = new Date(date).toISOString().substring(0, 10);
+                            var value = "sin datos";
+                            if (fields[0].value !== null) {
+                                value = Number(fields[0].value.toFixed(2)).toLocaleString() + " %";
+                            }
+                            return date + ": " + value;
+                        }
+                    });
+                    $(row).find(".spark2:not(:has(canvas))").sparkline(values2, {
+                        type: "bar", barColor: _self._stopColor[field], chartRangeMax: 100,
+                        chartRangeMin: 0,
+                        width: "113px",
+                        tooltipFormatter: function (sparkline, options, fields) {
+                            var date = data.factor_without_threesome_methodology_by_date[fields[0].offset][0];
                             date = new Date(date).toISOString().substring(0, 10);
                             var value = "sin datos";
                             if (fields[0].value !== null) {
@@ -86,7 +122,7 @@ $(document).ready(function () {
                     text: "Exportar a excel",
                     className: "buttons-excel buttons-html5 btn btn-success",
                     exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
                     }
                 }
             ]

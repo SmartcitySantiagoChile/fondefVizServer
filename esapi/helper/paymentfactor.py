@@ -50,7 +50,8 @@ class ESPaymentFactorHelper(ElasticSearchHelper):
             .metric('subtraction', 'sum', field='subtraction') \
             .metric('neutral', 'sum', field='neutral') \
             .bucket('by_date', A('terms', field='date', size=10000)) \
-            .metric('factor', 'sum', field='factor')
+            .metric('factor', 'sum', field='factor') \
+            .metric('factorWithoutThreesomeMethodology', 'sum', field='factorWithoutThreesomeMethodology')
 
         return es_query
 
