@@ -70,7 +70,7 @@ class ZipManager:
         )
 
     def build_readme(
-        self, file_title, files_description, data_filter, field_explanation
+            self, file_title, files_description, data_filter, field_explanation
     ):
         file_path = os.path.join(
             os.path.dirname(__file__), "..", "helptemplate", "template.readme"
@@ -312,7 +312,7 @@ class CSVHelper:
         return description[2:]
 
     def _formatter_for_file(
-        self, elements, sep="\t- ", break_line="\r\n", cut_first_letters=False
+            self, elements, sep="\t- ", break_line="\r\n", cut_first_letters=False
     ):
         description = ""
         for element in elements:
@@ -1962,7 +1962,7 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
-        
+
         composite_agg = A('composite', sources=[
             {'dayType': A('terms', field='dayType', missing_bucket=True)},
             {'boardingStopCommune': A('terms', field='boardingStopCommune', missing_bucket=True)},
@@ -1973,10 +1973,10 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
         while True:
             # Use the existing es_query for the composite aggregation
             es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
-            
+
             # Execute the search and retrieve the response
             response = es_query.execute().aggregations
-            
+
             if not "after_key" in response.result:
                 break
 
@@ -1986,7 +1986,6 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
             # Update the after_key for the next iteration
             es_query.aggs['result'].composite_after = response.result.after_key
 
-    
     def download(self, zip_file_obj, **kwargs):
         tmp_file_name = str(uuid.uuid4())
         try:
@@ -2021,7 +2020,6 @@ class PostProductsStageTransferInPeriodCSVHelper(CSVHelper):
                 "es_name": "boardingStopCommune",
                 "csv_name": "Comuna_subida",
                 "definition": "Comuna asociada a la parada de subida de la primera etapa del viaje",
-                
             },
             {
                 "es_name": "authStopCode",
@@ -2081,7 +2079,7 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
 
     def get_iterator(self, kwargs):
         es_query = Search(using=self.es_client, index=self.index_name).update_from_dict(self.es_query)
-        
+
         composite_agg = A('composite', sources=[
             {'boardingTime': A('date_histogram', field='boardingTime', interval='day')},
             {'dayType': A('terms', field='dayType', missing_bucket=True)},
@@ -2097,7 +2095,7 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
             # Use the after_key for pagination in each iteration
             if after_key is not None:
                 es_query.aggs['result'].composite_after = after_key
-            
+
             es_query.aggs.bucket('result', composite_agg).metric('expandedBoarding', 'avg', field='expandedBoarding')
             response = es_query.execute().aggregations
 
@@ -2132,7 +2130,6 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
                 "es_name": "boardingStopCommune",
                 "csv_name": "Comuna_subida",
                 "definition": "Comuna asociada a la parada de subida de la primera etapa del viaje",
-                
             },
             {
                 "es_name": "authStopCode",
@@ -2197,8 +2194,7 @@ class PostProductsStageTransferInPeriodGroupedByDateCSVHelper(CSVHelper):
                                 writer.writerow(r)
                         else:
                             writer.writerow(row)
-                    
-                    
+
             zip_file_obj.write(tmp_file_name, arcname=self.get_data_file_name())
         finally:
             os.remove(tmp_file_name)
@@ -2312,14 +2308,18 @@ class PostProductTripTripBetweenZonesCSVHelper(CSVHelper):
 
         string_day_type = self.day_type_dict[row.key]
         for start_commune in row.startCommune:
-            start_commune_str = self.commune_dict[start_commune.key]
+            try:
+                start_commune_str = self.commune_dict[start_commune.key]
+            except KeyError:
+                start_commune_str = 'id "{}" no es una comuna válida'.format(start_commune.key)
             for end_commune in start_commune.endCommune:
-                end_commune_str = self.commune_dict[end_commune.key]
+                try:
+                    end_commune_str = self.commune_dict[end_commune.key]
+                except KeyError:
+                    end_commune_str = 'id "{}" no es una comuna válida'.format(end_commune.key)
                 for transport_modes in end_commune.transportModes:
                     transport_modes_str = self.transport_mode_dict[transport_modes.key]
-                    for (
-                        half_hour_in_boarding_time
-                    ) in transport_modes.halfHourInBoardingTime:
+                    for (half_hour_in_boarding_time) in transport_modes.halfHourInBoardingTime:
                         half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
                         sum_trip_number = half_hour_in_boarding_time.tripNumber.value
                         sum_trip_time = half_hour_in_boarding_time.expandedTime.value
@@ -2474,7 +2474,7 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                     for auth_route in transport_modes.authRouteCode:
                         auth_route_str = auth_route.key
                         for (
-                            half_hour_in_boarding_time
+                                half_hour_in_boarding_time
                         ) in auth_route.halfHourInBoardingTime:
                             half_hour = self.halfhour_dict[
                                 half_hour_in_boarding_time.key
@@ -2500,7 +2500,7 @@ class PostProductTripBoardingAndAlightingCSVHelper(CSVHelper):
                     for auth_route in transport_modes.authRouteCode:
                         auth_route_str = auth_route.key
                         for (
-                            half_hour_in_alighting_time
+                                half_hour_in_alighting_time
                         ) in auth_route.halfHourInAlightingTime:
                             half_hour = self.halfhour_dict[
                                 half_hour_in_alighting_time.key
@@ -2604,7 +2604,7 @@ class PostProductTripBoardingAndAlightingWithoutServiceCSVHelper(
                     else:
                         continue
                     for (
-                        half_hour_in_boarding_time
+                            half_hour_in_boarding_time
                     ) in transport_modes.halfHourInBoardingTime:
                         half_hour = self.halfhour_dict[half_hour_in_boarding_time.key]
                         sum_trip_number = (
@@ -2626,7 +2626,7 @@ class PostProductTripBoardingAndAlightingWithoutServiceCSVHelper(
                     else:
                         continue
                     for (
-                        half_hour_in_alighting_time
+                            half_hour_in_alighting_time
                     ) in transport_modes.halfHourInAlightingTime:
                         half_hour = self.halfhour_dict[half_hour_in_alighting_time.key]
                         sum_trip_number = (
