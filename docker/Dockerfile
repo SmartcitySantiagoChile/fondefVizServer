@@ -1,10 +1,13 @@
-FROM python:3.7.7-alpine3.11 as base
+FROM python:3.9.16-alpine3.18 as base
 
 FROM base as builder
 
 RUN mkdir /install
 RUN /bin/sh -c 'apk update && apk add --no-cache postgresql-dev gcc musl-dev geos-dev linux-headers libffi-dev openssl-dev python3-dev git'
 COPY requirements.txt /install/requirements.txt
+COPY .gitmodules .gitmodules
+COPY .git .git
+COPY dataUploader dataUploader
 RUN /bin/sh -c 'pip3 install --no-cache-dir --upgrade pip'
 RUN /bin/sh -c 'pip3 install --no-warn-script-location --no-cache-dir --prefix /install -r /install/requirements.txt'
 RUN /bin/sh -c 'pip3 install --no-warn-script-location --no-cache-dir --prefix /install setproctitle'
