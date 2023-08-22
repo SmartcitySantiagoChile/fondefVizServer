@@ -197,12 +197,16 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
         op_route_code = str(row[9]) + str(row[7])
         user_route_code = row[8]
         route_type = row[1]
+        try:
+            operator = int(row[3])
+        except ValueError:
+            operator = 0
 
         if auth_route_code == '' or op_route_code == '' or user_route_code == '' or route_type == '':
             continue
         to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
                                       route_type=route_type, auth_route_code=auth_route_code,
-                                      created_at=upload_time, op_program_id=op_program_id))
+                                      created_at=upload_time, op_program_id=op_program_id, operator=operator))
     with transaction.atomic():
         OPDictionary.objects.filter(op_program_id=op_program_id).delete()
         OPDictionary.objects.bulk_create(to_create)
