@@ -20,9 +20,11 @@ params = [
     dict(bucket_name=AWSSession.EARLY_TRANSACTION_BUCKET_NAME, subtitle='Subidas por parada'),
     dict(bucket_name=AWSSession.STOP_TIMES_BUCKET_NAME, subtitle='Cruce buses por paraderos'),
     dict(bucket_name=AWSSession.MISCELLANEOUS_BUCKET_NAME, subtitle='Miscelaneo'),
+    dict(bucket_name=AWSSession.GPS_OFFLINE_BUCKET_NAME, subtitle='GPS Offline'),
 ]
 urlpatterns = [
     url(r'^gps/$', login_required(TableHTML.as_view(**params[0])), name='gps'),
+    url(r'^gpsOffline/$', login_required(TableHTML.as_view(**params[13])), name='gpsOffline'),
     url(r'^trip/$', login_required(TableHTML.as_view(**params[1])), name='trip'),
     url(r'^opprogram/$', login_required(TableWithoutCalendarHTML.as_view(**params[2])), name='opprogram'),
     url(r'^representativeweek/$', login_required(TableWithoutCalendarHTML.as_view(**params[3])),
