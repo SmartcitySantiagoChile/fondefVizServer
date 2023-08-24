@@ -451,6 +451,7 @@ $(document).ready(function () {
               <thead>
                 <th>Color</th>
                 <th>P. operación</th>
+                <th>Unidad de Servicio</th>
                 <th>Servicio</th>
               </thead>
               <tbody id='routeLegendTable'>
@@ -479,6 +480,7 @@ $(document).ready(function () {
             rows.each((index, el) => {
               let id = $(el).data('id');
               let opDate = $(`#dateSelect-${id}`).val();
+              let operator = $(`#operatorSelect-${id}`).val();
               let userRoute = $(`#userRouteSelect-${id}`).val();
               let authRoute = $(`#routeSelect-${id}`).val();
               let color = $(`#colorSelect-${id}`).colorpicker('getValue');
@@ -487,8 +489,8 @@ $(document).ready(function () {
               let legendRow = `<tr>
                 <td><canvas id="${canvasId}"></canvas></td>
                 <td>${opDate}</td>
-                <td>${userRoute}</td>
-                <td>${authRoute}</td>
+                <td>${operator}</td>
+                <td>${userRoute} (${authRoute})</td>
               </tr>`;
               $('#routeLegendTable').append(legendRow);
               this.setRouteColorCanvas(canvasId, color);
@@ -538,6 +540,7 @@ $(document).ready(function () {
                   <thead>
                   	<th></th>
                     <th>Fecha PO</th>
+                    <th>US</th>
                     <th>Servicio</th>
                     <th>Servicio TS</th>
                     <th></th><th></th><th></th><th></th>
@@ -717,13 +720,16 @@ $(document).ready(function () {
         _self.dates_period_dict = data.dates_periods_dict;
         _self.op_routes_dict = data.op_routes_dict;
         _self.periods = data.periods;
-        let userRouteList = (Object.keys(data.op_routes_dict[currentDate]).sort(sortAlphaNum));
+        let operatorList = Object.keys(data.op_routes_dict[currentDate])
+        let currentOperator = operatorList[0];
+        operatorList = operatorList.map(e => ({id: e, text: e}));
+        let userRouteList = (Object.keys(data.op_routes_dict[currentDate][currentOperator]).sort(sortAlphaNum));
         userRouteList = userRouteList.map(e => ({id: e, text: e}));
         let dateList = data.dates.map(e => ({id: e, text: e}));
 
         // activate add button when data exist
         $("#addRouteButton").click(function () {
-          _self.addRow(dateList, userRouteList);
+          _self.addRow(dateList, operatorList, userRouteList);
         });
         $("#addStopButton").click(function () {
           _self.addStopRow(dateList);
@@ -811,13 +817,14 @@ $(document).ready(function () {
       });
     };
 
-    this.addRow = function (dateList, userRouteList) {
+    this.addRow = function (dateList, operatorList, userRouteList) {
       let newId = selectorId;
       selectorId++;
       let row = `
         <tr class="selectorRow" data-id="${newId}">
             <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
             <td><select id=dateSelect-${newId} class="form-control date"></select></td>
+            <td><select id=operatorSelect-${newId} class="form-control operator"></select></td>
             <td><select id=userRouteSelect-${newId} class="form-control userRoute"></select></td>
             <td><select id=routeSelect-${newId} class="form-control route"></select></td>
             <td><button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="fas fa-tint" aria-hidden="true"></span></button></td>
@@ -830,6 +837,11 @@ $(document).ready(function () {
       $(`#dateSelect-${newId}`).select2({
         width: 'auto',
         data: dateList,
+        dropdownParent: $('#routeListContainer').parent()
+      });
+      $(`#operatorSelect-${newId}`).select2({
+        width: 'auto',
+        data: operatorList,
         dropdownParent: $('#routeListContainer').parent()
       });
       $(`#userRouteSelect-${newId}`).select2({
@@ -1053,18 +1065,30 @@ $(document).ready(function () {
     };
 
     this.refreshControlEvents = function (id) {
+
+      // handle route selector
+      let $ROUTE = $(`#routeSelect-${id}`);
+      $ROUTE.change(function () {
+        console.log("route changed");
+        _self.sendShapeData(this);
+      });
+
       // handle user route selector
       let $USER_ROUTE = $(`#userRouteSelect-${id}`);
       $USER_ROUTE.change(function () {
+        console.log("user route changed");
         let selector = $(this).closest(".selectorRow");
-        let userRoute = selector.find(".userRoute").first().val();
         let route = selector.find(".route").first();
+        let userRoute = selector.find(".userRoute").first().val();
+        let operator = selector.find(".operator").first().val();
         let date = selector.find(".date").first().val();
 
         //update auth route list
         let routeValues = [];
-        if (_self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(userRoute)) {
-          routeValues = _self.op_routes_dict[date][userRoute];
+        if (_self.op_routes_dict.hasOwnProperty(date) &&
+          _self.op_routes_dict[date].hasOwnProperty(operator) &&
+          _self.op_routes_dict[date][operator].hasOwnProperty(userRoute)) {
+          routeValues = _self.op_routes_dict[date][operator][userRoute];
         }
         route.empty();
         route.select2({
@@ -1078,31 +1102,20 @@ $(document).ready(function () {
             }
           })
         });
-        //set value
-        let allSelectors = $(".selectorRow");
-        let selectorIndex = allSelectors.index(selector);
-        if ($(this).data("first") === true) {
-          route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
-          $(this).data("first", false);
-        }
-        _self.sendShapeData(this);
+
+        $ROUTE.trigger("change");
       });
 
-      // handle route selector
-      let $ROUTE = $(`#routeSelect-${id}`);
-      $ROUTE.change(function () {
-        _self.sendShapeData(this);
-      });
-
-      // handle date selector
-      let $DATE = $(`#dateSelect-${id}`);
-      $DATE.change(function () {
+      let $OPERATOR = $(`#operatorSelect-${id}`);
+      $OPERATOR.change(function () {
+        console.log("operator changed");
         let selector = $(this).closest(".selectorRow");
         let date = selector.find(".date").first().val();
+        let operator = selector.find(".operator").first().val();
         let userRoutes = selector.find(".userRoute").first();
 
         userRoutes.empty();
-        let userRouteDict = _self.op_routes_dict.hasOwnProperty(date) ? _self.op_routes_dict[date] : [];
+        let userRouteDict = _self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(operator)? _self.op_routes_dict[date][operator] : {};
         let dataList = Object.keys(userRouteDict).sort(sortAlphaNum);
         userRoutes.select2({
           data: dataList.map(e => {
@@ -1112,12 +1125,31 @@ $(document).ready(function () {
             }
           })
         });
-        userRoutes.trigger("change");
 
-        //set value
-        if ($(this).data("first") === true) {
-          $(this).data("first", false);
-        }
+        userRoutes.trigger("change");
+      });
+
+      // handle date selector
+      let $DATE = $(`#dateSelect-${id}`);
+      $DATE.change(function () {
+        console.log("date changed");
+        let selector = $(this).closest(".selectorRow");
+        let date = selector.find(".date").first().val();
+        let operator = selector.find(".operator").first();
+
+        operator.empty();
+        let operatorDict = _self.op_routes_dict.hasOwnProperty(date) ? _self.op_routes_dict[date] : [];
+        let operatorList = Object.keys(operatorDict).sort(sortAlphaNum);
+        operator.select2({
+          data: operatorList.map(e => {
+            return {
+              id: e,
+              text: e
+            }
+          })
+        });
+
+        operator.trigger("change");
       });
 
       // handle clone selector
@@ -1125,9 +1157,13 @@ $(document).ready(function () {
       if (selector.length > 1) {
         let lastSelected = selector.slice(-2, -1);
         $DATE.val(lastSelected.find(".date").first().val());
-        $DATE.data("first", true);
+        $DATE.trigger("change");
+        $OPERATOR.val(lastSelected.find(".operator").first().val());
+        $OPERATOR.trigger("change");
         $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
-        $USER_ROUTE.data("first", true);
+        $USER_ROUTE.trigger("change");
+        $ROUTE.val(lastSelected.find(".route").first().val());
+        $ROUTE.trigger("change");
 
         let color = lastSelected.find(".fa-tint").css("color");
         $(`#colorSelect-${id}`).css("color", color);
@@ -1137,9 +1173,9 @@ $(document).ready(function () {
         $(`#visibilityStops-${id}`).removeClass().addClass(stopButton.attr("class"));
         let userStopButton = lastSelected.find(".visibility-user-stops");
         $(`#visibilityUserStopLabels-${id}`).removeClass().addClass(userStopButton.attr("class"));
+      } else {
+        $DATE.trigger("change");
       }
-
-      $USER_ROUTE.trigger("change");
     };
 
     /**
