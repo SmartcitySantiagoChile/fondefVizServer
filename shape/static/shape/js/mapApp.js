@@ -15,12 +15,19 @@ $(document).ready(function () {
     }
   };
 
-  const getRandomColor = () => {
+  const getRandomColor = (index) => {
+    index = index - 1;
+    if (typeof index === 'number' && 0 <= index && index <= 9) {
+      const staticColors = ["#6FB67F", "#CCC138", "#9A856D", "#07818D", "#91E2EC", "#F13E22", "#FEAD42", "#26B380", "#41D5C3", "#1E114C"];
+      return staticColors[index];
+    }
+
     const letters = "0123456789ABCDEF";
     let color = "#";
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
+
     return color;
   };
 
@@ -32,6 +39,7 @@ $(document).ready(function () {
     let routeControl = null;
     let stopLegendControl = null;
     let stopControl = null;
+    let isAddingRouteRow = false;
 
     this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
       shapeStopsSource = {
@@ -818,6 +826,7 @@ $(document).ready(function () {
     };
 
     this.addRow = function (dateList, operatorList, userRouteList) {
+      _self.isAddingRouteRow = true;
       let newId = selectorId;
       selectorId++;
       let row = `
@@ -994,7 +1003,12 @@ $(document).ready(function () {
         _self.addShapeLayers(selectorId, stopsSource, shapeSource);
 
         let $COLOR_BUTTON = $(`#colorSelect-${selectorId}`);
-        let color = getRandomColor();
+        let color = $COLOR_BUTTON.colorpicker('getValue');
+        if (_self.isAddingRouteRow) {
+          let rowNumber = $("#routeListContainer tr").length;
+          color = getRandomColor(rowNumber)
+          _self.isAddingRouteRow = false;
+        }
         $COLOR_BUTTON.colorpicker('setValue', color);
         updateLayerColor(color, selectorId);
 
@@ -1068,14 +1082,14 @@ $(document).ready(function () {
 
       // handle route selector
       let $ROUTE = $(`#routeSelect-${id}`);
-      $ROUTE.change(function () {
+      $ROUTE.change(function (e, params) {
         console.log("route changed");
         _self.sendShapeData(this);
       });
 
       // handle user route selector
       let $USER_ROUTE = $(`#userRouteSelect-${id}`);
-      $USER_ROUTE.change(function () {
+      $USER_ROUTE.change(function (e, params) {
         console.log("user route changed");
         let selector = $(this).closest(".selectorRow");
         let route = selector.find(".route").first();
@@ -1103,11 +1117,13 @@ $(document).ready(function () {
           })
         });
 
-        $ROUTE.trigger("change");
+        if (!(params && params.freeze)) {
+          route.trigger("change");
+        }
       });
 
       let $OPERATOR = $(`#operatorSelect-${id}`);
-      $OPERATOR.change(function () {
+      $OPERATOR.change(function (e, params) {
         console.log("operator changed");
         let selector = $(this).closest(".selectorRow");
         let date = selector.find(".date").first().val();
@@ -1126,12 +1142,14 @@ $(document).ready(function () {
           })
         });
 
-        userRoutes.trigger("change");
+        if (!(params && params.freeze)) {
+          userRoutes.trigger("change");
+        }
       });
 
       // handle date selector
       let $DATE = $(`#dateSelect-${id}`);
-      $DATE.change(function () {
+      $DATE.change(function (e, params) {
         console.log("date changed");
         let selector = $(this).closest(".selectorRow");
         let date = selector.find(".date").first().val();
@@ -1149,7 +1167,9 @@ $(document).ready(function () {
           })
         });
 
-        operator.trigger("change");
+        if (!(params && params.freeze)) {
+          operator.trigger("change");
+        }
       });
 
       // handle clone selector
@@ -1157,16 +1177,14 @@ $(document).ready(function () {
       if (selector.length > 1) {
         let lastSelected = selector.slice(-2, -1);
         $DATE.val(lastSelected.find(".date").first().val());
-        $DATE.trigger("change");
+        $DATE.trigger("change", {freeze: true});
         $OPERATOR.val(lastSelected.find(".operator").first().val());
-        $OPERATOR.trigger("change");
+        $OPERATOR.trigger("change", {freeze: true});
         $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
-        $USER_ROUTE.trigger("change");
+        $USER_ROUTE.trigger("change", {freeze: true});
         $ROUTE.val(lastSelected.find(".route").first().val());
         $ROUTE.trigger("change");
 
-        let color = lastSelected.find(".fa-tint").css("color");
-        $(`#colorSelect-${id}`).css("color", color);
         let routesButton = lastSelected.find(".visibility-routes").find("span");
         $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
         let stopButton = lastSelected.find(".visibility-stops");
