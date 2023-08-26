@@ -49,7 +49,7 @@
         <script src="{% static gentelella_static|add:"switchery/dist/switchery.min.js" %}"></script>
     {% endwith %}
     <script src="{% static "js/mapbox-gl.js" %}"></script>
-    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+    <script src="{% static "js/turf.min.js" %}"></script>
     <script src="{% static "trip/js/map.js" %}"></script>
     <script src="{% static "trip/js/fromToApp.js" %}"></script>
 {% endblock %}
