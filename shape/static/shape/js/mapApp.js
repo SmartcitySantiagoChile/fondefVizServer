@@ -952,9 +952,14 @@ $(document).ready(function () {
       };
       $.getJSON(Urls['esapi:shapeRoute'](), params, function (data) {
         if (data.status) {
-          showMessage(data.status);
-          if (!('points' in data) || !data.stops) {
-            return;
+          if (data.status.code === 414) {
+            showMessage(data.status)
+            data.stops = [];
+          } else {
+            showMessage(data.status);
+            if (!('points' in data) || !data.stops) {
+              return;
+            }
           }
         }
 
