@@ -598,7 +598,13 @@ function MapApp(opts) {
           link.href = '#';
           link.textContent = key;
           $(link).data('layerIds', layers.map(layer => layer.id));
-          link.className = 'btn btn-xs btn-success active';
+
+          if (layers[0].layout.visibility === 'visible') {
+            link.className = 'btn btn-xs btn-success active';
+          } else {
+            link.className = 'btn btn-xs btn-dark';
+          }
+
           link.onclick = function (e) {
             const clickedLayers = $(this).data('layerIds');
             e.preventDefault();
