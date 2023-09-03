@@ -20,6 +20,8 @@ function MapApp(opts) {
   let showTrainShapes = opts.showTrainShapes === undefined ? true : opts.showTrainShapes;
   let showMacroZones = opts.showMacroZones === undefined ? true : opts.showMacroZones;
   let showCommunes = opts.showCommunes === undefined ? true : opts.showCommunes;
+  let showEducationLayer = opts.showEducationLayer === undefined ? true : opts.showEducationLayer;
+  let showHealthcareLayer = opts.showHealthcareLayer === undefined ? true : opts.showHealthcareLayer;
   let showLayerGroupControl = opts.showLayerGroupControl === undefined ? true : opts.showLayerGroupControl;
   let showRuleControl = opts.showRuleControl === undefined ? false : opts.showRuleControl;
   let selectedStyle = opts.tileLayer || "light";
@@ -224,6 +226,37 @@ function MapApp(opts) {
           ['boolean', ['feature-state', 'hover'], false], 'black',
           'white'
         ],
+      }
+    };
+
+    let educationLayer = {
+      id: 'education-layer',
+      source: 'education-source',
+      type: 'circle',
+      layout: {
+        'visibility': 'none'
+      },
+      paint: {
+        'circle-radius': 1.5,
+        'circle-color': 'yellow',
+        'circle-opacity': 1,
+        'circle-stroke-color': 'black',
+        'circle-stroke-width': 1,
+      }
+    };
+    let healthcareLayer = {
+      id: 'healthcare-layer',
+      source: 'healthcare-source',
+      type: 'circle',
+      layout: {
+        'visibility': 'none'
+      },
+      paint: {
+        'circle-radius': 1.5,
+        'circle-color': 'green',
+        'circle-opacity': 1,
+        'circle-stroke-color': 'black',
+        'circle-stroke-width': 1,
       }
     };
 
@@ -680,6 +713,20 @@ function MapApp(opts) {
         });
       }
 
+      function loadEducationGeoJSON() {
+        let url = "/static/data/educacion.geojson";
+        return $.getJSON(url, function (educationSource) {
+          map.addSource('education-source', {type: 'geojson', data: educationSource});
+        });
+      }
+
+      function loadHealthcareGeoJSON() {
+        let url = "/static/data/salud.geojson";
+        return $.getJSON(url, function (healthcareSource) {
+          map.addSource('healthcare-source', {type: 'geojson', data: healthcareSource});
+        });
+      }
+
       let shapesToLoad = [];
       if (showZones) {
         shapesToLoad.push(loadZoneGeoJSON());
@@ -701,6 +748,12 @@ function MapApp(opts) {
       }
       if (showCommunes) {
         shapesToLoad.push(loadCommuneGeoJSON());
+      }
+      if (showEducationLayer) {
+        shapesToLoad.push(loadEducationGeoJSON());
+      }
+      if (showHealthcareLayer) {
+        shapesToLoad.push(loadHealthcareGeoJSON());
       }
 
       $.when(...shapesToLoad)
@@ -753,6 +806,42 @@ function MapApp(opts) {
           if (showCommunes) {
             layerMapping['Comunas'] = [communeLayer];
             map.addLayer(communeLayer)
+          }
+          if (showEducationLayer) {
+            layerMapping['Centros educacionales'] = [educationLayer];
+            map.addLayer(educationLayer);
+
+            let popup = null;
+            map.on('mouseenter', educationLayer.id, (e) => {
+              let feature = e.features[0];
+              popup = new mapboxgl.Popup({ closeOnClick: false })
+                .setLngLat(feature.geometry.coordinates)
+                .setHTML('<p>' + feature.properties.NOM_RBD + '</p>')
+                .addTo(map);
+              map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', educationLayer.id, (e) => {
+              map.getCanvas().style.cursor = null;
+              popup.remove();
+            });
+          }
+          if (showHealthcareLayer) {
+            layerMapping['Centros de salud'] = [healthcareLayer];
+            map.addLayer(healthcareLayer);
+
+            let popup = null;
+            map.on('mouseenter', healthcareLayer.id, (e) => {
+              let feature = e.features[0];
+              popup = new mapboxgl.Popup({ closeOnClick: false })
+                .setLngLat(feature.geometry.coordinates)
+                .setHTML('<p>' + feature.properties.Nombre_Ofi + '</p>')
+                .addTo(map);
+              map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', healthcareLayer.id, (e) => {
+              map.getCanvas().style.cursor = null;
+              popup.remove();
+            });
           }
 
           if (Object.keys(layerMapping).length !== 0 && showLayerGroupControl) {

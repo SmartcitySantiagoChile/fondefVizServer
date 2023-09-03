@@ -902,6 +902,8 @@ $(document).ready(function () {
       hideZoneLegend: true,
       hideMapLegend: true,
       showCommunes: true,
+      showEducationLayer: true,
+      showHealthcareLayer: true,
       showRuleControl: true,
       tileLayer: 'streets',
       onLoad: (_mapInstance, _mapApp) => {
