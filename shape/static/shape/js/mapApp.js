@@ -88,10 +88,10 @@ $(document).ready(function () {
         }
       };
       let shapeArrowLayerTemplate = {
-        'id': 'shape-arrow-layer',
-        'type': 'symbol',
-        'source': 'shape-source',
-        'layout': {
+        id: 'shape-arrow-layer',
+        type: 'symbol',
+        source: 'shape-source',
+        layout: {
           'symbol-placement': 'line',
           'symbol-spacing': 100,
           'icon-allow-overlap': true,
@@ -155,6 +155,7 @@ $(document).ready(function () {
         _mapApp.getMapInstance().getCanvas().style.cursor = '';
       };
       let click = e => {
+        console.log("opening popup...");
         let feature = e.features[0];
         openStopPopup(feature);
       };
@@ -547,8 +548,9 @@ $(document).ready(function () {
                 <table class='table table-condensed'>
                   <thead>
                   	<th></th>
+                  	<th></th>
                     <th>Fecha PO</th>
-                    <th>US</th>
+                    <th>Unidad de Servicio</th>
                     <th>Servicio</th>
                     <th>Servicio TS</th>
                     <th></th><th></th><th></th><th></th>
@@ -831,6 +833,7 @@ $(document).ready(function () {
       selectorId++;
       let row = `
         <tr class="selectorRow" data-id="${newId}">
+            <td><i class="fas fa-bars fa-2x"></i></td>
             <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
             <td><select id=dateSelect-${newId} class="form-control date"></select></td>
             <td><select id=operatorSelect-${newId} class="form-control operator"></select></td>
@@ -866,6 +869,7 @@ $(document).ready(function () {
       _self.refreshVisibilityRoutesButton();
       _self.refreshVisibilityStopsButton();
       _self.refreshVisibilityUserStopLabelsButton();
+      _self.refreshSortableFeature();
     };
 
     /**
@@ -1429,6 +1433,51 @@ $(document).ready(function () {
         let layerId = button.parent().parent().data("id");
         let active = button.hasClass("btn-success");
         updateUserStopLabels(active, layerId, button, span);
+      });
+    };
+
+    this.refreshSortableFeature = function() {
+      function dragStart (e) {
+        let index = $(e.target).closest(".selectorRow").index();
+        e.dataTransfer.setData('text/plain', index);
+      }
+
+      function dropped (e) {
+        cancelDefault(e);
+        // get dropped item reference
+        let oldIndex = e.dataTransfer.getData('text/plain');
+        let dropped = $(this).parent().children().eq(oldIndex);
+
+        let target = $(e.target).closest(".selectorRow");
+        let newIndex = target.index();
+
+        // insert the dropped items at new place
+        if (newIndex < oldIndex) {
+          dropped.insertBefore(target);
+        } else {
+          dropped.insertAfter(target);
+        }
+        routeLegendControl.update();
+      }
+
+      function cancelDefault (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+
+      let $ROWS = $("table > tbody > tr.selectorRow");
+      $ROWS.each(function (i, row) {
+        $(row).off("dragstart");
+        $(row).off("drop");
+        $(row).off("dragenter");
+        $(row).off("dragover");
+
+        $(row).prop('draggable', true)
+        row.addEventListener('dragstart', dragStart)
+        row.addEventListener('drop', dropped)
+        row.addEventListener('dragenter', cancelDefault)
+        row.addEventListener('dragover', cancelDefault)
       });
     };
 
