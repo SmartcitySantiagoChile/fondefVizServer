@@ -41,7 +41,11 @@ $(document).ready(function () {
     let stopControl = null;
     let isAddingRouteRow = false;
 
-    this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
+    this.addShapeLayers = (layerId, shapeStopsSource, shapeSource, previousLayerId) => {
+      if (previousLayerId !== null) {
+        previousLayerId = `shape-${previousLayerId}`;
+      }
+
       shapeStopsSource = {
         type: "FeatureCollection",
         features: shapeStopsSource
@@ -130,10 +134,10 @@ $(document).ready(function () {
         data: shapeStopsSource
       });
 
-      _mapApp.getMapInstance().addLayer(shapeLayer);
-      _mapApp.getMapInstance().addLayer(shapeArrowLayer);
-      _mapApp.getMapInstance().addLayer(shapeStopsLayer);
-      _mapApp.getMapInstance().addLayer(shapeStopLabelLayer);
+      _mapApp.getMapInstance().addLayer(shapeStopLabelLayer, previousLayerId);
+      _mapApp.getMapInstance().addLayer(shapeStopsLayer, shapeStopLabelLayer.id);
+      _mapApp.getMapInstance().addLayer(shapeArrowLayer, shapeStopsLayer.id);
+      _mapApp.getMapInstance().addLayer(shapeLayer, shapeArrowLayer.id);
 
       let openStopPopup = function (feature) {
         let popUpDescription = "<p>";
@@ -947,9 +951,13 @@ $(document).ready(function () {
     let _mapApp = new MapApp(mapOpts);
 
 
-    this.sendShapeData = function (e) {
-      let selector = $(e).closest(".selectorRow");
-      let selectorId = selector.data("id");
+    this.sendShapeData = function (selectorRow) {
+      let selectorIndex = selectorRow.index();
+      let previousSelectorId = null;
+      if (selectorIndex > 0) {
+        previousSelectorId = selectorRow.prev().data("id");
+      }
+      let selectorId = selectorRow.data("id");
       let route = $(`#routeSelect-${selectorId}`).val();
       let date = $(`#dateSelect-${selectorId}`).val();
       let params = {
@@ -1011,7 +1019,7 @@ $(document).ready(function () {
           }
         });
 
-        _self.addShapeLayers(selectorId, stopsSource, shapeSource);
+        _self.addShapeLayers(selectorId, stopsSource, shapeSource, previousSelectorId);
 
         let $COLOR_BUTTON = $(`#colorSelect-${selectorId}`);
         let color = $COLOR_BUTTON.colorpicker('getValue');
@@ -1095,7 +1103,8 @@ $(document).ready(function () {
       let $ROUTE = $(`#routeSelect-${id}`);
       $ROUTE.change(function (e, params) {
         console.log("route changed");
-        _self.sendShapeData(this);
+        let selectorRow = $(this).closest(".selectorRow");
+        _self.sendShapeData(selectorRow);
       });
 
       // handle user route selector
@@ -1458,6 +1467,7 @@ $(document).ready(function () {
           dropped.insertAfter(target);
         }
         routeLegendControl.update();
+        _self.sendShapeData(target);
       }
 
       function cancelDefault (e) {
