@@ -784,7 +784,8 @@ $(document).ready(function () {
 
         routeSelector.children().each(function (index, el) {
           let routeText = $(el).closest(".selectorRow").find(".route option:selected").text();
-          let route = routeText.substring(routeText.indexOf("(") + 1, routeText.indexOf(")"))
+          let route = routeText.substring(routeText.indexOf("(") + 1, routeText.indexOf(")"));
+          route = route.split(",")[0];
           let userRoute = $(el).closest(".selectorRow").find(".userRoute").val();
           let date = $(el).closest(".selectorRow").find(".date").val();
           date = date !== null ? [[date]] : [[]];

@@ -195,6 +195,7 @@ class OPDictionary(models.Model):
     route_type = models.CharField("Tipo de ruta", max_length=30, null=True)
     created_at = models.DateTimeField("Fecha de creación", null=True)
     operator = models.IntegerField(default=1, null=True)
+    route_na_label = models.CharField("Service NA", max_length=60, default="", null=False)
     op_program = models.ForeignKey(OPProgram, on_delete=models.CASCADE, verbose_name="Programa de operación")
 
     class Meta:

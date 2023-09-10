@@ -197,6 +197,8 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
         op_route_code = str(row[9]) + str(row[7])
         user_route_code = row[8]
         route_type = row[1]
+        route_na_label = row[2]  # service_na field
+
         try:
             operator = int(row[3])
         except ValueError:
@@ -206,7 +208,8 @@ def upload_csv_op_dictionary(csv_file: InMemoryUploadedFile, op_program_id: str)
             continue
         to_create.append(OPDictionary(user_route_code=user_route_code, op_route_code=op_route_code,
                                       route_type=route_type, auth_route_code=auth_route_code,
-                                      created_at=upload_time, op_program_id=op_program_id, operator=operator))
+                                      created_at=upload_time, op_program_id=op_program_id, operator=operator,
+                                      route_na_label=route_na_label))
     with transaction.atomic():
         OPDictionary.objects.filter(op_program_id=op_program_id).delete()
         OPDictionary.objects.bulk_create(to_create)

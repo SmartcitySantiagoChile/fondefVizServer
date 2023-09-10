@@ -55,9 +55,10 @@ class GetBaseInfo(View):
         op_routes_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: dict))))
         for op_dict_obj in OPDictionary.objects.order_by('op_program_id', 'operator', 'user_route_code',
                                                          'auth_route_code'). \
-                values_list('op_program_id', 'operator', 'user_route_code', 'auth_route_code', 'op_route_code'):
+                values_list('op_program_id', 'operator', 'user_route_code', 'auth_route_code', 'op_route_code',
+                            'route_na_label'):
             op_routes_dict[op_dates_dict[op_dict_obj[0]]][operator_dict[op_dict_obj[1]]][op_dict_obj[2]][
-                op_dict_obj[3]] = op_dict_obj[4]
+                op_dict_obj[3]] = [op_dict_obj[4], op_dict_obj[5]]
 
         response = {
             'dates': op_dates,
