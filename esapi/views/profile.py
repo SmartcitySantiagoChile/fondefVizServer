@@ -138,6 +138,15 @@ class AvailableRoutes(View):
             available_routes, op_dict = es_helper.get_available_routes(valid_operator_list, start_date, end_date)
             available_operators = available_routes.keys()
             op_dict = [operator_dict for operator_dict in op_dict if operator_dict["value"] in available_operators]
+
+            # add option to choose all user routes
+            op_dict.insert(0, {"value": 0, "item": "Todos"})
+            all_routes = defaultdict(list)
+            for operatorId in available_routes.keys():
+                for user_route_code in available_routes[operatorId].keys():
+                    all_routes[user_route_code] += available_routes[operatorId][user_route_code]
+            available_routes['0'] = all_routes
+
             response['availableRoutes'] = available_routes
             response['operatorDict'] = op_dict
             response['routesDict'] = get_op_routes_dict()

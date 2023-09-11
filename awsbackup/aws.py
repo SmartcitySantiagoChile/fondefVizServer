@@ -24,6 +24,7 @@ class AWSSession:
     STOP_TIMES_BUCKET_NAME = config('STOP_TIMES_BUCKET_NAME')
     EARLY_TRANSACTION_BUCKET_NAME = config('EARLY_TRANSACTION_BUCKET_NAME')
     MISCELLANEOUS_BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
+    GPS_OFFLINE_BUCKET_NAME = config('GPS_OFFLINE_BUCKET_NAME')
 
     def __init__(self):
         self.session = boto3.Session(

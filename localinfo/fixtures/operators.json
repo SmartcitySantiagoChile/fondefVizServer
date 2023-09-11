@@ -2,7 +2,7 @@
   {"model": "localinfo.operator", "pk":1 , "fields":{ "esId":"1", "name":"Alsacia" }},
   {"model": "localinfo.operator", "pk":2 , "fields":{ "esId":"2", "name":"Su Bus" }},
   {"model": "localinfo.operator", "pk":3 , "fields":{ "esId":"3", "name":"Buses Vule" }},
-  {"model": "localinfo.operator", "pk":4 , "fields":{ "esId":"4", "name":"Express" }},
+  {"model": "localinfo.operator", "pk":4 , "fields":{ "esId":"4", "name":"Voy Santiago" }},
   {"model": "localinfo.operator", "pk":5 , "fields":{ "esId":"5", "name":"Buses Metropolitana" }},
   {"model": "localinfo.operator", "pk":6 , "fields":{ "esId":"6", "name":"Red Bus Urbano" }},
   {"model": "localinfo.operator", "pk":7 , "fields":{ "esId":"7", "name":"STP Santiago" }},

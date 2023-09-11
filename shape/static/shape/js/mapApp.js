@@ -15,12 +15,19 @@ $(document).ready(function () {
     }
   };
 
-  const getRandomColor = () => {
+  const getRandomColor = (index) => {
+    index = index - 1;
+    if (typeof index === 'number' && 0 <= index && index <= 9) {
+      const staticColors = ["#6FB67F", "#CCC138", "#9A856D", "#07818D", "#91E2EC", "#F13E22", "#FEAD42", "#26B380", "#41D5C3", "#1E114C"];
+      return staticColors[index];
+    }
+
     const letters = "0123456789ABCDEF";
     let color = "#";
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
+
     return color;
   };
 
@@ -32,8 +39,13 @@ $(document).ready(function () {
     let routeControl = null;
     let stopLegendControl = null;
     let stopControl = null;
+    let isAddingRouteRow = false;
 
-    this.addShapeLayers = (layerId, shapeStopsSource, shapeSource) => {
+    this.addShapeLayers = (layerId, shapeStopsSource, shapeSource, previousLayerId) => {
+      if (previousLayerId !== null) {
+        previousLayerId = `shape-${previousLayerId}`;
+      }
+
       shapeStopsSource = {
         type: "FeatureCollection",
         features: shapeStopsSource
@@ -80,10 +92,10 @@ $(document).ready(function () {
         }
       };
       let shapeArrowLayerTemplate = {
-        'id': 'shape-arrow-layer',
-        'type': 'symbol',
-        'source': 'shape-source',
-        'layout': {
+        id: 'shape-arrow-layer',
+        type: 'symbol',
+        source: 'shape-source',
+        layout: {
           'symbol-placement': 'line',
           'symbol-spacing': 100,
           'icon-allow-overlap': true,
@@ -122,10 +134,10 @@ $(document).ready(function () {
         data: shapeStopsSource
       });
 
-      _mapApp.getMapInstance().addLayer(shapeLayer);
-      _mapApp.getMapInstance().addLayer(shapeArrowLayer);
-      _mapApp.getMapInstance().addLayer(shapeStopsLayer);
-      _mapApp.getMapInstance().addLayer(shapeStopLabelLayer);
+      _mapApp.getMapInstance().addLayer(shapeStopLabelLayer, previousLayerId);
+      _mapApp.getMapInstance().addLayer(shapeStopsLayer, shapeStopLabelLayer.id);
+      _mapApp.getMapInstance().addLayer(shapeArrowLayer, shapeStopsLayer.id);
+      _mapApp.getMapInstance().addLayer(shapeLayer, shapeArrowLayer.id);
 
       let openStopPopup = function (feature) {
         let popUpDescription = "<p>";
@@ -147,6 +159,7 @@ $(document).ready(function () {
         _mapApp.getMapInstance().getCanvas().style.cursor = '';
       };
       let click = e => {
+        console.log("opening popup...");
         let feature = e.features[0];
         openStopPopup(feature);
       };
@@ -451,6 +464,7 @@ $(document).ready(function () {
               <thead>
                 <th>Color</th>
                 <th>P. operación</th>
+                <th>Unidad de Servicio</th>
                 <th>Servicio</th>
               </thead>
               <tbody id='routeLegendTable'>
@@ -479,6 +493,7 @@ $(document).ready(function () {
             rows.each((index, el) => {
               let id = $(el).data('id');
               let opDate = $(`#dateSelect-${id}`).val();
+              let operator = $(`#operatorSelect-${id}`).val();
               let userRoute = $(`#userRouteSelect-${id}`).val();
               let authRoute = $(`#routeSelect-${id}`).val();
               let color = $(`#colorSelect-${id}`).colorpicker('getValue');
@@ -487,8 +502,8 @@ $(document).ready(function () {
               let legendRow = `<tr>
                 <td><canvas id="${canvasId}"></canvas></td>
                 <td>${opDate}</td>
-                <td>${userRoute}</td>
-                <td>${authRoute}</td>
+                <td>${operator}</td>
+                <td>${userRoute} (${authRoute})</td>
               </tr>`;
               $('#routeLegendTable').append(legendRow);
               this.setRouteColorCanvas(canvasId, color);
@@ -537,7 +552,9 @@ $(document).ready(function () {
                 <table class='table table-condensed'>
                   <thead>
                   	<th></th>
+                  	<th></th>
                     <th>Fecha PO</th>
+                    <th>Unidad de Servicio</th>
                     <th>Servicio</th>
                     <th>Servicio TS</th>
                     <th></th><th></th><th></th><th></th>
@@ -717,13 +734,16 @@ $(document).ready(function () {
         _self.dates_period_dict = data.dates_periods_dict;
         _self.op_routes_dict = data.op_routes_dict;
         _self.periods = data.periods;
-        let userRouteList = (Object.keys(data.op_routes_dict[currentDate]).sort(sortAlphaNum));
+        let operatorList = Object.keys(data.op_routes_dict[currentDate])
+        let currentOperator = operatorList[0];
+        operatorList = operatorList.map(e => ({id: e, text: e}));
+        let userRouteList = (Object.keys(data.op_routes_dict[currentDate][currentOperator]).sort(sortAlphaNum));
         userRouteList = userRouteList.map(e => ({id: e, text: e}));
         let dateList = data.dates.map(e => ({id: e, text: e}));
 
         // activate add button when data exist
         $("#addRouteButton").click(function () {
-          _self.addRow(dateList, userRouteList);
+          _self.addRow(dateList, operatorList, userRouteList);
         });
         $("#addStopButton").click(function () {
           _self.addStopRow(dateList);
@@ -764,7 +784,8 @@ $(document).ready(function () {
 
         routeSelector.children().each(function (index, el) {
           let routeText = $(el).closest(".selectorRow").find(".route option:selected").text();
-          let route = routeText.substring(routeText.indexOf("(") + 1, routeText.indexOf(")"))
+          let route = routeText.substring(routeText.indexOf("(") + 1, routeText.indexOf(")"));
+          route = route.split(",")[0];
           let userRoute = $(el).closest(".selectorRow").find(".userRoute").val();
           let date = $(el).closest(".selectorRow").find(".date").val();
           date = date !== null ? [[date]] : [[]];
@@ -811,13 +832,16 @@ $(document).ready(function () {
       });
     };
 
-    this.addRow = function (dateList, userRouteList) {
+    this.addRow = function (dateList, operatorList, userRouteList) {
+      _self.isAddingRouteRow = true;
       let newId = selectorId;
       selectorId++;
       let row = `
         <tr class="selectorRow" data-id="${newId}">
+            <td><i class="fas fa-bars fa-2x"></i></td>
             <td><button class="btn btn-danger btn-sm" ><span class="fas fa-trash-alt" aria-hidden="true"></span></button></td>
             <td><select id=dateSelect-${newId} class="form-control date"></select></td>
+            <td><select id=operatorSelect-${newId} class="form-control operator"></select></td>
             <td><select id=userRouteSelect-${newId} class="form-control userRoute"></select></td>
             <td><select id=routeSelect-${newId} class="form-control route"></select></td>
             <td><button id=colorSelect-${newId} class="btn btn-default btn-sm color-button" ><span class="fas fa-tint" aria-hidden="true"></span></button></td>
@@ -830,6 +854,11 @@ $(document).ready(function () {
       $(`#dateSelect-${newId}`).select2({
         width: 'auto',
         data: dateList,
+        dropdownParent: $('#routeListContainer').parent()
+      });
+      $(`#operatorSelect-${newId}`).select2({
+        width: 'auto',
+        data: operatorList,
         dropdownParent: $('#routeListContainer').parent()
       });
       $(`#userRouteSelect-${newId}`).select2({
@@ -845,6 +874,7 @@ $(document).ready(function () {
       _self.refreshVisibilityRoutesButton();
       _self.refreshVisibilityStopsButton();
       _self.refreshVisibilityUserStopLabelsButton();
+      _self.refreshSortableFeature();
     };
 
     /**
@@ -881,6 +911,8 @@ $(document).ready(function () {
       hideZoneLegend: true,
       hideMapLegend: true,
       showCommunes: true,
+      showEducationLayer: true,
+      showHealthcareLayer: true,
       showRuleControl: true,
       tileLayer: 'streets',
       onLoad: (_mapInstance, _mapApp) => {
@@ -920,9 +952,13 @@ $(document).ready(function () {
     let _mapApp = new MapApp(mapOpts);
 
 
-    this.sendShapeData = function (e) {
-      let selector = $(e).closest(".selectorRow");
-      let selectorId = selector.data("id");
+    this.sendShapeData = function (selectorRow) {
+      let selectorIndex = selectorRow.index();
+      let previousSelectorId = null;
+      if (selectorIndex > 0) {
+        previousSelectorId = selectorRow.prev().data("id");
+      }
+      let selectorId = selectorRow.data("id");
       let route = $(`#routeSelect-${selectorId}`).val();
       let date = $(`#dateSelect-${selectorId}`).val();
       let params = {
@@ -931,9 +967,14 @@ $(document).ready(function () {
       };
       $.getJSON(Urls['esapi:shapeRoute'](), params, function (data) {
         if (data.status) {
-          showMessage(data.status);
-          if (!('points' in data) || !data.stops) {
-            return;
+          if (data.status.code === 414) {
+            showMessage(data.status)
+            data.stops = [];
+          } else {
+            showMessage(data.status);
+            if (!('points' in data) || !data.stops) {
+              return;
+            }
           }
         }
 
@@ -979,10 +1020,15 @@ $(document).ready(function () {
           }
         });
 
-        _self.addShapeLayers(selectorId, stopsSource, shapeSource);
+        _self.addShapeLayers(selectorId, stopsSource, shapeSource, previousSelectorId);
 
         let $COLOR_BUTTON = $(`#colorSelect-${selectorId}`);
-        let color = getRandomColor();
+        let color = $COLOR_BUTTON.colorpicker('getValue');
+        if (_self.isAddingRouteRow) {
+          let rowNumber = $("#routeListContainer tr").length;
+          color = getRandomColor(rowNumber)
+          _self.isAddingRouteRow = false;
+        }
         $COLOR_BUTTON.colorpicker('setValue', color);
         updateLayerColor(color, selectorId);
 
@@ -1053,18 +1099,31 @@ $(document).ready(function () {
     };
 
     this.refreshControlEvents = function (id) {
+
+      // handle route selector
+      let $ROUTE = $(`#routeSelect-${id}`);
+      $ROUTE.change(function (e, params) {
+        console.log("route changed");
+        let selectorRow = $(this).closest(".selectorRow");
+        _self.sendShapeData(selectorRow);
+      });
+
       // handle user route selector
       let $USER_ROUTE = $(`#userRouteSelect-${id}`);
-      $USER_ROUTE.change(function () {
+      $USER_ROUTE.change(function (e, params) {
+        console.log("user route changed");
         let selector = $(this).closest(".selectorRow");
-        let userRoute = selector.find(".userRoute").first().val();
         let route = selector.find(".route").first();
+        let userRoute = selector.find(".userRoute").first().val();
+        let operator = selector.find(".operator").first().val();
         let date = selector.find(".date").first().val();
 
         //update auth route list
         let routeValues = [];
-        if (_self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(userRoute)) {
-          routeValues = _self.op_routes_dict[date][userRoute];
+        if (_self.op_routes_dict.hasOwnProperty(date) &&
+          _self.op_routes_dict[date].hasOwnProperty(operator) &&
+          _self.op_routes_dict[date][operator].hasOwnProperty(userRoute)) {
+          routeValues = _self.op_routes_dict[date][operator][userRoute];
         }
         route.empty();
         route.select2({
@@ -1078,31 +1137,22 @@ $(document).ready(function () {
             }
           })
         });
-        //set value
-        let allSelectors = $(".selectorRow");
-        let selectorIndex = allSelectors.index(selector);
-        if ($(this).data("first") === true) {
-          route.val(allSelectors.slice(selectorIndex - 1).find(".route").first().val());
-          $(this).data("first", false);
+
+        if (!(params && params.freeze)) {
+          route.trigger("change");
         }
-        _self.sendShapeData(this);
       });
 
-      // handle route selector
-      let $ROUTE = $(`#routeSelect-${id}`);
-      $ROUTE.change(function () {
-        _self.sendShapeData(this);
-      });
-
-      // handle date selector
-      let $DATE = $(`#dateSelect-${id}`);
-      $DATE.change(function () {
+      let $OPERATOR = $(`#operatorSelect-${id}`);
+      $OPERATOR.change(function (e, params) {
+        console.log("operator changed");
         let selector = $(this).closest(".selectorRow");
         let date = selector.find(".date").first().val();
+        let operator = selector.find(".operator").first().val();
         let userRoutes = selector.find(".userRoute").first();
 
         userRoutes.empty();
-        let userRouteDict = _self.op_routes_dict.hasOwnProperty(date) ? _self.op_routes_dict[date] : [];
+        let userRouteDict = _self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(operator)? _self.op_routes_dict[date][operator] : {};
         let dataList = Object.keys(userRouteDict).sort(sortAlphaNum);
         userRoutes.select2({
           data: dataList.map(e => {
@@ -1112,11 +1162,34 @@ $(document).ready(function () {
             }
           })
         });
-        userRoutes.trigger("change");
 
-        //set value
-        if ($(this).data("first") === true) {
-          $(this).data("first", false);
+        if (!(params && params.freeze)) {
+          userRoutes.trigger("change");
+        }
+      });
+
+      // handle date selector
+      let $DATE = $(`#dateSelect-${id}`);
+      $DATE.change(function (e, params) {
+        console.log("date changed");
+        let selector = $(this).closest(".selectorRow");
+        let date = selector.find(".date").first().val();
+        let operator = selector.find(".operator").first();
+
+        operator.empty();
+        let operatorDict = _self.op_routes_dict.hasOwnProperty(date) ? _self.op_routes_dict[date] : [];
+        let operatorList = Object.keys(operatorDict).sort(sortAlphaNum);
+        operator.select2({
+          data: operatorList.map(e => {
+            return {
+              id: e,
+              text: e
+            }
+          })
+        });
+
+        if (!(params && params.freeze)) {
+          operator.trigger("change");
         }
       });
 
@@ -1125,21 +1198,23 @@ $(document).ready(function () {
       if (selector.length > 1) {
         let lastSelected = selector.slice(-2, -1);
         $DATE.val(lastSelected.find(".date").first().val());
-        $DATE.data("first", true);
+        $DATE.trigger("change", {freeze: true});
+        $OPERATOR.val(lastSelected.find(".operator").first().val());
+        $OPERATOR.trigger("change", {freeze: true});
         $USER_ROUTE.val(lastSelected.find(".userRoute").first().val());
-        $USER_ROUTE.data("first", true);
+        $USER_ROUTE.trigger("change", {freeze: true});
+        $ROUTE.val(lastSelected.find(".route").first().val());
+        $ROUTE.trigger("change");
 
-        let color = lastSelected.find(".fa-tint").css("color");
-        $(`#colorSelect-${id}`).css("color", color);
         let routesButton = lastSelected.find(".visibility-routes").find("span");
         $(`#visibilityRoutes-${id}`).find("span").removeClass().addClass(routesButton.attr("class"));
         let stopButton = lastSelected.find(".visibility-stops");
         $(`#visibilityStops-${id}`).removeClass().addClass(stopButton.attr("class"));
         let userStopButton = lastSelected.find(".visibility-user-stops");
         $(`#visibilityUserStopLabels-${id}`).removeClass().addClass(userStopButton.attr("class"));
+      } else {
+        $DATE.trigger("change");
       }
-
-      $USER_ROUTE.trigger("change");
     };
 
     /**
@@ -1368,6 +1443,52 @@ $(document).ready(function () {
         let layerId = button.parent().parent().data("id");
         let active = button.hasClass("btn-success");
         updateUserStopLabels(active, layerId, button, span);
+      });
+    };
+
+    this.refreshSortableFeature = function() {
+      function dragStart (e) {
+        let index = $(e.target).closest(".selectorRow").index();
+        e.dataTransfer.setData('text/plain', index);
+      }
+
+      function dropped (e) {
+        cancelDefault(e);
+        // get dropped item reference
+        let oldIndex = e.dataTransfer.getData('text/plain');
+        let dropped = $(this).parent().children().eq(oldIndex);
+
+        let target = $(e.target).closest(".selectorRow");
+        let newIndex = target.index();
+
+        // insert the dropped items at new place
+        if (newIndex < oldIndex) {
+          dropped.insertBefore(target);
+        } else {
+          dropped.insertAfter(target);
+        }
+        routeLegendControl.update();
+        _self.sendShapeData(target);
+      }
+
+      function cancelDefault (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+
+      let $ROWS = $("table > tbody > tr.selectorRow");
+      $ROWS.each(function (i, row) {
+        $(row).off("dragstart");
+        $(row).off("drop");
+        $(row).off("dragenter");
+        $(row).off("dragover");
+
+        $(row).prop('draggable', true)
+        row.addEventListener('dragstart', dragStart)
+        row.addEventListener('drop', dropped)
+        row.addEventListener('dragenter', cancelDefault)
+        row.addEventListener('dragover', cancelDefault)
       });
     };
 

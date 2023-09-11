@@ -8,7 +8,8 @@ from esapi.errors import FondefVizError, ESQueryRouteParameterDoesNotExist, ESQu
 from esapi.helper.profile import ESProfileHelper
 from esapi.helper.shape import ESShapeHelper
 from esapi.helper.stopbyroute import ESStopByRouteHelper
-from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_periods_dict
+from localinfo.helper import PermissionBuilder, get_valid_time_period_date, get_periods_dict, \
+    get_operator_list_for_select_input
 from localinfo.models import OPProgram, OPDictionary
 
 
@@ -45,15 +46,19 @@ class GetBaseInfo(View):
         op_dates_dict = {date_id: date_obj.strftime('%Y-%m-%d') for date_id, date_obj in
                          OPProgram.objects.values_list('id', 'valid_from')}
         authority_periods = get_periods_dict()
+        operator_dict = get_operator_list_for_select_input(to_dict=True)
 
         dates_periods_dict = {}
         for op_date in op_dates:
             dates_periods_dict[op_date] = get_valid_time_period_date([op_date])[1]
 
-        op_routes_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: dict)))
-        for op_dict_obj in OPDictionary.objects.order_by('op_program_id', 'user_route_code', 'auth_route_code'). \
-                values_list('op_program_id', 'user_route_code', 'auth_route_code', 'op_route_code'):
-            op_routes_dict[op_dates_dict[op_dict_obj[0]]][op_dict_obj[1]][op_dict_obj[2]] = op_dict_obj[3]
+        op_routes_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: dict))))
+        for op_dict_obj in OPDictionary.objects.order_by('op_program_id', 'operator', 'user_route_code',
+                                                         'auth_route_code'). \
+                values_list('op_program_id', 'operator', 'user_route_code', 'auth_route_code', 'op_route_code',
+                            'route_na_label'):
+            op_routes_dict[op_dates_dict[op_dict_obj[0]]][operator_dict[op_dict_obj[1]]][op_dict_obj[2]][
+                op_dict_obj[3]] = [op_dict_obj[4], op_dict_obj[5]]
 
         response = {
             'dates': op_dates,
