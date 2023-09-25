@@ -59,6 +59,8 @@ class GetBaseInfo(View):
                             'route_na_label'):
             op_routes_dict[op_dates_dict[op_dict_obj[0]]][operator_dict[op_dict_obj[1]]][op_dict_obj[2]][
                 op_dict_obj[3]] = [op_dict_obj[4], op_dict_obj[5]]
+            op_routes_dict[op_dates_dict[op_dict_obj[0]]]['Todos'][op_dict_obj[2]][
+                op_dict_obj[3]] = [op_dict_obj[4], op_dict_obj[5]]
 
         response = {
             'dates': op_dates,
