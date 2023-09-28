@@ -18,7 +18,7 @@ $(document).ready(function () {
   const getRandomColor = (index) => {
     index = index - 1;
     if (typeof index === 'number' && 0 <= index && index <= 9) {
-      const staticColors = ["#CE01BB", "#1226E8", "#207A08", "#000000", "#EA7E07", "#0FBFD9", "#9825E7", "#7AEA21", "#82838B", "#CDCC0A"];
+      const staticColors = ["#E50909", "#1226E8", "#207A08", "#000000", "#EA7E07", "#0FBFD9", "#9825E7", "#7AEA21", "#82838B", "#CDCC0A"];
       return staticColors[index];
     }
 
