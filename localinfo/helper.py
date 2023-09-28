@@ -42,7 +42,7 @@ def get_operator_list_for_select_input(filter=None, to_dict=False):
     :return: list of dict {esId: elasticsearch_id, text: operator_name}
     """
     parser = _list_parser
-    queryset = Operator.objects.values_list('esId', 'name')
+    queryset = Operator.objects.order_by('esId').values_list('esId', 'name')
     if filter:
         queryset = queryset.filter(esId__in=filter)
     if to_dict:
