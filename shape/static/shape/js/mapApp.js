@@ -18,7 +18,7 @@ $(document).ready(function () {
   const getRandomColor = (index) => {
     index = index - 1;
     if (typeof index === 'number' && 0 <= index && index <= 9) {
-      const staticColors = ["#CE01BB", "#1226E8", "#207A08", "#000000", "#EA7E07", "#0FBFD9", "#9825E7", "#7AEA21", "#82838B", "#CDCC0A"];
+      const staticColors = ["#E50909", "#1226E8", "#207A08", "#000000", "#EA7E07", "#0FBFD9", "#9825E7", "#7AEA21", "#82838B", "#CDCC0A"];
       return staticColors[index];
     }
 
@@ -737,6 +737,8 @@ $(document).ready(function () {
         let operatorList = Object.keys(data.op_routes_dict[currentDate])
         let currentOperator = operatorList[0];
         operatorList = operatorList.map(e => ({id: e, text: e}));
+        operatorList = operatorList.filter(item => item !== "Todos");
+        operatorList.unshift("Todos");
         let userRouteList = (Object.keys(data.op_routes_dict[currentDate][currentOperator]).sort(sortAlphaNum));
         userRouteList = userRouteList.map(e => ({id: e, text: e}));
         let dateList = data.dates.map(e => ({id: e, text: e}));
