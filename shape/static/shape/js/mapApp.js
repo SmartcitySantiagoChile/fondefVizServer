@@ -737,8 +737,8 @@ $(document).ready(function () {
         let operatorList = Object.keys(data.op_routes_dict[currentDate])
         let currentOperator = operatorList[0];
         operatorList = operatorList.map(e => ({id: e, text: e}));
-        operatorList = operatorList.filter(item => item !== "Todos");
-        operatorList.unshift("Todos");
+        operatorList = operatorList.filter(item => item.text !== "Todos");
+        operatorList.unshift({id: "Todos", text: "Todos"});
         let userRouteList = (Object.keys(data.op_routes_dict[currentDate][currentOperator]).sort(sortAlphaNum));
         userRouteList = userRouteList.map(e => ({id: e, text: e}));
         let dateList = data.dates.map(e => ({id: e, text: e}));
@@ -1154,7 +1154,7 @@ $(document).ready(function () {
         let userRoutes = selector.find(".userRoute").first();
 
         userRoutes.empty();
-        let userRouteDict = _self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(operator)? _self.op_routes_dict[date][operator] : {};
+        let userRouteDict = _self.op_routes_dict.hasOwnProperty(date) && _self.op_routes_dict[date].hasOwnProperty(operator) ? _self.op_routes_dict[date][operator] : {};
         let dataList = Object.keys(userRouteDict).sort(sortAlphaNum);
         userRoutes.select2({
           data: dataList.map(e => {
@@ -1448,13 +1448,13 @@ $(document).ready(function () {
       });
     };
 
-    this.refreshSortableFeature = function() {
-      function dragStart (e) {
+    this.refreshSortableFeature = function () {
+      function dragStart(e) {
         let index = $(e.target).closest(".selectorRow").index();
         e.dataTransfer.setData('text/plain', index);
       }
 
-      function dropped (e) {
+      function dropped(e) {
         cancelDefault(e);
         // get dropped item reference
         let oldIndex = e.dataTransfer.getData('text/plain');
@@ -1473,7 +1473,7 @@ $(document).ready(function () {
         _self.sendShapeData(target);
       }
 
-      function cancelDefault (e) {
+      function cancelDefault(e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
