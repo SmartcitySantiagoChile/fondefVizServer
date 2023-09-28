@@ -735,10 +735,8 @@ $(document).ready(function () {
         _self.op_routes_dict = data.op_routes_dict;
         _self.periods = data.periods;
         let operatorList = Object.keys(data.op_routes_dict[currentDate])
+        let currentOperator = operatorList[0];
         operatorList = operatorList.map(e => ({id: e, text: e}));
-        operatorList = operatorList.filter(item => item.text !== "Todos");
-        operatorList.unshift({id: "Todos", text: "Todos"});
-        let currentOperator = operatorList[0].text;
         let userRouteList = (Object.keys(data.op_routes_dict[currentDate][currentOperator]).sort(sortAlphaNum));
         userRouteList = userRouteList.map(e => ({id: e, text: e}));
         let dateList = data.dates.map(e => ({id: e, text: e}));
@@ -1216,6 +1214,7 @@ $(document).ready(function () {
         $(`#visibilityUserStopLabels-${id}`).removeClass().addClass(userStopButton.attr("class"));
       } else {
         $DATE.trigger("change");
+        $OPERATOR.val("Todos").trigger("change");
       }
     };
 
